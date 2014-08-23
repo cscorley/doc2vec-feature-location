@@ -5,6 +5,17 @@ Basic idea: compare LDA models built with two different sources of
 documents. The first being a traditional source code snapshot, and the
 second being variations on a changeset snapshot.
 
+### Dependencies
+
+You need to already have `antlr4` on your system in order to build the
+Java grammar. How you accomplish this is up to you.
+
+Build the Java grammar with:
+
+    antlr4 -Dlanguage=Python2 grammars/Java.g4 -o src/
+
+Your compiled grammar should end up in `src/grammars/`
+
 ### Installing
 
 Install everything using make:
@@ -31,3 +42,4 @@ Now, you should be able to run commands:
       model       Builds a model for the corpora
       preprocess  Runs the preprocessing steps on a corpus
       run_all     Runs corpora, preprocess, model, and evaluate...
+

@@ -1,18 +1,11 @@
-all:
+all: java_grammar
 	nosetests tests/ || true
 	find src tests -name '*.pyc' -exec rm {} \;
 
-install: submodules requirements
+install: requirements java_grammar
 	pip install --editable .
 
-submodules:
-	git submodule init
-	git submodule update
-
-update:
-	git submodule foreach git pull origin master
-
-init: submodules
+init: java_grammar
 	virtualenv --python=python2 env
 	. env/bin/activate && pip install numpy
 	. env/bin/activate && pip install -r requirements.txt
@@ -21,3 +14,6 @@ init: submodules
 requirements:
 	pip install numpy
 	pip install -r requirements.txt
+
+java_grammar: grammars/Java.g4
+	antlr4 -Dlanguage=Python2 grammars/Java.g4 -o src/ || true

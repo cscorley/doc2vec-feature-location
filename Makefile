@@ -2,6 +2,11 @@ all: java_grammar
 	nosetests tests/ || true
 	find src tests -name '*.pyc' -exec rm {} \;
 
+clean:
+	$(RM) src/grammars/Java*
+	find src tests -name '*.pyc' -exec rm {} \;
+
+
 install: requirements java_grammar
 	pip install --editable .
 

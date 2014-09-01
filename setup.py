@@ -42,6 +42,6 @@ setup(
     install_requires=requirementstxt,
     entry_points='''
         [console_scripts]
-        cfl=src:main
+        cfl=src:main.cli
     ''',
 )

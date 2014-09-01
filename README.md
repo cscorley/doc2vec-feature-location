@@ -26,11 +26,11 @@ Or, if you use virtualenv, you can `make init` instead.
 
 Now, you should be able to run commands:
 
-    $ flt --help
+    $ cfl --help
 
-    Usage: flt [OPTIONS] COMMAND [ARGS]...
+    Usage: cfl [OPTIONS] COMMAND [ARGS]...
 
-      Modeling Changeset Topics
+      Changeset Feature Location
 
     Options:
       --verbose
@@ -38,8 +38,6 @@ Now, you should be able to run commands:
 
     Commands:
       corpora     Builds the basic corpora for a project
-      evaluate    Evalutates the models
       model       Builds a model for the corpora
-      preprocess  Runs the preprocessing steps on a corpus
+      evaluate    Evalutates the models
       run_all     Runs corpora, preprocess, model, and evaluate...
-

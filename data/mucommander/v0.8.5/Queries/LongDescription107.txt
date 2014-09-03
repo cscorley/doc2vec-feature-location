@@ -1,0 +1,21 @@
+When an archive is stored in another archive (like in ear files), the modify date of all files in the inner archive are not shown correctly.
+I fixed this localy in my source in the ZipEntry?.java
+I have modified the constructor like this:
+public ZipEntry?(java.util.zip.ZipEntry? entry) throws ZipException? {
+super(entry);
+byte[] extra = entry.getExtra();
+if (extra != null) {
+setExtraFields(ExtraFieldUtils?.parse(extra));
+}
+else {
+// initializes extra data to an empty byte array
+setExtra();
+}
+// fix bui: for java util ZipEntries? the timestamp is sometimes not set
+if (getTime()==-1)
+{
+setTime(entry.getTime());
+}
+
+}
+In this case the extra byte array is always null.

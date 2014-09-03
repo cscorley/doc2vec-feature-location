@@ -1,0 +1,206 @@
+I had a project loaded and cleared it using File-&gt;New, then tried to load a new
+project and got the following exception.  The only way to load a new project
+after it got into this state was to restart ArgoUML.
+
+Error opening file : issue4274-Softiam.zargo
+ System Info:
+ArgoUML version : PRE-0.22.alpha2
+Java Version : 1.5.0_02
+Java Vendor : Sun Microsystems Inc.
+Java Vendor URL : http://java.sun.com/
+Java Home Directory : C:\Program Files\Java\jre1.5.0_02
+Java Classpath :
+\argouml-core-lib\build-eclipse;C:\eclipse-workspace\argouml-core-lib\antlrall-2.7.2.jar;C:\eclipse-workspace\argouml-core-lib\commons-logging-1.0.2.jar;C:\eclipse-workspace\argouml-core-lib\log4j-1.2.6.jar;C:\eclipse-workspace\argouml-core-lib\ocl-argo-1.1.jar;C:\eclipse-workspace\argouml-core-lib\toolbar-1.2.jar;C:\eclipse-workspace\argouml-core-lib\swidgets-0.1.4.jar;C:\eclipse-workspace\argouml-core-lib\gef-0.11.3M10.jar;C:\eclipse-workspace\argouml-core-model\build-eclipse;C:\eclipse-workspace\argouml-core-model-mdr\build-eclipse;C:\eclipse-workspace\argouml-core-model-mdr\lib\jmi.jar;C:\eclipse-workspace\argouml-core-model-mdr\lib\jmiutils.jar;C:\eclipse-workspace\argouml-core-model-mdr\lib\mdrapi.jar;C:\eclipse-workspace\argouml-core-model-mdr\lib\mof.jar;C:\eclipse-workspace\argouml-core-model-mdr\lib\nbmdr.jar;C:\eclipse-workspace\argouml-core-model-mdr\lib\openide-util.jar;\argouml-core-tools\build-eclipse;C:\eclipse-workspace\argouml-core-tools\ant-1.6.2\lib\ant.jar;C:\eclipse-workspace\argouml-core-tools\junit-3.8.1\junit.jar;C:\eclipse-workspace\argouml-core-tools\lib\easymock12.jar;C:\eclipse-workspace\argouml\build-eclipse;C:\eclipse-workspace\argouml-core-lib\antlrall-2.7.2.jar;C:\eclipse-workspace\argouml-core-lib\commons-logging-1.0.2.jar;C:\eclipse-workspace\argouml-core-lib\log4j-1.2.6.jar;C:\eclipse-workspace\argouml-core-lib\ocl-argo-1.1.jar;C:\eclipse-workspace\argouml-core-lib\toolbar-1.2.jar;C:\eclipse-workspace\argouml-core-lib\swidgets-0.1.4.jar;C:\eclipse-workspace\argouml-core-lib\gef-0.11.3M10.jar;C:\eclipse-workspace\argouml-core-model\build-eclipse;C:\eclipse-workspace\argouml-core-lib\log4j-1.2.6.jar;C:\eclipse-workspace\argouml-core-tools\ant-1.6.2\lib\ant.jar;C:\eclipse-workspace\argouml-core-tools\junit-3.8.1\junit.jar;C:\eclipse-workspace\argouml-core-tools\lib\easymock12.jar
+Operation System : Windows XP, Version 5.1
+Architecture : x86
+User Name : tom.morris
+User Home Directory : C:\Documents and Settings\tom.morris
+Current Directory : C:\eclipse-workspace\argouml
+JVM Total Memory : 68018176
+JVM Free Memory : 12835120
+
+
+ Error occurred at : Fri Jun 16 11:46:16 EDT 2006
+Cause : org.argouml.model.InvalidElementException:
+javax.jmi.reflect.InvalidObjectException: Object with MOFID
+-64--88-1-100-116c26bc:10bdbac263d:-8000:0000000000001005 no longer exists.
+at org.argouml.model.mdr.FacadeMDRImpl.getBase(FacadeMDRImpl.java:1651)
+at org.argouml.model.mdr.CoreHelperMDRImpl.getSource(CoreHelperMDRImpl.java:1233)
+at
+org.argouml.model.AbstractCoreHelperDecorator.getSource(AbstractCoreHelperDecorator.java:380)
+at
+org.argouml.uml.diagram.ui.FigEdgeModelElement.getSource(FigEdgeModelElement.java:1132)
+at
+org.argouml.uml.diagram.ui.FigEdgeModelElement.updateClassifiers(FigEdgeModelElement.java:1022)
+at
+org.argouml.uml.diagram.ui.FigEdgeModelElement.renderingChanged(FigEdgeModelElement.java:712)
+at
+org.argouml.uml.diagram.ui.FigEdgeModelElement.notationChanged(FigEdgeModelElement.java:898)
+at
+org.argouml.application.events.ArgoEventPump.handleFireNotationEvent(ArgoEventPump.java:190)
+at
+org.argouml.application.events.ArgoEventPump.handleFireEvent(ArgoEventPump.java:264)
+at org.argouml.application.events.ArgoEventPump.doFireEvent(ArgoEventPump.java:298)
+at org.argouml.application.events.ArgoEventPump.fireEvent(ArgoEventPump.java:282)
+at org.argouml.kernel.ProjectSettings.fireEvent(ProjectSettings.java:425)
+at org.argouml.kernel.ProjectSettings.setNotationLanguage(ProjectSettings.java:116)
+at org.argouml.persistence.ArgoParser.handleNotationLanguage(ArgoParser.java:307)
+at org.argouml.persistence.ArgoParser.handleEndElement(ArgoParser.java:174)
+at org.argouml.persistence.SAXParserBase.endElement(SAXParserBase.java:247)
+at
+com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.endElement(Unknown
+Source)
+at
+com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanEndElement(Unknown
+Source)
+at
+com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl$FragmentContentDispatcher.dispatch(Unknown
+Source)
+at
+com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(Unknown
+Source)
+at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(Unknown
+Source)
+at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(Unknown
+Source)
+at com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(Unknown Source)
+at com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.parse(Unknown
+Source)
+at javax.xml.parsers.SAXParser.parse(Unknown Source)
+at org.argouml.persistence.SAXParserBase.parse(SAXParserBase.java:146)
+at org.argouml.persistence.ArgoParser.readProject(ArgoParser.java:90)
+at org.argouml.persistence.UmlFilePersister.doLoad(UmlFilePersister.java:343)
+at org.argouml.persistence.ZargoFilePersister.doLoad(ZargoFilePersister.java:341)
+at org.argouml.ui.ProjectBrowser.loadProject(ProjectBrowser.java:1281)
+at org.argouml.uml.ui.ActionOpenProject.actionPerformed(ActionOpenProject.java:164)
+at javax.swing.AbstractButton.fireActionPerformed(Unknown Source)
+at javax.swing.AbstractButton$Handler.actionPerformed(Unknown Source)
+at javax.swing.DefaultButtonModel.fireActionPerformed(Unknown Source)
+at javax.swing.DefaultButtonModel.setPressed(Unknown Source)
+at javax.swing.plaf.basic.BasicButtonListener.mouseReleased(Unknown Source)
+at java.awt.AWTEventMulticaster.mouseReleased(Unknown Source)
+at java.awt.AWTEventMulticaster.mouseReleased(Unknown Source)
+at java.awt.Component.processMouseEvent(Unknown Source)
+at javax.swing.JComponent.processMouseEvent(Unknown Source)
+at java.awt.Component.processEvent(Unknown Source)
+at java.awt.Container.processEvent(Unknown Source)
+at java.awt.Component.dispatchEventImpl(Unknown Source)
+at java.awt.Container.dispatchEventImpl(Unknown Source)
+at java.awt.Component.dispatchEvent(Unknown Source)
+at java.awt.LightweightDispatcher.retargetMouseEvent(Unknown Source)
+at java.awt.LightweightDispatcher.processMouseEvent(Unknown Source)
+at java.awt.LightweightDispatcher.dispatchEvent(Unknown Source)
+at java.awt.Container.dispatchEventImpl(Unknown Source)
+at java.awt.Window.dispatchEventImpl(Unknown Source)
+at java.awt.Component.dispatchEvent(Unknown Source)
+at java.awt.EventQueue.dispatchEvent(Unknown Source)
+at java.awt.EventDispatchThread.pumpOneEventForHierarchy(Unknown Source)
+at java.awt.EventDispatchThread.pumpEventsForHierarchy(Unknown Source)
+at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+at java.awt.EventDispatchThread.run(Unknown Source)
+Caused by: javax.jmi.reflect.InvalidObjectException: Object with MOFID
+-64--88-1-100-116c26bc:10bdbac263d:-8000:0000000000001005 no longer exists.
+at
+org.netbeans.mdr.handlers.BaseObjectHandler._getDelegate(BaseObjectHandler.java:353)
+at
+org.netbeans.mdr.handlers.InstanceHandler.getInstanceDelegate(InstanceHandler.java:48)
+at org.netbeans.mdr.handlers.InstanceHandler._handleGetR(InstanceHandler.java:103)
+at org.omg.uml.behavioralelements.usecases.Include$Impl.getBase(Unknown Source)
+at org.argouml.model.mdr.FacadeMDRImpl.getBase(FacadeMDRImpl.java:1644)
+... 56 more
+-------
+Full exception : org.argouml.persistence.OpenException:
+org.argouml.model.InvalidElementException:
+javax.jmi.reflect.InvalidObjectException: Object with MOFID
+-64--88-1-100-116c26bc:10bdbac263d:-8000:0000000000001005 no longer exists.
+at org.argouml.persistence.UmlFilePersister.doLoad(UmlFilePersister.java:363)
+at org.argouml.persistence.ZargoFilePersister.doLoad(ZargoFilePersister.java:341)
+at org.argouml.ui.ProjectBrowser.loadProject(ProjectBrowser.java:1281)
+at org.argouml.uml.ui.ActionOpenProject.actionPerformed(ActionOpenProject.java:164)
+at javax.swing.AbstractButton.fireActionPerformed(Unknown Source)
+at javax.swing.AbstractButton$Handler.actionPerformed(Unknown Source)
+at javax.swing.DefaultButtonModel.fireActionPerformed(Unknown Source)
+at javax.swing.DefaultButtonModel.setPressed(Unknown Source)
+at javax.swing.plaf.basic.BasicButtonListener.mouseReleased(Unknown Source)
+at java.awt.AWTEventMulticaster.mouseReleased(Unknown Source)
+at java.awt.AWTEventMulticaster.mouseReleased(Unknown Source)
+at java.awt.Component.processMouseEvent(Unknown Source)
+at javax.swing.JComponent.processMouseEvent(Unknown Source)
+at java.awt.Component.processEvent(Unknown Source)
+at java.awt.Container.processEvent(Unknown Source)
+at java.awt.Component.dispatchEventImpl(Unknown Source)
+at java.awt.Container.dispatchEventImpl(Unknown Source)
+at java.awt.Component.dispatchEvent(Unknown Source)
+at java.awt.LightweightDispatcher.retargetMouseEvent(Unknown Source)
+at java.awt.LightweightDispatcher.processMouseEvent(Unknown Source)
+at java.awt.LightweightDispatcher.dispatchEvent(Unknown Source)
+at java.awt.Container.dispatchEventImpl(Unknown Source)
+at java.awt.Window.dispatchEventImpl(Unknown Source)
+at java.awt.Component.dispatchEvent(Unknown Source)
+at java.awt.EventQueue.dispatchEvent(Unknown Source)
+at java.awt.EventDispatchThread.pumpOneEventForHierarchy(Unknown Source)
+at java.awt.EventDispatchThread.pumpEventsForHierarchy(Unknown Source)
+at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+at java.awt.EventDispatchThread.run(Unknown Source)
+Caused by: org.argouml.model.InvalidElementException:
+javax.jmi.reflect.InvalidObjectException: Object with MOFID
+-64--88-1-100-116c26bc:10bdbac263d:-8000:0000000000001005 no longer exists.
+at org.argouml.model.mdr.FacadeMDRImpl.getBase(FacadeMDRImpl.java:1651)
+at org.argouml.model.mdr.CoreHelperMDRImpl.getSource(CoreHelperMDRImpl.java:1233)
+at
+org.argouml.model.AbstractCoreHelperDecorator.getSource(AbstractCoreHelperDecorator.java:380)
+at
+org.argouml.uml.diagram.ui.FigEdgeModelElement.getSource(FigEdgeModelElement.java:1132)
+at
+org.argouml.uml.diagram.ui.FigEdgeModelElement.updateClassifiers(FigEdgeModelElement.java:1022)
+at
+org.argouml.uml.diagram.ui.FigEdgeModelElement.renderingChanged(FigEdgeModelElement.java:712)
+at
+org.argouml.uml.diagram.ui.FigEdgeModelElement.notationChanged(FigEdgeModelElement.java:898)
+at
+org.argouml.application.events.ArgoEventPump.handleFireNotationEvent(ArgoEventPump.java:190)
+at
+org.argouml.application.events.ArgoEventPump.handleFireEvent(ArgoEventPump.java:264)
+at org.argouml.application.events.ArgoEventPump.doFireEvent(ArgoEventPump.java:298)
+at org.argouml.application.events.ArgoEventPump.fireEvent(ArgoEventPump.java:282)
+at org.argouml.kernel.ProjectSettings.fireEvent(ProjectSettings.java:425)
+at org.argouml.kernel.ProjectSettings.setNotationLanguage(ProjectSettings.java:116)
+at org.argouml.persistence.ArgoParser.handleNotationLanguage(ArgoParser.java:307)
+at org.argouml.persistence.ArgoParser.handleEndElement(ArgoParser.java:174)
+at org.argouml.persistence.SAXParserBase.endElement(SAXParserBase.java:247)
+at
+com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.endElement(Unknown
+Source)
+at
+com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanEndElement(Unknown
+Source)
+at
+com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl$FragmentContentDispatcher.dispatch(Unknown
+Source)
+at
+com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(Unknown
+Source)
+at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(Unknown
+Source)
+at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(Unknown
+Source)
+at com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(Unknown Source)
+at com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.parse(Unknown
+Source)
+at javax.xml.parsers.SAXParser.parse(Unknown Source)
+at org.argouml.persistence.SAXParserBase.parse(SAXParserBase.java:146)
+at org.argouml.persistence.ArgoParser.readProject(ArgoParser.java:90)
+at org.argouml.persistence.UmlFilePersister.doLoad(UmlFilePersister.java:343)
+... 29 more
+Caused by: javax.jmi.reflect.InvalidObjectException: Object with MOFID
+-64--88-1-100-116c26bc:10bdbac263d:-8000:0000000000001005 no longer exists.
+at
+org.netbeans.mdr.handlers.BaseObjectHandler._getDelegate(BaseObjectHandler.java:353)
+at
+org.netbeans.mdr.handlers.InstanceHandler.getInstanceDelegate(InstanceHandler.java:48)
+at org.netbeans.mdr.handlers.InstanceHandler._handleGetR(InstanceHandler.java:103)
+at org.omg.uml.behavioralelements.usecases.Include$Impl.getBase(Unknown Source)
+at org.argouml.model.mdr.FacadeMDRImpl.getBase(FacadeMDRImpl.java:1644)
+... 56 more

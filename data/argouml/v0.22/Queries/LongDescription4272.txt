@@ -1,0 +1,73 @@
+The following causes a complete crash of ArgoUML due to InvalidElementException:
+
+1. Draw 2 Classes.
+2. Draw an association between them.
+3. Delete from model the association.
+4. Again, draw an association between these classes.
+5. Click on the Checklist tab.
+6. Minimize the ArgoUML window.
+7. Show the screen again.
+
+This shows an empty ArgoUML window. The last 2 steps are only needed to show the
+severeness of the problem.
+
+This issue is similar to issue 4182.
+
+The exception:
+
+Exception in thread &quot;AWT-EventQueue-0&quot;
+org.argouml.model.InvalidElementException: UUID:
+10-0-0-9--c3a8a2a:10bd3d01e34:-8000:00000000000009AC
+        at org.argouml.model.mdr.FacadeMDRImpl.getName(FacadeMDRImpl.java:4403)
+        at
+org.argouml.ocl.CriticOclEvaluator.evalToString(CriticOclEvaluator.java:64)
+        at
+org.argouml.uml.cognitive.checklist.UMLCheckItem.expand(UMLCheckItem.java:87)
+        at
+org.argouml.cognitive.checklist.CheckItem.getDescription(CheckItem.java:128)
+        at
+org.argouml.cognitive.checklist.ui.TableModelChecklist.getValueAt(TabChecklist.java:363)
+        at javax.swing.JTable.getValueAt(Unknown Source)
+        at javax.swing.JTable.prepareRenderer(Unknown Source)
+        at javax.swing.plaf.basic.BasicTableUI.paintCell(Unknown Source)
+        at javax.swing.plaf.basic.BasicTableUI.paintCells(Unknown Source)
+        at javax.swing.plaf.basic.BasicTableUI.paint(Unknown Source)
+        at javax.swing.plaf.ComponentUI.update(Unknown Source)
+        at javax.swing.JComponent.paintComponent(Unknown Source)
+        at javax.swing.JComponent.paint(Unknown Source)
+        at javax.swing.JComponent.paintChildren(Unknown Source)
+        at javax.swing.JComponent.paint(Unknown Source)
+        at javax.swing.JViewport.paint(Unknown Source)
+        at javax.swing.JComponent.paintChildren(Unknown Source)
+        at javax.swing.JComponent.paint(Unknown Source)
+        at javax.swing.JComponent.paintChildren(Unknown Source)
+        at javax.swing.JComponent.paint(Unknown Source)
+        at javax.swing.JComponent.paintChildren(Unknown Source)
+        at javax.swing.JComponent.paint(Unknown Source)
+        at javax.swing.JComponent.paintChildren(Unknown Source)
+        at javax.swing.JComponent.paint(Unknown Source)
+        at javax.swing.JComponent.paintWithOffscreenBuffer(Unknown Source)
+        at javax.swing.JComponent.paintDoubleBuffered(Unknown Source)
+        at javax.swing.JComponent._paintImmediately(Unknown Source)
+        at javax.swing.JComponent.paintImmediately(Unknown Source)
+        at javax.swing.RepaintManager.paintDirtyRegions(Unknown Source)
+        at
+javax.swing.SystemEventQueueUtilities$ComponentWorkRequest.run(Unknown Source)
+        at java.awt.event.InvocationEvent.dispatch(Unknown Source)
+        at java.awt.EventQueue.dispatchEvent(Unknown Source)
+        at java.awt.EventDispatchThread.pumpOneEventForHierarchy(Unknown Source)
+        at java.awt.EventDispatchThread.pumpEventsForHierarchy(Unknown Source)
+        at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+        at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+        at java.awt.EventDispatchThread.run(Unknown Source)
+Caused by: javax.jmi.reflect.InvalidObjectException: Object with MOFID
+10-0-0-9--c3a8a2a:10bd3d01e34:-8000:00000000000009AC no longer exists.
+        at
+org.netbeans.mdr.handlers.BaseObjectHandler._getDelegate(BaseObjectHandler.java:353)
+        at
+org.netbeans.mdr.handlers.InstanceHandler.getInstanceDelegate(InstanceHandler.java:48)
+        at
+org.netbeans.mdr.handlers.InstanceHandler._handleGet(InstanceHandler.java:193)
+        at org.omg.uml.foundation.core.UmlAssociation$Impl.getName(Unknown Source)
+        at org.argouml.model.mdr.FacadeMDRImpl.getName(FacadeMDRImpl.java:4394)
+        ... 36 more

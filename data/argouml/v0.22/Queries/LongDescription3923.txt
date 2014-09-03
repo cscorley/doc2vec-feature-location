@@ -1,0 +1,34 @@
+There is a bug in Beta 3 which prevents you using the activity diagram 
+for AndroMDA.
+
+Here is what I&apos;ve done:
+1) Import an XMI from Poseidon, which works well with AndroMDA (the 
+PiggyBank example). Everything went fine.
+
+2) If I add my activity diagram under the use case diagram I always get 
+a new activity graph, so I have 2 activity graphs alltogether. I cannot 
+add an activity diagram under the imported activity graph.
+Please see the screenshot I attached.
+See: http://argouml.tigris.org/servlets/ReadMsg?list=dev&amp;msgNo=19267
+Screenshot:
+http://argouml.tigris.org/servlets/GetAttachment?list=dev&amp;msgId=770688&amp;attachId=1
+
+3) This code, which works with Poseidon, won&apos;t work with ArgoUML:
+
+Collection actionStates = getModel().getAllActionStates();
+for (Iterator iterActionState = actionStates.iterator();
+iterActionState.hasNext();) {
+ActionStateFacade actionState =
+(ActionStateFacade) iterActionState.next();
+
+actionState is always &quot;null&quot;.
+
+4) Importing the activity diagram from Poseidon works and the result can 
+be processed by AndroMDA but if you are making the activity diagram from 
+the beginning with ArgoUML, it won&apos;t work because of the error above 
+(nr. 3).
+
+So, it seems that ArgoUML still has a problem with activity diagram...
+
+Thanks,
+Lofi.

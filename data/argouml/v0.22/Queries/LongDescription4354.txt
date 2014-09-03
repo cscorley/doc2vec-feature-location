@@ -1,0 +1,52 @@
+I&apos;m not sure if these two errors are related, but they occured in the same set
+of operations while placing Components and Nodes on a Deployment Diagram.  Also
+perhaps related is the fact that Associations which are visible in the property
+panel connecting two Components aren&apos;t being displayed on the diagram.
+
+Exception in thread &quot;AWT-EventQueue-0&quot; java.lang.IllegalStateException: Both the
+source port and dest port fig must be defined on a
+org.argouml.uml.diagram.ui.FigAssociation before the edge can be layed out
+	at org.tigris.gef.presentation.FigEdgePoly.layoutEdge(FigEdgePoly.java:130)
+	at org.tigris.gef.presentation.FigEdgePoly.computeRouteImpl(FigEdgePoly.java:89)
+	at org.tigris.gef.presentation.FigEdge.computeRoute(FigEdge.java:169)
+	at org.tigris.gef.base.LayerPerspective.edgeAdded(LayerPerspective.java:222)
+	at
+org.tigris.gef.graph.MutableGraphSupport.fireEdgeAdded(MutableGraphSupport.java:323)
+	at
+org.argouml.uml.diagram.deployment.DeploymentDiagramGraphModel.addEdge(DeploymentDiagramGraphModel.java:320)
+	at
+org.argouml.uml.diagram.deployment.DeploymentDiagramGraphModel.addNodeRelatedEdges(DeploymentDiagramGraphModel.java:337)
+	at org.tigris.gef.base.ModePlace.mouseReleased(ModePlace.java:194)
+	at
+org.argouml.uml.diagram.ui.AddExistingNodeCommand.execute(AddExistingNodeCommand.java:160)
+	at org.argouml.uml.diagram.ui.DnDJGraph.drop(DnDJGraph.java:200)
+	at java.awt.dnd.DropTarget.drop(Unknown Source)
+	at sun.awt.dnd.SunDropTargetContextPeer.processDropMessage(Unknown Source)
+	at sun.awt.dnd.SunDropTargetContextPeer.access$800(Unknown Source)
+	at
+sun.awt.dnd.SunDropTargetContextPeer$EventDispatcher.dispatchDropEvent(Unknown
+Source)
+	at sun.awt.dnd.SunDropTargetContextPeer$EventDispatcher.dispatchEvent(Unknown
+Source)
+	at sun.awt.dnd.SunDropTargetEvent.dispatch(Unknown Source)
+	at java.awt.Component.dispatchEventImpl(Unknown Source)
+	at java.awt.Container.dispatchEventImpl(Unknown Source)
+	at java.awt.Component.dispatchEvent(Unknown Source)
+	at java.awt.LightweightDispatcher.retargetMouseEvent(Unknown Source)
+	at java.awt.LightweightDispatcher.processDropTargetEvent(Unknown Source)
+	at java.awt.LightweightDispatcher.dispatchEvent(Unknown Source)
+	at java.awt.Container.dispatchEventImpl(Unknown Source)
+	at java.awt.Window.dispatchEventImpl(Unknown Source)
+	at java.awt.Component.dispatchEvent(Unknown Source)
+	at java.awt.EventQueue.dispatchEvent(Unknown Source)
+	at java.awt.EventDispatchThread.pumpOneEventForHierarchy(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEventsForHierarchy(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+	at java.awt.EventDispatchThread.run(Unknown Source)
+
+ERROR: Edge rejected. Its source end is attached to Component$Impl  ID:
+-64--88-1-100--5d4b0696:10c795a88a1:-8000:0000000000003DD7  MID:
+-64--88-1-100--5d4b0696:10c795a88a1:-8000:0000000000000388  OPCKG:
+-64--88-1-100--5d4b0696:10c795a88a1:-8000:0000000000000622 but this is not in
+the graph model (DeploymentDiagramGraphModel.java:267)

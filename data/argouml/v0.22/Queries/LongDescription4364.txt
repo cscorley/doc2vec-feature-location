@@ -1,0 +1,53 @@
+There&apos;s also an exception thrown.
+
+1. Start ArgoUML
+2. Place 2 classes and association them
+3. Drag the association from explorer onto diagram
+
+I think I can see the problem here. Will investigate tomorrow.
+
+
+java.lang.ClassCastException
+	at
+org.argouml.uml.diagram.static_structure.ui.ClassDiagramRenderer.getFigEdgeFor(ClassDiagramRenderer.java:166)
+	at org.tigris.gef.base.LayerPerspective.edgeAdded(LayerPerspective.java:217)
+	at
+org.tigris.gef.graph.MutableGraphSupport.fireEdgeAdded(MutableGraphSupport.java:323)
+	at
+org.argouml.uml.diagram.static_structure.ClassDiagramGraphModel.addEdge(ClassDiagramGraphModel.java:424)
+	at
+org.argouml.uml.diagram.static_structure.ClassDiagramGraphModel.addNodeRelatedEdges(ClassDiagramGraphModel.java:490)
+INFO: Adding an edge of type org.omg.uml.foundation.core.AssociationEnd$Impl to
+class diagram. (ClassDiagramGraphModel.java:406)
+
+	at org.tigris.gef.base.ModePlace.mouseReleased(ModePlace.java:194)
+	at
+org.argouml.uml.diagram.ui.AddExistingNodeCommand.execute(AddExistingNodeCommand.java:160)
+	at org.argouml.uml.diagram.ui.DnDJGraph.drop(DnDJGraph.java:200)
+	at java.awt.dnd.DropTarget.drop(DropTarget.java:398)
+	at
+sun.awt.dnd.SunDropTargetContextPeer.processDropMessage(SunDropTargetContextPeer.java:542)
+	at
+sun.awt.dnd.SunDropTargetContextPeer.access$800(SunDropTargetContextPeer.java:52)
+	at
+sun.awt.dnd.SunDropTargetContextPeer$EventDispatcher.dispatchDropEvent(SunDropTargetContextPeer.java:805)
+	at
+sun.awt.dnd.SunDropTargetContextPeer$EventDispatcher.dispatchEvent(SunDropTargetContextPeer.java:743)
+	at sun.awt.dnd.SunDropTargetEvent.dispatch(SunDropTargetEvent.java:29)
+	at java.awt.Component.dispatchEventImpl(Component.java:3494)
+	at java.awt.Container.dispatchEventImpl(Container.java:1627)
+	at java.awt.Component.dispatchEvent(Component.java:3477)
+	at java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:3483)
+	at java.awt.LightweightDispatcher.processDropTargetEvent(Container.java:3269)
+	at java.awt.LightweightDispatcher.dispatchEvent(Container.java:3123)
+	at java.awt.Container.dispatchEventImpl(Container.java:1613)
+	at java.awt.Window.dispatchEventImpl(Window.java:1606)
+	at java.awt.Component.dispatchEvent(Component.java:3477)
+	at java.awt.EventQueue.dispatchEvent(EventQueue.java:456)
+	at
+java.awt.EventDispatchThread.pumpOneEventForHierarchy(EventDispatchThread.java:201)
+	at
+java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:151)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:145)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:137)
+	at java.awt.EventDispatchThread.run(EventDispatchThread.java:100)

@@ -1,0 +1,135 @@
+An exception occurs when deleting a diagram indirectly that is not the current one.
+
+1. Load the attached zargo.
+2. Go to the activity diagram.
+3. In the explorer, select class A, and delete from model.
+4. Answer Yes to the dialog.
+
+This causes following exception:
+
+     [echo] --- Executing ArgoUML ---
+  [argouml] [org.netbeans.mdr.Logger] INFORMATIONAL *********** Exception
+occurred ************ at Sun Feb 26 20:40:03 CET 2006
+  [argouml] javax.jmi.reflect.InvalidObjectException: Object with MOFID
+.:00000000000007DD no longer exists.
+  [argouml]     at
+org.netbeans.mdr.handlers.BaseObjectHandler._getDelegate(BaseObjectHandler.java:353)
+  [argouml]     at
+org.netbeans.mdr.handlers.InstanceHandler.getInstanceDelegate(InstanceHandler.java:48)
+  [argouml]     at
+org.netbeans.mdr.handlers.InstanceHandler._handleGetR(InstanceHandler.java:103)
+  [argouml]     at
+org.omg.uml.behavioralelements.statemachines.SimpleState$Impl.getDoActivity(Unknown
+Source)
+  [argouml]     at
+org.argouml.model.mdr.FacadeMDRImpl.getDoActivity(FacadeMDRImpl.java:2765)
+  [argouml]     at
+org.argouml.uml.diagram.state.ui.FigState.updateListeners(FigState.java:150)
+  [argouml]     at
+org.argouml.uml.diagram.ui.FigNodeModelElement.setOwner(FigNodeModelElement.java:1236)
+  [argouml]     at
+org.argouml.uml.diagram.state.ui.FigState.setOwner(FigState.java:110)
+  [argouml]     at org.tigris.gef.presentation.Fig.removeFromDiagram(Fig.java:705)
+  [argouml]     at
+org.tigris.gef.presentation.FigNode.removeFromDiagram(FigNode.java:230)
+  [argouml]     at
+org.argouml.uml.diagram.ui.FigNodeModelElement.removeFromDiagram(FigNodeModelElement.java:1569)
+  [argouml]     at org.argouml.kernel.Project.removeFigs(Project.java:1055)
+  [argouml]     at org.argouml.kernel.Project.trashInternal(Project.java:969)
+  [argouml]     at org.argouml.kernel.Project.moveToTrash(Project.java:947)
+  [argouml]     at
+org.argouml.uml.diagram.ui.FigNodeModelElement.propertyChange(FigNodeModelElement.java:910)
+  [argouml]     at
+org.argouml.model.mdr.ModelEventPumpMDRImpl.fire(ModelEventPumpMDRImpl.java:437)
+  [argouml]     at
+org.argouml.model.mdr.ModelEventPumpMDRImpl.change(ModelEventPumpMDRImpl.java:356)
+  [argouml]     at
+org.netbeans.mdr.util.EventNotifier$EventsDelivery.run(EventNotifier.java:270)
+  [argouml]     at java.lang.Thread.run(Thread.java:595)
+  [argouml] log4j:WARN No appenders could be found for logger
+(org.argouml.ui.targetmanager.TargetManager).
+  [argouml] log4j:WARN Please initialize the log4j system properly.
+  [argouml] java.lang.NullPointerException
+  [argouml]     at
+javax.swing.SwingUtilities.computeIntersection(SwingUtilities.java:417)
+  [argouml]     at
+javax.swing.RepaintManager.paintDirtyRegions(RepaintManager.java:430)
+  [argouml]     at
+org.argouml.uml.diagram.ui.TabDiagram.setTarget(TabDiagram.java:195)
+  [argouml]     at
+org.argouml.uml.diagram.ui.TabDiagram.targetSet(TabDiagram.java:372)
+  [argouml]     at
+org.argouml.ui.targetmanager.TargetManager.fireTargetSet(TargetManager.java:783)
+  [argouml]     at
+org.argouml.ui.targetmanager.TargetManager.internalOnSetTarget(TargetManager.java:487)
+  [argouml]     at
+org.argouml.ui.targetmanager.TargetManager.setTarget(TargetManager.java:467)
+  [argouml]     at
+org.argouml.uml.diagram.ui.UMLDiagram.propertyChange(UMLDiagram.java:484)
+  [argouml]     at
+org.argouml.model.mdr.ModelEventPumpMDRImpl.fire(ModelEventPumpMDRImpl.java:437)
+  [argouml]     at
+org.argouml.model.mdr.ModelEventPumpMDRImpl.change(ModelEventPumpMDRImpl.java:356)
+  [argouml]     at
+org.netbeans.mdr.util.EventNotifier$EventsDelivery.run(EventNotifier.java:270)
+  [argouml]     at java.lang.Thread.run(Thread.java:595)
+  [argouml] [org.netbeans.mdr.Logger] INFORMATIONAL *********** Exception
+occurred ************ at Sun Feb 26 20:40:03 CET 2006
+  [argouml] javax.jmi.reflect.InvalidObjectException: Object with MOFID
+.:00000000000007DE no longer exists.
+  [argouml]     at
+org.netbeans.mdr.handlers.BaseObjectHandler._getDelegate(BaseObjectHandler.java:353)
+  [argouml]     at
+org.netbeans.mdr.handlers.InstanceHandler.getInstanceDelegate(InstanceHandler.java:48)
+  [argouml]     at
+org.netbeans.mdr.handlers.InstanceHandler._handleGetR(InstanceHandler.java:103)
+  [argouml]     at
+org.omg.uml.behavioralelements.statemachines.SimpleState$Impl.getExit(Unknown
+Source)
+  [argouml]     at
+org.argouml.model.mdr.FacadeMDRImpl.getExit(FacadeMDRImpl.java:1821)
+  [argouml]     at
+org.argouml.uml.notation.uml.StateBodyNotationUml.toString(StateBodyNotationUml.java:85)
+  [argouml]     at
+org.argouml.uml.diagram.state.ui.FigState.updateInternal(FigState.java:278)
+  [argouml]     at
+org.argouml.uml.diagram.state.ui.FigState.modelChanged(FigState.java:131)
+  [argouml]     at
+org.argouml.uml.diagram.ui.FigNodeModelElement.propertyChange(FigNodeModelElement.java:942)
+  [argouml]     at
+org.argouml.model.mdr.ModelEventPumpMDRImpl.fire(ModelEventPumpMDRImpl.java:437)
+  [argouml]     at
+org.argouml.model.mdr.ModelEventPumpMDRImpl.change(ModelEventPumpMDRImpl.java:356)
+  [argouml]     at
+org.netbeans.mdr.util.EventNotifier$EventsDelivery.run(EventNotifier.java:270)
+  [argouml]     at java.lang.Thread.run(Thread.java:595)
+  [argouml] [org.netbeans.mdr.Logger] INFORMATIONAL *********** Exception
+occurred ************ at Sun Feb 26 20:40:03 CET 2006
+  [argouml] javax.jmi.reflect.InvalidObjectException: Object with MOFID
+.:00000000000007DE no longer exists.
+  [argouml]     at
+org.netbeans.mdr.handlers.BaseObjectHandler._getDelegate(BaseObjectHandler.java:353)
+  [argouml]     at
+org.netbeans.mdr.handlers.InstanceHandler.getInstanceDelegate(InstanceHandler.java:48)
+  [argouml]     at
+org.netbeans.mdr.handlers.InstanceHandler._handleGetR(InstanceHandler.java:103)
+  [argouml]     at
+org.omg.uml.behavioralelements.statemachines.SimpleState$Impl.getExit(Unknown
+Source)
+  [argouml]     at
+org.argouml.model.mdr.FacadeMDRImpl.getExit(FacadeMDRImpl.java:1821)
+  [argouml]     at
+org.argouml.uml.notation.uml.StateBodyNotationUml.toString(StateBodyNotationUml.java:85)
+  [argouml]     at
+org.argouml.uml.diagram.state.ui.FigState.updateInternal(FigState.java:278)
+  [argouml]     at
+org.argouml.uml.diagram.state.ui.FigState.modelChanged(FigState.java:131)
+  [argouml]     at
+org.argouml.uml.diagram.ui.FigNodeModelElement.propertyChange(FigNodeModelElement.java:942)
+  [argouml]     at
+org.argouml.model.mdr.ModelEventPumpMDRImpl.fire(ModelEventPumpMDRImpl.java:437)
+  [argouml]     at
+org.argouml.model.mdr.ModelEventPumpMDRImpl.change(ModelEventPumpMDRImpl.java:356)
+  [argouml]     at
+org.netbeans.mdr.util.EventNotifier$EventsDelivery.run(EventNotifier.java:270)
+  [argouml]     at java.lang.Thread.run(Thread.java:595)

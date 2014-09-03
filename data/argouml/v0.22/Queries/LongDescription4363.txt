@@ -1,0 +1,25 @@
+Dashed transitions do not persist.
+
+When a transition in a activity diagram goes to or from an ObjectFlowState, it
+should be drawn dashed.
+
+Saving and reloading a project with such a transition causes the transition to
+be shown not dashed.
+
+This patch solves the problem:
+
+Index: FigTransition.java
+===================================================================
+RCS file:
+/cvs/argouml/src_new/org/argouml/uml/diagram/state/ui/FigTransition.java,v
+retrieving revision 1.60
+diff -u -r1.60 FigTransition.java
+--- FigTransition.java 4 Jun 2006 13:54:53 -0000 1.60
++++ FigTransition.java 18 Jul 2006 19:52:25 -0000
+@@ -111,6 +111,7 @@
+                         Model.getFacade().getSource(newOwner))
+                     || Model.getFacade().isAObjectFlowState(
+                             Model.getFacade().getTarget(newOwner));
++            getFig().setDashed(dashed);
+         }
+     }

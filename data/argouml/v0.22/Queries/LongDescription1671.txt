@@ -1,0 +1,53 @@
+Testcase:
+
+1. start argouml 0.13.2
+2. create a class and name it &apos;A&apos;
+3. create an attr &apos;newAttr&apos; by doubleclicking in the attr compartment
+4. create an oper by doubleclicking in the attr compartment
+5. save project as &apos;test.zargo&apos;
+6. make a copy of test.zargo
+7. make new project (important!)
+8. open test.zargo
+9. save
+
+Theoretically, the two .zargo files should be identically since there
+were made no changes.
+The following analysis reveals differences in the 5 files contained in
+the zip file test.zargo. These differences should be fixed, because
+they will affect the files iteratively at every save/load cycle.
+(The test case is very simple. Ideally, the analysis should be done
+with a project that has all diagram types and all cases in it.)
+
+1. test.argo
+
+The line
+  &lt;searchpath href=&quot;PROJECT_DIR&quot; /&gt;
+was added.
+
+2. test.todo
+
+OK, identical
+
+3. test.xmi
+
+OK, identical
+
+4. test_ClassDiagram1.pgml
+
+a strange empty FigGroup is added:
+  &lt;group name=&quot;Fig1&quot;
+       description=&quot;org.tigris.gef.presentation.FigGroup[0, 0, 0, 0]&quot;
+       fill=&quot;1&quot;
+       fillcolor=&quot;-1&quot;
+       stroke=&quot;1&quot;
+       strokecolor=&quot;-16777216&quot;
+  &gt;
+    &lt;private&gt;
+    &lt;/private&gt;
+    
+  &lt;/group&gt;
+
+
+5. test_UsecaseDiagram1.pgml
+
+OK, identical (of course, it was empty)

@@ -1,0 +1,28 @@
+I see ArgoUML taking upwards of 40% of my processor time on some diagrams.
+For instance, I have one project in which the two most complicated class
+diagrams burn 50% or so of my processor time.
+
+Running the Quartz Debug application, I see that on those two diagrams the
+diagram is being entirely repainted constantly. This is not the case on any of
+the other diagrams.
+
+I have a big screen (1920x1200), so this takes quite a bit of time.
+
+So I went back to the 0.20 release version, and I don&apos;t see this behavior (in
+fact, the CPU load is better even on the other drawings).
+
+I built the CVS version using &quot;build.sh package&quot;, then copied the .jar files to
+the proper place inside another copy of the application. It otherwise seems to
+work fine.
+
+Examining things further, it is not the complexity that causes this redrawing;
+it is the presence of certain Association edges in the current diagram.
+
+In the attached CA3Design.zargo file, you can see this in the &quot;Hardware
+Resources&quot; and &quot;Active Objects&quot; class diagrams. 
+
+I have made a simple diagram with one association that triggers this behavior.
+Look at the &quot;Redraw Problem Demonstrated&quot; class diagram.
+
+If you open the context menu on the Association and choose
+&quot;Navigability/bidirectional&quot; the constant repainting stops.

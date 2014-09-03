@@ -1,0 +1,69 @@
+The following is from the users list, describing the problems:
+
+
+
+Hi Marco,
+
+Well, it is kind of possible to create such a ObjectFlowState, bound to a 
+state, but you have to know which way works, and which way doesn&apos;t.
+
+Implementing the ObjectFlowState in ArgoUML was one of the first Java 
+additions I did, and there are some things missing and some things I would do 
+differently now. The manual does not really describe it, AFAIK.
+
+Let me guide you through - I suppose you use V0.18.1.
+
+Create a class named &quot;Invoice&quot;.
+Create a statechart diagram for it, with 2 states, named &quot;paid&quot; and &quot;unpaid&quot;.
+Create an activity diagram for the package containing the Invoice class.
+Draw a ObjectFlowState on it.
+In the properties panel, select the dropdown labelled Type, and select the 
+Invoice class.
+The diagram now shows this name underlined.
+Now double-click on the ObjectFlowState on the diagram, BELOW its name (in the 
+white space). This will give you an empty edit box.
+Enter the text &quot;paid&quot;, and press enter.
+
+Since this state already exists, its name is recognized, and the text remains 
+visible on the diagram.
+If you enter something that is not a state of the class, it is refused.
+
+But:
+Since the properties panels do not show this link to the state, you can not 
+alter it except by entering the text on the diagram.
+
+And, apparently the state name disappears from the diagram after a save - load 
+cycle :-( 
+And the dashed transitions to and from the ObjectFlowState turn into full 
+lines :-(
+This used to work at the time I created this functionality...
+
+Maybe I will try to improve all this some day...
+
+Regards,
+Michiel
+
+
+
+
+
+----- Original Message ----- 
+From: &quot;Marco LOMBARDO&quot; 
+To: &lt;users@argouml.tigris.org&gt;
+Sent: Wednesday, July 27, 2005 3:08 PM
+Subject: [argouml-users] State into an ObjectFlowState?
+
+
+&gt; Into an activity diagram one can put Activity and ObjectFlowState.
+&gt; For an ObjectFlowState should be possible to specify a state for example
+&gt; for an Invoice the state &quot;paid&quot; or &quot;unpaid&quot;.
+&gt; 
+&gt; I have not found where to put it. It&apos;s a missing functionality?
+&gt; 
+&gt; Regards,
+&gt; 
+&gt; Mar
+&gt; Compilo subAdministrator
+&gt; compilo.sf.net
+&gt; 
+&gt;

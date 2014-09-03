@@ -1,0 +1,61 @@
+Spotted this in stack trace after the event.
+I think all I did was to -
+
+Create class
+Create collab diagram from that
+Create classifier role in that diagram
+
+Haven&apos;t been able to reproduce since
+
+ INFO: Factory created org.argouml.uml.ui.foundation.core.PropPanelClass for
+org.omg.uml.foundation.core.UmlClass$Impl (TabProps.java:344)
+ INFO: targetRemoved targetevent : 
+org.argouml.ui.targetmanager.TargetEvent[source=org.argouml.ui.targetmanager.TargetManager@14ba9a2]
+(UMLComboBoxModel2.java:551)
+ INFO: Getting prop panel for: org.omg.uml.foundation.core.UmlClass$Impl, found
+(in cache?)
+org.argouml.uml.ui.foundation.core.PropPanelClass[,0,0,801x172,invalid,layout=org.tigris.swidgets.LabelledLayout,alignmentX=0.0,alignmentY=0.0,border=,flags=9,maximumSize=,minimumSize=,preferredSize=]
+(TabProps.java:335)
+ INFO: Adding diagram member (Project.java:339)
+ INFO: There are now 5 members (Project.java:352)
+ INFO: Factory created
+org.argouml.uml.diagram.ui.PropPanelUMLCollaborationDiagram for
+org.argouml.uml.diagram.collaboration.ui.UMLCollaborationDiagram (TabProps.java:344)
+ INFO: Factory created
+org.argouml.uml.ui.behavior.collaborations.PropPanelClassifierRole for
+org.omg.uml.behavioralelements.collaborations.ClassifierRole$Impl
+(TabProps.java:344)
+ INFO: targetRemoved targetevent : 
+org.argouml.ui.targetmanager.TargetEvent[source=org.argouml.ui.targetmanager.TargetManager@14ba9a2]
+(UMLComboBoxModel2.java:551)
+[org.netbeans.mdr.Logger] INFORMATIONAL *********** Exception occurred
+************ at Mon Mar 13 22:01:12 GMT 2006
+java.lang.IllegalArgumentException: illegal range bound
+	at
+org.argouml.model.mdr.DataTypesFactoryMDRImpl.s2b(DataTypesFactoryMDRImpl.java:304)
+	at
+org.argouml.model.mdr.DataTypesFactoryMDRImpl.createMultiplicityRange(DataTypesFactoryMDRImpl.java:253)
+	at
+org.argouml.model.mdr.DataTypesFactoryMDRImpl.parseRanges(DataTypesFactoryMDRImpl.java:236)
+	at
+org.argouml.model.mdr.DataTypesFactoryMDRImpl.createMultiplicity(DataTypesFactoryMDRImpl.java:223)
+	at
+org.argouml.uml.ui.behavior.collaborations.ActionSetClassifierRoleMultiplicity.setSelectedItem(ActionSetClassifierRoleMultiplicity.java:65)
+	at
+org.argouml.uml.ui.ActionSetMultiplicity.actionPerformed(ActionSetMultiplicity.java:57)
+	at javax.swing.JComboBox.fireActionEvent(Unknown Source)
+	at javax.swing.JComboBox.contentsChanged(Unknown Source)
+	at javax.swing.AbstractListModel.fireContentsChanged(Unknown Source)
+	at
+org.argouml.uml.ui.UMLComboBoxModel2.fireContentsChanged(UMLComboBoxModel2.java:515)
+	at org.argouml.uml.ui.UMLComboBoxModel2.setSelectedItem(UMLComboBoxModel2.java:403)
+	at
+org.argouml.uml.ui.UMLMultiplicityComboBoxModel.setSelectedItem(UMLMultiplicityComboBoxModel.java:102)
+	at org.argouml.uml.ui.UMLComboBoxModel2.propertyChange(UMLComboBoxModel2.java:151)
+	at org.argouml.model.mdr.ModelEventPumpMDRImpl.fire(ModelEventPumpMDRImpl.java:438)
+	at
+org.argouml.model.mdr.ModelEventPumpMDRImpl.change(ModelEventPumpMDRImpl.java:357)
+	at org.netbeans.mdr.util.EventNotifier$EventsDelivery.run(EventNotifier.java:270)
+	at java.lang.Thread.run(Unknown Source)
+ INFO: Configuration saved to C:\Documents and Settings\Bob\argo.user.properties
+(ConfigurationProperties.java:136)

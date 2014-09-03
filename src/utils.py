@@ -13,7 +13,7 @@ import os
 import sys
 
 
-logger = logging.getLogger('flt.utils')
+logger = logging.getLogger('cfl.utils')
 
 
 def kullback_leibler_divergence(q_dist, p_dist, filter_by=0.001):
@@ -133,3 +133,4 @@ def mkdir(d):
         else:
             print('Failed to create "%s" directory!' % d)
             sys.exit(e.errno)
+

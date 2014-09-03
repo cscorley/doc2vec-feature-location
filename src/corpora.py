@@ -19,16 +19,10 @@ import dulwich
 import dulwich.repo
 import dulwich.patch
 
-from preprocessing import tokenize, split, remove_stops, read_stops, to_unicode
+import preprocessing
 
 import logging
-logger = logging.getLogger('flt.corpora')
-
-STOPS = read_stops([
-    'data/english_stops.txt',
-    'data/java_reserved.txt',
-])
-
+logger = logging.getLogger('cfl.corpora')
 
 class GitCorpus(gensim.interfaces.CorpusABC):
     """
@@ -81,17 +75,18 @@ class GitCorpus(gensim.interfaces.CorpusABC):
         super(GitCorpus, self).__init__()
 
     def preprocess(self, document, info=[]):
-        document = to_unicode(document, info)
-        words = tokenize(document)
+        document = preprocessing.to_unicode(document, info)
+        words = preprocessing.tokenize(document)
 
         if self.split:
-            words = split(words)
+            words = preprocessing.split(words)
 
         if self.lower:
             words = (word.lower() for word in words)
 
         if self.remove_stops:
-            words = remove_stops(words, STOPS)
+            words = preprocessing.remove_stops(words, preprocessing.FOX_STOPS)
+            words = preprocessing.remove_stops(words, preprocessing.JAVA_RESERVED)
 
         def include(word):
             return len(word) >= self.min_len and len(word) <= self.max_len

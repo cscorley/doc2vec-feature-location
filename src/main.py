@@ -1,4 +1,17 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# [The "New BSD" license]
+# Copyright (c) 2014 The Board of Trustees of The University of Alabama
+# All rights reserved.
+#
+# See LICENSE for details.
 
+from __future__ import print_function
+
+import logging
+logger = logging.getLogger('cfl.main')
 
 def cli():
-    print "test"
+    print("test")
+    logger.info("test")

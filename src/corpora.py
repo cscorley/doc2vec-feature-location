@@ -125,7 +125,7 @@ class GitCorpus(gensim.interfaces.CorpusABC):
         return self.length  # will throw if corpus not initialized
 
 
-class MultiTextCorpus(GitCorpus):
+class SnapshotCorpus(GitCorpus):
     def get_texts(self):
         length = 0
 

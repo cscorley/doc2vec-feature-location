@@ -18,17 +18,29 @@ from io import StringIO
 from nose.tools import *
 import dulwich.repo
 
-from src.corpora import MultiTextCorpus, ChangesetCorpus
+from src.corpora import SnapshotCorpus, ChangesetCorpus
 
 # datapath is now a useful function for building paths to test files
 module_path = os.path.dirname(__file__)
 datapath = lambda fname: os.path.join(module_path, u'test_data', fname)
 
-class TestMultitextCorpus(unittest.TestCase):
+class TestGitCorpus(unittest.TestCase):
     def setUp(self):
-        self.basepath = datapath(u'multitext_git/')
+        self.basepath = datapath(u'test_git/')
+        if not os.path.exists(self.basepath):
+            extraction_path = datapath('')
+            gz = datapath(u'test_git.tar.gz')
+
+            import tarfile
+            with tarfile.open(gz) as tar:
+                tar.extractall(extraction_path)
+
         self.repo = dulwich.repo.Repo(self.basepath)
-        self.corpus = MultiTextCorpus(self.repo,
+
+class TestSnapshotCorpus(TestGitCorpus):
+    def setUp(self):
+        super(TestSnapshotCorpus, self).setUp()
+        self.corpus = SnapshotCorpus(self.repo,
                 remove_stops=False,
                 lower=True,
                 split=True,
@@ -36,7 +48,7 @@ class TestMultitextCorpus(unittest.TestCase):
         self.docs = list(self.corpus)
 
     def test_lazy(self):
-        corpus = MultiTextCorpus(self.repo,
+        corpus = SnapshotCorpus(self.repo,
                 remove_stops=False,
                 lower=True,
                 split=True,
@@ -219,12 +231,11 @@ class TestMultitextCorpus(unittest.TestCase):
             textdoc = set((unicode(self.corpus.id2word[x[0]]), x[1]) for x in doc)
             self.assertIn(textdoc, documents)
 
-class TestMultitextCorpusAtRef(unittest.TestCase):
+class TestSnapshotCorpusAtRef(TestGitCorpus):
     def setUp(self):
-        self.basepath = datapath(u'multitext_git/')
+        super(TestSnapshotCorpusAtRef, self).setUp()
         self.ref = u'f33a0fb070a34fc1b9105453b3ffb4edc49131d9'
-        self.repo = dulwich.repo.Repo(self.basepath)
-        self.corpus = MultiTextCorpus(self.repo, self.ref,
+        self.corpus = SnapshotCorpus(self.repo, self.ref,
                 remove_stops=False,
                 lower=True,
                 split=True,
@@ -233,7 +244,7 @@ class TestMultitextCorpusAtRef(unittest.TestCase):
 
 
     def test_lazy(self):
-        corpus = MultiTextCorpus(self.repo,
+        corpus = SnapshotCorpus(self.repo,
                 remove_stops=False,
                 lower=True,
                 split=True,
@@ -359,18 +370,9 @@ class TestMultitextCorpusAtRef(unittest.TestCase):
             self.assertIn(textdoc, documents)
 
 
-class TestChangesetCorpus(unittest.TestCase):
+class TestChangesetCorpus(TestGitCorpus):
     def setUp(self):
-        self.basepath = datapath(u'multitext_git/')
-        if not os.path.exists(self.basepath):
-            extraction_path = datapath('')
-            gz = datapath(u'multitext_git.tar.gz')
-
-            import tarfile
-            with tarfile.open(gz) as tar:
-                tar.extractall(extraction_path)
-
-        self.repo = dulwich.repo.Repo(self.basepath)
+        super(TestChangesetCorpus, self).setUp()
         self.corpus = ChangesetCorpus(self.repo,
                 remove_stops=False,
                 lower=True,
@@ -388,7 +390,7 @@ class TestChangesetCorpus(unittest.TestCase):
             self.assertEqual(l, len(self.corpus))
 
     def test_lazy(self):
-        corpus = MultiTextCorpus(self.repo,
+        corpus = SnapshotCorpus(self.repo,
                 remove_stops=False,
                 lower=True,
                 split=True,

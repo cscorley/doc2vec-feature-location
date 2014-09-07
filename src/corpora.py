@@ -14,6 +14,8 @@ Code for generating the corpora.
 from StringIO import StringIO
 import re
 import subprocess
+import os.path
+import tempfile
 
 import gensim
 import dulwich
@@ -162,8 +164,11 @@ class TaserSnapshotCorpus(GitCorpus):
                                                   max_len, lazy_dict=True)
         self.taser_jar = taser_jar
 
+        self.src = tempfile.mkdtemp(prefix='taser_')
+        self.dest = tempfile.mkdtemp(prefix='taser_')
+
         # checkout the version we want
-        dulwich.index.build_index_from_tree(self.repo.path,
+        dulwich.index.build_index_from_tree(self.src,
                                             self.repo.index_path(),
                                             self.repo.object_store,
                                             self.ref_tree)
@@ -173,12 +178,12 @@ class TaserSnapshotCorpus(GitCorpus):
         self.corpus_generated = False
 
         cmds = list()
-        cmds.append(['java', '-jar', self.taser_jar, 'ex', self.repo.path, '-o', 'taser_output'])
-        cmds.append(['java', '-jar', self.taser_jar, 'rw', 'taser_output', '-o', 'taser_output'])
-        cmds.append(['java', '-jar', self.taser_jar, 'bc', 'taser_output', '-o', 'taser_output'])
+        cmds.append(['java', '-jar', self.taser_jar, 'ex', self.src, '-o', self.dest])
+        cmds.append(['java', '-jar', self.taser_jar, 'rw', self.dest, '-o', self.dest])
+        cmds.append(['java', '-jar', self.taser_jar, 'bc', self.dest, '-o', self.dest])
         # do not need to do pp since we will preproccess ourselves
-        #cmds.append(['java', '-jar', self.taser_jar, 'pp', 'taser_output', '-o', 'taser_output'])
-        cmds.append(['java', '-jar', self.taser_jar, 'fc', 'taser_output', '-o', 'taser_output'])
+        #cmds.append(['java', '-jar', self.taser_jar, 'pp', self.dest, '-o', self.dest])
+        cmds.append(['java', '-jar', self.taser_jar, 'fc', self.dest, '-o', self.dest])
 
         for cmd in cmds:
             retval = subprocess.call(cmd)
@@ -193,7 +198,7 @@ class TaserSnapshotCorpus(GitCorpus):
 
         length = 0
 
-        with open('taser_output/unknown-0.0.ser') as f:
+        with open(os.path.join(self.dest, 'unknown-0.0.ser')) as f:
             for line in f:
                 doc_name, document = line.split(' ', 1)
                 words = self.preprocess(document, [doc_name, self.ref])

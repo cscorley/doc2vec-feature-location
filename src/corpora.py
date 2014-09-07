@@ -13,9 +13,11 @@ Code for generating the corpora.
 
 from StringIO import StringIO
 import re
+import subprocess
 
 import gensim
 import dulwich
+import dulwich.index
 import dulwich.repo
 import dulwich.patch
 
@@ -24,7 +26,9 @@ import preprocessing
 import logging
 logger = logging.getLogger('cfl.corpora')
 
+
 class GitCorpus(gensim.interfaces.CorpusABC):
+
     """
     Helper class to simplify the pipeline of getting bag-of-words vectors (=
     a gensim corpus) from plain text.
@@ -57,7 +61,7 @@ class GitCorpus(gensim.interfaces.CorpusABC):
         self.metadata = False
 
         # ensure ref is a str otherwise dulwich cries
-        if type(ref) is unicode:
+        if isinstance(ref, unicode):
             self.ref = ref.encode('utf-8')
         else:
             self.ref = ref
@@ -126,6 +130,7 @@ class GitCorpus(gensim.interfaces.CorpusABC):
 
 
 class SnapshotCorpus(GitCorpus):
+
     def get_texts(self):
         length = 0
 
@@ -146,7 +151,64 @@ class SnapshotCorpus(GitCorpus):
         self.length = length  # only reset after iteration is done.
 
 
+class TaserSnapshotCorpus(GitCorpus):
+
+    def __init__(self, repo=None, ref='HEAD', remove_stops=True,
+                 split=True, lower=True, min_len=3, max_len=40,
+                 taser_jar='lib/taser.jar'):
+        # force lazy_dict since we have to run taser to build the corpus first
+        super(TaserSnapshotCorpus, self).__init__(repo, ref, remove_stops,
+                                                  split, lower, min_len,
+                                                  max_len, lazy_dict=True)
+        self.taser_jar = taser_jar
+
+        # checkout the version we want
+        dulwich.index.build_index_from_tree(self.repo.path,
+                                            self.repo.index_path(),
+                                            self.repo.object_store,
+                                            self.ref_tree)
+        self.corpus_generated = False
+
+    def run_taser(self):
+        self.corpus_generated = False
+
+        cmds = list()
+        cmds.append(['java', '-jar', self.taser_jar, 'ex', self.repo.path, '-o', 'taser_output'])
+        cmds.append(['java', '-jar', self.taser_jar, 'rw', 'taser_output', '-o', 'taser_output'])
+        cmds.append(['java', '-jar', self.taser_jar, 'bc', 'taser_output', '-o', 'taser_output'])
+        # do not need to do pp since we will preproccess ourselves
+        #cmds.append(['java', '-jar', self.taser_jar, 'pp', 'taser_output', '-o', 'taser_output'])
+        cmds.append(['java', '-jar', self.taser_jar, 'fc', 'taser_output', '-o', 'taser_output'])
+
+        for cmd in cmds:
+            retval = subprocess.call(cmd)
+            if retval:
+                raise Exception("Failed cmd: " + str(cmd))
+
+        self.corpus_generated = True
+
+    def get_texts(self):
+        if not self.corpus_generated:
+            self.run_taser()
+
+        length = 0
+
+        with open('taser_output/unknown-0.0.ser') as f:
+            for line in f:
+                doc_name, document = line.split(' ', 1)
+                words = self.preprocess(document, [doc_name, self.ref])
+                length += 1
+
+                if self.metadata:
+                    yield words, (doc_name, u'en')
+                else:
+                    yield words
+
+        self.length = length  # only reset after iteration is done.
+
+
 class ChangesetCorpus(GitCorpus):
+
     def _get_diff(self, changeset):
         """ Return a text representing a `git diff` for the files in the
         changeset.
@@ -243,6 +305,7 @@ class ChangesetCorpus(GitCorpus):
 
 
 class CommitLogCorpus(GitCorpus):
+
     def get_texts(self):
         length = 0
 

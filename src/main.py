@@ -18,7 +18,8 @@ import csv
 from collections import namedtuple
 
 import dulwich
-import dulwich.porcelain
+import dulwich.client
+import dulwich.repo
 
 import utils
 
@@ -27,7 +28,6 @@ def cli():
     logger.info("test")
 
     name = sys.argv[1]
-    WORKING_DIR = 'working'
 
     project = None
 
@@ -70,6 +70,30 @@ def cli():
         target = os.path.join(repos_base, url.split('/')[-1])
         print(target)
         try:
-            dulwich.porcelain.clone(url, target, bare=True)
+            clone(url, target, bare=True)
         except OSError:
             pass
+
+def clone(source, target, bare=False):
+    client, host_path = dulwich.client.get_transport_and_path(source)
+
+    if target is None:
+        target = host_path.split("/")[-1]
+
+    if not os.path.exists(target):
+        os.mkdir(target)
+
+    if bare:
+        r = dulwich.repo.Repo.init_bare(target)
+    else:
+        r = dulwich.repo.Repo.init(target)
+
+    remote_refs = client.fetch(host_path, r,
+                               determine_wants=r.object_store.determine_wants_all)
+
+    r["HEAD"] = remote_refs["HEAD"]
+
+    for key, val in remote_refs.iteritems():
+        r.refs.add_if_new(key, val)
+
+    return r

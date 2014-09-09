@@ -70,19 +70,20 @@ def cli():
         utils.mkdir(repos_base)
 
     for url in repos:
-        target = os.path.join(repos_base, url.split('/')[-1])
+        repo_name = url.split('/')[-1]
+        target = os.path.join(repos_base, repo_name)
         print(target)
         try:
             repo = clone(url, target, bare=True)
         except OSError:
             repo = dulwich.repo.Repo(target)
 
-        create_corpus(project, repo, ChangesetCorpus)
-        create_corpus(project, repo, TaserSnapshotCorpus)
+        create_corpus(project, repo_name, repo, ChangesetCorpus)
+        create_corpus(project, repo_name, repo, TaserSnapshotCorpus)
 
 
-def create_corpus(project, repo, Kind):
-    corpus_fname = os.path.join('data', project.name, Kind.__name__)
+def create_corpus(project, repo_name, repo, Kind):
+    corpus_fname = os.path.join('data', project.name, Kind.__name__ + repo_name)
     if not os.path.exists(corpus_fname):
         if project.sha:
             corpus = Kind(repo, project.sha, lazy_dict=True)

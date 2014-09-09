@@ -21,7 +21,10 @@ import dulwich
 import dulwich.client
 import dulwich.repo
 
+from gensim.corpora import MalletCorpus, Dictionary
+
 import utils
+from corpora import ChangesetCorpus, TaserSnapshotCorpus
 
 def cli():
     print("test")
@@ -70,9 +73,28 @@ def cli():
         target = os.path.join(repos_base, url.split('/')[-1])
         print(target)
         try:
-            clone(url, target, bare=True)
+            repo = clone(url, target, bare=True)
         except OSError:
-            pass
+            repo = dulwich.repo.Repo(target)
+
+        create_corpus(project, repo, ChangesetCorpus)
+        create_corpus(project, repo, TaserSnapshotCorpus)
+
+
+def create_corpus(project, repo, Kind):
+    corpus_fname = os.path.join('data', project.name, Kind.__name__)
+    if not os.path.exists(corpus_fname):
+        if project.sha:
+            corpus = Kind(repo, project.sha, lazy_dict=True)
+        else:
+            corpus = Kind(repo, project.ref, lazy_dict=True)
+
+        corpus.metadata = True
+        MalletCorpus.serialize(corpus_fname, corpus,
+                               id2word=corpus.id2word, metadata=True)
+        corpus.metadata = False
+        corpus.id2word.save(corpus_fname + '.dict')
+
 
 def clone(source, target, bare=False):
     client, host_path = dulwich.client.get_transport_and_path(source)
@@ -94,6 +116,7 @@ def clone(source, target, bare=False):
     r["HEAD"] = remote_refs["HEAD"]
 
     for key, val in remote_refs.iteritems():
-        r.refs.add_if_new(key, val)
+        if not key.endswith('^{}'):
+            r.refs.add_if_new(key, val)
 
     return r

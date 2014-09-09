@@ -157,7 +157,7 @@ class TaserSnapshotCorpus(GitCorpus):
 
     def __init__(self, repo=None, ref='HEAD', remove_stops=True,
                  split=True, lower=True, min_len=3, max_len=40,
-                 taser_jar='lib/taser.jar'):
+                 taser_jar='lib/taser.jar', lazy_dict=True):
         # force lazy_dict since we have to run taser to build the corpus first
         super(TaserSnapshotCorpus, self).__init__(repo, ref, remove_stops,
                                                   split, lower, min_len,

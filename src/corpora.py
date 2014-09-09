@@ -75,7 +75,7 @@ class GitCorpus(gensim.interfaces.CorpusABC):
             # find which file tree is for the commit we care about
             self.ref_obj = self.repo[self.ref]
             if isinstance(self.ref_obj, dulwich.objects.Tag):
-                self.ref_tree = self.ref_obj.object[0].tree
+                self.ref_tree = self.repo[self.ref_obj.object[1]].tree
             elif isinstance(self.ref_obj, dulwich.objects.Commit):
                 self.ref_tree = self.ref_obj.tree
             elif isinstance(self.ref_obj, dulwich.objects.Tree):
@@ -175,6 +175,7 @@ class TaserSnapshotCorpus(GitCorpus):
 
         self.src = tempfile.mkdtemp(prefix='taser_')
         self.dest = tempfile.mkdtemp(prefix='taser_')
+        print(self.src, self.dest)
 
         # checkout the version we want
         dulwich.index.build_index_from_tree(self.src,

@@ -19,6 +19,7 @@ import tempfile
 
 import gensim
 import dulwich
+import dulwich.objects
 import dulwich.index
 import dulwich.repo
 import dulwich.patch
@@ -72,7 +73,15 @@ class GitCorpus(gensim.interfaces.CorpusABC):
 
         if repo is not None:
             # find which file tree is for the commit we care about
-            self.ref_tree = self.repo[self.ref].tree
+            self.ref_obj = self.repo[self.ref]
+            if isinstance(self.ref_obj, dulwich.objects.Tag):
+                self.ref_tree = self.ref_obj.object[0].tree
+            elif isinstance(self.ref_obj, dulwich.objects.Commit):
+                self.ref_tree = self.ref_obj.tree
+            elif isinstance(self.ref_obj, dulwich.objects.Tree):
+                self.ref_tree = self.ref_obj.id
+            else:
+                self.ref_tree = self.ref # here goes nothin?
 
             if not lazy_dict:
                 # build the dict (not lazy)

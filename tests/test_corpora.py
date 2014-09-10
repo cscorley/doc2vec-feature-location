@@ -95,27 +95,27 @@ class TestSnapshotCorpus(TestGitCorpus):
 
         documents = [
                 ([u'human', u'machine', u'interface', u'for', u'lab', u'abc', u'computer', u'applications'],
-                    ('a/0.txt', u'en')),
+                    ('a/0.txt', u'test_git')),
                 ([u'a', u'survey', u'of', u'user', u'opinion', u'of', u'computer', u'system', u'response', u'time'],
-                    ('a/1.txt', u'en')),
+                    ('a/1.txt', u'test_git')),
                 ([u'the', u'eps', u'user', u'interface', u'management', u'system'],
-                    ('b/2.txt', u'en')),
+                    ('b/2.txt', u'test_git')),
                 ([u'system', u'and', u'human', u'system', u'engineering', u'testing', u'of', u'eps'],
-                    ('b/3.txt', u'en')),
+                    ('b/3.txt', u'test_git')),
                 ([u'relation', u'of', u'user', u'perceived', u'response', u'time', u'to', u'error', u'measurement'],
-                    ('c/4.txt', u'en')),
+                    ('c/4.txt', u'test_git')),
                 ([u'the', u'generation', u'of', u'random', u'binary', u'unordered', u'trees'],
-                    ('c/e/5.txt', u'en')),
+                    ('c/e/5.txt', u'test_git')),
                 ([u'the', u'intersection', u'graph', u'of', u'paths', u'in', u'trees'],
-                    ('c/f/6.txt', u'en')),
+                    ('c/f/6.txt', u'test_git')),
                 ([u'graph', u'minors', u'iv', u'widths', u'of', u'trees', u'and', u'well', u'quasi', u'ordering'],
-                    ('7.txt', u'en')),
+                    ('7.txt', u'test_git')),
                 ([u'graph', u'minors', u'a', u'survey'],
-                    ('dos.txt', u'en')),
+                    ('dos.txt', u'test_git')),
                 ([u'graph', u'minors', u'a', u'survey'],
-                    ('mac.txt', u'en')),
+                    ('mac.txt', u'test_git')),
                 ([u'graph', u'minors', u'a', u'survey'],
-                    ('unix.txt', u'en')),
+                    ('unix.txt', u'test_git')),
                 ]
 
         for docmeta in self.corpus.get_texts():
@@ -286,19 +286,19 @@ class TestSnapshotCorpusAtRef(TestGitCorpus):
 
         documents = [
                 ([u'human', u'machine', u'interface', u'for', u'lab', u'abc', u'computer', u'applications'],
-                    ('a/0.txt', u'en')),
+                    ('a/0.txt', u'test_git')),
                 ([u'a', u'survey', u'of', u'user', u'opinion', u'of', u'computer', u'system', u'response', u'time'],
-                    ('a/1.txt', u'en')),
+                    ('a/1.txt', u'test_git')),
                 ([u'the', u'eps', u'user', u'interface', u'management', u'system'],
-                    ('b/2.txt', u'en')),
+                    ('b/2.txt', u'test_git')),
                 ([u'system', u'and', u'human', u'system', u'engineering', u'testing', u'of', u'eps'],
-                    ('b/3.txt', u'en')),
+                    ('b/3.txt', u'test_git')),
                 ([u'graph', u'minors', u'a', u'survey'],
-                    ('dos.txt', u'en')),
+                    ('dos.txt', u'test_git')),
                 ([u'graph', u'minors', u'a', u'survey'],
-                    ('mac.txt', u'en')),
+                    ('mac.txt', u'test_git')),
                 ([u'graph', u'minors', u'a', u'survey'],
-                    ('unix.txt', u'en')),
+                    ('unix.txt', u'test_git')),
                 ]
 
         for docmeta in self.corpus.get_texts():
@@ -446,19 +446,19 @@ class TestChangesetCorpus(TestGitCorpus):
                     [u'graph', u'minors', u'a', u'survey'] +
                     [u'graph', u'minors', u'a', u'survey'] +
                     [u'graph', u'minors', u'a', u'survey'],
-                    (u'2aeb2e7c78259833e1218b69f99dab3acd00970c', u'en')),
+                    (u'2aeb2e7c78259833e1218b69f99dab3acd00970c', u'test_git')),
 
                 # a/
                 (
                     [u'human', u'machine', u'interface', u'for', u'lab', u'abc', u'computer', u'applications'] +
                     [u'a', u'survey', u'of', u'user', u'opinion', u'of', u'computer', u'system', u'response', u'time'],
-                    (u'3587d37e7d476ddc7b673c41762dc89c8ca63a6a', u'en')),
+                    (u'3587d37e7d476ddc7b673c41762dc89c8ca63a6a', u'test_git')),
 
                 # b/
                 (
                     [u'the', u'eps', u'user', u'interface', u'management', u'system'] +
                     [u'system', u'and', u'human', u'system', u'engineering', u'testing', u'of', u'eps'],
-                    (u'f33a0fb070a34fc1b9105453b3ffb4edc49131d9', u'en')),
+                    (u'f33a0fb070a34fc1b9105453b3ffb4edc49131d9', u'test_git')),
 
                 # c/
                 # TODO apparently file c/4.txt is fubar in the test repo
@@ -466,12 +466,12 @@ class TestChangesetCorpus(TestGitCorpus):
                     #[u'relation', u'of', u'user', u'perceived', u'response', u'time', u'to', u'error', u'measurement'] +
                     [u'the', u'generation', u'of', u'random', u'binary', u'unordered', u'trees'] +
                     [u'the', u'intersection', u'graph', u'of', u'paths', u'in', u'trees'],
-                    (u'899268bdd33aec225f6264a734dac2081f78ab54', u'en')),
+                    (u'899268bdd33aec225f6264a734dac2081f78ab54', u'test_git')),
 
                 # 7
                 (
                     [u'graph', u'minors', u'iv', u'widths', u'of', u'trees', u'and', u'well', u'quasi', u'ordering'],
-                    (u'f870a217765a268fe5c5315d58ef671050d17fb9', u'en')),
+                    (u'f870a217765a268fe5c5315d58ef671050d17fb9', u'test_git')),
 
                 ]
 

@@ -72,6 +72,10 @@ class GitCorpus(gensim.interfaces.CorpusABC):
         self.ref_tree = None
 
         if repo is not None:
+            # set the label
+            # filter to get rid of all empty strings
+            self.label = filter(lambda x: x, repo.path.split('/'))[-1]
+
             # find which file tree is for the commit we care about
             self.ref_obj = self.repo[self.ref]
             if isinstance(self.ref_obj, dulwich.objects.Tag):
@@ -155,7 +159,7 @@ class SnapshotCorpus(GitCorpus):
             length += 1
 
             if self.metadata:
-                yield words, (fname, u'en')
+                yield words, (fname, self.label)
             else:
                 yield words
 
@@ -215,7 +219,7 @@ class TaserSnapshotCorpus(GitCorpus):
                 length += 1
 
                 if self.metadata:
-                    yield words, (doc_name, u'en')
+                    yield words, (doc_name, self.label)
                 else:
                     yield words
 
@@ -276,7 +280,7 @@ class ChangesetCorpus(GitCorpus):
             elif current != commit:
                 # new commit seen, yield the collected low
                 if self.metadata:
-                    yield low, (current, u'en')
+                    yield low, (current, self.label)
                 else:
                     yield low
 
@@ -312,7 +316,7 @@ class ChangesetCorpus(GitCorpus):
         length += 1
         if self.metadata:
             # have reached the end, yield whatever was collected last
-            yield low, (current, u'en')
+            yield low, (current, self.label)
         else:
             yield low
 
@@ -331,7 +335,7 @@ class CommitLogCorpus(GitCorpus):
             length += 1
             if self.metadata:
                 # have reached the end, yield whatever was collected last
-                yield words, (commit.id, u'en')
+                yield words, (commit.id, self.label)
             else:
                 yield words
 

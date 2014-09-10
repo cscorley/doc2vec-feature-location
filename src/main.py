@@ -69,6 +69,8 @@ def cli():
     if not os.path.exists(repos_base):
         utils.mkdir(repos_base)
 
+    ourset = set()
+
     for url in repos:
         repo_name = url.split('/')[-1]
         target = os.path.join(repos_base, repo_name)
@@ -78,15 +80,32 @@ def cli():
         except OSError:
             repo = dulwich.repo.Repo(target)
 
-        create_corpus(project, repo_name, repo, ChangesetCorpus)
+        changes = create_corpus(project, repo_name, repo, ChangesetCorpus)
         try:
-            create_corpus(project, repo_name, repo, TaserSnapshotCorpus)
+            taser = create_corpus(project, repo_name, repo, TaserSnapshotCorpus)
         except Exception:
             pass
 
+        taser.metadata = True
+        ourset.update(set(doc[1][0] for doc in c))
+        taser.metadata = False
+
+    goldset_fname = os.path.join('data', project.name, 'v' + project.version, 'allgold.txt')
+    goldset = set()
+    with open(goldset_fname) as f:
+        for line in f:
+            goldset.add(line.strip())
+
+    print(len(goldset), len(ourset), len(ourset & goldset))
+    missing_fname = os.path.join('data', project.name, 'v' + project.version, 'missing-gold.txt')
+    with open(missing_fname, 'w') as f:
+        for each in sorted(list(goldset - ourset)):
+            f.write(each + '\n')
+
+
 
 def create_corpus(project, repo_name, repo, Kind):
-    corpus_fname = os.path.join('data', project.name, Kind.__name__ + repo_name)
+    corpus_fname = os.path.join('data', project.name, Kind.__name__ + repo_name + '.mallet')
     if not os.path.exists(corpus_fname):
         try:
             if project.sha:
@@ -101,6 +120,15 @@ def create_corpus(project, repo_name, repo, Kind):
                                id2word=corpus.id2word, metadata=True)
         corpus.metadata = False
         corpus.id2word.save(corpus_fname + '.dict')
+    else:
+        if os.path.exists(corpus_fname + '.dict'):
+            id2word = Dictionary.load(corpus_fname + '.dict')
+        else:
+            id2word = None
+
+        corpus = MalletCorpus(corpus_fname, id2word=id2word)
+
+    return corpus
 
 
 def clone(source, target, bare=False):

@@ -57,6 +57,8 @@ def cli():
         if project is None:
             error("Could not find '%s' in 'projects.csv'!" % name)
 
+    data_path = os.path.join('data', project.name, 'v' + project.version, '%s')
+
     # reading in repos
     repos = list()
     with open(os.path.join('data', project.name, 'repos.txt')) as f:
@@ -80,32 +82,38 @@ def cli():
         except OSError:
             repo = dulwich.repo.Repo(target)
 
-        changes = create_corpus(project, repo_name, repo, ChangesetCorpus)
+        changes = create_corpus(project, data_path, repo_name, repo, ChangesetCorpus)
         try:
-            taser = create_corpus(project, repo_name, repo, TaserSnapshotCorpus)
+            taser = create_corpus(project, data_path, repo_name, repo, TaserSnapshotCorpus)
         except Exception:
             pass
 
         taser.metadata = True
-        ourset.update(set(doc[1][0] for doc in c))
+        ourset.update(set(doc[1][0] for doc in taser))
         taser.metadata = False
 
-    goldset_fname = os.path.join('data', project.name, 'v' + project.version, 'allgold.txt')
+    goldset_fname = data_path % 'allgold.txt'
     goldset = set()
     with open(goldset_fname) as f:
         for line in f:
             goldset.add(line.strip())
 
     print(len(goldset), len(ourset), len(ourset & goldset))
-    missing_fname = os.path.join('data', project.name, 'v' + project.version, 'missing-gold.txt')
+
+    missing_fname = data_path % 'missing-gold.txt'
     with open(missing_fname, 'w') as f:
         for each in sorted(list(goldset - ourset)):
             f.write(each + '\n')
 
+    ours_fname = data_path % 'allours.txt'
+    with open(ours_fname, 'w') as f:
+        for each in sorted(list(ourset)):
+            f.write(each + '\n')
 
 
-def create_corpus(project, repo_name, repo, Kind):
-    corpus_fname = os.path.join('data', project.name, Kind.__name__ + repo_name + '.mallet')
+
+def create_corpus(project, data_path, repo_name, repo, Kind):
+    corpus_fname = data_path % Kind.__name__ + repo_name + '.mallet'
     if not os.path.exists(corpus_fname):
         try:
             if project.sha:

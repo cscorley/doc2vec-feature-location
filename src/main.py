@@ -27,7 +27,6 @@ import utils
 from corpora import ChangesetCorpus, TaserSnapshotCorpus
 
 def cli():
-    print("test")
     logger.info("test")
 
     name = sys.argv[1]
@@ -37,16 +36,18 @@ def cli():
     with open("projects.csv", 'r') as f:
         reader = csv.reader(f)
         header = next(reader)
-        Project = namedtuple('Project',  ' '.join(header))
-
+        customs = ['data_path']
+        Project = namedtuple('Project',  ' '.join(header + customs))
         # figure out which column index contains the project name
         name_idx = header.index("name")
+        version_idx = header.index("version")
 
         # find the project in the csv, adding it's info to config
         for row in reader:
             if name == row[name_idx]:
                 # 🎶  do you believe in magicccccc
                 # in a young girl's heart? 🎶
+                row += (os.path.join('data', row[name_idx], row[version_idx], ''),)
                 project = Project(*row)
                 break
 
@@ -57,16 +58,11 @@ def cli():
         if project is None:
             error("Could not find '%s' in 'projects.csv'!" % name)
 
-    data_path = os.path.join('data', project.name, 'v' + project.version, '%s')
-
     # reading in repos
-    repos = list()
     with open(os.path.join('data', project.name, 'repos.txt')) as f:
-        for line in f:
-            repos.append(line.strip())
+        repos = [line.strip() for line in f]
 
     print(project)
-    print(repos)
     repos_base = 'gits'
     if not os.path.exists(repos_base):
         utils.mkdir(repos_base)
@@ -82,9 +78,9 @@ def cli():
         except OSError:
             repo = dulwich.repo.Repo(target)
 
-        changes = create_corpus(project, data_path, repo_name, repo, ChangesetCorpus)
+        changes = create_corpus(project, repo_name, repo, ChangesetCorpus)
         try:
-            taser = create_corpus(project, data_path, repo_name, repo, TaserSnapshotCorpus)
+            taser = create_corpus(project, repo_name, repo, TaserSnapshotCorpus)
         except Exception:
             pass
 
@@ -92,7 +88,7 @@ def cli():
         ourset.update(set(doc[1][0] for doc in taser))
         taser.metadata = False
 
-    goldset_fname = data_path % 'allgold.txt'
+    goldset_fname = project.data_path + 'allgold.txt'
     goldset = set()
     with open(goldset_fname) as f:
         for line in f:
@@ -100,20 +96,20 @@ def cli():
 
     print(len(goldset), len(ourset), len(ourset & goldset))
 
-    missing_fname = data_path % 'missing-gold.txt'
+    missing_fname = project.data_path + 'missing-gold.txt'
     with open(missing_fname, 'w') as f:
         for each in sorted(list(goldset - ourset)):
             f.write(each + '\n')
 
-    ours_fname = data_path % 'allours.txt'
+    ours_fname = project.data_path + 'allours.txt'
     with open(ours_fname, 'w') as f:
         for each in sorted(list(ourset)):
             f.write(each + '\n')
 
 
 
-def create_corpus(project, data_path, repo_name, repo, Kind):
-    corpus_fname = data_path % Kind.__name__ + repo_name + '.mallet'
+def create_corpus(project, repo_name, repo, Kind):
+    corpus_fname = project.data_path + Kind.__name__ + repo_name + '.mallet'
     if not os.path.exists(corpus_fname):
         try:
             if project.sha:

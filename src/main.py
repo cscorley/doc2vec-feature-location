@@ -79,16 +79,22 @@ def cli():
             repo = dulwich.repo.Repo(target)
 
         create_corpus(project, repo_name, repo, ChangesetCorpus)
-        create_corpus(project, repo_name, repo, TaserSnapshotCorpus)
+        try:
+            create_corpus(project, repo_name, repo, TaserSnapshotCorpus)
+        except Exception:
+            pass
 
 
 def create_corpus(project, repo_name, repo, Kind):
     corpus_fname = os.path.join('data', project.name, Kind.__name__ + repo_name)
     if not os.path.exists(corpus_fname):
-        if project.sha:
-            corpus = Kind(repo, project.sha, lazy_dict=True)
-        else:
-            corpus = Kind(repo, project.ref, lazy_dict=True)
+        try:
+            if project.sha:
+                corpus = Kind(repo, project.sha, lazy_dict=True)
+            else:
+                corpus = Kind(repo, project.ref, lazy_dict=True)
+        except KeyError:
+            return # nothing to see here, move along
 
         corpus.metadata = True
         MalletCorpus.serialize(corpus_fname, corpus,

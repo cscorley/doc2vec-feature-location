@@ -1,4 +1,6 @@
-all: java_grammar
+all: test
+
+test:
 	nosetests tests/ || true
 	find src tests -name '*.pyc' -exec rm {} \;
 

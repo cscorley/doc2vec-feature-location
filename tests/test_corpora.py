@@ -18,7 +18,7 @@ from io import StringIO
 from nose.tools import *
 import dulwich.repo
 
-from src.corpora import SnapshotCorpus, ChangesetCorpus
+from src.corpora import SnapshotCorpus, ChangesetCorpus, CorpusCombiner
 
 # datapath is now a useful function for building paths to test files
 module_path = os.path.dirname(__file__)
@@ -576,3 +576,78 @@ class TestChangesetCorpus(TestGitCorpus):
             # term ids ahead of time for testing.
             textdoc = set((unicode(self.corpus.id2word[x[0]]), x[1]) for x in doc)
             self.assertIn(textdoc, documents)
+
+
+class TestCorpusCombiner(TestGitCorpus):
+    def setUp(self):
+        super(TestCorpusCombiner, self).setUp()
+        # 3 documents
+        self.ref1 = u'2aeb2e7c78259833e1218b69f99dab3acd00970c'
+        self.corpus1 = SnapshotCorpus(self.repo, self.ref1,
+                                      remove_stops=False,
+                                      lower=True,
+                                      split=True,
+                                      min_len=0)
+        self.docs1 = list(self.corpus1)
+
+        # 3 old documents + 2 new documents
+        self.ref2 = u'3587d37e7d476ddc7b673c41762dc89c8ca63a6a'
+        self.corpus2 = SnapshotCorpus(self.repo, self.ref2,
+                                      remove_stops=False,
+                                      lower=True,
+                                      split=True,
+                                      min_len=0)
+        self.docs2 = list(self.corpus1)
+
+        self.corpus = CorpusCombiner([self.corpus1, self.corpus2])
+        self.docs = list(self.corpus)
+
+    def test_length(self):
+        self.assertEqual(len(self.corpus), 8)
+        self.assertEqual(len(self.docs), 8)
+
+        l = len(self.corpus)
+        for _ in self.corpus:
+            self.assertEqual(l, len(self.corpus))
+
+    def test_metadata_docs(self):
+        documents = [
+                # corpus1
+                ([u'graph', u'minors', u'a', u'survey'],
+                    ('dos.txt', u'test_git')),
+                ([u'graph', u'minors', u'a', u'survey'],
+                    ('mac.txt', u'test_git')),
+                ([u'graph', u'minors', u'a', u'survey'],
+                    ('unix.txt', u'test_git')),
+
+                # corpus2
+                ([u'graph', u'minors', u'a', u'survey'],
+                    ('dos.txt', u'test_git')),
+                ([u'graph', u'minors', u'a', u'survey'],
+                    ('mac.txt', u'test_git')),
+                ([u'graph', u'minors', u'a', u'survey'],
+                    ('unix.txt', u'test_git')),
+                ([u'human', u'machine', u'interface', u'for', u'lab', u'abc', u'computer', u'applications'],
+                    ('a/0.txt', u'test_git')),
+                ([u'a', u'survey', u'of', u'user', u'opinion', u'of', u'computer', u'system', u'response', u'time'],
+                    ('a/1.txt', u'test_git')),
+                ]
+
+        documents = [(set(x),y) for x,y in documents]
+
+        self.corpus.metadata = True
+        vals = [self.corpus.metadata,
+                self.corpus._metadata,
+                self.corpus.corpora[0].metadata,
+                self.corpus.corpora[1].metadata]
+        self.assertTrue(all(vals))
+
+        for docmeta in self.corpus:
+            doc, meta = docmeta
+            self.assertGreater(len(doc), 0)
+
+            # convert the document to text freq since we don't know the
+            # term ids ahead of time for testing.
+            textdoc = set(unicode(self.corpus.id2word[x[0]]) for x in doc)
+            docmeta = textdoc, meta
+            self.assertIn(docmeta, documents)

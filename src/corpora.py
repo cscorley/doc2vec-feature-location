@@ -25,6 +25,7 @@ import dulwich.repo
 import dulwich.patch
 
 import preprocessing
+from errors import TaserError
 
 import logging
 logger = logging.getLogger('cfl.corpora')
@@ -202,7 +203,7 @@ class TaserSnapshotCorpus(GitCorpus):
         for cmd in cmds:
             retval = subprocess.call(cmd)
             if retval:
-                raise Exception("Failed cmd: " + str(cmd))
+                raise TaserError("Failed cmd: " + str(cmd))
 
         self.corpus_generated = True
 
@@ -340,3 +341,39 @@ class CommitLogCorpus(GitCorpus):
                 yield words
 
         self.length = length  # only reset after iteration is done.
+
+
+class CorpusCombiner(object):
+    def __init__(self, corpora=None):
+        self.corpora = list()
+        self._metadata = False
+        self.id2word = gensim.corpora.Dictionary()
+
+        if corpora:
+            for each in corpora:
+                self.add(each)
+
+    def add(self, corpus):
+        self.id2word.merge_with(corpus.id2word)
+        corpus.metadata = self.metadata
+        corpus.id2word = self.id2word
+        self.corpora.append(corpus)
+
+    def __iter__(self):
+        for corpus in self.corpora:
+            for doc in corpus:
+                yield doc
+
+    def __len__(self):
+        return sum(len(c) for c in self.corpora)
+
+    @property
+    def metadata(self):
+        return self._metadata
+
+    @metadata.setter
+    def metadata(self, val):
+        assert val is True or val is False
+        self._metadata = val
+        for corpus in self.corpora:
+            corpus.metadata = self._metadata

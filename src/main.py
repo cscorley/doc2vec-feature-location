@@ -24,7 +24,7 @@ import dulwich.repo
 from gensim.corpora import MalletCorpus, Dictionary
 
 import utils
-from corpora import ChangesetCorpus, TaserSnapshotCorpus
+from corpora import ChangesetCorpus, TaserSnapshotCorpus, CorpusCombiner
 
 def cli():
     logger.info("test")
@@ -67,7 +67,9 @@ def cli():
     if not os.path.exists(repos_base):
         utils.mkdir(repos_base)
 
-    ourset = set()
+
+    all_changes = CorpusCombiner()
+    all_taser = CorpusCombiner()
 
     for url in repos:
         repo_name = url.split('/')[-1]
@@ -79,14 +81,17 @@ def cli():
             repo = dulwich.repo.Repo(target)
 
         changes = create_corpus(project, repo_name, repo, ChangesetCorpus)
-        try:
-            taser = create_corpus(project, repo_name, repo, TaserSnapshotCorpus)
-        except Exception:
-            pass
+        taser = create_corpus(project, repo_name, repo, TaserSnapshotCorpus)
 
-        taser.metadata = True
-        ourset.update(set(doc[1][0] for doc in taser))
-        taser.metadata = False
+        if changes:
+            all_changes.add(changes)
+
+        if taser:
+            all_taser.add(taser)
+
+    all_taser.metadata = True
+    taserset = set(doc[1][0] for doc in all_taser)
+    all_taser.metadata = False
 
     goldset_fname = project.data_path + 'allgold.txt'
     goldset = set()
@@ -94,16 +99,16 @@ def cli():
         for line in f:
             goldset.add(line.strip())
 
-    print(len(goldset), len(ourset), len(ourset & goldset))
+    print(len(goldset), len(taserset), len(taserset & goldset))
 
     missing_fname = project.data_path + 'missing-gold.txt'
     with open(missing_fname, 'w') as f:
-        for each in sorted(list(goldset - ourset)):
+        for each in sorted(list(goldset - taserset)):
             f.write(each + '\n')
 
     ours_fname = project.data_path + 'allours.txt'
     with open(ours_fname, 'w') as f:
-        for each in sorted(list(ourset)):
+        for each in sorted(list(taserset)):
             f.write(each + '\n')
 
 
@@ -118,6 +123,8 @@ def create_corpus(project, repo_name, repo, Kind):
                 corpus = Kind(repo, project.ref, lazy_dict=True)
         except KeyError:
             return # nothing to see here, move along
+        except TaserError:
+            return
 
         corpus.metadata = True
         MalletCorpus.serialize(corpus_fname, corpus,

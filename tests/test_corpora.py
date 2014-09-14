@@ -12,11 +12,14 @@ if __name__ == '__main__':
     nose.main()
 
 import unittest
+import tempfile
+import os
 import os.path
 from io import StringIO
 
 from nose.tools import *
 import dulwich.repo
+from gensim.corpora import MalletCorpus
 
 from src.corpora import SnapshotCorpus, ChangesetCorpus, CorpusCombiner
 
@@ -36,6 +39,10 @@ class TestGitCorpus(unittest.TestCase):
                 tar.extractall(extraction_path)
 
         self.repo = dulwich.repo.Repo(self.basepath)
+        _, self.tempfname = tempfile.mkstemp(text=True)
+
+    def tearDown(self):
+        os.remove(self.tempfname)
 
 class TestSnapshotCorpus(TestGitCorpus):
     def setUp(self):
@@ -597,7 +604,8 @@ class TestCorpusCombiner(TestGitCorpus):
                                       lower=True,
                                       split=True,
                                       min_len=0)
-        self.docs2 = list(self.corpus1)
+        self.docs2 = list(self.corpus2)
+
 
         self.corpus = CorpusCombiner([self.corpus1, self.corpus2])
         self.docs = list(self.corpus)
@@ -638,8 +646,64 @@ class TestCorpusCombiner(TestGitCorpus):
         self.corpus.metadata = True
         vals = [self.corpus.metadata,
                 self.corpus._metadata,
-                self.corpus.corpora[0].metadata,
-                self.corpus.corpora[1].metadata]
+                self.corpus.corpora[0][0].metadata,
+                self.corpus.corpora[1][0].metadata]
+        self.assertTrue(all(vals))
+
+        for docmeta in self.corpus:
+            doc, meta = docmeta
+            self.assertGreater(len(doc), 0)
+
+            # convert the document to text freq since we don't know the
+            # term ids ahead of time for testing.
+            textdoc = set(unicode(self.corpus.id2word[x[0]]) for x in doc)
+            docmeta = textdoc, meta
+            self.assertIn(docmeta, documents)
+
+    def test_mallet_corpus(self):
+        with open(self.tempfname, 'w') as f:
+            f.write('abc en fred flintstone\n')
+            f.write('efg en barney rubble\n')
+        corpus3 = MalletCorpus(self.tempfname)
+        self.assertEqual(len(corpus3), 2)
+        self.corpus.add(corpus3)
+        self.assertEqual(len(self.corpus), 10)
+
+        documents = [
+                # corpus1
+                ([u'graph', u'minors', u'a', u'survey'],
+                    ('dos.txt', u'test_git')),
+                ([u'graph', u'minors', u'a', u'survey'],
+                    ('mac.txt', u'test_git')),
+                ([u'graph', u'minors', u'a', u'survey'],
+                    ('unix.txt', u'test_git')),
+
+                # corpus2
+                ([u'graph', u'minors', u'a', u'survey'],
+                    ('dos.txt', u'test_git')),
+                ([u'graph', u'minors', u'a', u'survey'],
+                    ('mac.txt', u'test_git')),
+                ([u'graph', u'minors', u'a', u'survey'],
+                    ('unix.txt', u'test_git')),
+                ([u'human', u'machine', u'interface', u'for', u'lab', u'abc', u'computer', u'applications'],
+                    ('a/0.txt', u'test_git')),
+                ([u'a', u'survey', u'of', u'user', u'opinion', u'of', u'computer', u'system', u'response', u'time'],
+                    ('a/1.txt', u'test_git')),
+
+                # mallet
+                ([u'fred', u'flintstone'],
+                    ('abc', u'en')),
+                ([u'barney', u'rubble'],
+                    ('efg', u'en')),
+                ]
+
+        documents = [(set(x),y) for x,y in documents]
+
+        self.corpus.metadata = True
+        vals = [self.corpus.metadata,
+                self.corpus._metadata,
+                self.corpus.corpora[0][0].metadata,
+                self.corpus.corpora[1][0].metadata]
         self.assertTrue(all(vals))
 
         for docmeta in self.corpus:

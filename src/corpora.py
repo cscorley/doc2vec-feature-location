@@ -354,18 +354,22 @@ class CorpusCombiner(object):
                 self.add(each)
 
     def add(self, corpus):
-        self.id2word.merge_with(corpus.id2word)
+        trans = self.id2word.merge_with(corpus.id2word)
         corpus.metadata = self.metadata
-        corpus.id2word = self.id2word
-        self.corpora.append(corpus)
+        #corpus.id2word = self.id2word
+        self.corpora.append((corpus, trans))
 
     def __iter__(self):
-        for corpus in self.corpora:
+        for corpus, translator in self.corpora:
             for doc in corpus:
-                yield doc
+                if self.metadata:
+                    doc, meta = doc
+                    yield translator[doc], meta
+                else:
+                    yield translator[doc]
 
     def __len__(self):
-        return sum(len(c) for c in self.corpora)
+        return sum(len(c) for c,t in self.corpora)
 
     @property
     def metadata(self):
@@ -375,5 +379,5 @@ class CorpusCombiner(object):
     def metadata(self, val):
         assert val is True or val is False
         self._metadata = val
-        for corpus in self.corpora:
+        for corpus, translator in self.corpora:
             corpus.metadata = self._metadata

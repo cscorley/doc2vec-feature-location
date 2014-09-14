@@ -89,9 +89,13 @@ def cli():
         if taser:
             all_taser.add(taser)
 
+    write_out(project, all_taser)
+
+def write_out(project, all_taser):
     all_taser.metadata = True
     taserset = set(doc[1][0] for doc in all_taser)
     all_taser.metadata = False
+
 
     goldset_fname = project.data_path + 'allgold.txt'
     goldset = set()

@@ -646,8 +646,8 @@ class TestCorpusCombiner(TestGitCorpus):
         self.corpus.metadata = True
         vals = [self.corpus.metadata,
                 self.corpus._metadata,
-                self.corpus.corpora[0][0].metadata,
-                self.corpus.corpora[1][0].metadata]
+                self.corpus.corpora[0].metadata,
+                self.corpus.corpora[1].metadata]
         self.assertTrue(all(vals))
 
         for docmeta in self.corpus:
@@ -702,8 +702,9 @@ class TestCorpusCombiner(TestGitCorpus):
         self.corpus.metadata = True
         vals = [self.corpus.metadata,
                 self.corpus._metadata,
-                self.corpus.corpora[0][0].metadata,
-                self.corpus.corpora[1][0].metadata]
+                self.corpus.corpora[0].metadata,
+                self.corpus.corpora[1].metadata,
+                self.corpus.corpora[2].metadata]
         self.assertTrue(all(vals))
 
         for docmeta in self.corpus:

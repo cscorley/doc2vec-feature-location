@@ -354,7 +354,6 @@ class CommitLogCorpus(GitCorpus):
 class CorpusCombiner(GeneralCorpus):
     def __init__(self, corpora=None):
         self.corpora = list()
-        self._metadata = False
 
         super(CorpusCombiner, self).__init__(lazy_dict=True)
 
@@ -365,20 +364,17 @@ class CorpusCombiner(GeneralCorpus):
     def add(self, corpus):
         trans = self.id2word.merge_with(corpus.id2word)
         corpus.metadata = self.metadata
-        #corpus.id2word = self.id2word
-        self.corpora.append((corpus, trans))
+        corpus.id2word = self.id2word
+        corpus.word2id = self.id2word.token2id
+        self.corpora.append(corpus)
 
     def __iter__(self):
-        for corpus, translator in self.corpora:
+        for corpus in self.corpora:
             for doc in corpus:
-                if self.metadata:
-                    doc, meta = doc
-                    yield translator[doc], meta
-                else:
-                    yield translator[doc]
+                yield doc
 
     def __len__(self):
-        return sum(len(c) for c,t in self.corpora)
+        return sum(len(c) for c in self.corpora)
 
     @property
     def metadata(self):
@@ -388,5 +384,5 @@ class CorpusCombiner(GeneralCorpus):
     def metadata(self, val):
         assert val is True or val is False
         self._metadata = val
-        for corpus, translator in self.corpora:
+        for corpus in self.corpora:
             corpus.metadata = self._metadata

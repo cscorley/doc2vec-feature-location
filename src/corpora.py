@@ -355,12 +355,12 @@ class CorpusCombiner(GeneralCorpus):
     def __init__(self, corpora=None):
         self.corpora = list()
         self._metadata = False
-        self.id2word = gensim.corpora.Dictionary()
+
+        super(CorpusCombiner, self).__init__(lazy_dict=True)
 
         if corpora:
             for each in corpora:
                 self.add(each)
-        super(CorpusCombiner, self).__init__(lazy_dict=True)
 
     def add(self, corpus):
         trans = self.id2word.merge_with(corpus.id2word)

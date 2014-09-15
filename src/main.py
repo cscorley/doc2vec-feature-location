@@ -104,19 +104,30 @@ def cli():
     queries = load_queries(project)
 
     # to preprocess the queries use the corpus preprocessor!
-    changes_queries = [ (q.id,
-                         all_changes.id2word.doc2bow(
-                             list(all_changes.preprocess(q.short)) +
-                             list(all_changes.preprocess(q.long))))
+    changes_queries = [ all_changes.id2word.doc2bow(
+                            list(all_changes.preprocess(q.short)) +
+                            list(all_changes.preprocess(q.long)))
                        for q in queries]
 
-    taser_queries = [ (q.id,
-                       all_taser.id2word.doc2bow(
-                           list(all_taser.preprocess(q.short)) +
-                           list(all_taser.preprocess(q.long))))
+    taser_queries = [ all_taser.id2word.doc2bow(
+                          list(all_taser.preprocess(q.short)) +
+                          list(all_taser.preprocess(q.long)))
                      for q in queries]
 
+    # get the doc topic for the methods of interest
+    # need to get matching dictionaries?
+    changeset_doc_topic = list(get_topics(changeset_model, all_taser))
+    taser_doc_topic = list(get_topics(taser_model, all_taser))
 
+    # get the query topic
+    changeset_query_topic = list(get_topics(changeset_model, changes_queries))
+    taser_query_topic = list(get_topics(taser_model, taser_queries))
+
+
+def get_topics(model, corpus):
+    for doc in corpus:
+        topics = model.__getitem__(doc, eps=0)
+        yield list(sorted(topics, key=lambda x: x[1], reverse=True))
 
 def load_queries(project):
     with open(project.data_path + 'ids.txt') as f:

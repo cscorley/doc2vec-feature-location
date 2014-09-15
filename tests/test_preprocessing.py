@@ -20,7 +20,7 @@ from io import StringIO
 from nose.tools import *
 
 from src.preprocessing import split, remove_stops
-from src.corpora import GitCorpus
+from src.corpora import GeneralCorpus
 
 # datapath is now a useful function for building paths to test files
 module_path = os.path.dirname(__file__)
@@ -222,7 +222,7 @@ class PreprocessTests(unittest.TestCase):
             u'Erwin_Schrödinger': ('erwin', u'schrödinger')
             })
 
-        c = GitCorpus(min_len=2)
+        c = GeneralCorpus(min_len=2, lazy_dict=True)
         for term, expected in cases.items():
             result = c.preprocess(term)
             self.assertEqual(tuple(result), expected)

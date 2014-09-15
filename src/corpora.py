@@ -30,30 +30,10 @@ from errors import TaserError
 import logging
 logger = logging.getLogger('cfl.corpora')
 
-
-class GitCorpus(gensim.interfaces.CorpusABC):
-
-    """
-    Helper class to simplify the pipeline of getting bag-of-words vectors (=
-    a gensim corpus) from plain text.
-
-    This is an abstract base class: override the `get_texts()` method to match
-    your particular input.
-
-    Given a filename (or a file-like object) in constructor, the corpus object
-    will be automatically initialized with a dictionary in `self.dictionary` and
-    will support the `iter` corpus method. You must only provide a correct
-    `get_texts` implementation.
-    """
-
-    def __init__(self, repo=None, ref='HEAD', remove_stops=True,
+class GeneralCorpus(gensim.interfaces.CorpusABC):
+    def __init__(self, remove_stops=True,
                  split=True, lower=True, min_len=3, max_len=40,
                  lazy_dict=False):
-
-        logger.info('Creating %s corpus out of source files for commit %s' % (
-            self.__class__.__name__, ref))
-
-        self.repo = repo
         self.remove_stops = remove_stops
         self.split = split
         self.lower = lower
@@ -64,35 +44,11 @@ class GitCorpus(gensim.interfaces.CorpusABC):
         self.id2word = gensim.corpora.Dictionary()
         self.metadata = False
 
-        # ensure ref is a str otherwise dulwich cries
-        if isinstance(ref, unicode):
-            self.ref = ref.encode('utf-8')
-        else:
-            self.ref = ref
+        if not lazy_dict:
+            # build the dict (not lazy)
+            self.id2word.add_documents(self.get_texts())
 
-        self.ref_tree = None
-
-        if repo is not None:
-            # set the label
-            # filter to get rid of all empty strings
-            self.label = filter(lambda x: x, repo.path.split('/'))[-1]
-
-            # find which file tree is for the commit we care about
-            self.ref_obj = self.repo[self.ref]
-            if isinstance(self.ref_obj, dulwich.objects.Tag):
-                self.ref_tree = self.repo[self.ref_obj.object[1]].tree
-            elif isinstance(self.ref_obj, dulwich.objects.Commit):
-                self.ref_tree = self.ref_obj.tree
-            elif isinstance(self.ref_obj, dulwich.objects.Tree):
-                self.ref_tree = self.ref_obj.id
-            else:
-                self.ref_tree = self.ref # here goes nothin?
-
-            if not lazy_dict:
-                # build the dict (not lazy)
-                self.id2word.add_documents(self.get_texts())
-
-        super(GitCorpus, self).__init__()
+        super(GeneralCorpus, self).__init__()
 
     def preprocess(self, document, info=[]):
         document = preprocessing.to_unicode(document, info)
@@ -143,6 +99,58 @@ class GitCorpus(gensim.interfaces.CorpusABC):
 
     def __len__(self):
         return self.length  # will throw if corpus not initialized
+
+class GitCorpus(GeneralCorpus):
+
+    """
+    Helper class to simplify the pipeline of getting bag-of-words vectors (=
+    a gensim corpus) from plain text.
+
+    This is an abstract base class: override the `get_texts()` method to match
+    your particular input.
+
+    Given a filename (or a file-like object) in constructor, the corpus object
+    will be automatically initialized with a dictionary in `self.dictionary` and
+    will support the `iter` corpus method. You must only provide a correct
+    `get_texts` implementation.
+    """
+
+    def __init__(self, repo, ref='HEAD', remove_stops=True,
+                 split=True, lower=True, min_len=3, max_len=40,
+                 lazy_dict=False):
+
+        logger.info('Creating %s corpus out of source files for commit %s' % (
+            self.__class__.__name__, ref))
+
+        self.repo = repo
+
+        # ensure ref is a str otherwise dulwich cries
+        if isinstance(ref, unicode):
+            self.ref = ref.encode('utf-8')
+        else:
+            self.ref = ref
+
+        self.ref_tree = None
+
+        # set the label
+        # filter to get rid of all empty strings
+        self.label = filter(lambda x: x, repo.path.split('/'))[-1]
+
+        # find which file tree is for the commit we care about
+        self.ref_obj = self.repo[self.ref]
+        if isinstance(self.ref_obj, dulwich.objects.Tag):
+            self.ref_tree = self.repo[self.ref_obj.object[1]].tree
+        elif isinstance(self.ref_obj, dulwich.objects.Commit):
+            self.ref_tree = self.ref_obj.tree
+        elif isinstance(self.ref_obj, dulwich.objects.Tree):
+            self.ref_tree = self.ref_obj.id
+        else:
+            self.ref_tree = self.ref # here goes nothin?
+
+        super(GitCorpus, self).__init__(remove_stops, split, lower, min_len,
+                                        max_len, lazy_dict)
+
+
 
 
 class SnapshotCorpus(GitCorpus):
@@ -343,7 +351,7 @@ class CommitLogCorpus(GitCorpus):
         self.length = length  # only reset after iteration is done.
 
 
-class CorpusCombiner(object):
+class CorpusCombiner(GeneralCorpus):
     def __init__(self, corpora=None):
         self.corpora = list()
         self._metadata = False
@@ -352,6 +360,7 @@ class CorpusCombiner(object):
         if corpora:
             for each in corpora:
                 self.add(each)
+        super(CorpusCombiner, self).__init__(lazy_dict=True)
 
     def add(self, corpus):
         trans = self.id2word.merge_with(corpus.id2word)

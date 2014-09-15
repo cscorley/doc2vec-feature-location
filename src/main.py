@@ -22,6 +22,7 @@ import dulwich.client
 import dulwich.repo
 
 from gensim.corpora import MalletCorpus, Dictionary
+from gensim.models import LdaModel
 
 import utils
 from corpora import ChangesetCorpus, TaserSnapshotCorpus, CorpusCombiner
@@ -30,8 +31,16 @@ def cli():
     logger.info("test")
 
     name = sys.argv[1]
-
+    verbose = False
     project = None
+
+    logging.basicConfig(format='%(asctime)s : %(levelname)s : ' +
+                        '%(name)s : %(funcName)s : %(message)s')
+
+    if verbose:
+        logging.root.setLevel(level=logging.DEBUG)
+    else:
+        logging.root.setLevel(level=logging.INFO)
 
     with open("projects.csv", 'r') as f:
         reader = csv.reader(f)
@@ -89,7 +98,61 @@ def cli():
         if taser:
             all_taser.add(taser)
 
-    write_out(project, all_taser)
+    #write_out(project, all_taser)
+    changeset_model = create_model(project, all_changes, 'Changeset')
+    taser_model = create_model(project, all_taser, 'Taser')
+    queries = load_queries(project)
+
+    # to preprocess the queries use the corpus preprocessor!
+    changes_queries = [ (q.id,
+                         all_changes.id2word.doc2bow(
+                             list(all_changes.preprocess(q.short)) +
+                             list(all_changes.preprocess(q.long))))
+                       for q in queries]
+
+    taser_queries = [ (q.id,
+                       all_taser.id2word.doc2bow(
+                           list(all_taser.preprocess(q.short)) +
+                           list(all_taser.preprocess(q.long))))
+                     for q in queries]
+
+
+
+def load_queries(project):
+    with open(project.data_path + 'ids.txt') as f:
+        ids = list(map(int, f.readlines()))
+
+    queries = list()
+    Query = namedtuple('Query', 'id short long')
+    for id in ids:
+        with open(project.data_path + 'Queries/ShortDescription' + str(id) + '.txt') as f:
+            short = f.read()
+
+        with open(project.data_path + 'Queries/LongDescription' + str(id) + '.txt') as f:
+            long = f.read()
+
+        queries.append(Query(id, short, long))
+
+    return queries
+
+
+
+def create_model(project, corpus, name):
+    model_fname = project.data_path + name + '.lda'
+
+    if not os.path.exists(model_fname):
+        model = LdaModel(corpus,
+                         id2word=corpus.id2word,
+                         alpha='auto',
+                         passes=1,
+                         num_topics=100)
+
+        model.save(model_fname)
+    else:
+        model = LdaModel.load(model_fname)
+
+    return model
+
 
 def write_out(project, all_taser):
     all_taser.metadata = True

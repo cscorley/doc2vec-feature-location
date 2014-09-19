@@ -54,9 +54,28 @@ def cli():
         # find the project in the csv, adding it's info to config
         for row in reader:
             if name == row[name_idx]:
+                # build the data_path value
+                row += (os.path.join('data', row[name_idx], row[version_idx], ''),)
+
+                # try to convert string values to numbers
+                for idx, item in enumerate(row):
+                    # try int first, floats will throw an error
+                    try:
+                        item = int(item)
+                        row[idx] = item
+                        continue
+                    except ValueError:
+                        pass
+
+                    # try float second
+                    try:
+                        item = float(item)
+                        row[idx] = item
+                    except ValueError:
+                        pass
+
                 # 🎶  do you believe in magicccccc
                 # in a young girl's heart? 🎶
-                row += (os.path.join('data', row[name_idx], row[version_idx], ''),)
                 project = Project(*row)
                 break
 
@@ -98,36 +117,89 @@ def cli():
         if taser:
             all_taser.add(taser)
 
+    # combine dictionaries!
+    all_changes.id2word.merge_with(all_taser.id2word)
+    all_taser.id2word = all_changes.id2word
+
     #write_out(project, all_taser)
     changeset_model = create_model(project, all_changes, 'Changeset')
     taser_model = create_model(project, all_taser, 'Taser')
+
+    # create/load document lists
     queries = load_queries(project)
+    goldsets = load_goldsets(project)
 
     # to preprocess the queries use the corpus preprocessor!
-    changes_queries = [ all_changes.id2word.doc2bow(
-                            list(all_changes.preprocess(q.short)) +
-                            list(all_changes.preprocess(q.long)))
-                       for q in queries]
-
-    taser_queries = [ all_taser.id2word.doc2bow(
-                          list(all_taser.preprocess(q.short)) +
-                          list(all_taser.preprocess(q.long)))
-                     for q in queries]
-
-    # get the doc topic for the methods of interest
-    # need to get matching dictionaries?
-    changeset_doc_topic = list(get_topics(changeset_model, all_taser))
-    taser_doc_topic = list(get_topics(taser_model, all_taser))
+    query_bows = [ (all_changes.id2word.doc2bow(
+                    list(all_changes.preprocess(q.short)) +
+                    list(all_changes.preprocess(q.long))),
+                    q.id)
+                for q in queries]
 
     # get the query topic
-    changeset_query_topic = list(get_topics(changeset_model, changes_queries))
-    taser_query_topic = list(get_topics(taser_model, taser_queries))
+    changeset_query_topic = get_topics(changeset_model, query_bows)
+    taser_query_topic = get_topics(taser_model, query_bows)
+
+    # get the doc topic for the methods of interest
+    changeset_doc_topic = get_topics(changeset_model, all_taser)
+    taser_doc_topic = get_topics(taser_model, all_taser)
+
+    # get the ranks
+    changeset_ranks = get_rank(changeset_query_topic, changeset_doc_topic)
+    taser_ranks = get_rank(taser_query_topic, taser_doc_topic)
+
+    # calculate MRR
+    changeset_first_rels = get_frms(goldsets, changeset_ranks)
+    taser_first_rels = get_frms(goldsets, taser_ranks)
+    print(len(goldsets), len(changeset_first_rels))
+    print(len(taser_first_rels))
+
+    changeset_mrr = (1.0/float(len(changeset_first_rels)) *
+                    sum(1.0/float(num) for num, q, d in changeset_first_rels))
+    taser_mrr = (1.0/float(len(taser_first_rels)) *
+                    sum(1.0/float(num) for num, q, d in taser_first_rels))
+
+    print(changeset_mrr, taser_mrr)
+
+
+def get_frms(goldsets, ranks):
+    frms = list()
+    for gid, gset in goldsets:
+        for q_meta, rank in ranks:
+            if gid == q_meta:
+                for idx, docmeta in enumerate(rank):
+                    d_meta, dist = docmeta
+                    d_name, d_repo = d_meta
+                    if d_name in gset:
+                        frms.append((idx, q_meta, d_meta))
+                        break
+                break
+    return frms
+
+def get_rank(query_topic, doc_topic, distance_measure=utils.hellinger_distance):
+    ranks = list()
+    for q_meta, query in query_topic:
+        q_dist = list()
+
+        for d_meta, doc in doc_topic:
+            distance = distance_measure(query, doc)
+            q_dist.append((d_meta, 1.0 - distance))
+
+        ranks.append((q_meta, sorted(q_dist, reverse=True, key=lambda x: x[1])))
+
+    return ranks
 
 
 def get_topics(model, corpus):
-    for doc in corpus:
+    doc_topic = list()
+    if hasattr(corpus, 'metadata'):
+        corpus.metadata = True
+    for doc, metadata in corpus:
         topics = model.__getitem__(doc, eps=0)
-        yield list(sorted(topics, key=lambda x: x[1], reverse=True))
+        topics = [val for id, val in topics]
+        doc_topic.append((metadata, list(sorted(topics, reverse=True))))
+
+    return doc_topic
 
 def load_queries(project):
     with open(project.data_path + 'ids.txt') as f:
@@ -146,6 +218,20 @@ def load_queries(project):
 
     return queries
 
+def load_goldsets(project):
+    with open(project.data_path + 'ids.txt') as f:
+        ids = list(map(int, f.readlines()))
+
+    goldsets = list()
+    Gold = namedtuple('Gold', 'id golds')
+    for id in ids:
+        with open(project.data_path + 'GoldSets/GoldSet' + str(id) + '.txt') as f:
+            golds = set(x.strip() for x in f.readlines())
+
+        goldsets.append(Gold(id, golds))
+
+    return goldsets
+
 
 
 def create_model(project, corpus, name):
@@ -154,9 +240,9 @@ def create_model(project, corpus, name):
     if not os.path.exists(model_fname):
         model = LdaModel(corpus,
                          id2word=corpus.id2word,
-                         alpha='auto',
-                         passes=1,
-                         num_topics=100)
+                         alpha=project.alpha,
+                         passes=project.passes,
+                         num_topics=project.num_topics)
 
         model.save(model_fname)
     else:

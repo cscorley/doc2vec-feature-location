@@ -205,7 +205,7 @@ def get_frms(goldsets, ranks):
                     doc_meta, dist = metadist
                     d_name, d_repo = doc_meta
                     if d_name in gset:
-                        frms.append((idx, query_id, doc_meta))
+                        frms.append((idx+1, query_id, doc_meta))
                         break
                 break
     return frms

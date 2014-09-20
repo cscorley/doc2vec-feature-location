@@ -24,6 +24,8 @@ import dulwich.repo
 from gensim.corpora import MalletCorpus, Dictionary
 from gensim.models import LdaModel
 
+import scipy.stats
+
 import utils
 from corpora import ChangesetCorpus, TaserSnapshotCorpus, CorpusCombiner
 
@@ -121,7 +123,7 @@ def cli():
     all_changes.id2word.merge_with(all_taser.id2word)
     all_taser.id2word = all_changes.id2word
 
-    #write_out(project, all_taser)
+    #write_out_missing(project, all_taser)
     changeset_model = create_model(project, all_changes, 'Changeset')
     taser_model = create_model(project, all_taser, 'Taser')
 
@@ -159,19 +161,51 @@ def cli():
     taser_mrr = (1.0/float(len(taser_first_rels)) *
                     sum(1.0/float(num) for num, q, d in taser_first_rels))
 
-    print(changeset_mrr, taser_mrr)
+    print('changeset mrr:', changeset_mrr)
+    print('taser mrr:', taser_mrr)
+
+    with open(project.data_path + 'changeset_frms.csv', 'w') as f:
+        w = csv.writer(f)
+        w.writerows(changeset_first_rels)
+
+    with open(project.data_path + 'taser_frms.csv', 'w') as f:
+        w = csv.writer(f)
+        w.writerows(taser_first_rels)
+
+    first_rels = dict()
+
+    for num, query_id, doc_meta in changeset_first_rels:
+        if query_id not in first_rels:
+            first_rels[query_id] = [num]
+        else:
+            print('duplicate qid found:', query_id)
+
+    for num, query_id, doc_meta in taser_first_rels:
+        if query_id not in first_rels:
+            print('qid not found:', query_id)
+        else:
+            first_rels[query_id].append(num)
+
+    x = [v[0] for v in first_rels.values()]
+    y = [v[1] for v in first_rels.values()]
+
+    print('ranksums:', scipy.stats.ranksums(x, y))
+    print('mann-whitney:', scipy.stats.mannwhitneyu(x, y))
+    print('wilcoxon signedrank:', scipy.stats.wilcoxon(x, y))
+    print('friedman:', scipy.stats.friedmanchisquare(*first_rels.values()))
+
 
 
 def get_frms(goldsets, ranks):
     frms = list()
     for gid, gset in goldsets:
-        for q_meta, rank in ranks:
-            if gid == q_meta:
-                for idx, docmeta in enumerate(rank):
-                    d_meta, dist = docmeta
-                    d_name, d_repo = d_meta
+        for query_id, rank in ranks:
+            if gid == query_id:
+                for idx, metadist in enumerate(rank):
+                    doc_meta, dist = metadist
+                    d_name, d_repo = doc_meta
                     if d_name in gset:
-                        frms.append((idx, q_meta, d_meta))
+                        frms.append((idx, query_id, doc_meta))
                         break
                 break
     return frms
@@ -251,7 +285,7 @@ def create_model(project, corpus, name):
     return model
 
 
-def write_out(project, all_taser):
+def write_out_missing(project, all_taser):
     all_taser.metadata = True
     taserset = set(doc[1][0] for doc in all_taser)
     all_taser.metadata = False

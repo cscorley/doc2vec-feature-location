@@ -164,11 +164,11 @@ def cli():
     print('changeset mrr:', changeset_mrr)
     print('taser mrr:', taser_mrr)
 
-    with open(project.data_path + 'changeset_frms.csv', 'w') as f:
+    with open(project.data_path + 'changeset' + str(project.num_topics) + '_frms.csv', 'w') as f:
         w = csv.writer(f)
         w.writerows(changeset_first_rels)
 
-    with open(project.data_path + 'taser_frms.csv', 'w') as f:
+    with open(project.data_path + 'taser' + str(project.num_topics) + '_frms.csv', 'w') as f:
         w = csv.writer(f)
         w.writerows(taser_first_rels)
 
@@ -269,7 +269,7 @@ def load_goldsets(project):
 
 
 def create_model(project, corpus, name):
-    model_fname = project.data_path + name + '.lda'
+    model_fname = project.data_path + name +  str(project.num_topics) + '.lda'
 
     if not os.path.exists(model_fname):
         model = LdaModel(corpus,

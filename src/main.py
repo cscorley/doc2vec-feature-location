@@ -28,6 +28,7 @@ import scipy.stats
 
 import utils
 from corpora import ChangesetCorpus, TaserSnapshotCorpus, CorpusCombiner
+from errors import TaserError
 
 def cli():
     logger.info("test")
@@ -111,7 +112,10 @@ def cli():
             repo = dulwich.repo.Repo(target)
 
         changes = create_corpus(project, repo_name, repo, ChangesetCorpus)
-        taser = create_corpus(project, repo_name, repo, TaserSnapshotCorpus)
+        try:
+            taser = create_corpus(project, repo_name, repo, TaserSnapshotCorpus)
+        except TaserError:
+            taser = None
 
         if changes:
             all_changes.add(changes)

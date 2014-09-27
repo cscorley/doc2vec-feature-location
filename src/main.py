@@ -312,7 +312,9 @@ def write_out_missing(project, all_taser):
 
 
 def create_corpus(project, repo_name, repo, Kind):
-    corpus_fname = project.data_path + Kind.__name__ + repo_name + '.mallet'
+    corpus_fname_base = project.data_path + Kind.__name__ + repo_name
+    corpus_fname = corpus_fname_base + '.mallet.gz'
+    dict_fname = corpus_fname_base + '.dict.gz'
     if not os.path.exists(corpus_fname):
         try:
             if project.sha:
@@ -328,14 +330,14 @@ def create_corpus(project, repo_name, repo, Kind):
         MalletCorpus.serialize(corpus_fname, corpus,
                                id2word=corpus.id2word, metadata=True)
         corpus.metadata = False
-        corpus.id2word.save(corpus_fname + '.dict')
-    else:
-        if os.path.exists(corpus_fname + '.dict'):
-            id2word = Dictionary.load(corpus_fname + '.dict')
-        else:
-            id2word = None
+        corpus.id2word.save(dict_fname)
 
-        corpus = MalletCorpus(corpus_fname, id2word=id2word)
+    if os.path.exists(dict_fname):
+        id2word = Dictionary.load(dict_fname)
+    else:
+        id2word = None
+
+    corpus = MalletCorpus(corpus_fname, id2word=id2word)
 
     return corpus
 

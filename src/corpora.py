@@ -31,9 +31,14 @@ import logging
 logger = logging.getLogger('cfl.corpora')
 
 class GeneralCorpus(gensim.interfaces.CorpusABC):
-    def __init__(self, remove_stops=True,
-                 split=True, lower=True, min_len=3, max_len=40,
-                 lazy_dict=False):
+    def __init__(self, remove_stops=True, split=True, lower=True, min_len=3,
+                 max_len=40, lazy_dict=False):
+        lazystr = str()
+        if lazy_dict:
+            lazystr = 'lazy '
+
+        logger.info('Creating %s%s corpus', lazystr, self.__class__.__name__)
+
         self.remove_stops = remove_stops
         self.split = split
         self.lower = lower
@@ -43,6 +48,7 @@ class GeneralCorpus(gensim.interfaces.CorpusABC):
 
         self.id2word = gensim.corpora.Dictionary()
         self.metadata = False
+        self.label = 'general'
 
         if not lazy_dict:
             # build the dict (not lazy)
@@ -115,13 +121,11 @@ class GitCorpus(GeneralCorpus):
     `get_texts` implementation.
     """
 
-    def __init__(self, repo, ref='HEAD', remove_stops=True,
-                 split=True, lower=True, min_len=3, max_len=40,
-                 lazy_dict=False):
+    def __init__(self, repo, ref='HEAD', remove_stops=True, split=True,
+                 lower=True, min_len=3, max_len=40, lazy_dict=False):
 
-        logger.info('Creating %s corpus out of source files for commit %s' % (
-            self.__class__.__name__, ref))
-
+        logger.info('Creating %s corpus out of source files for commit %s: %s',
+            self.__class__.__name__, ref, str(lazy_dict))
         self.repo = repo
 
         # ensure ref is a str otherwise dulwich cries
@@ -131,10 +135,6 @@ class GitCorpus(GeneralCorpus):
             self.ref = ref
 
         self.ref_tree = None
-
-        # set the label
-        # filter to get rid of all empty strings
-        self.label = filter(lambda x: x, repo.path.split('/'))[-1]
 
         # find which file tree is for the commit we care about
         self.ref_obj = self.repo[self.ref]
@@ -147,9 +147,16 @@ class GitCorpus(GeneralCorpus):
         else:
             self.ref_tree = self.ref # here goes nothin?
 
-        super(GitCorpus, self).__init__(remove_stops, split, lower, min_len,
-                                        max_len, lazy_dict)
+        super(GitCorpus, self).__init__(remove_stops=remove_stops,
+                                        split=split,
+                                        lower=lower,
+                                        min_len=min_len,
+                                        max_len=max_len,
+                                        lazy_dict=lazy_dict)
 
+        # set the label
+        # filter to get rid of all empty strings
+        self.label = filter(lambda x: x, repo.path.split('/'))[-1]
 
 
 
@@ -177,18 +184,22 @@ class SnapshotCorpus(GitCorpus):
 
 class TaserSnapshotCorpus(GitCorpus):
 
-    def __init__(self, repo=None, ref='HEAD', remove_stops=True,
-                 split=True, lower=True, min_len=3, max_len=40,
-                 taser_jar='lib/taser.jar', lazy_dict=True):
+    def __init__(self, repo=None, ref='HEAD', remove_stops=True, split=True,
+                 lower=True, min_len=3, max_len=40, taser_jar='lib/taser.jar',
+                 lazy_dict=True):
         # force lazy_dict since we have to run taser to build the corpus first
-        super(TaserSnapshotCorpus, self).__init__(repo, ref, remove_stops,
-                                                  split, lower, min_len,
-                                                  max_len, lazy_dict=True)
+        super(TaserSnapshotCorpus, self).__init__(repo=repo,
+                                                  ref=ref,
+                                                  remove_stops=remove_stops,
+                                                  split=split,
+                                                  lower=lower,
+                                                  min_len=min_len,
+                                                  max_len=max_len,
+                                                  lazy_dict=True)
         self.taser_jar = taser_jar
 
         self.src = tempfile.mkdtemp(prefix='taser_')
         self.dest = tempfile.mkdtemp(prefix='taser_')
-        print(self.src, self.dest)
 
         # checkout the version we want
         dulwich.index.build_index_from_tree(self.src,
@@ -196,6 +207,7 @@ class TaserSnapshotCorpus(GitCorpus):
                                             self.repo.object_store,
                                             self.ref_tree)
         self.corpus_generated = False
+        self.run_taser()
 
     def run_taser(self):
         self.corpus_generated = False
@@ -225,6 +237,64 @@ class TaserSnapshotCorpus(GitCorpus):
             for line in f:
                 doc_name, document = line.split(' ', 1)
                 words = self.preprocess(document, [doc_name, self.ref])
+                length += 1
+
+                if self.metadata:
+                    yield words, (doc_name, self.label)
+                else:
+                    yield words
+
+        self.length = length  # only reset after iteration is done.
+
+class TaserReleaseCorpus(GeneralCorpus):
+
+    def __init__(self, src_path, remove_stops=True, split=True, lower=True,
+                 min_len=3, max_len=40, taser_jar='lib/taser.jar',
+                 lazy_dict=True):
+        # force lazy_dict since we have to run taser to build the corpus first
+        super(TaserReleaseCorpus, self).__init__(remove_stops=remove_stops,
+                                                 split=split,
+                                                 lower=lower,
+                                                 min_len=min_len,
+                                                 max_len=max_len,
+                                                 lazy_dict=True)
+        self.taser_jar = taser_jar
+
+        self.src = src_path
+        self.dest = tempfile.mkdtemp(prefix='taser_')
+        self.label = 'release'
+
+        self.corpus_generated = False
+        self.run_taser()
+
+    def run_taser(self):
+        self.corpus_generated = False
+
+        cmds = list()
+        cmds.append(['java', '-jar', self.taser_jar, 'ex', self.src, '-o', self.dest])
+        cmds.append(['java', '-jar', self.taser_jar, 'rw', self.dest, '-o', self.dest])
+        cmds.append(['java', '-jar', self.taser_jar, 'bc', self.dest, '-o', self.dest])
+        # do not need to do pp since we will preproccess ourselves
+        #cmds.append(['java', '-jar', self.taser_jar, 'pp', self.dest, '-o', self.dest])
+        cmds.append(['java', '-jar', self.taser_jar, 'fc', self.dest, '-o', self.dest])
+
+        for cmd in cmds:
+            retval = subprocess.call(cmd)
+            if retval:
+                raise TaserError("Failed cmd: " + str(cmd))
+
+        self.corpus_generated = True
+
+    def get_texts(self):
+        if not self.corpus_generated:
+            self.run_taser()
+
+        length = 0
+
+        with open(os.path.join(self.dest, 'unknown-0.0.ser')) as f:
+            for line in f:
+                doc_name, document = line.split(' ', 1)
+                words = self.preprocess(document, [doc_name, self.src])
                 length += 1
 
                 if self.metadata:
@@ -386,3 +456,13 @@ class CorpusCombiner(GeneralCorpus):
         self._metadata = val
         for corpus in self.corpora:
             corpus.metadata = self._metadata
+
+    @property
+    def id2word(self):
+        return self._id2word
+
+    @id2word.setter
+    def id2word(self, val):
+        self._id2word = val
+        for corpus in self.corpora:
+            corpus.id2word = val

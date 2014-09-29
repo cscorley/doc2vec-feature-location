@@ -7,6 +7,9 @@ test:
 clean:
 	$(RM) src/grammars/Java*
 	find src tests -name '*.pyc' -exec rm {} \;
+	find data -name '*.mallet.gz' -exec rm {} \;
+	find data -name '*.dict.gz' -exec rm {} \;
+	find data -name '*.lda*' -exec rm {} \;
 
 
 install: requirements java_grammar

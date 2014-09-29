@@ -27,7 +27,8 @@ from gensim.models import LdaModel
 import scipy.stats
 
 import utils
-from corpora import ChangesetCorpus, TaserSnapshotCorpus, CorpusCombiner
+from corpora import (ChangesetCorpus, TaserSnapshotCorpus, TaserReleaseCorpus,
+                     CorpusCombiner, GeneralCorpus)
 from errors import TaserError
 
 def cli():
@@ -48,7 +49,7 @@ def cli():
     with open("projects.csv", 'r') as f:
         reader = csv.reader(f)
         header = next(reader)
-        customs = ['data_path']
+        customs = ['data_path', 'src_path']
         Project = namedtuple('Project',  ' '.join(header + customs))
         # figure out which column index contains the project name
         name_idx = header.index("name")
@@ -57,8 +58,12 @@ def cli():
         # find the project in the csv, adding it's info to config
         for row in reader:
             if name == row[name_idx]:
+
                 # build the data_path value
                 row += (os.path.join('data', row[name_idx], row[version_idx], ''),)
+
+                # build the src_path value
+                row += (os.path.join('data', row[name_idx], row[version_idx], 'src'),)
 
                 # try to convert string values to numbers
                 for idx, item in enumerate(row):
@@ -91,7 +96,7 @@ def cli():
 
     # reading in repos
     with open(os.path.join('data', project.name, 'repos.txt')) as f:
-        repos = [line.strip() for line in f]
+        repo_urls = [line.strip() for line in f]
 
     print(project)
     repos_base = 'gits'
@@ -99,10 +104,9 @@ def cli():
         utils.mkdir(repos_base)
 
 
-    all_changes = CorpusCombiner()
-    all_taser = CorpusCombiner()
+    repos = list()
 
-    for url in repos:
+    for url in repo_urls:
         repo_name = url.split('/')[-1]
         target = os.path.join(repos_base, repo_name)
         print(target)
@@ -111,70 +115,90 @@ def cli():
         except OSError:
             repo = dulwich.repo.Repo(target)
 
-        changes = create_corpus(project, repo_name, repo, ChangesetCorpus)
-        try:
-            taser = create_corpus(project, repo_name, repo, TaserSnapshotCorpus)
-        except TaserError:
-            taser = None
+        repos.append(repo)
 
-        if changes:
-            all_changes.add(changes)
-
-        if taser:
-            all_taser.add(taser)
+    # get corpora
+    changeset_corpus = create_corpus(project, repos, ChangesetCorpus)
+    snapshot_corpus = create_corpus(project, repos, TaserSnapshotCorpus)
+    release_corpus = create_release_corpus(project)
 
     # combine dictionaries!
-    all_changes.id2word.merge_with(all_taser.id2word)
-    all_taser.id2word = all_changes.id2word
+    id2word = Dictionary()
+    id2word.merge_with(changeset_corpus.id2word)
+    id2word.merge_with(snapshot_corpus.id2word)
+    id2word.merge_with(release_corpus.id2word)
 
-    #write_out_missing(project, all_taser)
-    changeset_model = create_model(project, all_changes, 'Changeset')
-    taser_model = create_model(project, all_taser, 'Taser')
+    changeset_corpus.id2word = id2word
+    snapshot_corpus.id2word = id2word
+    release_corpus.id2word = id2word
 
     # create/load document lists
-    queries = load_queries(project)
+    queries = create_queries(project, id2word)
     goldsets = load_goldsets(project)
 
-    # to preprocess the queries use the corpus preprocessor!
-    query_bows = [ (all_changes.id2word.doc2bow(
-                    list(all_changes.preprocess(q.short)) +
-                    list(all_changes.preprocess(q.long))),
-                    q.id)
-                for q in queries]
+    #write_out_missing(project, snapshot_corpus)
+    changeset_model = create_model(project, changeset_corpus, id2word, 'Changeset')
+    snapshot_model = create_model(project, snapshot_corpus, id2word,'Snapshot')
+    release_model = create_model(project, release_corpus, id2word,'Release')
 
     # get the query topic
-    changeset_query_topic = get_topics(changeset_model, query_bows)
-    taser_query_topic = get_topics(taser_model, query_bows)
+    changeset_query_topic = get_topics(changeset_model, queries)
+    snapshot_query_topic = get_topics(snapshot_model, queries)
+    release_query_topic = get_topics(release_model, queries)
 
-    # get the doc topic for the methods of interest
-    changeset_doc_topic = get_topics(changeset_model, all_taser)
-    taser_doc_topic = get_topics(taser_model, all_taser)
+    # get the doc topic for the methods of interest (git snapshot)
+    changeset_doc_topic = get_topics(changeset_model, snapshot_corpus)
+    snapshot_doc_topic = get_topics(snapshot_model, snapshot_corpus)
+
+    # get the doc topic for the methods of interest (release)
+    changeset2_doc_topic = get_topics(changeset_model, release_corpus)
+    release_doc_topic = get_topics(release_model, release_corpus)
 
     # get the ranks
     changeset_ranks = get_rank(changeset_query_topic, changeset_doc_topic)
-    taser_ranks = get_rank(taser_query_topic, taser_doc_topic)
+    snapshot_ranks = get_rank(snapshot_query_topic, snapshot_doc_topic)
+
+    changeset2_ranks = get_rank(changeset_query_topic, changeset2_doc_topic)
+    release_ranks = get_rank(release_query_topic, release_doc_topic)
 
     # calculate MRR
     changeset_first_rels = get_frms(goldsets, changeset_ranks)
-    taser_first_rels = get_frms(goldsets, taser_ranks)
-    print(len(goldsets), len(changeset_first_rels))
-    print(len(taser_first_rels))
+    snapshot_first_rels = get_frms(goldsets, snapshot_ranks)
+
+    changeset2_first_rels = get_frms(goldsets, changeset2_ranks)
+    release_first_rels = get_frms(goldsets, release_ranks)
 
     changeset_mrr = (1.0/float(len(changeset_first_rels)) *
                     sum(1.0/float(num) for num, q, d in changeset_first_rels))
-    taser_mrr = (1.0/float(len(taser_first_rels)) *
-                    sum(1.0/float(num) for num, q, d in taser_first_rels))
+    snapshot_mrr = (1.0/float(len(snapshot_first_rels)) *
+                    sum(1.0/float(num) for num, q, d in snapshot_first_rels))
+
+    changeset2_mrr = (1.0/float(len(changeset2_first_rels)) *
+                    sum(1.0/float(num) for num, q, d in changeset2_first_rels))
+    release_mrr = (1.0/float(len(release_first_rels)) *
+                    sum(1.0/float(num) for num, q, d in release_first_rels))
 
     print('changeset mrr:', changeset_mrr)
-    print('taser mrr:', taser_mrr)
+    print('snapshot mrr:', snapshot_mrr)
 
-    with open(project.data_path + 'changeset' + str(project.num_topics) + '_frms.csv', 'w') as f:
+    print('changeset2 mrr:', changeset2_mrr)
+    print('release mrr:', release_mrr)
+
+    with open(project.data_path + 'changeset_' + str(project.num_topics) + '_frms.csv', 'w') as f:
         w = csv.writer(f)
         w.writerows(changeset_first_rels)
 
-    with open(project.data_path + 'taser' + str(project.num_topics) + '_frms.csv', 'w') as f:
+    with open(project.data_path + 'snapshot_' + str(project.num_topics) + '_frms.csv', 'w') as f:
         w = csv.writer(f)
-        w.writerows(taser_first_rels)
+        w.writerows(snapshot_first_rels)
+
+    with open(project.data_path + 'changeset2_' + str(project.num_topics) + '_frms.csv', 'w') as f:
+        w = csv.writer(f)
+        w.writerows(changeset2_first_rels)
+
+    with open(project.data_path + 'release_' + str(project.num_topics) + '_frms.csv', 'w') as f:
+        w = csv.writer(f)
+        w.writerows(release_first_rels)
 
     first_rels = dict()
 
@@ -182,39 +206,66 @@ def cli():
         if query_id not in first_rels:
             first_rels[query_id] = [num]
         else:
-            print('duplicate qid found:', query_id)
+            logger.info('duplicate qid found:', query_id)
 
-    for num, query_id, doc_meta in taser_first_rels:
+    for num, query_id, doc_meta in snapshot_first_rels:
         if query_id not in first_rels:
-            print('qid not found:', query_id)
+            logger.info('qid not found:', query_id)
+        else:
+            first_rels[query_id].append(num)
+
+    for num, query_id, doc_meta in changeset2_first_rels:
+        if query_id not in first_rels:
+            logger.info('qid not found:', query_id)
+        else:
+            first_rels[query_id].append(num)
+
+    for num, query_id, doc_meta in release_first_rels:
+        if query_id not in first_rels:
+            logger.info('qid not found:', query_id)
         else:
             first_rels[query_id].append(num)
 
     x = [v[0] for v in first_rels.values()]
     y = [v[1] for v in first_rels.values()]
+    x2 = [v[2] for v in first_rels.values()]
+    y2 = [v[3] for v in first_rels.values()]
 
     print('ranksums:', scipy.stats.ranksums(x, y))
+    print('ranksums2:', scipy.stats.ranksums(x2, y2))
+
     print('mann-whitney:', scipy.stats.mannwhitneyu(x, y))
+    print('mann-whitney2:', scipy.stats.mannwhitneyu(x2, y2))
+
     print('wilcoxon signedrank:', scipy.stats.wilcoxon(x, y))
-    print('friedman:', scipy.stats.friedmanchisquare(*first_rels.values()))
+    print('wilcoxon signedrank2:', scipy.stats.wilcoxon(x2, y2))
+
+    print('friedman:', scipy.stats.friedmanchisquare(x, y, x2, y2))
 
 
 
 def get_frms(goldsets, ranks):
+    logger.info('Getting FRMS for %d goldsets and %d ranks',
+                len(goldsets), len(ranks))
     frms = list()
-    for gid, gset in goldsets:
-        for query_id, rank in ranks:
-            if gid == query_id:
+    for g_id, goldset in goldsets:
+        for q_meta, rank in ranks:
+            query_id, _ = q_meta
+            if g_id == query_id:
                 for idx, metadist in enumerate(rank):
                     doc_meta, dist = metadist
                     d_name, d_repo = doc_meta
-                    if d_name in gset:
+                    if d_name in goldset:
                         frms.append((idx+1, query_id, doc_meta))
                         break
                 break
+
+    logger.info('Returning %d FRMS', len(frms))
     return frms
 
 def get_rank(query_topic, doc_topic, distance_measure=utils.hellinger_distance):
+    logger.info('Getting ranks between %d query topics and %d doc topics',
+                len(query_topic), len(doc_topic))
     ranks = list()
     for q_meta, query in query_topic:
         q_dist = list()
@@ -225,59 +276,79 @@ def get_rank(query_topic, doc_topic, distance_measure=utils.hellinger_distance):
 
         ranks.append((q_meta, sorted(q_dist, reverse=True, key=lambda x: x[1])))
 
+    logger.info('Returning %d ranks', len(ranks))
     return ranks
 
 
 def get_topics(model, corpus):
+    logger.info('Getting doc topic for corpus with length %d', len(corpus))
     doc_topic = list()
-    if hasattr(corpus, 'metadata'):
-        corpus.metadata = True
+    corpus.metadata = True
+
     for doc, metadata in corpus:
         topics = model.__getitem__(doc, eps=0)
         topics = [val for id, val in topics]
         doc_topic.append((metadata, list(sorted(topics, reverse=True))))
 
+    corpus.metadata = False
+    logger.info('Returning doc topic of length %d', len(doc_topic))
+
     return doc_topic
 
-def load_queries(project):
-    with open(project.data_path + 'ids.txt') as f:
-        ids = list(map(int, f.readlines()))
+def create_queries(project, id2word):
+    corpus_fname_base = project.data_path + 'Queries'
+    corpus_fname = corpus_fname_base + '.mallet.gz'
 
-    queries = list()
-    Query = namedtuple('Query', 'id short long')
-    for id in ids:
-        with open(project.data_path + 'Queries/ShortDescription' + str(id) + '.txt') as f:
-            short = f.read()
+    if not os.path.exists(corpus_fname):
+        pp = GeneralCorpus(lazy_dict=True) # configure query preprocessing here
 
-        with open(project.data_path + 'Queries/LongDescription' + str(id) + '.txt') as f:
-            long = f.read()
+        with open(project.data_path + 'ids.txt') as f:
+            ids = [x.strip() for x in f.readlines()]
 
-        queries.append(Query(id, short, long))
+        queries = list()
+        for id in ids:
+            with open(project.data_path + 'Queries/ShortDescription' + id + '.txt') as f:
+                short = f.read()
 
-    return queries
+            with open(project.data_path + 'Queries/LongDescription' + id + '.txt') as f:
+                long = f.read()
+
+            text = ' '.join([short, long])
+            text = pp.preprocess(text)
+            bow = id2word.doc2bow(text)
+
+            queries.append((bow, (id, 'query')))
+
+        # write the corpus and dictionary to disk. this will take awhile.
+        MalletCorpus.serialize(corpus_fname, queries, id2word=id2word,
+                                metadata=True)
+
+    # re-open the compressed corpus
+    corpus = MalletCorpus(corpus_fname, id2word=id2word)
+
+    return corpus
 
 def load_goldsets(project):
     with open(project.data_path + 'ids.txt') as f:
-        ids = list(map(int, f.readlines()))
+        ids = [x.strip() for x in f.readlines()]
 
     goldsets = list()
-    Gold = namedtuple('Gold', 'id golds')
     for id in ids:
-        with open(project.data_path + 'GoldSets/GoldSet' + str(id) + '.txt') as f:
-            golds = set(x.strip() for x in f.readlines())
+        with open(project.data_path + 'GoldSets/GoldSet' + id + '.txt') as f:
+            golds = frozenset(x.strip() for x in f.readlines())
 
-        goldsets.append(Gold(id, golds))
+        goldsets.append((id, golds))
 
     return goldsets
 
 
 
-def create_model(project, corpus, name):
+def create_model(project, corpus, id2word, name):
     model_fname = project.data_path + name +  str(project.num_topics) + '.lda'
 
     if not os.path.exists(model_fname):
         model = LdaModel(corpus,
-                         id2word=corpus.id2word,
+                         id2word=id2word,
                          alpha=project.alpha,
                          passes=project.passes,
                          num_topics=project.num_topics)
@@ -301,8 +372,6 @@ def write_out_missing(project, all_taser):
         for line in f:
             goldset.add(line.strip())
 
-    print(len(goldset), len(taserset), len(taserset & goldset))
-
     missing_fname = project.data_path + 'missing-gold.txt'
     with open(missing_fname, 'w') as f:
         for each in sorted(list(goldset - taserset)):
@@ -315,24 +384,55 @@ def write_out_missing(project, all_taser):
 
 
 
-def create_corpus(project, repo_name, repo, Kind):
-    corpus_fname_base = project.data_path + Kind.__name__ + repo_name
+def create_corpus(project, repos, Kind):
+    corpus_fname_base = project.data_path + Kind.__name__
     corpus_fname = corpus_fname_base + '.mallet.gz'
     dict_fname = corpus_fname_base + '.dict.gz'
+
     if not os.path.exists(corpus_fname):
-        try:
-            if project.sha:
-                corpus = Kind(repo, project.sha, lazy_dict=True)
-            else:
-                corpus = Kind(repo, project.ref, lazy_dict=True)
-        except KeyError:
-            return # nothing to see here, move along
-        except TaserError:
-            return
+        combiner = CorpusCombiner()
+
+        for repo in repos:
+            try:
+                if project.sha:
+                    corpus = Kind(repo, project.sha, lazy_dict=True)
+                else:
+                    corpus = Kind(repo, project.ref, lazy_dict=True)
+            except KeyError:
+                continue
+            except TaserError:
+                continue
+
+            combiner.add(corpus)
+
+        # write the corpus and dictionary to disk. this will take awhile.
+        combiner.metadata = True
+        MalletCorpus.serialize(corpus_fname, combiner, id2word=combiner.id2word,
+                               metadata=True)
+        combiner.metadata = False
+        combiner.id2word.save(dict_fname)
+
+    # re-open the compressed corpus and dictionary
+    if os.path.exists(dict_fname):
+        id2word = Dictionary.load(dict_fname)
+    else:
+        id2word = None
+
+    corpus = MalletCorpus(corpus_fname, id2word=id2word)
+
+    return corpus
+
+def create_release_corpus(project):
+    corpus_fname_base = project.data_path + 'TaserReleaseCorpus'
+    corpus_fname = corpus_fname_base + '.mallet.gz'
+    dict_fname = corpus_fname_base + '.dict.gz'
+
+    if not os.path.exists(corpus_fname):
+        corpus = TaserReleaseCorpus(project.src_path, lazy_dict=True)
 
         corpus.metadata = True
-        MalletCorpus.serialize(corpus_fname, corpus,
-                               id2word=corpus.id2word, metadata=True)
+        MalletCorpus.serialize(corpus_fname, corpus, id2word=corpus.id2word,
+                               metadata=True)
         corpus.metadata = False
         corpus.id2word.save(dict_fname)
 
@@ -344,7 +444,6 @@ def create_corpus(project, repo_name, repo, Kind):
     corpus = MalletCorpus(corpus_fname, id2word=id2word)
 
     return corpus
-
 
 def clone(source, target, bare=False):
     client, host_path = dulwich.client.get_transport_and_path(source)

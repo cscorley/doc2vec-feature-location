@@ -31,8 +31,8 @@ import logging
 logger = logging.getLogger('cfl.corpora')
 
 class GeneralCorpus(gensim.interfaces.CorpusABC):
-    def __init__(self, remove_stops=True, split=True, lower=True, min_len=3,
-                 max_len=40, lazy_dict=False):
+    def __init__(self, id2word=None, remove_stops=True, split=True, lower=True,
+                 min_len=3, max_len=40, lazy_dict=False):
         lazystr = str()
         if lazy_dict:
             lazystr = 'lazy '
@@ -46,7 +46,14 @@ class GeneralCorpus(gensim.interfaces.CorpusABC):
         self.max_len = max_len
         self.lazy_dict = lazy_dict
 
-        self.id2word = gensim.corpora.Dictionary()
+        if id2word is None:
+            id2word = gensim.corpora.Dictionary()
+            logger.info('[gen] Creating new dictionary %s for %s %s', id(id2word), self.__class__.__name__, id(self))
+        else:
+            logger.info('[gen] Using provided dictionary %s for %s %s', id(id2word), self.__class__.__name__, id(self))
+
+        self.id2word = id2word
+
         self.metadata = False
         self.label = 'general'
 
@@ -55,6 +62,15 @@ class GeneralCorpus(gensim.interfaces.CorpusABC):
             self.id2word.add_documents(self.get_texts())
 
         super(GeneralCorpus, self).__init__()
+
+    @property
+    def id2word(self):
+        return self._id2word
+
+    @id2word.setter
+    def id2word(self, val):
+        logger.info('[gen] Updating dictionary %s for %s %s', id(val), self.__class__.__name__, id(self))
+        self._id2word = val
 
     def preprocess(self, document, info=[]):
         document = preprocessing.to_unicode(document, info)
@@ -122,9 +138,9 @@ class GitCorpus(GeneralCorpus):
     """
 
     def __init__(self, repo, ref='HEAD', remove_stops=True, split=True,
-                 lower=True, min_len=3, max_len=40, lazy_dict=False):
+                 lower=True, min_len=3, max_len=40, id2word=None, lazy_dict=False):
 
-        logger.info('Creating %s corpus out of source files for commit %s: %s',
+        logger.info('[git] Creating %s corpus out of source files for commit %s: %s',
             self.__class__.__name__, ref, str(lazy_dict))
         self.repo = repo
 
@@ -152,6 +168,7 @@ class GitCorpus(GeneralCorpus):
                                         lower=lower,
                                         min_len=min_len,
                                         max_len=max_len,
+                                        id2word=id2word,
                                         lazy_dict=lazy_dict)
 
         # set the label
@@ -186,7 +203,7 @@ class TaserSnapshotCorpus(GitCorpus):
 
     def __init__(self, repo=None, ref='HEAD', remove_stops=True, split=True,
                  lower=True, min_len=3, max_len=40, taser_jar='lib/taser.jar',
-                 lazy_dict=True):
+                 id2word=None, lazy_dict=True):
         # force lazy_dict since we have to run taser to build the corpus first
         super(TaserSnapshotCorpus, self).__init__(repo=repo,
                                                   ref=ref,
@@ -195,6 +212,7 @@ class TaserSnapshotCorpus(GitCorpus):
                                                   lower=lower,
                                                   min_len=min_len,
                                                   max_len=max_len,
+                                                  id2word=id2word,
                                                   lazy_dict=True)
         self.taser_jar = taser_jar
 
@@ -250,13 +268,14 @@ class TaserReleaseCorpus(GeneralCorpus):
 
     def __init__(self, src_path, remove_stops=True, split=True, lower=True,
                  min_len=3, max_len=40, taser_jar='lib/taser.jar',
-                 lazy_dict=True):
+                 id2word=None, lazy_dict=True):
         # force lazy_dict since we have to run taser to build the corpus first
         super(TaserReleaseCorpus, self).__init__(remove_stops=remove_stops,
                                                  split=split,
                                                  lower=lower,
                                                  min_len=min_len,
                                                  max_len=max_len,
+                                                 id2word=id2word,
                                                  lazy_dict=True)
         self.taser_jar = taser_jar
 
@@ -383,7 +402,7 @@ class ChangesetCorpus(GitCorpus):
             # parent_fn = diff_lines[0][4:]
             # commit_fn = diff_lines[1][4:]
 
-            lines = diff_lines[2:]  # chop off file names hashtag rebel
+            lines = diff_lines[2:]  # chop off file names idtag rebel
             lines = [line[1:] for line in lines]  # remove unified markers
             document = ' '.join(lines)
 
@@ -422,10 +441,10 @@ class CommitLogCorpus(GitCorpus):
 
 
 class CorpusCombiner(GeneralCorpus):
-    def __init__(self, corpora=None):
+    def __init__(self, corpora=None, id2word=None):
         self.corpora = list()
 
-        super(CorpusCombiner, self).__init__(lazy_dict=True)
+        super(CorpusCombiner, self).__init__(id2word=id2word, lazy_dict=True)
 
         if corpora:
             for each in corpora:
@@ -463,6 +482,7 @@ class CorpusCombiner(GeneralCorpus):
 
     @id2word.setter
     def id2word(self, val):
+        logger.info('[com] Updating dictionary %s for %s %s', id(val), self.__class__.__name__, id(self))
         self._id2word = val
         for corpus in self.corpora:
             corpus.id2word = val

@@ -31,10 +31,24 @@ from corpora import (ChangesetCorpus, TaserSnapshotCorpus, TaserReleaseCorpus,
                      CorpusCombiner, GeneralCorpus)
 from errors import TaserError
 
+
+def error(*args, **kwargs):
+    logger.error(*args)
+    if 'errorno' in kwargs:
+        sys.exit(kwargs['errorno'])
+
+    sys.exit(1)
+
+
 def cli():
     logger.info("test")
 
     name = sys.argv[1]
+    if len(sys.argv) > 2:
+        version = sys.argv[2]
+    else:
+        version = False
+
     verbose = False
     project = None
 
@@ -58,6 +72,10 @@ def cli():
         # find the project in the csv, adding it's info to config
         for row in reader:
             if name == row[name_idx]:
+
+                # if version specified, make sure we are at the correct one
+                if version and version != row[version_idx]:
+                    continue
 
                 # build the data_path value
                 row += (os.path.join('data', row[name_idx], row[version_idx], ''),)
@@ -92,8 +110,10 @@ def cli():
         #    project.name => "Blah Name"
         #    project.version => "0.22"
 
-        if project is None:
-            error("Could not find '%s' in 'projects.csv'!" % name)
+        if project is None and version:
+            error("Could not find '%s %s' in 'projects.csv'!", name, version)
+        elif project is None:
+            error("Could not find '%s' in 'projects.csv'!", name)
 
     # reading in repos
     with open(os.path.join('data', project.name, 'repos.txt')) as f:

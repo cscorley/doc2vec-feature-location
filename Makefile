@@ -5,14 +5,12 @@ test:
 	find src tests -name '*.pyc' -exec rm {} \;
 
 clean:
-	$(RM) src/grammars/Java*
 	find src tests -name '*.pyc' -exec rm {} \;
 	find data -name '*.mallet.gz' -exec rm {} \;
 	find data -name '*.dict.gz' -exec rm {} \;
 	find data -name '*.lda*' -exec rm {} \;
 
-
-install: requirements java_grammar
+install: requirements
 	pip install --editable .
 
 init: java_grammar
@@ -25,5 +23,3 @@ requirements:
 	pip install numpy
 	pip install -r requirements.txt
 
-java_grammar: grammars/Java.g4
-	antlr4 -Dlanguage=Python2 grammars/Java.g4 -o src/ || true

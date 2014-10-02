@@ -5,17 +5,6 @@ Basic idea: compare LDA models built with two different sources of
 documents. The first being a traditional source code snapshot, and the
 second being variations on a changeset snapshot.
 
-### Dependencies
-
-You need to already have `antlr4` on your system in order to build the
-Java grammar. How you accomplish this is up to you.
-
-Build the Java grammar with:
-
-    antlr4 -Dlanguage=Python2 grammars/Java.g4 -o src/
-
-Your compiled grammar should end up in `src/grammars/`
-
 ### Installing
 
 Install everything using make:
@@ -26,18 +15,26 @@ Or, if you use virtualenv, you can `make init` instead.
 
 Now, you should be able to run commands:
 
-    $ cfl --help
+    $ cfl <project name>
 
-    Usage: cfl [OPTIONS] COMMAND [ARGS]...
+e.g.,
 
-      Changeset Feature Location
+    $ cfl mucommander
 
-    Options:
-      --verbose
-      --help     Show this message and exit.
+This will run the experiment on the given project name. All project
+information is in `projects.csv`, and supplementary data is under the
+`data` directory:
+    - the repository URLs under `data/<project>/repos.txt`
+    - extracted release source code `data/<project>/<version>/src`
 
-    Commands:
-      corpora     Builds the basic corpora for a project
-      model       Builds a model for the corpora
-      evaluate    Evalutates the models
-      run_all     Runs corpora, preprocess, model, and evaluate...
+If one than more version is needed, use:
+
+    $ cfl <project name> <version>
+
+e.g.,
+
+    $ cfl argouml v0.24
+
+Otherwise, it will just run the first version found in the
+`projects.csv`.
+

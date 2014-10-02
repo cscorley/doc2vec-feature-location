@@ -451,7 +451,7 @@ def create_corpus(project, repos, id2word, Kind):
 def create_release_corpus(project, id2word):
     corpus_fname_base = project.data_path + 'TaserReleaseCorpus'
     corpus_fname = corpus_fname_base + '.mallet.gz'
-    dict_fname = corpus_fname_base + '.dict.gz'
+    dict_fname = project.data_path + 'id2word.dict.gz'
 
     if not os.path.exists(corpus_fname):
         corpus = TaserReleaseCorpus(project.src_path, id2word=id2word, lazy_dict=True)

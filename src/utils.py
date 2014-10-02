@@ -13,6 +13,7 @@ import os
 import sys
 import numpy
 import scipy
+import scipy.spatial
 
 
 logger = logging.getLogger('cfl.utils')

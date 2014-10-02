@@ -11,59 +11,32 @@ import math
 import logging
 import os
 import sys
+import numpy
+import scipy
 
 
 logger = logging.getLogger('cfl.utils')
 
+SQRT2 = numpy.sqrt(2)
 
-def kullback_leibler_divergence(q_dist, p_dist, filter_by=0.001):
-    assert len(q_dist) == len(p_dist)
-    z = zip(q_dist, p_dist)
-    divergence = 0.0
-    for q, p in z:
-        if q < filter_by and p < filter_by:
-            continue
+def calculate_mrr(p):
+    p = numpy.array(list(p))
+    return numpy.mean(numpy.sum(1.0/p))
 
-        if q > 0.0 and p > 0.0:
-            divergence += q * math.log10(q / p)
+def hellinger_distance(p, q):
+    p = numpy.array(list(p))
+    q = numpy.array(list(q))
+    return scipy.linalg.norm(numpy.sqrt(p) - numpy.sqrt(q)) / SQRT2
 
-    return divergence
+def kullback_leibler_divergence(p, q):
+    p = numpy.array(list(p))
+    q = numpy.array(list(q))
+    return scipy.stats.entropy(p, q)
 
-
-def hellinger_distance(q_dist, p_dist, filter_by=0.001):
-    assert len(q_dist) == len(p_dist)
-    distance = 0.0
-    z = zip(q_dist, p_dist)
-    for q, p in z:
-        if q < filter_by and p < filter_by:
-            continue
-
-        inner = math.sqrt(q) - math.sqrt(p)
-        distance += (inner * inner)
-
-    distance /= 2
-    distance = math.sqrt(distance)
-    return distance
-
-
-def cosine_distance(q_dist, p_dist, filter_by=0.001):
-    assert len(q_dist) == len(p_dist)
-    z = zip(q_dist, p_dist)
-    numerator = 0.0
-    denominator_a = 0.0
-    denominator_b = 0.0
-    for q, p in z:
-        if q < filter_by and p < filter_by:
-            continue
-
-        numerator += (q * p)
-        denominator_a += (q * q)
-        denominator_b += (p * p)
-
-    denominator = math.sqrt(denominator_a) * math.sqrt(denominator_b)
-    similarity = (numerator / denominator)
-    return 1.0 - similarity
-
+def cosine_distance(p, q):
+    p = numpy.array(list(p))
+    q = numpy.array(list(q))
+    return scipy.spatial.distance.cosine(p, q)
 
 def jensen_shannon_divergence(q_dist, p_dist, filter_by=0.001):
     assert len(q_dist) == len(p_dist)

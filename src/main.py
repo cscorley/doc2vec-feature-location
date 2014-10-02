@@ -187,15 +187,10 @@ def cli():
     changeset2_first_rels = get_frms(goldsets, changeset2_ranks)
     release_first_rels = get_frms(goldsets, release_ranks)
 
-    changeset_mrr = (1.0/float(len(changeset_first_rels)) *
-                    sum(1.0/float(num) for num, q, d in changeset_first_rels))
-    snapshot_mrr = (1.0/float(len(snapshot_first_rels)) *
-                    sum(1.0/float(num) for num, q, d in snapshot_first_rels))
-
-    changeset2_mrr = (1.0/float(len(changeset2_first_rels)) *
-                    sum(1.0/float(num) for num, q, d in changeset2_first_rels))
-    release_mrr = (1.0/float(len(release_first_rels)) *
-                    sum(1.0/float(num) for num, q, d in release_first_rels))
+    changeset_mrr = utils.calculate_mrr(num for num, q, d in changeset_first_rels)
+    snapshot_mrr = utils.calculate_mrr(num for num, q, d in snapshot_first_rels)
+    changeset2_mrr = utils.calculate_mrr(num for num, q, d in changeset2_first_rels)
+    release_mrr = utils.calculate_mrr(num for num, q, d in release_first_rels)
 
     print('changeset mrr:', changeset_mrr)
     print('snapshot mrr:', snapshot_mrr)
@@ -265,17 +260,17 @@ def get_frms(goldsets, ranks):
     logger.info('Getting FRMS for %d goldsets and %d ranks',
                 len(goldsets), len(ranks))
     frms = list()
+
     for g_id, goldset in goldsets:
-        for q_meta, rank in ranks:
-            query_id, _ = q_meta
-            if g_id == query_id:
-                for idx, metadist in enumerate(rank):
-                    doc_meta, dist = metadist
-                    d_name, d_repo = doc_meta
-                    if d_name in goldset:
-                        frms.append((idx+1, query_id, doc_meta))
-                        break
-                break
+        if g_id not in ranks:
+            logger.info('Could not find ranks for goldset id %s', g_id)
+        else:
+            for idx, metadist in enumerate(ranks[g_id]):
+                doc_meta, dist = metadist
+                d_name, d_repo = doc_meta
+                if d_name in goldset:
+                    frms.append((idx+1, g_id, doc_meta))
+                    break
 
     logger.info('Returning %d FRMS', len(frms))
     return frms
@@ -283,15 +278,17 @@ def get_frms(goldsets, ranks):
 def get_rank(query_topic, doc_topic, distance_measure=utils.hellinger_distance):
     logger.info('Getting ranks between %d query topics and %d doc topics',
                 len(query_topic), len(doc_topic))
-    ranks = list()
+    ranks = dict()
     for q_meta, query in query_topic:
+        qid, _ = q_meta
         q_dist = list()
 
         for d_meta, doc in doc_topic:
-            distance = distance_measure(query, doc)
+            distance = distance_measure(query, doc, filter_by=0.0)
+            assert distance <= 1.0
             q_dist.append((d_meta, 1.0 - distance))
 
-        ranks.append((q_meta, sorted(q_dist, reverse=True, key=lambda x: x[1])))
+        ranks[qid] = sorted(q_dist, reverse=True, key=lambda x: x[1])
 
     logger.info('Returning %d ranks', len(ranks))
     return ranks

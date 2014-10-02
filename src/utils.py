@@ -22,7 +22,7 @@ SQRT2 = numpy.sqrt(2)
 
 def calculate_mrr(p):
     p = numpy.array(list(p))
-    return numpy.mean(numpy.sum(1.0/p))
+    return numpy.mean(1.0/p)
 
 def hellinger_distance(p, q):
     p = numpy.array(list(p))

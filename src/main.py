@@ -184,10 +184,10 @@ def cli():
 
     # calculate MRR
     # n => rank number
-    changeset_mrr = utils.calculate_mrr(n for n, q, d in changeset_first_rels)
-    snapshot_mrr = utils.calculate_mrr(n for n, q, d in snapshot_first_rels)
-    changeset2_mrr = utils.calculate_mrr(n for n, q, d in changeset2_first_rels)
-    release_mrr = utils.calculate_mrr(n for n, q, d in release_first_rels)
+    changeset_mrr = utils.calculate_mrr([n for n, q, d in changeset_first_rels])
+    snapshot_mrr = utils.calculate_mrr([n for n, q, d in snapshot_first_rels])
+    changeset2_mrr = utils.calculate_mrr([n for n, q, d in changeset2_first_rels])
+    release_mrr = utils.calculate_mrr([n for n, q, d in release_first_rels])
 
     print('changeset mrr:', changeset_mrr)
     print('snapshot mrr:', snapshot_mrr)
@@ -310,7 +310,7 @@ def get_topics(project, model, corpus):
 #        topics = model.__getitem__(doc, eps=0)
 #        topics = [val for id, val in topics]
 
-        doc_topic.append((metadata, list(sorted(topics, reverse=True))))
+        doc_topic.append((metadata, topics))
 
     corpus.metadata = False
     corpus.id2word = old_id2word

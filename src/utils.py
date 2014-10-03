@@ -22,25 +22,25 @@ SQRT2 = numpy.sqrt(2)
 
 
 def calculate_mrr(p):
-    p = numpy.array(list(p))
+    p = numpy.array(p)
     return numpy.mean(1.0/p)
 
 
 def hellinger_distance(p, q):
-    p = numpy.array(list(p))
-    q = numpy.array(list(q))
+    p = numpy.array(p)
+    q = numpy.array(q)
     return scipy.linalg.norm(numpy.sqrt(p) - numpy.sqrt(q)) / SQRT2
 
 
 def kullback_leibler_divergence(p, q):
-    p = numpy.array(list(p))
-    q = numpy.array(list(q))
+    p = numpy.array(p)
+    q = numpy.array(q)
     return scipy.stats.entropy(p, q)
 
 
 def cosine_distance(p, q):
-    p = numpy.array(list(p))
-    q = numpy.array(list(q))
+    p = numpy.array(p)
+    q = numpy.array(q)
     return scipy.spatial.distance.cosine(p, q)
 
 

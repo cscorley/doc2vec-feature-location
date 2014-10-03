@@ -1,0 +1,20 @@
+When a project is exported as XMI, a dialog showing a NullPointerException (see
+below) occurs if the project has no name yet, i.e. it has never been saved.
+
+As a work-around, you should save the project first (as a zargo file), since
+this solves the problem.
+
+Reproduce as follows:
+1. Start ArgoUML.
+2. Draw a class or something.
+3. Export as XMI, type in a filename "test".
+The error dialog appears: «Problem while saving: A problem occurred while
+saving: "null". Your file may be corrupted. Please file a bugreport at
+www.argouml.org»
+
+java.lang.NullPointerException
+at org.argouml.ui.ProjectBrowser.trySave(ProjectBrowser.java:1421)
+at org.argouml.ui.SaveSwingWorker.construct(SaveSwingWorker.java:70)
+at org.argouml.ui.SwingWorker.doConstruct(SwingWorker.java:139)
+at org.argouml.ui.SwingWorker$2.run(SwingWorker.java:267)
+at java.lang.Thread.run(Unknown Source)

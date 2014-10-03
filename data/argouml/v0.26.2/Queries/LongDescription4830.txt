@@ -1,0 +1,25 @@
+When selecting a diagram element, such as a class, actor, etc., the properties
+panels fields register listeners to the model for changes, so that the
+propertiespanels get updated when the model changes.
+
+These listeners are not removed after target selectiopn, but new ones are added
+with every time an element is selected.
+
+This does not apply to all the prop panel fields, e.g. these are correct:
+UMLClassifierAssociationEndListModel,
+UMLGeneralizableElementGeneralizationListModel.
+
+These are wrong:
+org.argouml.uml.ui.foundation.core.UMLGeneralizableElementAbstractCheckBox
+org.argouml.uml.ui.UMLDerivedCheckBox
+org.argouml.uml.ui.foundation.core.UMLGeneralizableElementLeafCheckBox
+org.argouml.uml.ui.foundation.core.UMLGeneralizableElementRootCheckBox
+org.argouml.uml.ui.foundation.core.UMLModelElementVisibilityRadioButtonPanel
+and most others.
+
+How to test this:
+Use the Run Configuration named "ArgoUML dev".
+When ArgoUML started, select in the menu Edit-> Settings, and press OK inmediately. 
+Draw a class, select and unselect it e.g. 5 times.
+Use the Model Listeners tab at the right: It shows 5 listeners for many
+proppanel fields.

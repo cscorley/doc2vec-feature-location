@@ -1,0 +1,46 @@
+When attempting to reverse engineer the sources for argouml-model-mdr, I got the following
+stack trace on the console and the GUI just hung with the progress dialog up, but the
+cancel button inoperative.
+
+There are a few problems here:
+- the biggest is that any user work is going to be lost when they have to kill ArgoUML
+- all errors should be reported back to the GUI
+- unresolved identifiers shouldn't be fatal.  It should be possible to reverse engineer
+pieces of a subsystem.
+
+Exception in thread "Import Thread" java.lang.NoClassDefFoundError: org/argouml/model/mdr/XMIReference
+(wrong name: org/argouml/model/mdr/XmiReference)
+	at java.lang.ClassLoader.defineClass1(Native Method)
+	at java.lang.ClassLoader.defineClass(ClassLoader.java:620)
+	at java.security.SecureClassLoader.defineClass(SecureClassLoader.java:124)
+	at java.net.URLClassLoader.defineClass(URLClassLoader.java:260)
+	at java.net.URLClassLoader.access$100(URLClassLoader.java:56)
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:195)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:188)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:306)
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:268)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:251)
+	at java.lang.ClassLoader.loadClassInternal(ClassLoader.java:319)
+	at java.lang.Class.forName0(Native Method)
+	at java.lang.Class.forName(Class.java:164)
+	at org.argouml.uml.reveng.java.PackageContext.get(PackageContext.java:107)
+	at org.argouml.uml.reveng.java.ClassifierContext.get(ClassifierContext.java:90)
+	at org.argouml.uml.reveng.java.ClassifierContext.get(ClassifierContext.java:90)
+	at org.argouml.uml.reveng.java.ClassifierContext.get(ClassifierContext.java:90)
+	at org.argouml.uml.reveng.java.OuterClassifierContext.get(OuterClassifierContext.java:170)
+	at org.argouml.uml.reveng.java.OuterClassifierContext.get(OuterClassifierContext.java:88)
+	at org.argouml.uml.reveng.java.Modeller.addOperation(Modeller.java:1025)
+	at org.argouml.uml.reveng.java.JavaRecognizer.classField(JavaRecognizer.java:2751)
+	at org.argouml.uml.reveng.java.JavaRecognizer.classBlock(JavaRecognizer.java:2277)
+	at org.argouml.uml.reveng.java.JavaRecognizer.classDefinition(JavaRecognizer.java:846)
+	at org.argouml.uml.reveng.java.JavaRecognizer.typeDefinitionInternal(JavaRecognizer.java:782)
+	at org.argouml.uml.reveng.java.JavaRecognizer.typeDefinition(JavaRecognizer.java:640)
+	at org.argouml.uml.reveng.java.JavaRecognizer.compilationUnit(JavaRecognizer.java:526)
+	at org.argouml.uml.reveng.java.JavaImport.parseFile(JavaImport.java:197)
+	at org.argouml.uml.reveng.java.JavaImport.doImportPass(JavaImport.java:108)
+	at org.argouml.uml.reveng.java.JavaImport.parseFiles(JavaImport.java:79)
+	at org.argouml.uml.reveng.ImportCommon.doImportInternal(ImportCommon.java:553)
+	at org.argouml.uml.reveng.ImportCommon.doImport(ImportCommon.java:526)
+	at org.argouml.uml.reveng.Import$2.run(Import.java:434)
+	at java.lang.Thread.run(Thread.java:595)

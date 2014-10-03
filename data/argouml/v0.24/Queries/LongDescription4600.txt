@@ -1,0 +1,9 @@
+Issue 4599 the project loaded in ArgoUML with no error report appearing to the
+user. However the error was in the log.
+
+The exception was caught in the OpenException catch block in
+ProjectBrowser.loadProject. This calls reportError but it seems that report
+error does nothing if the ProgressMonitor is available.
+
+The error I had can be simulated by throwing a NullPointerException in the last
+line of FigEdgeModelElement.makeEdgePort

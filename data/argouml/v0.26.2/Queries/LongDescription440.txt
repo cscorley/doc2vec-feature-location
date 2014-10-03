@@ -1,0 +1,14 @@
+One should be able to add actors (and I belive all other classifiers to a 
+static structure diagram (aka Class Diagram).
+
+The following code is to restricted (though there may be reasons for it):
+(from 
+src_new/org/argouml/uml/diagram/static_structure/ClassDiagramGraphModel.java)
+
+  /** Return true if the given object is a valid node in this graph */
+  public boolean canAddNode(Object node) {
+    if (_nodes.contains(node)) return false;
+    return (node instanceof MClass) || (node instanceof MInterface)
+    || (node instanceof MModel)  || (node instanceof MPackage) || (node 
+instanceof MInstance);
+  }

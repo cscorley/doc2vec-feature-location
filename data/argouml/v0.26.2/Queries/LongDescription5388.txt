@@ -1,0 +1,21 @@
+As reported by Hayrol R. Reyes Mejía on the users list.  If a multiplicity is null (checkbox
+unchecked on the property panel), the Java source tab will throw the exception below.
+ This almost certainly will cause a failure during code generation as well.
+
+
+Exception in thread "AWT-EventQueue-0"
+java.lang.IllegalArgumentException: Unrecognized object [null]
+
+at org.argouml.model.mdr.FacadeMDRImpl.illegalArgument(FacadeMDRImpl.java:4446)
+at org.argouml.model.mdr.FacadeMDRImpl.getUpper(FacadeMDRImpl.java:3650)
+at org.argouml.language.java.generator.GeneratorJava.generateConstraintEnrichedDocComment(GeneratorJava.java:1171)
+at org.argouml.language.java.generator.GeneratorJava.generateAssociationFrom(GeneratorJava.java:1365)
+at org.argouml.language.java.generator.GeneratorJava.generateClassifierBody(GeneratorJava.java:906)
+at org.argouml.language.java.generator.GeneratorJava.generateClassifier(GeneratorJava.java:840)
+at org.argouml.language.java.generator.GeneratorJava.generateFile(GeneratorJava.java:219)
+at org.argouml.language.java.generator.GeneratorJava.generateFiles(GeneratorJava.java:2053)
+at org.argouml.language.java.generator.GeneratorJava.generate(GeneratorJava.java:2033)
+at org.argouml.uml.generator.GeneratorHelper.generate(GeneratorHelper.java:58)
+at org.argouml.uml.generator.GeneratorHelper.generate(GeneratorHelper.java:75)
+at org.argouml.uml.ui.TabSrc.generateSource(TabSrc.java:110)
+at org.argouml.uml.ui.TabSrc.genText(TabSrc.java:129)

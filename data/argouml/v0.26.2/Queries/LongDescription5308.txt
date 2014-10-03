@@ -1,0 +1,65 @@
+Profile Exceptions when not only Model at root
+
+This is a robustness problem.
+
+Loading an XMI file as a profile, that contains other elements than Models at
+the root causes various exceptions. The first can be solved by adapting
+UserDefinedProfile.finishLoading() as follows:
+
+for (Object obj : profilePackages) {
+            if (Model.getFacade().isAModelElement(obj) 
+                    && Model.getExtensionMechanismsHelper().hasStereotype(obj,
+                        "profile")) {
+i.e. adding the check for isAModelElement.
+
+
+Then the following exception occurs:
+
+
+Exception occurred during event dispatching:
+java.lang.IllegalArgumentException: Expected to receive a collection of Models.
+The collection contained a org.omg.uml.foundation.datatypes.Multiplicity$Impl
+	at
+org.argouml.model.mdr.ExtensionMechanismsHelperMDRImpl.getStereotypes(ExtensionMechanismsHelperMDRImpl.java:316)
+	at
+org.argouml.profile.UserDefinedProfile.finishLoading(UserDefinedProfile.java:216)
+	at org.argouml.profile.UserDefinedProfile.<init>(UserDefinedProfile.java:122)
+	at org.argouml.ui.SettingsTabProfile.actionPerformed(SettingsTabProfile.java:337)
+	at javax.swing.AbstractButton.fireActionPerformed(Unknown Source)
+	at javax.swing.AbstractButton$Handler.actionPerformed(Unknown Source)
+	at javax.swing.DefaultButtonModel.fireActionPerformed(Unknown Source)
+	at javax.swing.DefaultButtonModel.setPressed(Unknown Source)
+	at javax.swing.plaf.basic.BasicButtonListener.mouseReleased(Unknown Source)
+	at java.awt.Component.processMouseEvent(Unknown Source)
+	at javax.swing.JComponent.processMouseEvent(Unknown Source)
+	at java.awt.Component.processEvent(Unknown Source)
+	at java.awt.Container.processEvent(Unknown Source)
+	at java.awt.Component.dispatchEventImpl(Unknown Source)
+	at java.awt.Container.dispatchEventImpl(Unknown Source)
+	at java.awt.Component.dispatchEvent(Unknown Source)
+	at java.awt.LightweightDispatcher.retargetMouseEvent(Unknown Source)
+	at java.awt.LightweightDispatcher.processMouseEvent(Unknown Source)
+	at java.awt.LightweightDispatcher.dispatchEvent(Unknown Source)
+	at java.awt.Container.dispatchEventImpl(Unknown Source)
+	at java.awt.Window.dispatchEventImpl(Unknown Source)
+	at java.awt.Component.dispatchEvent(Unknown Source)
+	at java.awt.EventQueue.dispatchEvent(Unknown Source)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(Unknown Source)
+	at java.awt.Dialog$1.run(Unknown Source)
+	at java.awt.Dialog$3.run(Unknown Source)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.awt.Dialog.show(Unknown Source)
+	at java.awt.Component.show(Unknown Source)
+	at java.awt.Component.setVisible(Unknown Source)
+	at java.awt.Window.setVisible(Unknown Source)
+	at java.awt.Dialog.setVisible(Unknown Source)
+	at org.argouml.ui.SettingsDialog.setVisible(SettingsDialog.java:106)
+	at org.argouml.ui.ActionSettings.actionPerformed(ActionSettings.java:65)
+...etc.
+
+
+
+I presume we can ignore these elements that are not a model at the root? If so,
+the fix is easy.

@@ -1,0 +1,8 @@
+The method isValidNamspace() automatically excludes any namespaces which have a different
+root namespace.  I suspect this was originally introduced to prevent assigning elements
+from the user model to a profile model.  It could still be useful for that purpose, but
+it has (at least) a couple of negative side effects:
+
+  - elements with no namespace set (effectively their own root elements) can't be assigned
+to any valid namepspace
+  - elements can't be moved from one (sub-) model to another

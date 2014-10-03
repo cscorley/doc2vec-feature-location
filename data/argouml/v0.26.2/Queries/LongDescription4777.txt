@@ -1,0 +1,10 @@
+The Model API currently specifies the use of a Writer instead of an OutputStream
+for the XmiWriters.  Both MDR and eUML want an OutputStream and an Writer can
+easily be created from an OutputStream, but not vice versa, so I propose to
+change the API to pass an OutputStream and writers that need to can wrap it with
+a Writer (typically a PrintWriter).
+
+Additionally the current save code writes out temporary files, then reads them
+back in and throws away the first two lines before merging them into the .uml
+file.  This is an expensive kludge that I'll refactor as an filter OutputStream
+that modifies the output as it passes through.

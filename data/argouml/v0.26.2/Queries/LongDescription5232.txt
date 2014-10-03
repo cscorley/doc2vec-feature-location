@@ -1,0 +1,12 @@
+Drawing an association class on the diagram between 2 classes does create
+another hidden class in the model, which is not owned by any namespace. Hence it
+is only visible via the View->XML Dump feature.
+
+Repeatingly saving and loading a project that contains this rogue class does
+give an exception -> data lost -> P2.
+
+This issue gives the same effect as issue 5227.
+
+Bob already discovered (as described in issue 5227) that this class is created
+at creation time of the association class - I only saw it after deleting the
+project.

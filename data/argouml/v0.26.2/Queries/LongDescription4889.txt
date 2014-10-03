@@ -1,0 +1,13 @@
+ArgoUML will appear to hang on startup if it gets an error early enough in the
+startup process.  One particular example is an uncaught exception from the
+extension module loader such as the following when ArgoUML is started with the
+dbuml module, but without the special required classpath setup:
+
+Exception in thread "main" java.lang.NoClassDefFoundError:
+org/dbuml/argo/ui/explorer/ExplorerTree
+   at org.argouml.ui.ProjectBrowser.createPanels(ProjectBrowser.java:386)
+   at org.argouml.ui.ProjectBrowser.<init>(ProjectBrowser.java:261)
+   at org.argouml.ui.ProjectBrowser.makeInstance(ProjectBrowser.java:354)
+   at org.argouml.ui.ProjectBrowser.makeInstance(ProjectBrowser.java:336)
+   at org.argouml.application.Main.initializeGUI(Main.java:699)
+   at org.argouml.application.Main.main(Main.java:262)

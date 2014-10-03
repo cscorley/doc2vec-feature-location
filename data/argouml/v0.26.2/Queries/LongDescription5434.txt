@@ -1,0 +1,120 @@
+ArgoUML 0.26 corrupts the output file if my project uses German umlauts (הצü).
+For example, instead of the proper UTF-8 character "צ" there's something that
+notepad++ displays as "F6" with a black background, can't paste it here. "ה"
+becomes "E4" etc. This bug is also present in ArgoUML version 0.24.
+
+Here's a sample from the output *.uml file:
+-----------------------------------------------------------
+<text name="Fig46.2"
+      x="812"
+      y="723"
+      width="158"
+      height="21"
+      fill="0"
+      fillcolor="white"
+      stroke="0"
+      strokecolor="black"
+      textcolor="black"
+      font="Dialog"
+      italic="false"
+      bold="false"
+      textsize="10"
+      justification="Center"
+    >Neue E-Mail Adresse best?gen</text>
+-----------------------------------------------------------
+
+Heres the parser error:
+
+ArgoUML-Version : 0.26
+Java-Version : 1.6.0_07
+Java-Hersteller : Sun Microsystems Inc.
+URL Java-Hersteller : http://java.sun.com/
+Java-Verzeichnis : C:\Programme\Java\jre1.6.0_07
+Java-Klassenpfad : C:\users\random\Programme\ArgoUML\argouml.jar
+Betriebssystem : Windows XP, Version 5.1
+Architektur : x86
+
+JVM Speicher gesamt : 24014848
+JVM Speicher frei : 3333832
+
+
+ Error occurred at : Sun Oct 05 18:39:42 CEST 2008
+Cause :
+com.sun.org.apache.xerces.internal.impl.io.MalformedByteSequenceException:
+Invalid byte 2 of 3-byte UTF-8 sequence.
+at
+org.tigris.gef.persistence.pgml.PGMLStackParser.readDiagram(PGMLStackParser.java:166)
+at
+org.tigris.gef.persistence.pgml.PGMLStackParser.readDiagram(PGMLStackParser.java:123)
+at org.argouml.persistence.PGMLStackParser.readDiagram(PGMLStackParser.java:301)
+at
+org.argouml.persistence.DiagramMemberFilePersister.load(DiagramMemberFilePersister.java:66)
+at org.argouml.persistence.UmlFilePersister.doLoad(UmlFilePersister.java:370)
+at org.argouml.persistence.UmlFilePersister.doLoad(UmlFilePersister.java:304)
+at org.argouml.ui.ProjectBrowser.loadProject(ProjectBrowser.java:1631)
+at org.argouml.ui.LoadSwingWorker.construct(LoadSwingWorker.java:71)
+at org.argouml.ui.SwingWorker.doConstruct(SwingWorker.java:139)
+at org.argouml.ui.SwingWorker$2.run(SwingWorker.java:267)
+at java.lang.Thread.run(Unknown Source)
+-------
+Full exception : org.argouml.persistence.OpenException:
+com.sun.org.apache.xerces.internal.impl.io.MalformedByteSequenceException:
+Invalid byte 2 of 3-byte UTF-8 sequence.
+at
+org.argouml.persistence.DiagramMemberFilePersister.load(DiagramMemberFilePersister.java:73)
+at org.argouml.persistence.UmlFilePersister.doLoad(UmlFilePersister.java:370)
+at org.argouml.persistence.UmlFilePersister.doLoad(UmlFilePersister.java:304)
+at org.argouml.ui.ProjectBrowser.loadProject(ProjectBrowser.java:1631)
+at org.argouml.ui.LoadSwingWorker.construct(LoadSwingWorker.java:71)
+at org.argouml.ui.SwingWorker.doConstruct(SwingWorker.java:139)
+at org.argouml.ui.SwingWorker$2.run(SwingWorker.java:267)
+at java.lang.Thread.run(Unknown Source)
+Caused by:
+com.sun.org.apache.xerces.internal.impl.io.MalformedByteSequenceException:
+Invalid byte 2 of 3-byte UTF-8 sequence.
+at
+org.tigris.gef.persistence.pgml.PGMLStackParser.readDiagram(PGMLStackParser.java:166)
+at
+org.tigris.gef.persistence.pgml.PGMLStackParser.readDiagram(PGMLStackParser.java:123)
+at org.argouml.persistence.PGMLStackParser.readDiagram(PGMLStackParser.java:301)
+at
+org.argouml.persistence.DiagramMemberFilePersister.load(DiagramMemberFilePersister.java:66)
+... 7 more
+com.sun.org.apache.xerces.internal.impl.io.MalformedByteSequenceException:
+Invalid byte 2 of 3-byte UTF-8 sequence.
+at com.sun.org.apache.xerces.internal.impl.io.UTF8Reader.invalidByte(Unknown Source)
+at com.sun.org.apache.xerces.internal.impl.io.UTF8Reader.read(Unknown Source)
+at com.sun.org.apache.xerces.internal.impl.XMLEntityScanner.load(Unknown Source)
+at com.sun.org.apache.xerces.internal.impl.XMLEntityScanner.skipChar(Unknown Source)
+at
+com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl$FragmentContentDriver.next(Unknown
+Source)
+at com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl.next(Unknown
+Source)
+at
+com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(Unknown
+Source)
+at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(Unknown
+Source)
+at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(Unknown
+Source)
+at com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(Unknown Source)
+at com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.parse(Unknown
+Source)
+at
+com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser.parse(Unknown Source)
+at javax.xml.parsers.SAXParser.parse(Unknown Source)
+at
+org.tigris.gef.persistence.pgml.PGMLStackParser.readDiagram(PGMLStackParser.java:157)
+at
+org.tigris.gef.persistence.pgml.PGMLStackParser.readDiagram(PGMLStackParser.java:123)
+at org.argouml.persistence.PGMLStackParser.readDiagram(PGMLStackParser.java:301)
+at
+org.argouml.persistence.DiagramMemberFilePersister.load(DiagramMemberFilePersister.java:66)
+at org.argouml.persistence.UmlFilePersister.doLoad(UmlFilePersister.java:370)
+at org.argouml.persistence.UmlFilePersister.doLoad(UmlFilePersister.java:304)
+at org.argouml.ui.ProjectBrowser.loadProject(ProjectBrowser.java:1631)
+at org.argouml.ui.LoadSwingWorker.construct(LoadSwingWorker.java:71)
+at org.argouml.ui.SwingWorker.doConstruct(SwingWorker.java:139)
+at org.argouml.ui.SwingWorker$2.run(SwingWorker.java:267)
+at java.lang.Thread.run(Unknown Source)

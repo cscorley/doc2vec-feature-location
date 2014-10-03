@@ -1,0 +1,18 @@
+This is split from issue 5365.  It's cosmetic, but unnecessarily alarming as well as cluttering
+error logs.  A number of errors of the following form are logged at startup:
+
+2008-09-04 07:25:58,346 ERROR: Failed to find any loadable ArgoUML modules in
+jar /Users/jschewe/Downloads/argouml-0.26.BETA_1/ext/argouml-i18n-zh.jar
+(ModuleLoader2.java:626)
+
+This is caused by a mismatch in expectations between the module loader which expects to
+find loadable modules in the extension directory and our packaging which puts localized
+property files there as well.
+
+Possible solutions:
+
+1. Change packaging
+2. Exclude jars which begin with argouml-i18n- from the loadable module scan
+3. Scan all jars, but exclude jars who's names match the above pattern from error logging
+
+Option #3 is the minimal change, but #2 will improve startup performance.

@@ -1,0 +1,24 @@
+There is an issue in the exported XMI file using ArgoUML .24 in the following 
+situation:
+
+1) Create a class diagram with class, ex: "Customer"
+2) Create an operation for this class, ex: "sampleOperation"
+3) Add an input parameter to the operation.  Note, by default ArgoUML selects 
+this as an "in" parameter
+4) Save the model, and export the XMI
+
+Observation:  The XMI is missing the "kind" attribute on the parameter section, 
+see sample:
+
+... name = 'param1' isSpecification = 'false'> ...
+
+This can be fixed as follows:
+
+in step #3 above, user must explicitly click on "in" radio option which is 
+already selected by default.  If doing this, the XMI is generated correctly:
+
+... name = 'param1' isSpecification = 'false' kind = 'in'> ...
+
+ArgoUML should by default select the internal setting necessary so that the UI 
+radio button selection of "in" matches what is exported in XMI without 
+requiring user to click on "in" when it is already selected.

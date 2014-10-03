@@ -1,0 +1,15 @@
+If a client of ArgoEventPump adds a listener for a specific event type (e.g. 
+ArgoEventTypes.STATUS_TEXT) it incorrectly receives notifications for other 
+similiar event types (e.g. STATUS_PROJECT_SAVED, STATUS_PROJECT_MODIFIED).  To 
+Recreate: 
+
+1. Add a listener for ArgoEventType.STATUS_TEXT to call an implementation of 
+ArgoStatusEventListener.statusText(ArgoStatusEvent e).  Set a breakpoint in 
+this method.
+2. Fire an event for ArgoEventTypes.STATUS_PROJECT_SAVED.  The ArgoEventPump 
+will incorrectly call the listener for ArgoEventType.STATUS_TEXT thereby 
+hitting the breakpoint in ArgoStatusEventListener.statusText(ArgoStatusEvent e).
+
+This behavior does not seem correct but fixing it may uncover other issues 
+where code has inadvertently come to rely on this behavior.  That should be 
+considered before applying the fix.

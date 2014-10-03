@@ -1,0 +1,35 @@
+I had a failing test in
+org.argouml.kernel.TestProjectWithProfiles.testRemoveProfileWithModelThatRefersToProfile().
+Initially I associated this with issue #4868, but, Tom thinks this isn't related.
+
+Well, now, after having debugged this extensively, including looking into the
+model (XMI within the ZARGO) which is being written by the test, I think that
+there are indeed leftovers from the previous tests within the MDR repository.
+Furthermore, I narrowed this on the MDRModelImplementation.umlPackage state when
+the XMI is written. The proposed fix is simply to initialize the UmlPackage when
+the MDRModelImplementation object is constructed:
+
+Index:
+X:/svnco/argouml/src/model-mdr/src/org/argouml/model/mdr/MDRModelImplementation.java
+===================================================================
+---
+X:/svnco/argouml/src/model-mdr/src/org/argouml/model/mdr/MDRModelImplementation.java
+(revision 13844)
++++
+X:/svnco/argouml/src/model-mdr/src/org/argouml/model/mdr/MDRModelImplementation.java
+(working copy)
+@@ -299,6 +299,10 @@
+         // Create an extent for the uml data
+         umlPackage = (UmlPackage) repository.getExtent(MODEL_EXTENT_NAME);
+         LOG.debug("MDR Init - tried to get UML extent");
++        if (umlPackage != null) {
++            umlPackage.refDelete();
++            umlPackage = null;
++        }
+         if (umlPackage == null) {
+             try {
+                 umlPackage =
+
+Because this is an area of the code that I'm not familiar with I would
+appreciate some feedback from experts. For the meantime I'll commit a failing
+test which could be fixed with the above patch for others to verify.

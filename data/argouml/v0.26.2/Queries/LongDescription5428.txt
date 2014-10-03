@@ -1,0 +1,25 @@
+I found no way to make a project loadable, that uses elements from a user
+profile. Try this:
+
+1. Create a XMI with a datatype Foo or use the attached one (foo.xmi)
+2. Load this as profile (edit -> settings)
+3. create a project
+4. create a class with an attribute of type A (from the profile)
+5. save project
+
+Now try to load this project without getting this error message:
+
+
+org.argouml.persistence.OpenException: User defined profile "foo.xmi" isn't
+available in the current configuration.
+at
+org.argouml.persistence.ProfileConfigurationFilePersister.handleUserDefinedProfile(ProfileConfigurationFilePersister.java:168)
+at
+org.argouml.persistence.ProfileConfigurationFilePersister.load(ProfileConfigurationFilePersister.java:100)
+at org.argouml.persistence.UmlFilePersister.doLoad(UmlFilePersister.java:370)
+at org.argouml.persistence.ZargoFilePersister.doLoad(ZargoFilePersister.java:240)
+at org.argouml.ui.ProjectBrowser.loadProject(ProjectBrowser.java:1631)
+at org.argouml.ui.LoadSwingWorker.construct(LoadSwingWorker.java:71)
+at org.argouml.ui.SwingWorker.doConstruct(SwingWorker.java:139)
+at org.argouml.ui.SwingWorker$2.run(SwingWorker.java:267)
+at java.lang.Thread.run(Unknown Source)

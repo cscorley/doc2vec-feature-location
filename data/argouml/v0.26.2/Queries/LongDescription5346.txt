@@ -1,0 +1,8 @@
+The profile subsystem is apparently writing raw internal class names out as part of the
+project save and then using reflection to attempt to reload them again.  This is fragile
+and prone to breakage as we've seen with the PGML files.  As a matter of fact, I already
+have a bunch of files which won't load because the profiles were apparently refactored
+from org.argouml.uml.profiles to org.argouml.profiles.internal.
+
+Whatever gets saved in our output files should be a stable identifier decoupled from our
+internal implementation.

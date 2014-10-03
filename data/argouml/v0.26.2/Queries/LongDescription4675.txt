@@ -1,0 +1,31 @@
+It's failed importing a java file containing only a java 'enum'. It try to look
+for the operation list, which is null (it is a very basic enum).
+
+Here is the backtrace: 
+org.argouml.uml.reveng.ImportInterface$ImportException: Import Exception :
+Exception in file: pathToClass\CommunicationProtocol.java CommunicationProtocol.java
+	at org.argouml.uml.reveng.java.JavaImport.parseFile(JavaImport.java:180)
+	at org.argouml.uml.reveng.java.JavaImport.doImportPass(JavaImport.java:106)
+	at org.argouml.uml.reveng.java.JavaImport.parseFiles(JavaImport.java:78)
+	at org.argouml.uml.reveng.ImportCommon.doImportInternal(ImportCommon.java:514)
+	at org.argouml.uml.reveng.ImportCommon.doImport(ImportCommon.java:488)
+	at org.argouml.uml.reveng.Import$2.run(Import.java:439)
+	at java.lang.Thread.run(Unknown Source)
+Caused by: java.lang.NullPointerException
+	at org.argouml.uml.reveng.java.ParseState.getOperation(ParseState.java:317)
+	at org.argouml.uml.reveng.java.Modeller.getOperation(Modeller.java:1294)
+	at org.argouml.uml.reveng.java.Modeller.addOperation(Modeller.java:856)
+	at org.argouml.uml.reveng.java.JavaRecognizer.classField(JavaRecognizer.java:2639)
+	at org.argouml.uml.reveng.java.JavaRecognizer.enumBlock(JavaRecognizer.java:2398)
+	at
+org.argouml.uml.reveng.java.JavaRecognizer.enumDefinition(JavaRecognizer.java:902)
+	at
+org.argouml.uml.reveng.java.JavaRecognizer.typeDefinitionInternal(JavaRecognizer.java:791)
+	at
+org.argouml.uml.reveng.java.JavaRecognizer.typeDefinition(JavaRecognizer.java:638)
+	at
+org.argouml.uml.reveng.java.JavaRecognizer.compilationUnit(JavaRecognizer.java:522)
+	at org.argouml.uml.reveng.java.JavaImport.parseFile(JavaImport.java:175)
+	... 6 more
+
+Regards.

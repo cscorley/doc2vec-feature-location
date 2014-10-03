@@ -1,0 +1,9 @@
+TabProps.createPropPanel examines all its PropPanelFactories in order till it
+finds the correct one to to use for the given target.
+
+The sequence2 module has registered a PropPanelFactory but this is never found
+becuase ArgoUML's own ElementPropPanelFactory is found first.
+
+I plan to change the PropPanelFactoryManager so that newly added factories are
+added at the start of the list instead of the end. This way modules can override
+our own default panels.

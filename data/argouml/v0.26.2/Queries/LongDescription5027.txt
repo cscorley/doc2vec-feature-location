@@ -1,0 +1,51 @@
+The sequence diagrams (both versions) are throwing an assertion.
+
+I haven't had time to investigate more fully but I assume Tom is correct in
+introducing this assertion and the behaviour of sequence diagrams needs to be
+investigated.
+
+The new implementation of SD copied this work from the original implementation I
+believe.
+
+For the moment I've commented out the assertion so that otehr work can continue
+on sequence diagrams until this is resolved.
+
+
+Exception in thread "AWT-EventQueue-0" java.lang.AssertionError
+	at
+org.argouml.model.mdr.StateMachinesFactoryMDRImpl.buildCompositeStateOnStateMachine(StateMachinesFactoryMDRImpl.java:209)
+	at
+org.argouml.model.mdr.StateMachinesFactoryMDRImpl.buildCompositeStateOnStateMachine(StateMachinesFactoryMDRImpl.java:1)
+	at
+org.argouml.uml.diagram.sequence.SequenceDiagramGraphModel.getDefaultStateMachine(SequenceDiagramGraphModel.java:488)
+	at
+org.argouml.uml.diagram.sequence.SequenceDiagramGraphModel.getDefaultState(SequenceDiagramGraphModel.java:498)
+	at
+org.argouml.uml.diagram.sequence.SequenceDiagramGraphModel.connect(SequenceDiagramGraphModel.java:376)
+	at
+org.argouml.uml.diagram.sequence.ui.ModeCreateMessage.mouseReleased(ModeCreateMessage.java:208)
+	at org.tigris.gef.base.ModeManager.mouseReleased(ModeManager.java:219)
+	at org.tigris.gef.base.Editor.mouseReleased(Editor.java:794)
+	at java.awt.AWTEventMulticaster.mouseReleased(Unknown Source)
+	at java.awt.Component.processMouseEvent(Unknown Source)
+	at javax.swing.JComponent.processMouseEvent(Unknown Source)
+	at
+org.tigris.gef.graph.presentation.JGraphInternalPane.processMouseEvent(JGraph.java:651)
+	at java.awt.Component.processEvent(Unknown Source)
+	at java.awt.Container.processEvent(Unknown Source)
+	at java.awt.Component.dispatchEventImpl(Unknown Source)
+	at java.awt.Container.dispatchEventImpl(Unknown Source)
+	at java.awt.Component.dispatchEvent(Unknown Source)
+	at java.awt.LightweightDispatcher.retargetMouseEvent(Unknown Source)
+	at java.awt.LightweightDispatcher.processMouseEvent(Unknown Source)
+	at java.awt.LightweightDispatcher.dispatchEvent(Unknown Source)
+	at java.awt.Container.dispatchEventImpl(Unknown Source)
+	at java.awt.Window.dispatchEventImpl(Unknown Source)
+	at java.awt.Component.dispatchEvent(Unknown Source)
+	at java.awt.EventQueue.dispatchEvent(Unknown Source)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEventsForHierarchy(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+	at java.awt.EventDispatchThread.run(Unknown Source)

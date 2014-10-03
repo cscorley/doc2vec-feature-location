@@ -1,0 +1,15 @@
+The explorer pop-up menu of many less-used modelelements (e.g. Exception,
+StateMachine, Stereotype, ComponentInstance) shows a "New Stereotype" menu item.
+
+This is a bug, a stereotype should be contained only in a Package with
+stereotype <<profile>> according WFR 5 for a stereotype.
+
+For usability, and since the mechanism to build the entries of this menu does
+not allow checking of a stereotype, it would be better to show this entry on all
+Packages.
+
+This issue can be solved by moving the entry for Stereotype in the
+validContainmentMap from ModelElement to Package in UmlFactoryMDRImpl.java.
+
+Since I already adapted the manual (line 12851) with a stub, this needs to be
+completed.

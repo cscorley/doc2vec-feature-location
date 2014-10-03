@@ -1,0 +1,9 @@
+The "Load Profile from File..." does not work as default settings. I.e. you can
+load a profile, but if ArgoUML is restarted, then the profile is not loaded again.
+The following is saved in the properties file:
+argo.profiles.default=Corg.argouml.profile.internal.ProfileUML*UC\:\\Documents
+and Settings\\Michiel\\My Documents\\comment.xmi*
+The U, C and * are explained in the ProfileManagerImpl class.
+The profile "comment.xmi" is not reloaded at startup of ArgoUML.
+I think in line 131 in this class, a conversion to a URL or URI is needed to
+make paths with spaces work.

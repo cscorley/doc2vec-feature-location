@@ -1,0 +1,17 @@
+All Figs must exist within a Layer in the diagram. It should not be possible to
+set the Layer of a Fig to null.
+
+I've been considering chaning this method in GEF to throw an
+IllegalArgumentException if receiving null.
+
+    /** Sets the Layer that this Fig belongs to. Fires PropertyChangeEvent
+     *  "layer". */
+    void setLayer(Layer lay) {
+        firePropChange("layer", _layer, lay);
+        _layer = lay;
+    }
+
+However I am far from a GEF release at the moment and so I plan to put this into
+FigNodeModelElement and FigEdgeModelElement.
+
+This constraint may help to discover the LAYER_NULL problem in persistence files.

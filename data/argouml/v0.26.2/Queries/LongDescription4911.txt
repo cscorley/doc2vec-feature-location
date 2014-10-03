@@ -1,0 +1,83 @@
+Hi,
+I have NullPointerException (and I think it somewhat is related to
+http://argouml.tigris.org/issues/show_bug.cgi?id=4904):
+
+-------------------------------------------------------------------
+
+ArgoUML version       : PRE-0.25.4
+Java Version          : 1.6.0_03
+Java Vendor           : Sun Microsystems Inc.
+Java Vendor URL       : http://java.sun.com/
+Java Home Directory   : C:\Program Files\Java\jre1.6.0_03
+Java Classpath                : C:\Program Files\ArgoUML\argouml.jar
+Operation System      : Windows XP, Version 5.1
+Architecture          : x86
+User Name             : ?ukasz
+User Home Directory   : C:\Documents and Settings\?ukasz
+Current Directory     : C:\Program Files\ArgoUML
+JVM Total Memory      : 40636416
+JVM Free Memory       : 20192840
+-------------------------------------------------------------------
+
+java.lang.NullPointerException
+at
+org.argouml.uml.diagram.ui.FigNodeModelElement.getNameFigFontStyle(FigNodeModelElement.java:2197)
+at
+org.argouml.uml.diagram.ui.FigNodeModelElement.updateFont(FigNodeModelElement.java:2182)
+at
+org.argouml.uml.diagram.ui.FigNodeModelElement.diagramFontChanged(FigNodeModelElement.java:2167)
+at
+org.argouml.application.events.ArgoEventPump.handleFireDiagramAppearanceEvent(ArgoEventPump.java:189)
+at
+org.argouml.application.events.ArgoEventPump.handleFireEvent(ArgoEventPump.java:310)
+at org.argouml.application.events.ArgoEventPump.doFireEvent(ArgoEventPump.java:363)
+at org.argouml.application.events.ArgoEventPump.fireEvent(ArgoEventPump.java:343)
+at
+org.argouml.kernel.ProjectSettings.fireDiagramAppearanceEvent(ProjectSettings.java:882)
+at org.argouml.kernel.ProjectSettings.setFontName(ProjectSettings.java:907)
+at org.argouml.persistence.ArgoParser.handleFontName(ArgoParser.java:429)
+at org.argouml.persistence.ArgoParser.handleEndElement(ArgoParser.java:230)
+at org.argouml.persistence.SAXParserBase.endElement(SAXParserBase.java:247)
+at
+com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.endElement(Unknown
+Source)
+at
+com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanEndElement(Unknown
+Source)
+at
+com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl$FragmentContentDriver.next(Unknown
+Source)
+at com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl.next(Unknown
+Source)
+at
+com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(Unknown
+Source)
+at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(Unknown
+Source)
+at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(Unknown
+Source)
+at com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(Unknown Source)
+at com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.parse(Unknown
+Source)
+at
+com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser.parse(Unknown
+Source)
+at javax.xml.parsers.SAXParser.parse(Unknown Source)
+at org.argouml.persistence.SAXParserBase.parse(SAXParserBase.java:146)
+at org.argouml.persistence.SAXParserBase.parse(SAXParserBase.java:121)
+at org.argouml.persistence.ArgoParser.readProject(ArgoParser.java:103)
+at org.argouml.persistence.UmlFilePersister.doLoad(UmlFilePersister.java:390)
+at org.argouml.persistence.ZargoFilePersister.doLoad(ZargoFilePersister.java:240)
+at org.argouml.ui.ProjectBrowser.loadProject(ProjectBrowser.java:1538)
+at org.argouml.ui.LoadSwingWorker.construct(LoadSwingWorker.java:66)
+at org.argouml.ui.SwingWorker.doConstruct(SwingWorker.java:129)
+at org.argouml.ui.SwingWorker$2.run(SwingWorker.java:257)
+at java.lang.Thread.run(Unknown Source)
+
+-------------------------------------------------------------------
+
+It is showing always when:
+- I change font in Settings->Diagram Apperance->Change Font
+- Apply and OK 
+- save diagram
+- and then open it again

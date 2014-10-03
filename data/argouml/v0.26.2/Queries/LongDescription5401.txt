@@ -1,0 +1,48 @@
+On the proppanel of a AssociationRole (CollaborationDiagram), opening the
+namespace combo causes the following exception see below).
+.
+I guess this is caused by the changes done to optimise the getContents and
+getAllContents functions in MDR.
+This used to work fine in 0.24 - regression.
+.
+Fixing this issue may be done is a quick and dirty way by omitting the "reject"
+part from the OCL statement that defines this case (since that is only about names).
+In fact, this can be fixed by omitting the line that throws the exception -
+there is no harm in omitting this line - a TODO (or LOG.debug) would have sufficed.
+.
+.
+Exception in thread "AWT-EventQueue-0" java.lang.RuntimeException: Not
+implemented - getAllContents for: Collaboration$Impl  ID:
+127-0-0-1-22a136f8:11c78ff0893:-8000:0000000000000C10  MID:
+127-0-0-1-22a136f8:11c78ff0893:-8000:0000000000000559  OPCKG:
+127-0-0-1-22a136f8:11c78ff0893:-8000:0000000000000B12
+	at
+org.argouml.model.mdr.ModelManagementHelperMDRImpl.getAllContents(ModelManagementHelperMDRImpl.java:916)
+	at
+org.argouml.model.mdr.ModelManagementHelperMDRImpl.getAllContents(ModelManagementHelperMDRImpl.java:783)
+	at org.argouml.model.mdr.CoreHelperMDRImpl.isVisible(CoreHelperMDRImpl.java:1613)
+	at
+org.argouml.model.mdr.CoreHelperMDRImpl.isValidNamespace(CoreHelperMDRImpl.java:1564)
+	at
+org.argouml.model.mdr.CoreHelperMDRImpl.isValidNamespace(CoreHelperMDRImpl.java:1469)
+	at
+org.argouml.model.mdr.CoreHelperMDRImpl.getAllPossibleNamespaces(CoreHelperMDRImpl.java:1797)
+	at
+org.argouml.model.AbstractCoreHelperDecorator.getAllPossibleNamespaces(AbstractCoreHelperDecorator.java:259)
+	at
+org.argouml.uml.ui.foundation.core.UMLModelElementNamespaceComboBoxModel.buildModelList(UMLModelElementNamespaceComboBoxModel.java:103)
+	at
+org.argouml.uml.ui.UMLComboBoxModel2.buildModelListTimed(UMLComboBoxModel2.java:438)
+	at
+org.argouml.uml.ui.UMLComboBoxModel2.popupMenuWillBecomeVisible(UMLComboBoxModel2.java:737)
+	at javax.swing.JComboBox.firePopupMenuWillBecomeVisible(Unknown Source)
+	at
+javax.swing.plaf.basic.BasicComboPopup.firePopupMenuWillBecomeVisible(Unknown
+Source)
+	at javax.swing.JPopupMenu.setVisible(Unknown Source)
+	at javax.swing.JPopupMenu.show(Unknown Source)
+	at javax.swing.plaf.basic.BasicComboPopup.show(Unknown Source)
+	at javax.swing.plaf.basic.BasicComboPopup.togglePopup(Unknown Source)
+	at javax.swing.plaf.basic.BasicComboPopup$Handler.mousePressed(Unknown Source)
+	at java.awt.AWTEventMulticaster.mousePressed(Unknown Source)
+	etc...

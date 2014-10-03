@@ -1,0 +1,35 @@
+This is probably an intermittent race condition, so it may not be easily reproducable.
+ The log below is from a failure on the CI server.
+
+Failing test : org.argouml.persistence.TestZargoFilePersister.testLoadLinkedProfile
+
+java.util.ConcurrentModificationException
+	at java.util.AbstractList$Itr.checkForComodification(AbstractList.java:449)
+	at java.util.AbstractList$Itr.next(AbstractList.java:420)
+	at org.argouml.application.events.ArgoEventPump.doFireEvent(ArgoEventPump.java:393)
+	at org.argouml.application.events.ArgoEventPump.fireEvent(ArgoEventPump.java:379)
+	at org.argouml.kernel.ProjectSettings.fireNotationEvent(ProjectSettings.java:914)
+	at org.argouml.kernel.ProjectSettings.fireNotationEvent(ProjectSettings.java:901)
+	at org.argouml.kernel.ProjectSettings.access$300(ProjectSettings.java:57)
+	at org.argouml.kernel.ProjectSettings$3.redo(ProjectSettings.java:322)
+	at org.argouml.kernel.ProjectSettings.setUseGuillemots(ProjectSettings.java:333)
+	at org.argouml.kernel.ProjectSettings.setUseGuillemots(ProjectSettings.java:307)
+	at org.argouml.persistence.ArgoParser.handleUseGuillemots(ArgoParser.java:366)
+	at org.argouml.persistence.ArgoParser.handleEndElement(ArgoParser.java:202)
+	at org.argouml.persistence.SAXParserBase.endElement(SAXParserBase.java:247)
+	at com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.endElement(AbstractSAXParser.java:633)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanEndElement(XMLDocumentFragmentScannerImpl.java:1241)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl$FragmentContentDispatcher.dispatch(XMLDocumentFragmentScannerImpl.java:1685)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(XMLDocumentFragmentScannerImpl.java:368)
+	at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:834)
+	at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:764)
+	at com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(XMLParser.java:148)
+	at com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.parse(AbstractSAXParser.java:1242)
+	at javax.xml.parsers.SAXParser.parse(SAXParser.java:375)
+	at org.argouml.persistence.SAXParserBase.parse(SAXParserBase.java:146)
+	at org.argouml.persistence.SAXParserBase.parse(SAXParserBase.java:121)
+	at org.argouml.persistence.ArgoParser.readProject(ArgoParser.java:103)
+	at org.argouml.persistence.UmlFilePersister.doLoad(UmlFilePersister.java:357)
+	at org.argouml.persistence.ZargoFilePersister.doLoad(ZargoFilePersister.java:240)
+	at org.argouml.persistence.TestZargoFilePersister.doLoad(TestZargoFilePersister.java:113)
+	at org.argouml.persistence.TestZargoFilePersister.testLoadLinkedProfile(TestZargoFilePersister.java:207)

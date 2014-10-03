@@ -1,0 +1,42 @@
+The following exception is thrown when a new stereotype is created, apparently
+because the stereotype has no base class and the property panel can't deal with
+this.  The exception leaves the panel in an inconsistent state with the previous
+target still selected.
+
+java.util.NoSuchElementException
+	at java.util.HashMap$HashIterator.nextEntry(Unknown Source)
+	at java.util.HashMap$KeyIterator.next(Unknown Source)
+	at
+org.netbeans.mdr.storagemodel.AttrCollection$AttrIterator.next(AttrCollection.java:285)
+	at
+org.netbeans.mdr.handlers.AttrImmutCollWrapper$AttrImmutIteratorWrapper.next(AttrImmutCollWrapper.java:219)
+	at
+org.netbeans.mdr.handlers.AttrCollWrapper$AttrIteratorWrapper.next(AttrCollWrapper.java:169)
+	at
+org.argouml.uml.ui.foundation.extension_mechanisms.UMLMetaClassComboBoxModel.getSelectedModelElement(UMLMetaClassComboBoxModel.java:66)
+	at org.argouml.uml.ui.UMLComboBoxModel2.setTarget(UMLComboBoxModel2.java:366)
+	at org.argouml.uml.ui.UMLComboBoxModel2.targetRemoved(UMLComboBoxModel2.java:623)
+	at org.argouml.uml.ui.PropPanel.fireTargetRemoved(PropPanel.java:566)
+	at org.argouml.uml.ui.PropPanel.targetRemoved(PropPanel.java:517)
+	at org.argouml.uml.ui.TabProps.fireTargetRemoved(TabProps.java:724)
+	at org.argouml.uml.ui.TabProps.targetRemoved(TabProps.java:664)
+	at org.argouml.ui.DetailsPane.fireTargetRemoved(DetailsPane.java:666)
+	at org.argouml.ui.DetailsPane.targetRemoved(DetailsPane.java:594)
+	at
+org.argouml.ui.targetmanager.TargetManager.fireTargetRemoved(TargetManager.java:811)
+	at
+org.argouml.ui.targetmanager.TargetManager.internalOnSetTarget(TargetManager.java:480)
+	at org.argouml.ui.targetmanager.TargetManager.removeTarget(TargetManager.java:644)
+	at org.argouml.uml.diagram.ui.TabDiagram.selectionChanged(TabDiagram.java:287)
+	at
+org.tigris.gef.base.SelectionManager.fireSelectionChanged(SelectionManager.java:905)
+	at org.tigris.gef.base.SelectionManager.select(SelectionManager.java:157)
+	at org.tigris.gef.base.ModePlace.mouseReleased(ModePlace.java:235)
+	at org.tigris.gef.base.ModeManager.mouseReleased(ModeManager.java:219)
+	at org.tigris.gef.base.Editor.mouseReleased(Editor.java:794)
+	at java.awt.AWTEventMulticaster.mouseReleased(Unknown Source)
+	at java.awt.Component.processMouseEvent(Unknown Source)
+	at javax.swing.JComponent.processMouseEvent(Unknown Source)
+	at
+org.tigris.gef.graph.presentation.JGraphInternalPane.processMouseEvent(JGraph.java:650)
+	at java.awt.Component.processEvent(Unknown Source)

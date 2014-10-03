@@ -1,0 +1,134 @@
+This is split out from the discussion in issue 5636.  Both Bob and I have seen similar
+problems with unsynchronized access to GEF between the project loading thread and the
+AWT event thread.  Although the issue is a general one of lack of synchronization, it
+appears to be exacerbated by the aggressiveness with which the sequence diagram implementation
+destroys and rebuilds figures on the diagram (see SequenceDiagramLayer.updateActivations()).
+
+Thread [AWT-EventQueue-0] (Suspended (exception ConcurrentModificationException))	
+	AbstractList$Itr.checkForComodification() line: not available [local variables unavailable]	
+	AbstractList$Itr.next() line: not available [local variables unavailable]	
+	Collections$UnmodifiableCollection$1.next() line: not available [local variables unavailable]	
+	FigLifeLine(FigGroup).paint(Graphics) line: 373	
+	FigClassifierRole(FigGroup).paint(Graphics) line: 375	
+	FigClassifierRole(FigNode).paintOnce(Graphics) line: 548	
+	FigClassifierRole(FigNode).paint(Graphics) line: 539	
+	SequenceDiagramLayer(LayerDiagram).paintContents(Graphics, FigPainter) line: 299	
+	SequenceDiagramLayer(Layer).paint(Graphics, FigPainter) line: 391	
+	LayerManager.paint(Graphics, FigPainter) line: 207	
+	LayerManager.paint(Graphics) line: 188	
+	Editor.paint(Graphics) line: 562	
+	JGraphInternalPane.paintComponent(Graphics) line: 609	
+	JGraphInternalPane(JComponent).paint(Graphics) line: not available	
+	JViewport(JComponent).paintChildren(Graphics) line: not available	
+	JViewport(JComponent).paint(Graphics) line: not available	
+	JViewport.paint(Graphics) line: not available	
+	JScrollPane(JComponent).paintChildren(Graphics) line: not available	
+	JScrollPane(JComponent).paint(Graphics) line: not available	
+	DnDJGraph(JComponent).paintChildren(Graphics) line: not available	
+	DnDJGraph(JComponent).paint(Graphics) line: not available	
+	JPanel(JComponent).paintChildren(Graphics) line: not available	
+	JPanel(JComponent).paint(Graphics) line: not available	
+	TabDiagram(JComponent).paintChildren(Graphics) line: not available	
+	TabDiagram(JComponent).paint(Graphics) line: not available	
+	JTabbedPane(JComponent).paintChildren(Graphics) line: not available	
+	JTabbedPane(JComponent).paint(Graphics) line: not available	
+	MultiEditorPane(JComponent).paintChildren(Graphics) line: not available	
+	MultiEditorPane(JComponent).paint(Graphics) line: not available	
+	MultipleSplitPane(JComponent).paintChildren(Graphics) line: not available	
+	MultipleSplitPane(JComponent).paint(Graphics) line: not available	
+	MultipleSplitPane(JComponent).paintChildren(Graphics) line: not available	
+	MultipleSplitPane(JComponent).paint(Graphics) line: not available	
+	BorderSplitPane(JComponent).paintChildren(Graphics) line: not available	
+	BorderSplitPane(JComponent).paint(Graphics) line: not available	
+	JPanel(JComponent).paintChildren(Graphics) line: not available	
+	JPanel(JComponent).paint(Graphics) line: not available	
+	JPanel(JComponent).paintChildren(Graphics) line: not available	
+	JPanel(JComponent).paint(Graphics) line: not available	
+	JLayeredPane(JComponent).paintChildren(Graphics) line: not available	
+	JLayeredPane(JComponent).paint(Graphics) line: not available	
+	JLayeredPane.paint(Graphics) line: not available	
+	JRootPane(JComponent).paintChildren(Graphics) line: not available	
+	JRootPane(JComponent).paint(Graphics) line: not available	
+	JGraphInternalPane(JComponent).paintWithOffscreenBuffer(JComponent, Graphics, int, int,
+int, int, Image) line: not available	
+	JGraphInternalPane(JComponent).paintDoubleBuffered(JComponent, Component, Graphics, int,
+int, int, int) line: not available	
+	JGraphInternalPane(JComponent)._paintImmediately(int, int, int, int) line: not available	
+	JGraphInternalPane(JComponent).paintImmediately(int, int, int, int) line: not available	
+	RepaintManager.paintDirtyRegions() line: not available	
+	SystemEventQueueUtilities$ComponentWorkRequest.run() line: not available	
+	InvocationEvent.dispatch() line: not available	
+	EventQueue.dispatchEvent(AWTEvent) line: not available	
+
+
+Thread [ArgoLoadProjectThread] (Suspended)	
+	FileOutputStream.writeBytes(byte[], int, int) line: not available [native method]	
+	FileOutputStream.write(byte[], int, int) line: not available	
+	BufferedOutputStream.flushBuffer() line: not available	
+	BufferedOutputStream.flush() line: not available	
+	PrintStream.write(byte[], int, int) line: not available	
+	StreamEncoder$CharsetSE.writeBytes() line: not available	
+	StreamEncoder$CharsetSE.implFlushBuffer() line: not available	
+	StreamEncoder$CharsetSE.implFlush() line: not available	
+	StreamEncoder$CharsetSE(StreamEncoder).flush() line: not available	
+	OutputStreamWriter.flush() line: not available	
+	QuietWriter.flush() line: 49	
+	ConsoleAppender(WriterAppender).subAppend(LoggingEvent) line: 306	
+	ConsoleAppender(WriterAppender).append(LoggingEvent) line: 150	
+	ConsoleAppender(AppenderSkeleton).doAppend(LoggingEvent) line: 221	
+	AppenderAttachableImpl.appendLoopOnAppenders(LoggingEvent) line: 57	
+	Logger(Category).callAppenders(LoggingEvent) line: 187	
+	Logger(Category).forcedLog(String, Priority, Object, Throwable) line: 372	
+	Logger(Category).info(Object) line: 674	
+	FigLifeLine.removeFig(Fig) line: 153	
+	FigLifeLine.removeActivations() line: 135	
+	FigClassifierRole.updateActivations() line: 645	
+	SequenceDiagramLayer.updateActivations() line: 293	
+	FigCallActionMessage(FigMessage).layoutEdge() line: 231	
+	FigCallActionMessage(FigMessage).computeRouteImpl() line: 188	
+	FigCallActionMessage(FigEdge).computeRoute() line: 169	
+	FigClassifierRole(FigNode).updateEdges() line: 670	
+	FigClassifierRole.setStandardBounds(int, int, int, int) line: 284	
+	FigClassifierRole(FigNodeModelElement).setBoundsImpl(int, int, int, int) line: 2228	
+	FigClassifierRole(Fig).setBounds(int, int, int, int) line: 1576	
+	FigClassifierRole(Fig).redraw() line: 1494	
+	FigClassifierRole(FigNodeModelElement).updateStereotypeIcon() line: 1769	
+	FigClassifierRole(FigNodeModelElement).renderingChanged() line: 1656	
+	FigClassifierRole.renderingChanged() line: 928	
+	FigClassifierRole(FigNodeModelElement).notationChanged(ArgoNotationEvent) line: 1610	
+	ArgoEventPump.handleFireNotationEvent(ArgoNotationEvent, ArgoNotationEventListener) line:
+159	
+	ArgoEventPump.handleFireEvent(ArgoEvent, ArgoEventListener) line: 337	
+	ArgoEventPump.doFireEvent(ArgoEvent) line: 412	
+	ArgoEventPump.fireEvent(ArgoEvent) line: 388	
+	ProjectSettings.fireNotationEvent(ConfigurationKey, String, String) line: 1045	
+	ProjectSettings.fireNotationEvent(ConfigurationKey, boolean, boolean) line: 1032	
+	ProjectSettings.access$3(ProjectSettings, ConfigurationKey, boolean, boolean) line: 1030	
+	ProjectSettings$3.redo() line: 397	
+	ProjectSettings.setUseGuillemots(boolean) line: 408	
+	ProjectSettings.setUseGuillemots(String) line: 382	
+	ArgoParser.handleUseGuillemots(XMLElement) line: 372	
+	ArgoParser.handleEndElement(XMLElement) line: 202	
+	ArgoParser(SAXParserBase).endElement(String, String, String) line: 247	
+	SAXParser(AbstractSAXParser).endElement(QName, Augmentations) line: not available	
+	XMLDocumentScannerImpl(XMLDocumentFragmentScannerImpl).scanEndElement() line: not available	
+	XMLDocumentScannerImpl$ContentDispatcher(XMLDocumentFragmentScannerImpl$FragmentContentDispatcher).dispatch(boolean)
+line: not available	
+	XMLDocumentScannerImpl(XMLDocumentFragmentScannerImpl).scanDocument(boolean) line: not
+available	
+	JAXPConfiguration(XML11Configuration).parse(boolean) line: not available	
+	JAXPConfiguration(XML11Configuration).parse(XMLInputSource) line: not available	
+	SAXParser(XMLParser).parse(XMLInputSource) line: not available	
+	SAXParser(AbstractSAXParser).parse(InputSource) line: not available	
+	SAXParserImpl(SAXParser).parse(InputSource, DefaultHandler) line: not available	
+	ArgoParser(SAXParserBase).parse(InputSource) line: 146	
+	ArgoParser(SAXParserBase).parse(Reader) line: 121	
+	ArgoParser.readProject(Project, Reader) line: 103	
+	OldZargoFilePersister(UmlFilePersister).doLoad(File, File, AbstractFilePersister$ProgressMgr)
+line: 357	
+	OldZargoFilePersister(ZargoFilePersister).doLoad(File) line: 240	
+	ProjectBrowser.loadProject(File, boolean, ProgressMonitor) line: 1620	
+	LoadSwingWorker.construct(ProgressMonitor) line: 71	
+	LoadSwingWorker(SwingWorker).doConstruct() line: 139	
+	SwingWorker$2.run() line: 267	
+	Thread.run() line: not available

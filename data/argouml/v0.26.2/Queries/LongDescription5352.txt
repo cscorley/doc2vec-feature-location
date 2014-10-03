@@ -1,0 +1,8 @@
+Project.postLoad() takes tens of seconds to complete for large projects.  The issue appears
+to be that:
+
+- every Fig registers itself with the ArgoEventPump
+- the ArgoEventPump keeps its registered listeners in a single linear list
+- Fig*ModelElement.postLoad() calls ArgoEventPump.removeListener before calling addListener,
+even though it's never registered anything
+- removeListener() does a linear search of the long list

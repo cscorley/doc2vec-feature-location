@@ -1,0 +1,13 @@
+Due to the usage of the flag XmiWriterMDRImpl.WRITE_ALL in
+XmiWriterMDRImpl.write(), it isn't possible to save models loaded as profiles.
+This prevents using a functionality implemented in
+ProfileConfigurationFilePersister which would persist user defined profiles in
+the *.zargo files, so that it would be possible to open these files even if the
+user defined profiles upon which they depend aren't available in the user's
+configured profile directories.
+
+The issue seams to be deeper than simply removing WRITE_ALL, since, when I
+experimentally removed it, it still wasn't writing the profile model. Only an
+empty XMI was written.
+
+I won't be able to tackle this before the release, so creating it unassigned...

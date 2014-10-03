@@ -1,0 +1,24 @@
+After the introduction of profiles in ArgoUML, there are several possibilities
+for the loading of a *.zargo file to fail due to problems with profiles'
+persistence. This issue intends that the error messages from the failure of
+loading due to profile errors - or non-existing references to external model
+elements - to be more clear and to help the user to identify and fix the problem.
+
+The failure scenarios are several:
+ * failure to load a user defined profile contained in the *.zargo file;
+ * a qualified model reference (i.e., xmi.idref =
+"http://domain/blabla.xmi#.:000877897") isn't found because the reference
+resolver has no knowledge on how to resolve the reference;
+ * a plugin profile from which the model in a *.zargo file depends isn't
+available, probably because the user has no such module in his installation of
+ArgoUML;
+ * more?
+
+I think that the most difficult to present in a friendly way to the user is the
+one related to a qualified reference, since the exception is thrown by MDR
+internals. The XmiReferenceResolverImpl class has some possibility to know that
+an exception will occur when it is unable to resolve a reference, but, part of
+its design is to hand the resolving to parent if it isn't successful...
+
+The other two scenarios should be possible to solve by modularizing a bit the
+ProfileConfigurationFilePersister.load(Project p, InputStream is) method.

@@ -1,0 +1,172 @@
+To reproduce this:
+1. Create a new project.
+2. Draw a line in the default class diagram.
+3. Save the project.
+4. Load the project.
+
+The exception is the following one.
+
+Error opening file : test.zargo System Info:
+ArgoUML version : PRE-0.25.5
+Java Version : 1.6.0_03
+Java Vendor : Sun Microsystems Inc.
+Java Vendor URL : http://java.sun.com/
+Java Home Directory : /usr/lib/jvm/java-6-sun-1.6.0.03/jre
+Java Classpath :
+/home/penyaskito/workspaces/argouml/argouml/build-eclipse:/home/penyaskito/workspaces/argouml/argouml-core-lib/antlrall-2.7.2.jar:/home/penyaskito/workspaces/argouml/argouml-core-lib/commons-logging-1.0.2.jar:/home/penyaskito/workspaces/argouml/argouml-core-lib/log4j-1.2.6.jar:/home/penyaskito/workspaces/argouml/argouml-core-lib/ocl-argo-1.1.jar:/home/penyaskito/workspaces/argouml/argouml-core-lib/swidgets-0.1.4.jar:/home/penyaskito/workspaces/argouml/argouml-core-lib/toolbar-1.4.jar:/home/penyaskito/workspaces/argouml/argouml-core-lib/gef-0.12.4BETA.jar:/home/penyaskito/workspaces/argouml/argouml-core-model/build-eclipse:/home/penyaskito/workspaces/argouml/argouml-core-model-mdr/build-eclipse:/home/penyaskito/workspaces/argouml/argouml-core-model-mdr/lib/jmi.jar:/home/penyaskito/workspaces/argouml/argouml-core-model-mdr/lib/jmiutils.jar:/home/penyaskito/workspaces/argouml/argouml-core-model-mdr/lib/mdrapi.jar:/home/penyaskito/workspaces/argouml/argouml-core-model-mdr/lib/mof.jar:/home/penyaskito/workspaces/argouml/argouml-core-model-mdr/lib/nbmdr.jar:/home/penyaskito/workspaces/argouml/argouml-core-model-mdr/lib/openide-util.jar:/argouml-core-lib/build-eclipse
+Operation System : Linux, Version 2.6.22-14-generic
+Architecture : i386
+User Name : penyaskito
+User Home Directory : /home/penyaskito
+Current Directory : /home/penyaskito/workspaces/argouml/argouml
+JVM Total Memory : 41091072
+JVM Free Memory : 10754616
+
+
+ Error occurred at : Wed Dec 26 02:04:29 GMT 2007
+Cause : java.lang.InstantiationException: org.argouml.gefext.ArgoFigLine
+at
+org.tigris.gef.persistence.pgml.PGMLStackParser.constructFig(PGMLStackParser.java:597)
+at org.argouml.persistence.PGMLStackParser.constructFig(PGMLStackParser.java:465)
+at
+org.tigris.gef.persistence.pgml.PGMLStackParser.getHandler(PGMLStackParser.java:385)
+at org.argouml.persistence.PGMLStackParser.getHandler(PGMLStackParser.java:141)
+at
+org.tigris.gef.persistence.pgml.BaseHandler.getElementHandler(BaseHandler.java:141)
+at
+org.tigris.gef.persistence.pgml.BaseHandler.getElementOrUnknownHandler(BaseHandler.java:110)
+at org.tigris.gef.persistence.pgml.BaseHandler.startElement(BaseHandler.java:159)
+at
+com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.startElement(AbstractSAXParser.java:501)
+at
+com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanStartElement(XMLDocumentFragmentScannerImpl.java:1357)
+at
+com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl$FragmentContentDriver.next(XMLDocumentFragmentScannerImpl.java:2740)
+at
+com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl.next(XMLDocumentScannerImpl.java:645)
+at
+com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(XMLDocumentFragmentScannerImpl.java:508)
+at
+com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:807)
+at
+com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:737)
+at com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(XMLParser.java:107)
+at
+com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.parse(AbstractSAXParser.java:1205)
+at
+com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser.parse(SAXParserImpl.java:522)
+at javax.xml.parsers.SAXParser.parse(SAXParser.java:395)
+at
+org.tigris.gef.persistence.pgml.PGMLStackParser.readDiagram(PGMLStackParser.java:157)
+at
+org.tigris.gef.persistence.pgml.PGMLStackParser.readDiagram(PGMLStackParser.java:123)
+at org.argouml.persistence.PGMLStackParser.readDiagram(PGMLStackParser.java:290)
+at
+org.argouml.persistence.DiagramMemberFilePersister.load(DiagramMemberFilePersister.java:66)
+at org.argouml.persistence.UmlFilePersister.doLoad(UmlFilePersister.java:399)
+at org.argouml.persistence.ZargoFilePersister.doLoad(ZargoFilePersister.java:240)
+at org.argouml.ui.ProjectBrowser.loadProject(ProjectBrowser.java:1551)
+at org.argouml.ui.LoadSwingWorker.construct(LoadSwingWorker.java:71)
+at org.argouml.ui.SwingWorker.doConstruct(SwingWorker.java:139)
+at org.argouml.ui.SwingWorker$2.run(SwingWorker.java:267)
+at java.lang.Thread.run(Thread.java:619)
+-------
+Full exception : org.argouml.persistence.OpenException:
+java.lang.InstantiationException: org.argouml.gefext.ArgoFigLine
+at
+org.argouml.persistence.DiagramMemberFilePersister.load(DiagramMemberFilePersister.java:73)
+at org.argouml.persistence.UmlFilePersister.doLoad(UmlFilePersister.java:399)
+at org.argouml.persistence.ZargoFilePersister.doLoad(ZargoFilePersister.java:240)
+at org.argouml.ui.ProjectBrowser.loadProject(ProjectBrowser.java:1551)
+at org.argouml.ui.LoadSwingWorker.construct(LoadSwingWorker.java:71)
+at org.argouml.ui.SwingWorker.doConstruct(SwingWorker.java:139)
+at org.argouml.ui.SwingWorker$2.run(SwingWorker.java:267)
+at java.lang.Thread.run(Thread.java:619)
+Caused by: java.lang.InstantiationException: org.argouml.gefext.ArgoFigLine
+at
+org.tigris.gef.persistence.pgml.PGMLStackParser.constructFig(PGMLStackParser.java:597)
+at org.argouml.persistence.PGMLStackParser.constructFig(PGMLStackParser.java:465)
+at
+org.tigris.gef.persistence.pgml.PGMLStackParser.getHandler(PGMLStackParser.java:385)
+at org.argouml.persistence.PGMLStackParser.getHandler(PGMLStackParser.java:141)
+at
+org.tigris.gef.persistence.pgml.BaseHandler.getElementHandler(BaseHandler.java:141)
+at
+org.tigris.gef.persistence.pgml.BaseHandler.getElementOrUnknownHandler(BaseHandler.java:110)
+at org.tigris.gef.persistence.pgml.BaseHandler.startElement(BaseHandler.java:159)
+at
+com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.startElement(AbstractSAXParser.java:501)
+at
+com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanStartElement(XMLDocumentFragmentScannerImpl.java:1357)
+at
+com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl$FragmentContentDriver.next(XMLDocumentFragmentScannerImpl.java:2740)
+at
+com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl.next(XMLDocumentScannerImpl.java:645)
+at
+com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(XMLDocumentFragmentScannerImpl.java:508)
+at
+com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:807)
+at
+com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:737)
+at com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(XMLParser.java:107)
+at
+com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.parse(AbstractSAXParser.java:1205)
+at
+com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser.parse(SAXParserImpl.java:522)
+at javax.xml.parsers.SAXParser.parse(SAXParser.java:395)
+at
+org.tigris.gef.persistence.pgml.PGMLStackParser.readDiagram(PGMLStackParser.java:157)
+at
+org.tigris.gef.persistence.pgml.PGMLStackParser.readDiagram(PGMLStackParser.java:123)
+at org.argouml.persistence.PGMLStackParser.readDiagram(PGMLStackParser.java:290)
+at
+org.argouml.persistence.DiagramMemberFilePersister.load(DiagramMemberFilePersister.java:66)
+... 7 more
+java.lang.InstantiationException: org.argouml.gefext.ArgoFigLine
+at java.lang.Class.newInstance0(Class.java:340)
+at java.lang.Class.newInstance(Class.java:308)
+at
+org.tigris.gef.persistence.pgml.PGMLStackParser.constructFig(PGMLStackParser.java:591)
+at org.argouml.persistence.PGMLStackParser.constructFig(PGMLStackParser.java:465)
+at
+org.tigris.gef.persistence.pgml.PGMLStackParser.getHandler(PGMLStackParser.java:385)
+at org.argouml.persistence.PGMLStackParser.getHandler(PGMLStackParser.java:141)
+at
+org.tigris.gef.persistence.pgml.BaseHandler.getElementHandler(BaseHandler.java:141)
+at
+org.tigris.gef.persistence.pgml.BaseHandler.getElementOrUnknownHandler(BaseHandler.java:110)
+at org.tigris.gef.persistence.pgml.BaseHandler.startElement(BaseHandler.java:159)
+at
+com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.startElement(AbstractSAXParser.java:501)
+at
+com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanStartElement(XMLDocumentFragmentScannerImpl.java:1357)
+at
+com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl$FragmentContentDriver.next(XMLDocumentFragmentScannerImpl.java:2740)
+at
+com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl.next(XMLDocumentScannerImpl.java:645)
+at
+com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(XMLDocumentFragmentScannerImpl.java:508)
+at
+com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:807)
+at
+com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:737)
+at com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(XMLParser.java:107)
+at
+com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.parse(AbstractSAXParser.java:1205)
+at
+com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser.parse(SAXParserImpl.java:522)
+at javax.xml.parsers.SAXParser.parse(SAXParser.java:395)
+at
+org.tigris.gef.persistence.pgml.PGMLStackParser.readDiagram(PGMLStackParser.java:157)
+at
+org.tigris.gef.persistence.pgml.PGMLStackParser.readDiagram(PGMLStackParser.java:123)
+at org.argouml.persistence.PGMLStackParser.readDiagram(PGMLStackParser.java:290)
+at
+org.argouml.persistence.DiagramMemberFilePersister.load(DiagramMemberFilePersister.java:66)
+at org.argouml.persistence.UmlFilePersister.doLoad(UmlFilePersister.java:399)
+at org.argouml.persistence.ZargoFilePersister.doLoad(ZargoFilePersister.java:240)
+at org.argouml.ui.ProjectBrowser.loadProject(ProjectBrowser.java:1551)
+at org.argouml.ui.LoadSwingWorker.construct(LoadSwingWorker.java:71)
+at org.argouml.ui.SwingWorker.doConstruct(SwingWorker.java:139)
+at org.argouml.ui.SwingWorker$2.run(SwingWorker.java:267)
+at java.lang.Thread.run(Thread.java:619)

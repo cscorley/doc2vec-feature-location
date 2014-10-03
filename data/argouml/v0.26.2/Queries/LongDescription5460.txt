@@ -1,0 +1,9 @@
+This definitely affects FigAssociations, but it may affect other subclasses of FigEdge
+as well.  The intersects() method for FigEdge only checks for intersection of the child
+path item Figs if they are in a Layer (ie getLayer != null).  It doesn't really make sense
+to me that a composite figure could have some if its children in a different layer (or
+no layer) and clearly this requirement isn't uniformly enforced since sometimes the labels
+are drawn and some aren't.
+
+I've got a patch for FigEdgeModelElement which fixes the particular symptoms that I've
+been looking at, but I'm not sure where the real fix needs to go.

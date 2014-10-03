@@ -1,0 +1,24 @@
+After loading a project I see the following stack dump in the console. Critic
+subsystem appears to be the culprit.
+
+
+Exception in thread "AWT-EventQueue-0" java.util.ConcurrentModificationException
+	at java.util.AbstractList$Itr.checkForComodification(Unknown Source)
+	at java.util.AbstractList$Itr.next(Unknown Source)
+	at
+org.argouml.cognitive.ui.GoListToPriorityToItem.getChildCount(GoListToPriorityToItem.java:75)
+	at org.argouml.ui.TreeModelComposite.getChildCount(TreeModelComposite.java:84)
+	at org.argouml.cognitive.ui.ToDoPerspective.getChildCount(ToDoPerspective.java:96)
+	at javax.swing.tree.VariableHeightLayoutCache.treeNodesInserted(Unknown Source)
+	at javax.swing.plaf.basic.BasicTreeUI$Handler.treeNodesInserted(Unknown Source)
+	at org.argouml.ui.TreeModelSupport.fireTreeNodesInserted(TreeModelSupport.java:135)
+	at org.argouml.cognitive.ui.ToDoByPriority.toDoItemsAdded(ToDoByPriority.java:124)
+	at org.argouml.cognitive.ui.ToDoPane$2.run(ToDoPane.java:403)
+	at java.awt.event.InvocationEvent.dispatch(Unknown Source)
+	at java.awt.EventQueue.dispatchEvent(Unknown Source)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEventsForHierarchy(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+	at java.awt.EventDispatchThread.run(Unknown Source)

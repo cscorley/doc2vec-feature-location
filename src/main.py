@@ -23,6 +23,7 @@ import dulwich.repo
 
 from gensim.corpora import MalletCorpus, Dictionary
 from gensim.models import LdaModel
+from gensim.matutils import sparse2full
 
 import scipy.stats
 
@@ -161,17 +162,17 @@ def cli():
     release_model = create_model(project, release_corpus, id2word,'Release')
 
     # get the query topic
-    changeset_query_topic = get_topics(changeset_model, queries)
-    snapshot_query_topic = get_topics(snapshot_model, queries)
-    release_query_topic = get_topics(release_model, queries)
+    changeset_query_topic = get_topics(project, changeset_model, queries)
+    snapshot_query_topic = get_topics(project, snapshot_model, queries)
+    release_query_topic = get_topics(project, release_model, queries)
 
     # get the doc topic for the methods of interest (git snapshot)
-    changeset_doc_topic = get_topics(changeset_model, snapshot_corpus)
-    snapshot_doc_topic = get_topics(snapshot_model, snapshot_corpus)
+    changeset_doc_topic = get_topics(project, changeset_model, snapshot_corpus)
+    snapshot_doc_topic = get_topics(project, snapshot_model, snapshot_corpus)
 
     # get the doc topic for the methods of interest (release)
-    changeset2_doc_topic = get_topics(changeset_model, release_corpus)
-    release_doc_topic = get_topics(release_model, release_corpus)
+    changeset2_doc_topic = get_topics(project, changeset_model, release_corpus)
+    release_doc_topic = get_topics(project, release_model, release_corpus)
 
     # get the ranks
     changeset_ranks = get_rank(changeset_query_topic, changeset_doc_topic)
@@ -284,7 +285,7 @@ def get_rank(query_topic, doc_topic, distance_measure=utils.hellinger_distance):
         q_dist = list()
 
         for d_meta, doc in doc_topic:
-            distance = distance_measure(query, doc, filter_by=0.0)
+            distance = distance_measure(query, doc)
             assert distance <= 1.0
             q_dist.append((d_meta, 1.0 - distance))
 
@@ -294,14 +295,17 @@ def get_rank(query_topic, doc_topic, distance_measure=utils.hellinger_distance):
     return ranks
 
 
-def get_topics(model, corpus):
+def get_topics(project, model, corpus):
     logger.info('Getting doc topic for corpus with length %d', len(corpus))
     doc_topic = list()
     corpus.metadata = True
 
     for doc, metadata in corpus:
-        topics = model.__getitem__(doc, eps=0)
-        topics = [val for id, val in topics]
+#        topics = model.__getitem__(doc, eps=0)
+#        topics = [val for id, val in topics]
+        topics = sparse2full(model[doc], project.num_topics)
+
+
         doc_topic.append((metadata, list(sorted(topics, reverse=True))))
 
     corpus.metadata = False

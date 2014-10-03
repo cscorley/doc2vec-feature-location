@@ -140,39 +140,31 @@ def cli():
         repos.append(repo)
 
     # get corpora
-    id2word = create_dictionary(project)
-
-    logger.info('PRIMARY DICTIONARY %s', id(id2word))
-
-    changeset_corpus = create_corpus(project, repos, id2word, ChangesetCorpus)
-    snapshot_corpus = create_corpus(project, repos, id2word, TaserSnapshotCorpus)
-    release_corpus = create_release_corpus(project, id2word)
-
-    assert id2word is changeset_corpus.id2word
-    assert id2word is snapshot_corpus.id2word
-    assert id2word is release_corpus.id2word
+    changeset_corpus = create_corpus(project, repos, ChangesetCorpus)
+    snapshot_corpus = create_corpus(project, repos, TaserSnapshotCorpus)
+    release_corpus = create_release_corpus(project)
 
     # create/load document lists
-    queries = create_queries(project, id2word)
+    queries = create_queries(project)
     goldsets = load_goldsets(project)
 
     #write_out_missing(project, snapshot_corpus)
-    changeset_model = create_model(project, changeset_corpus, id2word, 'Changeset')
-    snapshot_model = create_model(project, snapshot_corpus, id2word,'Snapshot')
-    release_model = create_model(project, release_corpus, id2word,'Release')
+    changeset_model = create_model(project, changeset_corpus, 'Changeset')
+    snapshot_model = create_model(project, snapshot_corpus,'Snapshot')
+    release_model = create_model(project, release_corpus,'Release')
 
     # get the query topic
-    changeset_query_topic = get_topics(project, changeset_model, queries)
-    snapshot_query_topic = get_topics(project, snapshot_model, queries)
     release_query_topic = get_topics(project, release_model, queries)
+    snapshot_query_topic = get_topics(project, snapshot_model, queries)
+    changeset_query_topic = get_topics(project, changeset_model, queries)
 
     # get the doc topic for the methods of interest (git snapshot)
-    changeset_doc_topic = get_topics(project, changeset_model, snapshot_corpus)
     snapshot_doc_topic = get_topics(project, snapshot_model, snapshot_corpus)
+    changeset_doc_topic = get_topics(project, changeset_model, snapshot_corpus)
 
     # get the doc topic for the methods of interest (release)
-    changeset2_doc_topic = get_topics(project, changeset_model, release_corpus)
     release_doc_topic = get_topics(project, release_model, release_corpus)
+    changeset2_doc_topic = get_topics(project, changeset_model, release_corpus)
 
     # get the ranks
     changeset_ranks = get_rank(changeset_query_topic, changeset_doc_topic)
@@ -299,6 +291,8 @@ def get_topics(project, model, corpus):
     logger.info('Getting doc topic for corpus with length %d', len(corpus))
     doc_topic = list()
     corpus.metadata = True
+    old_id2word = corpus.id2word
+    corpus.id2word = model.id2word
 
     for doc, metadata in corpus:
 #        topics = model.__getitem__(doc, eps=0)
@@ -309,16 +303,19 @@ def get_topics(project, model, corpus):
         doc_topic.append((metadata, list(sorted(topics, reverse=True))))
 
     corpus.metadata = False
+    corpus.id2word = old_id2word
     logger.info('Returning doc topic of length %d', len(doc_topic))
 
     return doc_topic
 
-def create_queries(project, id2word):
+def create_queries(project):
     corpus_fname_base = project.data_path + 'Queries'
     corpus_fname = corpus_fname_base + '.mallet.gz'
+    dict_fname = corpus_fname_base + '.dict.gz'
 
     if not os.path.exists(corpus_fname):
         pp = GeneralCorpus(lazy_dict=True) # configure query preprocessing here
+        id2word = Dictionary()
 
         with open(project.data_path + 'ids.txt') as f:
             ids = [x.strip() for x in f.readlines()]
@@ -335,13 +332,17 @@ def create_queries(project, id2word):
             text = pp.preprocess(text)
 
             # this step will remove any words not found in the dictionary
-            bow = id2word.doc2bow(text)
+            bow = id2word.doc2bow(text, allow_update=True)
 
             queries.append((bow, (id, 'query')))
 
         # write the corpus and dictionary to disk. this will take awhile.
         MalletCorpus.serialize(corpus_fname, queries, id2word=id2word,
                                 metadata=True)
+
+    id2word = None
+    if os.path.exists(dict_fname):
+        id2word = Dictionary.load(dict_fname)
 
     # re-open the compressed corpus
     corpus = MalletCorpus(corpus_fname, id2word=id2word)
@@ -363,12 +364,12 @@ def load_goldsets(project):
 
 
 
-def create_model(project, corpus, id2word, name):
+def create_model(project, corpus, name):
     model_fname = project.data_path + name +  str(project.num_topics) + '.lda'
 
     if not os.path.exists(model_fname):
         model = LdaModel(corpus,
-                         id2word=id2word,
+                         id2word=corpus.id2word,
                          alpha=project.alpha,
                          eta=project.eta,
                          passes=project.passes,
@@ -403,33 +404,21 @@ def write_out_missing(project, all_taser):
         for each in sorted(list(taserset)):
             f.write(each + '\n')
 
-def create_dictionary(project):
-    dict_fname = project.data_path + 'id2word.dict.gz'
-    if not os.path.exists(dict_fname):
-        id2word = Dictionary()
 
-        # this is required because bool(id2word) => False when empty
-        # id2word.add_documents([['seed']])
-    else:
-        id2word = Dictionary.load(dict_fname)
-
-    return id2word
-
-
-def create_corpus(project, repos, id2word, Kind):
+def create_corpus(project, repos, Kind):
     corpus_fname_base = project.data_path + Kind.__name__
     corpus_fname = corpus_fname_base + '.mallet.gz'
-    dict_fname = project.data_path + 'id2word.dict.gz'
+    dict_fname = corpus_fname_base + '.dict.gz'
 
     if not os.path.exists(corpus_fname):
-        combiner = CorpusCombiner(id2word=id2word)
+        combiner = CorpusCombiner()
 
         for repo in repos:
             try:
                 if project.sha:
-                    corpus = Kind(repo, project.sha, id2word=id2word, lazy_dict=True)
+                    corpus = Kind(repo, project.sha, lazy_dict=True)
                 else:
-                    corpus = Kind(repo, project.ref, id2word=id2word, lazy_dict=True)
+                    corpus = Kind(repo, project.ref, lazy_dict=True)
             except KeyError:
                 continue
             except TaserError:
@@ -439,37 +428,39 @@ def create_corpus(project, repos, id2word, Kind):
 
         # write the corpus and dictionary to disk. this will take awhile.
         combiner.metadata = True
-        MalletCorpus.serialize(corpus_fname, combiner, id2word=id2word,
+        MalletCorpus.serialize(corpus_fname, combiner, id2word=combiner.id2word,
                                metadata=True)
         combiner.metadata = False
 
         id2word.save(dict_fname)
 
-    if id2word:
-        corpus = MalletCorpus(corpus_fname, id2word=id2word)
-    else:
-        corpus = MalletCorpus(corpus_fname, id2word=create_dictionary(project))
+    id2word = None
+    if os.path.exists(dict_fname):
+        id2word = Dictionary(dict_fname)
+
+    corpus = MalletCorpus(corpus_fname, id2word=id2word)
 
     return corpus
 
-def create_release_corpus(project, id2word):
+def create_release_corpus(project,):
     corpus_fname_base = project.data_path + 'TaserReleaseCorpus'
     corpus_fname = corpus_fname_base + '.mallet.gz'
-    dict_fname = project.data_path + 'id2word.dict.gz'
+    dict_fname = corpus_fname_base + '.dict.gz'
 
     if not os.path.exists(corpus_fname):
-        corpus = TaserReleaseCorpus(project.src_path, id2word=id2word, lazy_dict=True)
+        corpus = TaserReleaseCorpus(project.src_path, lazy_dict=True)
 
         corpus.metadata = True
-        MalletCorpus.serialize(corpus_fname, corpus, id2word=id2word,
+        MalletCorpus.serialize(corpus_fname, corpus, id2word=corpus.id2word,
                                metadata=True)
         corpus.metadata = False
         id2word.save(dict_fname)
 
-    if id2word:
-        corpus = MalletCorpus(corpus_fname, id2word=id2word)
-    else:
-        corpus = MalletCorpus(corpus_fname, id2word=create_dictionary(project))
+    id2word = None
+    if os.path.exists(dict_fname):
+        id2word = Dictionary.load(dict_fname)
+
+    corpus = MalletCorpus(corpus_fname, id2word=id2word)
 
     return corpus
 

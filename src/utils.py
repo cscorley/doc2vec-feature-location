@@ -20,24 +20,29 @@ logger = logging.getLogger('cfl.utils')
 
 SQRT2 = numpy.sqrt(2)
 
+
 def calculate_mrr(p):
     p = numpy.array(list(p))
     return numpy.mean(1.0/p)
+
 
 def hellinger_distance(p, q):
     p = numpy.array(list(p))
     q = numpy.array(list(q))
     return scipy.linalg.norm(numpy.sqrt(p) - numpy.sqrt(q)) / SQRT2
 
+
 def kullback_leibler_divergence(p, q):
     p = numpy.array(list(p))
     q = numpy.array(list(q))
     return scipy.stats.entropy(p, q)
 
+
 def cosine_distance(p, q):
     p = numpy.array(list(p))
     q = numpy.array(list(q))
     return scipy.spatial.distance.cosine(p, q)
+
 
 def jensen_shannon_divergence(q_dist, p_dist, filter_by=0.001):
     assert len(q_dist) == len(p_dist)
@@ -107,4 +112,3 @@ def mkdir(d):
         else:
             print('Failed to create "%s" directory!' % d)
             sys.exit(e.errno)
-

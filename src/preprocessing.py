@@ -79,7 +79,7 @@ def split(iterator):
 
 
 def remove_stops(iterator, stopwords=set(), punctuation=True, digits=True,
-    whitespace=True):
+                 whitespace=True):
     if not isinstance(stopwords, set):
         stopwords = set(stopwords)
 
@@ -137,9 +137,8 @@ FOX_STOPS = set(
     young younger youngest your yours z """.split())
 
 JAVA_RESERVED = set(
-""" abstract assert boolean break byte case catch char class const continue
+    """ abstract assert boolean break byte case catch char class const continue
     default do double else enum extends false final finally float for goto if
     implements import instanceof int interface long native new null package
     private protected public return short static strictfp super switch
     synchronized this throw throws transient true try void volatile while """.split())
-

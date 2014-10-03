@@ -30,6 +30,7 @@ from errors import TaserError
 import logging
 logger = logging.getLogger('cfl.corpora')
 
+
 class GeneralCorpus(gensim.interfaces.CorpusABC):
     def __init__(self, id2word=None, remove_stops=True, split=True, lower=True,
                  min_len=3, max_len=40, lazy_dict=False):
@@ -48,9 +49,11 @@ class GeneralCorpus(gensim.interfaces.CorpusABC):
 
         if id2word is None:
             id2word = gensim.corpora.Dictionary()
-            logger.info('[gen] Creating new dictionary %s for %s %s', id(id2word), self.__class__.__name__, id(self))
+            logger.info('[gen] Creating new dictionary %s for %s %s',
+                        id(id2word), self.__class__.__name__, id(self))
         else:
-            logger.info('[gen] Using provided dictionary %s for %s %s', id(id2word), self.__class__.__name__, id(self))
+            logger.info('[gen] Using provided dictionary %s for %s %s',
+                        id(id2word), self.__class__.__name__, id(self))
 
         self.id2word = id2word
 
@@ -69,7 +72,8 @@ class GeneralCorpus(gensim.interfaces.CorpusABC):
 
     @id2word.setter
     def id2word(self, val):
-        logger.info('[gen] Updating dictionary %s for %s %s', id(val), self.__class__.__name__, id(self))
+        logger.info('[gen] Updating dictionary %s for %s %s', id(val),
+                    self.__class__.__name__, id(self))
         self._id2word = val
 
     def preprocess(self, document, info=[]):
@@ -122,26 +126,13 @@ class GeneralCorpus(gensim.interfaces.CorpusABC):
     def __len__(self):
         return self.length  # will throw if corpus not initialized
 
+
 class GitCorpus(GeneralCorpus):
-
-    """
-    Helper class to simplify the pipeline of getting bag-of-words vectors (=
-    a gensim corpus) from plain text.
-
-    This is an abstract base class: override the `get_texts()` method to match
-    your particular input.
-
-    Given a filename (or a file-like object) in constructor, the corpus object
-    will be automatically initialized with a dictionary in `self.dictionary` and
-    will support the `iter` corpus method. You must only provide a correct
-    `get_texts` implementation.
-    """
-
     def __init__(self, repo, ref='HEAD', remove_stops=True, split=True,
                  lower=True, min_len=3, max_len=40, id2word=None, lazy_dict=False):
 
         logger.info('[git] Creating %s corpus out of source files for commit %s: %s',
-            self.__class__.__name__, ref, str(lazy_dict))
+                    self.__class__.__name__, ref, str(lazy_dict))
         self.repo = repo
 
         # ensure ref is a str otherwise dulwich cries
@@ -161,7 +152,7 @@ class GitCorpus(GeneralCorpus):
         elif isinstance(self.ref_obj, dulwich.objects.Tree):
             self.ref_tree = self.ref_obj.id
         else:
-            self.ref_tree = self.ref # here goes nothin?
+            self.ref_tree = self.ref  # here goes nothin?
 
         super(GitCorpus, self).__init__(remove_stops=remove_stops,
                                         split=split,
@@ -176,9 +167,7 @@ class GitCorpus(GeneralCorpus):
         self.label = filter(lambda x: x, repo.path.split('/'))[-1]
 
 
-
 class SnapshotCorpus(GitCorpus):
-
     def get_texts(self):
         length = 0
 
@@ -200,7 +189,6 @@ class SnapshotCorpus(GitCorpus):
 
 
 class TaserSnapshotCorpus(GitCorpus):
-
     def __init__(self, repo=None, ref='HEAD', remove_stops=True, split=True,
                  lower=True, min_len=3, max_len=40, taser_jar='lib/taser.jar',
                  id2word=None, lazy_dict=True):
@@ -235,7 +223,7 @@ class TaserSnapshotCorpus(GitCorpus):
         cmds.append(['java', '-jar', self.taser_jar, 'rw', self.dest, '-o', self.dest])
         cmds.append(['java', '-jar', self.taser_jar, 'bc', self.dest, '-o', self.dest])
         # do not need to do pp since we will preproccess ourselves
-        #cmds.append(['java', '-jar', self.taser_jar, 'pp', self.dest, '-o', self.dest])
+        # cmds.append(['java', '-jar', self.taser_jar, 'pp', self.dest, '-o', self.dest])
         cmds.append(['java', '-jar', self.taser_jar, 'fc', self.dest, '-o', self.dest])
 
         for cmd in cmds:
@@ -264,8 +252,8 @@ class TaserSnapshotCorpus(GitCorpus):
 
         self.length = length  # only reset after iteration is done.
 
-class TaserReleaseCorpus(GeneralCorpus):
 
+class TaserReleaseCorpus(GeneralCorpus):
     def __init__(self, src_path, remove_stops=True, split=True, lower=True,
                  min_len=3, max_len=40, taser_jar='lib/taser.jar',
                  id2word=None, lazy_dict=True):
@@ -294,7 +282,7 @@ class TaserReleaseCorpus(GeneralCorpus):
         cmds.append(['java', '-jar', self.taser_jar, 'rw', self.dest, '-o', self.dest])
         cmds.append(['java', '-jar', self.taser_jar, 'bc', self.dest, '-o', self.dest])
         # do not need to do pp since we will preproccess ourselves
-        #cmds.append(['java', '-jar', self.taser_jar, 'pp', self.dest, '-o', self.dest])
+        # cmds.append(['java', '-jar', self.taser_jar, 'pp', self.dest, '-o', self.dest])
         cmds.append(['java', '-jar', self.taser_jar, 'fc', self.dest, '-o', self.dest])
 
         for cmd in cmds:
@@ -325,7 +313,6 @@ class TaserReleaseCorpus(GeneralCorpus):
 
 
 class ChangesetCorpus(GitCorpus):
-
     def _get_diff(self, changeset):
         """ Return a text representing a `git diff` for the files in the
         changeset.
@@ -422,7 +409,6 @@ class ChangesetCorpus(GitCorpus):
 
 
 class CommitLogCorpus(GitCorpus):
-
     def get_texts(self):
         length = 0
 
@@ -482,7 +468,8 @@ class CorpusCombiner(GeneralCorpus):
 
     @id2word.setter
     def id2word(self, val):
-        logger.info('[com] Updating dictionary %s for %s %s', id(val), self.__class__.__name__, id(self))
+        logger.info('[com] Updating dictionary %s for %s %s', id(val),
+                    self.__class__.__name__, id(self))
         self._id2word = val
         for corpus in self.corpora:
             corpus.id2word = val

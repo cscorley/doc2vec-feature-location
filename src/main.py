@@ -79,10 +79,12 @@ def cli():
                     continue
 
                 # build the data_path value
-                row += (os.path.join('data', row[name_idx], row[version_idx], ''),)
+                row += (os.path.join('data', row[name_idx], row[version_idx],
+                                     ''),)
 
                 # build the src_path value
-                row += (os.path.join('data', row[name_idx], row[version_idx], 'src'),)
+                row += (os.path.join('data', row[name_idx], row[version_idx],
+                                     'src'),)
 
                 # try to convert string values to numbers
                 for idx, item in enumerate(row):
@@ -100,6 +102,7 @@ def cli():
                         except ValueError:
                             pass
                     else:
+                        # set all empty fields to None
                         row[idx] = None
 
                 # 🎶  do you believe in magicccccc
@@ -125,7 +128,6 @@ def cli():
     if not os.path.exists(repos_base):
         utils.mkdir(repos_base)
 
-
     repos = list()
 
     for url in repo_urls:
@@ -148,10 +150,10 @@ def cli():
     queries = create_queries(project)
     goldsets = load_goldsets(project)
 
-    #write_out_missing(project, snapshot_corpus)
+    # create models
     changeset_model = create_model(project, changeset_corpus, 'Changeset')
-    snapshot_model = create_model(project, snapshot_corpus,'Snapshot')
-    release_model = create_model(project, release_corpus,'Release')
+    snapshot_model = create_model(project, snapshot_corpus, 'Snapshot')
+    release_model = create_model(project, release_corpus, 'Release')
 
     # get the query topic
     release_query_topic = get_topics(project, release_model, queries)
@@ -173,17 +175,19 @@ def cli():
     changeset2_ranks = get_rank(changeset_query_topic, changeset2_doc_topic)
     release_ranks = get_rank(release_query_topic, release_doc_topic)
 
-    # calculate MRR
+    # get first relevant method scores
     changeset_first_rels = get_frms(goldsets, changeset_ranks)
     snapshot_first_rels = get_frms(goldsets, snapshot_ranks)
 
     changeset2_first_rels = get_frms(goldsets, changeset2_ranks)
     release_first_rels = get_frms(goldsets, release_ranks)
 
-    changeset_mrr = utils.calculate_mrr(num for num, q, d in changeset_first_rels)
-    snapshot_mrr = utils.calculate_mrr(num for num, q, d in snapshot_first_rels)
-    changeset2_mrr = utils.calculate_mrr(num for num, q, d in changeset2_first_rels)
-    release_mrr = utils.calculate_mrr(num for num, q, d in release_first_rels)
+    # calculate MRR
+    # n => rank number
+    changeset_mrr = utils.calculate_mrr(n for n, q, d in changeset_first_rels)
+    snapshot_mrr = utils.calculate_mrr(n for n, q, d in snapshot_first_rels)
+    changeset2_mrr = utils.calculate_mrr(n for n, q, d in changeset2_first_rels)
+    release_mrr = utils.calculate_mrr(n for n, q, d in release_first_rels)
 
     print('changeset mrr:', changeset_mrr)
     print('snapshot mrr:', snapshot_mrr)
@@ -191,6 +195,7 @@ def cli():
     print('changeset2 mrr:', changeset2_mrr)
     print('release mrr:', release_mrr)
 
+    # write out first relevant methods
     with open(project.data_path + 'changeset_' + str(project.num_topics) + '_frms.csv', 'w') as f:
         w = csv.writer(f)
         w.writerows(changeset_first_rels)
@@ -207,6 +212,7 @@ def cli():
         w = csv.writer(f)
         w.writerows(release_first_rels)
 
+    # Build a dictionary with each of the results for stats.
     first_rels = dict()
 
     for num, query_id, doc_meta in changeset_first_rels:
@@ -249,6 +255,7 @@ def cli():
 
     print('friedman:', scipy.stats.friedmanchisquare(x, y, x2, y2))
 
+
 def get_frms(goldsets, ranks):
     logger.info('Getting FRMS for %d goldsets and %d ranks',
                 len(goldsets), len(ranks))
@@ -267,6 +274,7 @@ def get_frms(goldsets, ranks):
 
     logger.info('Returning %d FRMS', len(frms))
     return frms
+
 
 def get_rank(query_topic, doc_topic, distance_measure=utils.hellinger_distance):
     logger.info('Getting ranks between %d query topics and %d doc topics',
@@ -295,10 +303,12 @@ def get_topics(project, model, corpus):
     corpus.id2word = model.id2word
 
     for doc, metadata in corpus:
-#        topics = model.__getitem__(doc, eps=0)
-#        topics = [val for id, val in topics]
+        # get a vector where low topic values are zeroed out.
         topics = sparse2full(model[doc], project.num_topics)
 
+        # this gets the "full" vector that includes low topic values
+#        topics = model.__getitem__(doc, eps=0)
+#        topics = [val for id, val in topics]
 
         doc_topic.append((metadata, list(sorted(topics, reverse=True))))
 
@@ -308,13 +318,14 @@ def get_topics(project, model, corpus):
 
     return doc_topic
 
+
 def create_queries(project):
     corpus_fname_base = project.data_path + 'Queries'
     corpus_fname = corpus_fname_base + '.mallet.gz'
     dict_fname = corpus_fname_base + '.dict.gz'
 
     if not os.path.exists(corpus_fname):
-        pp = GeneralCorpus(lazy_dict=True) # configure query preprocessing here
+        pp = GeneralCorpus(lazy_dict=True)
         id2word = Dictionary()
 
         with open(project.data_path + 'ids.txt') as f:
@@ -338,16 +349,17 @@ def create_queries(project):
 
         # write the corpus and dictionary to disk. this will take awhile.
         MalletCorpus.serialize(corpus_fname, queries, id2word=id2word,
-                                metadata=True)
+                               metadata=True)
 
+    # re-open the compressed versions of the dictionary and corpus
     id2word = None
     if os.path.exists(dict_fname):
         id2word = Dictionary.load(dict_fname)
 
-    # re-open the compressed corpus
     corpus = MalletCorpus(corpus_fname, id2word=id2word)
 
     return corpus
+
 
 def load_goldsets(project):
     with open(project.data_path + 'ids.txt') as f:
@@ -363,9 +375,8 @@ def load_goldsets(project):
     return goldsets
 
 
-
 def create_model(project, corpus, name):
-    model_fname = project.data_path + name +  str(project.num_topics) + '.lda'
+    model_fname = project.data_path + name + str(project.num_topics) + '.lda'
 
     if not os.path.exists(model_fname):
         model = LdaModel(corpus,
@@ -383,13 +394,12 @@ def create_model(project, corpus, name):
 
 
 def write_out_missing(project, all_taser):
+    goldset = set()
     all_taser.metadata = True
     taserset = set(doc[1][0] for doc in all_taser)
     all_taser.metadata = False
 
-
     goldset_fname = project.data_path + 'allgold.txt'
-    goldset = set()
     with open(goldset_fname) as f:
         for line in f:
             goldset.add(line.strip())
@@ -415,10 +425,7 @@ def create_corpus(project, repos, Kind):
 
         for repo in repos:
             try:
-                if project.sha:
-                    corpus = Kind(repo, project.sha, lazy_dict=True)
-                else:
-                    corpus = Kind(repo, project.ref, lazy_dict=True)
+                corpus = Kind(repo, project.ref or project.sha, lazy_dict=True)
             except KeyError:
                 continue
             except TaserError:
@@ -432,8 +439,10 @@ def create_corpus(project, repos, Kind):
                                metadata=True)
         combiner.metadata = False
 
+        # write out the dictionary
         combiner.id2word.save(dict_fname)
 
+    # re-open the compressed versions of the dictionary and corpus
     id2word = None
     if os.path.exists(dict_fname):
         id2word = Dictionary.load(dict_fname)
@@ -441,6 +450,7 @@ def create_corpus(project, repos, Kind):
     corpus = MalletCorpus(corpus_fname, id2word=id2word)
 
     return corpus
+
 
 def create_release_corpus(project,):
     corpus_fname_base = project.data_path + 'TaserReleaseCorpus'
@@ -456,6 +466,7 @@ def create_release_corpus(project,):
         corpus.metadata = False
         corpus.id2word.save(dict_fname)
 
+    # re-open the compressed versions of the dictionary and corpus
     id2word = None
     if os.path.exists(dict_fname):
         id2word = Dictionary.load(dict_fname)
@@ -463,6 +474,7 @@ def create_release_corpus(project,):
     corpus = MalletCorpus(corpus_fname, id2word=id2word)
 
     return corpus
+
 
 def clone(source, target, bare=False):
     client, host_path = dulwich.client.get_transport_and_path(source)

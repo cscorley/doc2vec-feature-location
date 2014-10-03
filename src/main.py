@@ -432,11 +432,11 @@ def create_corpus(project, repos, Kind):
                                metadata=True)
         combiner.metadata = False
 
-        id2word.save(dict_fname)
+        combiner.id2word.save(dict_fname)
 
     id2word = None
     if os.path.exists(dict_fname):
-        id2word = Dictionary(dict_fname)
+        id2word = Dictionary.load(dict_fname)
 
     corpus = MalletCorpus(corpus_fname, id2word=id2word)
 
@@ -454,7 +454,7 @@ def create_release_corpus(project,):
         MalletCorpus.serialize(corpus_fname, corpus, id2word=corpus.id2word,
                                metadata=True)
         corpus.metadata = False
-        id2word.save(dict_fname)
+        corpus.id2word.save(dict_fname)
 
     id2word = None
     if os.path.exists(dict_fname):

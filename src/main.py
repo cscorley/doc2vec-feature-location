@@ -28,7 +28,8 @@ from gensim.matutils import sparse2full
 import scipy.stats
 
 import utils
-from corpora import (ChangesetCorpus, TaserSnapshotCorpus, TaserReleaseCorpus,
+from corpora import (ChangesetCorpus, SnapshotCorpus,
+                     TaserSnapshotCorpus, TaserReleaseCorpus,
                      CorpusCombiner, GeneralCorpus)
 from errors import TaserError
 
@@ -143,8 +144,14 @@ def cli():
 
     # get corpora
     changeset_corpus = create_corpus(project, repos, ChangesetCorpus)
-    snapshot_corpus = create_corpus(project, repos, TaserSnapshotCorpus)
-    release_corpus = create_release_corpus(project)
+
+    if project.level == 'file':
+        snapshot_corpus = create_corpus(project, repos, SnapshotCorpus)
+        release_corpus = create_corpus(project, [None], ReleaseCorpus)
+    else:
+        snapshot_corpus = create_corpus(project, repos, TaserSnapshotCorpus)
+        release_corpus = create_corpus(project, [None], TaserReleaseCorpus)
+
 
     # create/load document lists
     queries = create_queries(project)
@@ -425,7 +432,11 @@ def create_corpus(project, repos, Kind):
 
         for repo in repos:
             try:
-                corpus = Kind(repo, project.ref or project.sha, lazy_dict=True)
+                if repo:
+                    corpus = Kind(repo=repo, project=project, lazy_dict=True)
+                else:
+                    corpus = Kind(project=project, lazy_dict=True)
+
             except KeyError:
                 continue
             except TaserError:
@@ -441,30 +452,6 @@ def create_corpus(project, repos, Kind):
 
         # write out the dictionary
         combiner.id2word.save(dict_fname)
-
-    # re-open the compressed versions of the dictionary and corpus
-    id2word = None
-    if os.path.exists(dict_fname):
-        id2word = Dictionary.load(dict_fname)
-
-    corpus = MalletCorpus(corpus_fname, id2word=id2word)
-
-    return corpus
-
-
-def create_release_corpus(project,):
-    corpus_fname_base = project.data_path + 'TaserReleaseCorpus'
-    corpus_fname = corpus_fname_base + '.mallet.gz'
-    dict_fname = corpus_fname_base + '.dict.gz'
-
-    if not os.path.exists(corpus_fname):
-        corpus = TaserReleaseCorpus(project.src_path, lazy_dict=True)
-
-        corpus.metadata = True
-        MalletCorpus.serialize(corpus_fname, corpus, id2word=corpus.id2word,
-                               metadata=True)
-        corpus.metadata = False
-        corpus.id2word.save(dict_fname)
 
     # re-open the compressed versions of the dictionary and corpus
     id2word = None

@@ -32,7 +32,7 @@ logger = logging.getLogger('cfl.corpora')
 
 
 class GeneralCorpus(gensim.interfaces.CorpusABC):
-    def __init__(self, id2word=None, remove_stops=True, split=True, lower=True,
+    def __init__(self, project=None, id2word=None, remove_stops=True, split=True, lower=True,
                  min_len=3, max_len=40, lazy_dict=False):
         lazystr = str()
         if lazy_dict:
@@ -40,6 +40,7 @@ class GeneralCorpus(gensim.interfaces.CorpusABC):
 
         logger.info('Creating %s%s corpus', lazystr, self.__class__.__name__)
 
+        self.project = project
         self.remove_stops = remove_stops
         self.split = split
         self.lower = lower
@@ -111,25 +112,18 @@ class GeneralCorpus(gensim.interfaces.CorpusABC):
             else:
                 yield self.id2word.doc2bow(text, allow_update=self.lazy_dict)
 
-    def get_texts(self):
-        """
-        Iterate over the collection, yielding one document at a time. A document
-        is a sequence of words (strings) that can be fed into
-        `Dictionary.doc2bow`.
-
-        Override this function to match your input (parse input files, do any
-        text preprocessing, lowercasing, tokenizing etc.). There will be no
-        further preprocessing of the words coming out of this function.
-        """
-        raise NotImplementedError
-
     def __len__(self):
         return self.length  # will throw if corpus not initialized
 
 
 class GitCorpus(GeneralCorpus):
-    def __init__(self, repo, ref='HEAD', remove_stops=True, split=True,
+    def __init__(self, repo, project=None, remove_stops=True, split=True,
                  lower=True, min_len=3, max_len=40, id2word=None, lazy_dict=False):
+
+        if project:
+            ref = project.ref
+        else:
+            ref = 'HEAD'
 
         logger.info('[git] Creating %s corpus out of source files for commit %s: %s',
                     self.__class__.__name__, ref, str(lazy_dict))
@@ -154,7 +148,8 @@ class GitCorpus(GeneralCorpus):
         else:
             self.ref_tree = self.ref  # here goes nothin?
 
-        super(GitCorpus, self).__init__(remove_stops=remove_stops,
+        super(GitCorpus, self).__init__(project=project,
+                                        remove_stops=remove_stops,
                                         split=split,
                                         lower=lower,
                                         min_len=min_len,
@@ -188,43 +183,37 @@ class SnapshotCorpus(GitCorpus):
         self.length = length  # only reset after iteration is done.
 
 
-class TaserSnapshotCorpus(GitCorpus):
-    def __init__(self, repo=None, ref='HEAD', remove_stops=True, split=True,
-                 lower=True, min_len=3, max_len=40, taser_jar='lib/taser.jar',
-                 id2word=None, lazy_dict=True):
-        # force lazy_dict since we have to run taser to build the corpus first
-        super(TaserSnapshotCorpus, self).__init__(repo=repo,
-                                                  ref=ref,
-                                                  remove_stops=remove_stops,
-                                                  split=split,
-                                                  lower=lower,
-                                                  min_len=min_len,
-                                                  max_len=max_len,
-                                                  id2word=id2word,
-                                                  lazy_dict=True)
-        self.taser_jar = taser_jar
-
-        self.src = tempfile.mkdtemp(prefix='taser_')
-        self.dest = tempfile.mkdtemp(prefix='taser_')
-
-        # checkout the version we want
-        dulwich.index.build_index_from_tree(self.src,
-                                            self.repo.index_path(),
-                                            self.repo.object_store,
-                                            self.ref_tree)
-        self.corpus_generated = False
-        self.run_taser()
-
+class TaserMixIn(object):
     def run_taser(self):
         self.corpus_generated = False
 
         cmds = list()
-        cmds.append(['java', '-jar', self.taser_jar, 'ex', self.src, '-o', self.dest])
-        cmds.append(['java', '-jar', self.taser_jar, 'rw', self.dest, '-o', self.dest])
-        cmds.append(['java', '-jar', self.taser_jar, 'bc', self.dest, '-o', self.dest])
+        cmds.append(['java',
+                     '-jar', self.taser_jar,
+                     'ex', self.src,
+                     '-o', self.dest,
+                     '-t', self.project.level])
+        cmds.append(['java',
+                     '-jar', self.taser_jar,
+                     'rw', self.dest,
+                     '-o', self.dest,
+                     '-t', self.project.level])
+        cmds.append(['java',
+                     '-jar', self.taser_jar,
+                     'bc', self.dest,
+                     '-o', self.dest,
+                     '-t', self.project.level])
         # do not need to do pp since we will preproccess ourselves
-        # cmds.append(['java', '-jar', self.taser_jar, 'pp', self.dest, '-o', self.dest])
-        cmds.append(['java', '-jar', self.taser_jar, 'fc', self.dest, '-o', self.dest])
+        # cmds.append(['java',
+        #              '-jar', self.taser_jar,
+        #              'pp', self.dest,
+        #              '-o', self.dest,
+        #              '-t', self.project.level])
+        cmds.append(['java',
+                     '-jar', self.taser_jar,
+                     'fc', self.dest,
+                     '-o', self.dest,
+                     '-t', self.project.level])
 
         for cmd in cmds:
             retval = subprocess.call(cmd)
@@ -253,12 +242,41 @@ class TaserSnapshotCorpus(GitCorpus):
         self.length = length  # only reset after iteration is done.
 
 
-class TaserReleaseCorpus(GeneralCorpus):
-    def __init__(self, src_path, remove_stops=True, split=True, lower=True,
+
+class TaserSnapshotCorpus(GitCorpus, TaserMixIn):
+    def __init__(self, repo=None, project=None, remove_stops=True, split=True,
+                 lower=True, min_len=3, max_len=40, taser_jar='lib/taser.jar',
+                 id2word=None, lazy_dict=True):
+        # force lazy_dict since we have to run taser to build the corpus first
+        super(TaserSnapshotCorpus, self).__init__(repo=repo,
+                                                  project=project,
+                                                  remove_stops=remove_stops,
+                                                  split=split,
+                                                  lower=lower,
+                                                  min_len=min_len,
+                                                  max_len=max_len,
+                                                  id2word=id2word,
+                                                  lazy_dict=True)
+        self.taser_jar = taser_jar
+
+        self.src = tempfile.mkdtemp(prefix='taser_')
+        self.dest = tempfile.mkdtemp(prefix='taser_')
+
+        # checkout the version we want
+        dulwich.index.build_index_from_tree(self.src,
+                                            self.repo.index_path(),
+                                            self.repo.object_store,
+                                            self.ref_tree)
+        self.corpus_generated = False
+        self.run_taser()
+
+class TaserReleaseCorpus(GeneralCorpus, TaserMixIn):
+    def __init__(self, project, remove_stops=True, split=True, lower=True,
                  min_len=3, max_len=40, taser_jar='lib/taser.jar',
                  id2word=None, lazy_dict=True):
         # force lazy_dict since we have to run taser to build the corpus first
-        super(TaserReleaseCorpus, self).__init__(remove_stops=remove_stops,
+        super(TaserReleaseCorpus, self).__init__(project=project,
+                                                 remove_stops=remove_stops,
                                                  split=split,
                                                  lower=lower,
                                                  min_len=min_len,
@@ -267,7 +285,7 @@ class TaserReleaseCorpus(GeneralCorpus):
                                                  lazy_dict=True)
         self.taser_jar = taser_jar
 
-        self.src = src_path
+        self.src = project.src_path
         self.dest = tempfile.mkdtemp(prefix='taser_')
         self.label = 'release'
 

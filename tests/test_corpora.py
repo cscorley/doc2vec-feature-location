@@ -16,6 +16,7 @@ import tempfile
 import os
 import os.path
 from io import StringIO
+from collections import namedtuple
 
 from nose.tools import *
 import dulwich.repo
@@ -29,6 +30,7 @@ datapath = lambda fname: os.path.join(module_path, u'test_data', fname)
 
 class TestGitCorpus(unittest.TestCase):
     def setUp(self):
+        self.Project = namedtuple('Project', 'ref level')
         self.basepath = datapath(u'test_git/')
         if not os.path.exists(self.basepath):
             extraction_path = datapath('')
@@ -47,20 +49,20 @@ class TestGitCorpus(unittest.TestCase):
 class TestSnapshotCorpus(TestGitCorpus):
     def setUp(self):
         super(TestSnapshotCorpus, self).setUp()
-        self.corpus = SnapshotCorpus(self.repo,
-                remove_stops=False,
-                lower=True,
-                split=True,
-                min_len=0)
+        self.corpus = SnapshotCorpus(repo=self.repo,
+                                     remove_stops=False,
+                                     lower=True,
+                                     split=True,
+                                     min_len=0)
         self.docs = list(self.corpus)
 
     def test_lazy(self):
-        corpus = SnapshotCorpus(self.repo,
-                remove_stops=False,
-                lower=True,
-                split=True,
-                min_len=0,
-                lazy_dict=True)
+        corpus = SnapshotCorpus(repo=self.repo,
+                                remove_stops=False,
+                                lower=True,
+                                split=True,
+                                min_len=0,
+                                lazy_dict=True)
 
         self.assertEqual(len(corpus.id2word), 0)
 
@@ -241,22 +243,24 @@ class TestSnapshotCorpus(TestGitCorpus):
 class TestSnapshotCorpusAtRef(TestGitCorpus):
     def setUp(self):
         super(TestSnapshotCorpusAtRef, self).setUp()
-        self.ref = u'f33a0fb070a34fc1b9105453b3ffb4edc49131d9'
-        self.corpus = SnapshotCorpus(self.repo, self.ref,
-                remove_stops=False,
-                lower=True,
-                split=True,
-                min_len=0)
+        p1 = self.Project(u'f33a0fb070a34fc1b9105453b3ffb4edc49131d9',
+                          'file')
+        self.corpus = SnapshotCorpus(repo=self.repo,
+                                     project=p1,
+                                     remove_stops=False,
+                                     lower=True,
+                                     split=True,
+                                     min_len=0)
         self.docs = list(self.corpus)
 
 
     def test_lazy(self):
-        corpus = SnapshotCorpus(self.repo,
-                remove_stops=False,
-                lower=True,
-                split=True,
-                min_len=0,
-                lazy_dict=True)
+        corpus = SnapshotCorpus(repo=self.repo,
+                                remove_stops=False,
+                                lower=True,
+                                split=True,
+                                min_len=0,
+                                lazy_dict=True)
 
         self.assertEqual(len(corpus.id2word), 0)
 
@@ -380,11 +384,11 @@ class TestSnapshotCorpusAtRef(TestGitCorpus):
 class TestChangesetCorpus(TestGitCorpus):
     def setUp(self):
         super(TestChangesetCorpus, self).setUp()
-        self.corpus = ChangesetCorpus(self.repo,
-                remove_stops=False,
-                lower=True,
-                split=True,
-                min_len=0)
+        self.corpus = ChangesetCorpus(repo=self.repo,
+                                      remove_stops=False,
+                                      lower=True,
+                                      split=True,
+                                      min_len=0)
         self.docs = list(self.corpus)
 
 
@@ -397,12 +401,12 @@ class TestChangesetCorpus(TestGitCorpus):
             self.assertEqual(l, len(self.corpus))
 
     def test_lazy(self):
-        corpus = SnapshotCorpus(self.repo,
-                remove_stops=False,
-                lower=True,
-                split=True,
-                min_len=0,
-                lazy_dict=True)
+        corpus = SnapshotCorpus(repo=self.repo,
+                                remove_stops=False,
+                                lower=True,
+                                split=True,
+                                min_len=0,
+                                lazy_dict=True)
 
         self.assertEqual(len(corpus.id2word), 0)
 
@@ -589,8 +593,10 @@ class TestCorpusCombiner(TestGitCorpus):
     def setUp(self):
         super(TestCorpusCombiner, self).setUp()
         # 3 documents
-        self.ref1 = u'2aeb2e7c78259833e1218b69f99dab3acd00970c'
-        self.corpus1 = SnapshotCorpus(self.repo, self.ref1,
+        p1 = self.Project(u'2aeb2e7c78259833e1218b69f99dab3acd00970c',
+                          'file')
+        self.corpus1 = SnapshotCorpus(repo=self.repo,
+                                      project=p1,
                                       remove_stops=False,
                                       lower=True,
                                       split=True,
@@ -598,8 +604,10 @@ class TestCorpusCombiner(TestGitCorpus):
         self.docs1 = list(self.corpus1)
 
         # 3 old documents + 2 new documents
-        self.ref2 = u'3587d37e7d476ddc7b673c41762dc89c8ca63a6a'
-        self.corpus2 = SnapshotCorpus(self.repo, self.ref2,
+        p2 = self.Project(u'3587d37e7d476ddc7b673c41762dc89c8ca63a6a',
+                          'file')
+        self.corpus2 = SnapshotCorpus(repo=self.repo,
+                                      project=p2,
                                       remove_stops=False,
                                       lower=True,
                                       split=True,

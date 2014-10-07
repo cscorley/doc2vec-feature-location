@@ -51,6 +51,11 @@ def cli():
     else:
         version = False
 
+    if len(sys.argv) > 3:
+        level = sys.argv[3]
+    else:
+        level = False
+
     verbose = False
     project = None
 
@@ -70,6 +75,7 @@ def cli():
         # figure out which column index contains the project name
         name_idx = header.index("name")
         version_idx = header.index("version")
+        level_idx = header.index("level")
 
         # find the project in the csv, adding it's info to config
         for row in reader:
@@ -77,6 +83,10 @@ def cli():
 
                 # if version specified, make sure we are at the correct one
                 if version and version != row[version_idx]:
+                    continue
+
+                # if level specified, make sure we are at the correct one
+                if level and level != row[level_idx]:
                     continue
 
                 # build the data_path value
@@ -411,7 +421,7 @@ def write_out_missing(project, all_taser):
 
 
 def create_corpus(project, repos, Kind):
-    corpus_fname_base = project.data_path + Kind.__name__
+    corpus_fname_base = project.data_path + Kind.__name__ + project.level
     corpus_fname = corpus_fname_base + '.mallet.gz'
     dict_fname = corpus_fname_base + '.dict.gz'
 

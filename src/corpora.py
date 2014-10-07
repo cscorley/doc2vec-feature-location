@@ -234,33 +234,38 @@ class TaserMixIn(object):
     def run_taser(self):
         self.corpus_generated = False
 
+        if self.project.level == 'class':
+            ctype = 'classtype'
+        else:
+            ctype = self.project.level
+
         cmds = list()
         cmds.append(['java',
                      '-jar', self.taser_jar,
                      'ex', self.src,
                      '-o', self.dest,
-                     '-t', self.project.level])
+                     '-t', ctype])
         cmds.append(['java',
                      '-jar', self.taser_jar,
                      'rw', self.dest,
                      '-o', self.dest,
-                     '-t', self.project.level])
+                     '-t', ctype])
         cmds.append(['java',
                      '-jar', self.taser_jar,
                      'bc', self.dest,
                      '-o', self.dest,
-                     '-t', self.project.level])
+                     '-t', ctype])
         # do not need to do pp since we will preproccess ourselves
         # cmds.append(['java',
         #              '-jar', self.taser_jar,
         #              'pp', self.dest,
         #              '-o', self.dest,
-        #              '-t', self.project.level])
+        #              '-t', ctype])
         cmds.append(['java',
                      '-jar', self.taser_jar,
                      'fc', self.dest,
                      '-o', self.dest,
-                     '-t', self.project.level])
+                     '-t', ctype])
 
         for cmd in cmds:
             retval = subprocess.call(cmd)

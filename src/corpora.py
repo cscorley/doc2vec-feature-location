@@ -292,43 +292,6 @@ class TaserReleaseCorpus(GeneralCorpus, TaserMixIn):
         self.corpus_generated = False
         self.run_taser()
 
-    def run_taser(self):
-        self.corpus_generated = False
-
-        cmds = list()
-        cmds.append(['java', '-jar', self.taser_jar, 'ex', self.src, '-o', self.dest])
-        cmds.append(['java', '-jar', self.taser_jar, 'rw', self.dest, '-o', self.dest])
-        cmds.append(['java', '-jar', self.taser_jar, 'bc', self.dest, '-o', self.dest])
-        # do not need to do pp since we will preproccess ourselves
-        # cmds.append(['java', '-jar', self.taser_jar, 'pp', self.dest, '-o', self.dest])
-        cmds.append(['java', '-jar', self.taser_jar, 'fc', self.dest, '-o', self.dest])
-
-        for cmd in cmds:
-            retval = subprocess.call(cmd)
-            if retval:
-                raise TaserError("Failed cmd: " + str(cmd))
-
-        self.corpus_generated = True
-
-    def get_texts(self):
-        if not self.corpus_generated:
-            self.run_taser()
-
-        length = 0
-
-        with open(os.path.join(self.dest, 'unknown-0.0.ser')) as f:
-            for line in f:
-                doc_name, document = line.split(' ', 1)
-                words = self.preprocess(document, [doc_name, self.src])
-                length += 1
-
-                if self.metadata:
-                    yield words, (doc_name, self.label)
-                else:
-                    yield words
-
-        self.length = length  # only reset after iteration is done.
-
 
 class ChangesetCorpus(GitCorpus):
     def _get_diff(self, changeset):

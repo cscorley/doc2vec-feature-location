@@ -14,6 +14,7 @@ Code for generating the corpora.
 from StringIO import StringIO
 import re
 import subprocess
+import os
 import os.path
 import tempfile
 
@@ -33,7 +34,7 @@ logger = logging.getLogger('cfl.corpora')
 
 class GeneralCorpus(gensim.interfaces.CorpusABC):
     def __init__(self, project=None, id2word=None, remove_stops=True, split=True, lower=True,
-                 min_len=3, max_len=40, lazy_dict=False):
+                 min_len=3, max_len=40, lazy_dict=False, label='general'):
         lazystr = str()
         if lazy_dict:
             lazystr = 'lazy '
@@ -59,7 +60,7 @@ class GeneralCorpus(gensim.interfaces.CorpusABC):
         self.id2word = id2word
 
         self.metadata = False
-        self.label = 'general'
+        self.label = label
 
         if not lazy_dict:
             # build the dict (not lazy)
@@ -118,7 +119,8 @@ class GeneralCorpus(gensim.interfaces.CorpusABC):
 
 class GitCorpus(GeneralCorpus):
     def __init__(self, repo, project=None, remove_stops=True, split=True,
-                 lower=True, min_len=3, max_len=40, id2word=None, lazy_dict=False):
+                 lower=True, min_len=3, max_len=40, id2word=None,
+                 lazy_dict=False, label=None):
 
         if project:
             ref = project.ref
@@ -148,6 +150,12 @@ class GitCorpus(GeneralCorpus):
         else:
             self.ref_tree = self.ref  # here goes nothin?
 
+        # set the label
+        # filter to get rid of all empty strings
+        if label is None:
+            label = filter(lambda x: x, repo.path.split('/'))[-1]
+
+
         super(GitCorpus, self).__init__(project=project,
                                         remove_stops=remove_stops,
                                         split=split,
@@ -155,11 +163,50 @@ class GitCorpus(GeneralCorpus):
                                         min_len=min_len,
                                         max_len=max_len,
                                         id2word=id2word,
-                                        lazy_dict=lazy_dict)
+                                        lazy_dict=lazy_dict,
+                                        label=label)
 
-        # set the label
-        # filter to get rid of all empty strings
-        self.label = filter(lambda x: x, repo.path.split('/'))[-1]
+
+class ReleaseCorpus(GeneralCorpus):
+    def __init__(self, project, remove_stops=True, split=True, lower=True,
+                 min_len=3, max_len=40, id2word=None, lazy_dict=False, label='release'):
+
+        self.src = project.src_path
+        super(ReleaseCorpus, self).__init__(project=project,
+                                            remove_stops=remove_stops,
+                                            split=split,
+                                            lower=lower,
+                                            min_len=min_len,
+                                            max_len=max_len,
+                                            id2word=id2word,
+                                            label=label)
+
+
+    def get_texts(self):
+        length = 0
+        for dirpath, dirnames, filenames in os.walk(self.src):
+            if '.git' in dirnames:
+                dirnames.remove('.git')
+            for fname in filenames:
+                path = os.path.join(dirpath, fname)
+                with open(path) as f:
+                    document = f.read()
+
+                # lets not read binary files :)
+                if dulwich.patch.is_binary(document):
+                    continue
+
+                path = path[len(self.src):]
+
+                words = self.preprocess(document, [path, self.src])
+                length += 1
+
+                if self.metadata:
+                    yield words, (path, self.label)
+                else:
+                    yield words
+
+        self.length = length  # only reset after iteration is done.
 
 
 class SnapshotCorpus(GitCorpus):
@@ -246,7 +293,7 @@ class TaserMixIn(object):
 class TaserSnapshotCorpus(GitCorpus, TaserMixIn):
     def __init__(self, repo=None, project=None, remove_stops=True, split=True,
                  lower=True, min_len=3, max_len=40, taser_jar='lib/taser.jar',
-                 id2word=None, lazy_dict=True):
+                 id2word=None, lazy_dict=True, label='taser_snapshot'):
         # force lazy_dict since we have to run taser to build the corpus first
         super(TaserSnapshotCorpus, self).__init__(repo=repo,
                                                   project=project,
@@ -256,7 +303,8 @@ class TaserSnapshotCorpus(GitCorpus, TaserMixIn):
                                                   min_len=min_len,
                                                   max_len=max_len,
                                                   id2word=id2word,
-                                                  lazy_dict=True)
+                                                  lazy_dict=True,
+                                                  label=label)
         self.taser_jar = taser_jar
 
         self.src = tempfile.mkdtemp(prefix='taser_')
@@ -273,7 +321,7 @@ class TaserSnapshotCorpus(GitCorpus, TaserMixIn):
 class TaserReleaseCorpus(GeneralCorpus, TaserMixIn):
     def __init__(self, project, remove_stops=True, split=True, lower=True,
                  min_len=3, max_len=40, taser_jar='lib/taser.jar',
-                 id2word=None, lazy_dict=True):
+                 id2word=None, lazy_dict=True, label='taser_release'):
         # force lazy_dict since we have to run taser to build the corpus first
         super(TaserReleaseCorpus, self).__init__(project=project,
                                                  remove_stops=remove_stops,
@@ -282,12 +330,12 @@ class TaserReleaseCorpus(GeneralCorpus, TaserMixIn):
                                                  min_len=min_len,
                                                  max_len=max_len,
                                                  id2word=id2word,
-                                                 lazy_dict=True)
+                                                 lazy_dict=True,
+                                                 label=label)
         self.taser_jar = taser_jar
 
         self.src = project.src_path
         self.dest = tempfile.mkdtemp(prefix='taser_')
-        self.label = 'release'
 
         self.corpus_generated = False
         self.run_taser()
@@ -370,7 +418,7 @@ class ChangesetCorpus(GitCorpus):
             # parent_fn = diff_lines[0][4:]
             # commit_fn = diff_lines[1][4:]
 
-            lines = diff_lines[2:]  # chop off file names idtag rebel
+            lines = diff_lines[2:]  # chop off file names hashtag rebel
             lines = [line[1:] for line in lines]  # remove unified markers
             document = ' '.join(lines)
 

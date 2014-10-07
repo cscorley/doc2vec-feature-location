@@ -22,7 +22,8 @@ from nose.tools import *
 import dulwich.repo
 from gensim.corpora import MalletCorpus
 
-from src.corpora import SnapshotCorpus, ChangesetCorpus, CorpusCombiner
+from src.corpora import (SnapshotCorpus, ReleaseCorpus, ChangesetCorpus,
+                         CorpusCombiner)
 
 # datapath is now a useful function for building paths to test files
 module_path = os.path.dirname(__file__)
@@ -30,7 +31,7 @@ datapath = lambda fname: os.path.join(module_path, u'test_data', fname)
 
 class TestGitCorpus(unittest.TestCase):
     def setUp(self):
-        self.Project = namedtuple('Project', 'ref level')
+        self.Project = namedtuple('Project', 'ref level src_path')
         self.basepath = datapath(u'test_git/')
         if not os.path.exists(self.basepath):
             extraction_path = datapath('')
@@ -45,6 +46,7 @@ class TestGitCorpus(unittest.TestCase):
 
     def tearDown(self):
         os.remove(self.tempfname)
+
 
 class TestSnapshotCorpus(TestGitCorpus):
     def setUp(self):
@@ -240,11 +242,27 @@ class TestSnapshotCorpus(TestGitCorpus):
             textdoc = set((unicode(self.corpus.id2word[x[0]]), x[1]) for x in doc)
             self.assertIn(textdoc, documents)
 
+class TestReleaseCorpus(TestSnapshotCorpus):
+    def setUp(self):
+        super(TestReleaseCorpus, self).setUp()
+        project = self.Project(ref=None,
+                               level='file',
+                               src_path=self.basepath)
+        self.corpus = ReleaseCorpus(project=project,
+                                    remove_stops=False,
+                                    lower=True,
+                                    split=True,
+                                    min_len=0,
+                                    label='test_git')
+        self.docs = list(self.corpus)
+
+
 class TestSnapshotCorpusAtRef(TestGitCorpus):
     def setUp(self):
         super(TestSnapshotCorpusAtRef, self).setUp()
-        p1 = self.Project(u'f33a0fb070a34fc1b9105453b3ffb4edc49131d9',
-                          'file')
+        p1 = self.Project(ref=u'f33a0fb070a34fc1b9105453b3ffb4edc49131d9',
+                          level='file',
+                          src_path=self.basepath)
         self.corpus = SnapshotCorpus(repo=self.repo,
                                      project=p1,
                                      remove_stops=False,
@@ -593,8 +611,9 @@ class TestCorpusCombiner(TestGitCorpus):
     def setUp(self):
         super(TestCorpusCombiner, self).setUp()
         # 3 documents
-        p1 = self.Project(u'2aeb2e7c78259833e1218b69f99dab3acd00970c',
-                          'file')
+        p1 = self.Project(ref=u'2aeb2e7c78259833e1218b69f99dab3acd00970c',
+                          level='file',
+                          src_path=self.basepath)
         self.corpus1 = SnapshotCorpus(repo=self.repo,
                                       project=p1,
                                       remove_stops=False,
@@ -604,8 +623,9 @@ class TestCorpusCombiner(TestGitCorpus):
         self.docs1 = list(self.corpus1)
 
         # 3 old documents + 2 new documents
-        p2 = self.Project(u'3587d37e7d476ddc7b673c41762dc89c8ca63a6a',
-                          'file')
+        p2 = self.Project(ref=u'3587d37e7d476ddc7b673c41762dc89c8ca63a6a',
+                          level='file',
+                          src_path=self.basepath)
         self.corpus2 = SnapshotCorpus(repo=self.repo,
                                       project=p2,
                                       remove_stops=False,

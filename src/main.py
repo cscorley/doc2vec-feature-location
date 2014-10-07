@@ -28,7 +28,7 @@ from gensim.matutils import sparse2full
 import scipy.stats
 
 import utils
-from corpora import (ChangesetCorpus, SnapshotCorpus,
+from corpora import (ChangesetCorpus, SnapshotCorpus, ReleaseCorpus,
                      TaserSnapshotCorpus, TaserReleaseCorpus,
                      CorpusCombiner, GeneralCorpus)
 from errors import TaserError
@@ -196,29 +196,6 @@ def cli():
     changeset2_mrr = utils.calculate_mrr([n for n, q, d in changeset2_first_rels])
     release_mrr = utils.calculate_mrr([n for n, q, d in release_first_rels])
 
-    print('changeset mrr:', changeset_mrr)
-    print('snapshot mrr:', snapshot_mrr)
-
-    print('changeset2 mrr:', changeset2_mrr)
-    print('release mrr:', release_mrr)
-
-    # write out first relevant methods
-    with open(project.data_path + 'changeset_' + str(project.num_topics) + '_frms.csv', 'w') as f:
-        w = csv.writer(f)
-        w.writerows(changeset_first_rels)
-
-    with open(project.data_path + 'snapshot_' + str(project.num_topics) + '_frms.csv', 'w') as f:
-        w = csv.writer(f)
-        w.writerows(snapshot_first_rels)
-
-    with open(project.data_path + 'changeset2_' + str(project.num_topics) + '_frms.csv', 'w') as f:
-        w = csv.writer(f)
-        w.writerows(changeset2_first_rels)
-
-    with open(project.data_path + 'release_' + str(project.num_topics) + '_frms.csv', 'w') as f:
-        w = csv.writer(f)
-        w.writerows(release_first_rels)
-
     # Build a dictionary with each of the results for stats.
     first_rels = dict()
 
@@ -250,6 +227,13 @@ def cli():
     y = [v[1] for v in first_rels.values()]
     x2 = [v[2] for v in first_rels.values()]
     y2 = [v[3] for v in first_rels.values()]
+
+
+    print('changeset mrr:', changeset_mrr)
+    print('snapshot mrr:', snapshot_mrr)
+
+    print('changeset2 mrr:', changeset2_mrr)
+    print('release mrr:', release_mrr)
 
     print('ranksums:', scipy.stats.ranksums(x, y))
     print('ranksums2:', scipy.stats.ranksums(x2, y2))

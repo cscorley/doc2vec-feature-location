@@ -142,6 +142,11 @@ def cli():
 
         repos.append(repo)
 
+
+    # create/load document lists
+    queries = create_queries(project)
+    goldsets = load_goldsets(project)
+
     # get corpora
     changeset_corpus = create_corpus(project, repos, ChangesetCorpus)
 
@@ -152,10 +157,6 @@ def cli():
         snapshot_corpus = create_corpus(project, repos, TaserSnapshotCorpus)
         release_corpus = create_corpus(project, [None], TaserReleaseCorpus)
 
-
-    # create/load document lists
-    queries = create_queries(project)
-    goldsets = load_goldsets(project)
 
     # create models
     changeset_model = create_model(project, changeset_corpus, 'Changeset')
@@ -319,15 +320,17 @@ def create_queries(project):
         pp = GeneralCorpus(lazy_dict=True)
         id2word = Dictionary()
 
-        with open(project.data_path + 'ids.txt') as f:
+        with open(os.path.join(project.data_path, 'ids.txt')) as f:
             ids = [x.strip() for x in f.readlines()]
 
         queries = list()
         for id in ids:
-            with open(project.data_path + 'Queries/ShortDescription' + id + '.txt') as f:
+            with open(os.path.join(project.data_path, 'queries',
+                                    'ShortDescription' + id + '.txt')) as f:
                 short = f.read()
 
-            with open(project.data_path + 'Queries/LongDescription' + id + '.txt') as f:
+            with open(os.path.join(project.data_path, 'queries',
+                                    'LongDescription' + id + '.txt')) as f:
                 long = f.read()
 
             text = ' '.join([short, long])
@@ -353,12 +356,13 @@ def create_queries(project):
 
 
 def load_goldsets(project):
-    with open(project.data_path + 'ids.txt') as f:
+    with open(os.path.join(project.data_path, 'ids.txt')) as f:
         ids = [x.strip() for x in f.readlines()]
 
     goldsets = list()
     for id in ids:
-        with open(project.data_path + 'GoldSets/GoldSet' + id + '.txt') as f:
+        with open(os.path.join(project.data_path, 'goldsets', project.level,
+                                id + '.txt')) as f:
             golds = frozenset(x.strip() for x in f.readlines())
 
         goldsets.append((id, golds))

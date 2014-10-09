@@ -283,7 +283,7 @@ class TaserMixIn(object):
         with open(os.path.join(self.dest, 'unknown-0.0.ser')) as f:
             for line in f:
                 doc_name, document = line.split(' ', 1)
-                words = self.preprocess(document, [doc_name, self.ref])
+                words = self.preprocess(document, [doc_name, self.project.ref])
                 length += 1
 
                 if self.metadata:

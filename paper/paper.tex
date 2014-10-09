@@ -1,0 +1,122 @@
+\documentclass[conference]{IEEEtran}
+
+\makeatletter
+% IEEEtran.cls defines \labelindent for backward compatibility reasons
+% Undefine \labelindent to allow the use of package enumitem
+\let\labelindent\relax
+\makeatother
+
+\usepackage{balance}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{cite}
+\usepackage{color}
+\usepackage{comment}
+\usepackage{enumitem}
+\usepackage[pdftex]{graphicx}
+\usepackage{url}
+\usepackage{listings}
+\usepackage{array}
+
+%\setlength{\parskip}{1pt}
+%\setlength{\parsep}{1pt}
+
+% SQUEEZE
+%\addtolength{\parskip}{-1pt}
+
+
+\definecolor{lightred}{RGB}{150,0,0}
+\definecolor{lightgreen}{RGB}{0,150,0}
+\definecolor{lightblue}{RGB}{0,0,150}
+
+\lstdefinelanguage{diff}{
+  morecomment=[f][\color{lightblue}]{@@},     % group identifier
+  morecomment=[f][\color{lightred}]-,         % deleted lines
+  morecomment=[f][\color{lightgreen}]+,       % added lines
+  morecomment=[f][\color{black}]{---}, % Diff header lines (must appear after +,-)
+  morecomment=[f][\color{black}]{+++},
+}
+\hyphenation{}
+
+\newcommand{\attn}[1]{{\color{red}#1}}
+\newcommand{\desc}[1]{{\emph{\color{blue}#1}}}
+\newcommand{\needcite}{\attn{\tiny{[cite]}}}
+
+\newcommand{\ant}{{Ant}}
+\newcommand{\aspectj}{{AspectJ}}
+\newcommand{\jodatime}{{Joda-Time}}
+\newcommand{\postgres}{{PostgreSQL}}
+
+
+\begin{document}
+\title{Changeset Topics for Feature Location}
+\author{
+    \IEEEauthorblockN{
+        Christopher S.\ Corley,
+        Kelly L.\ Kashuda
+    }
+    \IEEEauthorblockA{
+        The University of Alabama\\
+        Tuscaloosa, AL, USA\\
+        \{cscorley, klkashuda\}@ua.edu
+    }
+
+    \and
+
+    \and
+
+    \IEEEauthorblockN{
+        Nicholas A.\ Kraft
+    }
+    \IEEEauthorblockA{
+        ABB Corporate Research\\
+        Raleigh, NC, USA\\
+        nicholas.a.kraft@us.abb.com
+    }
+}
+
+
+\maketitle
+
+\begin{abstract}
+    Abstractly say things
+\end{abstract}
+
+\begin{IEEEkeywords}
+Mining software repositories;
+changesets;
+topic modeling;
+latent Dirichlet allocation
+\end{IEEEkeywords}
+
+\section{Introduction}
+\label{sec:intro}
+\input{sec_intro}
+
+\section{Background \& Related Work}
+\label{sec:related}
+\input{sec_related}
+
+\section{Case Study}
+\label{sec:study}
+\input{sec_study}
+
+\section{Threats To Validity}
+\label{sec:threats}
+\input{sec_threats}
+
+\section{Conclusion}
+\label{sec:conclusion}
+\input{sec_conclusion}
+
+\section*{Acknowledgment}
+We thank the anonymous reviewers for their insightful comments and helpful suggestions.
+This material is based upon work supported
+by the U.S. Department of Education under Grant No.\ P200A100182 and
+by the National Science Foundation under Grant No.\ 1156563.
+
+%\IEEEtriggeratref{21}
+\bibliographystyle{IEEEtran}
+\bibliography{paper}
+
+\end{document}

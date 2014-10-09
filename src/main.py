@@ -43,7 +43,8 @@ def error(*args, **kwargs):
 
 
 def cli():
-    logger.info("test")
+    logging.basicConfig(format='%(asctime)s : %(levelname)s : ' +
+                        '%(name)s : %(funcName)s : %(message)s')
 
     name = sys.argv[1]
     if len(sys.argv) > 2:
@@ -57,101 +58,14 @@ def cli():
         level = False
 
     verbose = False
-    project = None
-
-    logging.basicConfig(format='%(asctime)s : %(levelname)s : ' +
-                        '%(name)s : %(funcName)s : %(message)s')
-
     if verbose:
         logging.root.setLevel(level=logging.DEBUG)
     else:
         logging.root.setLevel(level=logging.INFO)
 
-    with open("projects.csv", 'r') as f:
-        reader = csv.reader(f)
-        header = next(reader)
-        customs = ['data_path', 'src_path']
-        Project = namedtuple('Project',  ' '.join(header + customs))
-        # figure out which column index contains the project name
-        name_idx = header.index("name")
-        version_idx = header.index("version")
-        level_idx = header.index("level")
-
-        # find the project in the csv, adding it's info to config
-        for row in reader:
-            if name == row[name_idx]:
-
-                # if version specified, make sure we are at the correct one
-                if version and version != row[version_idx]:
-                    continue
-
-                # if level specified, make sure we are at the correct one
-                if level and level != row[level_idx]:
-                    continue
-
-                # build the data_path value
-                row += (os.path.join('data', row[name_idx], row[version_idx],
-                                     ''),)
-
-                # build the src_path value
-                row += (os.path.join('data', row[name_idx], row[version_idx],
-                                     'src'),)
-
-                # try to convert string values to numbers
-                for idx, item in enumerate(row):
-                    if item:
-                        # try int first, floats will throw an error here
-                        try:
-                            row[idx] = int(item)
-                            continue
-                        except ValueError:
-                            pass
-
-                        # try float second
-                        try:
-                            row[idx] = float(item)
-                        except ValueError:
-                            pass
-                    else:
-                        # set all empty fields to None
-                        row[idx] = None
-
-                # 🎶  do you believe in magicccccc
-                # in a young girl's heart? 🎶
-                project = Project(*row)
-                break
-
-        # we can access project info by:
-        #    project.name => "Blah Name"
-        #    project.version => "0.22"
-
-        if project is None and version:
-            error("Could not find '%s %s' in 'projects.csv'!", name, version)
-        elif project is None:
-            error("Could not find '%s' in 'projects.csv'!", name)
-
-    # reading in repos
-    with open(os.path.join('data', project.name, 'repos.txt')) as f:
-        repo_urls = [line.strip() for line in f]
-
-    print(project)
-    repos_base = 'gits'
-    if not os.path.exists(repos_base):
-        utils.mkdir(repos_base)
-
-    repos = list()
-
-    for url in repo_urls:
-        repo_name = url.split('/')[-1]
-        target = os.path.join(repos_base, repo_name)
-        print(target)
-        try:
-            repo = clone(url, target, bare=True)
-        except OSError:
-            repo = dulwich.repo.Repo(target)
-
-        repos.append(repo)
-
+    # load project info
+    project = load_project(name, version, level)
+    repos = load_repos(project)
 
     # create/load document lists
     queries = create_queries(project)
@@ -256,6 +170,97 @@ def cli():
     print('wilcoxon signedrank2:', scipy.stats.wilcoxon(x2, y2))
 
     print('friedman:', scipy.stats.friedmanchisquare(x, y, x2, y2))
+
+def load_project(name, version, level):
+    project = None
+    with open("projects.csv", 'r') as f:
+        reader = csv.reader(f)
+        header = next(reader)
+        customs = ['data_path', 'src_path']
+        Project = namedtuple('Project',  ' '.join(header + customs))
+        # figure out which column index contains the project name
+        name_idx = header.index("name")
+        version_idx = header.index("version")
+        level_idx = header.index("level")
+
+        # find the project in the csv, adding it's info to config
+        for row in reader:
+            if name == row[name_idx]:
+
+                # if version specified, make sure we are at the correct one
+                if version and version != row[version_idx]:
+                    continue
+
+                # if level specified, make sure we are at the correct one
+                if level and level != row[level_idx]:
+                    continue
+
+                # build the data_path value
+                row += (os.path.join('data', row[name_idx], row[version_idx],
+                                     ''),)
+
+                # build the src_path value
+                row += (os.path.join('data', row[name_idx], row[version_idx],
+                                     'src'),)
+
+                # try to convert string values to numbers
+                for idx, item in enumerate(row):
+                    if item:
+                        # try int first, floats will throw an error here
+                        try:
+                            row[idx] = int(item)
+                            continue
+                        except ValueError:
+                            pass
+
+                        # try float second
+                        try:
+                            row[idx] = float(item)
+                        except ValueError:
+                            pass
+                    else:
+                        # set all empty fields to None
+                        row[idx] = None
+
+                # 🎶  do you believe in magicccccc
+                # in a young girl's heart? 🎶
+                project = Project(*row)
+                break
+
+        # we can access project info by:
+        #    project.name => "Blah Name"
+        #    project.version => "0.22"
+
+        if project is None and version:
+            error("Could not find '%s %s' in 'projects.csv'!", name, version)
+        elif project is None:
+            error("Could not find '%s' in 'projects.csv'!", name)
+
+    return project
+
+def load_repos(project):
+    # reading in repos
+    with open(os.path.join('data', project.name, 'repos.txt')) as f:
+        repo_urls = [line.strip() for line in f]
+
+    repos_base = 'gits'
+    if not os.path.exists(repos_base):
+        utils.mkdir(repos_base)
+
+    repos = list()
+
+    for url in repo_urls:
+        repo_name = url.split('/')[-1]
+        target = os.path.join(repos_base, repo_name)
+        print(target)
+        try:
+            repo = clone(url, target, bare=True)
+        except OSError:
+            repo = dulwich.repo.Repo(target)
+
+        repos.append(repo)
+
+    return repos
 
 
 def get_frms(goldsets, ranks):

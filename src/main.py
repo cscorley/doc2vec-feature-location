@@ -371,6 +371,7 @@ def create_queries(project):
 
 
 def load_goldsets(project):
+    logger.info("Loading goldsets for project: %s", str(project))
     with open(os.path.join(project.data_path, 'ids.txt')) as f:
         ids = [x.strip() for x in f.readlines()]
 
@@ -382,11 +383,12 @@ def load_goldsets(project):
 
         goldsets.append((id, golds))
 
+    logger.info("Returning %d goldsets", len(goldsets))
     return goldsets
 
 
 def create_model(project, corpus, name):
-    model_fname = project.data_path + name + str(project.num_topics) + '.lda'
+    model_fname = project.data_path + name + project.level + str(project.num_topics) + '.lda'
 
     if not os.path.exists(model_fname):
         model = LdaModel(corpus,

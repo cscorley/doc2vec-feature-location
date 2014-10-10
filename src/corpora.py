@@ -268,6 +268,7 @@ class TaserMixIn(object):
                      '-t', ctype])
 
         for cmd in cmds:
+            logger.info('Running Taser command:\n\t%s', ' '.join(cmd))
             retval = subprocess.call(cmd)
             if retval:
                 raise TaserError("Failed cmd: " + str(cmd))

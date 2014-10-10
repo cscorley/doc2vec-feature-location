@@ -72,7 +72,7 @@ def cli():
     goldsets = load_goldsets(project)
 
     # get corpora
-    changeset_corpus = create_corpus(project, repos, ChangesetCorpus)
+    changeset_corpus = create_corpus(project, repos, ChangesetCorpus, use_level=False)
 
     if project.level == 'file':
         snapshot_corpus = create_corpus(project, repos, SnapshotCorpus)
@@ -83,7 +83,7 @@ def cli():
 
 
     # create models
-    changeset_model = create_model(project, changeset_corpus, 'Changeset')
+    changeset_model = create_model(project, changeset_corpus, 'Changeset', use_level=False)
     snapshot_model = create_model(project, snapshot_corpus, 'Snapshot')
     release_model = create_model(project, release_corpus, 'Release')
 
@@ -387,8 +387,13 @@ def load_goldsets(project):
     return goldsets
 
 
-def create_model(project, corpus, name):
-    model_fname = project.data_path + name + project.level + str(project.num_topics) + '.lda'
+def create_model(project, corpus, name, use_level=False):
+    if use_level:
+        model_fname = (project.data_path + name + project.level
+                       + str(project.num_topics) + '.lda')
+    else:
+        model_fname = (project.data_path + name
+                       + str(project.num_topics) + '.lda')
 
     if not os.path.exists(model_fname):
         model = LdaModel(corpus,
@@ -427,8 +432,12 @@ def write_out_missing(project, all_taser):
             f.write(each + '\n')
 
 
-def create_corpus(project, repos, Kind):
-    corpus_fname_base = project.data_path + Kind.__name__ + project.level
+def create_corpus(project, repos, Kind, use_level=True):
+    if use_level:
+        corpus_fname_base = project.data_path + Kind.__name__ + project.level
+    else:
+        corpus_fname_base = project.data_path + Kind.__name__
+
     corpus_fname = corpus_fname_base + '.mallet.gz'
     dict_fname = corpus_fname_base + '.dict.gz'
 

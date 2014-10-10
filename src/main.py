@@ -387,7 +387,7 @@ def load_goldsets(project):
     return goldsets
 
 
-def create_model(project, corpus, name, use_level=False):
+def create_model(project, corpus, name, use_level=True):
     if use_level:
         model_fname = (project.data_path + name + project.level
                        + str(project.num_topics) + '.lda')

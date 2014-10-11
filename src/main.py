@@ -72,7 +72,7 @@ def cli():
     goldsets = load_goldsets(project)
 
     # get corpora
-    #changeset_corpus = create_corpus(project, repos, ChangesetCorpus, use_level=False)
+    changeset_corpus = create_corpus(project, repos, ChangesetCorpus, use_level=False)
 
     if project.level == 'file':
         snapshot_corpus = create_corpus(project, repos, SnapshotCorpus)
@@ -83,81 +83,81 @@ def cli():
 
 
     # create models
-    #changeset_model = create_mallet_model(project, changeset_corpus, 'Changeset', use_level=False)
-    #snapshot_model = create_mallet_model(project, snapshot_corpus, 'Snapshot')
-    release_model = create_mallet_model(project, release_corpus, 'Release')
+    changeset_model = create_model(project, changeset_corpus, 'Changeset', use_level=False)
+    snapshot_model = create_model(project, snapshot_corpus, 'Snapshot')
+    release_model = create_model(project, release_corpus, 'Release')
 
     # get the query topic
     release_query_topic = get_topics(project, release_model, queries)
-    #snapshot_query_topic = get_topics(project, snapshot_model, queries)
-    #changeset_query_topic = get_topics(project, changeset_model, queries)
+    snapshot_query_topic = get_topics(project, snapshot_model, queries)
+    changeset_query_topic = get_topics(project, changeset_model, queries)
 
     # get the doc topic for the methods of interest (git snapshot)
-    #snapshot_doc_topic = get_topics(project, snapshot_model, snapshot_corpus)
-    #changeset_doc_topic = get_topics(project, changeset_model, snapshot_corpus)
+    snapshot_doc_topic = get_topics(project, snapshot_model, snapshot_corpus)
+    changeset_doc_topic = get_topics(project, changeset_model, snapshot_corpus)
 
     # get the doc topic for the methods of interest (release)
     release_doc_topic = get_topics(project, release_model, release_corpus)
-    #changeset2_doc_topic = get_topics(project, changeset_model, release_corpus)
+    changeset2_doc_topic = get_topics(project, changeset_model, release_corpus)
 
     # get the ranks
-#    changeset_ranks = get_rank(changeset_query_topic, changeset_doc_topic)
-#    snapshot_ranks = get_rank(snapshot_query_topic, snapshot_doc_topic)
-#
-#    changeset2_ranks = get_rank(changeset_query_topic, changeset2_doc_topic)
+    changeset_ranks = get_rank(changeset_query_topic, changeset_doc_topic)
+    snapshot_ranks = get_rank(snapshot_query_topic, snapshot_doc_topic)
+
+    changeset2_ranks = get_rank(changeset_query_topic, changeset2_doc_topic)
     release_ranks = get_rank(release_query_topic, release_doc_topic)
 
     # get first relevant method scores
-#    changeset_first_rels = get_frms(goldsets, changeset_ranks)
-#    snapshot_first_rels = get_frms(goldsets, snapshot_ranks)
-#
-#    changeset2_first_rels = get_frms(goldsets, changeset2_ranks)
+    changeset_first_rels = get_frms(goldsets, changeset_ranks)
+    snapshot_first_rels = get_frms(goldsets, snapshot_ranks)
+
+    changeset2_first_rels = get_frms(goldsets, changeset2_ranks)
     release_first_rels = get_frms(goldsets, release_ranks)
 
     # calculate MRR
     # n => rank number
-#    changeset_mrr = utils.calculate_mrr([n for n, q, d in changeset_first_rels])
-#    snapshot_mrr = utils.calculate_mrr([n for n, q, d in snapshot_first_rels])
-#    changeset2_mrr = utils.calculate_mrr([n for n, q, d in changeset2_first_rels])
+    changeset_mrr = utils.calculate_mrr([n for n, q, d in changeset_first_rels])
+    snapshot_mrr = utils.calculate_mrr([n for n, q, d in snapshot_first_rels])
+    changeset2_mrr = utils.calculate_mrr([n for n, q, d in changeset2_first_rels])
     release_mrr = utils.calculate_mrr([n for n, q, d in release_first_rels])
 
-#    # Build a dictionary with each of the results for stats.
-#    first_rels = dict()
-#
-#    for num, query_id, doc_meta in changeset_first_rels:
-#        if query_id not in first_rels:
-#            first_rels[query_id] = [num]
-#        else:
-#            logger.info('duplicate qid found:', query_id)
-#
-#    for num, query_id, doc_meta in snapshot_first_rels:
-#        if query_id not in first_rels:
-#            logger.info('qid not found:', query_id)
-#        else:
-#            first_rels[query_id].append(num)
-#
-#    for num, query_id, doc_meta in changeset2_first_rels:
-#        if query_id not in first_rels:
-#            logger.info('qid not found:', query_id)
-#        else:
-#            first_rels[query_id].append(num)
-#
-#    for num, query_id, doc_meta in release_first_rels:
-#        if query_id not in first_rels:
-#            logger.info('qid not found:', query_id)
-#        else:
-#            first_rels[query_id].append(num)
-#
-#    x = [v[0] for v in first_rels.values()]
-#    y = [v[1] for v in first_rels.values()]
-#    x2 = [v[2] for v in first_rels.values()]
-#    y2 = [v[3] for v in first_rels.values()]
-#
-#
-#    print('changeset mrr:', changeset_mrr)
-#    print('snapshot mrr:', snapshot_mrr)
-#
-#    print('changeset2 mrr:', changeset2_mrr)
+    # Build a dictionary with each of the results for stats.
+    first_rels = dict()
+
+    for num, query_id, doc_meta in changeset_first_rels:
+        if query_id not in first_rels:
+            first_rels[query_id] = [num]
+        else:
+            logger.info('duplicate qid found:', query_id)
+
+    for num, query_id, doc_meta in snapshot_first_rels:
+        if query_id not in first_rels:
+            logger.info('qid not found:', query_id)
+        else:
+            first_rels[query_id].append(num)
+
+    for num, query_id, doc_meta in changeset2_first_rels:
+        if query_id not in first_rels:
+            logger.info('qid not found:', query_id)
+        else:
+            first_rels[query_id].append(num)
+
+    for num, query_id, doc_meta in release_first_rels:
+        if query_id not in first_rels:
+            logger.info('qid not found:', query_id)
+        else:
+            first_rels[query_id].append(num)
+
+    x = [v[0] for v in first_rels.values()]
+    y = [v[1] for v in first_rels.values()]
+    x2 = [v[2] for v in first_rels.values()]
+    y2 = [v[3] for v in first_rels.values()]
+
+
+    print('changeset mrr:', changeset_mrr)
+    print('snapshot mrr:', snapshot_mrr)
+
+    print('changeset2 mrr:', changeset2_mrr)
     print('release mrr:', release_mrr)
 
     print('ranksums:', scipy.stats.ranksums(x, y))

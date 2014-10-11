@@ -1,6 +1,9 @@
 Feature location with changeset topics
 ===============
 
+[![Build Status](https://magnum.travis-ci.com/cscorley/feature-location.svg?token=CjXwzG3DCkMLgDhpEr4U&branch=master)](https://magnum.travis-ci.com/cscorley/feature-location)
+
+
 Basic idea: compare LDA models built with two different sources of
 documents. The first being a traditional source code snapshot, and the
 second being variations on a changeset snapshot.

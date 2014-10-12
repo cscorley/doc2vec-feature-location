@@ -120,12 +120,13 @@ class GeneralCorpus(gensim.interfaces.CorpusABC):
 class GitCorpus(GeneralCorpus):
     def __init__(self, repo, project=None, remove_stops=True, split=True,
                  lower=True, min_len=3, max_len=40, id2word=None,
-                 lazy_dict=False, label=None):
+                 lazy_dict=False, label=None, ref=None):
 
-        if project and project.ref:
-            ref = project.ref
-        else:
-            ref = 'HEAD'
+        if ref is None:
+            if project and project.ref:
+                ref = project.ref
+            else:
+                ref = 'HEAD'
 
         logger.info('[git] Creating %s corpus out of source files for commit %s: %s',
                     self.__class__.__name__, ref, str(lazy_dict))
@@ -299,7 +300,7 @@ class TaserMixIn(object):
 class TaserSnapshotCorpus(GitCorpus, TaserMixIn):
     def __init__(self, repo=None, project=None, remove_stops=True, split=True,
                  lower=True, min_len=3, max_len=40, taser_jar='lib/taser.jar',
-                 id2word=None, lazy_dict=True, label='taser_snapshot'):
+                 id2word=None, lazy_dict=True, label='taser_snapshot', ref=None):
         # force lazy_dict since we have to run taser to build the corpus first
         super(TaserSnapshotCorpus, self).__init__(repo=repo,
                                                   project=project,
@@ -310,7 +311,9 @@ class TaserSnapshotCorpus(GitCorpus, TaserMixIn):
                                                   max_len=max_len,
                                                   id2word=id2word,
                                                   lazy_dict=True,
-                                                  label=label)
+                                                  label=label,
+                                                  ref=ref,
+                                                  )
         self.taser_jar = taser_jar
 
         self.src = tempfile.mkdtemp(prefix='taser_')
@@ -390,7 +393,7 @@ class ChangesetCorpus(GitCorpus):
         current = None
         low = list()  # collecting the list of words
 
-        for commit, parent, diff in self._walk_changes():
+        for commit, parent, diff in self._walk_changes(reverse=True):
             # write out once all diff lines for commit have been collected
             # this is over all parents and all files of the commit
             if current is None:

@@ -26,6 +26,7 @@ from gensim.models import LdaModel, LdaMallet
 from gensim.matutils import sparse2full
 
 
+
 import utils
 from corpora import (ChangesetCorpus, SnapshotCorpus, ReleaseCorpus,
                      TaserSnapshotCorpus, TaserReleaseCorpus,
@@ -50,7 +51,7 @@ def error(*args, **kwargs):
 @click.argument('name')
 @click.option('--version', help="Version of project to run experiment on")
 @click.option('--level', help="Granularity level of project to run experiment on")
-def cli(verbose, temporal, path, name, version, level):
+def cli(verbose, debug, temporal, path, name, version, level):
     """
     Changesets for Feature Location
     """
@@ -66,68 +67,166 @@ def cli(verbose, temporal, path, name, version, level):
 
     # load project info
     project = load_project(name, version, level)
+    logging.info("Running project on %s", str(project))
     repos = load_repos(project)
 
     # create/load document lists
     queries = create_queries(project)
     goldsets = load_goldsets(project)
 
+    # get corpora
+    changeset_corpus = create_corpus(project, repos, ChangesetCorpus, use_level=False)
+    release_corpus = create_release_corpus(project, repos)
+
+    # release-based evaluation is #basic 💁
+    release_first_rels = run_basic(project, release_corpus, release_corpus,
+                                    queries, goldsets, 'Release')
+
     if temporal:
-        temporal(project, repos, queries, goldsets)
+        changeset_first_rels = run_temporal(project, repos, changeset_corpus,
+                                            queries, goldsets)
     else:
-        basic(project, repos, queries, goldsets)
+        changeset_first_rels = run_basic(project, changeset_corpus,
+                                          release_corpus, queries, goldsets,
+                                          'Changeset')
 
+    do_science(changeset_first_rels, release_first_rels)
 
-def basic(project, repos, queries, goldsets):
+def run_basic(project, corpus, other_corpus, queries, goldsets, kind):
     """
     This function runs the experiment in one-shot. It does not evaluate the
     changesets over time.
     """
-    # get corpora
-    changeset_corpus = create_corpus(project, repos, ChangesetCorpus, use_level=False)
+    logger.info("Running basic evaluation on the %s", kind)
+    model = create_model(project, corpus, kind, use_level=(kind == 'Release'))
+    query_topic = get_topics(model, queries)
+    doc_topic = get_topics(model, other_corpus)
+    ranks = get_rank(query_topic, doc_topic)
+    first_rels = get_frms(goldsets, ranks)
+    return first_rels
 
-    if project.level == 'file':
-        # try making a release corpus, if unavailable, make it from
-        # a snapshot instead
-        try:
-            release_corpus = create_corpus(project, [None], ReleaseCorpus)
-        except:
-            release_corpus = create_corpus(project, repos, SnapshotCorpus)
-    else:
-        try:
-            release_corpus = create_corpus(project, [None], TaserReleaseCorpus)
-        except:
-            release_corpus = create_corpus(project, repos, TaserSnapshotCorpus)
-
-    # create models
-    changeset_model = create_model(project, changeset_corpus, 'Changeset', use_level=False)
-    release_model = create_model(project, release_corpus, 'Release')
-
-    # get the query topic
-    changeset_query_topic = get_topics(project, changeset_model, queries)
-    release_query_topic = get_topics(project, release_model, queries)
-
-    # get the doc topic for the methods of interest (release)
-    changeset_doc_topic = get_topics(project, changeset_model, release_corpus)
-    release_doc_topic = get_topics(project, release_model, release_corpus)
-
-    # get the ranks
-    changeset_ranks = get_rank(changeset_query_topic, changeset_doc_topic)
-    release_ranks = get_rank(release_query_topic, release_doc_topic)
-
-    # get first relevant method scores
-    changeset_first_rels = get_frms(goldsets, changeset_ranks)
-    release_first_rels = get_frms(goldsets, release_ranks)
-
-    do_science(changeset_first_rels, release_first_rels)
-
-def temporal(project, repos, queries, goldsets):
+def run_temporal(project, repos, corpus, queries, goldsets):
     """
     This function runs the experiment in over time. That is, it stops whenever
     it reaches a commit linked with an issue/query. Will not work on all
     projects.
     """
-    pass
+    logger.info("Running temporal evaluation")
+
+    try:
+        issue2git, git2issue = load_issue2git(project)
+    except IOError as e:
+        error("Files needed for temporal evaluation not found!\n%s", str(e))
+
+    logger.info("Stopping at %d commits for %d issues", len(git2issue), len(issue2git))
+
+    # Make sure we have a commit for all issues
+    ids = set(i for i,g in goldsets)
+    keys = set(issue2git.keys())
+    ignore = ids - keys
+    if len(ignore):
+        logger.info("Ignoring evaluation for the following issues:\n\t%s",
+                    '\n\t'.join(ignore))
+
+    model = LdaModel(id2word=corpus.id2word,
+                     alpha=project.alpha,
+                     eta=project.eta,
+                     passes=project.passes,
+                     num_topics=project.num_topics,
+                     eval_every=None, # disable perplexity tests for speed
+                     )
+
+    ranks = list()
+    docs = list()
+    corpus.metadata = True
+    for doc, meta in corpus:
+        sha, lang = meta
+        if sha in git2issue:
+            # stop here!
+            # update model with docs so far
+            model.update(docs)
+
+            # find our query and get the topics
+            qid = git2issue[sha]
+            query = get_query_by_id(queries, qid)
+            topics = sparse2full(model[query], model.num_topics)
+
+            # build a snapshot corpus of items *at this commit*
+            other_corpus = create_release_corpus(project, repos, forced_ref=sha)
+
+            # get the topics of items at this commit
+            doc_topic = get_topics(model, other_corpus)
+
+            # find best rank for this query!
+            # get rank expects a list of (metadata, distribution) tuples
+            rank = get_rank([((qid, ':)'), topics)], doc_topic)
+            ranks.extend(rank)
+
+            # TODO  going to need to merge ids fixed by multiple commits at some
+            # point
+
+            # that was fun! let's do it again! weee!
+            docs = list()
+
+        docs.append(doc)
+
+    corpus.metadata = False
+
+    first_rels = get_frms(goldsets, ranks)
+    return first_rels
+
+def get_query_by_id(queries, qid):
+    queries.metadata = True
+    for query, meta in queries:
+        docid, doclang = meta
+        if docid == qid:
+            queries.metadata = False
+            return query
+
+    queries.metadata = False
+
+
+def load_issue2git(project):
+    fn = 'IssuesToSVNCommitsMapping.txt'
+    i2s = dict()
+    with open(os.path.join('data', project.name, project.version, fn)) as f:
+        lines = [line.strip().split('\t') for line in f]
+        for line in lines:
+            issue = line[0]
+            links = line[1]
+            svns = line[2:]
+
+            i2s[issue] = svns
+
+    fn = 'svn2git.csv'
+    s2g = dict()
+    with open(os.path.join('data', project.name, fn)) as f:
+        reader = csv.reader(f)
+        for svn,git in reader:
+            if svn in s2g and s2g[svn] != git:
+                logger.info('Different gits sha for SVN revision number %s', svn)
+            else:
+                s2g[svn] = git
+
+    i2g = dict()
+    # TODO for multiple ids, go with the latest commit?
+    for issue, svns in i2s.items():
+        for svn in svns:
+            if svn in s2g:
+                # make sure we don't have issues that are empty
+                if issue not in i2g:
+                    i2g[issue] = list()
+                i2g[issue].append(s2g[svn])
+            else:
+                logger.info('Could not find git sha for SVN revision number %s', svn)
+
+    # build reverse mapping
+    g2i = dict()
+    for issue, gits in i2g.items():
+        for git in gits:
+            g2i[git] = issue
+
+    return i2g, g2i
 
 def do_science(changeset_first_rels, release_first_rels):
     # calculate MRR
@@ -293,7 +392,7 @@ def get_rank(query_topic, doc_topic, distance_measure=utils.hellinger_distance):
     return ranks
 
 
-def get_topics(project, model, corpus):
+def get_topics(model, corpus):
     logger.info('Getting doc topic for corpus with length %d', len(corpus))
     doc_topic = list()
     corpus.metadata = True
@@ -302,7 +401,7 @@ def get_topics(project, model, corpus):
 
     for doc, metadata in corpus:
         # get a vector where low topic values are zeroed out.
-        topics = sparse2full(model[doc], project.num_topics)
+        topics = sparse2full(model[doc], model.num_topics)
 
         # this gets the "full" vector that includes low topic values
         # topics = model.__getitem__(doc, eps=0)
@@ -379,12 +478,11 @@ def load_goldsets(project):
 
 
 def create_model(project, corpus, name, use_level=True):
+    model_fname = project.data_path + name + str(project.num_topics)
     if use_level:
-        model_fname = (project.data_path + name + project.level
-                       + str(project.num_topics) + '.lda')
-    else:
-        model_fname = (project.data_path + name
-                       + str(project.num_topics) + '.lda')
+        model_fname += project.level
+
+    model_fname += '.lda'
 
     if not os.path.exists(model_fname):
         model = LdaModel(corpus=corpus,
@@ -403,12 +501,11 @@ def create_model(project, corpus, name, use_level=True):
     return model
 
 def create_mallet_model(project, corpus, name, use_level=True):
+    model_fname = project.data_path + name + str(project.num_topics)
     if use_level:
-        model_fname = (project.data_path + corpus.__class__.__name__ + project.level
-                       + str(project.num_topics) + '.malletlda')
-    else:
-        model_fname = (project.data_path + corpus.__class__.__name__
-                       + str(project.num_topics) + '.malletlda')
+        model_fname += project.level
+
+    model_fname += '.malletlda'
 
     if not os.path.exists(model_fname):
         model = LdaMallet('./lib/mallet-2.0.7/bin/mallet',
@@ -424,11 +521,14 @@ def create_mallet_model(project, corpus, name, use_level=True):
     return model
 
 
-def create_corpus(project, repos, Kind, use_level=True):
+def create_corpus(project, repos, Kind, use_level=True, forced_ref=None):
+    corpus_fname_base = project.data_path + Kind.__name__
+
     if use_level:
-        corpus_fname_base = project.data_path + Kind.__name__ + project.level
-    else:
-        corpus_fname_base = project.data_path + Kind.__name__
+        corpus_fname_base += project.level
+
+    if forced_ref:
+        corpus_fname_base += forced_ref[:8]
 
     corpus_fname = corpus_fname_base + '.mallet.gz'
     dict_fname = corpus_fname_base + '.dict.gz'
@@ -439,9 +539,16 @@ def create_corpus(project, repos, Kind, use_level=True):
         for repo in repos:
             try:
                 if repo:
-                    corpus = Kind(repo=repo, project=project, lazy_dict=True)
+                    corpus = Kind(project=project,
+                                  repo=repo,
+                                  lazy_dict=True,
+                                  ref=forced_ref,
+                                  )
                 else:
-                    corpus = Kind(project=project, lazy_dict=True)
+                    corpus = Kind(project=project,
+                                  lazy_dict=True,
+                                  ref=forced_ref,
+                                  )
 
             except KeyError:
                 continue
@@ -468,6 +575,23 @@ def create_corpus(project, repos, Kind, use_level=True):
 
     return corpus
 
+def create_release_corpus(project, repos, forced_ref=None):
+    if project.level == 'file':
+        RC = ReleaseCorpus
+        SC = SnapshotCorpus
+    else:
+        RC = TaserReleaseCorpus
+        SC = TaserSnapshotCorpus
+
+    if forced_ref is None:
+        # try making a release corpus if we have the code
+        try:
+            return create_corpus(project, [None], RC)
+        except:
+            # fall out and make a snapshot
+            pass
+
+    return create_corpus(project, repos, SC, forced_ref=forced_ref)
 
 def clone(source, target, bare=False):
     client, host_path = dulwich.client.get_transport_and_path(source)

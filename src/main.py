@@ -142,33 +142,40 @@ def run_temporal(project, repos, corpus, queries, goldsets):
     for doc, meta in corpus:
         sha, lang = meta
         if sha in git2issue:
-            # stop here!
+            # done with this sha!
+            qid = git2issue[sha]
+            del git2issue[sha]
+
             # update model with docs so far
             model.update(docs)
 
             # find our query and get the topics
-            qid = git2issue[sha]
             query = get_query_by_id(queries, qid)
-            topics = sparse2full(model[query], model.num_topics)
+            if query:
+                topics = sparse2full(model[query], model.num_topics)
 
-            # build a snapshot corpus of items *at this commit*
-            other_corpus = create_release_corpus(project, repos, forced_ref=sha)
+                # build a snapshot corpus of items *at this commit*
+                other_corpus = create_release_corpus(project, repos, forced_ref=sha)
 
-            # get the topics of items at this commit
-            doc_topic = get_topics(model, other_corpus)
+                # get the topics of items at this commit
+                doc_topic = get_topics(model, other_corpus)
 
-            # find best rank for this query!
-            # get rank expects a list of (metadata, distribution) tuples
-            rank = get_rank([((qid, ':)'), topics)], doc_topic)
-            ranks.extend(rank)
+                # find best rank for this query!
+                # get rank expects a list of (metadata, distribution) tuples
+                rank = get_rank([((qid, sha), topics)], doc_topic)
+                ranks.extend(rank)
 
-            # TODO  going to need to merge ids fixed by multiple commits at some
-            # point
+                # TODO  going to need to merge ids fixed by multiple commits at some
+                # point
 
-            # that was fun! let's do it again! weee!
-            docs = list()
+                # that was fun! let's do it again! weee!
+                docs = list()
 
         docs.append(doc)
+
+        if len(git2issue) == 0:
+            # all done!
+            break
 
     corpus.metadata = False
 
@@ -183,6 +190,7 @@ def get_query_by_id(queries, qid):
             queries.metadata = False
             return query
 
+    logging.info("could not find query for qid %s", qid)
     queries.metadata = False
 
 

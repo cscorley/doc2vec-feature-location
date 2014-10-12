@@ -30,14 +30,22 @@ information is in `projects.csv`, and supplementary data is under the
     - the repository URLs under `data/<project>/repos.txt`
     - extracted release source code `data/<project>/<version>/src`
 
-If one than more version is needed, use:
+To run the experiment temporally, use the `--temporal` flag.
 
-    $ cfl <project name> <version>
+    $ cfl --temporal mucommander
 
-e.g.,
+See `--help` for additional usage.
 
-    $ cfl argouml v0.24
+    $ cfl --help
+    Usage: cfl [OPTIONS] NAME
 
-Otherwise, it will just run the first version found in the
-`projects.csv`.
+    Changesets for Feature Location
 
+    Options:
+    --verbose
+    --debug
+    --temporal
+    --path TEXT     Set the directory to work within
+    --version TEXT  Version of project to run experiment on
+    --level TEXT    Granularity level of project to run experiment on
+    --help          Show this message and exit.

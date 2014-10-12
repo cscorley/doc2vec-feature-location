@@ -17,15 +17,14 @@ import os.path
 import csv
 from collections import namedtuple
 
-import dulwich
+import click
 import dulwich.client
 import dulwich.repo
-
+import scipy.stats
 from gensim.corpora import MalletCorpus, Dictionary
 from gensim.models import LdaModel, LdaMallet
 from gensim.matutils import sparse2full
 
-import scipy.stats
 
 import utils
 from corpora import (ChangesetCorpus, SnapshotCorpus, ReleaseCorpus,
@@ -42,26 +41,28 @@ def error(*args, **kwargs):
     sys.exit(1)
 
 
-def cli():
+@click.command()
+@click.option('--verbose', is_flag=True)
+@click.option('--debug', is_flag=True)
+@click.option('--temporal', is_flag=True)
+@click.option('--path', default='data/',
+              help="Set the directory to work within")
+@click.argument('name')
+@click.option('--version', help="Version of project to run experiment on")
+@click.option('--level', help="Granularity level of project to run experiment on")
+def cli(verbose, temporal, path, name, version, level):
+    """
+    Changesets for Feature Location
+    """
     logging.basicConfig(format='%(asctime)s : %(levelname)s : ' +
                         '%(name)s : %(funcName)s : %(message)s')
 
-    name = sys.argv[1]
-    if len(sys.argv) > 2:
-        version = sys.argv[2]
-    else:
-        version = False
-
-    if len(sys.argv) > 3:
-        level = sys.argv[3]
-    else:
-        level = False
-
-    verbose = False
-    if verbose:
+    if debug:
         logging.root.setLevel(level=logging.DEBUG)
-    else:
+    elif verbose:
         logging.root.setLevel(level=logging.INFO)
+    else:
+        logging.root.setLevel(level=logging.ERROR)
 
     # load project info
     project = load_project(name, version, level)
@@ -71,6 +72,17 @@ def cli():
     queries = create_queries(project)
     goldsets = load_goldsets(project)
 
+    if temporal:
+        temporal(project, repos, queries, goldsets)
+    else:
+        basic(project, repos, queries, goldsets)
+
+
+def basic(project, repos, queries, goldsets):
+    """
+    This function runs the experiment in one-shot. It does not evaluate the
+    changesets over time.
+    """
     # get corpora
     changeset_corpus = create_corpus(project, repos, ChangesetCorpus, use_level=False)
 
@@ -92,12 +104,12 @@ def cli():
     release_model = create_model(project, release_corpus, 'Release')
 
     # get the query topic
-    release_query_topic = get_topics(project, release_model, queries)
     changeset_query_topic = get_topics(project, changeset_model, queries)
+    release_query_topic = get_topics(project, release_model, queries)
 
     # get the doc topic for the methods of interest (release)
-    release_doc_topic = get_topics(project, release_model, release_corpus)
     changeset_doc_topic = get_topics(project, changeset_model, release_corpus)
+    release_doc_topic = get_topics(project, release_model, release_corpus)
 
     # get the ranks
     changeset_ranks = get_rank(changeset_query_topic, changeset_doc_topic)
@@ -107,6 +119,17 @@ def cli():
     changeset_first_rels = get_frms(goldsets, changeset_ranks)
     release_first_rels = get_frms(goldsets, release_ranks)
 
+    do_science(changeset_first_rels, release_first_rels)
+
+def temporal(project, repos, queries, goldsets):
+    """
+    This function runs the experiment in over time. That is, it stops whenever
+    it reaches a commit linked with an issue/query. Will not work on all
+    projects.
+    """
+    pass
+
+def do_science(changeset_first_rels, release_first_rels):
     # calculate MRR
     # n => rank number
     changeset_mrr = utils.calculate_mrr([n for n, q, d in changeset_first_rels])
@@ -138,7 +161,6 @@ def cli():
     print('mann-whitney:', scipy.stats.mannwhitneyu(x, y))
     print('wilcoxon signedrank:', scipy.stats.wilcoxon(x, y))
     #print('friedman:', scipy.stats.friedmanchisquare(x, y, x2, y2))
-
 
 def load_project(name, version, level):
     project = None
@@ -222,7 +244,6 @@ def load_repos(project):
     for url in repo_urls:
         repo_name = url.split('/')[-1]
         target = os.path.join(repos_base, repo_name)
-        print(target)
         try:
             repo = clone(url, target, bare=True)
         except OSError:

@@ -7,7 +7,7 @@ test:
 clean: clean-corpora clean-models
 	find src tests -name '*.pyc' -exec rm {} \;
 
-clean-corproa:
+clean-corpora:
 	find data -name '*.mallet.gz' -exec rm {} \;
 	find data -name '*.dict.gz' -exec rm {} \;
 

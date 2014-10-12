@@ -122,7 +122,7 @@ class GitCorpus(GeneralCorpus):
                  lower=True, min_len=3, max_len=40, id2word=None,
                  lazy_dict=False, label=None):
 
-        if project:
+        if project and project.ref:
             ref = project.ref
         else:
             ref = 'HEAD'

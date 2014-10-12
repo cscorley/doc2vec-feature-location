@@ -75,50 +75,41 @@ def cli():
     changeset_corpus = create_corpus(project, repos, ChangesetCorpus, use_level=False)
 
     if project.level == 'file':
-        snapshot_corpus = create_corpus(project, repos, SnapshotCorpus)
-        release_corpus = create_corpus(project, [None], ReleaseCorpus)
+        # try making a release corpus, if unavailable, make it from
+        # a snapshot instead
+        try:
+            release_corpus = create_corpus(project, [None], ReleaseCorpus)
+        except:
+            release_corpus = create_corpus(project, repos, SnapshotCorpus)
     else:
-        snapshot_corpus = create_corpus(project, repos, TaserSnapshotCorpus)
-        release_corpus = create_corpus(project, [None], TaserReleaseCorpus)
-
+        try:
+            release_corpus = create_corpus(project, [None], TaserReleaseCorpus)
+        except:
+            release_corpus = create_corpus(project, repos, TaserSnapshotCorpus)
 
     # create models
     changeset_model = create_model(project, changeset_corpus, 'Changeset', use_level=False)
-    snapshot_model = create_model(project, snapshot_corpus, 'Snapshot')
     release_model = create_model(project, release_corpus, 'Release')
 
     # get the query topic
     release_query_topic = get_topics(project, release_model, queries)
-    snapshot_query_topic = get_topics(project, snapshot_model, queries)
     changeset_query_topic = get_topics(project, changeset_model, queries)
-
-    # get the doc topic for the methods of interest (git snapshot)
-    snapshot_doc_topic = get_topics(project, snapshot_model, snapshot_corpus)
-    changeset_doc_topic = get_topics(project, changeset_model, snapshot_corpus)
 
     # get the doc topic for the methods of interest (release)
     release_doc_topic = get_topics(project, release_model, release_corpus)
-    changeset2_doc_topic = get_topics(project, changeset_model, release_corpus)
+    changeset_doc_topic = get_topics(project, changeset_model, release_corpus)
 
     # get the ranks
     changeset_ranks = get_rank(changeset_query_topic, changeset_doc_topic)
-    snapshot_ranks = get_rank(snapshot_query_topic, snapshot_doc_topic)
-
-    changeset2_ranks = get_rank(changeset_query_topic, changeset2_doc_topic)
     release_ranks = get_rank(release_query_topic, release_doc_topic)
 
     # get first relevant method scores
     changeset_first_rels = get_frms(goldsets, changeset_ranks)
-    snapshot_first_rels = get_frms(goldsets, snapshot_ranks)
-
-    changeset2_first_rels = get_frms(goldsets, changeset2_ranks)
     release_first_rels = get_frms(goldsets, release_ranks)
 
     # calculate MRR
     # n => rank number
     changeset_mrr = utils.calculate_mrr([n for n, q, d in changeset_first_rels])
-    snapshot_mrr = utils.calculate_mrr([n for n, q, d in snapshot_first_rels])
-    changeset2_mrr = utils.calculate_mrr([n for n, q, d in changeset2_first_rels])
     release_mrr = utils.calculate_mrr([n for n, q, d in release_first_rels])
 
     # Build a dictionary with each of the results for stats.
@@ -130,18 +121,6 @@ def cli():
         else:
             logger.info('duplicate qid found:', query_id)
 
-    for num, query_id, doc_meta in snapshot_first_rels:
-        if query_id not in first_rels:
-            logger.info('qid not found:', query_id)
-        else:
-            first_rels[query_id].append(num)
-
-    for num, query_id, doc_meta in changeset2_first_rels:
-        if query_id not in first_rels:
-            logger.info('qid not found:', query_id)
-        else:
-            first_rels[query_id].append(num)
-
     for num, query_id, doc_meta in release_first_rels:
         if query_id not in first_rels:
             logger.info('qid not found:', query_id)
@@ -150,26 +129,16 @@ def cli():
 
     x = [v[0] for v in first_rels.values()]
     y = [v[1] for v in first_rels.values()]
-    x2 = [v[2] for v in first_rels.values()]
-    y2 = [v[3] for v in first_rels.values()]
 
 
     print('changeset mrr:', changeset_mrr)
-    print('snapshot mrr:', snapshot_mrr)
-
-    print('changeset2 mrr:', changeset2_mrr)
     print('release mrr:', release_mrr)
 
     print('ranksums:', scipy.stats.ranksums(x, y))
-    print('ranksums2:', scipy.stats.ranksums(x2, y2))
-
     print('mann-whitney:', scipy.stats.mannwhitneyu(x, y))
-    print('mann-whitney2:', scipy.stats.mannwhitneyu(x2, y2))
-
     print('wilcoxon signedrank:', scipy.stats.wilcoxon(x, y))
-    print('wilcoxon signedrank2:', scipy.stats.wilcoxon(x2, y2))
+    #print('friedman:', scipy.stats.friedmanchisquare(x, y, x2, y2))
 
-    print('friedman:', scipy.stats.friedmanchisquare(x, y, x2, y2))
 
 def load_project(name, version, level):
     project = None
@@ -237,6 +206,7 @@ def load_project(name, version, level):
             error("Could not find '%s' in 'projects.csv'!", name)
 
     return project
+
 
 def load_repos(project):
     # reading in repos
@@ -314,8 +284,8 @@ def get_topics(project, model, corpus):
         topics = sparse2full(model[doc], project.num_topics)
 
         # this gets the "full" vector that includes low topic values
-#        topics = model.__getitem__(doc, eps=0)
-#        topics = [val for id, val in topics]
+        # topics = model.__getitem__(doc, eps=0)
+        # topics = [val for id, val in topics]
 
         doc_topic.append((metadata, topics))
 
@@ -396,12 +366,14 @@ def create_model(project, corpus, name, use_level=True):
                        + str(project.num_topics) + '.lda')
 
     if not os.path.exists(model_fname):
-        model = LdaModel(corpus,
+        model = LdaModel(corpus=corpus,
                          id2word=corpus.id2word,
                          alpha=project.alpha,
                          eta=project.eta,
                          passes=project.passes,
-                         num_topics=project.num_topics)
+                         num_topics=project.num_topics,
+                         eval_every=None, # disable perplexity tests for speed
+                         )
 
         model.save(model_fname)
     else:
@@ -411,45 +383,24 @@ def create_model(project, corpus, name, use_level=True):
 
 def create_mallet_model(project, corpus, name, use_level=True):
     if use_level:
-        model_fname = (project.data_path + name + project.level
+        model_fname = (project.data_path + corpus.__class__.__name__ + project.level
                        + str(project.num_topics) + '.malletlda')
     else:
-        model_fname = (project.data_path + name
+        model_fname = (project.data_path + corpus.__class__.__name__
                        + str(project.num_topics) + '.malletlda')
 
     if not os.path.exists(model_fname):
-        model = LdaMallet('./lib/mallet-2.0.7/bin/mallet', corpus=corpus,
+        model = LdaMallet('./lib/mallet-2.0.7/bin/mallet',
+                          corpus=corpus,
                           id2word=corpus.id2word,
                           optimize_interval=10,
                           num_topics=project.num_topics)
 
         model.save(model_fname)
     else:
-        model = LdaModel.load(model_fname)
+        model = LdaMallet.load(model_fname)
 
     return model
-
-
-def write_out_missing(project, all_taser):
-    goldset = set()
-    all_taser.metadata = True
-    taserset = set(doc[1][0] for doc in all_taser)
-    all_taser.metadata = False
-
-    goldset_fname = project.data_path + 'allgold.txt'
-    with open(goldset_fname) as f:
-        for line in f:
-            goldset.add(line.strip())
-
-    missing_fname = project.data_path + 'missing-gold.txt'
-    with open(missing_fname, 'w') as f:
-        for each in sorted(list(goldset - taserset)):
-            f.write(each + '\n')
-
-    ours_fname = project.data_path + 'allours.txt'
-    with open(ours_fname, 'w') as f:
-        for each in sorted(list(taserset)):
-            f.write(each + '\n')
 
 
 def create_corpus(project, repos, Kind, use_level=True):
@@ -521,3 +472,25 @@ def clone(source, target, bare=False):
             r.refs.add_if_new(key, val)
 
     return r
+
+
+def write_out_missing(project, all_taser):
+    goldset = set()
+    all_taser.metadata = True
+    taserset = set(doc[1][0] for doc in all_taser)
+    all_taser.metadata = False
+
+    goldset_fname = project.data_path + 'allgold.txt'
+    with open(goldset_fname) as f:
+        for line in f:
+            goldset.add(line.strip())
+
+    missing_fname = project.data_path + 'missing-gold.txt'
+    with open(missing_fname, 'w') as f:
+        for each in sorted(list(goldset - taserset)):
+            f.write(each + '\n')
+
+    ours_fname = project.data_path + 'allours.txt'
+    with open(ours_fname, 'w') as f:
+        for each in sorted(list(taserset)):
+            f.write(each + '\n')

@@ -16,6 +16,7 @@ import re
 import subprocess
 import os
 import os.path
+import shutil
 import tempfile
 
 import gensim
@@ -265,7 +266,7 @@ class TaserMixIn(object):
         cmds.append(['java',
                      '-jar', self.taser_jar,
                      'fc', self.dest,
-                     '-o', self.dest,
+                     '-o', self.final_dest,
                      '-t', ctype])
 
         for cmd in cmds:
@@ -275,6 +276,8 @@ class TaserMixIn(object):
                 raise TaserError("Failed cmd: " + str(cmd))
 
         self.corpus_generated = True
+        shutil.rmtree(self.src) # delete the source
+        shutil.rmtree(self.dest) # delete the intermediate files
 
     def get_texts(self):
         if not self.corpus_generated:
@@ -282,7 +285,7 @@ class TaserMixIn(object):
 
         length = 0
 
-        with open(os.path.join(self.dest, 'unknown-0.0.ser')) as f:
+        with open(os.path.join(self.final_dest, 'unknown-0.0.ser')) as f:
             for line in f:
                 doc_name, document = line.split(' ', 1)
                 words = self.preprocess(document, [doc_name, self.project.ref])
@@ -318,6 +321,7 @@ class TaserSnapshotCorpus(GitCorpus, TaserMixIn):
 
         self.src = tempfile.mkdtemp(prefix='taser_')
         self.dest = tempfile.mkdtemp(prefix='taser_')
+        self.final_dest = tempfile.mkdtemp(prefix='taser_')
 
         # checkout the version we want
         dulwich.index.build_index_from_tree(self.src,
@@ -345,6 +349,7 @@ class TaserReleaseCorpus(GeneralCorpus, TaserMixIn):
 
         self.src = project.src_path
         self.dest = tempfile.mkdtemp(prefix='taser_')
+        self.final_dest = tempfile.mkdtemp(prefix='taser_')
 
         self.corpus_generated = False
         self.run_taser()

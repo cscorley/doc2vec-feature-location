@@ -460,7 +460,7 @@ class TestChangesetCorpus(TestGitCorpus):
 
                 ]
 
-        documents = list(reversed([list(sorted(x)) for x in documents]))
+        documents = [list(sorted(x)) for x in documents]
 
         for i, doc in enumerate(self.corpus.get_texts()):
             doc = list(sorted(doc)) # generators, woo?

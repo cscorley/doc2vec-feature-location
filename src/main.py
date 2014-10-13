@@ -17,15 +17,15 @@ import os.path
 import csv
 from collections import namedtuple
 
-import dulwich
+import click
 import dulwich.client
 import dulwich.repo
-
+import scipy.stats
 from gensim.corpora import MalletCorpus, Dictionary
-from gensim.models import LdaModel
+from gensim.models import LdaModel, LdaMallet
 from gensim.matutils import sparse2full
 
-import scipy.stats
+
 
 import utils
 from corpora import (ChangesetCorpus, SnapshotCorpus, ReleaseCorpus,
@@ -42,29 +42,32 @@ def error(*args, **kwargs):
     sys.exit(1)
 
 
-def cli():
+@click.command()
+@click.option('--verbose', is_flag=True)
+@click.option('--debug', is_flag=True)
+@click.option('--temporal', is_flag=True)
+@click.option('--path', default='data/',
+              help="Set the directory to work within")
+@click.argument('name')
+@click.option('--version', help="Version of project to run experiment on")
+@click.option('--level', help="Granularity level of project to run experiment on")
+def cli(verbose, debug, temporal, path, name, version, level):
+    """
+    Changesets for Feature Location
+    """
     logging.basicConfig(format='%(asctime)s : %(levelname)s : ' +
                         '%(name)s : %(funcName)s : %(message)s')
 
-    name = sys.argv[1]
-    if len(sys.argv) > 2:
-        version = sys.argv[2]
-    else:
-        version = False
-
-    if len(sys.argv) > 3:
-        level = sys.argv[3]
-    else:
-        level = False
-
-    verbose = False
-    if verbose:
+    if debug:
         logging.root.setLevel(level=logging.DEBUG)
-    else:
+    elif verbose:
         logging.root.setLevel(level=logging.INFO)
+    else:
+        logging.root.setLevel(level=logging.ERROR)
 
     # load project info
     project = load_project(name, version, level)
+    logging.info("Running project on %s", str(project))
     repos = load_repos(project)
 
     # create/load document lists
@@ -72,53 +75,174 @@ def cli():
     goldsets = load_goldsets(project)
 
     # get corpora
-    changeset_corpus = create_corpus(project, repos, ChangesetCorpus)
+    changeset_corpus = create_corpus(project, repos, ChangesetCorpus, use_level=False)
+    release_corpus = create_release_corpus(project, repos)
 
-    if project.level == 'file':
-        snapshot_corpus = create_corpus(project, repos, SnapshotCorpus)
-        release_corpus = create_corpus(project, [None], ReleaseCorpus)
+    # release-based evaluation is #basic 💁
+    release_first_rels = run_basic(project, release_corpus, release_corpus,
+                                    queries, goldsets, 'Release')
+
+    if temporal:
+        changeset_first_rels = run_temporal(project, repos, changeset_corpus,
+                                            queries, goldsets)
     else:
-        snapshot_corpus = create_corpus(project, repos, TaserSnapshotCorpus)
-        release_corpus = create_corpus(project, [None], TaserReleaseCorpus)
+        changeset_first_rels = run_basic(project, changeset_corpus,
+                                          release_corpus, queries, goldsets,
+                                          'Changeset')
+
+    do_science(changeset_first_rels, release_first_rels)
+
+def run_basic(project, corpus, other_corpus, queries, goldsets, kind):
+    """
+    This function runs the experiment in one-shot. It does not evaluate the
+    changesets over time.
+    """
+    logger.info("Running basic evaluation on the %s", kind)
+    model = create_model(project, corpus, kind, use_level=(kind == 'Release'))
+    query_topic = get_topics(model, queries)
+    doc_topic = get_topics(model, other_corpus)
+    ranks = get_rank(query_topic, doc_topic)
+    first_rels = get_frms(goldsets, ranks)
+    return first_rels
+
+def run_temporal(project, repos, corpus, queries, goldsets):
+    """
+    This function runs the experiment in over time. That is, it stops whenever
+    it reaches a commit linked with an issue/query. Will not work on all
+    projects.
+    """
+    logger.info("Running temporal evaluation")
+
+    try:
+        issue2git, git2issue = load_issue2git(project)
+    except IOError as e:
+        error("Files needed for temporal evaluation not found!\n%s", str(e))
+
+    logger.info("Stopping at %d commits for %d issues", len(git2issue), len(issue2git))
+
+    # Make sure we have a commit for all issues
+    ids = set(i for i,g in goldsets)
+    keys = set(issue2git.keys())
+    ignore = ids - keys
+    if len(ignore):
+        logger.info("Ignoring evaluation for the following issues:\n\t%s",
+                    '\n\t'.join(ignore))
+
+    model = LdaModel(id2word=corpus.id2word,
+                     alpha=project.alpha,
+                     eta=project.eta,
+                     passes=project.passes,
+                     num_topics=project.num_topics,
+                     eval_every=None, # disable perplexity tests for speed
+                     )
+
+    ranks = dict()
+    docs = list()
+    corpus.metadata = True
+    for doc, meta in corpus:
+        sha, lang = meta
+        if sha in git2issue:
+            # done with this sha!
+            for qid in git2issue[sha]:
+                # update model with docs so far
+                model.update(docs)
+
+                # find our query and get the topics
+                query = get_query_by_id(queries, qid)
+                if query:
+                    topics = sparse2full(model[query], model.num_topics)
+
+                    # build a snapshot corpus of items *at this commit*
+                    other_corpus = create_release_corpus(project, repos, forced_ref=sha)
+
+                    # get the topics of items at this commit
+                    doc_topic = get_topics(model, other_corpus)
+
+                    # find best rank for this query!
+                    # get rank expects a list of (metadata, distribution) tuples
+                    rank = get_rank([((qid, sha), topics)], doc_topic)
+                    for k,v in rank.items():
+                        if k not in ranks:
+                            ranks[k] = list()
+
+                        ranks[k].append(v)
+
+                    # that was fun! let's do it again! weee!
+                    docs = list()
+
+            # processed all qids in this sha
+            del git2issue[sha]
+
+        docs.append(doc)
+
+        if len(git2issue) == 0:
+            # all done!
+            break
+
+    corpus.metadata = False
+
+    first_rels = get_frms(goldsets, ranks)
+    return first_rels
+
+def get_query_by_id(queries, qid):
+    queries.metadata = True
+    for query, meta in queries:
+        docid, doclang = meta
+        if docid == qid:
+            queries.metadata = False
+            return query
+
+    logging.info("could not find query for qid %s", qid)
+    queries.metadata = False
 
 
-    # create models
-    changeset_model = create_model(project, changeset_corpus, 'Changeset')
-    snapshot_model = create_model(project, snapshot_corpus, 'Snapshot')
-    release_model = create_model(project, release_corpus, 'Release')
+def load_issue2git(project):
+    fn = 'IssuesToSVNCommitsMapping.txt'
+    i2s = dict()
+    with open(os.path.join('data', project.name, project.version, fn)) as f:
+        lines = [line.strip().split('\t') for line in f]
+        for line in lines:
+            issue = line[0]
+            links = line[1]
+            svns = line[2:]
 
-    # get the query topic
-    release_query_topic = get_topics(project, release_model, queries)
-    snapshot_query_topic = get_topics(project, snapshot_model, queries)
-    changeset_query_topic = get_topics(project, changeset_model, queries)
+            i2s[issue] = svns
 
-    # get the doc topic for the methods of interest (git snapshot)
-    snapshot_doc_topic = get_topics(project, snapshot_model, snapshot_corpus)
-    changeset_doc_topic = get_topics(project, changeset_model, snapshot_corpus)
+    fn = 'svn2git.csv'
+    s2g = dict()
+    with open(os.path.join('data', project.name, fn)) as f:
+        reader = csv.reader(f)
+        for svn,git in reader:
+            if svn in s2g and s2g[svn] != git:
+                logger.info('Different gits sha for SVN revision number %s', svn)
+            else:
+                s2g[svn] = git
 
-    # get the doc topic for the methods of interest (release)
-    release_doc_topic = get_topics(project, release_model, release_corpus)
-    changeset2_doc_topic = get_topics(project, changeset_model, release_corpus)
+    i2g = dict()
+    for issue, svns in i2s.items():
+        for svn in svns:
+            if svn in s2g:
+                # make sure we don't have issues that are empty
+                if issue not in i2g:
+                    i2g[issue] = list()
+                i2g[issue].append(s2g[svn])
+            else:
+                logger.info('Could not find git sha for SVN revision number %s', svn)
 
-    # get the ranks
-    changeset_ranks = get_rank(changeset_query_topic, changeset_doc_topic)
-    snapshot_ranks = get_rank(snapshot_query_topic, snapshot_doc_topic)
+    # build reverse mapping
+    g2i = dict()
+    for issue, gits in i2g.items():
+        for git in gits:
+            if git not in g2i:
+                g2i[git] = list()
+            g2i[git].append(issue)
 
-    changeset2_ranks = get_rank(changeset_query_topic, changeset2_doc_topic)
-    release_ranks = get_rank(release_query_topic, release_doc_topic)
+    return i2g, g2i
 
-    # get first relevant method scores
-    changeset_first_rels = get_frms(goldsets, changeset_ranks)
-    snapshot_first_rels = get_frms(goldsets, snapshot_ranks)
-
-    changeset2_first_rels = get_frms(goldsets, changeset2_ranks)
-    release_first_rels = get_frms(goldsets, release_ranks)
-
+def do_science(changeset_first_rels, release_first_rels):
     # calculate MRR
     # n => rank number
     changeset_mrr = utils.calculate_mrr([n for n, q, d in changeset_first_rels])
-    snapshot_mrr = utils.calculate_mrr([n for n, q, d in snapshot_first_rels])
-    changeset2_mrr = utils.calculate_mrr([n for n, q, d in changeset2_first_rels])
     release_mrr = utils.calculate_mrr([n for n, q, d in release_first_rels])
 
     # Build a dictionary with each of the results for stats.
@@ -130,18 +254,6 @@ def cli():
         else:
             logger.info('duplicate qid found:', query_id)
 
-    for num, query_id, doc_meta in snapshot_first_rels:
-        if query_id not in first_rels:
-            logger.info('qid not found:', query_id)
-        else:
-            first_rels[query_id].append(num)
-
-    for num, query_id, doc_meta in changeset2_first_rels:
-        if query_id not in first_rels:
-            logger.info('qid not found:', query_id)
-        else:
-            first_rels[query_id].append(num)
-
     for num, query_id, doc_meta in release_first_rels:
         if query_id not in first_rels:
             logger.info('qid not found:', query_id)
@@ -150,26 +262,15 @@ def cli():
 
     x = [v[0] for v in first_rels.values()]
     y = [v[1] for v in first_rels.values()]
-    x2 = [v[2] for v in first_rels.values()]
-    y2 = [v[3] for v in first_rels.values()]
 
 
     print('changeset mrr:', changeset_mrr)
-    print('snapshot mrr:', snapshot_mrr)
-
-    print('changeset2 mrr:', changeset2_mrr)
     print('release mrr:', release_mrr)
 
     print('ranksums:', scipy.stats.ranksums(x, y))
-    print('ranksums2:', scipy.stats.ranksums(x2, y2))
-
     print('mann-whitney:', scipy.stats.mannwhitneyu(x, y))
-    print('mann-whitney2:', scipy.stats.mannwhitneyu(x2, y2))
-
     print('wilcoxon signedrank:', scipy.stats.wilcoxon(x, y))
-    print('wilcoxon signedrank2:', scipy.stats.wilcoxon(x2, y2))
-
-    print('friedman:', scipy.stats.friedmanchisquare(x, y, x2, y2))
+    #print('friedman:', scipy.stats.friedmanchisquare(x, y, x2, y2))
 
 def load_project(name, version, level):
     project = None
@@ -238,6 +339,7 @@ def load_project(name, version, level):
 
     return project
 
+
 def load_repos(project):
     # reading in repos
     with open(os.path.join('data', project.name, 'repos.txt')) as f:
@@ -252,7 +354,6 @@ def load_repos(project):
     for url in repo_urls:
         repo_name = url.split('/')[-1]
         target = os.path.join(repos_base, repo_name)
-        print(target)
         try:
             repo = clone(url, target, bare=True)
         except OSError:
@@ -272,12 +373,20 @@ def get_frms(goldsets, ranks):
         if g_id not in ranks:
             logger.info('Could not find ranks for goldset id %s', g_id)
         else:
-            for idx, metadist in enumerate(ranks[g_id]):
-                doc_meta, dist = metadist
-                d_name, d_repo = doc_meta
-                if d_name in goldset:
-                    frms.append((idx+1, g_id, doc_meta))
-                    break
+            subfrms = list()
+            for rank in ranks[g_id]:
+                for idx, metadist in enumerate(rank):
+                    doc_meta, dist = metadist
+                    d_name, d_repo = doc_meta
+                    if d_name in goldset:
+                        subfrms.append((idx+1, g_id, doc_meta))
+                        break
+
+            # i think this might be cheating? :)
+            subfrms.sort()
+            if subfrms:
+                frms.append(subfrms[0])
+
 
     logger.info('Returning %d FRMS', len(frms))
     return frms
@@ -296,13 +405,16 @@ def get_rank(query_topic, doc_topic, distance_measure=utils.hellinger_distance):
             assert distance <= 1.0
             q_dist.append((d_meta, 1.0 - distance))
 
-        ranks[qid] = sorted(q_dist, reverse=True, key=lambda x: x[1])
+        if qid not in ranks:
+            ranks[qid] = list()
+
+        ranks[qid].append(list(sorted(q_dist, reverse=True, key=lambda x: x[1])))
 
     logger.info('Returning %d ranks', len(ranks))
     return ranks
 
 
-def get_topics(project, model, corpus):
+def get_topics(model, corpus):
     logger.info('Getting doc topic for corpus with length %d', len(corpus))
     doc_topic = list()
     corpus.metadata = True
@@ -311,11 +423,11 @@ def get_topics(project, model, corpus):
 
     for doc, metadata in corpus:
         # get a vector where low topic values are zeroed out.
-        topics = sparse2full(model[doc], project.num_topics)
+        topics = sparse2full(model[doc], model.num_topics)
 
         # this gets the "full" vector that includes low topic values
-#        topics = model.__getitem__(doc, eps=0)
-#        topics = [val for id, val in topics]
+        # topics = model.__getitem__(doc, eps=0)
+        # topics = [val for id, val in topics]
 
         doc_topic.append((metadata, topics))
 
@@ -371,6 +483,7 @@ def create_queries(project):
 
 
 def load_goldsets(project):
+    logger.info("Loading goldsets for project: %s", str(project))
     with open(os.path.join(project.data_path, 'ids.txt')) as f:
         ids = [x.strip() for x in f.readlines()]
 
@@ -382,19 +495,26 @@ def load_goldsets(project):
 
         goldsets.append((id, golds))
 
+    logger.info("Returning %d goldsets", len(goldsets))
     return goldsets
 
 
-def create_model(project, corpus, name):
-    model_fname = project.data_path + name + str(project.num_topics) + '.lda'
+def create_model(project, corpus, name, use_level=True):
+    model_fname = project.data_path + name + str(project.num_topics)
+    if use_level:
+        model_fname += project.level
+
+    model_fname += '.lda'
 
     if not os.path.exists(model_fname):
-        model = LdaModel(corpus,
+        model = LdaModel(corpus=corpus,
                          id2word=corpus.id2word,
                          alpha=project.alpha,
                          eta=project.eta,
                          passes=project.passes,
-                         num_topics=project.num_topics)
+                         num_topics=project.num_topics,
+                         eval_every=None, # disable perplexity tests for speed
+                         )
 
         model.save(model_fname)
     else:
@@ -402,31 +522,36 @@ def create_model(project, corpus, name):
 
     return model
 
+def create_mallet_model(project, corpus, name, use_level=True):
+    model_fname = project.data_path + name + str(project.num_topics)
+    if use_level:
+        model_fname += project.level
 
-def write_out_missing(project, all_taser):
-    goldset = set()
-    all_taser.metadata = True
-    taserset = set(doc[1][0] for doc in all_taser)
-    all_taser.metadata = False
+    model_fname += '.malletlda'
 
-    goldset_fname = project.data_path + 'allgold.txt'
-    with open(goldset_fname) as f:
-        for line in f:
-            goldset.add(line.strip())
+    if not os.path.exists(model_fname):
+        model = LdaMallet('./lib/mallet-2.0.7/bin/mallet',
+                          corpus=corpus,
+                          id2word=corpus.id2word,
+                          optimize_interval=10,
+                          num_topics=project.num_topics)
 
-    missing_fname = project.data_path + 'missing-gold.txt'
-    with open(missing_fname, 'w') as f:
-        for each in sorted(list(goldset - taserset)):
-            f.write(each + '\n')
+        model.save(model_fname)
+    else:
+        model = LdaMallet.load(model_fname)
 
-    ours_fname = project.data_path + 'allours.txt'
-    with open(ours_fname, 'w') as f:
-        for each in sorted(list(taserset)):
-            f.write(each + '\n')
+    return model
 
 
-def create_corpus(project, repos, Kind):
-    corpus_fname_base = project.data_path + Kind.__name__ + project.level
+def create_corpus(project, repos, Kind, use_level=True, forced_ref=None):
+    corpus_fname_base = project.data_path + Kind.__name__
+
+    if use_level:
+        corpus_fname_base += project.level
+
+    if forced_ref:
+        corpus_fname_base += forced_ref[:8]
+
     corpus_fname = corpus_fname_base + '.mallet.gz'
     dict_fname = corpus_fname_base + '.dict.gz'
 
@@ -436,9 +561,16 @@ def create_corpus(project, repos, Kind):
         for repo in repos:
             try:
                 if repo:
-                    corpus = Kind(repo=repo, project=project, lazy_dict=True)
+                    corpus = Kind(project=project,
+                                  repo=repo,
+                                  lazy_dict=True,
+                                  ref=forced_ref,
+                                  )
                 else:
-                    corpus = Kind(project=project, lazy_dict=True)
+                    corpus = Kind(project=project,
+                                  lazy_dict=True,
+                                  ref=forced_ref,
+                                  )
 
             except KeyError:
                 continue
@@ -465,6 +597,23 @@ def create_corpus(project, repos, Kind):
 
     return corpus
 
+def create_release_corpus(project, repos, forced_ref=None):
+    if project.level == 'file':
+        RC = ReleaseCorpus
+        SC = SnapshotCorpus
+    else:
+        RC = TaserReleaseCorpus
+        SC = TaserSnapshotCorpus
+
+    if forced_ref is None:
+        # try making a release corpus if we have the code
+        try:
+            return create_corpus(project, [None], RC)
+        except:
+            # fall out and make a snapshot
+            pass
+
+    return create_corpus(project, repos, SC, forced_ref=forced_ref)
 
 def clone(source, target, bare=False):
     client, host_path = dulwich.client.get_transport_and_path(source)
@@ -490,3 +639,25 @@ def clone(source, target, bare=False):
             r.refs.add_if_new(key, val)
 
     return r
+
+
+def write_out_missing(project, all_taser):
+    goldset = set()
+    all_taser.metadata = True
+    taserset = set(doc[1][0] for doc in all_taser)
+    all_taser.metadata = False
+
+    goldset_fname = project.data_path + 'allgold.txt'
+    with open(goldset_fname) as f:
+        for line in f:
+            goldset.add(line.strip())
+
+    missing_fname = project.data_path + 'missing-gold.txt'
+    with open(missing_fname, 'w') as f:
+        for each in sorted(list(goldset - taserset)):
+            f.write(each + '\n')
+
+    ours_fname = project.data_path + 'allours.txt'
+    with open(ours_fname, 'w') as f:
+        for each in sorted(list(taserset)):
+            f.write(each + '\n')

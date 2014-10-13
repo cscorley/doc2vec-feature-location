@@ -16,6 +16,7 @@ import re
 import subprocess
 import os
 import os.path
+import shutil
 import tempfile
 
 import gensim
@@ -120,12 +121,13 @@ class GeneralCorpus(gensim.interfaces.CorpusABC):
 class GitCorpus(GeneralCorpus):
     def __init__(self, repo, project=None, remove_stops=True, split=True,
                  lower=True, min_len=3, max_len=40, id2word=None,
-                 lazy_dict=False, label=None):
+                 lazy_dict=False, label=None, ref=None):
 
-        if project:
-            ref = project.ref
-        else:
-            ref = 'HEAD'
+        if ref is None:
+            if project and project.ref:
+                ref = project.ref
+            else:
+                ref = 'HEAD'
 
         logger.info('[git] Creating %s corpus out of source files for commit %s: %s',
                     self.__class__.__name__, ref, str(lazy_dict))
@@ -264,15 +266,18 @@ class TaserMixIn(object):
         cmds.append(['java',
                      '-jar', self.taser_jar,
                      'fc', self.dest,
-                     '-o', self.dest,
+                     '-o', self.final_dest,
                      '-t', ctype])
 
         for cmd in cmds:
+            logger.info('Running Taser command:\n\t%s', ' '.join(cmd))
             retval = subprocess.call(cmd)
             if retval:
                 raise TaserError("Failed cmd: " + str(cmd))
 
         self.corpus_generated = True
+        shutil.rmtree(self.src) # delete the source
+        shutil.rmtree(self.dest) # delete the intermediate files
 
     def get_texts(self):
         if not self.corpus_generated:
@@ -280,7 +285,7 @@ class TaserMixIn(object):
 
         length = 0
 
-        with open(os.path.join(self.dest, 'unknown-0.0.ser')) as f:
+        with open(os.path.join(self.final_dest, 'unknown-0.0.ser')) as f:
             for line in f:
                 doc_name, document = line.split(' ', 1)
                 words = self.preprocess(document, [doc_name, self.project.ref])
@@ -298,7 +303,7 @@ class TaserMixIn(object):
 class TaserSnapshotCorpus(GitCorpus, TaserMixIn):
     def __init__(self, repo=None, project=None, remove_stops=True, split=True,
                  lower=True, min_len=3, max_len=40, taser_jar='lib/taser.jar',
-                 id2word=None, lazy_dict=True, label='taser_snapshot'):
+                 id2word=None, lazy_dict=True, label='taser_snapshot', ref=None):
         # force lazy_dict since we have to run taser to build the corpus first
         super(TaserSnapshotCorpus, self).__init__(repo=repo,
                                                   project=project,
@@ -309,11 +314,14 @@ class TaserSnapshotCorpus(GitCorpus, TaserMixIn):
                                                   max_len=max_len,
                                                   id2word=id2word,
                                                   lazy_dict=True,
-                                                  label=label)
+                                                  label=label,
+                                                  ref=ref,
+                                                  )
         self.taser_jar = taser_jar
 
         self.src = tempfile.mkdtemp(prefix='taser_')
         self.dest = tempfile.mkdtemp(prefix='taser_')
+        self.final_dest = tempfile.mkdtemp(prefix='taser_')
 
         # checkout the version we want
         dulwich.index.build_index_from_tree(self.src,
@@ -341,6 +349,7 @@ class TaserReleaseCorpus(GeneralCorpus, TaserMixIn):
 
         self.src = project.src_path
         self.dest = tempfile.mkdtemp(prefix='taser_')
+        self.final_dest = tempfile.mkdtemp(prefix='taser_')
 
         self.corpus_generated = False
         self.run_taser()
@@ -389,7 +398,7 @@ class ChangesetCorpus(GitCorpus):
         current = None
         low = list()  # collecting the list of words
 
-        for commit, parent, diff in self._walk_changes():
+        for commit, parent, diff in self._walk_changes(reverse=True):
             # write out once all diff lines for commit have been collected
             # this is over all parents and all files of the commit
             if current is None:

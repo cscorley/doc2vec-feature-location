@@ -136,40 +136,42 @@ def run_temporal(project, repos, corpus, queries, goldsets):
                      eval_every=None, # disable perplexity tests for speed
                      )
 
-    ranks = list()
+    ranks = dict()
     docs = list()
     corpus.metadata = True
     for doc, meta in corpus:
         sha, lang = meta
         if sha in git2issue:
             # done with this sha!
-            qid = git2issue[sha]
+            for qid in git2issue[sha]:
+                # update model with docs so far
+                model.update(docs)
+
+                # find our query and get the topics
+                query = get_query_by_id(queries, qid)
+                if query:
+                    topics = sparse2full(model[query], model.num_topics)
+
+                    # build a snapshot corpus of items *at this commit*
+                    other_corpus = create_release_corpus(project, repos, forced_ref=sha)
+
+                    # get the topics of items at this commit
+                    doc_topic = get_topics(model, other_corpus)
+
+                    # find best rank for this query!
+                    # get rank expects a list of (metadata, distribution) tuples
+                    rank = get_rank([((qid, sha), topics)], doc_topic)
+                    for k,v in rank.items():
+                        if k not in ranks:
+                            ranks[k] = list()
+
+                        ranks[k].append(v)
+
+                    # that was fun! let's do it again! weee!
+                    docs = list()
+
+            # processed all qids in this sha
             del git2issue[sha]
-
-            # update model with docs so far
-            model.update(docs)
-
-            # find our query and get the topics
-            query = get_query_by_id(queries, qid)
-            if query:
-                topics = sparse2full(model[query], model.num_topics)
-
-                # build a snapshot corpus of items *at this commit*
-                other_corpus = create_release_corpus(project, repos, forced_ref=sha)
-
-                # get the topics of items at this commit
-                doc_topic = get_topics(model, other_corpus)
-
-                # find best rank for this query!
-                # get rank expects a list of (metadata, distribution) tuples
-                rank = get_rank([((qid, sha), topics)], doc_topic)
-                ranks.extend(rank)
-
-                # TODO  going to need to merge ids fixed by multiple commits at some
-                # point
-
-                # that was fun! let's do it again! weee!
-                docs = list()
 
         docs.append(doc)
 
@@ -217,7 +219,6 @@ def load_issue2git(project):
                 s2g[svn] = git
 
     i2g = dict()
-    # TODO for multiple ids, go with the latest commit?
     for issue, svns in i2s.items():
         for svn in svns:
             if svn in s2g:
@@ -232,7 +233,9 @@ def load_issue2git(project):
     g2i = dict()
     for issue, gits in i2g.items():
         for git in gits:
-            g2i[git] = issue
+            if git not in g2i:
+                g2i[git] = list()
+            g2i[git].append(issue)
 
     return i2g, g2i
 
@@ -370,12 +373,20 @@ def get_frms(goldsets, ranks):
         if g_id not in ranks:
             logger.info('Could not find ranks for goldset id %s', g_id)
         else:
-            for idx, metadist in enumerate(ranks[g_id]):
-                doc_meta, dist = metadist
-                d_name, d_repo = doc_meta
-                if d_name in goldset:
-                    frms.append((idx+1, g_id, doc_meta))
-                    break
+            subfrms = list()
+            for rank in ranks[g_id]:
+                for idx, metadist in enumerate(rank):
+                    doc_meta, dist = metadist
+                    d_name, d_repo = doc_meta
+                    if d_name in goldset:
+                        subfrms.append((idx+1, g_id, doc_meta))
+                        break
+
+            # i think this might be cheating? :)
+            subfrms.sort()
+            if subfrms:
+                frms.append(subfrms[0])
+
 
     logger.info('Returning %d FRMS', len(frms))
     return frms
@@ -394,7 +405,10 @@ def get_rank(query_topic, doc_topic, distance_measure=utils.hellinger_distance):
             assert distance <= 1.0
             q_dist.append((d_meta, 1.0 - distance))
 
-        ranks[qid] = sorted(q_dist, reverse=True, key=lambda x: x[1])
+        if qid not in ranks:
+            ranks[qid] = list()
+
+        ranks[qid].append(list(sorted(q_dist, reverse=True, key=lambda x: x[1])))
 
     logger.info('Returning %d ranks', len(ranks))
     return ranks

@@ -44,8 +44,7 @@ def error(*args, **kwargs):
 @click.option('--verbose', is_flag=True)
 @click.option('--debug', is_flag=True)
 @click.option('--temporal', is_flag=True)
-@click.option('--path', default='data/',
-              help="Set the directory to work within")
+@click.option('--path', default='data/', help="Set the directory to work within")
 @click.argument('name')
 @click.option('--version', help="Version of project to run experiment on")
 @click.option('--level', help="Granularity level of project to run experiment on")
@@ -561,17 +560,14 @@ def create_corpus(project, repos, Kind, use_level=True, forced_ref=None):
 
         for repo in repos:
             try:
-                if repo:
+                if repo and forced_ref:
                     corpus = Kind(project=project,
                                   repo=repo,
                                   lazy_dict=True,
                                   ref=forced_ref,
                                   )
                 else:
-                    corpus = Kind(project=project,
-                                  lazy_dict=True,
-                                  ref=forced_ref,
-                                  )
+                    corpus = Kind(project=project, lazy_dict=True)
 
             except KeyError:
                 continue
@@ -607,15 +603,10 @@ def create_release_corpus(project, repos, forced_ref=None):
         RC = TaserReleaseCorpus
         SC = TaserSnapshotCorpus
 
-    if forced_ref is None:
-        # try making a release corpus if we have the code
-        try:
-            return create_corpus(project, [None], RC)
-        except:
-            # fall out and make a snapshot
-            pass
-
-    return create_corpus(project, repos, SC, forced_ref=forced_ref)
+    if forced_ref:
+        return create_corpus(project, repos, SC, forced_ref=forced_ref)
+    else:
+        return create_corpus(project, [None], RC)
 
 
 def clone(source, target, bare=False):

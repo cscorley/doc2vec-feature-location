@@ -276,8 +276,6 @@ class TaserMixIn(object):
                 raise TaserError("Failed cmd: " + str(cmd))
 
         self.corpus_generated = True
-        shutil.rmtree(self.src) # delete the source
-        shutil.rmtree(self.dest) # delete the intermediate files
 
     def get_texts(self):
         if not self.corpus_generated:
@@ -301,9 +299,10 @@ class TaserMixIn(object):
 
 
 class TaserSnapshotCorpus(GitCorpus, TaserMixIn):
-    def __init__(self, repo=None, project=None, remove_stops=True, split=True,
+    def __init__(self, repo, project=None, remove_stops=True, split=True,
                  lower=True, min_len=3, max_len=40, taser_jar='lib/taser.jar',
-                 id2word=None, lazy_dict=True, label='taser_snapshot', ref=None):
+                 id2word=None, lazy_dict=True, label='taser_snapshot',
+                 ref=None):
         # force lazy_dict since we have to run taser to build the corpus first
         super(TaserSnapshotCorpus, self).__init__(repo=repo,
                                                   project=project,
@@ -331,11 +330,14 @@ class TaserSnapshotCorpus(GitCorpus, TaserMixIn):
         self.corpus_generated = False
         self.run_taser()
 
+        shutil.rmtree(self.src) # delete the source
+        shutil.rmtree(self.dest) # delete the intermediate files
+
 
 class TaserReleaseCorpus(GeneralCorpus, TaserMixIn):
     def __init__(self, project, remove_stops=True, split=True, lower=True,
-                 min_len=3, max_len=40, taser_jar='lib/taser.jar',
-                 id2word=None, lazy_dict=True, label='taser_release', ref=None):
+                 min_len=3, max_len=40, taser_jar='lib/taser.jar', id2word=None,
+                 lazy_dict=True, label='taser_release'):
         # force lazy_dict since we have to run taser to build the corpus first
         super(TaserReleaseCorpus, self).__init__(project=project,
                                                  remove_stops=remove_stops,
@@ -346,7 +348,6 @@ class TaserReleaseCorpus(GeneralCorpus, TaserMixIn):
                                                  id2word=id2word,
                                                  lazy_dict=True,
                                                  label=label,
-                                                 ref=ref,
                                                  )
         self.taser_jar = taser_jar
 
@@ -356,6 +357,8 @@ class TaserReleaseCorpus(GeneralCorpus, TaserMixIn):
 
         self.corpus_generated = False
         self.run_taser()
+
+        shutil.rmtree(self.dest) # delete the intermediate files
 
 
 class ChangesetCorpus(GitCorpus):

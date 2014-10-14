@@ -136,13 +136,21 @@ def run_temporal(project, repos, corpus, queries, goldsets):
                      )
 
     ranks = dict()
+    docs = list()
     corpus.metadata = True
     for doc, meta in corpus:
         sha, _ = meta
-        model.update([doc])
+        docs.append(doc)
 
         if sha in git2issue:
+            model.update(docs)
+            docs = list()
+
+            # be sure to update the queries dictionary
+            queries.id2word = model.id2word
+
             for qid in git2issue[sha]:
+
                 # find our query and get the topics
                 query = get_query_by_id(queries, qid)
                 if query and qid not in ignore:

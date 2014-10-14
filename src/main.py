@@ -557,7 +557,7 @@ def create_corpus(project, repos, Kind, use_level=True, forced_ref=None):
 
         for repo in repos:
             try:
-                if repo and forced_ref:
+                if repo or forced_ref:
                     corpus = Kind(project=project,
                                   repo=repo,
                                   lazy_dict=True,

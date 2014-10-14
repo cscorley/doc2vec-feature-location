@@ -136,16 +136,12 @@ def run_temporal(project, repos, corpus, queries, goldsets):
                      )
 
     ranks = dict()
-    docs = list()
     corpus.metadata = True
     for doc, meta in corpus:
-        sha, lang = meta
-        docs.append(doc)
-        if sha in git2issue:
-            # done with this sha! update model with docs so far
-            model.update(docs)
-            docs = list()
+        sha, _ = meta
+        model.update([doc])
 
+        if sha in git2issue:
             for qid in git2issue[sha]:
                 # find our query and get the topics
                 query = get_query_by_id(queries, qid)
@@ -166,13 +162,6 @@ def run_temporal(project, repos, corpus, queries, goldsets):
                             ranks[k] = list()
 
                         ranks[k].extend(v)
-
-            # processed all qids in this sha
-            del git2issue[sha]
-
-        if len(git2issue) == 0:
-            # all done!
-            break
 
     corpus.metadata = False
 

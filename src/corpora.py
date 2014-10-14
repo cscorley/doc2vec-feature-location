@@ -287,6 +287,7 @@ class TaserMixIn(object):
 
         with open(os.path.join(self.final_dest, 'unknown-0.0.ser')) as f:
             for line in f:
+
                 doc_name, document = line.split(' ', 1)
                 words = self.preprocess(document, [doc_name, self.project.ref])
                 length += 1
@@ -297,7 +298,6 @@ class TaserMixIn(object):
                     yield words
 
         self.length = length  # only reset after iteration is done.
-
 
 
 class TaserSnapshotCorpus(GitCorpus, TaserMixIn):
@@ -330,6 +330,7 @@ class TaserSnapshotCorpus(GitCorpus, TaserMixIn):
                                             self.ref_tree)
         self.corpus_generated = False
         self.run_taser()
+
 
 class TaserReleaseCorpus(GeneralCorpus, TaserMixIn):
     def __init__(self, project, remove_stops=True, split=True, lower=True,

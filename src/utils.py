@@ -7,7 +7,6 @@
 #
 # See LICENSE for details.
 
-import math
 import logging
 import os
 import sys
@@ -22,8 +21,14 @@ SQRT2 = numpy.sqrt(2)
 
 
 def calculate_mrr(p):
-    p = numpy.array(p)
-    return numpy.mean(1.0/p)
+    vals = list()
+    for item in p:
+        if item:
+            vals.append(1.0/item)
+        else:
+            vals.append(0.0)
+
+    return numpy.mean(vals)
 
 
 def hellinger_distance(p, q):
@@ -44,34 +49,18 @@ def cosine_distance(p, q):
     return scipy.spatial.distance.cosine(p, q)
 
 
-def jensen_shannon_divergence(q_dist, p_dist, filter_by=0.001):
-    assert len(q_dist) == len(p_dist)
-    z = zip(q_dist, p_dist)
-    q_dist, p_dist, M = list(), list(), list()
-    for q, p in z:
-        if q < filter_by and p < filter_by:
-            continue
-
-        M.append((q + p) / 2)
-        q_dist.append(q)
-        p_dist.append(p)
-
-    divergence_a = (kullback_leibler_divergence(q_dist, M) / 2)
-    divergence_b = (kullback_leibler_divergence(p_dist, M) / 2)
-    return divergence_a + divergence_b
+def jensen_shannon_divergence(p, q):
+    p = numpy.array(p)
+    q = numpy.array(q)
+    M = (p + q)/2
+    return (kullback_leibler_divergence(p, M) +
+            kullback_leibler_divergence(p, M)) / 2
 
 
-def total_variation_distance(q_dist, p_dist, filter_by=0.001):
-    z = zip(q_dist, p_dist)
-    distance = 0.0
-    for q, p in z:
-        if q < filter_by and p < filter_by:
-            continue
-
-        distance += math.fabs(q - p)
-
-    distance /= 2
-    return distance
+def total_variation_distance(p, q):
+    p = numpy.array(p)
+    q = numpy.array(q)
+    return numpy.sum(numpy.abs(p - q)) / 2
 
 
 def score(model, fn):
@@ -99,10 +88,9 @@ def norm_phi(model):
         topic = topic / topic.sum()  # normalize to probability dist
         yield topicid, topic
 
-# exception handling mkdir -p
-
 
 def mkdir(d):
+    # exception handling mkdir -p
     try:
         os.makedirs(d)
     except os.error as e:

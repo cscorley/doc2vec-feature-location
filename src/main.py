@@ -25,8 +25,6 @@ from gensim.corpora import MalletCorpus, Dictionary
 from gensim.models import LdaModel, LdaMallet
 from gensim.matutils import sparse2full
 
-
-
 import utils
 from corpora import (ChangesetCorpus, SnapshotCorpus, ReleaseCorpus,
                      TaserSnapshotCorpus, TaserReleaseCorpus,
@@ -67,7 +65,7 @@ def cli(verbose, debug, temporal, path, name, version, level):
 
     # load project info
     project = load_project(name, version, level)
-    logging.info("Running project on %s", str(project))
+    logger.info("Running project on %s", str(project))
     repos = load_repos(project)
 
     # create/load document lists
@@ -92,6 +90,7 @@ def cli(verbose, debug, temporal, path, name, version, level):
 
     do_science(changeset_first_rels, release_first_rels)
 
+
 def run_basic(project, corpus, other_corpus, queries, goldsets, kind):
     """
     This function runs the experiment in one-shot. It does not evaluate the
@@ -104,6 +103,7 @@ def run_basic(project, corpus, other_corpus, queries, goldsets, kind):
     ranks = get_rank(query_topic, doc_topic)
     first_rels = get_frms(goldsets, ranks)
     return first_rels
+
 
 def run_temporal(project, repos, corpus, queries, goldsets):
     """
@@ -142,14 +142,14 @@ def run_temporal(project, repos, corpus, queries, goldsets):
     for doc, meta in corpus:
         sha, lang = meta
         if sha in git2issue:
-            # done with this sha!
-            for qid in git2issue[sha]:
-                # update model with docs so far
-                model.update(docs)
+            # done with this sha! update model with docs so far
+            model.update(docs)
+            docs = list()
 
+            for qid in git2issue[sha]:
                 # find our query and get the topics
                 query = get_query_by_id(queries, qid)
-                if query:
+                if query and qid not in ignore:
                     topics = sparse2full(model[query], model.num_topics)
 
                     # build a snapshot corpus of items *at this commit*
@@ -165,10 +165,7 @@ def run_temporal(project, repos, corpus, queries, goldsets):
                         if k not in ranks:
                             ranks[k] = list()
 
-                        ranks[k].append(v)
-
-                    # that was fun! let's do it again! weee!
-                    docs = list()
+                        ranks[k].extend(v)
 
             # processed all qids in this sha
             del git2issue[sha]
@@ -184,6 +181,41 @@ def run_temporal(project, repos, corpus, queries, goldsets):
     first_rels = get_frms(goldsets, ranks)
     return first_rels
 
+
+def do_science(changeset_first_rels, release_first_rels):
+    # Build a dictionary with each of the results for stats.
+    first_rels = dict()
+
+    for num, query_id, doc_meta in changeset_first_rels:
+        if query_id not in first_rels:
+            first_rels[query_id] = [num]
+        else:
+            logger.info('duplicate qid found: %s', query_id)
+
+    for num, query_id, doc_meta in release_first_rels:
+        if query_id not in first_rels:
+            logger.info('qid not found: %s', query_id)
+            first_rels[query_id] = [0]
+
+        first_rels[query_id].append(num)
+
+    logger.info('Combined %d FRMS', len(first_rels))
+
+    for key, v in first_rels.items():
+        if len(v) == 1:
+            v.append(0)
+
+    x = [v[0] for v in first_rels.values()]
+    y = [v[1] for v in first_rels.values()]
+
+    print('changeset mrr:', utils.calculate_mrr(x))
+    print('release mrr:', utils.calculate_mrr(y))
+    print('ranksums:', scipy.stats.ranksums(x, y))
+    print('mann-whitney:', scipy.stats.mannwhitneyu(x, y))
+    print('wilcoxon signedrank:', scipy.stats.wilcoxon(x, y))
+    #print('friedman:', scipy.stats.friedmanchisquare(x, y, x2, y2))
+
+
 def get_query_by_id(queries, qid):
     queries.metadata = True
     for query, meta in queries:
@@ -194,6 +226,98 @@ def get_query_by_id(queries, qid):
 
     logging.info("could not find query for qid %s", qid)
     queries.metadata = False
+
+
+def get_frms(goldsets, ranks):
+    logger.info('Getting FRMS for %d goldsets and %d ranks',
+                len(goldsets), len(ranks))
+    frms = list()
+
+    for g_id, goldset in goldsets:
+        if g_id not in ranks:
+            logger.info('Could not find ranks for goldset id %s', g_id)
+        else:
+            subfrms = list()
+            for rank in ranks[g_id]:
+                for idx, metadist in enumerate(rank):
+                    doc_meta, dist = metadist
+                    d_name, d_repo = doc_meta
+                    if d_name in goldset:
+                        subfrms.append((idx+1, g_id, doc_meta))
+                        break
+
+            # i think this might be cheating? :)
+            subfrms.sort()
+            logging.debug(str(subfrms))
+            if subfrms:
+                frms.append(subfrms[0])
+
+
+    logger.info('Returning %d FRMS', len(frms))
+    return frms
+
+
+def get_rank(query_topic, doc_topic, distance_measure=utils.hellinger_distance):
+    logger.info('Getting ranks between %d query topics and %d doc topics',
+                len(query_topic), len(doc_topic))
+    ranks = dict()
+    for q_meta, query in query_topic:
+        qid, _ = q_meta
+        q_dist = list()
+
+        for d_meta, doc in doc_topic:
+            distance = distance_measure(query, doc)
+            assert distance <= 1.0
+            q_dist.append((d_meta, 1.0 - distance))
+
+        if qid not in ranks:
+            ranks[qid] = list()
+
+        ranks[qid].append(list(sorted(q_dist, reverse=True, key=lambda x: x[1])))
+
+    logger.info('Returning %d ranks', len(ranks))
+    return ranks
+
+
+def get_topics(model, corpus):
+    logger.info('Getting doc topic for corpus with length %d', len(corpus))
+    doc_topic = list()
+    corpus.metadata = True
+    old_id2word = corpus.id2word
+    corpus.id2word = model.id2word
+
+    for doc, metadata in corpus:
+        # get a vector where low topic values are zeroed out.
+        topics = sparse2full(model[doc], model.num_topics)
+
+        # this gets the "full" vector that includes low topic values
+        # topics = model.__getitem__(doc, eps=0)
+        # topics = [val for id, val in topics]
+
+        doc_topic.append((metadata, topics))
+
+    corpus.metadata = False
+    corpus.id2word = old_id2word
+    logger.info('Returning doc topic of length %d', len(doc_topic))
+
+    return doc_topic
+
+
+def load_goldsets(project):
+    logger.info("Loading goldsets for project: %s", str(project))
+    with open(os.path.join(project.data_path, 'ids.txt')) as f:
+        ids = [x.strip() for x in f.readlines()]
+
+    goldsets = list()
+    for id in ids:
+        with open(os.path.join(project.data_path, 'goldsets', project.level,
+                                id + '.txt')) as f:
+            golds = frozenset(x.strip() for x in f.readlines())
+
+        goldsets.append((id, golds))
+
+    logger.info("Returning %d goldsets", len(goldsets))
+    return goldsets
 
 
 def load_issue2git(project):
@@ -239,38 +363,6 @@ def load_issue2git(project):
 
     return i2g, g2i
 
-def do_science(changeset_first_rels, release_first_rels):
-    # calculate MRR
-    # n => rank number
-    changeset_mrr = utils.calculate_mrr([n for n, q, d in changeset_first_rels])
-    release_mrr = utils.calculate_mrr([n for n, q, d in release_first_rels])
-
-    # Build a dictionary with each of the results for stats.
-    first_rels = dict()
-
-    for num, query_id, doc_meta in changeset_first_rels:
-        if query_id not in first_rels:
-            first_rels[query_id] = [num]
-        else:
-            logger.info('duplicate qid found:', query_id)
-
-    for num, query_id, doc_meta in release_first_rels:
-        if query_id not in first_rels:
-            logger.info('qid not found:', query_id)
-        else:
-            first_rels[query_id].append(num)
-
-    x = [v[0] for v in first_rels.values()]
-    y = [v[1] for v in first_rels.values()]
-
-
-    print('changeset mrr:', changeset_mrr)
-    print('release mrr:', release_mrr)
-
-    print('ranksums:', scipy.stats.ranksums(x, y))
-    print('mann-whitney:', scipy.stats.mannwhitneyu(x, y))
-    print('wilcoxon signedrank:', scipy.stats.wilcoxon(x, y))
-    #print('friedman:', scipy.stats.friedmanchisquare(x, y, x2, y2))
 
 def load_project(name, version, level):
     project = None
@@ -364,80 +456,6 @@ def load_repos(project):
     return repos
 
 
-def get_frms(goldsets, ranks):
-    logger.info('Getting FRMS for %d goldsets and %d ranks',
-                len(goldsets), len(ranks))
-    frms = list()
-
-    for g_id, goldset in goldsets:
-        if g_id not in ranks:
-            logger.info('Could not find ranks for goldset id %s', g_id)
-        else:
-            subfrms = list()
-            for rank in ranks[g_id]:
-                for idx, metadist in enumerate(rank):
-                    doc_meta, dist = metadist
-                    d_name, d_repo = doc_meta
-                    if d_name in goldset:
-                        subfrms.append((idx+1, g_id, doc_meta))
-                        break
-
-            # i think this might be cheating? :)
-            subfrms.sort()
-            if subfrms:
-                frms.append(subfrms[0])
-
-
-    logger.info('Returning %d FRMS', len(frms))
-    return frms
-
-
-def get_rank(query_topic, doc_topic, distance_measure=utils.hellinger_distance):
-    logger.info('Getting ranks between %d query topics and %d doc topics',
-                len(query_topic), len(doc_topic))
-    ranks = dict()
-    for q_meta, query in query_topic:
-        qid, _ = q_meta
-        q_dist = list()
-
-        for d_meta, doc in doc_topic:
-            distance = distance_measure(query, doc)
-            assert distance <= 1.0
-            q_dist.append((d_meta, 1.0 - distance))
-
-        if qid not in ranks:
-            ranks[qid] = list()
-
-        ranks[qid].append(list(sorted(q_dist, reverse=True, key=lambda x: x[1])))
-
-    logger.info('Returning %d ranks', len(ranks))
-    return ranks
-
-
-def get_topics(model, corpus):
-    logger.info('Getting doc topic for corpus with length %d', len(corpus))
-    doc_topic = list()
-    corpus.metadata = True
-    old_id2word = corpus.id2word
-    corpus.id2word = model.id2word
-
-    for doc, metadata in corpus:
-        # get a vector where low topic values are zeroed out.
-        topics = sparse2full(model[doc], model.num_topics)
-
-        # this gets the "full" vector that includes low topic values
-        # topics = model.__getitem__(doc, eps=0)
-        # topics = [val for id, val in topics]
-
-        doc_topic.append((metadata, topics))
-
-    corpus.metadata = False
-    corpus.id2word = old_id2word
-    logger.info('Returning doc topic of length %d', len(doc_topic))
-
-    return doc_topic
-
-
 def create_queries(project):
     corpus_fname_base = project.data_path + 'Queries'
     corpus_fname = corpus_fname_base + '.mallet.gz'
@@ -482,23 +500,6 @@ def create_queries(project):
     return corpus
 
 
-def load_goldsets(project):
-    logger.info("Loading goldsets for project: %s", str(project))
-    with open(os.path.join(project.data_path, 'ids.txt')) as f:
-        ids = [x.strip() for x in f.readlines()]
-
-    goldsets = list()
-    for id in ids:
-        with open(os.path.join(project.data_path, 'goldsets', project.level,
-                                id + '.txt')) as f:
-            golds = frozenset(x.strip() for x in f.readlines())
-
-        goldsets.append((id, golds))
-
-    logger.info("Returning %d goldsets", len(goldsets))
-    return goldsets
-
-
 def create_model(project, corpus, name, use_level=True):
     model_fname = project.data_path + name + str(project.num_topics)
     if use_level:
@@ -521,6 +522,7 @@ def create_model(project, corpus, name, use_level=True):
         model = LdaModel.load(model_fname)
 
     return model
+
 
 def create_mallet_model(project, corpus, name, use_level=True):
     model_fname = project.data_path + name + str(project.num_topics)
@@ -597,6 +599,7 @@ def create_corpus(project, repos, Kind, use_level=True, forced_ref=None):
 
     return corpus
 
+
 def create_release_corpus(project, repos, forced_ref=None):
     if project.level == 'file':
         RC = ReleaseCorpus
@@ -614,6 +617,7 @@ def create_release_corpus(project, repos, forced_ref=None):
             pass
 
     return create_corpus(project, repos, SC, forced_ref=forced_ref)
+
 
 def clone(source, target, bare=False):
     client, host_path = dulwich.client.get_transport_and_path(source)

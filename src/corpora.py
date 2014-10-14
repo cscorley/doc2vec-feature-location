@@ -335,7 +335,7 @@ class TaserSnapshotCorpus(GitCorpus, TaserMixIn):
 class TaserReleaseCorpus(GeneralCorpus, TaserMixIn):
     def __init__(self, project, remove_stops=True, split=True, lower=True,
                  min_len=3, max_len=40, taser_jar='lib/taser.jar',
-                 id2word=None, lazy_dict=True, label='taser_release'):
+                 id2word=None, lazy_dict=True, label='taser_release', ref=None):
         # force lazy_dict since we have to run taser to build the corpus first
         super(TaserReleaseCorpus, self).__init__(project=project,
                                                  remove_stops=remove_stops,
@@ -345,7 +345,9 @@ class TaserReleaseCorpus(GeneralCorpus, TaserMixIn):
                                                  max_len=max_len,
                                                  id2word=id2word,
                                                  lazy_dict=True,
-                                                 label=label)
+                                                 label=label,
+                                                 ref=ref,
+                                                 )
         self.taser_jar = taser_jar
 
         self.src = project.src_path

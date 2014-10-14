@@ -141,6 +141,7 @@ def run_temporal(project, repos, corpus, queries, goldsets):
     corpus.metadata = True
     for doc, meta in corpus:
         sha, lang = meta
+        docs.append(doc)
         if sha in git2issue:
             # done with this sha! update model with docs so far
             model.update(docs)
@@ -169,8 +170,6 @@ def run_temporal(project, repos, corpus, queries, goldsets):
 
             # processed all qids in this sha
             del git2issue[sha]
-
-        docs.append(doc)
 
         if len(git2issue) == 0:
             # all done!

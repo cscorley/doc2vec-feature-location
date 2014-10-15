@@ -151,7 +151,7 @@ def run_temporal(project, repos, corpus, queries, goldsets):
 
             for qid in git2issue[sha]:
                 if qid not in ignore:
-                    logging.info('Getting ranks for query id %s', qid)
+                    logger.info('Getting ranks for query id %s', qid)
                     # build a snapshot corpus of items *at this commit*
                     other_corpus = create_release_corpus(project, repos, forced_ref=sha)
 
@@ -160,7 +160,7 @@ def run_temporal(project, repos, corpus, queries, goldsets):
 
                     subranks = get_rank(query_topic, doc_topic)
                     if qid not in subranks:
-                        logging.info('COULDNT FIND QID %s I WONDER WHY??? HMMM', qid)
+                        logger.info('Couldnt find qid %s', qid)
                         continue
 
                     if qid not in ranks:
@@ -217,7 +217,7 @@ def get_query_by_id(queries, qid):
             queries.metadata = False
             return query
 
-    logging.info("could not find query for qid %s", qid)
+    logger.info("could not find query for qid %s", qid)
     queries.metadata = False
 
 
@@ -242,7 +242,7 @@ def get_frms(goldsets, ranks):
 
             # i think this might be cheating? :)
             subfrms.sort()
-            logging.debug(str(subfrms))
+            logger.debug(str(subfrms))
             if subfrms:
                 frms.append(subfrms[0])
 

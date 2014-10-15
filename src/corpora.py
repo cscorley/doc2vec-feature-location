@@ -373,12 +373,12 @@ class ChangesetCorpus(GitCorpus):
                                         changeset.old, changeset.new)
         return patch_file.getvalue()
 
-    def _walk_changes(self, reverse=False):
+    def _walk_changes(self):
         """ Returns one file change at a time, not the entire diff.
 
         """
 
-        for walk_entry in self.repo.get_walker(reverse=reverse):
+        for walk_entry in self.repo.get_walker(reverse=True):
             commit = walk_entry.commit
 
             # initial revision, has no parent
@@ -404,7 +404,7 @@ class ChangesetCorpus(GitCorpus):
         current = None
         low = list()  # collecting the list of words
 
-        for commit, parent, diff in self._walk_changes(reverse=True):
+        for commit, parent, diff in self._walk_changes():
             # write out once all diff lines for commit have been collected
             # this is over all parents and all files of the commit
             if current is None:

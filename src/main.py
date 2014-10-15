@@ -150,26 +150,24 @@ def run_temporal(project, repos, corpus, queries, goldsets):
             queries.id2word = model.id2word
 
             for qid in git2issue[sha]:
-
-                # find our query and get the topics
-                query = get_query_by_id(queries, qid)
-                if query and qid not in ignore:
-                    topics = sparse2full(model[query], model.num_topics)
-
+                if qid not in ignore:
+                    logging.info('Getting ranks for query id %s', qid)
                     # build a snapshot corpus of items *at this commit*
                     other_corpus = create_release_corpus(project, repos, forced_ref=sha)
 
-                    # get the topics of items at this commit
+                    query_topic = get_topics(model, queries)
                     doc_topic = get_topics(model, other_corpus)
 
-                    # find best rank for this query!
-                    # get rank expects a list of (metadata, distribution) tuples
-                    rank = get_rank([((qid, sha), topics)], doc_topic)
-                    for k,v in rank.items():
-                        if k not in ranks:
-                            ranks[k] = list()
+                    subranks = get_rank(query_topic, doc_topic)
+                    if qid not in subranks:
+                        logging.info('COULDNT FIND QID %s I WONDER WHY??? HMMM', qid)
+                        continue
 
-                        ranks[k].extend(v)
+                    if qid not in ranks:
+                        ranks[qid] = list()
+
+                    rank = subranks[qid]
+                    ranks[qid].extend(rank)
 
     corpus.metadata = False
 
@@ -232,6 +230,7 @@ def get_frms(goldsets, ranks):
         if g_id not in ranks:
             logger.info('Could not find ranks for goldset id %s', g_id)
         else:
+            logger.info('Getting best rank out of %d shas', len(ranks[g_id]))
             subfrms = list()
             for rank in ranks[g_id]:
                 for idx, metadist in enumerate(rank):
@@ -262,13 +261,12 @@ def get_rank(query_topic, doc_topic, distance_measure=utils.hellinger_distance):
 
         for d_meta, doc in doc_topic:
             distance = distance_measure(query, doc)
-            assert distance <= 1.0
-            q_dist.append((d_meta, 1.0 - distance))
+            q_dist.append((d_meta, distance))
 
         if qid not in ranks:
             ranks[qid] = list()
 
-        ranks[qid].append(list(sorted(q_dist, reverse=True, key=lambda x: x[1])))
+        ranks[qid].append(list(sorted(q_dist, key=lambda x: x[1])))
 
     logger.info('Returning %d ranks', len(ranks))
     return ranks

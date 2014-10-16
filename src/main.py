@@ -21,8 +21,9 @@ import click
 import dulwich.client
 import dulwich.repo
 import scipy.stats
+import numpy
 from gensim.corpora import MalletCorpus, Dictionary
-from gensim.models import LdaModel, LdaMallet
+from gensim.models import LdaModel, LsiModel, LdaMallet
 from gensim.matutils import sparse2full
 
 import utils
@@ -76,27 +77,37 @@ def cli(verbose, debug, temporal, path, name, version, level):
     release_corpus = create_release_corpus(project, repos)
 
     # release-based evaluation is #basic 💁
-    release_first_rels = run_basic(project, release_corpus, release_corpus,
-                                    queries, goldsets, 'Release')
+    release_lda_rels = run_basic(project, release_corpus, release_corpus,
+                                 queries, goldsets, 'LDA-Release',
+                                 use_level=True)
+    release_lsi_rels = run_basic(project, release_corpus, release_corpus,
+                                 queries, goldsets, 'LSI-Release',
+                                 use_level=True)
 
     if temporal:
-        changeset_first_rels = run_temporal(project, repos, changeset_corpus,
-                                            queries, goldsets)
+        changeset_lda_rels, changeset_lsi_rels, = run_temporal(project, repos,
+                                                               changeset_corpus,
+                                                               queries,
+                                                               goldsets)
     else:
-        changeset_first_rels = run_basic(project, changeset_corpus,
-                                          release_corpus, queries, goldsets,
-                                          'Changeset')
+        changeset_lda_rels = run_basic(project, changeset_corpus,
+                                       release_corpus, queries, goldsets,
+                                       'LDA-Changeset')
+        changeset_lsi_rels = run_basic(project, changeset_corpus,
+                                       release_corpus, queries, goldsets,
+                                       'LSI-Changeset')
 
-    do_science(changeset_first_rels, release_first_rels)
+    do_science('lda', changeset_lda_rels, release_lda_rels)
+    do_science('lsi', changeset_lsi_rels, release_lsi_rels)
 
 
-def run_basic(project, corpus, other_corpus, queries, goldsets, kind):
+def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=False):
     """
     This function runs the experiment in one-shot. It does not evaluate the
     changesets over time.
     """
     logger.info("Running basic evaluation on the %s", kind)
-    model = create_model(project, corpus, kind, use_level=(kind == 'Release'))
+    model, _ = create_model(project, corpus, corpus.id2word, kind, use_level=use_level)
     query_topic = get_topics(model, queries)
     doc_topic = get_topics(model, other_corpus)
     ranks = get_rank(query_topic, doc_topic)
@@ -127,19 +138,13 @@ def run_temporal(project, repos, corpus, queries, goldsets):
         logger.info("Ignoring evaluation for the following issues:\n\t%s",
                     '\n\t'.join(ignore))
 
-    model = LdaModel(id2word=corpus.id2word,
-                     alpha=project.alpha,
-                     eta=project.eta,
-                     passes=project.passes,
-                     num_topics=project.num_topics,
-                     iterations=project.iterations,
-                     eval_every=None, # disable perplexity tests for speed
-                     )
 
-    queries.id2word = corpus.id2word
+    lda, lda_fname = create_model(project, None, corpus.id2word, 'LDA-Temporal', use_level=False, load=False)
+    lsi, lsi_fname = create_model(project, None, corpus.id2word, 'LSI-Temporal', use_level=False, load=False)
 
     indexes = list()
-    ranks = dict()
+    lda_ranks = dict()
+    lsi_ranks = dict()
     docs = list()
     corpus.metadata = True
     prev = 0
@@ -160,7 +165,8 @@ def run_temporal(project, repos, corpus, queries, goldsets):
         for i in range(start, end):
             docs.append(corpus[i])
 
-        model.update(docs)
+        lda.update(docs, decay=0.99)
+        lsi.add_documents(docs)
 
         for qid in git2issue[sha]:
             if qid not in ignore:
@@ -168,28 +174,47 @@ def run_temporal(project, repos, corpus, queries, goldsets):
                 # build a snapshot corpus of items *at this commit*
                 other_corpus = create_release_corpus(project, repos, forced_ref=sha)
 
-                query_topic = get_topics(model, queries, by_id=qid)
-                doc_topic = get_topics(model, other_corpus)
+                # do LDA magic
+                lda_query_topic = get_topics(lda, queries, by_id=qid)
+                lda_doc_topic = get_topics(lda, other_corpus)
 
-                subranks = get_rank(query_topic, doc_topic)
-                if qid not in subranks:
+                lda_subranks = get_rank(lda_query_topic, lda_doc_topic)
+                if qid not in lda_subranks:
                     logger.info('Couldnt find qid %s', qid)
                     continue
 
-                if qid not in ranks:
-                    ranks[qid] = list()
+                if qid not in lda_ranks:
+                    lda_ranks[qid] = list()
 
-                rank = subranks[qid]
-                ranks[qid].extend(rank)
+                rank = lda_subranks[qid]
+                lda_ranks[qid].extend(rank)
 
-    model_fname = project.data_path + 'TEMPORAL' + str(project.num_topics) + '.lda'
-    model.save(model_fname)
+                # do LSI magic
+                lsi_query_topic = get_topics(lsi, queries, by_id=qid)
+                lsi_doc_topic = get_topics(lsi, other_corpus)
 
-    first_rels = get_frms(goldsets, ranks)
-    return first_rels
+                # for some reason the ranks from LSI cause hellinger_distance to
+                # cry, use cosine distance instead
+                lsi_subranks = get_rank(lsi_query_topic, lsi_doc_topic, utils.cosine_distance)
+                if qid not in lsi_subranks:
+                    logger.info('Couldnt find qid %s', qid)
+                    continue
+
+                if qid not in lsi_ranks:
+                    lsi_ranks[qid] = list()
+
+                rank = lsi_subranks[qid]
+                lsi_ranks[qid].extend(rank)
+
+    lda.save(lda_fname)
+    lsi.save(lsi_fname)
+
+    lda_rels = get_frms(goldsets, lda_ranks)
+    lsi_rels = get_frms(goldsets, lsi_ranks)
+    return lda_rels, lsi_rels
 
 
-def do_science(changeset_first_rels, release_first_rels):
+def do_science(prefix, changeset_first_rels, release_first_rels):
     # Build a dictionary with each of the results for stats.
     first_rels = dict()
 
@@ -206,8 +231,6 @@ def do_science(changeset_first_rels, release_first_rels):
 
         first_rels[query_id].append(num)
 
-    logger.info('Combined %d FRMS', len(first_rels))
-
     for key, v in first_rels.items():
         if len(v) == 1:
             v.append(0)
@@ -215,24 +238,12 @@ def do_science(changeset_first_rels, release_first_rels):
     x = [v[0] for v in first_rels.values()]
     y = [v[1] for v in first_rels.values()]
 
-    print('changeset mrr:', utils.calculate_mrr(x))
-    print('release mrr:', utils.calculate_mrr(y))
-    print('ranksums:', scipy.stats.ranksums(x, y))
-    print('mann-whitney:', scipy.stats.mannwhitneyu(x, y))
-    print('wilcoxon signedrank:', scipy.stats.wilcoxon(x, y))
+    print(prefix+'changeset mrr:', utils.calculate_mrr(x))
+    print(prefix+'release mrr:', utils.calculate_mrr(y))
+    print(prefix+'ranksums:', scipy.stats.ranksums(x, y))
+    print(prefix+'mann-whitney:', scipy.stats.mannwhitneyu(x, y))
+    print(prefix+'wilcoxon signedrank:', scipy.stats.wilcoxon(x, y))
     #print('friedman:', scipy.stats.friedmanchisquare(x, y, x2, y2))
-
-
-def get_query_by_id(queries, qid):
-    queries.metadata = True
-    for query, meta in queries:
-        docid, doclang = meta
-        if docid == qid:
-            queries.metadata = False
-            return query
-
-    logger.info("could not find query for qid %s", qid)
-    queries.metadata = False
 
 
 def get_frms(goldsets, ranks):
@@ -508,29 +519,38 @@ def create_queries(project):
     return corpus
 
 
-def create_model(project, corpus, name, use_level=True):
+def create_model(project, corpus, id2word, name, use_level=True, load=True):
     model_fname = project.data_path + name + str(project.num_topics)
     if use_level:
         model_fname += project.level
 
-    model_fname += '.lda'
+    if not os.path.exists(model_fname) or not load:
+        if name.startswith('LDA'):
+            model = LdaModel(corpus=corpus,
+                             id2word=id2word,
+                             alpha=project.alpha,
+                             eta=project.eta,
+                             passes=project.passes,
+                             num_topics=project.num_topics,
+                             iterations=project.iterations,
+                             eval_every=None, # disable perplexity tests for speed
+                             )
+        elif name.startswith('LSI'):
+            model = LsiModel(corpus=corpus,
+                             id2word=id2word,
+                             power_iters=project.passes,
+                             num_topics=project.num_topics,
+                             )
 
-    if not os.path.exists(model_fname):
-        model = LdaModel(corpus=corpus,
-                         id2word=corpus.id2word,
-                         alpha=project.alpha,
-                         eta=project.eta,
-                         passes=project.passes,
-                         num_topics=project.num_topics,
-                         iterations=project.iterations,
-                         eval_every=None, # disable perplexity tests for speed
-                         )
-
-        model.save(model_fname)
+        if corpus:
+            model.save(model_fname)
     else:
-        model = LdaModel.load(model_fname)
+        if name.startswith('LDA'):
+            model = LdaModel.load(model_fname)
+        elif name.startswith('LSI'):
+            model = LsiModel.load(model_fname)
 
-    return model
+    return model, model_fname
 
 
 def create_mallet_model(project, corpus, name, use_level=True):

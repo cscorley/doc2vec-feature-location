@@ -132,7 +132,7 @@ def run_temporal(project, repos, corpus, queries, goldsets):
                      eta=project.eta,
                      passes=project.passes,
                      num_topics=project.num_topics,
-                     iterations=1000,
+                     iterations=project.iterations,
                      eval_every=None, # disable perplexity tests for speed
                      )
 
@@ -522,6 +522,7 @@ def create_model(project, corpus, name, use_level=True):
                          eta=project.eta,
                          passes=project.passes,
                          num_topics=project.num_topics,
+                         iterations=project.iterations,
                          eval_every=None, # disable perplexity tests for speed
                          )
 

@@ -132,44 +132,58 @@ def run_temporal(project, repos, corpus, queries, goldsets):
                      eta=project.eta,
                      passes=project.passes,
                      num_topics=project.num_topics,
+                     iterations=1000,
                      eval_every=None, # disable perplexity tests for speed
                      )
 
+    queries.id2word = corpus.id2word
+
+    indexes = list()
     ranks = dict()
     docs = list()
     corpus.metadata = True
-    for doc, meta in corpus:
+    prev = 0
+
+    # let's partition the corpus first?
+    for idx, docmeta in enumerate(corpus):
+        doc, meta = docmeta
         sha, _ = meta
-        docs.append(doc)
-
         if sha in git2issue:
-            model.update(docs)
-            docs = list()
+            indexes.append((prev, idx+1, sha))
+            prev = idx
 
-            # be sure to update the queries dictionary
-            queries.id2word = model.id2word
-
-            for qid in git2issue[sha]:
-                if qid not in ignore:
-                    logger.info('Getting ranks for query id %s', qid)
-                    # build a snapshot corpus of items *at this commit*
-                    other_corpus = create_release_corpus(project, repos, forced_ref=sha)
-
-                    query_topic = get_topics(model, queries)
-                    doc_topic = get_topics(model, other_corpus)
-
-                    subranks = get_rank(query_topic, doc_topic)
-                    if qid not in subranks:
-                        logger.info('Couldnt find qid %s', qid)
-                        continue
-
-                    if qid not in ranks:
-                        ranks[qid] = list()
-
-                    rank = subranks[qid]
-                    ranks[qid].extend(rank)
-
+    logger.info('Created %d partitions of the corpus', len(indexes))
     corpus.metadata = False
+
+    for start, end, sha in indexes:
+        docs = list()
+        for i in range(start, end):
+            docs.append(corpus[i])
+
+        model.update(docs)
+
+        for qid in git2issue[sha]:
+            if qid not in ignore:
+                logger.info('Getting ranks for query id %s', qid)
+                # build a snapshot corpus of items *at this commit*
+                other_corpus = create_release_corpus(project, repos, forced_ref=sha)
+
+                query_topic = get_topics(model, queries, by_id=qid)
+                doc_topic = get_topics(model, other_corpus)
+
+                subranks = get_rank(query_topic, doc_topic)
+                if qid not in subranks:
+                    logger.info('Couldnt find qid %s', qid)
+                    continue
+
+                if qid not in ranks:
+                    ranks[qid] = list()
+
+                rank = subranks[qid]
+                ranks[qid].extend(rank)
+
+    model_fname = project.data_path + 'TEMPORAL' + str(project.num_topics) + '.lda'
+    model.save(model_fname)
 
     first_rels = get_frms(goldsets, ranks)
     return first_rels
@@ -272,7 +286,7 @@ def get_rank(query_topic, doc_topic, distance_measure=utils.hellinger_distance):
     return ranks
 
 
-def get_topics(model, corpus):
+def get_topics(model, corpus, by_id=None):
     logger.info('Getting doc topic for corpus with length %d', len(corpus))
     doc_topic = list()
     corpus.metadata = True
@@ -280,14 +294,15 @@ def get_topics(model, corpus):
     corpus.id2word = model.id2word
 
     for doc, metadata in corpus:
-        # get a vector where low topic values are zeroed out.
-        topics = sparse2full(model[doc], model.num_topics)
+        if by_id is None or metadata[0] == by_id:
+            # get a vector where low topic values are zeroed out.
+            topics = sparse2full(model[doc], model.num_topics)
 
-        # this gets the "full" vector that includes low topic values
-        # topics = model.__getitem__(doc, eps=0)
-        # topics = [val for id, val in topics]
+            # this gets the "full" vector that includes low topic values
+            # topics = model.__getitem__(doc, eps=0)
+            # topics = [val for id, val in topics]
 
-        doc_topic.append((metadata, topics))
+            doc_topic.append((metadata, topics))
 
     corpus.metadata = False
     corpus.id2word = old_id2word

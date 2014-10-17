@@ -13,7 +13,10 @@ clean-corpora:
 	find data -name '*.dict.gz' -exec rm {} \;
 
 clean-models:
+	find data -name 'LDA*' -exec rm {} \;
+	find data -name 'LSI*' -exec rm {} \;
 	find data -name '*.lda*' -exec rm {} \;
+	find data -name '*.lsi*' -exec rm {} \;
 
 
 install: requirements

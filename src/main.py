@@ -44,12 +44,11 @@ def error(*args, **kwargs):
 @click.command()
 @click.option('--verbose', is_flag=True)
 @click.option('--debug', is_flag=True)
-@click.option('--temporal', is_flag=True)
 @click.option('--path', default='data/', help="Set the directory to work within")
 @click.argument('name')
 @click.option('--version', help="Version of project to run experiment on")
 @click.option('--level', help="Granularity level of project to run experiment on")
-def cli(verbose, debug, temporal, path, name, version, level):
+def cli(verbose, debug, path, name, version, level):
     """
     Changesets for Feature Location
     """
@@ -77,28 +76,21 @@ def cli(verbose, debug, temporal, path, name, version, level):
     release_corpus = create_release_corpus(project, repos)
 
     # release-based evaluation is #basic 💁
-    release_lda_rels = run_basic(project, release_corpus, release_corpus,
-                                 queries, goldsets, 'LDA-Release',
-                                 use_level=True)
-    release_lsi_rels = run_basic(project, release_corpus, release_corpus,
-                                 queries, goldsets, 'LSI-Release',
-                                 use_level=True)
+    release_lda, release_lsi = run_basic(project, release_corpus,
+                                         release_corpus, queries, goldsets,
+                                         'Release', use_level=True)
 
-    if temporal:
-        changeset_lda_rels, changeset_lsi_rels, = run_temporal(project, repos,
-                                                               changeset_corpus,
-                                                               queries,
-                                                               goldsets)
-    else:
-        changeset_lda_rels = run_basic(project, changeset_corpus,
-                                       release_corpus, queries, goldsets,
-                                       'LDA-Changeset')
-        changeset_lsi_rels = run_basic(project, changeset_corpus,
-                                       release_corpus, queries, goldsets,
-                                       'LSI-Changeset')
+    changeset_lda, changeset_lsi = run_basic(project, changeset_corpus,
+                                             release_corpus, queries, goldsets,
+                                             'Changeset')
 
-    do_science('lda', changeset_lda_rels, release_lda_rels)
-    do_science('lsi', changeset_lsi_rels, release_lsi_rels)
+    temporal_lda, temporal_lsi, = run_temporal(project, repos, changeset_corpus,
+                                                queries, goldsets)
+
+    do_science('lda', changeset_lda, release_lda)
+    do_science('lsi', changeset_lsi, release_lsi)
+    do_science('temporallda', temporal_lda, release_lda)
+    do_science('temporallsi', temporal_lsi, release_lsi)
 
 
 def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=False):
@@ -107,12 +99,21 @@ def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=
     changesets over time.
     """
     logger.info("Running basic evaluation on the %s", kind)
-    model, _ = create_model(project, corpus, corpus.id2word, kind, use_level=use_level)
-    query_topic = get_topics(model, queries)
-    doc_topic = get_topics(model, other_corpus)
-    ranks = get_rank(query_topic, doc_topic)
-    first_rels = get_frms(goldsets, ranks)
-    return first_rels
+    lda_model, _ = create_lda_model(project, corpus, corpus.id2word, kind, use_level=use_level)
+    lda_query_topic = get_topics(lda_model, queries)
+    lda_doc_topic = get_topics(lda_model, other_corpus)
+    lda_ranks = get_rank(lda_query_topic, lda_doc_topic)
+    lda_first_rels = get_frms(lda_goldsets, lda_ranks)
+
+    lsi_model, _ = create_lsi_model(project, corpus, corpus.id2word, kind, use_level=use_level)
+    lsi_query_topic = get_topics(lsi_model, queries)
+    lsi_doc_topic = get_topics(lsi_model, other_corpus)
+
+    # for some reason the ranks from LSI cause hellinger_distance to cry
+    lsi_ranks = get_rank(lsi_query_topic, lsi_doc_topic, utils.cosine_distance)
+    lsi_first_rels = get_frms(lsi_goldsets, lsi_ranks)
+
+    return lda_first_rels, lsi_first_rels
 
 
 def run_temporal(project, repos, corpus, queries, goldsets):
@@ -139,8 +140,11 @@ def run_temporal(project, repos, corpus, queries, goldsets):
                     '\n\t'.join(ignore))
 
 
-    lda, lda_fname = create_model(project, None, corpus.id2word, 'LDA-Temporal', use_level=False, load=False)
-    lsi, lsi_fname = create_model(project, None, corpus.id2word, 'LSI-Temporal', use_level=False, load=False)
+    lda, lda_fname = create_lda_model(project, None, corpus.id2word, 'Temporal',
+                                      use_level=False, load=False)
+
+    lsi, lsi_fname = create_lda_model(project, None, corpus.id2word, 'Temporal',
+                                      use_level=False, load=False)
 
     indexes = list()
     lda_ranks = dict()
@@ -165,7 +169,7 @@ def run_temporal(project, repos, corpus, queries, goldsets):
         for i in range(start, end):
             docs.append(corpus[i])
 
-        lda.update(docs, decay=0.99)
+        lda.update(docs, decay=2.0)
         lsi.add_documents(docs)
 
         for qid in git2issue[sha]:
@@ -212,6 +216,7 @@ def run_temporal(project, repos, corpus, queries, goldsets):
     lda_rels = get_frms(goldsets, lda_ranks)
     lsi_rels = get_frms(goldsets, lsi_ranks)
     return lda_rels, lsi_rels
+
 
 
 def do_science(prefix, changeset_first_rels, release_first_rels):
@@ -519,36 +524,50 @@ def create_queries(project):
     return corpus
 
 
-def create_model(project, corpus, id2word, name, use_level=True, load=True):
+def create_lda_model(project, corpus, id2word, name, use_level=True, load=True):
     model_fname = project.data_path + name + str(project.num_topics)
     if use_level:
         model_fname += project.level
 
+    model_fname + '.lda'
+
+
     if not os.path.exists(model_fname) or not load:
-        if name.startswith('LDA'):
-            model = LdaModel(corpus=corpus,
-                             id2word=id2word,
-                             alpha=project.alpha,
-                             eta=project.eta,
-                             passes=project.passes,
-                             num_topics=project.num_topics,
-                             iterations=project.iterations,
-                             eval_every=None, # disable perplexity tests for speed
-                             )
-        elif name.startswith('LSI'):
-            model = LsiModel(corpus=corpus,
-                             id2word=id2word,
-                             power_iters=project.passes,
-                             num_topics=project.num_topics,
-                             )
+        model = LdaModel(corpus=corpus,
+                         id2word=id2word,
+                         alpha=project.alpha,
+                         eta=project.eta,
+                         passes=project.passes,
+                         num_topics=project.num_topics,
+                         iterations=project.iterations,
+                         eval_every=None, # disable perplexity tests for speed
+                         )
 
         if corpus:
             model.save(model_fname)
     else:
-        if name.startswith('LDA'):
-            model = LdaModel.load(model_fname)
-        elif name.startswith('LSI'):
-            model = LsiModel.load(model_fname)
+        model = LdaModel.load(model_fname)
+
+    return model, model_fname
+
+def create_lsi_model(project, corpus, id2word, name, use_level=True, load=True):
+    model_fname = project.data_path + name + str(project.num_topics)
+    if use_level:
+        model_fname += project.level
+
+    model_fname + '.lsi'
+
+    if not os.path.exists(model_fname) or not load:
+        model = LsiModel(corpus=corpus,
+                         id2word=id2word,
+                         power_iters=project.passes,
+                         num_topics=project.num_topics,
+                         )
+
+        if corpus:
+            model.save(model_fname)
+    else:
+        model = LsiModel.load(model_fname)
 
     return model, model_fname
 

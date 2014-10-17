@@ -181,34 +181,30 @@ def run_temporal(project, repos, corpus, queries, goldsets):
                 # do LDA magic
                 lda_query_topic = get_topics(lda, queries, by_id=qid)
                 lda_doc_topic = get_topics(lda, other_corpus)
-
                 lda_subranks = get_rank(lda_query_topic, lda_doc_topic)
-                if qid not in lda_subranks:
+                if qid in lda_subranks:
+                    if qid not in lda_ranks:
+                        lda_ranks[qid] = list()
+
+                    rank = lda_subranks[qid]
+                    lda_ranks[qid].extend(rank)
+                else:
                     logger.info('Couldnt find qid %s', qid)
-                    continue
-
-                if qid not in lda_ranks:
-                    lda_ranks[qid] = list()
-
-                rank = lda_subranks[qid]
-                lda_ranks[qid].extend(rank)
 
                 # do LSI magic
                 lsi_query_topic = get_topics(lsi, queries, by_id=qid)
                 lsi_doc_topic = get_topics(lsi, other_corpus)
-
                 # for some reason the ranks from LSI cause hellinger_distance to
                 # cry, use cosine distance instead
                 lsi_subranks = get_rank(lsi_query_topic, lsi_doc_topic, utils.cosine_distance)
-                if qid not in lsi_subranks:
+                if qid in lsi_subranks:
+                    if qid not in lsi_ranks:
+                        lsi_ranks[qid] = list()
+
+                    rank = lsi_subranks[qid]
+                    lsi_ranks[qid].extend(rank)
+                else:
                     logger.info('Couldnt find qid %s', qid)
-                    continue
-
-                if qid not in lsi_ranks:
-                    lsi_ranks[qid] = list()
-
-                rank = lsi_subranks[qid]
-                lsi_ranks[qid].extend(rank)
 
     lda.save(lda_fname)
     lsi.save(lsi_fname)

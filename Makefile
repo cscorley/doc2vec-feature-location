@@ -12,10 +12,14 @@ clean-corpora:
 	find data -name '*.mallet.gz' -exec rm {} \;
 	find data -name '*.dict.gz' -exec rm {} \;
 
-clean-models:
+clean-models: clean-lda clean-lsi
+
+clean-lda:
 	find data -name 'LDA*' -exec rm {} \;
-	find data -name 'LSI*' -exec rm {} \;
 	find data -name '*.lda*' -exec rm {} \;
+
+clean-lsi:
+	find data -name 'LSI*' -exec rm {} \;
 	find data -name '*.lsi*' -exec rm {} \;
 
 

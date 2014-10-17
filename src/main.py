@@ -103,7 +103,7 @@ def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=
     lda_query_topic = get_topics(lda_model, queries)
     lda_doc_topic = get_topics(lda_model, other_corpus)
     lda_ranks = get_rank(lda_query_topic, lda_doc_topic)
-    lda_first_rels = get_frms(lda_goldsets, lda_ranks)
+    lda_first_rels = get_frms(goldsets, lda_ranks)
 
     lsi_model, _ = create_lsi_model(project, corpus, corpus.id2word, kind, use_level=use_level)
     lsi_query_topic = get_topics(lsi_model, queries)
@@ -111,7 +111,7 @@ def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=
 
     # for some reason the ranks from LSI cause hellinger_distance to cry
     lsi_ranks = get_rank(lsi_query_topic, lsi_doc_topic, utils.cosine_distance)
-    lsi_first_rels = get_frms(lsi_goldsets, lsi_ranks)
+    lsi_first_rels = get_frms(goldsets, lsi_ranks)
 
     return lda_first_rels, lsi_first_rels
 

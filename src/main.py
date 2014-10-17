@@ -529,10 +529,15 @@ def create_lda_model(project, corpus, id2word, name, use_level=True, load=True):
     if use_level:
         model_fname += project.level
 
-    model_fname + '.lda'
+    model_fname += '.lda'
 
 
     if not os.path.exists(model_fname) or not load:
+        if corpus:
+            update_every=None # run in batch if we have a pre-supplied corpus
+        else:
+            update_every=1
+
         model = LdaModel(corpus=corpus,
                          id2word=id2word,
                          alpha=project.alpha,
@@ -541,6 +546,7 @@ def create_lda_model(project, corpus, id2word, name, use_level=True, load=True):
                          num_topics=project.num_topics,
                          iterations=project.iterations,
                          eval_every=None, # disable perplexity tests for speed
+                         update_every=update_every,
                          )
 
         if corpus:
@@ -555,7 +561,7 @@ def create_lsi_model(project, corpus, id2word, name, use_level=True, load=True):
     if use_level:
         model_fname += project.level
 
-    model_fname + '.lsi'
+    model_fname += '.lsi'
 
     if not os.path.exists(model_fname) or not load:
         model = LsiModel(corpus=corpus,

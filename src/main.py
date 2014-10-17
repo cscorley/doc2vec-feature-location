@@ -143,7 +143,7 @@ def run_temporal(project, repos, corpus, queries, goldsets):
     lda, lda_fname = create_lda_model(project, None, corpus.id2word, 'Temporal',
                                       use_level=False, load=False)
 
-    lsi, lsi_fname = create_lda_model(project, None, corpus.id2word, 'Temporal',
+    lsi, lsi_fname = create_lsi_model(project, None, corpus.id2word, 'Temporal',
                                       use_level=False, load=False)
 
     indexes = list()

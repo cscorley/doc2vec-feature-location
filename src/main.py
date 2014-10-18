@@ -525,7 +525,7 @@ def create_lda_model(project, corpus, id2word, name, use_level=True, load=True):
     if use_level:
         model_fname += project.level
 
-    model_fname += '.lda'
+    model_fname += '.lda.gz'
 
 
     if not os.path.exists(model_fname) or not load:
@@ -557,7 +557,7 @@ def create_lsi_model(project, corpus, id2word, name, use_level=True, load=True):
     if use_level:
         model_fname += project.level
 
-    model_fname += '.lsi'
+    model_fname += '.lsi.gz'
 
     if not os.path.exists(model_fname) or not load:
         model = LsiModel(corpus=corpus,
@@ -579,7 +579,7 @@ def create_mallet_model(project, corpus, name, use_level=True):
     if use_level:
         model_fname += project.level
 
-    model_fname += '.malletlda'
+    model_fname += '.malletlda.gz'
 
     if not os.path.exists(model_fname):
         model = LdaMallet('./lib/mallet-2.0.7/bin/mallet',

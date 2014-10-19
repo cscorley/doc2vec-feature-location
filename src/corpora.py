@@ -276,8 +276,6 @@ class TaserMixIn(object):
                 raise TaserError("Failed cmd: " + str(cmd))
 
         self.corpus_generated = True
-        shutil.rmtree(self.src) # delete the source
-        shutil.rmtree(self.dest) # delete the intermediate files
 
     def get_texts(self):
         if not self.corpus_generated:
@@ -287,6 +285,7 @@ class TaserMixIn(object):
 
         with open(os.path.join(self.final_dest, 'unknown-0.0.ser')) as f:
             for line in f:
+
                 doc_name, document = line.split(' ', 1)
                 words = self.preprocess(document, [doc_name, self.project.ref])
                 length += 1
@@ -299,11 +298,11 @@ class TaserMixIn(object):
         self.length = length  # only reset after iteration is done.
 
 
-
 class TaserSnapshotCorpus(GitCorpus, TaserMixIn):
-    def __init__(self, repo=None, project=None, remove_stops=True, split=True,
+    def __init__(self, repo, project=None, remove_stops=True, split=True,
                  lower=True, min_len=3, max_len=40, taser_jar='lib/taser.jar',
-                 id2word=None, lazy_dict=True, label='taser_snapshot', ref=None):
+                 id2word=None, lazy_dict=True, label='taser_snapshot',
+                 ref=None):
         # force lazy_dict since we have to run taser to build the corpus first
         super(TaserSnapshotCorpus, self).__init__(repo=repo,
                                                   project=project,
@@ -331,10 +330,14 @@ class TaserSnapshotCorpus(GitCorpus, TaserMixIn):
         self.corpus_generated = False
         self.run_taser()
 
+        shutil.rmtree(self.src) # delete the source
+        shutil.rmtree(self.dest) # delete the intermediate files
+
+
 class TaserReleaseCorpus(GeneralCorpus, TaserMixIn):
     def __init__(self, project, remove_stops=True, split=True, lower=True,
-                 min_len=3, max_len=40, taser_jar='lib/taser.jar',
-                 id2word=None, lazy_dict=True, label='taser_release'):
+                 min_len=3, max_len=40, taser_jar='lib/taser.jar', id2word=None,
+                 lazy_dict=True, label='taser_release'):
         # force lazy_dict since we have to run taser to build the corpus first
         super(TaserReleaseCorpus, self).__init__(project=project,
                                                  remove_stops=remove_stops,
@@ -344,7 +347,8 @@ class TaserReleaseCorpus(GeneralCorpus, TaserMixIn):
                                                  max_len=max_len,
                                                  id2word=id2word,
                                                  lazy_dict=True,
-                                                 label=label)
+                                                 label=label,
+                                                 )
         self.taser_jar = taser_jar
 
         self.src = project.src_path
@@ -353,6 +357,8 @@ class TaserReleaseCorpus(GeneralCorpus, TaserMixIn):
 
         self.corpus_generated = False
         self.run_taser()
+
+        shutil.rmtree(self.dest) # delete the intermediate files
 
 
 class ChangesetCorpus(GitCorpus):
@@ -367,12 +373,12 @@ class ChangesetCorpus(GitCorpus):
                                         changeset.old, changeset.new)
         return patch_file.getvalue()
 
-    def _walk_changes(self, reverse=False):
+    def _walk_changes(self):
         """ Returns one file change at a time, not the entire diff.
 
         """
 
-        for walk_entry in self.repo.get_walker(reverse=reverse):
+        for walk_entry in self.repo.get_walker(reverse=True):
             commit = walk_entry.commit
 
             # initial revision, has no parent
@@ -398,7 +404,7 @@ class ChangesetCorpus(GitCorpus):
         current = None
         low = list()  # collecting the list of words
 
-        for commit, parent, diff in self._walk_changes(reverse=True):
+        for commit, parent, diff in self._walk_changes():
             # write out once all diff lines for commit have been collected
             # this is over all parents and all files of the commit
             if current is None:

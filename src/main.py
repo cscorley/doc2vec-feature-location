@@ -146,7 +146,7 @@ def run_temporal(project, repos, corpus, queries, goldsets):
     lsi, lsi_fname = create_lsi_model(project, None, corpus.id2word, 'Temporal',
                                       use_level=False, load=False)
 
-    indexes = list()
+    indices = list()
     lda_ranks = dict()
     lsi_ranks = dict()
     docs = list()
@@ -158,13 +158,15 @@ def run_temporal(project, repos, corpus, queries, goldsets):
         doc, meta = docmeta
         sha, _ = meta
         if sha in git2issue:
-            indexes.append((prev, idx+1, sha))
+            indices.append((prev, idx+1, sha))
             prev = idx
 
-    logger.info('Created %d partitions of the corpus', len(indexes))
+    logger.info('Created %d partitions of the corpus', len(indices))
     corpus.metadata = False
 
-    for start, end, sha in indexes:
+    for counter, index  in enumerate(indices):
+        logger.info('At %d of %d partitions', counter, len(indices))
+        start, end, sha = index
         docs = list()
         for i in range(start, end):
             docs.append(corpus[i])

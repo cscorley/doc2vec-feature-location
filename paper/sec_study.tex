@@ -4,29 +4,31 @@ In this section we describe the design of a case study in which we
 compare topic models trained on changesets to those trained on snapshots.
 %explore the relationship between ownership and linguistic topics in source code.
 We describe the case study using the Goal-Question-Metric approach~\cite{Basili-etal:94}.
-% TODO
-%The data for the case study is available in this paper's online
-%appendix\footnote{\url{xxxxxx}}.
+The data and source code for the case study is available in this paper's online
+appendix\footnote{\textbf{REVIEWER URL ONLY:} \url{http://cscorley.students.cs.ua.edu/cfl/}}.
 
 \subsection{Definition and Context}
 
 % TODO
-Our \textit{goal} is to ... 
+Our \textit{goal} is to evaluate the usefulness of topic models built
+from changesets.
 The \textit{quality focus} of the study is on informing development
 decisions and policy changes that could lead to software with fewer
 defects.
 The \textit{perspective} of the study is of a researcher, developer, or
 project manager who wishes to gain understanding of the concepts or
 features implemented in the source code.
-The \textit{context} of the study spans the version histories of ...
+The \textit{context} of the study spans the version histories of fifteen
 open source systems.
 
 Toward achievement of our goal, we pose the following research questions:
 \begin{description}[font=\itshape\mdseries,leftmargin=10mm,style=sameline]
 % TODO
-    \item[RQ1] .... 
+    \item[RQ1] How do changeset-based topic models perform for feature location?
+    \item[RQ2] How do \emph{temporal} simulations of changeset-based topic models perform for feature location?
 \end{description}
-At a high level, we want to...
+At a high level, we want to determine the feasibility in using changesets
+to train topic models for feature location.
 In the remainder of this section we introduce the subjects of our study,
 describe the setting of our study, and report our data collection and analysis procedures.
 
@@ -35,6 +37,13 @@ describe the setting of our study, and report our data collection and analysis p
 \subsection{Subject software systems}
 
 % TODO
+All of our subject software systems come from two publicly-available
+datasets.  The first is a dataset of four software systems by Dit et
+al.~\cite{Dit:2013} and contains method-level goldsets.  The second is
+a dataset of fifteen software systems by Moreno et
+al.~\cite{Moreno:2014} and contains class-level goldsets. The four
+software systems in the first dataset also appear in the second,
+supplying us with both class- and method-level goldsets for the queries.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -74,16 +83,35 @@ We do not stem words.
 
 Our modeling generation is shown on the right side of Figure~\ref{fig:process}.
 We implemented our modeling using the Python library Gensim~\cite{Gensim}.
-Gensim's LDA implementation is based on an Online LDA by Hoffman et al.~\cite{Hoffman-etal:2010}
+Our evaluation is two-fold: we compare results for both LDA and LSI.
+
+\subsubsection{LDA configuration}
+
+Gensim's LDA implementation is based on an online LDA by Hoffman et al.~\cite{Hoffman-etal:2010}
 and uses variational inference instead of a Collapsed Gibbs Sampler.
 Unlike Gibbs sampling, in order to ensure that the model converges for each document,
-we allow LDA to see each document $10$ times by setting Gensim's initialization parameter \texttt{passes} to this value.
-% TODO
-We set the following LDA parameters for all ... systems:
-$100$ topics ($K$),
-a symmetric $\alpha=0.01$,
-$\beta$ is left as a default value of $1/K$ (also $0.01$).
+we allow LDA to see each mini-batch $5$ times by setting Gensim's initialization parameter \texttt{passes} to this value
+and allowing the inference step $1000$ iterations over a document.
+We set the following LDA parameters for all fifteen systems:
+$500$ topics ($K$), a symmetric $\alpha=1/K$, and a symmetric $\beta=1/K$.
+These are default values for $\alpha$ and $\beta$ in Gensim.
 
+For the temporal evaluation, we found it beneficial to consider two other parameters: $\kappa$ and $\tau_0$.
+As noted in Hoffman et al.~\cite{Hoffman-etal:2010}, it is beneficial to
+adjust $\kappa$ and $\tau_0$ to higher values for smaller mini-batches.
+These two parameters control how much influence a new mini-batch has on the model when training.
+However, the implementation of Gensim at the time of this paper did not
+include a way to adjust $\tau_0$, so we only adjust $\kappa$.
+We chose $\kappa=2.0$ for all systems, because the temporal evaluation
+would often have mini-batch sizes in single digits.
+
+\subsubsection{LSI configuration}
+
+% TODO
+Gensim's LSI implementation is based on an online LSI by {\v R}eh{\r u}{\v r}ek\cite{Radim:2011}.
+We set the number of topics the same as LDA for each project.
+The remaining parameters are left at default values, including those used
+during the temporal evaluation.
 
 \begin{figure}[ht]
 \centering
@@ -122,10 +150,42 @@ index 635ef2c..5af88a8 100644
 \subsection{Data Collection and Analysis}
 
 % TODO
-We create two corpora for each of our four subject systems.
-We then used LDA to model the documents into topics.
+We create two corpora for each of our fifteen subject systems.
+We then model the documents into topics.
 
-To answer RQ1, ... 
+To answer RQ1, we take the traditional approach to evaluation:
+
+\begin{enumerate}
+    \item Build a topic model from a corpus
+    \item Query the model
+    \item Rank the source code entities by how similar their doc-topic is to the query's.
+\end{enumerate}
+
+We build a topic model for two corpora: 
+\begin{enumerate}
+    \item Source code entities of a release
+    \item All changesets leading up to the release
+\end{enumerate}
+
+The release-based model is our baseline for comparison in our study.
+
+To answer RQ2, we must take a different approach.
+Since both LDA and LSI can be used as online topic models, we can
+``simulate'' the results of a feature location technique over time.
+
+Summary:
+\begin{enumerate}
+    \item Determine which commits to stop at and create mini-batches out of the commits in between
+    \item For each mini-batch:
+    \begin{enumerate}
+        \item Update the model with the new document
+        \item Extract a snapshot of the source code at that commit.
+        \item Infer from the model the document-topics for each entity in the snapshot
+        \item Query the model with the feature request text.
+        \item Rank the source code entities by how similar their doc-topic is to the query's.
+    \end{enumerate}
+\end{enumerate}
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -564,7 +564,6 @@ def create_lsi_model(project, corpus, id2word, name, use_level=True, load=True):
     if not os.path.exists(model_fname) or not load:
         model = LsiModel(corpus=corpus,
                          id2word=id2word,
-                         power_iters=project.passes,
                          num_topics=project.num_topics,
                          )
 

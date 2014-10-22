@@ -80,23 +80,38 @@ def cli(verbose, debug, path, name, version, level):
                                          release_corpus, queries, goldsets,
                                          'Release', use_level=True)
 
+    write_ranks(project, 'release_lda', release_lda)
+    write_ranks(project, 'release_lsi', release_lsi)
+
     changeset_lda, changeset_lsi = run_basic(project, changeset_corpus,
                                              release_corpus, queries, goldsets,
                                              'Changeset')
 
+    write_ranks(project, 'changeset_lda', changeset_lda)
+    write_ranks(project, 'changeset_lsi', changeset_lsi)
 
     try:
         temporal_lda, temporal_lsi = run_temporal(project, repos,
-                                                   changeset_corpus, queries,
-                                                   goldsets)
+                                                  changeset_corpus, queries,
+                                                  goldsets)
     except IOError:
         logger.info("Files needed for temporal evaluation not found. Skipping.")
     else:
-        do_science('temporallda', temporal_lda, release_lda)
-        do_science('temporallsi', temporal_lsi, release_lsi)
+        write_ranks(project, 'temporal_lda', temporal_lda)
+        write_ranks(project, 'temporal_lsi', temporal_lsi)
+        do_science('temporal_lda', temporal_lda, release_lda)
+        do_science('temporal_lsi', temporal_lsi, release_lsi)
 
-    do_science('lda', changeset_lda, release_lda)
-    do_science('lsi', changeset_lsi, release_lsi)
+    # do this last so that the results are printed together
+    do_science('basic_lda', changeset_lda, release_lda)
+    do_science('basic_lsi', changeset_lsi, release_lsi)
+
+def write_ranks(project, prefix, ranks):
+    with open(os.path.join(project.data_path, prefix + '-ranks.csv')) as f:
+        writer = csv.writer(f)
+        writer.writerow(['id', 'rank'])
+        for key, v in first_rels.items():
+            writer.writerow([key] + v)
 
 
 def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=False):
@@ -348,7 +363,7 @@ def load_goldsets(project):
 def load_issue2git(project):
     fn = 'IssuesToSVNCommitsMapping.txt'
     i2s = dict()
-    with open(os.path.join('data', project.name, project.version, fn)) as f:
+    with open(os.path.join(project.data_path, fn)) as f:
         lines = [line.strip().split('\t') for line in f]
         for line in lines:
             issue = line[0]

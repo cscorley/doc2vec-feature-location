@@ -84,13 +84,19 @@ def cli(verbose, debug, path, name, version, level):
                                              release_corpus, queries, goldsets,
                                              'Changeset')
 
-    temporal_lda, temporal_lsi, = run_temporal(project, repos, changeset_corpus,
-                                                queries, goldsets)
+
+    try:
+        temporal_lda, temporal_lsi = run_temporal(project, repos,
+                                                   changeset_corpus, queries,
+                                                   goldsets)
+    except IOError:
+        logger.info("Files needed for temporal evaluation not found. Skipping.")
+    else:
+        do_science('temporallda', temporal_lda, release_lda)
+        do_science('temporallsi', temporal_lsi, release_lsi)
 
     do_science('lda', changeset_lda, release_lda)
     do_science('lsi', changeset_lsi, release_lsi)
-    do_science('temporallda', temporal_lda, release_lda)
-    do_science('temporallsi', temporal_lsi, release_lsi)
 
 
 def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=False):
@@ -124,10 +130,7 @@ def run_temporal(project, repos, corpus, queries, goldsets):
     """
     logger.info("Running temporal evaluation")
 
-    try:
-        issue2git, git2issue = load_issue2git(project)
-    except IOError as e:
-        error("Files needed for temporal evaluation not found!\n%s", str(e))
+    issue2git, git2issue = load_issue2git(project)
 
     logger.info("Stopping at %d commits for %d issues", len(git2issue), len(issue2git))
 

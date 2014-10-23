@@ -640,8 +640,6 @@ def create_corpus(project, repos, Kind, use_level=True, forced_ref=None):
 
             except KeyError:
                 continue
-            except TaserError:
-                continue
 
             combiner.add(corpus)
 
@@ -675,7 +673,10 @@ def create_release_corpus(project, repos, forced_ref=None):
     if forced_ref:
         return create_corpus(project, repos, SC, forced_ref=forced_ref)
     else:
-        return create_corpus(project, [None], RC)
+        try:
+            return create_corpus(project, [None], RC)
+        except TaserError:
+            return create_corpus(project, repos, SC, forced_ref=forced_ref)
 
 
 def clone(source, target, bare=False):

@@ -1,0 +1,11 @@
+It would be great if dynamic instantiation did not require columns to be listed explicitly, allowing instead a wildcard syntax such as:
+
+   ScrollableResults sr = session.createQuery("select new Foo from Foo foo").scroll();
+
+or:
+
+  ScrollableResults sr = session.createSQLQuery("SELECT new Foo(foo.), new Bar(bar.) FROM Foo foo JOIN Bar bar ON bar.foo_id = foo.id").scroll();
+
+Obviously the second example depends on HB-454.
+
+I imagine that all properties found in the result set would be injected into the dynamically constructed instances.

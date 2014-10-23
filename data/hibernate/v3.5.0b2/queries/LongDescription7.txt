@@ -1,0 +1,7 @@
+I was experimenting with the new filter feature and sub-selects. I don't know if this is intended to work, but I found that if I used definitions like this:
+
+<filter name="myFilter" condition="exists (select ...)"/>
+
+The exists keyword is prefixed with the table name, as if it was a column:
+
+select foo0_.id as col_0_0_ from Foo foo0_ where foo0_.exists (select ...)

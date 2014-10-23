@@ -1,0 +1,21 @@
+I would like to request that the  IdentifierGenerator for an object or class be exposed via a getter through the session.  This would allow ids to be allocated to objects on their creation in the daos/factories.  This makes objects that are mapped to already existing schema's that use sequences easier to use because the equals and hashcode methods can use the id for equality and hashcode from the beginning.
+
+I think the IdentityGenerator class will cause problems with this since it does not allocate the id until the object is actually written to the db. Because it can't, its not an implementation problem. 
+
+I would suggest throwing an exception on the proposed Session.getIdentiferGenerator(Class) method if the IdentifierGenerator cannot be exposed externally.  
+
+This proposed fixed could also be implemented in the 2.1.X releases in a similar manner.
+
+In summery one or all of the following methods added to the session
+
+getIdentiferGenerator(Class)
+//calls getIdentiferGenerator(Class.gerName())
+
+getIdentiferGenerator(Object) 
+// calls getIdentiferGenerator(Object.getClass()
+
+getIdentiferGenerator(String)
+//calls //SessionImplementor.getEntityPersister(String).getIdentiferGenerator()
+
+
+Chris

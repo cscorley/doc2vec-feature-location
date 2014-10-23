@@ -1,0 +1,244 @@
+When I run a current cvs snapshot with the following program,
+a faulty sql statement is generated, because a comma is missing
+in the select clause between an identifier and "case when".
+
+Versions:
+MySQL 4.0.18
+Hibernate 3.0 current snapshot
+java 1.4.2 
+
+****************start command************************
+java -cp jta.jar;mysql-connector-java-3.0.10-stable-bin.jar;connector.jar;cglib-full-2.0.2.jar;commons-collections-2.1.1.jar;commons-logging-1.0.4.jar;dom4j-1.4.jar;classes;hibernate3.jar Controller
+
+
+****************hibernate.cfg.xml************************
+<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 2.0//EN"
+        "hibernate-configuration-2.0.dtd">
+
+<hibernate-configuration>
+
+    <session-factory>
+        <property name="hibernate.connection.driver_class">
+           com.mysql.jdbc.Driver
+        </property>
+        <property name="hibernate.connection.url">
+           jdbc:mysql://localhost/kursplaner
+        </property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.connection.password"></property>
+        <property name="dialect">
+           org.hibernate.dialect.MySQLDialect</property>
+        <property name="show_sql">true</property>
+        <property name="transaction.factory_class">
+             org.hibernate.transaction.JDBCTransactionFactory
+        </property>
+        <property name="hibernate.cache.provider_class">
+             org.hibernate.cache.HashtableCacheProvider
+        </property>
+        <property name="hibernate.hbm2ddl.auto">update</property>
+
+        <mapping resource="HibernateClass.hbm.xml"/>
+        <mapping resource="RessourceContainer.hbm.xml"/>
+        <mapping resource="SubjectContainer.hbm.xml"/>
+        <mapping resource="Subject.hbm.xml"/>
+        <mapping resource="Teacher.hbm.xml"/>
+
+    </session-factory>
+
+</hibernate-configuration>
+
+****************HibernateClass.hbm.xml************************
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+        "hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+        <class name="HibernateClass" table="RESSOURCES">
+                <id name="id" column="id" type="long">
+                        <generator class="increment"/>
+                </id>
+
+        </class>
+
+</hibernate-mapping>
+
+
+****************Ressource.java************************
+
+
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+        "hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+        <class name="Ressource" table="RESSOURCES">
+                <id name="id" column="id" type="long">
+                        <generator class="increment"/>
+                </id>
+
+        </class>
+
+</hibernate-mapping>
+
+****************Teacher.hbm.xml************************
+
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+        "hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+    <joined-subclass name="Teacher" extends="HibernateClass"      
+    table="TEACHERS">
+
+                <key column="superid"/>
+
+                <many-to-one outer-join = "false" 
+                name="subjects" cascade="all" 
+                column="subj_container"   
+                class="SubjectContainer"/>
+
+    </joined-subclass>
+
+</hibernate-mapping>
+
+****************RessourceContainer.hbm.xml************************
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+        "hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+        <class name="RessourceContainer" 
+         table="RESSOURCE_CONTAINERS">
+                <id name="id" column="id" type="long">
+                        <generator class="increment"/>
+                </id>
+
+                <list name="list" 
+                table="RESSOURCE_CONTAINER_ITEMS" 
+                cascade="save-update">
+                   <key column="rc_id"/>
+                   <index column="pos"/>
+                   <many-to-many outer-join = "false"
+                    column="R_ID" class="HibernateClass"/>
+                </list>
+
+        </class>
+
+</hibernate-mapping>
+
+
+****************SubjectContainer.hbm.xml************************
+
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+        "hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+    <joined-subclass    name="SubjectContainer"
+                        extends="RessourceContainer"
+                        table="SUBJECT_CONTAINERS">
+
+        <key column="superid"/>
+
+    </joined-subclass>
+
+</hibernate-mapping>
+
+
+
+****************HibernateClass.java************************
+
+
+public abstract class HibernateClass {
+    private Long id;
+
+    public Long getId() 
+{
+        return id;
+    }
+
+    private void setId(Long id) 
+{
+        this.id = id;
+    }
+}
+
+
+****************RessourceContainer.java************************
+
+import java.util.*;
+
+public class RessourceContainer extends HibernateClass {
+    protected List list = new ArrayList();
+
+    private List getList() 
+{
+        return list;
+    }
+
+    public void add(HibernateClass) 
+{
+        list.add(r);
+    }
+
+    private void setList(List list) 
+{
+        this.list = list;
+    }
+}
+
+****************Subject.java************************
+
+public class Subject extends HibernateClass{
+    private RessourceContainer equipments = new RessourceContainer();
+
+
+    private RessourceContainer getEquipments() 
+{
+        return equipments;
+    }
+    private void setEquipments(RessourceContainer equipments) 
+{
+        this.equipments = equipments;
+    }
+}
+
+****************SubjectContainer.java************************
+
+public class SubjectContainer extends RessourceContainer{}
+
+****************Teacher.java************************
+
+public class Teacher extends Ressource {
+    private SubjectContainer subjects = new SubjectContainer();
+
+    private RessourceContainer getSubjects() 
+{
+        return subjects;
+    }
+
+    private void setSubjects(SubjectContainer subjects) 
+{
+        this.subjects = subjects;
+    }
+}
+
+
+I hope there are no typos or copy/paste errors.
+
+Greetings
+
+Bernd

@@ -1,0 +1,22 @@
+The method AbstractEntityPersister.setIdentifier is casting the input object to (ComponentType), while it should be casting to (AbstractComponentType) to handle (DynamicComponentType).
+
+I'm getting a class cast exception when using dynamic components.
+
+This is what the code is like now:
+public void setIdentifier(Object object, Serializable id) throws HibernateException {
+	if (hasEmbeddedIdentifier) {
+		if (object!=id) 
+{
+			ComponentType copier = (ComponentType) identifierType;
+			copier.setPropertyValues( object, copier.getPropertyValues(id) );
+		}
+	}
+	else if (identifierSetter!=null) 
+{
+		identifierSetter.set(object, id);
+	}
+}
+
+When I changed it to the following it works fine.
+
+AbstractComponentType copier = (AbstractComponentType) identifierType;

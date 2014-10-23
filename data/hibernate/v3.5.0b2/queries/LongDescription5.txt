@@ -1,0 +1,69 @@
+We have a custom user type based on http://www.hibernate.org/122.html that is used in the following mapping:
+
+  <any name="typedModelObject" id-type="long" meta-type="com.legaledge.harmony.ClassTableMapper" cascade="none">
+    <column name="entity_discriminator"/>
+    <column name="entity_id"/>
+  </any>
+
+ClassTableMapper uses:
+
+  public Object nullSafeGet(ResultSet rs, String[] names, Object owner) throws HibernateException, SQLException 
+  { 
+      String result = (String)Hibernate.STRING.nullSafeGet(rs,names[0]); 
+      if(result == null) return null; 
+      return getClassForTable(result); 
+  } 
+
+which returns the Class. In Hibernate 2.1.6 (and before), this worked fine. In Hibernate3, it results in a ClassCastException from the new AnyType.java class.
+
+The documentation for org.hibernate.usertype.UserType reads that nullSafeGet should "Retrieve an instance of the mapped class from a JDBC resultset. Implementors should handle possibility of null values."
+
+It is slightly ambiguous whether or not that means a Class object or an object that is an instance of the class, however, in either case, it is not castable to a String.
+
+public Object hydrate(ResultSet rs, String[] names, SessionImplementor session, Object owner)
+throws HibernateException, SQLException {
+
+  String entityName = (String) metaType.nullSafeGet(rs, names[0], session, owner);
+		// THIS IS THE LINE
+  Serializable id = (Serializable) identifierType.nullSafeGet(rs, names[1], session, owner);
+
+  return new ObjectTypeCacheEntry(entityName, id);
+
+}
+
+
+09:16:39,312 ERROR [STDERR] Caused by: java.lang.ClassCastException
+09:16:39,312 ERROR [STDERR]     at org.hibernate.type.AnyType.hydrate(AnyType.java:82)
+09:16:39,312 ERROR [STDERR]     at org.hibernate.persister.BasicEntityPersister.hydrate(BasicEntityPersister.java:1456)
+09:16:39,312 ERROR [STDERR]     at org.hibernate.loader.Loader.loadFromResultSet(Loader.java:762)
+09:16:39,312 ERROR [STDERR]     at org.hibernate.loader.Loader.instanceNotYetLoaded(Loader.java:719)
+09:16:39,312 ERROR [STDERR]     at org.hibernate.loader.Loader.getRow(Loader.java:624)
+09:16:39,312 ERROR [STDERR]     at org.hibernate.loader.Loader.getRowFromResultSet(Loader.java:248)
+09:16:39,312 ERROR [STDERR]     at org.hibernate.loader.Loader.doQuery(Loader.java:337)
+09:16:39,312 ERROR [STDERR]     at org.hibernate.loader.Loader.doQueryAndInitializeNonLazyCollections(Loader.java:167)
+09:16:39,312 ERROR [STDERR]     at org.hibernate.loader.Loader.loadCollection(Loader.java:1127)
+09:16:39,312 ERROR [STDERR]     at org.hibernate.loader.OneToManyLoader.initialize(OneToManyLoader.java:86)
+09:16:39,312 ERROR [STDERR]     at org.hibernate.collection.AbstractCollectionPersister.initialize(AbstractCollectionPersister.java:419)
+09:16:39,312 ERROR [STDERR]     at org.hibernate.event.DefaultInitializeCollectionEventListener.onInitializeCollection(DefaultInitializeCollectionEventList
+ener.java:53)
+09:16:39,312 ERROR [STDERR]     at org.hibernate.impl.SessionImpl.initializeCollection(SessionImpl.java:2247)
+09:16:39,312 ERROR [STDERR]     at org.hibernate.collection.PersistentCollection.forceInitialization(PersistentCollection.java:344)
+09:16:39,312 ERROR [STDERR]     at org.hibernate.impl.SessionImpl.initializeNonLazyCollections(SessionImpl.java:1485)
+09:16:39,312 ERROR [STDERR]     at org.hibernate.loader.Loader.doQueryAndInitializeNonLazyCollections(Loader.java:172)
+09:16:39,312 ERROR [STDERR]     at org.hibernate.loader.Loader.doList(Loader.java:1201)
+09:16:39,312 ERROR [STDERR]     at org.hibernate.loader.Loader.list(Loader.java:1186)
+09:16:39,312 ERROR [STDERR]     at org.hibernate.hql.QueryTranslatorImpl.list(QueryTranslatorImpl.java:872)
+09:16:39,312 ERROR [STDERR]     at org.hibernate.impl.SessionImpl.find(SessionImpl.java:812)
+09:16:39,312 ERROR [STDERR]     at org.hibernate.impl.QueryImpl.list(QueryImpl.java:84)
+09:16:39,312 ERROR [STDERR]     at com.legaledge.harmony.components.Finder.runSearch(Finder.java:676)
+09:16:39,312 ERROR [STDERR]     ... 70 more
+
+I can work around this by returning a String, but that doesn't seem correct to me given the documentation.
+
+  public Object nullSafeGet(ResultSet rs, String[] names, Object owner) throws HibernateException, SQLException 
+  { 
+      String result = (String)Hibernate.STRING.nullSafeGet(rs,names[0]); 
+      if(result == null) return null;
+      Class clazz = getClassForTable(result);
+      return clazz.getName(); 
+  }

@@ -1,0 +1,13 @@
+The code in addCacheableFile() checked for:
+
+	xmlFile.length() == lazyfile.length();
+This will probably be never true, so cached files were never loaded
+
+
+
+This patch also adds the following:
+
+	added hibernate.use_cached_mapping_files property to turn on/off caching
+if use_cached_mapping_files is true:
+	addFile() automatically use addCacheableFile()
+	addResource() checks if a resource is a file. If it is a file, it will use addCacheableFile() instead of addInputstream()

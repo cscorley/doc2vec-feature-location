@@ -1,0 +1,53 @@
+In my project I have tables with descriminator, e.g. for objects of different types. One field is enough to distinguish between object types. But there is additional object type information that is not stored in one field. For that purpose exist additional table where those fields are stored.
+It would be good if Hibernate is able to describe type information in static methods of the the subclass mapping "descrimintor table" fields.
+
+For example, definition
+
+<class name="Object" table="OBJECT">
+
+   <id name="id"/>
+
+   <descriminator name="ObjectType" table="OBJECT_TYPE">
+       <static-field name="TypeShortName"/>
+       <static-field name="TypeDescription"/>
+       <static-field name="TypeIcon"/>
+   </descrimintor> 
+
+   <property name="objectProperty1"/>
+   <property name="objectProperty2"/>
+
+   <subclass name="GoodObject" descriminator-value="Good"/>
+   <subclass name="BadObject" descriminator-value="Bad"/>
+   <subclass name="ExcelentObject" descriminator-value="Excelent"/>
+   <subclass name="EvilObject" descriminator-value="Evil"/>
+
+</class>
+
+may result as a mapping to class
+
+class Object {
+
+   ... ObjectProperty1;
+   ... ObjectProperty2;  
+
+   // getters/setters
+
+   static ... getTypeDescription 
+{ return ... };
+   static ... getTypeShortName { return ... }
+;
+   static ... getTypeIcon 
+{ return ... }
+;
+
+}
+
+class GoodObject implements Object {
+
+
+}
+
+class BadObject implements Object {
+
+
+}

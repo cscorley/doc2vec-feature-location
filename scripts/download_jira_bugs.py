@@ -10,7 +10,9 @@ import sys
 import requests
 
 
+# 3 python-code lines commented out to download the hibernate files
 url_base = 'https://issues.apache.org/jira/si/jira.issueviews:issue-xml/%s/%s.xml'
+#url_base = 'https://hibernate.atlassian.net/si/jira.issueviews:issue-xml/%s/%s.xml'
 projects = [('bookkeeper', 'v4.1.0'),
             ('derby', 'v10.7.1.1'),
             ('derby', 'v10.9.1.0'),
@@ -24,6 +26,8 @@ projects = [('bookkeeper', 'v4.1.0'),
             ('tika', 'v1.3'),
             ('zookeeper', 'v3.4.5'),
             ]
+
+#projects = [('hibernate', 'v3.5.0b2')]
 for project, version in projects:
     path = '/'.join(['data', project, version])
     print(path)
@@ -38,6 +42,7 @@ for project, version in projects:
     for bugid in bugs:
         print("Fetching bugid", bugid)
         fname = project.upper() + '-' + bugid
+#        fname = 'HHH-' + bugid
         r = requests.get(url_base % (fname, fname))
         try:
             tree = etree.parse(StringIO(r.text), p)

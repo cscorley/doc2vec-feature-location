@@ -1,0 +1,16 @@
+I don't like JDO at all, but it may have a good feature : the fetch groups. Instead of saying in each request which relations (or property now) I want to be fetch, I could says which fetch groups I want to be loaded. I will be usefull for complex objects will lot of relationship. Each fetch group will represent a view to the object. 
+
+from Contract c 
+  left join fetch c.customer 
+  left join fetch c.items
+  left join fetch c.foo
+==>
+from Contract c
+  left join fetch c.fetchGroup1
+
+with :
+  <many-to-one name="customer" fetch-group="fetchGroup1" />
+  <set name="items" fetch-group="fetchGroup1, fetchGroup2" >
+  <many-to-one name="foo" fetch-group="fetchGroup1" />
+
+  Adrien

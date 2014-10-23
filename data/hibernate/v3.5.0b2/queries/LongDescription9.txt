@@ -1,0 +1,22 @@
+It will be great to have more assistance from the DTD to set the common properties in hibernate.cfg.xml. By example :
+
+<hibernate-configuration>
+	<session-factory name="foo"
+	     dialect    = "org.hibernate.dialect.HSQLDialect"
+             show_sql   = "true"
+             datasource = "java:comp/DataSource" >
+
+		<property name="c3p0.timeout">60</property>
+		<property name="c3p0.max_size">100</property>
+                <property name="jndi.foo">bar</property>
+
+		<mapping resource="Product.hbm.xml"/>
+		<mapping resource="Customer.hbm.xml"/>
+	</session-factory>
+</hibernate-configuration>
+
+This way, we avoid having error like mistape some properties name. The XML validator we instantly tell us what's wrong. The current way will still be needed for non-standard or custom properties.
+
+I could work on it if needed.
+
+  Adrien

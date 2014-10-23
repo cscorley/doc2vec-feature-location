@@ -1,0 +1,14 @@
+It would be nice to be able to do explicit joins on unrelated classes with HQL:
+
+(hope this renders correctly)
+
+          select empl, phone
+            from org.example.Employee empl
+ left outer join org.example.PhoneBook phone
+              on phone.lastName = empl.lastName
+             and phone.firstName = empl.firstName
+           where empl.salaryGrade > 10
+
+Note that this would also implicity solve HB-1089 because you could list join criteria that match what Hibernate would have chosen anyway (i.e., list a many-to-one relationship as a criteria explicitly).
+
+Syntactically this could be disambiguated from the existing join syntax because the token after "join" is a class name rather than a property name.

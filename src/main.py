@@ -107,11 +107,9 @@ def cli(verbose, debug, path, name, version, level):
     do_science('basic_lsi', changeset_lsi, release_lsi)
 
 def write_ranks(project, prefix, ranks):
-    with open(os.path.join(project.data_path, prefix + '-ranks.csv')) as f:
+    with open(os.path.join(project.data_path, prefix + '-ranks.csv'), 'w') as f:
         writer = csv.writer(f)
-        writer.writerow(['id', 'rank'])
-        for key, v in first_rels.items():
-            writer.writerow([key] + v)
+        writer.writerows(ranks)
 
 
 def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=False):

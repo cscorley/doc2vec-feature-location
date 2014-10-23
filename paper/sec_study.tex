@@ -77,9 +77,11 @@ Metadata lines are ignored.
 Note that we do not consider where the text originates from,
 only that it is text changed by the commit.
 
-After extracting tokens, we split them based on camel case, underscores, and non-letters.
+After extracting tokens, we split the tokens based on camel case,
+underscores, and non-letters.
+We only keep the split tokens; original tokens are discarded.
 We normalize to lower case before filtering non-letters, English stop words~\cite{StopWords}, Java keywords, and words shorter than three characters long.
-We do not stem words.
+We do not stem words. \attn{cite reason?}
 
 Our modeling generation is shown on the right side of Figure~\ref{fig:process}.
 We implemented our modeling using the Python library Gensim~\cite{Gensim}.
@@ -187,6 +189,10 @@ Summary:
 \end{enumerate}
 
 
+However, only the Dit et al. dataset includes traceability links between
+the queries and the commits the goldsets are extracted from\footnote{
+Authors of \cite{Moreno:2014} did not respond to requests for this data.}.
+This limits our temporal study to those four systems.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

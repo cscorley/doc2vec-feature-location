@@ -16,12 +16,21 @@ We controlled for these threats by testing our tool chain and by assessing the q
 Because we applied the same tool chain to all subject systems, any errors are systematic and are unlikely
 to affect our results substantially.
 
+Additionaly, we found errors within the datasets themselves that would be a threat to internal validity.
+In particular, the Moreno et al. dataset included classes that had package names that were not valid.
+For example, the Bookkeeper goldset for issue report 29 listed
+\texttt{bookkeeper-server.src.main.java.org.apache.bookkeeper.bookie.EntryLogger}
+for the class fixed by this change, while the actual fully-qualified name of this class is
+\texttt{org.apache.bookkeeper.bookie.EntryLogger}.
+We make the assumption that the authors of this dataset used the directory structure of the project to build the package names.
+Manual correction was required as our tool parses the files and uses the package name given in the source file, not the directory structure.
+
 Another threat to internal validity pertains to the value of $K$ that we selected for all models trained.
 We decided that the changeset and snapshot models should have the same $K$
 to help facilitate evaluation and comparison.
 
 Threats to external validity concern the extent to which we can generalize our results.
-The subjects of our study comprise four open source systems in two languages,
+The subjects of our study comprise four open source systems in Java,
 so we cannot generalize our results to systems implemented in other languages.
 However, the systems are of different sizes, are from different domains, and
 have characteristics in common with those of systems developed in industry.

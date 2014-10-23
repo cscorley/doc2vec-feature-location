@@ -1,0 +1,7 @@
+Even though Solr supports POSTing queries now, here are some situations in which SolrServletRequest.getParamString() generates an NPE only when the the query is a POST.
+
+this seems to be an issue because of the way Jetty's HttpServletRequest.getParameterMap() treats empty query args differentely depending on wether the request was a GET or a POST – but i'm not sure how other containers will behave, so we should make getParamString() more robust.
+
+In particular, this problem only seems to come up if the first query arg has a blank value ... any other arg can be lnak no problem.
+
+to reproduce, get the example Jetty/Solr port up and running, and then use the form i'll attach in a moment to query it. Both the GET form and the POST form should work fine initially, and the GET form should work even if you delete the "gahgah" and/or the "googoo" options ... but the POST form will not work at all if the "gahgah" option is removed leaving that text box blank.

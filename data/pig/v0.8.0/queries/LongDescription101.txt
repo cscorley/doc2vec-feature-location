@@ -1,0 +1,23 @@
+In the tests code, there are lots of:
+
+private String initString = "mapreduce";
+
+@Test
+public void testSomething() {
+    ....
+    PigServer pig = new PigServer(initString);
+    ....
+}
+
+
+
+It could be replace with 
+
+PigServer pig = new PigServer(ExecType.MAPREDUCE);
+
+
+
+It would remove duplication in test.
+Using a string makes the tests aware of the internal PigServer behavior.
+
+It's really not a big deal hence the "trivial"

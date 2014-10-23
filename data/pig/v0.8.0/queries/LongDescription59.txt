@@ -1,0 +1,46 @@
+I propose to add a new "ILLUSTRATE" command to Pig, which will help people debug their Pig programs.
+
+The idea is to select a few example data items, and illustrate how they are transformed by the sequence of Pig commands in the user's program. I have an algorithm that can select an appropriate and concise set of example data items automatically. It does a better job than random sampling would do; for example, random sampling suffers from the drawback that selective operations such as filters or joins can eliminate all the sampled data items, giving you empty results which is of no help in debugging.
+
+This "ILLUSTRATE" functionality will avoid people having to test their Pig programs on large data sets, which has a long turnaround time and wastes system resources.
+
+Proposed Implementation:
+
+I will create a new package called org.apache.pig.exgen, which will contain the aforementioned algorithm. The algorithm uses the "Local" execution operators (it does not run on hadoop), so as to generate illustrative example data in near-real-time for the user. 
+
+For my algorithm to work properly, it needs to trace the "lineage" (sometimes called "provenance") of data items as they flow through the local operator tree corresponding to the user's Pig program. So I will have to add a "lineage tracer" to the Local operators, which maintains a side data structure to represent the lineage, or derivation sequence, among data items. The lineage tracer will be DISABLED BY DEFAULT, so it will not affect normal Pig operation.
+
+I will add a new method to PigServer called "PigServer.showExamples(LogicalPlan)", which will cause my exgen algorithm to be invoked.
+
+I will also add a new command to Grunt, called ILLUSTRATE. Syntactically it will work the same way as the STORE command. For example, a user might type:
+
+grunt> visits = load 'visits.txt' as (user, url, timestamp);
+grunt> recent_visits = filter visits by timestamp >= '20071201';
+grunt> user_visits = group recent_visits by user;
+grunt> num_user_visits = foreach user_visits generate group, COUNT(recent_visits);
+grunt> illustrate num_user_visits
+
+This would trigger my exgen algorithm, which will display something like:
+
+visits:
+(Amy, www.cnn.com, 20070218)
+(Fred, www.harvard.edu, 20071204)
+(Amy, www.bbc.com, 20071205)
+(Fred, www.stanford.edu, 20071206)
+
+recent_visits:
+(Fred, www.harvard.edu, 20071204)
+(Amy, www.bbc.com, 20071205)
+(Fred, www.stanford.edu, 20071206)
+
+user_visits:
+(Fred, 
+{ (Fred, www.harvard.edu, 20071204), (Fred, www.stanford.edu, 20071206) }
+ )
+(Amy, 
+{ (Amy, www.bbc.com, 20071205) }
+ )
+
+num_user_visits:
+(Fred, 2)
+(Amy, 1)

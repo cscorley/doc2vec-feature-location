@@ -1,0 +1,40 @@
+I have a small hierarchy of entities specified in an xml descriptor (orm.xml), Employee, PartTimeEmployee and FullTimeEmployee. PartTimeEmployee and FullTimeEmployee extend Employee which is a MappedSuperclass. 
+
+If I don't explicitly set the access type for either PartTimeEmployee or FullTimeEmployee in orm.xml and I use the static enhancer (org.apache.openjpa.enhance.PCEnhancer) everything works fine.  If I use runtime enhancement I get a warning like this : 
+
+184  INFO   [main] openjpa.MetaData - Found 3 classes with metadata in 7 milliseconds.
+88  INFO   [main] openjpa.Runtime - Starting OpenJPA 0.0.0
+180  INFO   [main] openjpa.jdbc.JDBC - Using dictionary class "org.apache.openjpa.jdbc.sql.DerbyDictionary".
+277  INFO   [main] openjpa.MetaData - Found 4 classes with metadata in 1 milliseconds.
+985  INFO   [main] openjpa.MetaData - Parsing resource "file:/home/mikedd/workspaces/openjpa/mdd/target/classes/META-INF/orm.xml".
+1307  INFO   [main] openjpa.MetaData - Parsing class "mdd.entities.descriptor.Employee".
+1356  INFO   [main] openjpa.MetaData - Parsing class "mdd.entities.descriptor.Employee".
+1356  INFO   [main] openjpa.MetaData - Parsing package "mdd.entities.descriptor.Employee".
+1385  INFO   [main] openjpa.MetaData - Parsing class "mdd.entities.descriptor.PartTimeEmployee".
+1385  INFO   [main] openjpa.MetaData - Parsing class "mdd.entities.descriptor.PartTimeEmployee".
+1389  INFO   [main] openjpa.MetaData - Parsing class "mdd.entities.descriptor.FullTimeEmployee".
+1390  INFO   [main] openjpa.MetaData - Parsing class "mdd.entities.descriptor.FullTimeEmployee".
+1394  INFO   [main] openjpa.MetaData - Parsing class "mdd.entities.descriptor.AbstractPersonnel".
+1422  WARN   [main] openjpa.Enhance - An exception was thrown while attempting to perform class file transformation on "mdd/entities/descriptor/FullTimeEmployee":
+<4|false|0.0.0> org.apache.openjpa.util.UserException: Detected the following possible violations of the restrictions placed on property access persistent types:
+The member for for persistent property "mdd.entities.descriptor.FullTimeEmployee.salary" was not a method: "private float mdd.entities.descriptor.FullTimeEmployee.salary".
+	at org.apache.openjpa.enhance.PCEnhancer.processViolations(PCEnhancer.java:520)
+	at org.apache.openjpa.enhance.PCEnhancer.run(PCEnhancer.java:287)
+	at org.apache.openjpa.enhance.PCClassFileTransformer.transform(PCClassFileTransformer.java:122)
+	at sun.instrument.TransformerManager.transform(TransformerManager.java:141)
+	at sun.instrument.InstrumentationImpl.transform(InstrumentationImpl.java:174)
+	at java.lang.ClassLoader.defineClassImpl(Native Method)
+
+
+From what I can tell after running the debugger the error occurs because the runtime enhancer isn't able to find the parent's metadata (and from that the access type). 
+
+I don't think the spec is very clear in this regard. Access isn't a required attribute for entities, but the spec doesn't indicate what should happen if it isn't present (or if it does I didn't find it). 
+
+I don't know whether this is a limitation of runtime enhancement (again I didn't see it documented anywhere, but maybe I didn't look hard enough). There are also plenty of solutions, specifying a default access type in orm.xml, or just adding access="PROPERTY" to the entity will work. 
+
+If it's not an architectural limitation though, I think we should try to get runtime enhancement to work in the same manner as static enhancement. 
+
+In case it helps here's my javaagent setting : 
+-javaagent:/home/mikedd/.m2/repository/org/apache/openjpa/openjpa-kernel-5/0.9.0-SNAPSHOT/openjpa-kernel-5-0.9.0-SNAPSHOT.jar=scanDevPath=true,MetaDataFactory=jpa
+
+I've attached the source that I've used to produce the problem, include the eclipse .project and .classpath files (you'll probably have to update these). There's also a pom.xml which can be used to compile or at least set up the classpath in eclipse. I don't know how to toggle between runtime and static enhancement with maven so I haven't used it to run the tests.

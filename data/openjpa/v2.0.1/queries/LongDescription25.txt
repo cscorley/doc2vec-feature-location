@@ -1,0 +1,6 @@
+select e, d from EmpBean e, DeptBean d generates following SQL where t2 is undefined:
+          SELECT t1.empid, t2.deptno FROM EmpBean t0 JOIN EmpBean t1 ON (1 = 1)
+ 'DeptBean t2' is missing in the FROM clause.
+Similar problem occurs to the following query:
+  select d from EmpBean e left join e.dept d, ProjectBean p where e.salary = p.budget ==> incorrect SQL (t3 is undefined): 
+SELECT t1.deptno, t1.budget, t1.mgr_empid, t1.name, t1.reportsTo_deptno FROM EmpBean t0 LEFT OUTER JOIN DeptBean t1 ON t0.dept_deptno = t1.deptno JOIN EmpBean t2 ON (1 = 1) WHERE (t2.salary = t3.budget)

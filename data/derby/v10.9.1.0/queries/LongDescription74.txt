@@ -1,0 +1,5 @@
+With JDK1.5.0 the behaviour of BigDecimal.toString() has changed (thanks Sun) and for numbers < 1e-6 it now returns a String in exponential syntax. This causes the number of digits to be calculated incorrectly.
+
+As a result, the ejbql test fails as the following snippet fails:
+create table myDecimal (b DECIMAL(31,31))
+insert into myDecimal VALUES(1e-30)

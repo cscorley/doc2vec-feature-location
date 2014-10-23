@@ -1,0 +1,17 @@
+The reducer sends a heartbeat to the task tracker every time it starts processing new key. The task tracker expects to
+get a message every 10 minutes. If processing of an individual key takes longer, which could be the case for your job,
+the task tracker would not get a heartbeat in time and would kill the task.
+
+The current patch is to add <property>
+	<name>mapred.task.timeout</name>
+	<value>0</value>
+	<description>timeout value</description>
+</property>
+
+to the cluster's hadoop-site.xml. This results in disabling heartbeat functionality which might not be what we want
+long term.
+
+A more flexible approach is to periodically report from map and reduce job via
+http://lucene.apache.org/hadoop/api/org/apache/hadoop/mapred/Reporter.html#setStatus(java.lang.String)
+
+As a workaround for a UDF, call: PigMapReduce.reporter.progress() every 1000th time

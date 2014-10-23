@@ -1,0 +1,5 @@
+Instead of starting from scratch with the new Parser interface design I proposed on the mailing list, I'd like to work from the current codebase, iteratively refactoring it.
+
+The first problem I see with the current Parser design is the tight coupling with the ParserConfig (and even LiusConfig) classes. Config objects are used both by ParserFactory when  creating the parser instances and by the parser objects when parsing content. In fact the parser classes even use the ParserConfig instances as containers of parsed content.
+
+This coupling makes it quite difficult to apply any structural changes to the parser classes, so as a first step I'd like to propose a change that breaks this coupling.

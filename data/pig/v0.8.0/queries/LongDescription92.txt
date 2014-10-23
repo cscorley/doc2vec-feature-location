@@ -1,0 +1,31 @@
+This simple code throw an NPE
+
+final PigContext pigContext = new PigContext(ExecType.MAPREDUCE);
+pigContext.getConf().putAll(properties);
+
+
+
+Because in PigContext.java:
+
+
+transient private Properties conf = null;
+public void connect() throws ExecException {
+    ... 
+    conf = new Properties();
+    ....
+}
+
+
+
+Simple patch:
+
+
+transient private Properties conf = new Properties();
+public void connect() throws ExecException {
+    ... 
+}
+
+
+
+This is regression already fix in PIG-69.
+Introduce with PIG-32

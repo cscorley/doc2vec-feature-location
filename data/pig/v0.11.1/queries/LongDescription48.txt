@@ -1,0 +1,8 @@
+Currently the LoadFunc API assumes that you are pulling data from a Hadoop filesystem and that PIG will have already found the file and split it.  I would like a lower-level API that hands me the information so I can find the data and do the split.  For instance, this is a very inconvenient way to load data from an RSS URL:
+
+register /Users/samp/Projects/pigrss/out/getfeed-all.jar
+define getFeed com.sampullara.pig.storage.GetFeed();
+URL = LOAD 'url' using PigStorage() as (url);
+A = FOREACH URL GENERATE FLATTEN(getFeed(url));
+
+Where GetFeed is an EvalFunc because there was no way to do this as a LoadFunc.  While we are at we could add the ability to create a literal Tuple in the PIG language

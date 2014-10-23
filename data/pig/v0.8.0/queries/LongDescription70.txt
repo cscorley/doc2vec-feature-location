@@ -1,0 +1,36 @@
+Even if the PigContext code is still quite small at the moment, for an outsider (me) it's already hard to understand 
+
+If I understand correctly the PigContext purpose (on a Object Oriented point of view) is to hold various configuration objects like JobConf, JobClient, JobSubmissionProtocol...
+The initialization code mainly use the ExecType parameter but can also use quite complex code like: doHod(), initProperties(), connect()...
+(btw, the connect() method is actually doing 2 things: initializing some var and trying to connect, it initialization code should be move somewhere else)
+
+It is the perfect case to apply the Factory Pattern , you can also see Replace Constructor with Factory Method for more details.
+
+My proposal is to create a new PigContextFactory class, to old the initialization code make to PigContext and PigContextFactory 200 lines classes instead of one big 500 lines of code class.
+PigContext would hold some getter and setter and methods related to instantiate/run "functions"
+
+The new API would be:
+PigContextFactory .java
+
+public class PigContextFactory {
+    public static PigContext getInstance(ExecType execType) {...}
+}
+
+
+
+PigContext.java
+
+public class PigContext implements Serializable, FunctionInstantiator {
+    public String getJobName(){...}
+    public JobSubmissionProtocol getJobTracker() {...}
+    public JobConf getConf() {...}
+    public static Object instantiateFuncFromSpec(String funcSpec) throws IOException{...}
+    public Object instantiateFuncFromAlias(String alias) throws IOException {...}
+    public void registerFunction(String function, String functionSpec) {...}
+}
+
+
+
+Client code
+
+PigContext context = PigContextFactory.getInstance(ExecType.MAPREDUCE);

@@ -1,0 +1,77 @@
+As per the Server & Admi guide, the Derby network server should be accesible using the DB2 Universal Driver.
+namely,
+db2jcc.jar
+db2jcc_license_c.jar
+
+I have a (licensed) copy of the above driver which which I am able to connect to Cloudscape-DB2 v5.1.2.
+
+Howver using the same driver jars I am unable to connect to Derby, the trace as follows:
+
+java.sql.SQLException: No suitable driver
+	at java.sql.DriverManager.getConnection(DriverManager.java:532)
+	at java.sql.DriverManager.getConnection(DriverManager.java:171)
+	at db.connection.TestConnection.setUp(TestConnection.java:34)
+	at junit.framework.TestCase.runBare(TestCase.java:125)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:421)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:305)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:186)
+
+
+
+My connectivity properties are:
+
+db.driver=com.ibm.db2.jcc.DB2Driver
+db.url=jdbc:derby:net://localhost/<db name>:bootPassword=<password>
+db.user=demo
+db.password=demo
+
+The Derby database was created using ij and is an encrypted database. I am able to connect to Derby with the embedded driver
+
+db.driver=db.driver=org.apache.derby.jdbc.EmbeddedDriver
+db.url=jdbc:derby:H:/rl-hibernate/db/derby_10_0_2_1/<db name>;bootPassword=<password>
+db.user=demo
+db.password=demo
+
+
+NOTE: The use of the ";" for bootPassword in embedded mode and the use of ":" in the network mode. This is as per the docs (and I have even tried using ";" for the networked mode but it will still not connect).
+
+
+I then went and downloaded Clodscape 10 and used
+db2jcc.jar
+db2jcc_license_c.jar
+from this distribution.
+
+When I used the ":" syntax for the bootpassword, as per the docs I got:
+
+com.ibm.db2.jcc.c.SqlException: Invalid database url syntax: jdbc:derby:net://localhost/<db name>:bootPassword=<password>
+	at com.ibm.db2.jcc.DB2Driver.tokenizeURLProperties(DB2Driver.java:555)
+	at com.ibm.db2.jcc.DB2Driver.connect(DB2Driver.java:131)
+	at java.sql.DriverManager.getConnection(DriverManager.java:512)
+	at java.sql.DriverManager.getConnection(DriverManager.java:171)
+	at db.connection.TestConnection.setUp(TestConnection.java:34)
+	at junit.framework.TestCase.runBare(TestCase.java:125)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:421)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:305)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:186)
+
+
+However, using a ";" before bootPassword=... 
+
+results in a SUCCESSFUL connection.
+
+
+I think it might be useful to state that it will work only with Cloudscape 10.0 (or above) IBM Universal drivers.
+
+Also given that this licensed driver may expire after some time (as per the IBM license file), it makes it diffult to use this over a longer term. Will there be a AF licensed network driver for Derby?

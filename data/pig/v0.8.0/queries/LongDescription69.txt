@@ -1,0 +1,16 @@
+java.lang.NullPointerException
+    at org.apache.pig.impl.PigContext.setJobtrackerLocation(PigContext.java:425)
+    ... (the rest of the stacktrace is my own servlet code)
+
+
+
+The code:
+
+final PigContext pigContext = new PigContext(ExecType.MAPREDUCE);
+pigContext.setJobtrackerLocation(configuration.get("mapred.job.tracker"));
+pigContext.setFilesystemLocation(configuration.get("fs.default.name"));
+        
+final PigServer pigServer = new PigServer(pigContext);
+
+
+Where configuration is a org.apache.hadoop.conf.Configuration object initialized with spring framework.

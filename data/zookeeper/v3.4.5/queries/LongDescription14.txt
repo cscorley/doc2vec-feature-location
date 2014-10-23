@@ -1,0 +1,6 @@
+Moved from SourceForge to Apache.
+http://sourceforge.net/tracker/index.php?func=detail&aid=1948097&group_id=209147&atid=1008544
+
+There should be a better connection between connect timeout, ping timeout, and session timeout. On the Java client it is sessionTimeout/hostsList.length. On the C client it's just the readTimeout. There is also an arbitrary delay when we find that all the hosts are down.
+
+We should come up with a good consistent story for the connect timeout. Since we leave sessionTimeout/3 ms for recovery from a down server, it seems most reasonable to have something like sessionTimeout/(3*hostsList.length).

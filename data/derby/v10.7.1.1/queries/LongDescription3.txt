@@ -1,0 +1,23 @@
+When an "insert ... select distinct" is used to fill a table with an identity column, gaps occur in the identity column. The caps correspond to the rows of the source table that have been suppressed with "distinct".
+
+Example:
+
+create table temp1 (
+   s varchar(10));
+insert into temp1 values 'a','a','a','b','c','c','c','d';
+
+create table temp2 (
+   i integer not null
+      generated always as identity
+      primary key,
+   s varchar(10));
+
+insert into temp2 (s)
+   select distinct s from temp1;
+select * from temp2;
+
+output:
+ 1   a
+ 4   b
+ 5   c
+ 8   d

@@ -1,0 +1,13 @@
+Current architecure requires that only one JVM boots a database at a time. If more than one JVM boots the same database, unrecoverable courruptions can occur. To avoid users accidentaly getting into this 
+scenario,  Derby catches this case and throws error: For example
+On windows if two jvm's boot the same database it throws the following error: ERROR XSDB6: Another instance of Derby may have already booted the database C:\s
+uresht\databases\wombat.
+–
+
+On Solaris , this logic seems to have broken; It allows multiple 
+jvm's to boot the same database. 
+
+On Linux it holds on to the lock even if database is shutdown. 
+
+Repro:
+Connect to the same database in parallel using two jvms through ij.

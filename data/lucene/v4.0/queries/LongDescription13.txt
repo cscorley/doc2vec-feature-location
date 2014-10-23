@@ -1,0 +1,83 @@
+Hi,
+
+I'm running lucene-1.2-rc3 with Tomcat 4.0.1 and when performing some phrase 
+queries a get a NullPointerException. Among the files indexed, I have 
+one "JavaServer Pages(TM): A Developer's Perspective", an article by Scott 
+McPherson that can be found in Sun's site (an HTML doc). With a phrase query 
+like "javaserver pages" Lucene crashes. I was able to reproduce the problem 
+with a few phrase queries but most of the queries worked fine. I also tried 
+with lucene-1.2-rc2 and had no problem (using the same index and queries).
+
+Here is a stack trace collected from Tomcat's log file
+
+java.lang.NullPointerException
+	at org.apache.lucene.index.SegmentTermPositions.seek(Unknown Source)
+	at org.apache.lucene.index.SegmentTermDocs.seek(Unknown Source)
+	at org.apache.lucene.index.SegmentsTermDocs.termDocs(Unknown Source)
+	at org.apache.lucene.index.SegmentsTermDocs.next(Unknown Source)
+	at org.apache.lucene.search.PhrasePositions.next(Unknown Source)
+	at org.apache.lucene.search.PhraseScorer.score(Unknown Source)
+	at org.apache.lucene.search.BooleanScorer.score(Unknown Source)
+	at org.apache.lucene.search.IndexSearcher.search(Unknown Source)
+	at org.apache.lucene.search.Hits.getMoreDocs(Unknown Source)
+	at org.apache.lucene.search.Hits.<init>(Unknown Source)
+	at org.apache.lucene.search.Searcher.search(Unknown Source)
+	at org.apache.lucene.search.Searcher.search(Unknown Source)
+	at com.weblib.search.SearchServlet.doGet(Unknown Source)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:740)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:853)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter
+(ApplicationFilterChain.java:247)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter
+(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.StandardWrapperValve.invoke
+(StandardWrapperValve.java:243)
+	at org.apache.catalina.core.StandardPipeline.invokeNext
+(StandardPipeline.java:566)
+	at org.apache.catalina.core.StandardPipeline.invoke
+(StandardPipeline.java:472)
+	at org.apache.catalina.core.ContainerBase.invoke(ContainerBase.java:943)
+	at org.apache.catalina.core.StandardContextValve.invoke
+(StandardContextValve.java:201)
+	at org.apache.catalina.core.StandardPipeline.invokeNext
+(StandardPipeline.java:566)
+	at org.apache.catalina.valves.CertificatesValve.invoke
+(CertificatesValve.java:246)
+	at org.apache.catalina.core.StandardPipeline.invokeNext
+(StandardPipeline.java:564)
+	at org.apache.catalina.core.StandardPipeline.invoke
+(StandardPipeline.java:472)
+	at org.apache.catalina.core.ContainerBase.invoke(ContainerBase.java:943)
+	at org.apache.catalina.core.StandardContext.invoke
+(StandardContext.java:2344)
+	at org.apache.catalina.core.StandardHostValve.invoke
+(StandardHostValve.java:164)
+	at org.apache.catalina.core.StandardPipeline.invokeNext
+(StandardPipeline.java:566)
+	at org.apache.catalina.valves.ErrorDispatcherValve.invoke
+(ErrorDispatcherValve.java:170)
+	at org.apache.catalina.core.StandardPipeline.invokeNext
+(StandardPipeline.java:564)
+	at org.apache.catalina.valves.ErrorReportValve.invoke
+(ErrorReportValve.java:170)
+	at org.apache.catalina.core.StandardPipeline.invokeNext
+(StandardPipeline.java:564)
+	at org.apache.catalina.valves.AccessLogValve.invoke
+(AccessLogValve.java:462)
+	at org.apache.catalina.core.StandardPipeline.invokeNext
+(StandardPipeline.java:564)
+	at org.apache.catalina.core.StandardPipeline.invoke
+(StandardPipeline.java:472)
+	at org.apache.catalina.core.ContainerBase.invoke(ContainerBase.java:943)
+	at org.apache.catalina.core.StandardEngineValve.invoke
+(StandardEngineValve.java:163)
+	at org.apache.catalina.core.StandardPipeline.invokeNext
+(StandardPipeline.java:566)
+	at org.apache.catalina.core.StandardPipeline.invoke
+(StandardPipeline.java:472)
+	at org.apache.catalina.core.ContainerBase.invoke(ContainerBase.java:943)
+	at org.apache.catalina.connector.http.HttpProcessor.process
+(HttpProcessor.java:1011)
+	at org.apache.catalina.connector.http.HttpProcessor.run
+(HttpProcessor.java:1106)
+	at java.lang.Thread.run(Thread.java:539)

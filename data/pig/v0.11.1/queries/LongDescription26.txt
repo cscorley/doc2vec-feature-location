@@ -1,0 +1,14 @@
+If you call distinct on a bag that has spilled to disk, you get the following error:
+
+java.lang.NullPointerException
+        at org.apache.pig.data.BigDataBag$FileMerger$1.compare(BigDataBag.java:288)
+        at org.apache.pig.data.BigDataBag$FileMerger$1.compare(BigDataBag.java:280)
+        at java.util.PriorityQueue.siftUpUsingComparator(PriorityQueue.java:594)
+        at java.util.PriorityQueue.siftUp(PriorityQueue.java:572)
+        at java.util.PriorityQueue.offer(PriorityQueue.java:274)
+        at java.util.PriorityQueue.add(PriorityQueue.java:251)
+        at org.apache.pig.data.BigDataBag$FileMerger.<init>(BigDataBag.java:304)
+        at org.apache.pig.data.BigDataBag.doSorting(BigDataBag.java:167)
+        at org.apache.pig.data.BigDataBag.content(BigDataBag.java:211)
+        at org.apache.pig.test.TestDataModel.testBigDataBag(TestDataModel.java:343)
+        at org.apache.pig.test.TestDataModel.testBigDataBagOnDisk(TestDataModel.java:210)

@@ -1,0 +1,25 @@
+Simple fix can have a huge effect on performance of certain kinds of PIG programs:
+
+Index: src/org/apache/pig/impl/io/BufferedPositionedInputStream.java
+===================================================================
+— src/org/apache/pig/impl/io/BufferedPositionedInputStream.java	(revision 597597)
++++ src/org/apache/pig/impl/io/BufferedPositionedInputStream.java	(working copy)
+@@ -49,7 +49,14 @@
+         pos += rc;
+         return rc;
+     }
+
+	+
++    @Override
++    public int read(byte b[], int off, int len) throws IOException 
+{
++        int read = in.read(b, off, len);
++        pos += read;
++        return read;
++    }
++
+     /**
+
+
+	Returns the current position in the tracked InputStream.
+      */

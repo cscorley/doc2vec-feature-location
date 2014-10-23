@@ -1,0 +1,29 @@
+I am trying to run the openjpac from within ant.  I am getting the error that the file META-INF/services/org.apache.openjpa.conf.ProductDerivation is missing but it is right on the classpath that the Enhancer is running from.
+
++++
+
+ [openjpac] java.lang.ExceptionInInitializerError
+ [openjpac]     at org.apache.openjpa.conf.OpenJPAConfigurationImpl.<init>(OpenJPAConfigurationImpl.java:516)
+ [openjpac]     at org.apache.openjpa.conf.OpenJPAConfigurationImpl.<init>(OpenJPAConfigurationImpl.java:165)
+ [openjpac]     at org.apache.openjpa.conf.OpenJPAConfigurationImpl.<init>(OpenJPAConfigurationImpl.java:155)
+ [openjpac]     at org.apache.openjpa.ant.PCEnhancerTask.newConfiguration(PCEnhancerTask.java:77)
+ [openjpac]     at org.apache.openjpa.lib.ant.AbstractTask.getConfiguration(AbstractTask.java:89)
+ [openjpac]     at org.apache.openjpa.ant.PCEnhancerTask.executeOn(PCEnhancerTask.java:84)
+ [openjpac]     at org.apache.openjpa.lib.ant.AbstractTask.execute(AbstractTask.java:153)
+ [openjpac]     at org.apache.tools.ant.UnknownElement.execute(UnknownElement.java:275)
+ [openjpac]     at org.apache.tools.ant.Task.perform(Task.java:364)
+ [openjpac]     at org.apache.tools.ant.Target.execute(Target.java:341)
+ [openjpac]     at org.apache.tools.ant.Target.performTasks(Target.java:369)
+ [openjpac]     at org.apache.tools.ant.Project.executeSortedTargets(Project.java:1216)
+ [openjpac]     at org.apache.tools.ant.Project.executeTarget(Project.java:1185)
+ [openjpac]     at org.apache.tools.ant.helper.DefaultExecutor.executeTargets(DefaultExecutor.java:40)
+ [openjpac]     at org.apache.tools.ant.Project.executeTargets(Project.java:1068)
+ [openjpac]     at org.apache.tools.ant.Main.runBuild(Main.java:668)
+ [openjpac]     at org.apache.tools.ant.Main.startAnt(Main.java:187)
+ [openjpac]     at org.apache.tools.ant.launch.Launcher.run(Launcher.java:246)
+ [openjpac]     at org.apache.tools.ant.launch.Launcher.main(Launcher.java:67)
+ [openjpac] Caused by: java.util.MissingResourceException: Your system is missing product derivations.  Product derivations provide configuration options for supported da
+ta stores and specifications.  You must have a META-INF/services/org.apache.openjpa.conf.ProductDerivation file in your classpath listing the available derivation classes
+, and some listed class must be instantiable.  Typically this file is bundled as part of the distribution.  Have you unbundled it, or unbundled its listed classes?
+ [openjpac]     at org.apache.openjpa.conf.ProductDerivations.<clinit>(ProductDerivations.java:53)
+ [openjpac]     ... 19 more

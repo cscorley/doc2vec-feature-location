@@ -1,0 +1,27 @@
+In general, it is possible to define an alias in pig and use it multiple times:
+
+a = load 'file';
+b = group a by $0;
+c = foreach b generate group, COUNT($1);
+dump c;
+dump c;
+
+Queries that choose to use the combiner give the following error on the second dump:
+java.lang.AssertionError: Can't convert non-algebraic function to final.
+        at org.apache.pig.impl.eval.FuncEvalSpec.resetFuncToFinal(FuncEvalSpec.java:285)
+        at org.apache.pig.impl.physicalLayer.MapreducePlanCompiler$ReduceAdjuster.visitFuncEval(MapreducePlanCompiler.java:393)
+        at org.apache.pig.impl.eval.FuncEvalSpec.visit(FuncEvalSpec.java:238)
+        at org.apache.pig.impl.physicalLayer.MapreducePlanCompiler$ReduceAdjuster.visitGenerate(MapreducePlanCompiler.java:367)
+        at org.apache.pig.impl.eval.GenerateSpec.visit(GenerateSpec.java:374)
+        at org.apache.pig.impl.physicalLayer.MapreducePlanCompiler.pushInto(MapreducePlanCompiler.java:223)
+        at org.apache.pig.impl.physicalLayer.MapreducePlanCompiler.compile(MapreducePlanCompiler.java:79)
+        at org.apache.pig.impl.physicalLayer.PhysicalPlan.<init>(PhysicalPlan.java:56)
+        at org.apache.pig.impl.physicalLayer.IntermedResult.compile(IntermedResult.java:95)
+        at org.apache.pig.PigServer.openIterator(PigServer.java:319)
+        at org.apache.pig.tools.grunt.GruntParser.processDump(GruntParser.java:120)
+        at org.apache.pig.tools.grunt.GruntParser.parse(GruntParser.java:334)
+        at org.apache.pig.tools.grunt.GruntParser.parseContOnError(GruntParser.java:38)
+        at org.apache.pig.tools.grunt.Grunt.run(Grunt.java:48)
+        at org.apache.pig.Main.main(Main.java:211)
+
+This is because the logic that chooses the combiner modifies the EvalSpecs in the logical plan.  Pig does not preserve the physical plan built for the first run of the query, but tries to reconstruct it. When it does so the modified EvalSpecs cause it a problem.  The combiner logic needs to be changed to make a copy of the EvalSpecs rather than modify them.

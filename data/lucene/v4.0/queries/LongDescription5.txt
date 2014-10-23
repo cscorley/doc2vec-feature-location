@@ -1,0 +1,21 @@
+Version: lucene-1.2-rc1.jar
+
+Indexing of "alpha-geek2" works.
+Indexing of "alpha-geek" throws exception. (Hope its not my inability.)
+
+demo code which shows exception: http://www.nalle.de/TestIndex.java
+Output of code:
+
+indexed 1
+java.lang.StringIndexOutOfBoundsException: String index out of range: -1
+        at java.lang.StringBuffer.charAt(StringBuffer.java:283)
+        at org.apache.lucene.analysis.de.GermanStemmer.resubstitute(Unknown 
+Source)
+        at org.apache.lucene.analysis.de.GermanStemmer.stem(Unknown Source)
+        at org.apache.lucene.analysis.de.GermanStemFilter.next(Unknown Source)
+        at org.apache.lucene.analysis.LowerCaseFilter.next(Unknown Source)
+        at org.apache.lucene.index.DocumentWriter.invertDocument(Unknown Source)
+        at org.apache.lucene.index.DocumentWriter.addDocument(Unknown Source)
+        at org.apache.lucene.index.IndexWriter.addDocument(Unknown Source)
+        at TestIndex.<init>(TestIndex.java:25)
+        at TestIndex.main(TestIndex.java:36)

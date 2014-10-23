@@ -1,0 +1,43 @@
+From a discussion with Patrick on the dev mailing list...
+
+=========================================================================
+Me:  According to the JPA spec, we can define multiple persistence-units in a single persistence.xml file.  But, when I try to use this persistence.xml file as input to the PCEnhancer, it is only processing the first persistence-unit that is defined.  I traced through the code and found that this is the case.  When the persistence.xml file is processed, a "null" name is passed in for the desired persistence-unit (in the ConfigurationProviderImpl.load method) and, thus, only the first one defined is returned and used by the PCEnhancer.
+
+Patrick:  IMO, the correct behavior should be:
+
+
+	PCEnhancer run with no arguments should load all the PUs in the
+classpath, find the OpenJPA (or unspecified) PUs, and run against all
+the classes defined by those PUs (including auto-scanning for PUs so
+configured).
+
+
+
+
+	The developer should not need to specify META-INF/persistence.xml when
+invoking the PCEnhancer.
+
+
+
+
+	We may want to provide a means to specify specific PUs to process. For
+example:
+
+
+
+ java ...PCEnhancer -p META-INF/persistence.xml#foo
+
+or maybe just
+
+ java ...PCEnhancer -p #foo
+
+for shorthand.
+
+Regardless, the current behavior seems wrong, and it seems that the best
+initial change would be to make PCEnhancer load all the PUs (the first
+bullet above), which means manually loading the META-INF/persistence.xml
+resources and finding the ones that are OpenJPA PUs, rather than relying
+on the javax.persistence.Persistence helper method to load them.
+=========================================================================
+
+Writing this bug report so as not to lose track of this problem.

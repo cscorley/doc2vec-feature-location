@@ -1,0 +1,12 @@
+EJBQL:   	update TwoTable t set  t.k1 = t.j2+1, t.j2= t.k1+1
+
+TwoTable is mapped to primary and secondary table,  tj1, tj2 are fields in primary table,  tk1, tk2 are fields in secondary table.  
+
+Generated SQL from the trace shows: 
+
+DB2 SQL error: SQLCODE: -206, SQLSTATE: 42703, SQLERRMC: J2 
+{prepstmnt 238685754 UPDATE ttk SET k1 = (j2 + ?), j2 = (k1 + ?) WHERE id IN (SELECT DISTINCT t0.id FROM ttk t0  INNER JOIN ttj t1 ON t0.id = t1.TwoTable_id) [params=(long) 1, (long) 1]}
+ [code=-206, state=42703]
+
+
+Note that  column j2 is not a column of take ttk which is the secondary table.

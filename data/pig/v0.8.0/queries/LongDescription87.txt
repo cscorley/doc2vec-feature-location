@@ -1,0 +1,65 @@
+Brief notes about the pig.pl, and a patch to resolve some of these
+
+1. Is conf/pigclient.conf really required?
+pig.pl dies straight away if $ROOT/conf/pigclient.conf does not exist. 
+This is a shame, for a couple of reasons:
+
+	the only really necessary detail in pigclient.conf is $pigJarRoot.
+	$pigJarRoot, $hodRoot and $defaultCluster can be set using
+pigclient.conf - why cant they also be:
+    (a) worked out from defaults ? - eg $pigJarRoot
+     my $JAR = $0;#/scripts/pig.pl
+      $JAR =~ s/pig\.pl/..\/pig.jar/
+    (b) $hodRoot - seem an obvious example to be configurable using the 
+command line arguments?
+    (c) $defaultCluster - ditto?
+
+
+
+
+	if conf/pigclient.conf doesnt exist, pig.pl dies before the --help options can displayed (big shame)
+    -> means that scripts/pig.pl -h doesnt work out the box as well as most of
+    http://wiki.apache.org/pig/GettingStarted
+
+
+
+
+	As far as I can see minimum setup for a new Pig user:
+cd pig
+(ant)
+mkdir conf
+echo "\$pigJarRoot = \"$PWD\"" > conf/pigclient.conf
+mkdir -p libexec/pig//released/
+cp pig.jar libexec/pig//released/
+ROOT=$PWD scripts/pig.pl
+or specify the class path manually.
+
+
+
+2. Java binary is looked for in a special Yahoo place or in PATH, but 
+JAVA_HOME is not checked, as per other common startup scripts (eg Tomcat).
+
+
+3. looking for java in the path
+
+`which java 2>&1 > /dev/null`;
+if ($? != 0) {
+
+I cant help thinking that this would be better/quicker in Perl:
+sub inpath
+{
+    my $bin = shift;
+    foreach my $dir (split /:/, $ENV
+{PATH}
+)
+    {
+       return 1 if -e $dir/$bin;
+    }
+    return 0;
+}
+
+If this is deemed desirable, I can update the patch for this sub-issue too.
+
+Please find attached a patch for pig.pl that resolves issues 1 & 2. This 
+will allow the GettingStarted documentation to perform as expected 
+without all the rigmarole associated with pigclient.conf

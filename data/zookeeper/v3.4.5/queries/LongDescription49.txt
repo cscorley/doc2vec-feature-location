@@ -1,0 +1,16 @@
+As reported by Shane:
+
+Still exploring the ACL stuff in Zookeeper.  Tried using setACL for a  
+path but get InvalidACL error thrown .... looking at pRequest in  
+PrepRequestProcessor ... and in particular these lines ...
+
+
+                 SetACLRequest setAclRequest = new SetACLRequest();
+                 if (!fixupACL(request.authInfo,  
+setAclRequest.getAcl())) 
+{
+                     throw new KeeperException(Code.InvalidACL);
+                 }
+
+a new SetACLRequest will return a null when called in fixupACL  
+returning false and throwing the exception .... as far as I can see.

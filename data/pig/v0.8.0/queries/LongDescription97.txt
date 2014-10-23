@@ -1,0 +1,17 @@
+The following script will produce 0 output records, even when it should produce records:
+
+a = load 'file1';
+b = load 'file2';
+c = cogroup a by $0, b by $0;
+d = foreach c generate $0, COUNT($1), COUNT($2);
+dump d;
+
+In this case pig chooses to use the combiner in order to be more efficient.  However, the following code in PigCombiner.java causes a problem:
+
+for (int i = 0; i < inputCount; i++) {  // XXX: shouldn't we only do this if INNER flag is set?
+    if (t.getBagField(1 + i).size() == 0) return;
+}
+
+In this case a map is often running on a machine where it has access to only one of the two files and thus there is nothing in one of the bags, so the above lines of code cause the combiner to bailout without pushing any tuples to the OutputCollector.
+
+The proposed solution for the short term is to disable use of the combiner in cases where more than one file are grouped together.

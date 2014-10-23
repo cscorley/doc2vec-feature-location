@@ -1,0 +1,37 @@
+The exception:
+---------------------------------------
+Error: An ON clause associated with a JOIN operator is not valid.
+---------------------------------------
+
+happens when I run the below SQL script:
+---------------------------------------
+SELECT
+THIS.DOSSIERTEMPLATE_ID
+FROM DOSSIERTEMPLATE THIS,
+ENTITLEMENT UNBOUND_ENTITLE 
+INNER JOIN 
+ENTITLEMENT II 
+ON UNBOUND_ENTITLE.ENTITLEMENT_ID = II.ENTITLEMENT_ID 
+INNER JOIN 
+DOSSIERTEMPLATERESOURCE BB 
+ON II.ENTITLED_TO_RESOURCE_ID_OID = BB.DOSSIERTEMPLATERESOURCE_ID 
+INNER JOIN 
+I18N THIS_LABEL
+ON THIS.LABEL_I18N_ID_OID = THIS_LABEL.I18N_ID
+---------------------------------------
+
+It works fine if I run without the LABEL join
+---------------------------------------
+SELECT
+THIS.DOSSIERTEMPLATE_ID
+FROM DOSSIERTEMPLATE THIS,
+ENTITLEMENT UNBOUND_ENTITLE 
+INNER JOIN 
+ENTITLEMENT II 
+ON UNBOUND_ENTITLE.ENTITLEMENT_ID = II.ENTITLEMENT_ID 
+INNER JOIN 
+DOSSIERTEMPLATERESOURCE BB 
+ON II.ENTITLED_TO_RESOURCE_ID_OID = BB.DOSSIERTEMPLATERESOURCE_ID 
+---------------------------------------
+
+The column LABEL_I18N_ID_OID is BIGINT and has a FK to I18N_ID, which is BIGINT as well

@@ -1,0 +1,9 @@
+In testWriteGaps, the following excerpt of code can generate an NPE:
+
+
+        synchronized (arc) {
+            bc.readEntry(addr, 1, 1, recb, arc);
+            arc.wait(1000);
+            assertEquals(0, arc.rc);
+            assertEquals(1, arc.entry.getInt());
+        }

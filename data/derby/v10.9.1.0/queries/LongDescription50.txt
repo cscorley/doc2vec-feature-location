@@ -1,0 +1,9 @@
+Database Metadata function getMaxColumnNameLength() should return 30. It incorrectly returns 128. Derby restricts maximum column name length to be 30. Similarly, the following metadata functions also return incorrect values:
+
+getMaxCursorNameLength() = 18
+getMaxSchemaNameLength() = 30
+getMaxProcedureNameLength() = 128
+getMaxTableNameLength() = 128
+getMaxUserNameLength() = 30
+
+Note, there is some discussion in the derby developper list to increase maximum length of most identifiers to 128. If that happens, these metadata functions will need to be updated again. But for now, it these should return actual limits that are currently enforced.

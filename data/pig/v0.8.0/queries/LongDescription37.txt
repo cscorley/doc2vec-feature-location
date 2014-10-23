@@ -1,0 +1,9 @@
+deserialize can return null if evalSpec is empty, need to extend the check on the previous line to include setting evalPipe
+
+                String evalSpec = job.get("pig.combineFunc", "");
+                EvalSpec esp = (EvalSpec)ObjectSerializer.deserialize(evalSpec);
+                if(esp != null) esp.instantiateFunc(pigContext);
+                evalPipe = esp.setupPipe(finalout);
+
+Severity and Description	Path	Resource	Location	Creation Time	Id
+M C NP: Possible null pointer dereference of esp in org.apache.pig.impl.mapreduceExec.PigCombine.reduce(WritableComparable, Iterator, OutputCollector, Reporter)	pig-apache/src/org/apache/pig/impl/mapreduceExec	PigCombine.java	line 69	1196272508421	23812

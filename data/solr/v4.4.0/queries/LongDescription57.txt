@@ -1,0 +1,16 @@
+I have a fieldtype with the following definition:
+        <fieldtype name="htmltext"  class="solr.TextField" positionIncrementGap="100">
+            <analyzer>
+                <tokenizer class="solr.HTMLStripStandardTokenizerFactory"/>
+                <filter class="solr.StandardFilterFactory" />
+                <filter class="solr.LowerCaseFilterFactory" />
+                <filter class="solr.StopFilterFactory" />
+                <filter class="solr.EnglishPorterFilterFactory" />
+                <filter class="solr.RemoveDuplicatesTokenFilterFactory" />
+                <filter class="solr.ISOLatin1AccentFilterFactory" />
+            </analyzer>
+        </fieldtype>
+
+When fields with that definition are included in the list of fields to be highlighted, the highlighted term is always offset because it does not take into account the HTML tags before it, so you end up with something like this for the highlighted snipplet:
+
+Does your comptuer meet the <a href="http:/<em>/www.example</em>.com/system_requirements.shtml">minimum system requirements</a>?

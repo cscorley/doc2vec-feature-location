@@ -1,0 +1,26 @@
+The following exception may occur using a 64bit JVM
+Console Output:
+Execution failed because of a Distributed Protocol Error:  
+DRDA_Proto_SYNTAXRM;
+CODPNT arg  = 2116; Error Code Value = 14
+com.ibm.db2j.drda.DRDAProtocolException
+        at 
+com.ibm.db2j.drda.DRDAConnThread.throwSyntaxrm(DRDAConnThread.ja
+va:400)
+        at 
+com.ibm.db2j.drda.DRDAConnThread.invalidValue(DRDAConnThread.jav
+a:6496)
+        at 
+com.ibm.db2j.drda.DRDAConnThread.readBoolean(DRDAConnThread.java
+:6808)
+        at 
+com.ibm.db2j.drda.DRDAConnThread.parsePRPSQLSTT(DRDAConnThread.j
+ava:3061)
+        at 
+com.ibm.db2j.drda.DRDAConnThread.processCommands(DRDAConnThread.
+java:676)
+        at 
+com.ibm.db2j.drda.DRDAConnThread.run(DRDAConnThread.java:233)
+
+
+This seems related to the readByte method in DDMReader where the bytep value for Codepoint.FALSE gets altered with a 64 bit JVM.  I think I have a fix for this but need to do some more testing

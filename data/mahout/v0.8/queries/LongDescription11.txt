@@ -1,0 +1,3 @@
+I file this as a bug, even though I'm not 100% sure it is one. In the currect code the information is exchanged via static fields (for example, distance measure and thresholds for Canopies are static field). Is it always true in Hadoop that one job runs inside one JVM with exclusive access? I haven't seen it anywhere in Hadoop documentation and my impression was that everything uses JobConf to pass configuration to jobs, but jobs are configured on a per-object basis (a job is an object, a mapper is an object and everything else is basically an object).
+
+If it's possible for two jobs to run in parallel inside one JVM then this is a limitation and bug in our code that needs to be addressed.

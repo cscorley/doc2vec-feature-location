@@ -1,0 +1,11 @@
+EJBQL:  "select c from Customer c where "+
+           "exists ( select o from Order o where o.delivered=false and "+ 
+          " exists ( select c from LineItem c where c.product.backorder >0))";
+
+SQL generated :   Note that the second EXISTS() subquery is missing. 
+DB2 SQL error: SQLCODE: -104, SQLSTATE: 42601, SQLE
+RRMC: );red = ? AND EXISTS (;<query_expr_body> 
+{prepstmnt 1454528178 SELECT t3.id, t3.name, t3.rating FROM Customer t3 W
+HERE (EXISTS (SELECT t0.oid FROM Order t0 WHERE (t0.delivered = ? AND EXISTS ()))) [params=(int) 0]}
+ [code=-104, state=4
+2601]

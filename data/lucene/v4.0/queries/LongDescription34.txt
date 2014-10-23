@@ -1,0 +1,17 @@
+E-mail token in StandardTokenizer.jj does not match many valid e-mail 
+addresses. See line 106: 
+
+<EMAIL: <ALPHANUM> "@" <ALPHANUM> ("." <ALPHANUM>)+ > 
+
+For example, neither danson@germane-software.com (because of the dash) nor 
+dale.anson@germane-software.com (because of the first dot and the dash) match. 
+the following is slightly better, but does not come close to meeting the 
+specifications of RFC 822: 
+
+<EMAIL: <ALPHANUM> ("."|"" <ALPHANUM>)+ "@" <ALPHANUM> ("."|"" <ALPHANUM>)+ 
+> 
+
+This is being reported against the May 11 nightly build (I compiled from 
+source using the supplied Ant build file on RedHat Linux 7.2, jikes, javacc 
+2.0, and Sun Linux JDK 1.4), however, I originally ran across this problem in 
+Lucene 1.2 rc4.

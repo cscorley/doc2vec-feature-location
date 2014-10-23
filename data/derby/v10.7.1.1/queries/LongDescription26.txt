@@ -1,0 +1,115 @@
+Opening this bug on behalf of Satheesh Babdaram.
+
+----------------------------------------------------------
+Dropping a nested trigger and reruning the orignial query 
+causes NullPointerException. Here is the test case, with 
+pointers to incorrect behaviour:
+
+ij> – test the default (should be 16)
+create table t1 (x int);
+0 rows inserted/updated/deleted
+ij> create table t2 (x int);
+0 rows inserted/updated/deleted
+ij> create table t3 (x int);
+0 rows inserted/updated/deleted
+ij> create table t4 (x int);
+0 rows inserted/updated/deleted
+ij> create table t5 (x int);
+0 rows inserted/updated/deleted
+ij> create table t6 (x int);
+0 rows inserted/updated/deleted
+ij> create table t7 (x int);
+0 rows inserted/updated/deleted
+ij> create table t8 (x int);
+0 rows inserted/updated/deleted
+ij> create table t9 (x int);
+0 rows inserted/updated/deleted
+ij> create table t10 (x int);
+0 rows inserted/updated/deleted
+ij> create table t11 (x int);
+0 rows inserted/updated/deleted
+ij> create table t12 (x int);
+0 rows inserted/updated/deleted
+ij> create table t13 (x int);
+0 rows inserted/updated/deleted
+ij> create table t14 (x int);
+0 rows inserted/updated/deleted
+ij> create table t15 (x int);
+0 rows inserted/updated/deleted
+ij> create table t16 (x int);
+0 rows inserted/updated/deleted
+ij> create table t17 (x int);
+0 rows inserted/updated/deleted
+ij> create trigger tr1 before insert on t1 for each row MODE 
+DB2SQL insert into t2 values 666;
+0 rows inserted/updated/deleted
+ij> create trigger tr2 before insert on t2 for each row MODE 
+DB2SQL insert into t3 values 666;
+0 rows inserted/updated/deleted
+ij> create trigger tr3 before insert on t3 for each row MODE 
+DB2SQL insert into t4 values 666;
+0 rows inserted/updated/deleted
+ij> create trigger tr4 before insert on t4 for each row MODE 
+DB2SQL insert into t5 values 666;
+0 rows inserted/updated/deleted
+ij> create trigger tr5 before insert on t5 for each row MODE 
+DB2SQL insert into t6 values 666;
+0 rows inserted/updated/deleted
+ij> create trigger tr6 before insert on t6 for each row MODE 
+DB2SQL insert into t7 values 666;
+0 rows inserted/updated/deleted
+ij> create trigger tr7 before insert on t7 for each row MODE 
+DB2SQL insert into t8 values 666;
+0 rows inserted/updated/deleted
+ij> create trigger tr8 before insert on t8 for each row MODE 
+DB2SQL insert into t9 values 666;
+0 rows inserted/updated/deleted
+ij> create trigger tr9 before insert on t9 for each row MODE 
+DB2SQL insert into t10 values 666;
+0 rows inserted/updated/deleted
+ij> create trigger tr10 before insert on t10 for each row MODE 
+DB2SQL insert into t11 values 666;
+0 rows inserted/updated/deleted
+ij> create trigger tr11 before insert on t11 for each row MODE 
+DB2SQL insert into t12 values 666;
+0 rows inserted/updated/deleted
+ij> create trigger tr12 before insert on t12 for each row MODE 
+DB2SQL insert into t13 values 666;
+0 rows inserted/updated/deleted
+ij> create trigger tr13 before insert on t13 for each row MODE 
+DB2SQL insert into t14 values 666;
+0 rows inserted/updated/deleted
+ij> create trigger tr14 before insert on t14 for each row MODE 
+DB2SQL insert into t15 values 666;
+0 rows inserted/updated/deleted
+ij> create trigger tr15 before insert on t15 for each row MODE 
+DB2SQL insert into t16 values 666;
+0 rows inserted/updated/deleted
+ij> create trigger tr16 before insert on t16 for each row MODE 
+DB2SQL insert into t17 values 666;
+0 rows inserted/updated/deleted
+ij> create trigger tr17 before insert on t17 for each row MODE 
+DB2SQL values 1;
+0 rows inserted/updated/deleted
+
+*******Here we go
+ij> insert into t1 values 1;
+ERROR X0Y73: The maximum trigger recursion level of 16 was exceeded 
+while processing statement: 'insert into t17 values 666'.
+
+********prove it
+ij>select * from t1;
+X              
+
+********INCORRECT BEHAVIOUR STARTS FROM HERE. Droping tr17 should 
+make the insert pass, but it doesn't. Still raises MaximumRecursionException.
+
+ij> drop trigger tr17;
+0 rows inserted/updated/deleted
+
+********The following will fail
+ij> insert into t1 values 1;
+ERROR X0Y73: The maximum trigger recursion level of 16 was exceeded 
+while processing statement: 'insert into t2 values 666'. 
+ij>select * from t1;
+X

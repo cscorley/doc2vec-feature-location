@@ -1,0 +1,36 @@
+Opening this bug on behalf of Lynh Nguyen.
+
+-------------------------------------------------
+The doc says UCASE/LCASE should change case according to 
+the db locale.
+
+In a turkish db UCASE Should uppercase i to an upper dotted i 
+and lowercase I to a lower non dotted i, but it changes the 
+case in the JVM locale. For example ij in the us:
+
+ij> connect 'trdb;create=true;locale=tr_TR';
+ij> values UCASE('i');
+1
+-
+I
+
+1 row selected
+ij> values LCASE('I');
+1
+-
+i
+
+1 row selected
+
+If I set the jvm locale to turkish I get the turkish 
+characters.
+
+$ java -Duser.language=tr -Duser.region=TR  
+org.apache.derby.tools.ij
+ij> connect 'jdbc:derby:trdb';
+ij> values UCASE('i');
+1
+-
+?
+
+1 row selected

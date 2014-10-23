@@ -1,0 +1,11 @@
+We need to make clear in the documentation and enforce in the code the following watch event rules:
+
+
+	A watch event will be delivered once to each watcher, even if it is registered multiple times. For example, if the same watch object is used for getChildren("/foo", watchObj) and getData("/foo", watchObj, stat) and foo is deleted, watchObj will be called once to processed the NodeDeleted event.
+	Session events will be delivered to all watchers.
+
+
+
+Note: a watcher is a Watcher object in Java or a (watch function, context) pair in C.
+
+There is currently a bug in the Java client that causes the session disconnected event to be delivered twice to the default watcher if the default watcher is also used to watch a path. This violates rule 1.

@@ -1,0 +1,17 @@
+An attempt to create a table that contains a column of type CHAR with a size greater than 254 using the SQL statement
+
+CREATE TABLE dummyTable ( column1 char(255),column2 char(10),column3 char(10) )
+
+results in the following SQL Exception:
+
+SQL Exception: The length, precision, or scale attribute for column, or type mapping 'CHAR(255)' is not valid.
+SQL Error: 30000
+SQL State: 42611
+
+However, if you decrease column1's length by one as below, the table is created successfully:
+
+CREATE TABLE dummyTable ( column1 char(254),column2 char(10),column3 char(10) )
+
+The Derby Reference Manual states that the limit on the length of a CHAR data type is java.lang.Integer.MAX_VALUE:
+
+http://incubator.apache.org/derby/manuals/reference/sqlj128.html#HDRSII-SQLJ-13733

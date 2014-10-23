@@ -1,0 +1,9 @@
+I suggest grunt should be more helpful with user errors. I just did one (a stupid one) and it took my too long to figure out the problem, since grunts error message was just not giving me a good hint:
+grunt> A = LOAD '/pigtestData.tsv' USING PigStorage(',') AS (user,age,cat);
+grunt> B = FILTER A BY cat == 'book';
+grunt> dump B;
+For input string: "book"
+Experts will see that I tried to use == instead of eq, however especially new users could get a little confused. 
+I see two chances add Error Number and  descriptive texts (Oracle style) - this quite a lot of work, or for now I suggest to simply dump the full exception text.
+
+At least for this early stage it would developers and users to find problems faster.

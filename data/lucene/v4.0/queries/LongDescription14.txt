@@ -1,0 +1,80 @@
+Hi,
+
+With lucene-1.2-rc3, when a perform a search for "*", a TokenMgrError is thrown 
+(see below). As a workaround, I started catching 
+org.apache.lucene.queryParser.TokenMgrError in my application but I believe the 
+correct solution is to change QueryParser.jj to start catching TokenMgrError 
+and throwing a ParseException instead (just don't know the best place to do 
+it 
+
+Best regards,
+
+--Daniel
+
+org.apache.lucene.queryParser.TokenMgrError: Lexical error at line 1, column 
+11.  Encountered: <EOF> after : ""
+	at org.apache.lucene.queryParser.QueryParserTokenManager.getNextToken
+(Unknown Source)
+	at org.apache.lucene.queryParser.QueryParser.jj_ntk(Unknown Source)
+	at org.apache.lucene.queryParser.QueryParser.Clause(Unknown Source)
+	at org.apache.lucene.queryParser.QueryParser.Query(Unknown Source)
+	at org.apache.lucene.queryParser.QueryParser.parse(Unknown Source)
+	at org.apache.lucene.queryParser.QueryParser.parse(Unknown Source)
+	at com.weblib.search.SearchServlet.doGet(Unknown Source)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:740)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:853)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter
+(ApplicationFilterChain.java:247)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter
+(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.StandardWrapperValve.invoke
+(StandardWrapperValve.java:243)
+	at org.apache.catalina.core.StandardPipeline.invokeNext
+(StandardPipeline.java:566)
+	at org.apache.catalina.core.StandardPipeline.invoke
+(StandardPipeline.java:472)
+	at org.apache.catalina.core.ContainerBase.invoke(ContainerBase.java:943)
+	at org.apache.catalina.core.StandardContextValve.invoke
+(StandardContextValve.java:201)
+	at org.apache.catalina.core.StandardPipeline.invokeNext
+(StandardPipeline.java:566)
+	at org.apache.catalina.valves.CertificatesValve.invoke
+(CertificatesValve.java:246)
+	at org.apache.catalina.core.StandardPipeline.invokeNext
+(StandardPipeline.java:564)
+	at org.apache.catalina.core.StandardPipeline.invoke
+(StandardPipeline.java:472)
+	at org.apache.catalina.core.ContainerBase.invoke(ContainerBase.java:943)
+	at org.apache.catalina.core.StandardContext.invoke
+(StandardContext.java:2344)
+	at org.apache.catalina.core.StandardHostValve.invoke
+(StandardHostValve.java:164)
+	at org.apache.catalina.core.StandardPipeline.invokeNext
+(StandardPipeline.java:566)
+	at org.apache.catalina.valves.ErrorDispatcherValve.invoke
+(ErrorDispatcherValve.java:170)
+	at org.apache.catalina.core.StandardPipeline.invokeNext
+(StandardPipeline.java:564)
+	at org.apache.catalina.valves.ErrorReportValve.invoke
+(ErrorReportValve.java:170)
+	at org.apache.catalina.core.StandardPipeline.invokeNext
+(StandardPipeline.java:564)
+	at org.apache.catalina.valves.AccessLogValve.invoke
+(AccessLogValve.java:462)
+	at org.apache.catalina.core.StandardPipeline.invokeNext
+(StandardPipeline.java:564)
+	at org.apache.catalina.core.StandardPipeline.invoke
+(StandardPipeline.java:472)
+	at org.apache.catalina.core.ContainerBase.invoke(ContainerBase.java:943)
+	at org.apache.catalina.core.StandardEngineValve.invoke
+(StandardEngineValve.java:163)
+	at org.apache.catalina.core.StandardPipeline.invokeNext
+(StandardPipeline.java:566)
+	at org.apache.catalina.core.StandardPipeline.invoke
+(StandardPipeline.java:472)
+	at org.apache.catalina.core.ContainerBase.invoke(ContainerBase.java:943)
+	at org.apache.catalina.connector.http.HttpProcessor.process
+(HttpProcessor.java:1011)
+	at org.apache.catalina.connector.http.HttpProcessor.run
+(HttpProcessor.java:1106)
+	at java.lang.Thread.run(Thread.java:539)

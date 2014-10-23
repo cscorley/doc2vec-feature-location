@@ -1,0 +1,6 @@
+There are a couple of cases of member variables that need to be marked volatile or surrounded in a synchronization block. A couple of examples are:
+
+
+	QuorumPeer state should be synchronous
+	currentVote in QuorumPeer is marked volatile, but when it's members are often accessed individually as if they were in an atomic unit. Such code should be changed to get a reference to the currentVote and they access members through that reference.
+	It looks like logicalClock in FastLeaderElection should be volatile. It should either be fixed or commented to explain why it doesn't need to be.

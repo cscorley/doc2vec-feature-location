@@ -1,0 +1,50 @@
+Reporting for Jack Klebanoff, filed on derby-dev list.
+
+> Jack Klebanoff wrote:
+>
+> | I would like to submit a fix for a bug in triggers.
+> |
+> | The bug is that a trigger of the form:
+> |  create trigger ... values myFunction();
+> | has no effect. MyFunction is not called even if the trigger is fired.
+> | Side effects of myFunction do not happen. Derby does not allow a "CALL"
+> | statement inside a trigger action so a values statement is the only way
+> | to call a function/procedure in a trigger action.
+> |
+> | The cause of the bug is that since the values are not actually used by
+> | the trigger, the trigger code does not fetch the row(s) returned by the
+> | trigger action. The fix is simple: change class
+> | org.apache.derby.impl.sql.execute.GenericTriggerExecutor to fetch (and
+> | discard) the rows returned by a trigger action.
+> |
+> | Please review the change. The diff file is attached.
+>
+>
+> I think you need to close the ResultSet (rs). Other locations in the
+> code where a ResultSet is processed terminate with an rs.close(). Eg.
+> see DeleteCascadeResultSet, ConstraintConstantAction.
+>
+> Dan.
+>
+I changed the code to close the ResultSet. The diff file is attached.
+
+Jack
+Index: java/engine/org/apache/derby/impl/sql/execute/GenericTriggerExecutor.java
+===================================================================
+— java/engine/org/apache/derby/impl/sql/execute/GenericTriggerExecutor.java		 (revision 37092)
++++ java/engine/org/apache/derby/impl/sql/execute/GenericTriggerExecutor.java		 (working copy)
+@@ -157,7 +157,18 @@
+ 		 		 		 */
+ 		 		 		 try
+ 		 		 		 {
+
+	ps.execute(spsActivation, false, false, false);
++		 		 		 		 ResultSet rs = ps.execute(spsActivation, false, false, false);
++                if( rs.returnsRows())
++                
+Unknown macro: {+                    // Fetch all the data to ensure that functions in the select list or values statement will+                    // be evaluated and side effects will happen. Why else would the trigger action return+                    // rows, but for side effects?+                    // The result set was opened in ps.execute()+                    while( rs.getNextRow() != null)+                    {
++                    }+                } 
++                rs.close();
+ 		 		 		 } 
+ 		 		 		 catch (StandardException e)
+ 		 		 		 {

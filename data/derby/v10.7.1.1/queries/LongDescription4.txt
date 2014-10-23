@@ -1,0 +1,29 @@
+When filling a table with "insert ... select ...", "order by" cannot be specified.
+
+There is no method to copy a table sorted into another table (except using export/import). This would be useful to optimize performance for big tables, or to create identity values that are ascending (related to another column).
+
+Example:
+
+create table temp1 (
+   s varchar(10));
+
+insert into temp1 values 'x','a','c','b','a';
+
+create table temp2 (
+   i integer not null
+      generated always as identity
+      primary key,
+   s varchar(10));
+
+insert into temp2 (s)
+   select s from temp1 order by s;
+
+--> Error: "order by" is not allowed.
+
+– trying to use "group by" instead of "oder by":
+
+insert into temp2 (s)
+   select s from temp1 group by s;
+select * from temp2;
+
+--> "group by" did not sort the table.

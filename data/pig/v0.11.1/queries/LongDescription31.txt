@@ -1,0 +1,22 @@
+Many users encountered this problem. The stack looks like:
+
+Error:java.lang.RuntimeException
+	at java.util.AbstractList$Itr.checkForComodification(AbstractList.java:372)
+	at java.util.AbstractList$Itr.next(AbstractList.java:343)
+	at com.yahoo.pig.builtin.SUM.sum(SUM.java:58)
+	at com.yahoo.pig.builtin.SUM.exec(SUM.java:25)
+	at com.yahoo.pig.builtin.SUM.exec(SUM.java:21)
+	at com.yahoo.pig.impl.eval.FuncEvalSpec$1.add(FuncEvalSpec.java:101)
+	at com.yahoo.pig.impl.eval.GenerateSpec$CrossProductItem.(GenerateSpec.java:140)
+	at com.yahoo.pig.impl.eval.GenerateSpec$1.add(GenerateSpec.java:52)
+	at com.yahoo.pig.impl.eval.GenerateSpec$CrossProductItem.add(GenerateSpec.java:217)
+	at com.yahoo.pig.impl.eval.collector.UnflattenCollector.add(UnflattenCollector.java:42)
+	at com.yahoo.pig.impl.eval.collector.DataCollector.addToSuccessor(DataCollector.java:79)
+	at com.yahoo.pig.impl.eval.SimpleEvalSpec$1.add(SimpleEvalSpec.java:21)
+	at com.yahoo.pig.impl.eval.GenerateSpec$CrossProductItem.exec(GenerateSpec.java:248)
+	at com.yahoo.pig.impl.eval.GenerateSpec$1.add(GenerateSpec.java:61)
+	at com.yahoo.pig.impl.mapreduceExec.PigMapReduce.reduce(PigMapReduce.java:144)
+	at org.apache.hadoop.mapred.ReduceTask.run(ReduceTask.java:355)
+	at org.apache.hadoop.mapred.TaskTracker$Child.main(TaskTracker.java:1707)
+
+We traced the issue to the same bag being shared between multiple operations and clearing it in one place caused problem in another. Will attach Ben's fix shortly. All unit and end-to-end tests passed.

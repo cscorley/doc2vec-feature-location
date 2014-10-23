@@ -1,0 +1,3 @@
+It would be nice to be able to split gzip files like we can split bzip files. Unfortunately, we don't have a sync point for the split in the gzip format.
+
+Gzip file format supports the notion of concatenate gzipped files. When gzipped files are concatenated together they are treated as a single file. So to make a gzipped file splittable we can used an empty compressed file with some salt in the headers as a sync signature. Then we can make the gzip file splittable by using this sync signature between compressed segments of the file.

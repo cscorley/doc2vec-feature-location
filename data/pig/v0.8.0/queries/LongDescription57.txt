@@ -1,0 +1,13 @@
+I occasionally see the following NPE when running a Pig job with HOD:
+
+2008-01-08 06:14:24,558 [main] INFO  org.apache.pig - Connecting to HOD...
+2008-01-08 06:14:29,732 [main] INFO  org.apache.pig - HDFS Web UI: nn-host:50070
+2008-01-08 06:14:29,732 [main] INFO  org.apache.pig - JobTracker Web UI: jt-host:54597
+2008-01-08 06:14:29,846 [main] FATAL org.apache.pig - Could not connect to HOD
+java.lang.NullPointerException
+	at org.apache.pig.impl.PigContext.fixUpDomain(PigContext.java:350)
+	at org.apache.pig.impl.PigContext.doHod(PigContext.java:324)
+	at org.apache.pig.impl.PigContext.connect(PigContext.java:175)
+	at org.apache.pig.PigServer.<init>(PigServer.java:128)
+	at org.apache.pig.tools.grunt.Grunt.<init>(Grunt.java:37)
+	at org.apache.pig.Main.main(Main.java:212)

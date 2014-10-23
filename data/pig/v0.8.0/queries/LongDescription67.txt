@@ -1,0 +1,3 @@
+FileLocalizer.openDFSFile() does not work on the reduce side. This is probably because FileLocalizer uses PigRecordReader which exists only on the map task.
+
+The correct solution will be for FileLocalizer to have a hadoop conf that is initialized by the reduce task on the reduce side, and the pig record reader on the map side.

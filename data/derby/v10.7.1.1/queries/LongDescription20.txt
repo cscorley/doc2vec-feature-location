@@ -1,0 +1,9 @@
+Reporting for Daniel John Debrunner.
+
+If a string contains control characters in the regions matched 
+by wild card characters then in some situations a LIKE will 
+return false instead of true and the row will not be returned.
+
+Caused by the dynamic like optimization using >= with a prefix 
+which is is equivalent to >= on the prefeix appended with 
+blanks and not null (\u0000) characters.

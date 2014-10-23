@@ -1,0 +1,51 @@
+As discussed in the mailing list, I've been looking at adding additional configuration options for highlighting. 
+I've made quite a few changes to the properties for highlighting:
+
+Properties that can be set on request, or in solrconfig.xml at the top level:
+  highlight (true/false)
+  highlightFields
+Properties that can be set in solrconfig.xml at the top level or per-field
+  formatter (simple/gradient)
+  formatterPre (preTag for simple formatter)
+  formatterPost (postTag for simple formatter)
+  formatterMinFgCl (min foreground colour for gradient formatter)
+  formatterMaxFgCl (max foreground colour for gradient formatter)
+  formatterMinBgCl (min background colour for gradient formatter)
+  formatterMaxBgCl (max background colour for gradient formatter)
+  fragsize (if <=0 use NullFragmenter, otherwise use GapFragmenter with this value)
+
+I've added variables for these values to CommonParams, plus there's a fields Map<String,CommonParams> that is parsed from nested NamedLists (i.e. a lst named "fields", with a nested lst for each field).
+
+Here's a sample of how you can mix and match properties in solrconfig.xml:
+
+  <requestHandler name="hl" class="solr.StandardRequestHandler" >
+    <str name="formatter">simple</str>
+    <str name="formatterPre"><i></str>
+    <str name="formatterPost"></i></str>
+    <str name="highlightFields">title,authors,journal</str>
+    <int name="fragsize">0</int>
+    <lst name="fields">
+      <lst name="abstract">
+        <str name="formatter">gradient</str>
+        <str name="formatterMinBgCl">#FFFF99</str>
+        <str name="formatterMaxBgCl">#FF9900</str>
+        <int name="fragsize">30</int>
+        <int name="maxSnippets">2</int>
+      </lst>
+      <lst name="authors">
+        <str name="formatterPre"><strong></str>
+        <str name="formatterPost"></strong></str>
+      </lst>
+    </lst>
+  </requestHandler>
+
+I've created HighlightingUtils to handle most of the parameter parsing, but the hightlighting is still done in SolrPluginUtils and the doStandardHighlighting() method still has the same signature, but the other highlighting methods have had to be changed (because highlighters are now created per highlighted field).
+
+I'm not particularly happy with the code to pull parameters from CommonParams, first checking the field then falling back, e.g.:
+         String pre = (params.fields.containsKey(fieldName) && params.fields.get(fieldName).formatterPre != null) ?
+               params.fields.get(fieldName).formatterPre : 
+                  params.formatterPre != null ? params.formatterPre : "<em>";
+
+I've removed support for a custom formatter - just choosing between simple/gradient. Probably that's a bad decision, but I wanted an easy way to choose between the standard formatters without having to invent a generic way of supplying arguments for the constructor. Perhaps there should be formatterType=simple/gradient and formatterClass=... which overrides formatterType if set at a lower level - with the formatterClass having to have a zero-args constructor? Note: gradient is actually SpanGradientFormatter.
+
+I'm not sure I properly understand how Fragmenters work, so supplying fragsize to GapFragmenter where >0 (instead of what was a default of 50) may not make sense.

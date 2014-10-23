@@ -1,0 +1,8 @@
+Currently pig is very file system centric for input LoadFunc and output StoreFunc.
+However in many buzz usecases the data are not in the dfs directly but come from a remote service. Also it is common to store the results into a database for a webbased ui.
+There for I suggest to make filepath elements in the gramar optional.
+For example:
+A = load 'mydata' using PigStorage() // " 'myData' " would be optional  
+STORE A into 'output.bz2' USING myStore(); //  " into 'output.bz2' " would be optional.
+
+Current workaround for implementing Load and Store functions that work without file system access is to create temporary dummy files since pig is checking for this files, even if the load and store functions do not need those file.

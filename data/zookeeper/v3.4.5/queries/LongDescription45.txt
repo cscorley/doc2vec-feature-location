@@ -1,0 +1,24 @@
+SVN and the ant build have to be updated after the initial import from SourceForge (see INFRA-1644) in order to get us aligned with Apache release process/collateral and some general cleanup of the repository. Please review/comment on the following:
+
+I intend to follow these steps:
+1) collapse svn hadoop/zookeeper/trunk/zookeeper/... down to hadoop/zookeeper/trunk/... (remove unnecessary zk dir  under trunk)
+
+2) change the java package prefix from com.yahoo to org.apache
+3) update the license headers in all  source files
+4) replace LICENSE file in root dir with Apache LICENSE file
+5) add attribution NOTICE file to root dir
+6) update the README file appropriately
+
+7) create a new "src" directory in the zk root
+8) move root "c" directory into src
+9) move root "java" directory into src
+10) create root "docs" directory
+11) create src/docs directory
+12) rename src/java/src to src/java/main
+13) move root "test" directory to src/java/test
+
+14) build.xml will be updated appropriately for all the moves. it will also be updated with apache specific targets similar to what exists in hadoop (such as building the forrest documentation).
+
+steps 10&11 are required for zk documentation storage. src/docs is the location of all documentation in "forrest xml" format - the documentation source/originals (what you edit when you change the docs).  the ant script is setup to build docs (forrest) into the root docs directory. these files are also committed to svn (both docs and src/docs). later, during a release process, the files in the root docs directory are checked out onto the system hosting the apache web site and pushed to the mirrors.
+
+I'll submit patches for any changes/additions of files. However I suspect that the directory move operations in SVN will not have an accompanying patch - this "script" is the documentation of what will be changed (comments added for any deviation).

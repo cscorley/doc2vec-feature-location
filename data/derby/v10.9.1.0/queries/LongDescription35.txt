@@ -1,0 +1,19 @@
+I have come across several instances where Network Server can break DRDA chaining protocol and can thus cause (typically intermittent) connection/communication failures for non-IBM-JDBC-Universal clients (in particular, the problems have been seen with DB2's CLI client and with the .NET ODBC provider).
+
+The problems don't appear to surface when using the IBM DB2 JDBC Universal driver (i.e. the Java driver that is most typically used with Network Server)--I don't know the specifics of why not, but it seems to be the case that the universal driver isn't as strict about enforcing DRDA chaining protocol as other clients.
+
+[ NOTE: "DSS" here is a DRDA term.  It stands for "Data Stream Structure" and is, in layman's terms, a structured message that is passed between the client and the server. ]
+
+Some background:
+
+I – The DDMReader recognizes chaining on requests from the client through use of the reader.isChainedWith<Same/Diff>ID() method, which indicates whether or not the current DSS being read is chained to the FOLLOWING DSS (the one to be read next).
+
+II – The DDMWriter enforces chaining on replies through use of a "chain bit" in the header of the reply DSS.  If two replies AR and BR are chained, then the reply Header of AR has to indicate whether is it chained to BR, and if so, it has to indicate whether BR will have the SAME correlation id or a DIFFERENT correlation id.  The chain bit must be set according to the chaining of the request DSSes (as determined from the reader.isChainedWith<...>ID() methods) to which we're responding.  DDM Writer currently sets the chaining bit based on a "reuseCorrId" flag that it receives from DRDAConnThread at the time of the write.  That flag indicates whether or not the the current DSS (the one being written) should have the same correlation id as the PRECEDING DSS (the one we most recently wrote). 
+
+That said, the intermittent connection/communication failures that are showing up with non-IBM-Universal drivers are caused by two factors:
+
+1) There are several places in the DRDAConnThread code where the "reuseCorrId" flag that is passed to DDMWriter is incorrect (it doesn't take chaining of the requests into account).  This leads to incorrect chaining of the reply DSSes, which can then lead to problems for the client when the client tries to process the reply (the client expects the replies to be chained in a specific way, and if Network Server doesn't do it, the client can choke).
+
+2) Currently, DDMWriter doesn't set the chaining bits for a reply DSS until the NEXT reply DSS has begun (see "createDss<...>" methods in the DDMWriter class, for example).  At the same time, there are a handful of calls to "send()" in the DRDAConnThread class, and those calls tell DDMWriter to flush everything it has written to the client.  This is a problem: if, for example, DDMWriter has written some reply DSS AR, the chaining bits for AR won't get set until the next DSS is created-so if we up and call "send()", we'll end up sending AR across the wire with it's chaining bits UNSET.  This isn't a problem if AR is NOT supposed to be chained to anything after it-because the default chaining is "none".  However, if DRDAConnThread calls "send()" in the middle of a chain, the last reply written is going to have incorrect chaining info, and that can cause problems on the client.
+
+Whether or not the client actually chokes on the incorrect chaining bits is intermittent: the reason is that this all depends on how the network packets are buffered and on the relative speed of the CPU's of the client and server.  That said, the problem is typically more reproducible across machines (i.e. if the client and server are two different machines).

@@ -1,0 +1,60 @@
+A convenience method for getting a document's text in a single method would be helpful.
+
+This would address the common use case of wanting the string content, but not the document metadata.
+
+Sample methods are below:
+
+------------------------------------------------------------------ 
+
+    /** 
+
+	Gets the full text (but not other properties of the document
+	at the specified URL.
+	
+	@param documentUrl URL of the resource to parse
+	@param configUrl url of Tika configuration object
+	@return the document's full text
+     */ 
+
+
+
+    public static String getStrContent(URL documentUrl, URL configUrl) 
+            throws LiusException, IOException 
+{ 
+
+        return getStrContent(documentUrl, 
+                LiusConfig.getInstance(configUrl)); 
+    }
+ 
+
+
+    /** 
+
+	Gets the full text (but not other properties of the document
+	at the specified URL.
+	
+	@param documentUrl URL of the resource to parse
+	@param config Tika configuration object
+	@return the document's full text
+     */ 
+
+
+
+    public static String getStrContent(URL documentUrl, LiusConfig config) 
+            throws LiusException, IOException { 
+
+        String fulltext = null; 
+
+        if (documentUrl != null) 
+{ 
+            Parser parser = ParserFactory.getParser(documentUrl, config); 
+            fulltext = parser.getStrContent(); 
+        }
+ 
+
+        return fulltext; 
+    } 
+
+=========================
+
+This code assumes changes to the code base that are not (yet) committed that will enable us to use URL's for input document specifiers.  (See TIKA-17.)

@@ -1,0 +1,14 @@
+EJBQL:select c from Customer c where  exists ( select o from Order o where o.cutomer = c and o.delivered=false  and  
+exists ( select l1 from LineItem l, in(o.lineitems) as l2  where l1=l2 )) 
+
+partial stack trace is 
+
+Caused by: java.lang.NullPointerException
+	at org.apache.openjpa.jdbc.kernel.exps.PCPath.initialize(PCPath.java:359)
+	at org.apache.openjpa.jdbc.kernel.exps.CompareEqualExpression.initialize(CompareEqualExpression.java:64)
+	at org.apache.openjpa.jdbc.kernel.exps.ContainsExpression.initialize(ContainsExpression.java:56)
+	at org.apache.openjpa.jdbc.kernel.exps.BindVariableAndExpression.initialize(BindVariableAndExpression.java:49)
+	at org.apache.openjpa.jdbc.kernel.exps.SelectConstructor.initializeJoins(SelectConstructor.java:222)
+	at org.apache.openjpa.jdbc.kernel.exps.SelectConstructor.newJoinsSelect(SelectConstructor.java:166)
+	at org.apache.openjpa.jdbc.kernel.exps.SelectConstructor.evaluate(SelectConstructor.java:88)
+	at org.apache.openjpa.jdbc.kernel.exps.SubQ.appendTo(SubQ.java:198)

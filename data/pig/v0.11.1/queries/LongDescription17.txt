@@ -1,0 +1,18 @@
+Currently the code does not compile with hadoop 0.15. Also we might have to allign with configuration changes.
+
+This is due to the changes to hadoop interface that introduced templates:
+
+> Nightly/ws/pig/src/com/yahoo/pig/impl/mapreduceExec/
+> PigInputFormat.java :113:  
+> com.yahoo.pig.impl.mapreduceExec.PigInputFormat.PigRecordReader is not 
+> abstract and does not override abstract method next 
+> (org.apache.hadoop.io.WritableComparable,org.apache.hadoop.io.Writable
+> ) in org.apache.hadoop.mapred.RecordReader
+>     [javac]     public static class PigRecordReader implements  
+> RecordReader {
+>     [javac]                   ^
+>     [javac] Note: Some input files use or override a deprecated API.
+>     [javac] Note: Recompile with -Xlint:deprecation for details.
+>     [javac] Note: Some input files use unchecked or unsafe operations.
+>     [javac] Note: Recompile with -Xlint:unchecked for details.
+>     [javac] 1 error

@@ -1,0 +1,9 @@
+In the following:
+
+A = load 'foo';
+B = foreach A generate $1, $2;
+C = foreach B generate $2;
+
+The parse should be able to detect that the last line is referencing a non-existant field. It cannot do the check for the 2nd line since it doesn't know the number of fields of the tuples of A, but it can for the last line since it know that tuples of B have 2 fields.
+
+It is much easier to figure out what is going on when the error is detected at parse time rather than runtime.

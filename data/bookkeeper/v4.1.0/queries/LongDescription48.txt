@@ -1,0 +1,44 @@
+Now each ledger in bookkeeper has separate index file. Publishing messages to new topics needs to create the index file and write a header. So number of files need to be created and written increase when number of ledgers(topics) increase, which slows down disk i/o. 
+
+index file creation and written will slow down getFileInfo operation. Even worse, it lock the whole fileInfoCache, which might affect other bookkeeper operations.
+
+Need a solution not to lock the whole fileInfoCache while creating/written index files.
+
+Some testing results listed as below (3 bookie servers, 2 quorum.)
+
+
+	Create 
+{num_ledgers}
+ ledgers, each ledgers publish 2 messages. (make sure index file of a specified ledger are all created in 3 bookie servers)
+
+
+ num ledgers 
+ 5,000 
+ 50,000 
+ 500,000 
+
+
+ bookie 
+ 459.178 
+ 419.26 
+ 86.03 
+
+
+
+
+
+
+
+	After publishing 2 messages, publish messages in round-robin way ledger by ledger, until publishing 10,000,000 messages.
+
+
+ num ledgers 
+ 5,000 
+ 50,000 
+ 500,000 
+
+
+ bookie 
+ 31,048.572 
+ 30,463.1 
+ 17,962.899

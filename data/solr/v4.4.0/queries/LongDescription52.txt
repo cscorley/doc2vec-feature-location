@@ -1,0 +1,12 @@
+Add lazy field loading to solr.
+
+Currently solr reads all stored fields and filters the undesired fields based on the field list.  This is usually not a performance concern, but when using solr to store large numbers of fields, or just one large field (doc contents, eg. for highlighting), it is perceptible.
+
+Now, there is a concern with the doc cache of SolrIndexSearcher, which assumes it has the whole document in the cache.  To maintain this invariant, it is still the case that all the fields in a document are loaded in a searcher.doc call.  However, if a field set is given to teh method, only the given fields are loaded directly, while the rest are loaded lazily.
+
+Some concerns about lazy field loading
+  1. Lazy field are only valid while the IndexReader is open.  I believe this is fine since the IndexReader is kept alive by the SolrIndexSearcher, so all docs in the cache have the reader available.  
+  2. It is slower to read a field lazily and retrieve its value later than retrieve it directory to begin with (though I don't know how much--depends on i/o factors).  We certainly don't want this to be the common case.  I added an optional call which accumulates all the field likely to be used in the request (highlighting, reponse writing), and populates the IndexSearcher cache a priori.  This has the added advantage of concentrating doc retrieval in a single place, which is nice from a performance testing perspective.
+ 3. LazyFields are incompatible with the sundry Field declarations scattered about Solr.  I believe I've changed all the necessary locations to Fieldable.
+
+Comments appreciated

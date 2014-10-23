@@ -1,0 +1,24 @@
+While investigating PIG-99, in TestBuiltin.java line 315:
+
+for (int i = 0; i < LOOP_COUNT; i++) {
+    for (int j = 0; j < LOOP_COUNT; j++) {
+        sb.append(i + "\t" + i + "\t" + j % 2 + "\n");
+    }
+}
+
+
+
+doing "i + "\t" + i + "\t" + j % 2 + "\n"" creates temporary String(s) reducing the advantages of using a StringBuffer.
+
+Could be replace with:
+
+for (int i = 0; i < LOOP_COUNT; i++) {
+    for (int j = 0; j < LOOP_COUNT; j++) {
+        sb.append(i);
+        sb.append("\t");
+        sb.append(i);
+        sb.append("\t");
+        sb.append(j % 2);
+        sb.append("\n");
+    }
+}

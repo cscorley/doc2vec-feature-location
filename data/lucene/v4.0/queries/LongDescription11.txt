@@ -1,0 +1,12 @@
+Version: 1.2-RC3
+
+I've created an index of UTF-8 encoded documents and making sure that all
+queries are converted to UTF-8. When searching the index with query containing
+non-ascii UTF-8 characters and an asterisk, no results are found even though
+there are documents that contain the query word. Searching does work when query
+doesn't contain non-ascii UTF-8 characters or without asterisk works always.
+Test results with swedish words:
+"fÃ¶dde" - works ok, returns documents.
+"fÃ¶dd*" - doesn't return any results.
+"fÃ¶dd" - works ok, returns documents.
+"kom*" - works ok, returns documents.

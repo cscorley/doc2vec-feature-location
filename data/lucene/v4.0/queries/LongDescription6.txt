@@ -1,0 +1,26 @@
+if I do
+
+IndexReader r = IndexReader.open("index");
+Term t = new Term("contents","heidegger");
+TermEnum terms = r.terms(t);
+out.println("zero-term: "terms.term().text()"<br>");
+int cnt = 0;
+while (terms.next()) {
+	out.println("term: "terms.term().text()"<br>");
+	if (cnt++>5) break;
+}
+
+then the first term I see in the main loop after terms.next() is 
+not "heidegger", even though this is in my index. If I query the enumerator 
+BEFORE calling next(), the term is there.
+However, the comments in TermEnum.term() says that this method is only valid 
+after the first next() and all other enumerators work that way too.
+
+The terms(Term) should give back the actual term first, just as it says it 
+does, right?
+
+The enumerator skips over the first term if I search for a non-existing term 
+like "heidegge" as well.
+
+This means that a PrefixQuery will not work as expected since it uses this 
+enumerator, right?

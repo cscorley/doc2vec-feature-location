@@ -1,0 +1,7 @@
+If you do something like
+
+a = load ... as (f1,f2,f3);
+b = group a by (f1,f2);
+c = foreach b generate flatten(group), SUM(a.f3);
+
+The reduce side refers to field number expecting data will not have been flattened yet. But if the combiner kicks in, it already flattens the group, leading to column references being wrong.

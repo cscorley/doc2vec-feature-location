@@ -1,0 +1,9 @@
+It would be really nice if it were possible to use wildcards to do things like:
+
+    <copyField source="*_t" dest="text"/>
+
+The above example copies all fields ending in "_t" to the "text" field.
+
+I've put together a patch to do this. If there are mutlitple matches, all copies are done.  If there is a match in a dynamicField, then the dynamic field is also generated, subject to the existing rules that short expressions go first.  I tried to stick to the spirit of the code as I saw it, and made what I thought were a minimal reasonable set of changes.  The patch includes some additional tests in ConvertedLegacyTest.java to test the new functionality.  That may not be the  best  place for new tests, but it beats no tests.
+
+I'd really like to get this, or some improved variant of it into the codebase, as it's quite important to my application.  Please review and comment/criticize as you see fit.

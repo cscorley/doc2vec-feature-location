@@ -1,0 +1,18 @@
+I don't have a test case demonstrating this yet, but i wnated to file it before i forget.
+
+Glancing at the code for BitDocSet this morning i think i see a way for the size information (which is cached) to be corrupted.
+
+If a client tries to be helpful by using addUnique when it knows it can, but the size cache is already invalid, then the size will be recorded incorrectly as 0 (which will now be considered a valid (but incorect) size, which may be further trusted for additional addUnique calls)
+
+ie...
+    DocSet a = ...                   # get a BitDocSet from somewhere
+    a.add(42);                        # this internal sets size=-1 since we don't know if 42 was alreayd set so we don't trust the cache
+    if (! a.exists(666) ) 
+{
+       ...                                   # client does it's thing
+       a.addUnique(666);        # client tries to be helpfull, but at this point size is incrimented to 0, making it a legal value
+    }
+    int s = a.size();                # bogus 0 is returned.
+
+
+the most straight forward fix may be to decouple a boolean indicating wether the cached value is valid from the actual cached value.

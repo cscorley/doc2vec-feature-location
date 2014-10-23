@@ -1,0 +1,37 @@
+There are two synchronized blocks locking on different objects, and to me they should be guarded by the same object. Here are the parts of the code I'm talking about:
+
+
+NIOServerCnxn.readRequest@444
+...
+          synchronized (this) {
+                outstandingRequests++;
+                // check throttling
+                if (zk.getInProcess() > factory.outstandingLimit) {
+                    disableRecv();
+                    // following lines should not be needed since we are already
+                    // reading
+                    // } else {
+                    // enableRecv();
+                }
+            } 
+
+
+
+
+NIOServerCnxn.sendResponse@740
+...
+         synchronized (this.factory) {
+                outstandingRequests--;
+                // check throttling
+                if (zk.getInProcess() < factory.outstandingLimit
+                        || outstandingRequests < 1) {
+                    sk.selector().wakeup();
+                    enableRecv();
+                }
+            }
+
+
+
+I think the second one is correct, and the first synchronized block should be guarded by "this.factory". 
+
+This could be related to issue ZOOKEEPER-57, but I have no concrete indication that this is the case so far.

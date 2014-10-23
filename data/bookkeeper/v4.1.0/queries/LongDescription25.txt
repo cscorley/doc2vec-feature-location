@@ -1,0 +1,32 @@
+Here is a proposal for implementing JMS on top of Hedwig.
+
+Overview:
+---------
+After comparing the JMS spec and Hedwig's current implementation, it appears that Hedwig provides most concepts of the JMS spec. The work will therefore mostly be implementing wrappers around Hedwig's primitives.
+
+There is no 1 to 1 mapping most of the time though, and there are some subtleties in the JMS spec that we must be cautious about. There are also things that don't exist in Hedwig and that we'll have to add. 
+For instance, "administered objects", the different kinds of standard messages, or a parser for the SQL-like selector queries. These are marked with a triangular flag on the attached mindmap.
+
+The JMS spec also specifies support for distributed transactions (XA) but this part is optional. I would suggest to leave that for later, if there is any request for it.
+
+
+
+Design:
+-------
+I suggest to separate all JMS-related code in a separate project (as hedwig-client and hedwig-protocol). 
+We'll therefore make sure that Hedwig-server is JMS agnostic, and it will later be possible to use the same approach for implementing AMQP or JMS2, without mixing all concepts.
+
+
+Development:
+-----------
+An iterative approach is well suited. We could start with fundamentals, and progressively add some meat: 
+1. messages, connections and sessions
+2. basic messaging with selectors
+3. all cases of messaging models
+4. validation tests
+5. performance tests (I checked and unfortunately, there does not seem to be any "free" standard for benchmarking jms implementation...)
+
+Each iteration would involve adding regression tests and doing a review.
+
+About the time this would take:
+My rough estimation (not being very familiar with Hedwig's codebase): in the order 1 or 2 weeks for each of these iterations.

@@ -1,0 +1,20 @@
+I've been playing with Pig using three setups:
+(a) local
+(b) hadoop mapred with hdfs
+(c) hadoop mapred with file:///path/to/shared/fs as the default file system
+
+In our local setup, various NFS filesystems are shared between all machines (including mapred nodes)  eg /users, /local
+
+I would like Pig to note when input files are in a file:// directory that has been marked as shared, and hence not copy it to DFS.
+
+Similarly, the Torque PBS resource manager has a usecp directive, which notes when a filesystem location is shared between all nodes, (and hence scp is not needed, cp alone can be used). See http://www.clusterresources.com/wiki/doku.php?id=torque:6.2_nfs_and_other_networked_filesystems
+
+It would be good to have a configurable setting in Pig that says when a filesystem is shared, and hence no copying between file:// and hdfs:// is needed.
+An example in our setup might be:
+sharedFS file:///local/
+sharedFS file:///users/
+if commands should be used.
+
+This command should be used with care. Obviously if you have 1000 nodes all accessing a shared file in NFS, then it would have been better to "hadoopify" the file.
+
+The likely area of code to patch is src/org/apache/pig/impl/io/FileLocalizer.java hadoopify(String, PigContext)

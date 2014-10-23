@@ -1,0 +1,34 @@
+Below we have a documents with three fields. One of them 'aaa'
+is not defined in solrconfig.xml:
+
+<add>
+ <doc>
+   <field name="type">invoice</field>
+   <field name="aaa">bbb</field>
+   <field name="internal_id">10E3B793A84559081D1EF0BA6BD0BB5E1417573EC5D</field>
+ </doc>
+</add>
+
+We get an error that resembles an xml but it is not because it has no root tag:
+
+<result status="400">ERROR:unknown field 'aaa'</result><result status="1">org.xmlpull.v1.XmlPullParserException: expected START_TAG or END_TAG not END_DOCUMENT (position: END_DOCUMENT seen ...</doc>\n</add>\n... @9:1)
+   at org.xmlpull.mxp1.MXParser.nextTag(MXParser.java:1083)
+   at org.apache.solr.core.SolrCore.update(SolrCore.java:681)
+   at org.apache.solr.servlet.SolrUpdateServlet.doPost(SolrUpdateServlet.java:52)
+   at javax.servlet.http.HttpServlet.service(HttpServlet.java:709)
+   at javax.servlet.http.HttpServlet.service(HttpServlet.java:802)
+   at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:252)
+   at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:173)
+   at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:213)
+   at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:178)
+   at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:126)
+   at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:105)
+   at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:107)
+   at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:148)
+   at org.apache.coyote.http11.Http11Processor.process(Http11Processor.java:869)
+   at org.apache.coyote.http11.Http11BaseProtocol$Http11ConnectionHandler.processConnection(Http11BaseProtocol.java:664)
+   at org.apache.tomcat.util.net.PoolTcpEndpoint.processSocket(PoolTcpEndpoint.java:527)
+   at org.apache.tomcat.util.net.LeaderFollowerWorkerThread.runIt(LeaderFollowerWorkerThread.java:80)
+   at org.apache.tomcat.util.threads.ThreadPool$ControlRunnable.run(ThreadPool.java:684)
+   at java.lang.Thread.run(Thread.java:595)
+</result>

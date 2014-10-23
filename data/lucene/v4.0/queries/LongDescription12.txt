@@ -1,0 +1,25 @@
+Here is a pseudo-code
+
+writer.open()
+writer.add(documentA);
+writer.close()  // this creates segment1 with 1 document
+
+reader.open()            // this reader can be opened by another process
+writer.open()            // this creates segment2 with one document
+reader.delete(documentA) // using unique term // here delete is done in-memory
+writer.add(documentB) 
+writer.close()          // writer will merge two segments, delete segment2 
+                        // and will mark segment1 for deletion because 
+                        // reader  holds files to segment1 open
+
+reader.close()          // reader writes out .del file, but that is too
+                        // late
+
+searcher.open()
+searcher.search("term_common_to_docA_and_docB") // returns both docA and docB
+
+
+It seems that either a) deletes should be write-through, or b) deletes should 
+be done by the writer, or c) writer should not optimize non-RAM segments unless 
+asked to. As a client, I like option b) the best, though, this is not the 
+easiest option to implement. My $0.02

@@ -1,0 +1,21 @@
+Here's an UTF-8 example with accented chars that can go in example/exampledocs, to demonstrate correct handling of accented chars.
+
+After posting this to SOLR, searching for "êâîôû" from http://localhost:8983/solr/admin/ correctly finds this document.
+
+Needs a small patch to example/exampledocs/post.sh (enclosed below), to specifiy the encoding for the POST. 
+
+The XML pull parser seems to be able to handle the encoding declaration correctly, but if the encoding is not specified in the POST, the servlet container might get in the way (Jetty does with the current configuration).
+
+Index: example/exampledocs/post.sh
+===================================================================
+— example/exampledocs/post.sh (revision 424529)
++++ example/exampledocs/post.sh (working copy)
+@@ -4,7 +4,7 @@
+
+ for f in $FILES; do
+   echo Posting file $f to $URL
+
+	curl $URL --data-binary @$f
++  curl $URL --data-binary @$f -H 'Content-type:text/xml; charset=utf-8'
+   echo
+ done

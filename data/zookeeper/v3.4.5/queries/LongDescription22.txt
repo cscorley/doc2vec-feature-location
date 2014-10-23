@@ -1,0 +1,11 @@
+Moved from SourceForge to Apache.
+http://sourceforge.net/tracker/index.php?func=detail&aid=1831412&group_id=209147&atid=1008547
+
+When a connection to a ZooKeeper server fails, all of the pending requests
+will return an error. In reality the requests should be resubmitted when
+the client reestablishes a connection to ZooKeeper.
+
+For read requests, it's no big deal to just reissue the request. For update
+requests, the ZooKeeper must be able to detect if the request has been
+processed and, if so, return the result of the previous execution;
+otherwise, it should process the request.

@@ -1,0 +1,14 @@
+Reporting for Mike Matrigali.
+
+If upon reboot of the system a prepared but uncommitted 
+transaction contains a drop of the conglomerate in the system 
+with the highest Id in the system, and if a create conglomerate is then executed it will reused the conglomerate id of the dropped conglomerate. The system will work correctly once the outstanding prepared xact is committed or aborted.
+
+Note:
+It seems unlikely for users to in general include ddl in XA 
+transactions, 
+and even more rare for it to be the last conglomerate created, 
+and even
+more rare for the offending transaction to be left in prepared 
+state across
+a system shutdown.

@@ -1,0 +1,98 @@
+Quoting the reply of Benjamin Reed to one of my emails
+
+there is one other bug you are seeing, before a ledger can be read, it must be closed. as your code shows, a process can open a ledger for reading while it is still being written to, which causes an implicit close that is not detected by the writer.
+
+
+Teste Case :
+
+
+
+package br.unicamp.zooexp.booexp;
+
+import java.io.IOException;
+import java.util.Enumeration;
+
+import org.apache.bookkeeper.client.BKException;
+import org.apache.bookkeeper.client.BookKeeper;
+import org.apache.bookkeeper.client.LedgerEntry;
+import org.apache.bookkeeper.client.LedgerHandle;
+import org.apache.bookkeeper.client.BookKeeper.DigestType;
+import org.apache.zookeeper.KeeperException;
+
+public class BookTest {
+
+    public static void main (String ... args) throws IOException, InterruptedException, KeeperException, BKException{
+        BookKeeper bk = new BookKeeper("127.0.0.1");
+        LedgerHandle lh = bk.createLedger(DigestType.CRC32, "123".getBytes());
+        long lh_id = lh.getId();
+        lh.addEntry("Teste".getBytes());
+        lh.addEntry("Test2".getBytes());
+        System.out.printf("Got %d entries for lh\n",lh.getLastAddConfirmed()+1);
+
+
+
+        lh.addEntry("Test3".getBytes());
+        LedgerHandle lh1 = bk.openLedger(lh_id, DigestType.CRC32, "123".getBytes());
+        System.out.printf("Got %d entries for lh1\n",lh1.getLastAddConfirmed()+1);
+        lh.addEntry("Test4".getBytes());
+
+        lh.addEntry("Test5".getBytes());
+        lh.addEntry("Test6".getBytes());
+        System.out.printf("Got %d entries for lh\n",lh.getLastAddConfirmed()+1);
+        Enumeration<LedgerEntry> seq = lh.readEntries(0, lh.getLastAddConfirmed());
+        while (seq.hasMoreElements()){
+            System.out.println(new String(seq.nextElement().getEntry()));
+        }
+        lh.close();
+
+
+        lh1.addEntry("Test7".getBytes());
+        lh1.addEntry("Test8".getBytes());
+
+        System.out.printf("Got %d entries for lh1\n",lh1.getLastAddConfirmed()+1);
+
+        seq = lh1.readEntries(0, lh1.getLastAddConfirmed());
+        while (seq.hasMoreElements()){
+            System.out.println(new String(seq.nextElement().getEntry()));
+        }
+
+
+        lh1.close();
+
+        LedgerHandle lh2 = bk.openLedger(lh_id, DigestType.CRC32, "123".getBytes());
+        lh2.addEntry("Test9".getBytes());
+
+        System.out.printf("Got %d entries for lh2 \n",lh2.getLastAddConfirmed()+1);
+
+        seq = lh2.readEntries(0, lh2.getLastAddConfirmed());
+        while (seq.hasMoreElements()){
+            System.out.println(new String(seq.nextElement().getEntry()));
+        }
+
+        bk.halt();
+
+    }
+}
+
+
+
+
+
+Output
+Got 2 entries for lh
+Got 3 entries for lh1
+Got 6 entries for lh
+Teste
+Test2
+Test3
+Test4
+Test5
+Test6
+Got 3 entries for lh1
+Teste
+Test2
+Test3
+Got 3 entries for lh2 
+Teste
+Test2
+Test3

@@ -1,0 +1,50 @@
+If you set securityMechanism=9 as a JCC (DB2 Universal Driver) property when connecting to Derby a java.lang.ClassNotFoundException is returned in an error because the code in the org.apache.derby.impl.drda.EncryptionManager constructor does the following:
+
+    try 
+{
+      if (java.security.Security.getProvider ("IBMJCE") == null) // IBMJCE is not installed, install it.
+        java.security.Security.addProvider ((java.security.Provider) Class.forName("IBMJCE").newInstance());
+<SNIP>
+    }
+    catch (java.lang.ClassNotFoundException e) 
+{
+      throw new SQLException ("java.lang.ClassNotFoundException is caught" +
+                              " when initializing EncryptionManager '" + e.getMessage() + "'");
+    }
+
+Some improvements could also be made to related documentation:
+
+http://incubator.apache.org/derby/manuals/admin/hubprnt16.html should probably be improved to describe the valid values for all properties (e.g. securityMechanism ) or have links (or a comment) to other manuals that have further information on the properties.
+
+==================================
+
+Here is how to reproduce the problem using the ij tool:
+
+D:\Derby_snapshots\svnversion_46005>java -cp .;.\lib\derby.jar;.\lib\derbynet.jar;.\lib\derbytools.jar;..\db2jcc\lib\db2jcc.jar;..\db2jcc\lib\db2jcc_license_c.jar  -Dij.driver=com.ibm.db2.jcc.DB2Driver -Dij.user=wkpoint -Dij.password=wppass -Dij.protocol=jdbc:derby:net://localhost:1527/ org.apache.derby.tools.ij
+ij version 10.0 (C) Copyright IBM Corp. 1997, 2004.
+ij> connect 'testDB3;create=true:retrieveMessagesFromServerOnGetMessage=true;securityMechanism=9;';
+ERROR (no SQLState): java.lang.ClassNotFoundException is caught when initializing EncryptionManager 'IBMJCE'
+ij>
+
+
+------------------ Java Information ------------------
+Java Version:    1.4.2_05
+Java Vendor:     Sun Microsystems Inc.
+Java home:       C:\Program Files\Java\j2re1.4.2_05
+Java classpath:  .;.\lib\derby.jar;.\lib\derbynet.jar;.\lib\derbytools.jar;..\db2jcc\lib\db2jcc.jar;..\db2jcc\lib\db2jcc_license_c.j
+ar
+OS name:         Windows XP
+OS architecture: x86
+OS version:      5.1
+Java user name:  sissonj
+Java user home:  C:\Documents and Settings\john
+Java user dir:   D:\Derby_snapshots\svnversion_46005
+--------- Derby Information --------
+[D:\Derby_snapshots\svnversion_46005\lib\derby.jar] 10.0.2.0 - (46005)
+[D:\Derby_snapshots\svnversion_46005\lib\derbynet.jar] 10.0.2.0 - (46005)
+[D:\Derby_snapshots\svnversion_46005\lib\derbytools.jar] 10.0.2.0 - (46005)
+[D:\Derby_snapshots\db2jcc\lib\db2jcc.jar] 2.4 - (17)
+[D:\Derby_snapshots\db2jcc\lib\db2jcc_license_c.jar] 2.4 - (17)
+------------------------------------------------------
+----------------- Locale Information -----------------
+------------------------------------------------------

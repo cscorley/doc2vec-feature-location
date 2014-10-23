@@ -1,0 +1,35 @@
+Right now, in Derby, there is no way to define a temporary Result Set to use in subsequent statements. This makes complicated concepts to be expressed in SQL either very very complicated and lengthy or simply impossible.
+
+DB2 has a simple and useful syntax using a "WITH" statement. It would be nice if Derby can support this. An example is as below:
+
+WITH A(COL1, COL2) as (SELECT COL1, COL2 FROM T1 WHERE condition)
+SELECT T2.COL3 FROM T2, A WHERE condition2
+
+It can be extended to include more WITH clauses:
+
+WITH A(COL1, COL2) as (SELECT COL1, COL2 FROM T1 WHERE condition)
+WITH B(COL3) as (SELECT COL3 FROM T1,A WHERE condition2)
+SELECT T2.COL5, B.COL3 FROM T2, A, B WHERE condition3
+
+and so on.
+
+Note that as the following example shows, the use of table correlation name in another subselect is NOT supported and cannot be a workaround:
+
+SELECT cols FROM (SELECT cols FROM T1) as A, (SELECT cols FROM T2,A where A relates to T2) as B where condition
+
+
+
+Another interesting aspect of these WITH clauses is their ability to make RECURSIVE SQL possible. In below example, definition of A includes a select from ITSELF:
+
+WITH A(COL1, COL2) as (SELECT COL1, COL2 FROM T1 UNION ALL SELECT COL1, COL2 FROM T2, A where A.COL1=T2.COLN)
+SELECT COL1, COL2 FROM A WHERE condition2
+
+Recursion with a WITH clause relies on a specific syntax. Consult DB2 documentation for more info about Recursion and WITH clause. 
+
+Recursion is an important facility and it would be very very useful to have it in Derby.
+
+Recursion comes in very handy when a single table holds a hierarchy of rows that are related to each other with parent-child relationships of N-Levels where N is large or unknown in which case non-recursive solutions are either impossible or require complicated code at the Client side. With recursion possible at the SQL level, many problems can be reduced to single SQL statements instead of lengthy application code.
+
+
+Regards,
+Suavi Demir

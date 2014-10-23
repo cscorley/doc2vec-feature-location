@@ -1,0 +1,26 @@
+org.apache.lucene.queryParser.QueryParser does not allow the colon character to
+be included in search text.  When I don't filter colon characters from user
+input in Eyebrowse's SearchList servlet, I get the following exception when
+seraching for the text "10:" (minus the quotes):
+
+org.apache.lucene.queryParser.ParseException: Encountered "<EOF>" at line 1,
+column 3.
+Was expecting one of:
+    "(" ...
+    <QUOTED> ...
+    <NUMBER> ...
+    <TERM> ...
+    <WILDTERM> ...
+    <RANGEIN> ...
+    <RANGEEX> ...
+
+        at
+org.apache.lucene.queryParser.QueryParser.generateParseException(Unknown Source)
+        at org.apache.lucene.queryParser.QueryParser.jj_consume_token(Unknown
+Source)
+        at org.apache.lucene.queryParser.QueryParser.Clause(Unknown Source)
+        at org.apache.lucene.queryParser.QueryParser.Query(Unknown Source)
+        at org.apache.lucene.queryParser.QueryParser.parse(Unknown Source)
+        at org.apache.lucene.queryParser.QueryParser.parse(Unknown Source)
+        at org.tigris.eyebrowse.LuceneIndexer.search(LuceneIndexer.java:207)
+        at org.tigris.eyebrowse.core.SearchList.core(SearchList.java:138)

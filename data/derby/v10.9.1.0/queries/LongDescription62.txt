@@ -1,0 +1,22 @@
+I'm not sure how, but sometimes an EmbedSQLException can hold on to a TableName.  Since TableName is not serializable we can not ship derby exceptions to remote clients.  It is common usage for EJB applications to simply pass exceptions through to remote clients.
+
+This is the exception I get when I try to serialize an EmbededSQLException... sorry this is not much help on what is causing EmbededSQLException to hold onto a table name but Java Serialization doesn't throw nice exceptions.
+
+15:34:41,161 FATAL [EjbRequestHandler] Invocation result object is not serializable: org.apache.derby.impl.jdbc.EmbedSQLException
+java.io.NotSerializableException: org.apache.derby.impl.sql.compile.TableName
+        at java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1054)
+        at java.io.ObjectOutputStream.writeArray(ObjectOutputStream.java:1224)
+        at java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1050)
+        at java.io.ObjectOutputStream.defaultWriteFields(ObjectOutputStream.java:1332)
+        at java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1304)
+        at java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1247)
+        at java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1052)
+        at java.io.ObjectOutputStream.writeObject(ObjectOutputStream.java:278)
+        at org.openejb.client.EJBResponse.writeExternal(EJBResponse.java:159)
+        at org.openejb.server.ejbd.EjbRequestHandler.processRequest(EjbRequestHandler.java:248)
+        at org.openejb.server.ejbd.EjbDaemon.service(EjbDaemon.java:134)
+        at org.openejb.server.ejbd.EjbServer.service(EjbServer.java:76)
+        at org.openejb.server.ServiceLogger.service(ServiceLogger.java:108)
+        at org.openejb.server.ServiceAccessController.service(ServiceAccessController.java:84)
+        at org.openejb.server.ServicePool$1.run(ServicePool.java:105)
+        at java.lang.Thread.run(Thread.java:552)

@@ -1,0 +1,3 @@
+If a session expires, the zhandle_t becomes invalid and useless; however, the io thread keeps going.
+
+do_io in mt_adaptor.c needs to check the return code of zookeeper_interest and zookeeper_process and get out of the loop if the handle is invalid.

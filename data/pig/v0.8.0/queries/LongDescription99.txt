@@ -1,0 +1,43 @@
+While running tests:
+
+    [junit] Testcase: testAVG took 0,11 sec
+    [junit] Testcase: testAVGInitial took 0 sec
+    [junit] Testcase: testAVGFinal took 0 sec
+    [junit] Testcase: testCOUNT took 0 sec
+    [junit] Testcase: testCOUNTMap took 0 sec
+    [junit] Testcase: testCOUNTInitial took 0 sec
+    [junit] Testcase: testCOUNTFinal took 0 sec
+    [junit] Testcase: testSUM took 0 sec
+    [junit] Testcase: testSUMInitial took 0 sec
+    [junit] Testcase: testSUMFinal took 0 sec
+    [junit] Testcase: testMIN took 0 sec
+    [junit] Testcase: testMINInitial took 0 sec
+    [junit] Testcase: testMINFinal took 0 sec
+    [junit] Testcase: testMAX took 0 sec
+    [junit] Testcase: testMAXInitial took 0 sec
+    [junit] Testcase: testMAXFinal took 0 sec
+    [junit] Testcase: testLFPig took 0,953 sec
+    [junit] 	Caused an ERROR
+    [junit] Java heap space
+    [junit] java.lang.OutOfMemoryError: Java heap space
+    [junit] 
+
+
+
+Proposed patch, add this to the junit tag:
+
+<jvmarg value="-Xmx512m  -XX:PermSize=128m -XX:MaxPermSize=512m"/>
+
+or
+
+<jvmarg value="-Xmx512m"/>
+<jvmarg value="-XX:PermSize=128m"/>
+<jvmarg value="-XX:MaxPermSize=512m"/>
+
+
+not sure which one is correct, I need to check...
+
+See JUnit task for more details
+
+An even better solution is to check why there is a OutOfMemoryError in the first place.
+May be it's a sign somethings'wrong or consuming too much memory...

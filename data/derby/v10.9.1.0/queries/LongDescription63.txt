@@ -1,0 +1,69 @@
+The Embedded Driver for Derby still does not implement the updateNull method defined in the interface java.sql.ResultSet.
+
+Attaching a Repro and the stack trace for the same
+
+-----------------------------------------------------
+Reproducible Program
+-----------------------------------------------------
+import java.sql.*;
+
+public class updateNull{
+
+   public static void main(String [] args) {
+
+      String strUrl = "jdbc:derby:;databaseName=testdb;create=true";           
+      try {
+         Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+         Connection con = DriverManager.getConnection(strUrl);
+
+         Statement stmt = con.createStatement();
+         try 
+{
+            stmt.executeUpdate("drop table test");
+         }
+ catch(SQLException ex) 
+{
+            // Do nothing.
+         }
+         con.commit();
+
+         Statement stmt1 = con.createStatement();
+         stmt1.executeUpdate("create table test(i_val integer, s_val varchar(10))");
+         stmt1.executeUpdate("insert into test values(1,'shreyas')");
+         con.commit();
+
+         Statement stmt2 = con.createStatement();
+         ResultSet rs = stmt2.executeQuery("select * from test");
+         rs.next();
+         rs.updateNull(2);
+         rs.updateRow();
+
+      } catch(ClassNotFoundException cnfe) 
+{
+         System.out.println("Class not found: "+cnfe.getMessage());
+      }
+ catch(SQLException sqle) 
+{
+         System.out.println("SQL:Caught: "+sqle.getMessage());
+         sqle.printStackTrace();
+      }
+ catch(Exception e) {
+
+      }
+
+   }
+}
+
+--------------------Reproducible Ends---------------------------------
+
+------------------------------------
+    Stack Trace of the output
+------------------------------------
+SQL:Caught: Feature not implemented: no details.
+SQL Exception: Feature not implemented: no details.
+	at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Util.java)
+	at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Util.java)
+	at org.apache.derby.impl.jdbc.Util.notImplemented(Util.java)
+	at org.apache.derby.impl.jdbc.EmbedResultSet20.updateNull(EmbedResultSet20.java)
+	at updateNull.main(updateNull.java:28)
+----------------------Stack Trace Ends------------------------------------------------

@@ -1,0 +1,21 @@
+Indexing content that contains HTML markup, causes problems with highlighting if the HTMLStripWhitespaceTokenizerFactory is used (to prevent the tag names from being searchable).
+
+Example title field:
+
+<SUP>40</SUP>Ar/<SUP>39</SUP>Ar laserprobe dating of mylonitic fabrics in a polyorogenic terrane of NW Iberia
+
+Searching for title:fabrics with highlighting on, the highlighted version has the <em> tags in the wrong place - 22 characters to the left of where they should be (i.e. the sum of the lengths of the tags).
+
+Response from Yonik on the solr-user mailing-list:
+
+HTMLStripWhitespaceTokenizerFactory works in two phases...
+HTMLStripReader removes the HTML and passes the result to
+WhitespaceTokenizer... at that point, Tokens are generated, but the
+offsets will correspond to the text after HTML removal, not before.
+
+I did it this way so that HTMLStripReader  could go before any
+tokenizer (like StandardTokenizer).
+
+Can you open a JIRA bug for this?  The fix would be a special version
+of HTMLStripReader integrated with a WhitespaceTokenizer to keep
+offsets correct.

@@ -1,0 +1,16 @@
+...
+}catch (Exception e) {
+    // Do we need different handling for different exceptions
+    e.printStackTrace();
+    throw new IOException(e.getMessage());
+}finally{ ...
+
+
+
+in my case the sandard output is redirtected to /dev/null so "e.printStackTrace();" is lost.
+
+it should be :
+
+throw new IOException(e);
+ 
+no getMessage() because we loose the rest of the stacktrace

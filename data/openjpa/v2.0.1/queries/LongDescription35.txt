@@ -1,0 +1,23 @@
+Delete through query such as 
+		Query query = em.createQuery("DELETE FROM Node n");
+		query.executeUpdate();
+
+fails with following exception (only when DataCache is active)
+Exception in thread "main" <4|false|0.0.0> org.apache.openjpa.persistence.ArgumentException: org.apache.openjpa.datacache.QueryCacheStoreQuery
+	at org.apache.openjpa.kernel.QueryImpl.deleteInMemory(QueryImpl.java:1029)
+	at org.apache.openjpa.kernel.ExpressionStoreQuery$DataStoreExecutor.executeDelete(ExpressionStoreQuery.java:665)
+	at org.apache.openjpa.datacache.QueryCacheStoreQuery$QueryCacheExecutor.executeDelete(QueryCacheStoreQuery.java:348)
+	at org.apache.openjpa.kernel.QueryImpl.delete(QueryImpl.java:1012)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:768)
+	at org.apache.openjpa.kernel.QueryImpl.deleteAll(QueryImpl.java:831)
+	at org.apache.openjpa.kernel.QueryImpl.deleteAll(QueryImpl.java:827)
+	at org.apache.openjpa.kernel.DelegatingQuery.deleteAll(DelegatingQuery.java:544)
+	at org.apache.openjpa.persistence.QueryImpl.executeUpdate(QueryImpl.java:299)
+	at control.Test.clear(Test.java:87)
+	at control.Test.run(Test.java:37)
+	at control.Test.main(Test.java:178)
+Caused by: java.lang.ClassCastException: org.apache.openjpa.datacache.QueryCacheStoreQuery
+	at org.apache.openjpa.kernel.ExpressionStoreQuery$DataStoreExecutor.executeQuery(ExpressionStoreQuery.java:651)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:949)
+	at org.apache.openjpa.kernel.QueryImpl.deleteInMemory(QueryImpl.java:1018)
+	... 11 more

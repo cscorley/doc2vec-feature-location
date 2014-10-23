@@ -1,0 +1,35 @@
+Versions prior to 5.1.60.x of Cloudscape did not have the 'retain' word as a reserved word.  Versions after 5.1.60.x, including 10.0.2 have made the 'retain' word a reserved keyword.  This impacts existing applications that used the 'retain' word in the schema.
+
+Sysinfo output:
+
+------------------ Java Information ------------------
+Java Version:    1.4.2_05
+Java Vendor:     Sun Microsystems Inc.
+Java home:       C:\j2sdk1.4.2_05\jre
+Java classpath:  C:\cs_home\105520~1.0_G\lib\derby.jar;C:\cs_home\105520~1.0_G\l
+ib\derbytools.jar;C:\Apache\Tomcat 5.019\server\lib\catalina.jar;.;C:\IBM\SQLLIB
+\java\db2java.zip;C:\IBM\SQLLIB\java\db2jcc.jar;C:\IBM\SQLLIB\java\sqlj.zip;C:\I
+BM\SQLLIB\java\db2jcc_license_cisuz.jar;C:\IBM\SQLLIB\java\db2jcc_license_cu.jar
+;C:\IBM\SQLLIB\bin;C:\IBM\SQLLIB\java\common.jar
+OS name:         Windows XP
+OS architecture: x86
+OS version:      5.1
+Java user name:  slc
+Java user home:  C:\Documents and Settings\Administrator
+Java user dir:   C:\cs_home\10.0_GA\frameworks\embedded\bin
+--------- Derby Information --------
+[C:\cs_home\10.0_GA\lib\derby.jar] 10.0.2.0 - (30301)
+[C:\cs_home\10.0_GA\lib\derbytools.jar] 10.0.2.0 - (30301)
+[C:\IBM\SQLLIB\java\db2jcc.jar] 2.3 - (63)
+[C:\IBM\SQLLIB\java\db2jcc_license_cisuz.jar] 2.3 - (63)
+[C:\IBM\SQLLIB\java\db2jcc_license_cu.jar] 2.3 - (63)
+------------------------------------------------------
+----------------- Locale Information -----------------
+------------------------------------------------------
+
+Example of behaviour in 10.0.2:
+
+ij> create table retain (i int);
+ERROR 42X01: Syntax error: Encountered "retain" at line 1, column 14.
+
+Prior to 5.1.60 (not sure exactly which release, but a 5.1 release) this create table statement would have succeeded.

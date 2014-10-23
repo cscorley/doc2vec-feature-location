@@ -1,0 +1,2 @@
+Currently databags only get spilled to local disk which costs  2  disk io operations.If databags are too big, this is not efficient. 
+We should take advantage of HDFS so if the databag is too big (determined by DataBag.getMemorySize() >  a big  threshold), let's spill it to HDFS. Also read from HDFS in parallel when data is required.

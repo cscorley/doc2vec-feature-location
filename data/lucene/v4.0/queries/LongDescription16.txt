@@ -1,0 +1,25 @@
+There is a problem when you try to create a directory (FSDirectory) that doesn't exists and you 
+specified a path with a depth greater than 1.
+
+For example: lucia/index/
+
+The problem 
+lays on the method
+  private synchronized void create() throws IOException {
+    if 
+(!directory.exists())
+      directory.mkdir();   <======== HERE SHOULD BE mkdirs();
+
+
+String[] files = directory.list();            // clear old files
+    for (int i = 0; i < files.length; i++) 
+{
+      
+File file = new File(directory, files[i]);
+      if (!file.delete())
+        throw new 
+IOException("couldn't delete " + files[i]);
+    }
+  }
+
+Regerds

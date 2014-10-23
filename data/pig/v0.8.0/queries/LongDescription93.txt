@@ -1,0 +1,44 @@
+I'm trying to set jobconf parameter before launching a pig job using pig api.
+
+I tried 2 different ways but with no success:
+
+PigContext pigContext = new PigContext(ExecType.MAPREDUCE);
+pigContext.getExecutionEngine().getConfiguration().putAll(properties);
+PigServer pigServer = new PigServer(pigContext);
+....
+
+
+
+Throw a NPE because the internal executionEngine var is initialize only when calling connect().
+
+So I tried:
+
+PigContext pigContext = new PigContext(ExecType.MAPREDUCE);
+pigContext.connect();
+pigContext.getExecutionEngine().getConfiguration().putAll(properties);
+PigServer pigServer = new PigServer(pigContext);
+...
+
+
+
+My properties have been replace with a "new JobConf()"
+
+java.lang.RuntimeException: Bad mapred.job.tracker: local
+at org.apache.hadoop.mapred.JobTracker.getAddress(JobTracker.java:711)
+at org.apache.pig.backend.hadoop.executionengine.HExecutionEngine.init(HExecutionEngine.java:149)
+at org.apache.pig.impl.PigContext.connect(PigContext.java:180)
+
+
+
+"properties" contains "mapred.job.tracker" and "hadoop.tmp.dir values"
+
+Before PIG-32 I use to do (and it was working): 
+
+PigContext pigContext = new PigContext(ExecType.MAPREDUCE);
+pigContext.setConf(myJobConf);
+PigServer pigServer = new PigServer(pigContext);
+...
+
+
+
+Any idea before I start to work on a patch ?

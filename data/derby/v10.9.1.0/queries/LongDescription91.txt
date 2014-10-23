@@ -1,0 +1,11 @@
+A handful of SQL tests such as jdbcapi/xaAnotherTest.sql fail when run against the jar files.
+
+The output contains lines like
+
+JAVA ERROR: java.lang.NullPointerException
+
+for the ij XA testing commands like xa_datasource
+
+Looks like the derbytools.jar is missing the class
+org.apache.derby.impl.tools.ij.xaHelper
+since it is loaded indirectly.

@@ -1,0 +1,9 @@
+When using the WildcardQuery class to do a wildcard search with the wildcard at
+the end of the string, the wildcard is treated as "1 or more" characters. This
+is inconsistent with other wildcard behaviour, and undesirable. The correct
+behaviour is for the wildcard to represent 0 or more characters.
+
+The error is due to a problem in the wildcard comparison method in
+org.apache.lucene.search.WildcardTermEnum.
+
+Patch to follow.

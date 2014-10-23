@@ -1,0 +1,3 @@
+OpenJPA's default logging implementation has a concept of a diagnostic context, roughly stolen from log4j. The basic idea is that in a configuration file, the user can specify a diagnostic context string that will be printed out with each log message. The result is that if a user has multiple EntityManagerFactories running in the same JVM, she can distinguish between the different logging outputs, even if they all just go to stderr.
+
+The JPA spec requires that persistence units are named uniquely. This presents us with an opportunity: we could check for the existence of multiple EMFs and, if found and the user did not specify a diagnostic context, automatically set the logging diagnostic context based on the name of the persistence unit.

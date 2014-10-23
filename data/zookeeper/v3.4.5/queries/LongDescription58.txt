@@ -1,0 +1,3 @@
+There is a race condition involving the ByteByffer incomingBuffer, a field of ClientCnxn.SendThread. SendThread reads a packet in two steps: first it reads the length of the packet, followed by a read of the packet itself. Each of these steps corresponds to a call to doIO() from the main loop of run(). If there is an exception or the session times out, then it may leave incomingBuffer in an inconsistent state. 
+
+The attached patch adds code to reset incomingBuffer upon a call to SendThread.cleanup(). This method is called upon an exception on run().

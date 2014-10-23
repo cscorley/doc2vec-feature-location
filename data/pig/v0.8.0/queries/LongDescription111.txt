@@ -1,0 +1,41 @@
+This JIRA discusses issues relating to the configuration of Pig.
+
+Uses cases:
+
+1. I want to configure Pig programatically from Java
+ Motivation: pig can be embedded from another Java program, and configuration should be accessible to be set by the client code
+2. I want to configure Pig from the command line
+3. I want to configure Pig from the Pig shell (Grunt)
+4. I want Pig to remember my configuration for every Pig session
+ Motivation: to save me typing in some configuration stuff every time.
+5. I want Pig to remember my configuration for this script.
+ Motivation: I must use a common configuration for 50% of my Pig scripts - can I share this configuration between scripts.
+
+Current Status: 
+
+	Pig uses System properties for some configuration
+	A configuration properties object in PigContext is not used.
+	pigrc can contain properties
+	Configuration properties can not be set from Grunt
+
+
+
+Proposed solutions to use cases:
+1. Configuration should be set in PigContext, and accessible from client code.
+2. System properties are copied to PigContext, or can be specified on the command line (duplication with System properties)
+3. Allow configuration properties to be set using the "set" command in Grunt
+4. Pigrc can contain properties. Is this enough, or can other configuration stuff be set, eg aliases, imports, etc.
+5. Add an include directive to pig, to allow a shared configuration/Pig script to be included.
+
+Connections to Shell scripting: 
+
+	The source command in Bash allows another bash script file to be included - this allows shared variables to be set in one file shared between a set of scripts.
+	Aliases can be set, according to user preferences, etc.
+	All this can be done in your .bashrc file
+
+
+
+Issues: 
+
+	What happens when you change a property after the property has been read?
+	Can Grunt read a pigrc containing various statements etc before the PigServer is completely configured?

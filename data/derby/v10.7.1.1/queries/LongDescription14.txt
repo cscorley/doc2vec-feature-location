@@ -1,0 +1,12 @@
+Opening this bug on behalf of Jack Klebanoff.
+
+---------------------------------------------------------
+If a trigger is created with
+
+CREATE TRIGGER T ... VALUES( fn())
+
+The function fn is not called even if the trigger event 
+happens. Side effects of the function will not happen.
+
+Derby does not allow CALL statements in trigger actions. 
+In Derby, one has to use a VALUES statement and depend on function side effects.

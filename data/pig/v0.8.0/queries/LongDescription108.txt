@@ -1,0 +1,10 @@
+There some significant space for improvement in the PigCombine. 
+In each reduce call some objects are deserialized from the jobConf and also the object graph is generated again and again. 
+Hadoop garanties to call the configure method before a run through and things like inputCount can be than cached as fields. 
+During reduce calls the jobConf will not change so re deserialization and instantiation of all this objects 
+
+pigContext, evalPipe, inputCount, oc, finalout, esp and so on and so on, makes no sense from my point of view.
+
+Not sure how often the PigCombine is used, but it will significant improve performance if we fix this.
+Was there any reason to do things like this or is that just historical? 
+As soon the test suite is running again, I would be happy to work on a patch if there is no other options about that.

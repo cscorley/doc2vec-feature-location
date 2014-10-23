@@ -1,0 +1,439 @@
+I am adding 500 results at a time then running the commit command, then sleeping for a second then adding 500 more etc.. But after about a million results i get this error:
+
+
+#
+
+	An unexpected error has been detected by HotSpot Virtual Machine:
+#
+	SIGSEGV (0xb) at pc=0xb2c0f63d, pid=7177, tid=2939612080
+#
+	Java VM: Java HotSpot(TM) Client VM (1.5.0_06-b05 mixed mode, sharing)
+	Problematic frame:
+	J  java.util.Vector.elementAt(I)Ljava/lang/Object;
+#
+	An error report file with more information is saved as hs_err_pid7177.log
+#
+	If you would like to submit a bug report, please visit:
+	http://java.sun.com/webapps/bugreport/crash.jsp
+#
+Aborted
+
+
+
+
+
+
+I tried first adding results without sleeping for a second after the commit and this error appeared a lot sooner (after about 50,000). After staring and stopping the solr again i get this when trying to add more results:
+
+<result status="1">java.io.IOException: Lock obtain timed out: Lock@/tmp/lucene- 1dbe49e67a495d9cebacfbe2c40278c3-write.lock
+        at org.apache.lucene.store.Lock.obtain(Lock.java:58)
+        at org.apache.lucene.index.IndexWriter.<init>(IndexWriter.java:255)
+        at org.apache.lucene.index.IndexWriter.<init>(IndexWriter.java:205)
+        at org.apache.solr.update.SolrIndexWriter.<init>(Unknown Source)
+        at org.apache.solr.update.UpdateHandler.createMainIndexWriter(Unknown So urce)
+        at org.apache.solr.update.DirectUpdateHandler2.openWriter(Unknown Source )
+        at org.apache.solr.update.DirectUpdateHandler2.doAdd(Unknown Source)
+        at org.apache.solr.update.DirectUpdateHandler2.overwriteBoth(Unknown Sou rce)
+        at org.apache.solr.update.DirectUpdateHandler2.addDoc(Unknown Source)
+        at org.apache.solr.core.SolrCore.update(Unknown Source)
+        at org.apache.solr.servlet.SolrServlet.doPost(Unknown Source)
+        at javax.servlet.http.HttpServlet.service(HttpServlet.java:767)
+        at javax.servlet.http.HttpServlet.service(HttpServlet.java:860)
+        at org.mortbay.jetty.servlet.ServletHolder.handle(ServletHolder.java:408 )
+        at org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:3 50)
+        at org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:1 95)
+        at org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.jav a:164)
+        at org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:5 36)
+        at org.mortbay.jetty.Server.handle(Server.java:309)
+        at org.mortbay.jetty.Server.handle(Server.java:285)
+        at org.mortbay.jetty.HttpConnection.doHandler(HttpConnection.java:363)
+        at org.mortbay.jetty.HttpConnection.access$1600(HttpConnection.java:45)
+        at org.mortbay.jetty.HttpConnection$RequestHandler.content(HttpConnectio n.java:625)
+        at org.mortbay.jetty.HttpParser.parseNext(HttpParser.java:613)
+        at org.mortbay.jetty.HttpParser.parseAvailable(HttpParser.java:195)
+        at org.mortbay.jetty.HttpConnection.handle(HttpConnection.java:297)
+        at org.mortbay.jetty.nio.SelectChannelConnector$HttpEndPoint.run(SelectC hannelConnector.java:680)
+        at org.mortbay.thread.BoundedThreadPool$PoolThread.run(BoundedThreadPool .java:412)
+
+
+Here is the contents of the log file:
+
+
+
+
+#
+
+	An unexpected error has been detected by HotSpot Virtual Machine:
+#
+	SIGSEGV (0xb) at pc=0xb2c0f63d, pid=7177, tid=2939612080
+#
+	Java VM: Java HotSpot(TM) Client VM (1.5.0_06-b05 mixed mode, sharing)
+	Problematic frame:
+	J  java.util.Vector.elementAt(I)Ljava/lang/Object;
+#
+
+
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x08273088):  JavaThread "BoundedThreadPool0-26" [_thread_in_Java, id=8314]
+
+siginfo:si_signo=11, si_errno=0, si_code=1, si_addr=0x80f323c0
+
+Registers:
+EAX=0x00000001, EBX=0x8d1c8118, ECX=0x8bf26d50, EDX=0x00000000
+ESP=0xaf36d2e8, EBP=0xaf36d330, ESI=0x80f323b8, EDI=0x00000000
+EIP=0xb2c0f63d, CR2=0x80f323c0, EFLAGS=0x00010297
+
+Top of Stack: (sp=0xaf36d2e8)
+0xaf36d2e8:   08273088 af36d328 af36d370 b78893bf
+0xaf36d2f8:   af36d328 08273088 af36d370 b78893b3
+0xaf36d308:   08273148 8d118768 08273088 08273088
+0xaf36d318:   00000001 8bf26d50 00000000 af36d370
+0xaf36d328:   b2cd6eca 8be29d20 af36d368 b2cd6e83
+0xaf36d338:   00000000 8bf26d50 00000008 00000000
+0xaf36d348:   890b6ef8 00000000 000000f2 00000400
+0xaf36d358:   00000000 00000000 00000000 000000f2 
+
+Instructions: (pc=0xb2c0f63d)
+0xb2c0f62d:   fe 0f 8d 3f 00 00 00 8b 75 0c 8b 76 0c 8b 7d 08
+0xb2c0f63d:   3b 7e 08 0f 83 20 02 00 00 8b 74 be 0c 89 75 e4 
+
+Stack: [0xaf2ee000,0xaf36f000),  sp=0xaf36d2e8,  free space=508k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+J  java.util.Vector.elementAt(I)Ljava/lang/Object;
+J  org.apache.lucene.store.RAMInputStream.readInternal([BII)V
+J  org.apache.lucene.store.BufferedIndexInput.refill()V
+J  org.apache.lucene.store.BufferedIndexInput.readByte()B
+J  org.apache.lucene.store.IndexInput.readVInt()I
+J  org.apache.lucene.index.FieldsReader.doc(I)Lorg/apache/lucene/document/Document;
+J  org.apache.lucene.index.SegmentReader.document(I)Lorg/apache/lucene/document/Document;
+J  org.apache.lucene.index.SegmentMerger.mergeFields()I
+J  org.apache.lucene.index.IndexWriter.mergeSegments(II)V
+J  org.apache.lucene.index.IndexWriter.flushRamSegments()V
+v  ~RuntimeStub::alignment_frame_return Runtime1 stub
+j  org.apache.lucene.index.IndexWriter.close()V+1
+j  org.apache.solr.update.SolrIndexWriter.close()V+29
+j  org.apache.solr.update.DirectUpdateHandler2.closeWriter()V+19
+J  org.apache.solr.update.DirectUpdateHandler2.doDeletions()V
+v  ~RuntimeStub::alignment_frame_return Runtime1 stub
+j  org.apache.solr.update.DirectUpdateHandler2.commit(Lorg/apache/solr/update/CommitUpdateCommand;)V+73
+J  org.apache.solr.core.SolrCore.update(Ljava/io/Reader;Ljava/io/Writer;)V
+J  org.apache.solr.servlet.SolrServlet.doPost(Ljavax/servlet/http/HttpServletRequest;Ljavax/servlet/http/HttpServletResponse;)V
+J  javax.servlet.http.HttpServlet.service(Ljavax/servlet/http/HttpServletRequest;Ljavax/servlet/http/HttpServletResponse;)V
+J  javax.servlet.http.HttpServlet.service(Ljavax/servlet/ServletRequest;Ljavax/servlet/ServletResponse;)V
+J  org.mortbay.jetty.servlet.ServletHolder.handle(Ljavax/servlet/ServletRequest;Ljavax/servlet/ServletResponse;)V
+J  org.mortbay.jetty.servlet.ServletHandler.handle(Ljava/lang/String;Ljavax/servlet/http/HttpServletRequest;Ljavax/servlet/http/HttpServletResponse;I)Z
+J  org.mortbay.jetty.servlet.SessionHandler.handle(Ljava/lang/String;Ljavax/servlet/http/HttpServletRequest;Ljavax/servlet/http/HttpServletResponse;I)Z
+J  org.mortbay.jetty.security.SecurityHandler.handle(Ljava/lang/String;Ljavax/servlet/http/HttpServletRequest;Ljavax/servlet/http/HttpServletResponse;I)Z
+J  org.mortbay.jetty.handler.ContextHandler.handle(Ljava/lang/String;Ljavax/servlet/http/HttpServletRequest;Ljavax/servlet/http/HttpServletResponse;I)Z
+J  org.mortbay.jetty.Server.handle(Ljava/lang/String;Ljavax/servlet/http/HttpServletRequest;Ljavax/servlet/http/HttpServletResponse;I)Z
+J  org.mortbay.jetty.Server.handle(Lorg/mortbay/jetty/HttpConnection;)V
+J  org.mortbay.jetty.HttpConnection.doHandler()V
+J  org.mortbay.jetty.HttpParser.parseNext()J
+J  org.mortbay.jetty.HttpParser.parseAvailable()V
+J  org.mortbay.jetty.HttpConnection.handle()V
+J  org.mortbay.jetty.nio.SelectChannelConnector$HttpEndPoint.run()V
+J  org.mortbay.thread.BoundedThreadPool$PoolThread.run()V
+v  ~RuntimeStub::alignment_frame_return Runtime1 stub
+v  ~StubRoutines::call_stub
+V  [libjvm.so+0x174fec]
+V  [libjvm.so+0x2821f8]
+V  [libjvm.so+0x174845]
+V  [libjvm.so+0x1748de]
+V  [libjvm.so+0x1ebee5]
+V  [libjvm.so+0x2ea563]
+V  [libjvm.so+0x282d08]
+C  [libpthread.so.0+0x5341]
+
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+  0x081ff298 JavaThread "BoundedThreadPool0-33" [_thread_blocked, id=23562]
+  0x08198b10 JavaThread "BoundedThreadPool0-32" [_thread_blocked, id=29871]
+  0x08275500 JavaThread "BoundedThreadPool0-31" [_thread_blocked, id=29870]
+  0x08274768 JavaThread "BoundedThreadPool0-30" [_thread_blocked, id=29869]
+  0x08178b40 JavaThread "BoundedThreadPool0-29" [_thread_blocked, id=29868]
+  0x0821ee38 JavaThread "BoundedThreadPool0-28" [_thread_blocked, id=17785]
+  0x08239920 JavaThread "BoundedThreadPool0-27" [_thread_blocked, id=10674]
+=>0x08273088 JavaThread "BoundedThreadPool0-26" [_thread_in_Java, id=8314]
+  0x081b5630 JavaThread "BoundedThreadPool0-25" [_thread_blocked, id=8200]
+  0x081b4f90 JavaThread "BoundedThreadPool0-24" [_thread_blocked, id=8159]
+  0x083c4e50 JavaThread "BoundedThreadPool0-23" [_thread_blocked, id=8000]
+  0x08240e48 JavaThread "BoundedThreadPool0-22" [_thread_blocked, id=7797]
+  0x08129cd8 JavaThread "BoundedThreadPool0-21" [_thread_blocked, id=7631]
+  0x08135540 JavaThread "BoundedThreadPool0-20" [_thread_blocked, id=7628]
+  0x08336f38 JavaThread "BoundedThreadPool0-19" [_thread_blocked, id=7575]
+  0x080f64a0 JavaThread "BoundedThreadPool0-18" [_thread_blocked, id=7452]
+  0x08282ad0 JavaThread "pool-1-thread-1" [_thread_blocked, id=7363]
+  0x081731f0 JavaThread "BoundedThreadPool0-17" [_thread_blocked, id=7361]
+  0x08174958 JavaThread "BoundedThreadPool0-16" [_thread_blocked, id=7360]
+  0x0816e988 JavaThread "BoundedThreadPool0-15" [_thread_blocked, id=7359]
+  0x0816d088 JavaThread "BoundedThreadPool0-14" [_thread_blocked, id=7357]
+  0x0828eab8 JavaThread "BoundedThreadPool0-13" [_thread_blocked, id=7355]
+  0x080d2918 JavaThread "BoundedThreadPool0-12" [_thread_blocked, id=7354]
+  0x080d21c8 JavaThread "BoundedThreadPool0-11" [_thread_blocked, id=7353]
+  0x08384458 JavaThread "BoundedThreadPool0-10" [_thread_blocked, id=7214]
+  0x0805c790 JavaThread "DestroyJavaVM" [_thread_blocked, id=7177]
+  0xb27ff698 JavaThread "SessionScavenger" daemon [_thread_blocked, id=7198]
+  0xb27d8440 JavaThread "BoundedThreadPool0-9 - Acceptor0 SelectChannelConnector @ 0.0.0.0:8983" [_thread_in_native, id=7197]
+  0xb27d76e0 JavaThread "BoundedThreadPool0-8 - Acceptor1 SelectChannelConnector @ 0.0.0.0:8983" [_thread_in_native, id=7196]
+  0xb27df0a8 JavaThread "BoundedThreadPool0-7 - Acceptor2 SelectChannelConnector @ 0.0.0.0:8983" [_thread_in_native, id=7195]
+  0xb27de330 JavaThread "BoundedThreadPool0-6 - Acceptor3 SelectChannelConnector @ 0.0.0.0:8983" [_thread_in_native, id=7194]
+  0xb27dd5b8 JavaThread "BoundedThreadPool0-5 - Acceptor4 SelectChannelConnector @ 0.0.0.0:8983" [_thread_in_native, id=7193]
+  0xb27dc890 JavaThread "BoundedThreadPool0-4 - Acceptor5 SelectChannelConnector @ 0.0.0.0:8983" [_thread_in_native, id=7192]
+  0xb27d4e00 JavaThread "BoundedThreadPool0-3 - Acceptor6 SelectChannelConnector @ 0.0.0.0:8983" [_thread_in_native, id=7191]
+  0xb27c77a0 JavaThread "BoundedThreadPool0-2 - Acceptor7 SelectChannelConnector @ 0.0.0.0:8983" [_thread_in_native, id=7190]
+  0xb27c6d50 JavaThread "BoundedThreadPool0-1 - Acceptor8 SelectChannelConnector @ 0.0.0.0:8983" [_thread_in_native, id=7189]
+  0xb27d3eb8 JavaThread "BoundedThreadPool0-0 - Acceptor9 SelectChannelConnector @ 0.0.0.0:8983" [_thread_in_native, id=7188]
+  0xb2747ae0 JavaThread "Thread-0" daemon [_thread_in_native, id=7185]
+  0xb271b478 JavaThread "Low Memory Detector" daemon [_thread_blocked, id=7183]
+  0xb271a090 JavaThread "CompilerThread0" daemon [_thread_blocked, id=7182]
+  0xb2719140 JavaThread "Signal Dispatcher" daemon [_thread_blocked, id=7181]
+  0x0809a730 JavaThread "Finalizer" daemon [_thread_blocked, id=7180]
+  0x08099a08 JavaThread "Reference Handler" daemon [_thread_blocked, id=7179]
+
+Other Threads:
+  0x08096ec0 VMThread [id=7178]
+  0xb271c9e0 WatcherThread [id=7184]
+
+VM state:not at safepoint (normal execution)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+Heap
+ def new generation   total 4544K, used 4085K [0x88e10000, 0x892f0000, 0x892f0000)
+  eden space 4096K,  99% used [0x88e10000, 0x8920d5e8, 0x89210000)
+  from space 448K,   0% used [0x89280000, 0x89280000, 0x892f0000)
+  to   space 448K,   0% used [0x89210000, 0x89210000, 0x89280000)
+ tenured generation   total 60544K, used 55343K [0x892f0000, 0x8ce10000, 0x8ce10000)
+   the space 60544K,  91% used [0x892f0000, 0x8c8fbc58, 0x8c8fbe00, 0x8ce10000)
+ compacting perm gen  total 8192K, used 7039K [0x8ce10000, 0x8d610000, 0x90e10000)
+   the space 8192K,  85% used [0x8ce10000, 0x8d4efce8, 0x8d4efe00, 0x8d610000)
+    ro space 8192K,  64% used [0x90e10000, 0x9133a490, 0x9133a600, 0x91610000)
+    rw space 12288K,  47% used [0x91610000, 0x91bcb708, 0x91bcb800, 0x92210000)
+
+Dynamic libraries:
+08048000-08057000 r-xp 00000000 03:01 9814972    /usr/lib/j2re1.5-sun/bin/java
+08057000-08059000 rwxp 0000e000 03:01 9814972    /usr/lib/j2re1.5-sun/bin/java
+08059000-084e1000 rwxp 08059000 00:00 0          [heap]
+88e10000-892f0000 rwxp 88e10000 00:00 0 
+892f0000-8ce10000 rwxp 892f0000 00:00 0 
+8ce10000-8d610000 rwxp 8ce10000 00:00 0 
+8d610000-90e10000 rwxp 8d610000 00:00 0 
+90e10000-9133b000 r-xs 00001000 03:01 9916660    /usr/lib/j2re1.5-sun/lib/i386/client/classes.jsa
+9133b000-91610000 rwxp 9133b000 00:00 0 
+91610000-91bcc000 rwxp 0052c000 03:01 9916660    /usr/lib/j2re1.5-sun/lib/i386/client/classes.jsa
+91bcc000-92210000 rwxp 91bcc000 00:00 0 
+92210000-922db000 rwxp 00ae8000 03:01 9916660    /usr/lib/j2re1.5-sun/lib/i386/client/classes.jsa
+922db000-92610000 rwxp 922db000 00:00 0 
+92610000-92614000 r-xs 00bb3000 03:01 9916660    /usr/lib/j2re1.5-sun/lib/i386/client/classes.jsa
+92614000-92a10000 rwxp 92614000 00:00 0 
+aef67000-aef6a000 ---p aef67000 00:00 0 
+aef6a000-aefe8000 rwxp aef6a000 00:00 0 
+aefe8000-aefeb000 ---p aefe8000 00:00 0 
+aefeb000-af069000 rwxp aefeb000 00:00 0 
+af069000-af06c000 ---p af069000 00:00 0 
+af06c000-af0ea000 rwxp af06c000 00:00 0 
+af0ea000-af0ed000 ---p af0ea000 00:00 0 
+af0ed000-af16b000 rwxp af0ed000 00:00 0 
+af16b000-af16e000 ---p af16b000 00:00 0 
+af16e000-af1ec000 rwxp af16e000 00:00 0 
+af1ec000-af1ef000 ---p af1ec000 00:00 0 
+af1ef000-af26d000 rwxp af1ef000 00:00 0 
+af26d000-af270000 ---p af26d000 00:00 0 
+af270000-af2ee000 rwxp af270000 00:00 0 
+af2ee000-af2f1000 ---p af2ee000 00:00 0 
+af2f1000-af36f000 rwxp af2f1000 00:00 0 
+af36f000-af372000 ---p af36f000 00:00 0 
+af372000-af3f0000 rwxp af372000 00:00 0 
+af3f0000-af3f3000 ---p af3f0000 00:00 0 
+af3f3000-af471000 rwxp af3f3000 00:00 0 
+af471000-af474000 ---p af471000 00:00 0 
+af474000-af4f2000 rwxp af474000 00:00 0 
+af4f2000-af4f5000 ---p af4f2000 00:00 0 
+af4f5000-af573000 rwxp af4f5000 00:00 0 
+af573000-af576000 ---p af573000 00:00 0 
+af576000-af5f4000 rwxp af576000 00:00 0 
+af5f4000-af5f7000 ---p af5f4000 00:00 0 
+af5f7000-af675000 rwxp af5f7000 00:00 0 
+af675000-af678000 ---p af675000 00:00 0 
+af678000-af6f6000 rwxp af678000 00:00 0 
+af6f6000-af6f9000 ---p af6f6000 00:00 0 
+af6f9000-af777000 rwxp af6f9000 00:00 0 
+af777000-af77a000 ---p af777000 00:00 0 
+af77a000-af7f8000 rwxp af77a000 00:00 0 
+af7f8000-af7fb000 ---p af7f8000 00:00 0 
+af7fb000-af879000 rwxp af7fb000 00:00 0 
+af879000-af87c000 ---p af879000 00:00 0 
+af87c000-af8fa000 rwxp af87c000 00:00 0 
+af8fa000-af8fd000 ---p af8fa000 00:00 0 
+af8fd000-af97b000 rwxp af8fd000 00:00 0 
+af97b000-af97e000 ---p af97b000 00:00 0 
+af97e000-af9fc000 rwxp af97e000 00:00 0 
+af9fc000-af9ff000 ---p af9fc000 00:00 0 
+af9ff000-afa7d000 rwxp af9ff000 00:00 0 
+afa7d000-afa80000 ---p afa7d000 00:00 0 
+afa80000-afafe000 rwxp afa80000 00:00 0 
+afafe000-afb01000 ---p afafe000 00:00 0 
+afb01000-afb7f000 rwxp afb01000 00:00 0 
+afb7f000-afb82000 ---p afb7f000 00:00 0 
+afb82000-afc51000 rwxp afb82000 00:00 0 
+afc51000-afd00000 ---p afc51000 00:00 0 
+afd7f000-afd82000 ---p afd7f000 00:00 0 
+afd82000-afef9000 rwxp afd82000 00:00 0 
+afef9000-aff00000 ---p afef9000 00:00 0 
+aff22000-aff40000 r-xs 00000000 03:01 13598978   /tmp/Jetty__solr/webapp/WEB-INF/lib/xpp3-1.1.3.4.O.jar
+aff40000-aff55000 r-xs 00000000 03:01 13598977   /tmp/Jetty__solr/webapp/WEB-INF/lib/lucene-snowball-1.9.1.jar
+aff55000-affbb000 r-xs 00000000 03:01 13598976   /tmp/Jetty__solr/webapp/WEB-INF/lib/lucene-core-1.9.1.jar
+affbb000-affbe000 ---p affbb000 00:00 0 
+affbe000-b003c000 rwxp affbe000 00:00 0 
+b003c000-b003f000 ---p b003c000 00:00 0 
+b003f000-b00bd000 rwxp b003f000 00:00 0 
+b00bd000-b00c0000 ---p b00bd000 00:00 0 
+b00c0000-b013e000 rwxp b00c0000 00:00 0 
+b013e000-b0141000 ---p b013e000 00:00 0 
+b0141000-b01bf000 rwxp b0141000 00:00 0 
+b01bf000-b01c2000 ---p b01bf000 00:00 0 
+b01c2000-b0240000 rwxp b01c2000 00:00 0 
+b0240000-b0243000 ---p b0240000 00:00 0 
+b0243000-b02c1000 rwxp b0243000 00:00 0 
+b02c1000-b02c4000 ---p b02c1000 00:00 0 
+b02c4000-b0342000 rwxp b02c4000 00:00 0 
+b0342000-b0345000 ---p b0342000 00:00 0 
+b0345000-b03c3000 rwxp b0345000 00:00 0 
+b03c3000-b03c6000 ---p b03c3000 00:00 0 
+b03c6000-b0444000 rwxp b03c6000 00:00 0 
+b0444000-b0447000 ---p b0444000 00:00 0 
+b0447000-b04c5000 rwxp b0447000 00:00 0 
+b04c5000-b05c9000 r-xs 00000000 03:01 9914871    /usr/share/ant/lib/ant.jar
+b05c9000-b05cb000 r-xs 00000000 03:01 4768017    /home/me/Desktop/www/ftpsearch/admin/lucene/database/file_index/lib/jsp/slf4j-simple-1.0-rc5.jar
+b05cb000-b05cd000 r-xs 00000000 03:01 4768016    /home/me/Desktop/www/ftpsearch/admin/lucene/database/file_index/lib/jsp/jcl104-over-slf4j-1.0-rc5.jar
+b05cd000-b05e0000 r-xs 00000000 03:01 4768015    /home/me/Desktop/www/ftpsearch/admin/lucene/database/file_index/lib/jsp/jasper-runtime-5.5.12.jar
+b05e0000-b0707000 r-xs 00000000 03:01 4768014    /home/me/Desktop/www/ftpsearch/admin/lucene/database/file_index/lib/jsp/jasper-compiler-jdt-5.5.12.jar
+b0707000-b076a000 r-xs 00000000 03:01 4768013    /home/me/Desktop/www/ftpsearch/admin/lucene/database/file_index/lib/jsp/jasper-compiler-5.5.12.jar
+b076a000-b0786000 r-xs 00000000 03:01 4768012    /home/me/Desktop/www/ftpsearch/admin/lucene/database/file_index/lib/jsp/commons-el-1.0.jar
+b0786000-b07ad000 r-xs 00000000 03:01 4768018    /home/me/Desktop/www/ftpsearch/admin/lucene/database/file_index/lib/servlet-api-2.5.jar
+b07ad000-b081f000 r-xs 00000000 03:01 4768010    /home/me/Desktop/www/ftpsearch/admin/lucene/database/file_index/lib/jetty.jar
+b081f000-b0822000 ---p b081f000 00:00 0 
+b0822000-b23f9000 rwxp b0822000 00:00 0 
+b23f9000-b240d000 r-xp 00000000 03:01 9916672    /usr/lib/j2re1.5-sun/lib/i386/libnet.so
+b240d000-b240e000 rwxp 00013000 03:01 9916672    /usr/lib/j2re1.5-sun/lib/i386/libnet.so
+b240e000-b24d1000 r-xs 00000000 03:01 9916701    /usr/lib/j2re1.5-sun/lib/ext/localedata.jar
+b24d1000-b24fc000 r-xs 00000000 03:01 9916699    /usr/lib/j2re1.5-sun/lib/ext/sunpkcs11.jar
+b24fc000-b24fd000 ---p b24fc000 00:00 0 
+b24fd000-b257d000 rwxp b24fd000 00:00 0 
+b257d000-b2580000 ---p b257d000 00:00 0 
+b2580000-b25fe000 rwxp b2580000 00:00 0 
+b25fe000-b2601000 ---p b25fe000 00:00 0 
+b2601000-b267f000 rwxp b2601000 00:00 0 
+b267f000-b2682000 ---p b267f000 00:00 0 
+b2682000-b2800000 rwxp b2682000 00:00 0 
+b280d000-b2813000 r-xp 00000000 03:01 9916673    /usr/lib/j2re1.5-sun/lib/i386/libnio.so
+b2813000-b2814000 rwxp 00005000 03:01 9916673    /usr/lib/j2re1.5-sun/lib/i386/libnio.so
+b2814000-b2819000 r-xs 00000000 03:01 4768019    /home/me/Desktop/www/ftpsearch/admin/lucene/database/file_index/start.jar
+b2819000-b283f000 r-xs 00000000 03:01 9916698    /usr/lib/j2re1.5-sun/lib/ext/sunjce_provider.jar
+b2844000-b2877000 r-xp 00000000 03:01 9749626    /usr/lib/locale/en_GB.utf8/LC_CTYPE
+b2877000-b287a000 ---p b2877000 00:00 0 
+b287a000-b28f8000 rwxp b287a000 00:00 0 
+b28f8000-b28fb000 ---p b28f8000 00:00 0 
+b28fb000-b2979000 rwxp b28fb000 00:00 0 
+b2979000-b297a000 ---p b2979000 00:00 0 
+b297a000-b2a0b000 rwxp b297a000 00:00 0 
+b2a0b000-b2a27000 rwxp b2a0b000 00:00 0 
+b2a27000-b2a45000 rwxp b2a27000 00:00 0 
+b2a45000-b2a48000 rwxp b2a45000 00:00 0 
+b2a48000-b2a65000 rwxp b2a48000 00:00 0 
+b2a65000-b2a69000 rwxp b2a65000 00:00 0 
+b2a69000-b2a85000 rwxp b2a69000 00:00 0 
+b2a85000-b2a9e000 rwxp b2a85000 00:00 0 
+b2a9e000-b2b10000 rwxp b2a9e000 00:00 0 
+b2b10000-b2e80000 rwxp b2b10000 00:00 0 
+b2e80000-b4b10000 rwxp b2e80000 00:00 0 
+b4b10000-b532e000 r-xs 00000000 03:01 9831813    /usr/lib/j2re1.5-sun/lib/charsets.jar
+b532e000-b5342000 r-xs 00000000 03:01 9831778    /usr/lib/j2re1.5-sun/lib/jce.jar
+b5342000-b53b9000 r-xs 00000000 03:01 9831812    /usr/lib/j2re1.5-sun/lib/jsse.jar
+b53b9000-b5422000 rwxp b53b9000 00:00 0 
+b5422000-b760c000 r-xs 00000000 03:01 9831815    /usr/lib/j2re1.5-sun/lib/rt.jar
+b760c000-b761f000 r-xp 00000000 03:01 9916669    /usr/lib/j2re1.5-sun/lib/i386/libzip.so
+b761f000-b7621000 rwxp 00012000 03:01 9916669    /usr/lib/j2re1.5-sun/lib/i386/libzip.so
+b7621000-b7642000 r-xp 00000000 03:01 9916667    /usr/lib/j2re1.5-sun/lib/i386/libjava.so
+b7642000-b7644000 rwxp 00020000 03:01 9916667    /usr/lib/j2re1.5-sun/lib/i386/libjava.so
+b7644000-b764d000 r-xp 00000000 03:01 4277717    /lib/tls/i686/cmov/libnss_files-2.3.6.so
+b764d000-b764e000 rwxp 00008000 03:01 4277717    /lib/tls/i686/cmov/libnss_files-2.3.6.so
+b764e000-b7656000 r-xp 00000000 03:01 4277721    /lib/tls/i686/cmov/libnss_nis-2.3.6.so
+b7656000-b7657000 rwxp 00008000 03:01 4277721    /lib/tls/i686/cmov/libnss_nis-2.3.6.so
+b7657000-b7669000 r-xp 00000000 03:01 4277711    /lib/tls/i686/cmov/libnsl-2.3.6.so
+b7669000-b766a000 rwxp 00012000 03:01 4277711    /lib/tls/i686/cmov/libnsl-2.3.6.so
+b766a000-b766c000 rwxp b766a000 00:00 0 
+b766e000-b7679000 r-xp 00000000 03:01 9916665    /usr/lib/j2re1.5-sun/lib/i386/libverify.so
+b7679000-b767a000 rwxp 0000b000 03:01 9916665    /usr/lib/j2re1.5-sun/lib/i386/libverify.so
+b767a000-b7682000 rwxs 00000000 03:01 13598767   /tmp/hsperfdata_root/7177
+b7682000-b76a3000 r-xp 00000000 03:01 4277707    /lib/tls/i686/cmov/libm-2.3.6.so
+b76a3000-b76a4000 rwxp 00020000 03:01 4277707    /lib/tls/i686/cmov/libm-2.3.6.so
+b76a4000-b7a04000 r-xp 00000000 03:01 9916658    /usr/lib/j2re1.5-sun/lib/i386/client/libjvm.so
+b7a04000-b7a22000 rwxp 0035f000 03:01 9916658    /usr/lib/j2re1.5-sun/lib/i386/client/libjvm.so
+b7a22000-b7e39000 rwxp b7a22000 00:00 0 
+b7e39000-b7f62000 r-xp 00000000 03:01 4277691    /lib/tls/i686/cmov/libc-2.3.6.so
+b7f62000-b7f65000 rwxp 00129000 03:01 4277691    /lib/tls/i686/cmov/libc-2.3.6.so
+b7f65000-b7f68000 rwxp b7f65000 00:00 0 
+b7f68000-b7f6a000 r-xp 00000000 03:01 4277705    /lib/tls/i686/cmov/libdl-2.3.6.so
+b7f6a000-b7f6b000 rwxp 00001000 03:01 4277705    /lib/tls/i686/cmov/libdl-2.3.6.so
+b7f6b000-b7f6c000 rwxp b7f6b000 00:00 0 
+b7f6c000-b7f7b000 r-xp 00000000 03:01 4279899    /lib/tls/i686/cmov/libpthread-2.3.6.so
+b7f7b000-b7f7c000 rwxp 0000e000 03:01 4279899    /lib/tls/i686/cmov/libpthread-2.3.6.so
+b7f7c000-b7f7e000 rwxp b7f7c000 00:00 0 
+b7f80000-b7f82000 r-xs 00000000 03:01 9916700    /usr/lib/j2re1.5-sun/lib/ext/dnsns.jar
+b7f82000-b7f8a000 r-xp 00000000 03:01 4277713    /lib/tls/i686/cmov/libnss_compat-2.3.6.so
+b7f8a000-b7f8b000 rwxp 00007000 03:01 4277713    /lib/tls/i686/cmov/libnss_compat-2.3.6.so
+b7f8b000-b7f91000 r-xp 00000000 03:01 9916654    /usr/lib/j2re1.5-sun/lib/i386/native_threads/libhpi.so
+b7f91000-b7f92000 rwxp 00006000 03:01 9916654    /usr/lib/j2re1.5-sun/lib/i386/native_threads/libhpi.so
+b7f92000-b7f93000 rwxp b7f92000 00:00 0 
+b7f93000-b7f94000 r-xp b7f93000 00:00 0 
+b7f94000-b7f97000 rwxp b7f94000 00:00 0 
+b7f97000-b7fac000 r-xp 00000000 03:01 4276307    /lib/ld-2.3.6.so
+b7fac000-b7fad000 rwxp 00014000 03:01 4276307    /lib/ld-2.3.6.so
+bfcac000-bfcaf000 ---p bfcac000 00:00 0 
+bfcaf000-bfeac000 rwxp bfcaf000 00:00 0          [stack]
+ffffe000-fffff000 ---p 00000000 00:00 0          [vdso]
+
+VM Arguments:
+java_command: start.jar
+Launcher Type: SUN_STANDARD
+
+Environment Variables:
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/bin/X11:/usr/games
+USERNAME=me
+LD_LIBRARY_PATH=/usr/lib/j2re1.5-sun/lib/i386/client:/usr/lib/j2re1.5-sun/lib/i386:/usr/lib/j2re1.5-sun/../lib/i386
+SHELL=/bin/bash
+DISPLAY=:0.0
+
+Signal Handlers:
+SIGSEGV: [libjvm.so+0x31b990], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGBUS: [libjvm.so+0x31b990], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGFPE: [libjvm.so+0x281230], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGPIPE: [libjvm.so+0x281230], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGILL: [libjvm.so+0x281230], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGUSR1: SIG_DFL, sa_mask[0]=0x00000000, sa_flags=0x00000000
+SIGUSR2: [libjvm.so+0x283580], sa_mask[0]=0x00000000, sa_flags=0x10000004
+SIGHUP: [libjvm.so+0x282fb0], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGINT: [libjvm.so+0x282fb0], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGQUIT: [libjvm.so+0x282fb0], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGTERM: [libjvm.so+0x282fb0], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+
+
+---------------  S Y S T E M  ---------------
+
+OS:testing/unstable
+
+uname:Linux 2.6.15-14-386 #1 PREEMPT Wed Jan 25 15:49:15 UTC 2006 i686
+libc:glibc 2.3.6 NPTL 2.3.6 
+rlimit: STACK 8192k, CORE 0k, NPROC infinity, NOFILE 1024000, AS infinity
+load average:6.23 6.30 6.57
+
+CPU:total 1 family 15, cmov, cx8, fxsr, mmx, sse, sse2, ht
+
+Memory: 4k page, physical 316k(85k free), swap 925k(921k free)
+
+vm_info: Java HotSpot(TM) Client VM (1.5.0_06-b05) for linux-x86, built on Nov 10 2005 12:08:33 by java_re with gcc 3.2.1-7a (J2SE release)

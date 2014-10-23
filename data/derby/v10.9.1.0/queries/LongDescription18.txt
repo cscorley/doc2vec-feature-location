@@ -1,0 +1,43 @@
+Reporting for Kathey Marsden.
+
+create table t1(c1 int);  – goes into app
+select sys.t1.c1 from t1; – should fail
+select sys.b.c1 from t1 b; – should fail
+select * from t1, app.t1;  – fails, should succeed
+select t1.c1 from t1, app.t1; – fails, should succeed
+
+
+	According to SQL92, the <table
+name> in a <table reference> exposes its name when it is not 
+qualified (See 6.3 <table reference>, Syntax Rule 1).  Also, 
+an unqualified <table name> is equivalent to one qualified 
+with the current default schema name (See 5.4 Names and 
+identifiers, Syntax Rule 8).  So, in the above queries,
+
+
+
+select * from t1, app.t1  – is the same as select * from 
+app.t1, app.t1, and this is not SQL92 — you have duplicate 
+exposed <table name>s in the same scope (see 6.3 <table 
+reference>, Syntax Rule 3). Derby can support it, but it's an 
+extension.
+
+select t1.c1 from t1, app.t1 – is the same as select app.t1.c1 
+from app.t1, app.t1, and again supporting this would be an 
+extension to SQL92.
+
+Note that if you say
+select * from t1, t2 t1 –  this is also a duplication, as the 
+exposed <table name> of the first table is app.t1 and the 
+exposed <correlation name> of the second table is t1. these 
+are different names, but 6.3 <table reference> Syntax Rule 4 
+rules out this case explicitly – a <correlation name> 
+cannot be the same as the unqualified part of any exposed 
+<table name>.
+
+One possibility is to go to a 2 pass method of column resolution:
+1st pass looks for an exact match on the qualifier (app.t1 
+matches app.t1 but not t1, ...)
+if no match, then do 2nd pass where it looks for a match on 
+table id.
+(Look at OrderByColumn.bindOrderByColumn()

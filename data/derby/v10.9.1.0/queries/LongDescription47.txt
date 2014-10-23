@@ -1,0 +1,136 @@
+Consider a simple case of  - 
+A table tbl has 10000 rows, there is a primary key index on i1
+and the query in question is 
+ select * from tbl where i1 in (-1,100000)
+
+derby does a table scan of the entire table even though the "IN" list has only two values and the comparison is on a field that has an index.
+
+Briefly looking at the code, it seems like we insert a between and use the IN list to get the start and stop values for the scan. Thus the range of the values in the "IN" list here plays an important role. 
+
+Thus if the query was changed to select * from tbl where i1 in (-1, 1), an index scan would be chosen.
+
+It would be nice if we could do something clever in this case where there is clearly an index on the field and the number of values in the IN list is known. Maybe use the rowcount estimate and the IN list size to do some optimizations.  
+
+	consider the length of the "IN" list to do searches on the table.  ie use the IN list values to do index key searches on the table,
+-or try to convert it to a join. Use the "IN" list values to create a temporary table and do a join. It is most likely that the optimizer will choose the table with "IN" list here as the outer table in the join and thus will do key searches on the larger table. 
+
+
+
+-------------------------------------------------------------------
+some query plans that I logged using derby.language.logQueryPlan=true for some similar queries:
+
+Table has ascending values from 0 - 9999 for i1. primary key index on i1.
+
+GMT Thread[UT0,5,main] (XID = 19941), (SESSIONID = 0), select * from scanfixed where i1 in (-1,9999,9998,9997,9996,9995,9994,9993,9992,9991,9990) ******* Project-Restrict ResultSet (2):
+Number of opens = 1
+Rows seen = 10000
+Rows filtered = 9990
+restriction = true
+projection = false
+	constructor time (milliseconds) = 0
+	open time (milliseconds) = 0
+	next time (milliseconds) = 0
+	close time (milliseconds) = 0
+	restriction time (milliseconds) = 0
+	projection time (milliseconds) = 0
+	optimizer estimated row count:          750.38
+	optimizer estimated cost:         8579.46
+
+Source result set:
+	Table Scan ResultSet for SCANFIXED at read committed isolation level using instantaneous share row locking chosen by the optimizer
+	Number of opens = 1
+	Rows seen = 10000
+	Rows filtered = 0
+	Fetch Size = 16
+		constructor time (milliseconds) = 0
+		open time (milliseconds) = 0
+		next time (milliseconds) = 0
+		close time (milliseconds) = 0
+		next time in milliseconds/row = 0
+
+	scan information: 
+		Bit set of columns fetched=All
+		Number of columns fetched=9
+		Number of pages visited=417
+		Number of rows qualified=10000
+		Number of rows visited=10000
+		Scan type=heap
+		start position: 
+null		stop position: 
+null		qualifiers:
+Column[0][0] Id: 0
+Operator: <=
+Ordered nulls: false
+Unknown return value: false
+Negate comparison result: false
+Column[0][1] Id: 0
+Operator: <
+Ordered nulls: false
+Unknown return value: true
+Negate comparison result: true
+
+		optimizer estimated row count:          750.38
+		optimizer estimated cost:         8579.46
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+l
+2004-10-14 18:59:47.577 GMT Thread[UT0,5,main] (XID = 19216), (SESSIONID = 0), select * from scanfixed where i1 in (9999,9998,9997,9996,9995,9994,9993,9992,9991,9990) ******* Project-Restrict ResultSet (3):
+Number of opens = 1
+Rows seen = 10
+Rows filtered = 0
+restriction = true
+projection = true
+	constructor time (milliseconds) = 0
+	open time (milliseconds) = 0
+	next time (milliseconds) = 0
+	close time (milliseconds) = 0
+	restriction time (milliseconds) = 0
+	projection time (milliseconds) = 0
+	optimizer estimated row count:            4.80
+	optimizer estimated cost:           39.53
+
+Source result set:
+	Index Row to Base Row ResultSet for SCANFIXED:
+	Number of opens = 1
+	Rows seen = 10
+	Columns accessed from heap = 
+{0, 1, 2, 3, 4, 5, 6, 7, 8}
+		constructor time (milliseconds) = 0
+		open time (milliseconds) = 0
+		next time (milliseconds) = 0
+		close time (milliseconds) = 0
+		optimizer estimated row count:            4.80
+		optimizer estimated cost:           39.53
+
+		Index Scan ResultSet for SCANFIXED using index SCANFIXEDX at read committed isolation level using instantaneous share row locking chosen by the optimizer
+		Number of opens = 1
+		Rows seen = 10
+		Rows filtered = 0
+		Fetch Size = 16
+			constructor time (milliseconds) = 0
+			open time (milliseconds) = 0
+			next time (milliseconds) = 0
+			close time (milliseconds) = 0
+			next time in milliseconds/row = 0
+
+		scan information: 
+			Bit set of columns fetched=All
+			Number of columns fetched=2
+			Number of deleted rows visited=0
+			Number of pages visited=2
+			Number of rows qualified=10
+			Number of rows visited=10
+			Scan type=btree
+			Tree height=2
+			start position: 
+	>= on first 1 column(s).
+	Ordered null semantics on the following columns: 
+
+			stop position: 
+	> on first 1 column(s).
+	Ordered null semantics on the following columns: 
+
+			qualifiers:
+None
+			optimizer estimated row count:            4.80
+			optimizer estimated cost:           39.53

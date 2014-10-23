@@ -1,0 +1,14 @@
+Opening this bug on behalf of Satheesh Bandaram
+
+---------------------------------------------------------
+The compiler mishandles quoted names with embedded periods when 
+checking uniqueness of table names in the from list of a 
+SELECT. Consider the following SQL:
+  create table "S1.T1" (id int not null primary key, d1 int);
+  create schema s1;
+  create table s1.t1 (id int not null primary key, d2 int);
+  select * from s1.t1, "S1.T1" where s1.t1.id = "S1.T1".id;
+Derby throws an error on the final SELECT statement:
+"ERROR 42X09: The table or alias name 'S1.T1' is used more than 
+once in the FROM list". However s1.t1 and "S1.T1" are different 
+tables.

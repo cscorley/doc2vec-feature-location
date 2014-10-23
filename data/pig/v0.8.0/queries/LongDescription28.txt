@@ -1,0 +1,13 @@
+The implementation of a Pig Logical Plan is currently closely tied with implementation details of the Physical Plan. 
+
+For instance, the construction of the tree of Logical Operators puts in place the data pipes in conjunction with the construction of Eval Spec and Cond nodes. Data pipes are utilized later on during the execution of the query. Conceptually, this appears to obfuscate the code.
+
+It would be nice to remove or reduce this tight coupling. This aspect may also be relevant to the proposal to provide an abstraction layer for Pig, where front-end activities are clearly separated from back-end tasks and responsibilities (see wiki at:  http://wiki.apache.org/pig/PigAbstractionLayer)
+
+Two possible alternatives initially discussed could be:
+
+1.) to decouple logical from physical part of plan construction by having two distinct sets of Eval Specs: a Logical Eval Spec/Cond set without physical plan details and a Physical Eval Spec/Cond set that addresses the aspects of the physical plan.
+
+2.) to merge the logical operators with the local physical operators (used by the LocalPlanCompiler) and preserve the MapReduce physical operator. 
+
+The second option may be preferable because less extensive changes are involved. Additionally, choosing the second option would integrate the Local Plan data structures into the core code packages: long term this could simplify the maintenance and support of the Local Plan construction.

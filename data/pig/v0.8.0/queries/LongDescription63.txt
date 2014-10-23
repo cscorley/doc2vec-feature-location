@@ -1,0 +1,6 @@
+From Ben:
+
+I just checked the code and the problem seems to be PigStorage. getNext() uses
+readLine() which does not handle UTF8 correctly. putNext() also uses default encoder rather than UTF8 explicitly.
+
+Internally and in BinStorage UTF8 appears to be handled correctly.

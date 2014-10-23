@@ -1,0 +1,113 @@
+I think it would be better if we can display the execution plan in a more understandable way. One intuitive way to do this is to show output as a tree like in SQL Server.
+
+Possibly we can  have 'AS <format>' as optional argument for explain command
+
+For example
+
+
+Grunt> explain bag1 AS tree ;
+Grunt> explain bag1 AS xml ;
+
+
+
+and 
+
+
+Grunt> explain bag1   
+
+
+
+will display the default format
+
+
+I have included a patch that does generate tree output.
+
+Here is a sample of the existing output format
+
+
+Logical Plan:
+Group root-Sun Feb 17 19:37:07 GMT+10:00 2008-5
+Object id: 9814147
+Inputs: 26335425 
+Schema: (group, (sum, (), (), ()))
+EvalSpecs:
+        Generate: has 2 children
+                Project: (0)
+                Star
+Split root-Sun Feb 17 19:37:07 GMT+10:00 2008-2
+Object id: 25199001
+Inputs: 29132923 
+Schema: (sum, (), (), ())
+EvalSpecs:
+Eval root-Sun Feb 17 19:37:07 GMT+10:00 2008-1
+Object id: 29132923
+Inputs: 10774273 
+Schema: (sum, (), (), ())
+EvalSpecs:
+        Generate: has 4 children
+                FuncEval: name: org.apache.pig.impl.builtin.ADD args:
+                        Generate: has 2 children
+                                Project: (0)
+                                Project: (1)
+                Project: (0)
+                Project: (1)
+                Project: (2)
+Load root-Sun Feb 17 19:37:07 GMT+10:00 2008-0
+Object id: 10774273
+Inputs: 
+Schema: ()
+EvalSpecs:
+-----------------------------------------------
+Physical Plan:
+MAPREDUCE
+Object id: 17671659
+Inputs: 682933706
+Map: 
+        Star
+Grouping Funcs: 
+        Generate: has 2 children
+                Project: (0)
+                Star
+Input Files: /tmp/temp678140026/tmp1867058340
+MAPREDUCE
+Object id: 17308974
+Inputs: 
+Map: 
+        Composite: has 2 children
+                Star
+                Generate: has 4 children
+                        FuncEval: name: org.apache.pig.impl.builtin.ADD args:
+                                Generate: has 2 children
+                                        Project: (0)
+                                        Project: (1)
+                        Project: (0)
+                        Project: (1)
+                        Project: (2)
+Input Files: /tmp/data1.txt
+Output File: /tmp/temp678140026/tmp1613817084
+
+
+
+
+Here is a sample of my tree output which is more compact and more understandable :-
+
+grunt> explain c1 as tree ;
+Logical Plan:
+|---LOCogroup ( GENERATE {[PROJECT $0],[*]} ) 
+      |---LOSplitOutput (  ) 
+            |---LOSplit ( ([PROJECT $0] < ['5']),([PROJECT $0] >= ['5']) ) 
+                  |---LOEval ( GENERATE {[org.apache.pig.impl.builtin.ADD(GENERATE {[PROJECT $0],[PROJECT $1]})],[PROJECT $0],[PROJECT $1],[PROJECT $2]} ) 
+                        |---LOLoad ( file = /tmp/data1.txt )
+-----------------------------------------------
+Physical Plan:
+|---POMapreduce
+    Map : *
+    Grouping : Generate(Project(0),*)
+    Input File(s) : /tmp/temp678140026/tmp1867058340
+      |---POMapreduce
+          Map : Composite(*,Generate(FuncEval(org.apache.pig.impl.builtin.ADD(Generate(Project(0),Project(1)))),Project(0),Project(1),Project(2)))
+          Input File(s) : /tmp/data1.txt
+
+
+
+I'm also thinking about doing output as xml as it might benefit people who are working on displaying execution plan on GUI.

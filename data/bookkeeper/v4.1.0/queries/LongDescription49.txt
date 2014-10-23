@@ -1,0 +1,4 @@
+all ledgers shared a PerChannelBookieClient. 
+PerChannelBookieClient put all the read requests in a ConcurrentHashMap<CompletionKey, ReadCompletion> map called readCompletions, which is indexed by CompletionKey. If two read requests have same entryId and same ledgerId, they have the same CompletionKey, the latter one will overwrite the previous one. So a read request's callback will not be invoked.
+
+we may need to chain the callbacks for same completion keys.

@@ -1,0 +1,6 @@
+JPquery: select e.name, e.salary from EmpBean e where (e.name = Any(select e1.name from EmpBean e1 group by e1.name )) order by e.name 
+generated pushdown SQL:
+SELECT t0.name, t0.salary, t1.name FROM EmpBean t0 JOIN EmpBean t1 ON (1 = 1) WHERE (t0.name = ANY((SELECT t2.name FROM EmpBean t2 GROUP BY t2.name))) GROUP BY t1.name ORDER BY t0.name ASC
+
+correct pushdown SQL should be:
+SELECT t0.name, t0.salary, t1.name FROM EmpBean t0 JOIN EmpBean t1 ON (1 = 1) WHERE (t0.name = ANY((SELECT t2.name FROM EmpBean t2 GROUP BY t2.name))) ORDER BY t0.name ASC

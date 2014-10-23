@@ -1,0 +1,13 @@
+It would be highly desirable to be able to extract virtual matrices from lucene indexes.
+
+The factory methods that I know of would include:
+
+a) the factory would accept the name of a single field and the resulting matrix would use document id's as row labels and terms as column labels.  The values would be the term counts in the document (if available), or 1 if the term is in the document, but the term frequency is not available.  This implies that TermVectors could be viewed as rows of this matrix.  Columns could be extract by boolean retrieval from the index.  Retrieval from that field could be considered a form of matrix-vector multiplication where the vector encodes a query using the values as term boosts and the result wraps a hit structure as a sparse matrix.  Matrix-matrix arithmetic with pairs of this kind of matrix should yield a matrix as in (b).
+
+b) the factory would accept a linear combination of terms and the resulting matrix would have rows which are linear combinations of the underlying term-vectors (could this be done latently so computation is only on access?  would that help?).  Column access would be a form of retrieval (but what would the semantics be?).  Matrix vector product could again be viewed as retrieval, but it would probably be most useful to view the original coefficients as boosts for the Lucene scoring mechanism rather than computing a linear combination of scores.
+
+c) the factor would produce a matrix in which the rows are all documents and the columns are all terms from all fields, each labeled with field and term name (probably using lucene query syntax).  Rows would be the concatenation of all term vectors, columns would represent retrieval on a single term.  Matrix vector multiplication would be general Lucene retrieval.  Matrix-matrix operations between lucene indexes should do something interesting (A' A, for instance might compute term coocurrence), but that seems pretty hairy to specify.  Matrix-matrix operations with ordinary matrices on the right might best be considered as multiple retrievals using each column of the right hand matrix as query.
+
+d) as with (c), but with only a defined list of fields with the rest of the fields not being expressed as columns.
+
+Issues with this API mostly center around efficiency of how to deal with expressions involving indexes (should operations be eager or lazy) and whether the use of multiplication as retrieval is too controversial.  An alternative might be to add a query operation to the API just for indexes.

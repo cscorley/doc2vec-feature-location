@@ -1,0 +1,14 @@
+I am doing a belated code review. There certain issues that I would like to change, for example fall-through exception handlers like this one:
+
+    try 
+{
+      Class cl = Class.forName(job.get(DISTANCE_MEASURE_KEY));
+      measure = (DistanceMeasure) cl.newInstance();
+      measure.configure(job);
+    }
+ catch (Exception e) 
+{
+      e.printStackTrace();
+    }
+
+This prints the stack trace of an exception to the console, but continues thread's execution after the catch clause. Since distance measure key is required, this makes little sense. A runtime exception should be thrown – this stops the job and causes a full stack trace to be displayed anyway (with the nested exception's message).

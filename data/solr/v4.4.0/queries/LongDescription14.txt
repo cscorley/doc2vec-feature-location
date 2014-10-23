@@ -1,0 +1,13 @@
+When doing prefix searching, you need to hang on to the original term othewise you'll miss many matches you should be making.
+
+Data: ABC-12345
+WordDelimiterFitler may change this into
+ABC 12345 ABC12345
+
+A user may enter a search such as 
+ ABC-123*
+Which will fail to find a match given the above scenario.
+
+The attached patch will allow the use of the "preserveOriginal" option to WordDelimiterFilter and will analyse as
+ABC 12345 ABC12345  ABC-12345 
+in which case we will get a postive match.

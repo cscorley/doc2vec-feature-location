@@ -1,0 +1,4 @@
+src/org/apache/pig/data/BigDataBag.java
+
+1) You should not use finalizers for things other than external resources – using them here is very dangerous and could inadvertantly lead to deadlocks and object resurrection and just decreases performance without any advantage.
+2) Using .freeMemory() the way it is used in this class is broken.  freeMemory() is going to return a mostly random number between 0 and the real amount.  Adding gc() in here is a terrible performance burden.  If you really want to do something like this you should using softreferences and finalization queues.

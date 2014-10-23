@@ -1,0 +1,9 @@
+Reporting for Mamta Satoor.
+
+If we use insert into desttable, select 
+distinct from source, into a desttable which has autoincrement 
+column in it, we might see gaps in the autoincrement column if 
+there are duplicated rows in the source table. The reason for 
+this is Derby projects values into destination table columns before 
+building a distinct resultset from the source table. The piece 
+of code doing this is in org.apache.derby.impl.sql.execute.ProjectRestrictResultSet class's getNextRowCore() method where it calls doProjection.

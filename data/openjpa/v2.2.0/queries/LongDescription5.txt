@@ -1,0 +1,23 @@
+Patrick opines:
+OpenJPA implements Statement, ResultSet, Connection, and maybe a
+couple other JDBC interfaces. See
+org.apache.openjpa.lib.jdbc.Delegating*. We do this for a number of
+reasons: to resolve database-specific bugs in a transparent fashion, to
+provide logging, to handle reference counting, etc.
+
+The pressing issue is that we must provide implementations of all of the
+methods in the various java.sql interfaces. The fact that we do not
+implement the new JDBC4 methods is why OpenJPA won't currently compile
+against JDK6. This is pretty easy to fix; take a look at
+org.apache.openjpa.lib.jdbc.DelegatingStatement to see how we handled
+this for JDBC3. Since we know that we never invoke the new methods, we
+can happily throw unsupported operation exceptions for the new methods.
+
+However, these unsupported methods do provide a challenge. While Kodo
+doesn't use any of these methods, our mechanism for implementing them is
+limiting, in that users who obtain Connections from Kodo will not be
+able to use the new JDBC3/JDBC4 methods in their own code. Ideally, we
+should provide some means for people to designate to OpenJPA that it
+should use a dynamic proxy to implement the unimplemented methods. This
+shouldn't be the default behavior, as the dynamic proxy will add
+overhead, but certainly could be desirable for some. I'll file an issue.

@@ -1,0 +1,11 @@
+In a hierarchial clusterer the instances are the leaf nodes in a tree where branch nodes contains the mean features of and the distance between its children.
+
+For performance reasons I always trained trees from the top->down. I have been told that it can cause various effects I never encountered. And I believe Huffman solved his problem by training bottom->up? The thing is, I don't think it is possible to train the tree top->down using map reduce. I do however think it is possible to train it bottom->up. I would very much appreciate any thoughts on this.
+
+Once this tree is trained one can extract clusters in various ways. The mean distance between all instances is usually a good maximum distance to allow between nodes when navigating the tree in search for a cluster. 
+
+Navigating the tree and gather nodes that are not too far away from each other is usually instant if the tree is available in memory or persisted in a smart way. In my experience there is not much to win from extracting all clusters from start. Also, it usually makes sense to allow for the user to modify the cluster boundary variables in real time using a slider or perhaps present the named summary of neighbouring clusters, blacklist paths in the tree, etc. It is also not to bad to use secondary classification on the instances to create worm holes in the tree. I always thought it would be cool to visualize it using Touchgraph.
+
+My focus is on clustering text documents for instant "more like this"-feature in search engines and use Tanimoto similarity on the vector spaces to calculate the distance.
+
+See LUCENE-1025 for a single threaded all in memory proof of concept of a hierarchial clusterer.

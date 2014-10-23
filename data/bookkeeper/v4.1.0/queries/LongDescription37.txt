@@ -1,0 +1,28 @@
+Symptoms: 
+
+	if a publisher sends messages asynchronously through the asyncPublish method, the ordering is not preserved in Hedwig
+
+
+
+Example: 
+
+	a publisher sends M1, M2, M3 by invoking the asyncPublish method
+The Hedwig broker may see these messages in the following order: M2, M1, M3
+A subscriber will also see messages as M2, M1, M3
+
+
+
+How to reproduce:
+
+	see attached test case: synchronous publishing preserves ordering, but asynchronous publishing does not.
+
+
+
+The cause of the problem:
+
+	my understanding is that this is due to asynchronous creation of multiple netty channels on the publisher side. There is no ordering since messages are not sent through the same channel.
+
+
+
+Suggested solution:
+Some buffering on the publisher side would allow to reuse the same channel and maintain ordering.

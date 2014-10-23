@@ -1,0 +1,25 @@
+The TermQuery allows .setBost to set a float multiplier.  The boost is entered 
+via a '^'<NUMBER> format in the String query, however, while .setBoost will 
+take a negative number, the parser does not allow negative numbers due to the 
+limited description of the <NUMBER> token (QueryParser.jj):
+
+
+
+ <NUMBER:     (<_NUM_CHAR>)+ "." (<_NUM_CHAR>)+ >
+
+
+
+
+The solution is to allow + or - as in:
+
+
+
+ <NUMBER:    (["+","-"])? (<_NUM_CHAR>)+ "." (<_NUM_CHAR>)+ >
+
+
+
+
+This works correctly, properly reading negative numbers.  
+
+I have done some simple tests, and negative boost seems to work as expected, by 
+moving the entry to the end of the list.

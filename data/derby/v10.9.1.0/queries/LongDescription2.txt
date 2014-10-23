@@ -1,0 +1,61 @@
+I went through all the steps in BUILDING.txt (including downloading all of the jars except osgi.jar) and have tried to build using both the default compiler and jikes.  I've included both outputs in this message.
+
+My ant.properties file:
+
+j14lib=/System/Library/Frameworks/JavaVM.framework/Home/lib
+j13lib=/System/Library/Frameworks/JavaVM.framework/Versions/1.3.1/Home/lib
+build.compiler=jikes
+
+Output when using Jikes (note:  I get tons of compile errors that all look like the one I've provided, all while compiling compile_iapi_jdbc_jdbc2):
+.
+.
+.
+     [echo] Ant environment:
+     [echo]   Base Directory: /Users/tom/dev/java/derby
+     [echo]   Build output: /Users/tom/dev/java/derby/classes
+     [echo]   Compiler: jikes
+     [echo]   Sane = true
+     [echo]   Proceed = no
+.
+.
+.
+compile_iapi_jdbc_jdbc2:
+    [javac] Compiling 3 source files to /Users/tom/dev/java/derby/classes
+
+    [javac] Found 2 semantic errors compiling "BrokeredPreparedStatement.java":
+
+    [javac]     24. public class BrokeredPreparedStatement extends BrokeredStatement
+    [javac]                      -----------------------
+    [javac] *** Semantic Error: The abstract method "void setURL(int $1, java.net.URL $2) throws java.sql.SQLException;", inherited from type "java.sql.PreparedStatement", is not implemented in the non-abstract class "org.apache.derby.iapi.jdbc.BrokeredPreparedStatement".
+.
+.
+.
+BUILD FAILED
+/Users/tom/dev/java/derby/build.xml:137: The following error occurred while executing this line:
+/Users/tom/dev/java/derby/java/engine/build.xml:43: The following error occurred while executing this line:
+/Users/tom/dev/java/derby/java/engine/org/apache/derby/iapi/build.xml:46: The following error occurred while executing this line:
+/Users/tom/dev/java/derby/java/engine/org/apache/derby/iapi/jdbc/build.xml:64: Compile failed; see the compiler error output for details.
+
+
+Output when using the default compiler:
+.
+.
+.
+     [echo] Ant environment:
+     [echo]   Base Directory: /Users/tom/dev/java/derby
+     [echo]   Build output: /Users/tom/dev/java/derby/classes
+     [echo]   Compiler: modern
+     [echo]   Sane = true
+     [echo]   Proceed = no
+.
+.
+.
+compile_iapi_jdbc_jdbc2:
+    [javac] Compiling 3 source files to /Users/tom/dev/java/derby/classes
+    [javac] Fatal Error: Unable to locate package java.lang in classpath or bootclasspath
+
+BUILD FAILED
+/Users/tom/dev/java/derby/build.xml:137: The following error occurred while executing this line:
+/Users/tom/dev/java/derby/java/engine/build.xml:43: The following error occurred while executing this line:
+/Users/tom/dev/java/derby/java/engine/org/apache/derby/iapi/build.xml:46: The following error occurred while executing this line:
+/Users/tom/dev/java/derby/java/engine/org/apache/derby/iapi/jdbc/build.xml:64: Compile failed; see the compiler error output for details.

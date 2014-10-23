@@ -1,0 +1,16 @@
+As reported by user:
+
+From: Martin Schaaf <ms@101tec.com>
+List-Id: <zookeeper-user.lists.sourceforge.net>
+
+FYI today I found this NPE in the logs. After this Exception an Error  
+event was thrown.
+
+java.lang.NullPointerException
+	at com.yahoo.jute.Utils.toCSVString(Utils.java:128)
+	at com.yahoo.jute.CsvOutputArchive.writeString(CsvOutputArchive.java: 
+95)
+	at com.yahoo.zookeeper.proto.WatcherEvent.toString(WatcherEvent.java: 
+60)
+	at net.sf.katta.zk.ZKClient.process(ZKClient.java:404)
+	at com.yahoo.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:264)

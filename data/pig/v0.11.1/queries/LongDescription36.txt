@@ -1,0 +1,8 @@
+InputStreams don't always skip as much as they are asked to skip, need to do this in a loop:
+
+		if (toSkip > 0)
+			in.skip(toSkip);
+		return t;
+
+Severity and Description	Path	Resource	Location	Creation Time	Id
+M B RR: org.apache.pig.impl.builtin.RandomSampleLoader.getNext() ignores result of org.apache.pig.impl.io.BufferedPositionedInputStream.skip(long)	pig-apache/src/org/apache/pig/impl/builtin	RandomSampleLoader.java	line 49	1196213971062	22891

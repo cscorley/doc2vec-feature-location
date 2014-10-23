@@ -1,0 +1,7 @@
+I am developing Pig Pen, an Eclipse plugin for Pig. Pig Pen needs to parse .pig scripts. The parsing is the same as for grunt, but the actions I take are different (e.g., Pig Pen will ignore "store" commands for the purpose of editing).
+
+What I'd like to do is create an abstract class PigScriptParser, which is identical to the current GruntParser except no actions are taken. Then I'll add a GruntParser that extends PigScriptParser, and has concrete implementations of actions (e.g., what to do when a "store" command is encountered).
+
+I'll also add a PigPenParser that also extends PigScriptParser.
+
+This should not affect the behavior of GruntParser at all – it just separates the parsing from the actuating.

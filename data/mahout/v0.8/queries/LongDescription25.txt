@@ -1,0 +1,37 @@
+Hi all, just started checking out the code base to get familiar with it and turned loose IntelliJ on the code. It picked up a few possible issues I thought I'd highlight:
+
+
+MatrixView:57
+
+      for (int col = offset[COL]; col < offset[COL] + cardinality[COL]; row++)
+
+Pretty sure that should be col++ at the end.
+
+
+DenseMatrix:122
+
+Instances are compared uisng == instead of equals(). Doesn't matter if this is exactly the semantics you want, but if DenseMatrix ever defined a notion of equals() this wouldn't use it and might be a bug. Same in many other classes.
+
+
+Canopy:146, 168
+
+      pointStronglyBound = pointStronglyBound | (dist < t2);
+
+Should this really be a non-shortcircuit, versus
+
+       pointStronglyBound = pointStronglyBound || (dist < t2);
+
+or just
+
+       if (!pointStronglyBound) 
+{
+              pointStronglyBound = dist < t2;
+       }
+
+
+CanopyDriver:52,53
+
+String.valueOf is a smidge faster than "" + x.
+
+
+Actually I've got several more but they're less important, like redundant casts or utility classes without private constructors, etc. I can keep going here... want to help polish a few things but don't want to get overbearing.

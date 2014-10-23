@@ -1,0 +1,9 @@
+JDBC 3.0 Javadoc for java.sql.Connection.close() states
+
+"Calling the method close on a Connection object that is already closed is a no-op."
+
+In Derby embedded calling close on a closed connection from the DriverManager or EmbeddedDataSource incorrectly throws XJ012.
+
+Calling close on a closed connection from a ConnectionPoolDataSource or XADataSource for Derby correctly returns correctly (no-op).
+
+Similar issue for Statement.close() - needs to be a no-op on a closed Statement/PreparedStatement/CallableStatement

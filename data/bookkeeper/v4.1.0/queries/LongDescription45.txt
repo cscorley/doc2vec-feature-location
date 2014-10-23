@@ -1,0 +1,32 @@
+I have a simple setup:
+3 zookeepers, 5 bookies, one hub. I use the pub/recv benchmark. 
+
+I see two kinds of errors every now and then. I start and stop the publishers and subscribers several times on various topics and get in this state after that. One is an exception:
+
+2011-08-15 18:34:08,538 - INFO  - [main:EntryLogger@427] - Extracting the ledgers from entryLogId: 0
+2011-08-15 18:34:10,572 - INFO  - [main:EntryLogger@471] - Retrieved all ledgers that comprise entryLogId: 0, values: 
+{11=true}
+2011-08-15 18:34:34,240 - INFO  - [main:EntryLogger@427] - Extracting the ledgers from entryLogId: 1
+2011-08-15 18:34:36,405 - INFO  - [main:EntryLogger@471] - Retrieved all ledgers that comprise entryLogId: 1, values: {11=true}
+2011-08-15 18:35:00,024 - INFO  - [main:EntryLogger@427] - Extracting the ledgers from entryLogId: 2
+2011-08-15 18:35:01,992 - INFO  - [main:EntryLogger@471] - Retrieved all ledgers that comprise entryLogId: 2, values: 
+{11=true}
+2011-08-15 18:35:25,742 - INFO  - [main:EntryLogger@427] - Extracting the ledgers from entryLogId: 3
+2011-08-15 18:35:27,689 - INFO  - [main:EntryLogger@471] - Retrieved all ledgers that comprise entryLogId: 3, values: {11=true}
+2011-08-15 18:35:51,455 - INFO  - [main:EntryLogger@427] - Extracting the ledgers from entryLogId: 4
+2011-08-15 18:35:53,410 - INFO  - [main:EntryLogger@471] - Retrieved all ledgers that comprise entryLogId: 4, values: 
+{11=true}
+2011-08-15 18:36:18,246 - INFO  - [main:EntryLogger@427] - Extracting the ledgers from entryLogId: 5
+Exception in thread "main" java.io.IOException: Read past EOF
+	at org.apache.bookkeeper.bookie.BufferedChannel.read(BufferedChannel.java:127)
+	at org.apache.bookkeeper.bookie.EntryLogger.extractLedgersFromEntryLogs(EntryLogger.java:447)
+	at org.apache.bookkeeper.bookie.EntryLogger.createLogId(EntryLogger.java:258)
+	at org.apache.bookkeeper.bookie.EntryLogger.openNewChannel(EntryLogger.java:306)
+	at org.apache.bookkeeper.bookie.EntryLogger.addEntry(EntryLogger.java:316)
+	at org.apache.bookkeeper.bookie.LedgerDescriptor.addEntry(LedgerDescriptor.java:78)
+	at org.apache.bookkeeper.bookie.Bookie.<init>(Bookie.java:198)
+	at org.apache.bookkeeper.proto.BookieServer.<init>(BookieServer.java:47)
+	at org.apache.bookkeeper.proto.BookieServer.main(BookieServer.java:95)
+
+
+And the other is an "2011-08-15 18:33:32,425 - ERROR - [main:EntryLogger@454] - Sanity check failed for entry size of 1867735922 at location 2147482381 in 3"

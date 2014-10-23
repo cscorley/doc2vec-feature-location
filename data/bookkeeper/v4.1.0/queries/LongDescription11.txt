@@ -1,0 +1,3 @@
+The BookKeeper client currently does not allow a client to read from an open ledger. That is, if the creator of a ledger is still writing to it (and the ledger is not closed), then an attempt to open the same ledger for reading will execute the code to recover the ledger, assuming that the ledger has not been correctly closed.
+
+It seems that there are applications that do require the ability to read from a ledger while it is being written to, and the main goal of this jira is to discuss possible implementations of this feature.

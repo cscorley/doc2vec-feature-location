@@ -1,0 +1,7 @@
+Currently, one can not use an alias to simplify queries.  For example, being able to alias "LongDescriptiveColumnName" AS LDCN would allow one to use the alias elsewhere in the query, e.g., the WHERE clause:
+
+SELECT LongDescriptiveColumnName AS LDCN FROM MyTable WHERE LDCN LIKE '%testing%';
+
+The current result is a message like:
+
+ERROR 42X04: Column 'LDCN' is not in any table in the FROM list or it appears within a join specification and is outside the scope of the join specification or it appears in a HAVING clause and is not in the GROUP BY list.  If this is a CREATE or ALTER TABLE statement then 'LDCN' is not a column in the target table.

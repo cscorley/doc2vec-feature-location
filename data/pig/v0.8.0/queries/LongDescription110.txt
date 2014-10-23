@@ -1,0 +1,9 @@
+A job such as the following:
+
+a = load 'mydata';
+b = group a by ($0, $1);
+c = foreach b generate flatten(group), COUNT($1)
+
+currently produces wrong results.  Instead of returning the count in the 3rd column, it returns a repeat of the value in the second column.  If the combiner is forced off, this does not occur, so I assume this is in the combiner logic somewhere.
+
+This bug was introduced in revision 617338 (the checkin for PIG-32).

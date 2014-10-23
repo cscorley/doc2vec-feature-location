@@ -1,0 +1,23 @@
+If you just click search in the admin interface without entering a query string, the following error is displayed:
+
+org.apache.solr.core.SolrException: Missing queryString
+	at org.apache.solr.request.StandardRequestHandler.handleRequest(StandardRequestHandler.java:104)
+	at org.apache.solr.core.SolrCore.execute(SolrCore.java:586)
+	at org.apache.solr.servlet.SolrServlet.doGet(SolrServlet.java:91)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:596)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:689)
+	at org.mortbay.jetty.servlet.ServletHolder.handle(ServletHolder.java:428)
+	at org.mortbay.jetty.servlet.WebApplicationHandler.dispatch(WebApplicationHandler.java:473)
+	at org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:568)
+	at org.mortbay.http.HttpContext.handle(HttpContext.java:1530)
+	at org.mortbay.jetty.servlet.WebApplicationContext.handle(WebApplicationContext.java:633)
+	at org.mortbay.http.HttpContext.handle(HttpContext.java:1482)
+	at org.mortbay.http.HttpServer.service(HttpServer.java:909)
+	at org.mortbay.http.HttpConnection.service(HttpConnection.java:820)
+	at org.mortbay.http.HttpConnection.handleNext(HttpConnection.java:986)
+	at org.mortbay.http.HttpConnection.handle(HttpConnection.java:837)
+	at org.mortbay.http.SocketListener.handleConnection(SocketListener.java:245)
+	at org.mortbay.util.ThreadedServer.handle(ThreadedServer.java:357)
+	at org.mortbay.util.ThreadPool$PoolThread.run(ThreadPool.java:534)
+
+A JScript-triggered warning of some sort would be better, or short of that, an automatic return to the query interface with a human-readable error message.

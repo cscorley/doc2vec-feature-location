@@ -1,0 +1,48 @@
+Jira to hold the integration of an eclipse plugin for pig.
+
+I will provide a zip of all the source files and directory structure. You just need to put them in the contrib folder and svn add them. (we can take care of the svn:ignore later)
+
+I changed all sausage references with guinea.
+I also replaced my name with "Apache Pig" in the various xml files.
+
+I propose this svn structure, having guinea in it's own directory will allow the plugin to have it's own release cycle independent from pig.
+
+/pig/ (http://svn.apache.org/repos/asf/incubator/pig/)
+  |
+  \__branches/  
+  |
+  \__contrib
+      |
+      \__guinea/
+          |
+          \__branches/  
+          |
+          \__tags/
+          |
+          \__trunk/
+              |
+              \__org.apache.pig.eclipse/
+              |
+              \__org.apache.pig.eclipse.feature/
+          |
+          \__update-site/
+  |
+  \__site/
+  |
+  \__trunk/
+
+
+
+There are actually 3 projects:
+
+	"org.apache.pig.eclipse" (the plugin)
+	"org.apache.pig.eclipse.feature" the feature just making a reference to the plugin but necessary for the update-site
+	"update-site" the update site for eclipse users so that people can add the url http://svn.apache.org/repos/asf/incubator/pig/update-site to their eclispe (there is no need to put this one in trunk/branches/tags since it basically just a website with a jar)
+
+
+
+The work flow when releasing a new plug in version is:
+
+	import all 3 project in eclipse
+	"org.apache.pig.eclipse.feature" > Export > Plug-in Development > Deployable feature > Directory: /local/dir/to/update-site > Finish
+	svn commit /local/dir/to/update-site

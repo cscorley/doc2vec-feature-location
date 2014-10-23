@@ -1,0 +1,23 @@
+I get this.  The crash is unfortunate when all that happened is that I should have capitalized count.
+
+grunt> z = foreach y generate group, count;                                                   
+java.lang.RuntimeException: Function count not found.
+        at com.yahoo.pig.impl.PigContext.getUDF(PigContext.java:155)
+        at com.yahoo.pig.impl.logicalLayer.parser.QueryParser.EvalFunction(QueryParser.java:3135)
+        at com.yahoo.pig.impl.logicalLayer.parser.QueryParser.FuncEvalItem(QueryParser.java:1915)
+        at com.yahoo.pig.impl.logicalLayer.parser.QueryParser.BaseEvalItem(QueryParser.java:1811)
+        at com.yahoo.pig.impl.logicalLayer.parser.QueryParser.UnaryExpr(QueryParser.java:1757)
+        at com.yahoo.pig.impl.logicalLayer.parser.QueryParser.MultiplicativeExpr(QueryParser.java:1689)
+        at com.yahoo.pig.impl.logicalLayer.parser.QueryParser.AdditiveExpr(QueryParser.java:1622)
+        at com.yahoo.pig.impl.logicalLayer.parser.QueryParser.InfixExpr(QueryParser.java:1590)
+        at com.yahoo.pig.impl.logicalLayer.parser.QueryParser.GenerateItem(QueryParser.java:1549)
+        at com.yahoo.pig.impl.logicalLayer.parser.QueryParser.FlattenedGenerateItem(QueryParser.java:1495)
+        at com.yahoo.pig.impl.logicalLayer.parser.QueryParser.FlattenedGenerateItemList(QueryParser.java:1440)
+        at com.yahoo.pig.impl.logicalLayer.parser.QueryParser.GenerateStatement(QueryParser.java:1394)
+        at com.yahoo.pig.impl.logicalLayer.parser.QueryParser.NestedBlock(QueryParser.java:1164)
+        at com.yahoo.pig.impl.logicalLayer.parser.QueryParser.ForEachClause(QueryParser.java:1128)
+        at com.yahoo.pig.impl.logicalLayer.parser.QueryParser.BaseExpr(QueryParser.java:411)
+        at com.yahoo.pig.impl.logicalLayer.parser.QueryParser.Expr(QueryParser.java:253)
+        at com.yahoo.pig.impl.logicalLayer.parser.QueryParser.Parse(QueryParser.java:177)
+        at com.yahoo.pig.impl.logicalLayer.LogicalPlanBuilder.parse(LogicalPlanBuilder.java:31)
+        at com.yahoo.pig.PigServer.registerQuery(PigServer.java:153)

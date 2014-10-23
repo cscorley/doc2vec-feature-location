@@ -1,0 +1,82 @@
+The following works perfectly on Linux, but fails on Mac OS X and FreeBSD (for example minotaur.apache.org):
+
+[06:25:51] dain$ cat Test.java 
+import java.sql.*;
+
+public class Test {
+    public static void main(String[] args) throws Exception {
+        // set up the system property for the database home
+        System.setProperty("derby.system.home", ".");
+
+        // load the Embedded driver to initialize the home
+        new org.apache.derby.jdbc.EmbeddedDriver();
+
+        try 
+{
+            Connection c = DriverManager.getConnection("jdbc:derby:testdb;create=true");
+            c.close();
+        }
+ catch (SQLException e) {
+            SQLException cause = e;
+            while (cause.getNextException() != null) 
+{
+                cause = cause.getNextException();
+            }
+            throw cause;
+        }
+        try 
+{
+            DriverManager.getConnection("jdbc:derby:;shutdown=true", null, null);
+        }
+ catch (SQLException e) 
+{
+            // SQLException gets thrown on successful shutdown so ignore
+        }
+    }
+}
+
+[06:25:56] dain$ javac -classpath derby-47170.jar Test.java
+
+[06:26:21] dain$ java -classpath derby-47170.jar:. Test     
+Exception in thread "main" java.io.FileNotFoundException: /Users/dain/testdb/log/log1.dat (File exists)
+        at java.io.RandomAccessFile.open(Native Method)
+        at java.io.RandomAccessFile.<init>(RandomAccessFile.java:204)
+        at org.apache.derby.impl.io.DirRandomAccessFile.<init>(DirRandomAccessFile.java:50)
+        at org.apache.derby.impl.io.DirRandomAccessFile4.<init>(DirRandomAccessFile4.java:50)
+        at org.apache.derby.impl.io.DirFile4.getRandomAccessFile(DirFile4.java:244)
+        at org.apache.derby.impl.store.raw.log.LogToFile.run(LogToFile.java:4999)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at org.apache.derby.impl.store.raw.log.LogToFile.privRandomAccessFile(LogToFile.java:4889)
+        at org.apache.derby.impl.store.raw.log.LogToFile.boot(LogToFile.java:3024)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1920)
+        at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:278)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java:530)
+        at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java:412)
+        at org.apache.derby.impl.store.raw.data.BaseDataFileFactory.bootLogFactory(BaseDataFileFactory.java:1516)
+        at org.apache.derby.impl.store.raw.data.BaseDataFileFactory.setRawStoreFactory(BaseDataFileFactory.java:1048)
+        at org.apache.derby.impl.store.raw.RawStore.boot(RawStore.java:254)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1920)
+        at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:278)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java:530)
+        at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java:412)
+        at org.apache.derby.impl.store.access.RAMAccessManager.boot(RAMAccessManager.java:993)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1920)
+        at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:278)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java:530)
+        at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java:412)
+        at org.apache.derby.impl.db.BasicDatabase.bootStore(BasicDatabase.java:747)
+        at org.apache.derby.impl.db.BasicDatabase.boot(BasicDatabase.java:168)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1920)
+        at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:278)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.bootService(BaseMonitor.java:1767)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.createPersistentService(BaseMonitor.java:1009)
+        at org.apache.derby.iapi.services.monitor.Monitor.createPersistentService(Monitor.java:573)
+        at org.apache.derby.impl.jdbc.EmbedConnection.createDatabase(EmbedConnection.java:1486)
+        at org.apache.derby.impl.jdbc.EmbedConnection.<init>(EmbedConnection.java:214)
+        at org.apache.derby.impl.jdbc.EmbedConnection20.<init>(EmbedConnection20.java:49)
+        at org.apache.derby.impl.jdbc.EmbedConnection30.<init>(EmbedConnection30.java:56)
+        at org.apache.derby.jdbc.Driver30.getNewEmbedConnection(Driver30.java:68)
+        at org.apache.derby.jdbc.Driver169.connect(Driver169.java:172)
+        at java.sql.DriverManager.getConnection(DriverManager.java:512)
+        at java.sql.DriverManager.getConnection(DriverManager.java:193)
+        at Test.main(Test.java:12)

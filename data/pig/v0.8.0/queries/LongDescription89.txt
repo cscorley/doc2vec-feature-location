@@ -1,0 +1,61 @@
+Hello,
+
+I am experimenting, trying to perform a DISTINCT on a medium sized set of URLs - about 3million (same set as I discussed previously - Utkarsh has a copy), this time in local execution mode.
+
+Pig script:
+{{
+A = LOAD 'all_13122007.txt';
+B = DISTINCT A;
+store B into 'bla;
+}}
+
+
+Bring these errors (two lines swapped in DefaultDatabag) to find real error.
+{{
+2008-02-04 18:09:44,756 [Low Memory Detector] INFO  org.apache.pig - low memory handler called init = 29491200(28800K) used = 269834064(263509K) committed = 307036160(299840K) max = 471662592(460608K)
+2008-02-04 18:09:45,355 [Low Memory Detector] ERROR org.apache.pig - Unable to spill contents to disk
+java.io.IOException: Too many open files
+        at java.io.UnixFileSystem.createFileExclusively(Native Method)
+        at java.io.File.checkAndCreate(File.java:1704)
+        at java.io.File.createTempFile(File.java:1793)
+        at java.io.File.createTempFile(File.java:1830)
+        at org.apache.pig.data.DataBag.getSpillFile(DataBag.java:367)
+        at org.apache.pig.data.DefaultDataBag.spill(DefaultDataBag.java:69)
+        at org.apache.pig.impl.util.SpillableMemoryManager.handleNotification(SpillableMemoryManager.java:123)
+        at sun.management.NotificationEmitterSupport.sendNotification(NotificationEmitterSupport.java:138)
+        at sun.management.MemoryImpl.createNotification(MemoryImpl.java:171)
+        at sun.management.MemoryPoolImpl$CollectionSensor.triggerAction(MemoryPoolImpl.java:300)
+        at sun.management.Sensor.trigger(Sensor.java:120)
+java.lang.ArrayIndexOutOfBoundsException: -1
+        at java.util.ArrayList.remove(ArrayList.java:390)
+        at org.apache.pig.data.DefaultDataBag.spill(DefaultDataBag.java:84)
+        at org.apache.pig.impl.util.SpillableMemoryManager.handleNotification(SpillableMemoryManager.java:123)
+        at sun.management.NotificationEmitterSupport.sendNotification(NotificationEmitterSupport.java:138)
+        at sun.management.MemoryImpl.createNotification(MemoryImpl.java:171)
+        at sun.management.MemoryPoolImpl$CollectionSensor.triggerAction(MemoryPoolImpl.java:300)
+        at sun.management.Sensor.trigger(Sensor.java:120)
+Exception in thread "Low Memory Detector" java.lang.InternalError: Error in invoking listener
+        at sun.management.NotificationEmitterSupport.sendNotification(NotificationEmitterSupport.java:141)
+        at sun.management.MemoryImpl.createNotification(MemoryImpl.java:171)
+        at sun.management.MemoryPoolImpl$CollectionSensor.triggerAction(MemoryPoolImpl.java:300)
+        at sun.management.Sensor.trigger(Sensor.java:120)
+
+}}
+
+There are a two sub-issues here: 
+
+1. Pig spills too much using a default JVM (64MB) size - expected?
+Perhaps pig.pl should set a default JVM size of more than 64MB?
+
+
+2. the line DefaultDataBag.java:84
+{{{
+mSpillFiles.remove(mSpillFiles.size() - 1);
+}}}
+line should check that mSpillFiles.size() > 0,  because if File.createTempFile( ) in Databag.getSpillFile() fails, the mSpillFiles will not yet have been updated. My preference would be to split try{ } catch (IOException ioe) { } within DefaultDatabag.spill() into two exception handlers - one for getSpillFile() errors, and one for actual writing errors (when we know mSpillFiles has been added to).
+
+If this latter point isnt coherent, I can create patch.
+
+Ta muchly.
+
+C

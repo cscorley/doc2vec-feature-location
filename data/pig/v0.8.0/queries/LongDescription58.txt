@@ -1,0 +1,36 @@
+This feature has been requested by several users and would be very useful in conjunction with streaming. The feature would allow pig script to include parameters that are replaced at run time. For instance, if your script needs to run on a daily basis over the data of the previous day, you would be able to use the script and providing a date as a run-time parameter to it.
+
+Example:
+=======
+Pig script myscript.pig:
+
+A = load '/data/mydata/%date%';
+B = filter A by $0>'5';
+.....
+
+Pig command line:
+
+pig -param date='20080110' myscript.pig
+
+Proposed interface and implementation:
+
+Interface:
+=======
+(0) Substitution will be only supported with pig script files.
+(1) Parameters are specified on the command line via -param <param>=<val> construct. Multiple parameters can be specified. They are applied to the script in the order they are specified on the command line
+(2) Default values for the parameters can be specified within the script via decare statement:
+decare <param>=<value>
+(3) Withint the script the parameter will be enclosed in %%. % can be used te escape.
+
+Implementation:
+============
+
+Use preprocessor to do the substitution. The preprocessor would be invoced by Main before grunt is instanciated and do the following:
+
+
+	create a new file in temp location
+	build a hash of parameters from command line and declare statement
+	for each line in the original script
+  if this is a declare line, skip it
+  else for each unescaped pattern %<identifie>% look for a match in the hash. Replace, if found.  Write the line to the temp file.
+	pass the temp file to grunt.

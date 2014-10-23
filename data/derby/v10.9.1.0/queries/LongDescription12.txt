@@ -1,0 +1,16 @@
+Opening this bug on behalf of Satheesh Bandaram.
+
+------------------------------------------------------
+Select list expansion is incorrect when there is a quoted table 
+name with an embedded period. Consider the following SQL:
+  create table "S1.T1" (id int not null primary key, d1 int);
+  create schema s1;
+  create table s1.t1 (id int not null primary key, d2 int);
+  select s1.t1.* from "S1.T1";
+  select "S1.T1".* from s1.t1;
+The select statements should both throw errors, because s1.t1 
+and "S1.T1" are different tables. However Derby does not 
+throw an error. However, the following SQL does throw an error, 
+as it should.
+  select "S1.T1".id from s1.t1;
+  select s1.t1.id from "S1.T1"

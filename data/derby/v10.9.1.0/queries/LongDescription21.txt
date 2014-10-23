@@ -1,0 +1,14 @@
+Opening this bug on behalf of Daniel Debrunner.
+
+-------------------------------------------------------------
+ResultsetMetaData.getColumnClassName() for CLOB and BLOB 
+datatypes is incorrect. 
+            BLOB:               CLOB:
+jcc:        java.sql.Blob       java.sql.Clob
+Derby:      byte[]              java.lang.String
+
+Derby's embedded JDBC driver returns the incorrect class 
+names for BLOB and CLOB columns in a ResultSet when using the 
+ResultSetMetaData.getColumnClassName() method. Note that the 
+ResultSet.getObject() method calls are not currently supported 
+for BLOB and CLOB.

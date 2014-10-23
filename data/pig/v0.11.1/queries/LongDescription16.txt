@@ -1,0 +1,19 @@
+I'd like to propose a different model which uses the grunt "set" option and/or a command line option which sets reduce
+parallelism to the be true and automatic.
+
+	set reduce_parallelism TRUE
+	set reduce_parallelism FALSE [Default - BTW, why is this the default?]
+
+This way I won't have to update my script every single time I try playing with -D"hod=-m N", parallelism for reduce
+statements will default, appropriately, to 2*(N-1).
+
+Alternatively, could I just specify PARALLEL with no value or PARALLEL DEFAULT;  And any time I needed to force reduce
+to be single job, I could write PARALLEL 1.
+
+Basically, this whole thing tripped me up for a long time and I just haven't understood if there is a really good
+reason to not make parallelism.
+
+I guess it might be if you have aggregation functions that do not parallelize.
+
+If this is the case, then it seems to me that this should be detectable automagically based on whether the function is
+a vanilla EvalFunction or if it is an AlgebraicFunction.

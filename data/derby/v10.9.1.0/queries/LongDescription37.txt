@@ -1,0 +1,15 @@
+java code:
+
+PreparedStatement ps = conn.prepareStatement(statement);
+
+This statement:
+
+SELECT THIS.CODE_EID,THIS.COMPOSED_EID,'org.jpox.samples.applicationidentity.ChildComposedIntID' as JPOXMETADATA ,THIS.INTEGER_IDX AS JPOXORDER0,ELEMENT_1.CODE,ELEMENT_1.COMPOSED,ELEMENT_1.DESCRIPTION,ELEMENT_1."NAME" FROM NORMALLISTAPPLICATIONID_COMPOS THIS INNER JOIN CHILDCOMPOSEDINTID "ELEMENT" ON THIS.CODE_EID = "ELEMENT".CODE AND THIS.COMPOSED_EID = "ELEMENT".COMPOSED INNER JOIN COMPOSEDINTID ELEMENT_1 ON "ELEMENT".CODE = ELEMENT_1.CODE AND "ELEMENT".COMPOSED = ELEMENT_1.COMPOSED WHERE THIS.NORMALLISTAPPLICATIONID_ID_OID = ? AND THIS.INTEGER_IDX >= ? ORDER BY JPOXORDER0
+
+results in:
+
+SQL Exception: Comparisons between 'VARCHAR' and 'INTEGER' are not supported.
+
+possible cause:
+
+The INTEGER_IDX is an INTEGER column. While running the prepareStatement, JDBC/Cloudscape thinks I'm comparing INTEGER_IDX with ? (question mark) (INTEGER vs VARCHAR). This is not true, ? (question mark) is a parameter that will be later substitued in my code by an integer value.

@@ -1,0 +1,46 @@
+Submitted on behalf of Jacob. Is is possible for us to address this in the next release? Will cause b/w compatibility issues for c client users but sounds like a good idea to fix now.
+--------
+I've attached a file with the problem identifiers. All of these
+identifiers are unprotected by a ZOO_ (or something similar) prefix.
+
+I've also looked at zookeeper.jute.h and the names of some these structs
+are really unfortunate – theyre sure to collide with some headers e.g.
+Stat. There's also some exceptions to the consistent naming scheme –
+op_result_t, String_vector, Id_vector are the ones I noticed.
+
+-------- file -------
+These enum constants are unprotected:
+
+typedef enum 
+{LOG_LEVEL_ERROR=1,LOG_LEVEL_WARN=2,LOG_LEVEL_INFO=3,LOG_LEVEL_DEBUG=4}
+ ZooLogLevel;
+
+extern ZOOAPI const int PERM_READ;
+extern ZOOAPI const int PERM_WRITE;
+extern ZOOAPI const int PERM_CREATE;
+extern ZOOAPI const int PERM_DELETE;
+extern ZOOAPI const int PERM_ADMIN;
+extern ZOOAPI const int PERM_ALL;
+
+extern ZOOAPI struct Id ANYONE_ID_UNSAFE;
+extern ZOOAPI struct Id AUTH_IDS;
+
+extern ZOOAPI struct ACL_vector OPEN_ACL_UNSAFE;
+extern ZOOAPI struct ACL_vector READ_ACL_UNSAFE;
+extern ZOOAPI struct ACL_vector CREATOR_ALL_ACL;
+
+extern ZOOAPI const int EPHEMERAL;
+extern ZOOAPI const int SEQUENCE;
+
+extern ZOOAPI const int EXPIRED_SESSION_STATE;
+extern ZOOAPI const int AUTH_FAILED_STATE;
+extern ZOOAPI const int CONNECTING_STATE;
+extern ZOOAPI const int ASSOCIATING_STATE;
+extern ZOOAPI const int CONNECTED_STATE;
+
+extern ZOOAPI const int CREATED_EVENT;
+extern ZOOAPI const int DELETED_EVENT;
+extern ZOOAPI const int CHANGED_EVENT;
+extern ZOOAPI const int CHILD_EVENT;
+extern ZOOAPI const int SESSION_EVENT;
+extern ZOOAPI const int NOTWATCHING_EVENT;

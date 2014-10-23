@@ -1,0 +1,12 @@
+generated SQL is missing CAST function to indicate type of ?
+ EJB QL :  select e from EmpBean e where mod(e.empid,5)=0 
+
+DB2 SQL error: SQLCODE: -418, SQLSTATE: 42610, SQLERRMC: null {prepstmnt 1046232668 
+SELECT t0.empid, t0.bonus, t1.deptno, t1.budget, t1.name, t0.execLevel, t0.hireDate, t0.hireTime, t0.hireTimestamp,
+t0.home, t0.isManager, t0.name, t0.salary, t0.work FROM EmpBean t0 LEFT OUTER JOIN DeptBean t1 ON t0.dept_deptno = t1.deptno
+WHERE (MOD(t0.empid, ?) = ?)
+
+
+db2 sql compiler is not able to resolve type of expression (MOD(t0.empid, ?) = ?.  This expression should be 
+MOD(t0.empid, cast( as integer) ) = ?.    or 
+MOD(t0.empid, 5) = 0

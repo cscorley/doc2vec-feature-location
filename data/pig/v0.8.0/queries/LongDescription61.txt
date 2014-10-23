@@ -1,0 +1,4 @@
+From what I can tell, comparison function lookup does not interact with register command. Instead, it expects to find the function on the class path. The problem with that is that we don't ship jar that are not registered and the registered jars don't get placed in classpath on the server path. The solution should be to use the same way to instanciate the object as used for other udfs.
+
+Comparator: Class.forName
+Other UDFs: PigContext.resolveClassName

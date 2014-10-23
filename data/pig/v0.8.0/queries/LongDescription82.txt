@@ -1,0 +1,13 @@
+Pig looses floating point precision during conversion between binary and string conversion.
+Here is an example code.
+
+words = LOAD '/user/daeho/words.txt' as (word);
+numWords  = FOREACH (GROUP words ALL) GENERATE COUNT($1);
+weight = FOREACH numWords GENERATE 1.0 / $0;
+wordsWithWeight = CROSS words, weight;
+sumWeight = FOREACH (GROUP wordsWithWeight ALL) GENERATE SUM($1.$1);
+dump sumWeight;
+
+sumWeight is not 1 even though words.txt has 118 lines.
+
+Can we store floating point as binary format?

@@ -1,0 +1,22 @@
+Lets say my current working dir (CWD) is /user/x and there exists a file 'a';
+
+
+The following results in an error:
+
+a = load 'a';
+
+cd /
+
+dump a;
+
+
+The problem is that the logical plan does not have fully qualified name for 'a' and it is converted only when the
+physical plan compilation is done. So in between if someone changes the directory as above we have a problem.
+
+As a user I do not worry/know about the side effects of pig's choice to execute queries lazily. So when I asked it to
+load 'a' I made sure that I was in the right directory. I think that the file is loaded and I change the directory. Now
+when the dump is asked for, the compilation starts and all it does to qualify the filename is to get the CWD and append
+it with the filename if its not absolute already. Hence the problem.
+
+One solution is to store the FQFN while parsing the query. Since there might users of just the logical plan like
+pigbody, I think the logical plan should support this.

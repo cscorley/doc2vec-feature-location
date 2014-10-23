@@ -1,0 +1,40 @@
+add relational query optimization techniques, or similar, to Pig
+
+discussion so far:
+
+
+	
+	
+		Amir Youssefi:
+	
+	
+
+
+
+Comparing two pig scripts of join+filter  and filter+join I see that pig has
+an optimization opportunity of first doing filter by constraints then do the
+actual join. Do we have a JIRA open for this (or other optimization
+scenarios)? 
+
+In my case, the first one resulted in OutOfMemory exception but the second
+one runs just fine. 
+
+
+
+	
+	
+		Chris Olston:
+	
+	
+
+
+
+Yup. It would be great to sprinkle a little relational query optimization technology onto Pig.
+
+Given that query optimization is a double-edged sword, we might want to consider some guidelines of the form:
+
+1. Optimizations should always be easy to override by the user. (Sometimes the system is smarter than the user, but other times the reverse is true, and that can be incredibly frustrating.)
+
+2. Only "safe" optimizations should be performed, where a safe optimization is one that with 95% probability doesn't make the program slower. (An example is pushing filters before joins, given that the filter is known to be cheap; if the filter has a user-defined function it is not guaranteed to be cheap.) Or perhaps there is a knob that controls worst-case versus expected-case minimization.
+
+We're at a severe disadvantage relative to relational query engines, because at the moment we have zero metadata. We don't even know the schema of our data sets, much less the distributions of data values (which in turn govern intermediate data sizes between operators). We have to think about how to approach this that is compatible with the Pig philosophy of having metadata always be optional. It could be as simple as (fine, if the user doesn't want to "register" his data with Pig, then Pig won't be able to optimize programs over that data very well), or as sophisticated as on-line sampling and/or on-line operator reordering.

@@ -1,0 +1,17 @@
+The default behavior with OpenJPA is to be very forgiving regarding the Primary Key types passed in when calling EntityManager.find or EntityManager.getReference. 
+
+For example if an Entity has an ID of type Long OpenJPA will attempt to convert anything that extend java.lang.Number and Strings (maybe others). 
+
+This is a nice feature, but I don't think it should be the default behavior.  The JPA spec indicates that an IllegalArgumentException should be thrown if the second argument is not a valid type for the Entity's primary key. There is some room for interpretation as to what constitutes a valid type, conversion for all Numbers makes sense, but String might be pushing it.
+
+Workaround : 
+Add the following to persistence.xml
+<property name="openjpa.Compatibility"	value="strictIdentityValues=true" />
+
+Proposed Solution : 
+The OpenJPA compatibility plugin provides a mechanism to enforce strict identity checking (defaulting to false). There's no need to change the default in the kernel (other persistence apis like JDO might be more lenient) so I propose changing the default in PersistenceProductDerivation.beforeConfigurationLoad(). 
+
+Changing it there should only effect the JPA facade and leave the OpenJPA kernel's default in place for other facades. 
+
+The value may be overridden by adding the following property to persistence.xml 
+<property name="openjpa.Compatibility"	value="strictIdentityValues=false" />

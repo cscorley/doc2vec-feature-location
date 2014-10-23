@@ -140,13 +140,16 @@ class GitCorpus(GeneralCorpus):
             self.ref = ref
 
         self.ref_tree = None
+        self.ref_commit_sha = None
 
         # find which file tree is for the commit we care about
         self.ref_obj = self.repo[self.ref]
         if isinstance(self.ref_obj, dulwich.objects.Tag):
             self.ref_tree = self.repo[self.ref_obj.object[1]].tree
+            self.ref_commit_sha = self.ref_obj.object[1]
         elif isinstance(self.ref_obj, dulwich.objects.Commit):
             self.ref_tree = self.ref_obj.tree
+            self.ref_commit_sha = self.ref_obj.id
         elif isinstance(self.ref_obj, dulwich.objects.Tree):
             self.ref_tree = self.ref_obj.id
         else:
@@ -271,9 +274,10 @@ class TaserMixIn(object):
 
         for cmd in cmds:
             logger.info('Running Taser command:\n\t%s', ' '.join(cmd))
-            retval = subprocess.call(cmd)
+            retval = subprocess.call(cmd, close_fds=True)
             if retval:
                 raise TaserError("Failed cmd: " + str(cmd))
+            del retval
 
         self.corpus_generated = True
 
@@ -378,7 +382,7 @@ class ChangesetCorpus(GitCorpus):
 
         """
 
-        for walk_entry in self.repo.get_walker(reverse=True):
+        for walk_entry in self.repo.get_walker(include=[self.ref_commit_sha], reverse=True):
             commit = walk_entry.commit
 
             # initial revision, has no parent

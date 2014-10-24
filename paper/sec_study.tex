@@ -18,7 +18,7 @@ defects.
 The \textit{perspective} of the study is of a researcher, developer, or
 project manager who wishes to gain understanding of the concepts or
 features implemented in the source code.
-The \textit{context} of the study spans the version histories of fifteen
+The \textit{context} of the study spans the version histories of fourteen
 open source systems.
 
 Toward achievement of our goal, we pose the following research questions:
@@ -36,14 +36,16 @@ describe the setting of our study, and report our data collection and analysis p
 
 \subsection{Subject software systems}
 
-% TODO
 All of our subject software systems come from two publicly-available
 datasets.  The first is a dataset of four software systems by Dit et
 al.~\cite{Dit:2013} and contains method-level goldsets.  The second is
-a dataset of fifteen software systems by Moreno et
+a dataset of fourteen software systems by Moreno et
 al.~\cite{Moreno:2014} and contains class-level goldsets. The four
 software systems in the first dataset also appear in the second,
 supplying us with both class- and method-level goldsets for the queries.
+
+% TODO put a table describing systems (how many SLOC, corpus sizes) here
+% TODO put paragraph describing each system in english here
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -61,7 +63,7 @@ Our document extraction process is shown on the left side of Figure~\ref{fig:pro
 We implemented our document extractor in Python v2.7
 using the Dulwich library\footnote{\url{http://www.samba.org/~jelmer/dulwich/}}. %\footnote{\url{https://pypi.python.org/pypi/dulwich}}
 We extract documents from both a snapshot of the repository at a tagged
-release and each commit reachable from that tag's commit.
+snapshot and each commit reachable from that tag's commit.
 The same preprocessing steps are employed on all documents extracted.
 
 % TODO
@@ -72,10 +74,16 @@ the \texttt{git diff} between two commits.
 Figure~\ref{fig:diff} shows an example of what a changeset might look
 like in Git.
 In our changeset text extractor, we only extract all text related to the
-changed file, e.g., context, removed, and added lines.  
+changed file, e.g., context, removed, and added lines.
 Metadata lines are ignored.
 Note that we do not consider where the text originates from,
-only that it is text changed by the commit.
+only that it is text changed by the commit.\footnote{
+The Apache Lucene and Solr projects were merged into a single, new repository
+during their development.
+We only use changes that affect each project's subfolder in the merged repository,
+and also include all changes from the two pre-merge repositories in each project's respective corpus.
+}
+
 
 After extracting tokens, we split the tokens based on camel case,
 underscores, and non-letters.
@@ -94,7 +102,7 @@ and uses variational inference instead of a Collapsed Gibbs Sampler.
 Unlike Gibbs sampling, in order to ensure that the model converges for each document,
 we allow LDA to see each mini-batch $5$ times by setting Gensim's initialization parameter \texttt{passes} to this value
 and allowing the inference step $1000$ iterations over a document.
-We set the following LDA parameters for all fifteen systems:
+We set the following LDA parameters for all fourteen systems:
 $500$ topics ($K$), a symmetric $\alpha=1/K$, and a symmetric $\beta=1/K$.
 These are default values for $\alpha$ and $\beta$ in Gensim.
 
@@ -152,7 +160,7 @@ index 635ef2c..5af88a8 100644
 \subsection{Data Collection and Analysis}
 
 % TODO
-We create two corpora for each of our fifteen subject systems.
+We create two corpora for each of our fourteen subject systems.
 We then model the documents into topics.
 
 To answer RQ1, we take the traditional approach to evaluation:
@@ -163,13 +171,13 @@ To answer RQ1, we take the traditional approach to evaluation:
     \item Rank the source code entities by how similar their doc-topic is to the query's.
 \end{enumerate}
 
-We build a topic model for two corpora: 
+We build a topic model for two corpora:
 \begin{enumerate}
-    \item Source code entities of a release
-    \item All changesets leading up to the release
+    \item Source code entities of a snapshot 
+    \item All changesets leading up to the snapshot 
 \end{enumerate}
 
-The release-based model is our baseline for comparison in our study.
+The snapshot-based model is our baseline for comparison in our study.
 
 To answer RQ2, we must take a different approach.
 Since both LDA and LSI can be used as online topic models, we can

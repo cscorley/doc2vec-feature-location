@@ -72,8 +72,6 @@ Block comments immediately preceding an entity are also included in this text.
 
 To extract text from the changesets, we look at the output of viewing
 the \texttt{git diff} between two commits.
-Figure~\ref{fig:diff} shows an example of what a changeset might look
-like in Git.
 In our changeset text extractor, we extract all text related to the
 change, e.g., context, removed, and added lines; metadata lines are ignored.
 Note that we do not consider where the text originates from,
@@ -122,37 +120,6 @@ Gensim's LSI implementation is based on an online LSI by {\v R}eh{\r u}{\v r}ek\
 We set the number of topics the same as LDA for each project.
 The remaining parameters are left at default values, including those used
 during the temporal evaluation.
-
-\begin{figure}[ht]
-\centering
-\footnotesize
-\begin{lstlisting}[language=diff, basicstyle=\ttfamily]
-diff --git a/lao b/tzu
-index 635ef2c..5af88a8 100644
---- a/lao
-+++ b/tzu
-@@ -1,7 +1,6 @@
--The Way that can be told of is not the eternal Way;
--The name that can be named is not the eternal name.
- The Nameless is the origin of Heaven and Earth;
--The Named is the mother of all things.
-+The named is the mother of all things.
-+
- Therefore let there always be non-being,
-   so we may see their subtlety,
- And let there always be being,
-@@ -9,3 +8,6 @@ And let there always be being,
- The two are the same,
- But after they are produced,
-   they have different names.
-+They both may be called deep and profound.
-+Deeper and more profound,
-+The door of all subtleties!
-\end{lstlisting}
-\caption{Example of a \texttt{git diff}. Black or blue lines denote metadata about the change useful for patching, red lines (beginning with a single~\texttt{-}) denote line removals, and green lines (beginning with a single~\texttt{+}) denote line additions.}
-\label{fig:diff}
-\vspace{-10pt}
-\end{figure}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

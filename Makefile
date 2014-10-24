@@ -15,7 +15,7 @@ clean-corpora: clean-taser
 clean-models: clean-lda clean-lsi
 
 clean-taser:
-	find /tmp -name 'taser_*' -exec rm -rf {} \;
+	find /tmp -name 'taser_*' -exec rm {} \;
 
 clean-lda:
 	find data -name 'LDA*' -exec rm {} \;

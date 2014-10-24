@@ -143,18 +143,10 @@ def run_temporal(project, repos, corpus, queries, goldsets):
     """
     logger.info("Running temporal evaluation")
 
-    issue2git, git2issue = load_issue2git(project)
+    ids = set(i for i,g in goldsets)
+    issue2git, git2issue = load_issue2git(project, ids)
 
     logger.info("Stopping at %d commits for %d issues", len(git2issue), len(issue2git))
-
-    # Make sure we have a commit for all issues
-    ids = set(i for i,g in goldsets)
-    keys = set(issue2git.keys())
-    ignore = ids - keys
-    if len(ignore):
-        logger.info("Ignoring evaluation for the following issues:\n\t%s",
-                    '\n\t'.join(ignore))
-
 
     lda, lda_fname = create_lda_model(project, None, corpus.id2word, 'Temporal',
                                       use_level=False, load=False)
@@ -169,7 +161,7 @@ def run_temporal(project, repos, corpus, queries, goldsets):
     corpus.metadata = True
     prev = 0
 
-    # let's partition the corpus first?
+    # let's partition the corpus first
     for idx, docmeta in enumerate(corpus):
         doc, meta = docmeta
         sha, _ = meta
@@ -187,42 +179,42 @@ def run_temporal(project, repos, corpus, queries, goldsets):
         for i in range(start, end):
             docs.append(corpus[i])
 
+        # maybe adjust decay based on len(docs)?
         lda.update(docs, decay=2.0)
         lsi.add_documents(docs)
 
         for qid in git2issue[sha]:
-            if qid not in ignore:
-                logger.info('Getting ranks for query id %s', qid)
-                # build a snapshot corpus of items *at this commit*
-                other_corpus = create_release_corpus(project, repos, forced_ref=sha)
+            logger.info('Getting ranks for query id %s', qid)
+            # build a snapshot corpus of items *at this commit*
+            other_corpus = create_release_corpus(project, repos, forced_ref=sha)
 
-                # do LDA magic
-                lda_query_topic = get_topics(lda, queries, by_id=qid)
-                lda_doc_topic = get_topics(lda, other_corpus)
-                lda_subranks = get_rank(lda_query_topic, lda_doc_topic)
-                if qid in lda_subranks:
-                    if qid not in lda_ranks:
-                        lda_ranks[qid] = list()
+            # do LDA magic
+            lda_query_topic = get_topics(lda, queries, by_id=qid)
+            lda_doc_topic = get_topics(lda, other_corpus)
+            lda_subranks = get_rank(lda_query_topic, lda_doc_topic)
+            if qid in lda_subranks:
+                if qid not in lda_ranks:
+                    lda_ranks[qid] = list()
 
-                    rank = lda_subranks[qid]
-                    lda_ranks[qid].extend(rank)
-                else:
-                    logger.info('Couldnt find qid %s', qid)
+                rank = lda_subranks[qid]
+                lda_ranks[qid].extend(rank)
+            else:
+                logger.info('Couldnt find qid %s', qid)
 
-                # do LSI magic
-                lsi_query_topic = get_topics(lsi, queries, by_id=qid)
-                lsi_doc_topic = get_topics(lsi, other_corpus)
-                # for some reason the ranks from LSI cause hellinger_distance to
-                # cry, use cosine distance instead
-                lsi_subranks = get_rank(lsi_query_topic, lsi_doc_topic, utils.cosine_distance)
-                if qid in lsi_subranks:
-                    if qid not in lsi_ranks:
-                        lsi_ranks[qid] = list()
+            # do LSI magic
+            lsi_query_topic = get_topics(lsi, queries, by_id=qid)
+            lsi_doc_topic = get_topics(lsi, other_corpus)
+            # for some reason the ranks from LSI cause hellinger_distance to
+            # cry, use cosine distance instead
+            lsi_subranks = get_rank(lsi_query_topic, lsi_doc_topic, utils.cosine_distance)
+            if qid in lsi_subranks:
+                if qid not in lsi_ranks:
+                    lsi_ranks[qid] = list()
 
-                    rank = lsi_subranks[qid]
-                    lsi_ranks[qid].extend(rank)
-                else:
-                    logger.info('Couldnt find qid %s', qid)
+                rank = lsi_subranks[qid]
+                lsi_ranks[qid].extend(rank)
+            else:
+                logger.info('Couldnt find qid %s', qid)
 
     lda.save(lda_fname)
     lsi.save(lsi_fname)
@@ -358,7 +350,7 @@ def load_goldsets(project):
     return goldsets
 
 
-def load_issue2git(project):
+def load_issue2git(project, ids):
     fn = 'IssuesToSVNCommitsMapping.txt'
     i2s = dict()
     with open(os.path.join(project.data_path, fn)) as f:
@@ -390,6 +382,18 @@ def load_issue2git(project):
                 i2g[issue].append(s2g[svn])
             else:
                 logger.info('Could not find git sha for SVN revision number %s', svn)
+
+    # Make sure we have a commit for all issues
+    keys = set(issue2git.keys())
+    ignore = ids - keys
+    if len(ignore):
+        logger.info("Ignoring evaluation for the following issues:\n\t%s",
+                    '\n\t'.join(ignore))
+
+    # clean up issue2git
+    for issue in i2g:
+        if issue in ignore or issue not in ids:
+            i2g.pop(issue)
 
     # build reverse mapping
     g2i = dict()

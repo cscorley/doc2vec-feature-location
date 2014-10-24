@@ -143,7 +143,12 @@ class GitCorpus(GeneralCorpus):
         self.ref_commit_sha = None
 
         # find which file tree is for the commit we care about
-        self.ref_obj = self.repo[self.ref]
+        try:
+            self.ref_obj = self.repo[self.ref]
+        except:
+            logger.info('Could not find ref %s in repo, using HEAD', self.ref)
+            self.ref_obj = self.repo[self.repo.head()]
+
         if isinstance(self.ref_obj, dulwich.objects.Tag):
             self.ref_tree = self.repo[self.ref_obj.object[1]].tree
             self.ref_commit_sha = self.ref_obj.object[1]

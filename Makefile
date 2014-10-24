@@ -7,12 +7,15 @@ test:
 clean: clean-corpora clean-models
 	find src tests -name '*.pyc' -exec rm {} \;
 
-clean-corpora:
+clean-corpora: clean-taser
 	find data -name '*.mallet.gz.index' -exec rm {} \;
 	find data -name '*.mallet.gz' -exec rm {} \;
 	find data -name '*.dict.gz' -exec rm {} \;
 
 clean-models: clean-lda clean-lsi
+
+clean-taser:
+	find /tmp -name 'taser_*' -exec rm -rf {} \;
 
 clean-lda:
 	find data -name 'LDA*' -exec rm {} \;

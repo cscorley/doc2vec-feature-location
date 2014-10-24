@@ -109,6 +109,7 @@ def cli(verbose, debug, path, name, version, level):
 def write_ranks(project, prefix, ranks):
     with open(os.path.join(project.data_path, prefix + '-ranks.csv'), 'w') as f:
         writer = csv.writer(f)
+        writer.writerow(['rank', 'id', 'item'])
         writer.writerows(ranks)
 
 
@@ -273,7 +274,7 @@ def get_frms(goldsets, ranks):
                     doc_meta, dist = metadist
                     d_name, d_repo = doc_meta
                     if d_name in goldset:
-                        subfrms.append((idx+1, g_id, doc_meta))
+                        subfrms.append((idx+1, g_id, d_name))
                         break
 
             # i think this might be cheating? :)
@@ -384,14 +385,14 @@ def load_issue2git(project, ids):
                 logger.info('Could not find git sha for SVN revision number %s', svn)
 
     # Make sure we have a commit for all issues
-    keys = set(issue2git.keys())
+    keys = set(i2g.keys())
     ignore = ids - keys
     if len(ignore):
         logger.info("Ignoring evaluation for the following issues:\n\t%s",
                     '\n\t'.join(ignore))
 
     # clean up issue2git
-    for issue in i2g:
+    for issue in i2g.keys():
         if issue in ignore or issue not in ids:
             i2g.pop(issue)
 

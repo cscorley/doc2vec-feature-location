@@ -73,9 +73,8 @@ To extract text from the changesets, we look at the output of viewing
 the \texttt{git diff} between two commits.
 Figure~\ref{fig:diff} shows an example of what a changeset might look
 like in Git.
-In our changeset text extractor, we only extract all text related to the
-changed file, e.g., context, removed, and added lines.
-Metadata lines are ignored.
+In our changeset text extractor, we extract all text related to the
+file, e.g., context, removed, and added lines; metadata lines are ignored.
 Note that we do not consider where the text originates from,
 only that it is text changed by the commit.\footnote{
 The Apache Lucene and Solr projects were merged into a single, new repository
@@ -206,5 +205,19 @@ This limits our temporal study to those four systems.
 
 \subsection{Results}
 
+
 % TODO
-RQ1 asks ...
+RQ1 asks how well a topic model built upon changesets performs against
+one built on source code entities.
+We also wanted to know if there were any differences of performance
+between two popular algorithms, LSI and LDA.
+Table~\ref{table:rq1summary} summarizes our results for each system.
+
+RQ2 asks how well a simulation of using a topic model would perform as
+it were to be used in real-time.
+This is a much closer evaluation of a feature location technique to it
+being used in an actual development environment.
+We also wanted to know if there were any differences of performance
+between two popular algorithms, LSI and LDA.
+Table~\ref{table:rq2summary} summarizes our results for each system.
+

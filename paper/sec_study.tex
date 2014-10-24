@@ -2,7 +2,6 @@
 
 In this section we describe the design of a case study in which we
 compare topic models trained on changesets to those trained on snapshots.
-%explore the relationship between ownership and linguistic topics in source code.
 We describe the case study using the Goal-Question-Metric approach~\cite{Basili-etal:94}.
 The data and source code for the case study is available in this paper's online
 appendix\footnote{\textbf{REVIEWER URL ONLY:} \url{http://cscorley.students.cs.ua.edu/cfl/}}.
@@ -29,6 +28,7 @@ Toward achievement of our goal, we pose the following research questions:
 \end{description}
 At a high level, we want to determine the feasibility in using changesets
 to train topic models for feature location.
+
 In the remainder of this section we introduce the subjects of our study,
 describe the setting of our study, and report our data collection and analysis procedures.
 
@@ -51,30 +51,31 @@ supplying us with both class- and method-level goldsets for the queries.
 
 \subsection{Setting}
 
-\begin{figure*}[!th]
-    \centering
-    \includegraphics[width=.75\textwidth]{changeset}
-    \caption{Extraction and Modeling Process}
-    \label{fig:process}
-\vspace{-10pt}
-\end{figure*}
-
-Our document extraction process is shown on the left side of Figure~\ref{fig:process}.
+Our document extraction process is shown on the left side of Figure~\ref{fig:extract}
 We implemented our document extractor in Python v2.7
-using the Dulwich library\footnote{\url{http://www.samba.org/~jelmer/dulwich/}}. %\footnote{\url{https://pypi.python.org/pypi/dulwich}}
+using the Dulwich library\footnote{\url{http://www.samba.org/~jelmer/dulwich/}}
+for interacting with the source code repository and 
+Taser\footnote{\url{http://xxxxxxxxxxx}} for parsing source code.
 We extract documents from both a snapshot of the repository at a tagged
 snapshot and each commit reachable from that tag's commit.
 The same preprocessing steps are employed on all documents extracted.
 
-% TODO
-For our document extraction from a snapshot, we ...
+For our document extraction from a snapshot, we first parse each Java file using our tool, Taser.
+Taser is a text extractor implemented in Java using an open source Java 1.5 grammar and ANTLR v3.
+The tool extracts documents from the chosen source code entity type,
+either methods or classes, and treats inner entities to be distinct from the outer entity.
+We consider interfaces, enumerations, and annotation types to also be a class.
+The text of inner an entity (e.g., a method inside an anonymous class)
+is only attributed to that entity, and not the containing one.
+Comments, literals, and identifiers within a entity are considered as text of the entity.
+Block comments immediately preceding an entity are also included in this text.
 
 To extract text from the changesets, we look at the output of viewing
 the \texttt{git diff} between two commits.
 Figure~\ref{fig:diff} shows an example of what a changeset might look
 like in Git.
 In our changeset text extractor, we extract all text related to the
-file, e.g., context, removed, and added lines; metadata lines are ignored.
+change, e.g., context, removed, and added lines; metadata lines are ignored.
 Note that we do not consider where the text originates from,
 only that it is text changed by the commit.\footnote{
 The Apache Lucene and Solr projects were merged into a single, new repository
@@ -172,8 +173,8 @@ To answer RQ1, we take the traditional approach to evaluation:
 
 We build a topic model for two corpora:
 \begin{enumerate}
-    \item Source code entities of a snapshot 
-    \item All changesets leading up to the snapshot 
+    \item Source code entities of a snapshot
+    \item All changesets leading up to the snapshot
 \end{enumerate}
 
 The snapshot-based model is our baseline for comparison in our study.

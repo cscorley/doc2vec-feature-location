@@ -107,7 +107,7 @@ def cli(verbose, debug, path, name, version, level):
     do_science('basic_lsi', changeset_lsi, release_lsi)
 
 def write_ranks(project, prefix, ranks):
-    with open(os.path.join(project.data_path, prefix + '-ranks.csv'), 'w') as f:
+    with open(os.path.join(project.data_path, '-'.join([prefix, project.level, 'ranks.csv'])), 'w') as f:
         writer = csv.writer(f)
         writer.writerow(['rank', 'id', 'item'])
         writer.writerows(ranks)

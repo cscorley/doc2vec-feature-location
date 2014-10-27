@@ -50,7 +50,7 @@ def error(*args, **kwargs):
 @click.argument('name')
 @click.option('--version', help="Version of project to run experiment on")
 @click.option('--level', help="Granularity level of project to run experiment on")
-def cli(verbose, debug, download, path, name, version, level):
+def cli(verbose, debug, nodownload, path, name, version, level):
     """
     Changesets for Feature Location
     """

@@ -675,16 +675,15 @@ def create_release_corpus(project, repos, forced_ref=None):
         RC = TaserReleaseCorpus
         SC = TaserSnapshotCorpus
 
-    return create_corpus(project, repos, SC, forced_ref=forced_ref)
+    #return create_corpus(project, repos, SC, forced_ref=forced_ref)
 
-#    if forced_ref:
-#        return create_corpus(project, repos, SC, forced_ref=forced_ref)
-#    else:
-#        try:
-#            return create_corpus(project, [None], RC)
-#        except TaserError:
-#            return create_corpus(project, repos, SC, forced_ref=forced_ref)
-
+    if forced_ref:
+        return create_corpus(project, repos, SC, forced_ref=forced_ref)
+    else:
+        try:
+            return create_corpus(project, [None], RC)
+        except TaserError:
+            return create_corpus(project, repos, SC, forced_ref=forced_ref)
 
 def clone(source, target, bare=False):
     client, host_path = dulwich.client.get_transport_and_path(source)

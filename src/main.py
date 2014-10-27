@@ -17,6 +17,7 @@ import os.path
 import csv
 import zipfile
 import tarfile
+import itertools
 from collections import namedtuple
 
 import click
@@ -209,13 +210,9 @@ def run_temporal(project, repos, corpus, queries, goldsets):
     for counter, index  in enumerate(indices):
         logger.info('At %d of %d partitions', counter, len(indices))
         start, end, sha = index
-        docs = list()
-        for i in range(start, end):
-            docs.append(corpus[i])
 
-        # maybe adjust decay based on len(docs)?
-        lda.update(docs, decay=2.0)
-        lsi.add_documents(docs)
+        lda.update(itertools.islice(start, end), decay=2.0)
+        lsi.add_documents(itertools.islice(start, end))
 
         for qid in git2issue[sha]:
             logger.info('Getting ranks for query id %s', qid)

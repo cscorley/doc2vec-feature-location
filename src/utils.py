@@ -13,6 +13,7 @@ import sys
 import numpy
 import scipy
 import scipy.spatial
+import dulwich.client
 
 
 logger = logging.getLogger('cfl.utils')
@@ -100,3 +101,43 @@ def mkdir(d):
         else:
             print('Failed to create "%s" directory!' % d)
             sys.exit(e.errno)
+
+def download_file(url, destdir):
+    # modified from http://stackoverflow.com/a/16696317
+    # delay import until now
+    import requests
+    local_filename = os.path.join(destdir, url.split('/')[-1])
+    if not os.path.exists(local_filename):
+        # NOTE the stream=True parameter
+        r = requests.get(url, stream=True)
+        with open(local_filename, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=1024):
+                if chunk: # filter out keep-alive new chunks
+                    f.write(chunk)
+                    f.flush()
+    return local_filename
+
+def clone(source, target, bare=False):
+    client, host_path = dulwich.client.get_transport_and_path(source)
+
+    if target is None:
+        target = host_path.split("/")[-1]
+
+    if not os.path.exists(target):
+        os.mkdir(target)
+
+    if bare:
+        r = dulwich.repo.Repo.init_bare(target)
+    else:
+        r = dulwich.repo.Repo.init(target)
+
+    remote_refs = client.fetch(host_path, r,
+                               determine_wants=r.object_store.determine_wants_all)
+
+    r["HEAD"] = remote_refs["HEAD"]
+
+    for key, val in remote_refs.iteritems():
+        if not key.endswith('^{}'):
+            r.refs.add_if_new(key, val)
+
+    return r

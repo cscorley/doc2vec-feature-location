@@ -15,10 +15,11 @@ logger = logging.getLogger('cfl.main')
 import sys
 import os.path
 import csv
+import zipfile
+import tarfile
 from collections import namedtuple
 
 import click
-import dulwich.client
 import dulwich.repo
 import scipy.stats
 import numpy
@@ -44,11 +45,12 @@ def error(*args, **kwargs):
 @click.command()
 @click.option('--verbose', is_flag=True)
 @click.option('--debug', is_flag=True)
+@click.option('--nodownload', is_flag=True)
 @click.option('--path', default='data/', help="Set the directory to work within")
 @click.argument('name')
 @click.option('--version', help="Version of project to run experiment on")
 @click.option('--level', help="Granularity level of project to run experiment on")
-def cli(verbose, debug, path, name, version, level):
+def cli(verbose, debug, download, path, name, version, level):
     """
     Changesets for Feature Location
     """
@@ -63,8 +65,39 @@ def cli(verbose, debug, path, name, version, level):
         logging.root.setLevel(level=logging.ERROR)
 
     # load project info
-    project = load_project(name, version, level)
+    projects = load_projects()
+    project = None
+    for project in projects:
+        if name == project.name:
+            if version and version != project.version:
+                continue
+
+            if level and level != project.level:
+                continue
+
+            break # got the right name/version/level
+
+    if project is None:
+        error("Could not find project in projects.csv!")
+
+
     logger.info("Running project on %s", str(project))
+
+    if not nodownload:
+        logger.info("Downloading %s %s release from %s" % (project.name, project.version, project.src_url))
+        utils.mkdir(project.src_path)
+        fn = utils.download_file(project.src_url, project.src_path)
+
+        if fn.endswith('zip'):
+            with zipfile.ZipFile(fn, 'r') as z:
+                z.extractall(project.src_path)
+        elif fn.endswith('tar.bz2'):
+            with tarfile.open(fn, 'r:bz2') as z:
+                z.extractall(project.src_path)
+        elif fn.endswith('tar.gz') or fn.endswith('.tgz'):
+            with tarfile.open(fn, 'r:gz') as z:
+                z.extractall(project.src_path)
+
     repos = load_repos(project)
 
     # create/load document lists
@@ -407,8 +440,8 @@ def load_issue2git(project, ids):
     return i2g, g2i
 
 
-def load_project(name, version, level):
-    project = None
+def load_projects():
+    projects = list()
     with open("projects.csv", 'r') as f:
         reader = csv.reader(f)
         header = next(reader)
@@ -421,58 +454,36 @@ def load_project(name, version, level):
 
         # find the project in the csv, adding it's info to config
         for row in reader:
-            if name == row[name_idx]:
+            # build the data_path value
+            row += (os.path.join('data', row[name_idx], row[version_idx],
+                                    ''),)
 
-                # if version specified, make sure we are at the correct one
-                if version and version != row[version_idx]:
-                    continue
+            # build the src_path value
+            row += (os.path.join('data', row[name_idx], row[version_idx],
+                                    'src'),)
 
-                # if level specified, make sure we are at the correct one
-                if level and level != row[level_idx]:
-                    continue
+            # try to convert string values to numbers
+            for idx, item in enumerate(row):
+                if item:
+                    # try int first, floats will throw an error here
+                    try:
+                        row[idx] = int(item)
+                        continue
+                    except ValueError:
+                        pass
 
-                # build the data_path value
-                row += (os.path.join('data', row[name_idx], row[version_idx],
-                                     ''),)
+                    # try float second
+                    try:
+                        row[idx] = float(item)
+                    except ValueError:
+                        pass
+                else:
+                    # set all empty fields to None
+                    row[idx] = None
 
-                # build the src_path value
-                row += (os.path.join('data', row[name_idx], row[version_idx],
-                                     'src'),)
+            projects.append(Project(*row))
 
-                # try to convert string values to numbers
-                for idx, item in enumerate(row):
-                    if item:
-                        # try int first, floats will throw an error here
-                        try:
-                            row[idx] = int(item)
-                            continue
-                        except ValueError:
-                            pass
-
-                        # try float second
-                        try:
-                            row[idx] = float(item)
-                        except ValueError:
-                            pass
-                    else:
-                        # set all empty fields to None
-                        row[idx] = None
-
-                # 🎶  do you believe in magicccccc
-                # in a young girl's heart? 🎶
-                project = Project(*row)
-                break
-
-        # we can access project info by:
-        #    project.name => "Blah Name"
-        #    project.version => "0.22"
-
-        if project is None and version:
-            error("Could not find '%s %s' in 'projects.csv'!", name, version)
-        elif project is None:
-            error("Could not find '%s' in 'projects.csv'!", name)
-
-    return project
+    return projects
 
 
 def load_repos(project):
@@ -490,7 +501,7 @@ def load_repos(project):
         repo_name = url.split('/')[-1]
         target = os.path.join(repos_base, repo_name)
         try:
-            repo = clone(url, target, bare=True)
+            repo = utils.clone(url, target, bare=True)
         except OSError:
             repo = dulwich.repo.Repo(target)
 
@@ -685,49 +696,3 @@ def create_release_corpus(project, repos, forced_ref=None):
         except TaserError:
             return create_corpus(project, repos, SC, forced_ref=forced_ref)
 
-def clone(source, target, bare=False):
-    client, host_path = dulwich.client.get_transport_and_path(source)
-
-    if target is None:
-        target = host_path.split("/")[-1]
-
-    if not os.path.exists(target):
-        os.mkdir(target)
-
-    if bare:
-        r = dulwich.repo.Repo.init_bare(target)
-    else:
-        r = dulwich.repo.Repo.init(target)
-
-    remote_refs = client.fetch(host_path, r,
-                               determine_wants=r.object_store.determine_wants_all)
-
-    r["HEAD"] = remote_refs["HEAD"]
-
-    for key, val in remote_refs.iteritems():
-        if not key.endswith('^{}'):
-            r.refs.add_if_new(key, val)
-
-    return r
-
-
-def write_out_missing(project, all_taser):
-    goldset = set()
-    all_taser.metadata = True
-    taserset = set(doc[1][0] for doc in all_taser)
-    all_taser.metadata = False
-
-    goldset_fname = project.data_path + 'allgold.txt'
-    with open(goldset_fname) as f:
-        for line in f:
-            goldset.add(line.strip())
-
-    missing_fname = project.data_path + 'missing-gold.txt'
-    with open(missing_fname, 'w') as f:
-        for each in sorted(list(goldset - taserset)):
-            f.write(each + '\n')
-
-    ours_fname = project.data_path + 'allours.txt'
-    with open(ours_fname, 'w') as f:
-        for each in sorted(list(taserset)):
-            f.write(each + '\n')

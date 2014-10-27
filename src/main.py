@@ -140,7 +140,7 @@ def cli(verbose, debug, nodownload, path, name, version, level):
     do_science('basic_lsi', changeset_lsi, release_lsi)
 
 def write_ranks(project, prefix, ranks):
-    with open(os.path.join(project.data_path, '-'.join([prefix, project.level, 'ranks.csv'])), 'w') as f:
+    with open(os.path.join(project.full_path, '-'.join([prefix, project.level, 'ranks.csv'])), 'w') as f:
         writer = csv.writer(f)
         writer.writerow(['rank', 'id', 'item'])
         writer.writerows(ranks)
@@ -369,12 +369,12 @@ def get_topics(model, corpus, by_id=None):
 
 def load_goldsets(project):
     logger.info("Loading goldsets for project: %s", str(project))
-    with open(os.path.join(project.data_path, 'ids.txt')) as f:
+    with open(os.path.join(project.full_path, 'ids.txt')) as f:
         ids = [x.strip() for x in f.readlines()]
 
     goldsets = list()
     for id in ids:
-        with open(os.path.join(project.data_path, 'goldsets', project.level,
+        with open(os.path.join(project.full_path, 'goldsets', project.level,
                                 id + '.txt')) as f:
             golds = frozenset(x.strip() for x in f.readlines())
 
@@ -385,37 +385,48 @@ def load_goldsets(project):
 
 
 def load_issue2git(project, ids):
-    fn = 'IssuesToSVNCommitsMapping.txt'
-    i2s = dict()
-    with open(os.path.join(project.data_path, fn)) as f:
-        lines = [line.strip().split('\t') for line in f]
-        for line in lines:
-            issue = line[0]
-            links = line[1]
-            svns = line[2:]
+    dest_fn = os.path.join(project.full_path, 'issue2git.csv')
+    if os.path.exists(dest_fn):
+        write_out = False
+        i2g = dict()
+        with open(fn) as f:
+            r = csv.reader(f)
+            for row in r:
+                i2g[row[0]] = row[1:]
+    else:
+        write_out = True
 
-            i2s[issue] = svns
+        i2s = dict()
+        fn = os.path.join(project.full_path, 'IssuesToSVNCommitsMapping.txt')
+        with open(fn) as f:
+            lines = [line.strip().split('\t') for line in f]
+            for line in lines:
+                issue = line[0]
+                links = line[1]
+                svns = line[2:]
 
-    fn = 'svn2git.csv'
-    s2g = dict()
-    with open(os.path.join('data', project.name, fn)) as f:
-        reader = csv.reader(f)
-        for svn,git in reader:
-            if svn in s2g and s2g[svn] != git:
-                logger.info('Different gits sha for SVN revision number %s', svn)
-            else:
-                s2g[svn] = git
+                i2s[issue] = svns
 
-    i2g = dict()
-    for issue, svns in i2s.items():
-        for svn in svns:
-            if svn in s2g:
-                # make sure we don't have issues that are empty
-                if issue not in i2g:
-                    i2g[issue] = list()
-                i2g[issue].append(s2g[svn])
-            else:
-                logger.info('Could not find git sha for SVN revision number %s', svn)
+        s2g = dict()
+        fn = os.path.join(project.data_path, 'svn2git.csv')
+        with open(fn) as f:
+            reader = csv.reader(f)
+            for svn,git in reader:
+                if svn in s2g and s2g[svn] != git:
+                    logger.info('Different gits sha for SVN revision number %s', svn)
+                else:
+                    s2g[svn] = git
+
+        i2g = dict()
+        for issue, svns in i2s.items():
+            for svn in svns:
+                if svn in s2g:
+                    # make sure we don't have issues that are empty
+                    if issue not in i2g:
+                        i2g[issue] = list()
+                    i2g[issue].append(s2g[svn])
+                else:
+                    logger.info('Could not find git sha for SVN revision number %s', svn)
 
     # Make sure we have a commit for all issues
     keys = set(i2g.keys())
@@ -437,6 +448,12 @@ def load_issue2git(project, ids):
                 g2i[git] = list()
             g2i[git].append(issue)
 
+    if write_out:
+        with open(dest_fn, 'w') as f:
+            w = csv.writer(f)
+            for issue, gits in i2g.items():
+                w.writerow([issue] + gits)
+
     return i2g, g2i
 
 
@@ -445,7 +462,7 @@ def load_projects():
     with open("projects.csv", 'r') as f:
         reader = csv.reader(f)
         header = next(reader)
-        customs = ['data_path', 'src_path']
+        customs = ['data_path', 'full_path', 'src_path']
         Project = namedtuple('Project',  ' '.join(header + customs))
         # figure out which column index contains the project name
         name_idx = header.index("name")
@@ -454,13 +471,14 @@ def load_projects():
 
         # find the project in the csv, adding it's info to config
         for row in reader:
-            # build the data_path value
-            row += (os.path.join('data', row[name_idx], row[version_idx],
-                                    ''),)
+            # built the data_path value
+            row += (os.path.join('data', row[name_idx], ''),)
+
+            # build the full_path value
+            row += (os.path.join('data', row[name_idx], row[version_idx], ''),)
 
             # build the src_path value
-            row += (os.path.join('data', row[name_idx], row[version_idx],
-                                    'src'),)
+            row += (os.path.join('data', row[name_idx], row[version_idx], 'src'),)
 
             # try to convert string values to numbers
             for idx, item in enumerate(row):
@@ -511,7 +529,7 @@ def load_repos(project):
 
 
 def create_queries(project):
-    corpus_fname_base = project.data_path + 'Queries'
+    corpus_fname_base = project.full_path + 'Queries'
     corpus_fname = corpus_fname_base + '.mallet.gz'
     dict_fname = corpus_fname_base + '.dict.gz'
 
@@ -519,16 +537,16 @@ def create_queries(project):
         pp = GeneralCorpus(lazy_dict=True)
         id2word = Dictionary()
 
-        with open(os.path.join(project.data_path, 'ids.txt')) as f:
+        with open(os.path.join(project.full_path, 'ids.txt')) as f:
             ids = [x.strip() for x in f.readlines()]
 
         queries = list()
         for id in ids:
-            with open(os.path.join(project.data_path, 'queries',
+            with open(os.path.join(project.full_path, 'queries',
                                     'ShortDescription' + id + '.txt')) as f:
                 short = f.read()
 
-            with open(os.path.join(project.data_path, 'queries',
+            with open(os.path.join(project.full_path, 'queries',
                                     'LongDescription' + id + '.txt')) as f:
                 long = f.read()
 
@@ -555,7 +573,7 @@ def create_queries(project):
 
 
 def create_lda_model(project, corpus, id2word, name, use_level=True, load=True):
-    model_fname = project.data_path + name + str(project.num_topics)
+    model_fname = project.full_path + name + str(project.num_topics)
     if use_level:
         model_fname += project.level
 
@@ -587,7 +605,7 @@ def create_lda_model(project, corpus, id2word, name, use_level=True, load=True):
     return model, model_fname
 
 def create_lsi_model(project, corpus, id2word, name, use_level=True, load=True):
-    model_fname = project.data_path + name + str(project.num_topics)
+    model_fname = project.full_path + name + str(project.num_topics)
     if use_level:
         model_fname += project.level
 
@@ -608,7 +626,7 @@ def create_lsi_model(project, corpus, id2word, name, use_level=True, load=True):
 
 
 def create_mallet_model(project, corpus, name, use_level=True):
-    model_fname = project.data_path + name + str(project.num_topics)
+    model_fname = project.full_path + name + str(project.num_topics)
     if use_level:
         model_fname += project.level
 
@@ -629,7 +647,7 @@ def create_mallet_model(project, corpus, name, use_level=True):
 
 
 def create_corpus(project, repos, Kind, use_level=True, forced_ref=None):
-    corpus_fname_base = project.data_path + Kind.__name__
+    corpus_fname_base = project.full_path + Kind.__name__
 
     if use_level:
         corpus_fname_base += project.level

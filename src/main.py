@@ -219,7 +219,10 @@ def run_temporal(project, repos, corpus, queries, goldsets):
         for qid in git2issue[sha]:
             logger.info('Getting ranks for query id %s', qid)
             # build a snapshot corpus of items *at this commit*
-            other_corpus = create_release_corpus(project, repos, forced_ref=sha)
+            try:
+                other_corpus = create_release_corpus(project, repos, forced_ref=sha)
+            except TaserError:
+                continue
 
             # do LDA magic
             lda_query_topic = get_topics(lda, queries, by_id=qid)

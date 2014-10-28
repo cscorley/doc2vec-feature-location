@@ -436,6 +436,7 @@ def load_issue2git(project, ids):
     for issue in i2g.keys():
         if issue in ignore or issue not in ids:
             i2g.pop(issue)
+            write_out = True #issue2git changed, be sure to write it back
 
     # build reverse mapping
     g2i = dict()

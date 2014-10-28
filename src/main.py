@@ -132,8 +132,8 @@ def cli(verbose, debug, nodownload, path, name, version, level):
     else:
         write_ranks(project, 'temporal_lda', temporal_lda)
         write_ranks(project, 'temporal_lsi', temporal_lsi)
-        do_science('temporal_lda', temporal_lda, release_lda)
-        do_science('temporal_lsi', temporal_lsi, release_lsi)
+        do_science('temporal_lda', temporal_lda, release_lda, ignore=True)
+        do_science('temporal_lsi', temporal_lsi, release_lsi, ignore=True)
 
     # do this last so that the results are printed together
     do_science('basic_lda', changeset_lda, release_lda)
@@ -261,7 +261,7 @@ def run_temporal(project, repos, corpus, queries, goldsets):
 
 
 
-def do_science(prefix, changeset_first_rels, release_first_rels):
+def do_science(prefix, changeset_first_rels, release_first_rels, ignore=False):
     # Build a dictionary with each of the results for stats.
     first_rels = dict()
 
@@ -272,11 +272,12 @@ def do_science(prefix, changeset_first_rels, release_first_rels):
             logger.info('duplicate qid found: %s', query_id)
 
     for num, query_id, doc_meta in release_first_rels:
-        if query_id not in first_rels:
+        if query_id not in first_rels and not ignore:
             logger.info('qid not found: %s', query_id)
             first_rels[query_id] = [0]
 
-        first_rels[query_id].append(num)
+        if query_id in first_rels:
+            first_rels[query_id].append(num)
 
     for key, v in first_rels.items():
         if len(v) == 1:
@@ -285,11 +286,11 @@ def do_science(prefix, changeset_first_rels, release_first_rels):
     x = [v[0] for v in first_rels.values()]
     y = [v[1] for v in first_rels.values()]
 
-    print(prefix+'changeset mrr:', utils.calculate_mrr(x))
-    print(prefix+'release mrr:', utils.calculate_mrr(y))
-    print(prefix+'ranksums:', scipy.stats.ranksums(x, y))
-    print(prefix+'mann-whitney:', scipy.stats.mannwhitneyu(x, y))
-    print(prefix+'wilcoxon signedrank:', scipy.stats.wilcoxon(x, y))
+    print(prefix+' changeset mrr:', utils.calculate_mrr(x))
+    print(prefix+' release mrr:', utils.calculate_mrr(y))
+    print(prefix+' ranksums:', scipy.stats.ranksums(x, y))
+    print(prefix+' mann-whitney:', scipy.stats.mannwhitneyu(x, y))
+    print(prefix+' wilcoxon signedrank:', scipy.stats.wilcoxon(x, y))
     #print('friedman:', scipy.stats.friedmanchisquare(x, y, x2, y2))
 
 

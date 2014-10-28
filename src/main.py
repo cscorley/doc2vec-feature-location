@@ -211,8 +211,8 @@ def run_temporal(project, repos, corpus, queries, goldsets):
         logger.info('At %d of %d partitions', counter, len(indices))
         start, end, sha = index
 
-        lda.update(itertools.islice(start, end), decay=2.0)
-        lsi.add_documents(itertools.islice(start, end))
+        lda.update(itertools.islice(corpus, start, end), decay=2.0)
+        lsi.add_documents(itertools.islice(corpus, start, end))
 
         for qid in git2issue[sha]:
             logger.info('Getting ranks for query id %s', qid)

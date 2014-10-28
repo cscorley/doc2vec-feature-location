@@ -386,7 +386,7 @@ def load_issue2git(project, ids):
     if os.path.exists(dest_fn):
         write_out = False
         i2g = dict()
-        with open(fn) as f:
+        with open(dest_fn) as f:
             r = csv.reader(f)
             for row in r:
                 i2g[row[0]] = row[1:]

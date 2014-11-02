@@ -83,6 +83,7 @@ def cli(verbose, debug, force, nodownload, path, name, version, level):
 
 
     logger.info("Running project on %s", str(project))
+    print(project)
 
     if not nodownload:
         logger.info("Downloading %s %s release from %s" % (project.name, project.version, project.src_url))

@@ -45,12 +45,13 @@ def error(*args, **kwargs):
 @click.command()
 @click.option('--verbose', is_flag=True)
 @click.option('--debug', is_flag=True)
+@click.option('--force', is_flag=True)
 @click.option('--nodownload', is_flag=True)
 @click.option('--path', default='data/', help="Set the directory to work within")
 @click.argument('name')
 @click.option('--version', help="Version of project to run experiment on")
 @click.option('--level', help="Granularity level of project to run experiment on")
-def cli(verbose, debug, nodownload, path, name, version, level):
+def cli(verbose, debug, force, nodownload, path, name, version, level):
     """
     Changesets for Feature Location
     """
@@ -111,27 +112,18 @@ def cli(verbose, debug, nodownload, path, name, version, level):
     # release-based evaluation is #basic 💁
     release_lda, release_lsi = run_basic(project, release_corpus,
                                          release_corpus, queries, goldsets,
-                                         'Release', use_level=True)
-
-    write_ranks(project, 'release_lda', release_lda)
-    write_ranks(project, 'release_lsi', release_lsi)
+                                         'Release', use_level=True, force=force)
 
     changeset_lda, changeset_lsi = run_basic(project, changeset_corpus,
                                              release_corpus, queries, goldsets,
-                                             'Changeset')
-
-    write_ranks(project, 'changeset_lda', changeset_lda)
-    write_ranks(project, 'changeset_lsi', changeset_lsi)
-
+                                             'Changeset', force=force)
     try:
         temporal_lda, temporal_lsi = run_temporal(project, repos,
                                                   changeset_corpus, queries,
-                                                  goldsets)
+                                                  goldsets, force=force)
     except IOError:
         logger.info("Files needed for temporal evaluation not found. Skipping.")
     else:
-        write_ranks(project, 'temporal_lda', temporal_lda)
-        write_ranks(project, 'temporal_lsi', temporal_lsi)
         do_science('temporal_lda', temporal_lda, release_lda, ignore=True)
         do_science('temporal_lsi', temporal_lsi, release_lsi, ignore=True)
 
@@ -145,48 +137,91 @@ def write_ranks(project, prefix, ranks):
         writer.writerow(['rank', 'id', 'item'])
         writer.writerows(ranks)
 
+def read_ranks(project, prefix):
+    ranks = list()
+    with open(os.path.join(project.full_path, '-'.join([prefix, project.level, 'ranks.csv']))) as f:
+        reader = csv.reader(f)
+        next(reader)
+        # ranks, id, item
+        for row in reader:
+            rank = (int(row[0]), int(row[1]), row[2])
+            ranks.append(rank)
 
-def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=False):
+    return ranks
+
+
+def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=False, force=False):
     """
     This function runs the experiment in one-shot. It does not evaluate the
     changesets over time.
     """
     logger.info("Running basic evaluation on the %s", kind)
-    lda_model, _ = create_lda_model(project, corpus, corpus.id2word, kind, use_level=use_level)
-    lda_query_topic = get_topics(lda_model, queries)
-    lda_doc_topic = get_topics(lda_model, other_corpus)
-    lda_ranks = get_rank(lda_query_topic, lda_doc_topic)
-    lda_first_rels = get_frms(goldsets, lda_ranks)
+    try:
+        lda_first_rels = read_ranks(project, kind.lower() + '_lda')
+        logger.info("Sucessfully read previously written %s LDA ranks", kind)
+        exists = True
+    except IOError:
+        exists = False
 
-    lsi_model, _ = create_lsi_model(project, corpus, corpus.id2word, kind, use_level=use_level)
-    lsi_query_topic = get_topics(lsi_model, queries)
-    lsi_doc_topic = get_topics(lsi_model, other_corpus)
+    if force or not exists:
+        lda_model, _ = create_lda_model(project, corpus, corpus.id2word, kind, use_level=use_level, force=force)
+        lda_query_topic = get_topics(lda_model, queries)
+        lda_doc_topic = get_topics(lda_model, other_corpus)
+        lda_ranks = get_rank(lda_query_topic, lda_doc_topic)
+        lda_first_rels = get_frms(goldsets, lda_ranks)
+        write_ranks(project, kind.lower() + '_lda', lda_first_rels)
 
-    # for some reason the ranks from LSI cause hellinger_distance to cry
-    lsi_ranks = get_rank(lsi_query_topic, lsi_doc_topic, utils.cosine_distance)
-    lsi_first_rels = get_frms(goldsets, lsi_ranks)
+    try:
+        lsi_first_rels = read_ranks(project, kind.lower() + '_lsi')
+        logger.info("Sucessfully read previously written %s LSI ranks", kind)
+        exists = True
+    except IOError:
+        exists = False
+
+    if force or not exists:
+        lsi_model, _ = create_lsi_model(project, corpus, corpus.id2word, kind, use_level=use_level, force=force)
+        lsi_query_topic = get_topics(lsi_model, queries)
+        lsi_doc_topic = get_topics(lsi_model, other_corpus)
+
+        # for some reason the ranks from LSI cause hellinger_distance to cry
+        lsi_ranks = get_rank(lsi_query_topic, lsi_doc_topic, utils.cosine_distance)
+        lsi_first_rels = get_frms(goldsets, lsi_ranks)
+        write_ranks(project, kind.lower() + '_lsi', lsi_first_rels)
 
     return lda_first_rels, lsi_first_rels
 
+def run_temporal(project, repos, corpus, queries, goldsets, force=False):
+    logger.info("Running temporal evaluation")
 
-def run_temporal(project, repos, corpus, queries, goldsets):
+    try:
+        lda_rels = read_ranks(project, 'temporal_lda')
+        lsi_rels = read_ranks(project, 'temporal_lsi')
+        logger.info("Sucessfully read previously written Temporal ranks")
+    except IOError:
+        force = True
+
+    if force:
+        lda_rels, lsi_rels = run_temporal_helper(project, repos, corpus, queries, goldsets)
+
+    return lda_rels, lsi_rels
+
+
+def run_temporal_helper(project, repos, corpus, queries, goldsets):
     """
     This function runs the experiment in over time. That is, it stops whenever
     it reaches a commit linked with an issue/query. Will not work on all
     projects.
     """
-    logger.info("Running temporal evaluation")
-
     ids = set(i for i,g in goldsets)
     issue2git, git2issue = load_issue2git(project, ids)
 
     logger.info("Stopping at %d commits for %d issues", len(git2issue), len(issue2git))
 
     lda, lda_fname = create_lda_model(project, None, corpus.id2word, 'Temporal',
-                                      use_level=False, load=False)
+                                      use_level=False, force=True)
 
     lsi, lsi_fname = create_lsi_model(project, None, corpus.id2word, 'Temporal',
-                                      use_level=False, load=False)
+                                      use_level=False, force=True)
 
     indices = list()
     lda_ranks = dict()
@@ -257,6 +292,9 @@ def run_temporal(project, repos, corpus, queries, goldsets):
 
     lda_rels = get_frms(goldsets, lda_ranks)
     lsi_rels = get_frms(goldsets, lsi_ranks)
+
+    write_ranks(project, 'temporal_lda', lda_rels)
+    write_ranks(project, 'temporal_lsi', lsi_rels)
     return lda_rels, lsi_rels
 
 
@@ -575,7 +613,7 @@ def create_queries(project):
     return corpus
 
 
-def create_lda_model(project, corpus, id2word, name, use_level=True, load=True):
+def create_lda_model(project, corpus, id2word, name, use_level=True, force=False):
     model_fname = project.full_path + name + str(project.num_topics)
     if use_level:
         model_fname += project.level
@@ -583,7 +621,7 @@ def create_lda_model(project, corpus, id2word, name, use_level=True, load=True):
     model_fname += '.lda.gz'
 
 
-    if not os.path.exists(model_fname) or not load:
+    if not os.path.exists(model_fname) or force:
         if corpus:
             update_every=None # run in batch if we have a pre-supplied corpus
         else:

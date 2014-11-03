@@ -53,7 +53,7 @@
     \IEEEauthorblockA{
         The University of Alabama\\
         Tuscaloosa, AL, USA\\
-        {cscorley, klkashuda}@ua.edu
+        \{cscorley, klkashuda\}@ua.edu
     }
 
     \and
@@ -73,27 +73,28 @@
 
 \begin{abstract}
 Feature location is a program comprehension activity in which a developer
-inspects source code to locate where features are implemented.
-Feature location technique research traditionally build topic models on source code snapshots.
-However, source code evolves, which causes models to become obsolete,
-leading to retraining the source code topic models.
-In this paper, we introduce an approach to topic modeling \emph{changesets} for feature location.
-This approach incrementally updates the model, avoiding the computational cost of keeping it up-to-date.
-We conducted an empirical study in to evalute changeset-based feature location.
-We demonstrate the robustness of this approach by using two popular information retrieval models --
+inspects source code to locate the classes or methods that implement a feature of interest.
+Many feature location techniques (FLTs) are based on text retrieval models, and
+in such FLTs it is typical for the models to be built from source code snapshots.
+However, source code evolution leads to model obsolescence and
+thus to the need to retrain the model from the latest snapshot.
+In this paper, we introduce a topic-modeling-based FLT in which the model
+is built incrementally from source code \emph{changesets}.
+By training an online learning algorithm using changesets, the FLT
+maintains an up-to-date model without incurring the non-trivial computational cost associated with retraining traditional FLTs.
+We demonstrate the robustness of the new FLT via an empirical study of two popular text retrieval models:
 latent semantic indexing and latent Dirichlet allocation.
-Overall, we studied over 1200 bugs and features from fourteen open source Java projects.
-Additionally, we perform a study on feature location in a \emph{temporal simulation}.
-That is, we approximate the performance of our approach as if it were used in real developement.
-Our findings suggest that our approach can perform on par with source code-based approaches,
-but may not be the best approach for newly formed projects.
+Overall, we studied over 1200 defects and features from 14 open-source Java projects.
+We also present a \emph{temporal simulation} in which we approximate how the FLT would perform throughout the evolution of a project.
+Our findings suggest that the performance of our FLT is similar to that of snapshot-based FLTs,
+but that it may not be suitable for use with fledgling projects.
 \end{abstract}
 
 \begin{IEEEkeywords}
+program comprehension;
+mining software repositories;
 feature location;
-Mining software repositories;
 changesets;
-topic modeling;
 latent Dirichlet allocation;
 latent semantic indexing
 \end{IEEEkeywords}

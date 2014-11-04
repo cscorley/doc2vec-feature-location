@@ -646,14 +646,14 @@ def create_lda_model(project, corpus, id2word, name, use_level=True, force=False
 
     return model, model_fname
 
-def create_lsi_model(project, corpus, id2word, name, use_level=True, load=True):
+def create_lsi_model(project, corpus, id2word, name, use_level=True, force=False):
     model_fname = project.full_path + name + str(project.num_topics)
     if use_level:
         model_fname += project.level
 
     model_fname += '.lsi.gz'
 
-    if not os.path.exists(model_fname) or not load:
+    if not os.path.exists(model_fname) or force:
         model = LsiModel(corpus=corpus,
                          id2word=id2word,
                          num_topics=project.num_topics,

@@ -1,7 +1,4 @@
-% vim:syntax=tex
-
-In this section we describe the design of a case study in which we
-compare topic models trained on changesets to those trained on snapshots.
+ed on changesets to those trained on snapshots.
 We describe the case study using the Goal-Question-Metric approach~\cite{Basili-etal:94}.
 The data and source code for the case study is available in this paper's online
 appendix\footnote{\textbf{REVIEWER URL ONLY:} \url{http://cscorley.students.cs.ua.edu/cfl/}}.
@@ -99,9 +96,72 @@ ZooKeeper is a tool that works as a coordination service to help build distribut
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\subsection{Methodology}
+
+For snapshots, the process is straightforward.
+First, we build a model in batch mode from the snapshot corpus.
+That is, the model can see all documents in the corpus at once.
+Then, we infer a $\theta_{snapshot}$ from the snapshot corpus
+and a $\theta_{queries}$ from the query corpus.
+Finally, we classifiy the results from both $\theta$s.
+
+\begin{comment}
+\begin{enumerate}
+    \item Build model from the snapshot corpus in batch mode
+    \item Infer a $\theta_{snapshot}$ from the snapshot corpus
+    \item Infer a $\theta_{queries}$ from the query corpus
+    \item Classifiy, or rank, the results from both $\theta$s
+\end{enumerate}
+\end{comment}
+
+
+For changesets, the process is varies slightly from a snapshot approach.
+First, we build a model in batch mode from the changeset corpus.
+Then, we infer a $\theta_{snapshot}$ from the snapshot corpus
+and a $\theta_{queries}$ from the query corpus.
+Note that we \emph{do not} infer a $\theta_{changesets}$ from the changeset corpus from which the model was built!
+Finally, we classifiy the results from both $\theta$s.
+
+\begin{comment}
+\begin{enumerate}
+    \item Build model from the changeset corpus in batch mode
+    \item \emph{Do not} infer a $\theta_{changesets}$
+    \item Infer a $\theta_{snapshot}$ from the snapshot corpus
+    \item Infer a  $\theta_{queries}$ from the query corpus
+    \item Classifiy, or rank, the results from both $\theta$s
+\end{enumerate}
+\end{comment}
+
+
+For the temporal simulation, we can take a slightly different approach.
+We first determine which changesets relate to an issue and partition mini-batches out of the changesets.
+Then, we initialize a model in online mode.
+For each mini-match, or partition, we update the model with that mini-batch.
+Then, we infer a $\theta_{snapshot}$ from the snapshot corpus
+and a retrieve the $\theta_{queries}$ for the queries related to this changeset.
+Finally, we classifiy the results from both $\theta$s.
+
+\begin{comment}
+\begin{enumerate}
+    \item Initialize a model in online mode
+    \item Determine which changesets relate to an issue and partition mini-batches out of the changesets
+    \item For each mini-batch:
+        \begin{enumerate}
+            \item Update the model with mini-batch
+            \item Update $\theta_{snapshot}$ with the new inference of the source code document affected by this changeset
+            \item Infer a $\theta_{query}$ of the query related to the changeset we stopped at
+            \item Classifiy, or rank, the results from both $\theta$s
+        \end{enumerate}
+\end{enumerate}
+\end{comment}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \subsection{Setting}
 
-Our document extraction process is shown on the left side of Figure~\ref{fig:extract}
+Our document extraction process is shown on the left side of Figure~\ref{fig:process}
 We implemented our document extractor in Python v2.7
 using the Dulwich library\footnote{\url{http://www.samba.org/~jelmer/dulwich/}}
 for interacting with the source code repository and
@@ -139,7 +199,7 @@ We only keep the split tokens; original tokens are discarded.
 We normalize to lower case before filtering non-letters, English stop words~\cite{StopWords}, Java keywords, and words shorter than three characters long.
 We do not stem words. \attn{cite reason?}
 
-Our modeling generation is shown on the right side of Figure~\ref{fig:extract}.
+Our modeling generation is shown on the right side of Figure~\ref{fig:process}.
 We implemented our modeling using the Python library Gensim~\cite{Gensim}.
 Our evaluation is two-fold: we compare results for both LDA and LSI.
 We do this to evaluate the performance of using changesets as input
@@ -176,6 +236,7 @@ during the temporal evaluation.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
 \subsection{Data Collection and Analysis}
 
 % TODO
@@ -184,32 +245,9 @@ We then model the documents into topics.
 
 To answer RQ1, we take the traditional approach to evaluation:
 
-
-We build a topic model for two corpora:
-\begin{enumerate}
-    \item Source code entities of a snapshot
-    \item All changesets leading up to the snapshot
-\end{enumerate}
-
-The snapshot-based model is our baseline for comparison in our study.
-
 To answer RQ2, we must take a different approach.
 Since both LDA and LSI can be used as online topic models, we can
 ``simulate'' the results of a feature location technique over time.
-
-Summary:
-\begin{enumerate}
-    \item Determine which commits to stop at and create mini-batches out of the commits in between
-    \item For each mini-batch:
-    \begin{enumerate}
-        \item Update the model with the new document
-        \item Extract a snapshot of the source code at that commit.
-        \item Infer from the model the document-topics for each entity in the snapshot
-        \item Query the model with the feature request text.
-        \item Rank the source code entities by how similar their doc-topic is to the query's.
-    \end{enumerate}
-\end{enumerate}
-
 
 However, only the Dit et al. dataset includes traceability links between
 the queries and the commits the goldsets are extracted from.

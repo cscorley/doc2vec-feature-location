@@ -46,10 +46,14 @@ The transformations~\cite{Marcus-etal:2004,Marcus-Menzies:2010}: % that we use a
 \end{itemize}
 
 The right side of Figure~\ref{fig:snapshot} illustrates the retrieval process.
-Once a topic model has been built, it can be used as part of a query engine.
-The query engine's job is to take a query and infer how it relates to topics in the model.
-Additionally, it can classify, or rank, the results of this inference to another inference.
-That is, the classifier step finds other documents that have similar topics in the model.
+The main step of the retrieval process is to build the search engine.
+The search engine is constructed from the topic model trained from the corpus.
+The primary function of the search engine is to rank documents in relation to the query.
+The search engine performs a pair-wise classification of the query
+to each document and ranks the documents according score.
+To accomplish this step using a topic model,
+the search engine infers $\theta_{snapshot}$, i.e., the topics of each document,
+as well as $\theta_{query}$, i.e., the topics of the query.
 
 \subsection{Latent Semantic Indexing}
 
@@ -68,12 +72,6 @@ That is, LDA models each document as a probability distribution
 indicating the likelihood that it expresses each topic and
 models each topic that it infers as a probability distribution
 indicating the likelihood of a word from the corpus being assigned to the topic.
-
-Inputs to LDA include a corpus and $K$, the number of topics.
-LDA represents each document in the corpus as a bag-of-word (multiset)
-and thus disregards word order and structure.
-Outputs of LDA include $\phi$, the term-topic probability distribution,
-and $\theta$, the topic-document probability distribution.
 
 
 \subsection{Feature Location}

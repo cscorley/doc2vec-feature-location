@@ -29,6 +29,7 @@ The document extraction process for changesets remains mostly the same as covere
 However, instead of extracting documents by parsing source code for identifiers, comments, and literals,
 the changeset itself is parsed.
 In a changeset it may be desirable to parse further for source code entities using island grammar parsing\needcite.
+It may also be desirable to only use portions of the changeset, such as only using added or removed lines.
 The same preprocessor transformations may also occur in changesets.
 
 To leverage the online functionality of the topic models,
@@ -37,9 +38,9 @@ First, we initialize a model in online mode.
 Then, as changes are made, the model is updated with the new changesets as they are committed.
 That is, with changesets, we incrementally update a model and can query it at any moment.
 
-We can use a dynamic programming to keep a separate $\theta_{snapshot}$
-up-to-date as new changesets are added to the model.
-That is, upon a update to the model, new inferences of on only the source code documents affected by this changeset are made.
+In the search engine, we can use a dynamic programming to
+keep $\theta_{snapshot}$ up-to-date as new changesets are added to the model.
+That is, upon a update to the model, new inferences of only the source code documents affected by this changeset are made.
 Additionally, we can then query the model as needed
 and rank the results of that query against $\theta_{snapshot}$.
 Note that we never care about infering a $\theta_{changeset}$

@@ -36,7 +36,7 @@ clean: tidy
 	$(RM) $(PAPER).pdf
 
 edit:
-	$(EDITOR) paper.tex sec_intro.tex sec_related.tex sec_methodology.tex sec_study.tex sec_threats.tex sec_conclusion.tex
+	$(EDITOR) paper.tex sec_intro.tex sec_related.tex sec_changeset.tex sec_study.tex sec_threats.tex sec_conclusion.tex
 
 %.pdf: %.eps
 	epstopdf --outfile=$@ $<

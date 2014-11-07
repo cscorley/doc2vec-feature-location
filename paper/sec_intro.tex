@@ -1,5 +1,15 @@
 % vim:syntax=tex
-%
+
+\begin{comment}
+Points to make:
+
+- Why FLTs matter
+- What the problem is
+- What our solution is
+- How we evaluate it
+- Contrib
+- Organization
+\end{comment}
 
 Software developers are often confronted with maintenance tasks that involve navigation of repositories that preserve vast amounts of project history.
 Navigating these software repositories can be a time-consuming task, because their organization can be difficult to understand.
@@ -10,29 +20,50 @@ latent Dirichlet allocation (LDA)~\cite{Blei-etal:2003}
 can help developers to navigate and understand software repositories
 by discovering topics (word distributions) that reveal the thematic structure of the data~\cite{Linstead-etal:2007,Thomas-etal:2011,Hindle_etal:2012}.
 
+Typical topic-model-based FLTs construct models from corpora of text extracted from a source code snapshot.
+That is, a topic model is often trained on a corpus that contains documents that
+represent source code entities, such as methods or classes, from a particular version of the software.
+Keeping such a model up-to-date is expensive,
+because the frequency and scope of source code changes necessitate retraining the model on the updated corpus.
+In this paper we propose a fresh take on topic-modeling-based FLTs
+by leveraging online topic models and mining software repositories
+to construct topic models that can be used in real-time without needing retraining.
 
-When modeling a source code repository, the corpus typically represents a snapshot of the code.
-That is, a topic model is often trained on a corpus that contains documents that represent files from a particular version of the software.
-Keeping such a model up-to-date is expensive, because the frequency and scope of source code changes necessitate retraining the model on the updated corpus.
-However, it may be possible to automate certain maintenance tasks without a model of the complete source code.
-For example, when a developer is assigned to a task, a topic model can be used to locate features within the source code related to this task.
-In this scenario, a model of the changesets may be more useful than a model of the files, as the model will be up-to-date.
-Moreover, since topic modeling techniques like LSI and LDA are now online, a topic can be updated in real-time as work is being completed.
+Online topic models are topic models which do not need to know
+the entire input corpus prior to training~\cite{Hoffman-etal:2010,Radim:2011}
+That is, online topic models can be instantiated once and incrementally updated over time.
+Additionally, training the model and infering how documents relate with the model
+can be intermixed.
+Moreover, a version control repository keeps a history of source code documents as they change over time.
+These changes are represented as changesets,
+which provide concise views of the differences between two versions of the same document.
+By training a topic model on changesets, we can enable practical topic
+modeling for automating software maintenance tasks such as feature
+location.
+
+In this paper we propose an approach to topic modeling changesets for feature location
+and report on an empirical study in which we investigate the feasibility of this approach.
+We define two topic-model-based FLTs on both LSI and LDA using changesets.
+We combine two benchmarks totaling over 1200 defects and features from fourteen open source Java projects.
+Our results show that not only is our changeset approach feasible and practical,
+but in some cases out-performs current snapshot approaches.
+
 
 This paper makes the following contributions:
 
 \begin{itemize}
-    \item An approach to modeling changesets for feature location
+    \item An approach to topic modeling changesets for feature location
     \item An approach to evaluating a feature location technique temporally
     \item A tool that implements the approaches
     \item A case study of the of the two approaches
     \item An updated dataset of systems used in this study
-    \item Towards increasing open science principles in SE,
+    \item Towards increasing open science principles in software engineering,
         the complete source code history and data for replication of this study
 \end{itemize}
 
 The remainder of the paper is organized as follows.
 We first review background and related work (\S\ref{sec:related})
 before introducing our new feature location technique (\S\ref{sec:changeset}).
-We next discuss case study (\S\ref{sec:study}), which spans fourteen open source Java projects. % 19 total w/ all versions
+We next discuss our case study (\S\ref{sec:study}), which spans fourteen open source Java projects. % 19 total w/ all versions
 We then conclude (\S\ref{sec:conclusion}).
+

@@ -79,7 +79,7 @@ def cli(verbose, debug, force, nodownload, path, name, version, level):
             project_found = True
             break # got the right name/version/level
 
-    if project_found:
+    if not project_found:
         error("Could not find project in projects.csv!")
 
 

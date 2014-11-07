@@ -699,6 +699,7 @@ def create_corpus(project, repos, Kind, use_level=True, forced_ref=None):
 
     corpus_fname = corpus_fname_base + '.mallet.gz'
     dict_fname = corpus_fname_base + '.dict.gz'
+    made_one = False
 
     if not os.path.exists(corpus_fname):
         combiner = CorpusCombiner()
@@ -716,8 +717,17 @@ def create_corpus(project, repos, Kind, use_level=True, forced_ref=None):
 
             except KeyError:
                 continue
+            except TaserError as e:
+                if repo == repos[-1] and not made_one:
+                    raise e
+                    # basically, if we are at the last repo and we STILL
+                    # haven't sucessfully extracted a corpus, ring some bells
+                else:
+                    # otherwise, keep trying. winners never quit.
+                    continue
 
             combiner.add(corpus)
+            made_one = True
 
         # write the corpus and dictionary to disk. this will take awhile.
         combiner.metadata = True

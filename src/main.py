@@ -85,6 +85,7 @@ def cli(verbose, debug, force, nodownload, path, name, version, level):
     logger.info("Running project on %s", str(project))
     print(project)
 
+    nodownload = True # not using this just yet
     if not nodownload:
         logger.info("Downloading %s %s release from %s" % (project.name, project.version, project.src_url))
         utils.mkdir(project.src_path)
@@ -349,7 +350,7 @@ def get_frms(goldsets, ranks):
                     doc_meta, dist = metadist
                     d_name, d_repo = doc_meta
                     if d_name in goldset:
-                        subfrms.append((idx+1, g_id, d_name))
+                        subfrms.append((idx+1, int(g_id), d_name))
                         break
 
             # i think this might be cheating? :)
@@ -746,8 +747,9 @@ def create_release_corpus(project, repos, forced_ref=None):
         RC = TaserReleaseCorpus
         SC = TaserSnapshotCorpus
 
-    #return create_corpus(project, repos, SC, forced_ref=forced_ref)
+    return create_corpus(project, repos, SC, forced_ref=forced_ref)
 
+    # not using this just yet
     if forced_ref:
         return create_corpus(project, repos, SC, forced_ref=forced_ref)
     else:

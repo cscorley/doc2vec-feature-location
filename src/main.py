@@ -185,8 +185,7 @@ def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=
         lsi_query_topic = get_topics(lsi_model, queries)
         lsi_doc_topic = get_topics(lsi_model, other_corpus)
 
-        # for some reason the ranks from LSI cause hellinger_distance to cry
-        lsi_ranks = get_rank(lsi_query_topic, lsi_doc_topic, utils.cosine_distance)
+        lsi_ranks = get_rank(lsi_query_topic, lsi_doc_topic)
         lsi_first_rels = get_frms(goldsets, lsi_ranks)
         write_ranks(project, kind.lower() + '_lsi', lsi_first_rels)
 
@@ -279,7 +278,7 @@ def run_temporal_helper(project, repos, corpus, queries, goldsets):
             lsi_doc_topic = get_topics(lsi, other_corpus)
             # for some reason the ranks from LSI cause hellinger_distance to
             # cry, use cosine distance instead
-            lsi_subranks = get_rank(lsi_query_topic, lsi_doc_topic, utils.cosine_distance)
+            lsi_subranks = get_rank(lsi_query_topic, lsi_doc_topic)
             if qid in lsi_subranks:
                 if qid not in lsi_ranks:
                     lsi_ranks[qid] = list()

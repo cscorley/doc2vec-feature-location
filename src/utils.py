@@ -33,8 +33,8 @@ def calculate_mrr(p):
 
 
 def hellinger_distance(p, q):
-    p = numpy.array(p)
-    q = numpy.array(q)
+    p = numpy.abs(numpy.array(p))
+    q = numpy.abs(numpy.array(q))
     return scipy.linalg.norm(numpy.sqrt(p) - numpy.sqrt(q)) / SQRT2
 
 

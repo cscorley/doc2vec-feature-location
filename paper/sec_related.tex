@@ -49,11 +49,31 @@ The right side of Figure~\ref{fig:snapshot} illustrates the retrieval process.
 The main step of the retrieval process is to build the search engine.
 The search engine is constructed from the topic model trained from the corpus.
 The primary function of the search engine is to rank documents in relation to the query.
-The search engine performs a pair-wise classification of the query
+The search engine performs a pairwise classification of the query
 to each document and ranks the documents according score.
-To accomplish this step using a topic model,
-the search engine infers $\theta_{snapshot}$, i.e., the topics of each document,
-as well as $\theta_{query}$, i.e., the topics of the query.
+
+To accomplish the classification step using a topic model,
+the search engine infers $\theta_{Snapshot}$, i.e.,
+the topic-document probability distribution of each document in the snapshot corpus,
+as well as $\theta_{Query}$, i.e., the topic-document probability distribution  of the query.
+Then a similarity measure for probability distributions, such as 
+cosine similarity or Hellinger distance, can be used to make pairwise comparisons
+between $\theta_{Query}$ and $\theta_{Snapshot}$.
+Hellinger distance ($H$) can be defined as:
+
+\begin{equation}
+    H(P, Q) = \frac{1}{\sqrt{2}} \; \sqrt{\sum_{i=1}^{k} (\sqrt{P_i} - \sqrt{Q_i})^2}
+\end{equation}
+
+where $P$ and $Q$ are for two discrete probability distributions of length $k$.
+
+\begin{comment}
+\begin{equation}
+    H(P, Q) = \frac{1}{\sqrt{2}} \; \bigl\|\sqrt{P} - \sqrt{Q} \bigr\|_2
+\end{equation}
+\end{comment}
+
+
 
 \subsection{Latent Semantic Indexing}
 

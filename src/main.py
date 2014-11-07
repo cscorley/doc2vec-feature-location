@@ -67,7 +67,7 @@ def cli(verbose, debug, force, nodownload, path, name, version, level):
 
     # load project info
     projects = load_projects()
-    project = None
+    project_found = False
     for project in projects:
         if name == project.name:
             if version and version != project.version:
@@ -76,9 +76,10 @@ def cli(verbose, debug, force, nodownload, path, name, version, level):
             if level and level != project.level:
                 continue
 
+            project_found = True
             break # got the right name/version/level
 
-    if project is None:
+    if project_found:
         error("Could not find project in projects.csv!")
 
 

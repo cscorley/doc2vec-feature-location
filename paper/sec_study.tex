@@ -196,7 +196,6 @@ We only use changes that affect each project's subfolder in the merged repositor
 and also include all changes from the two pre-merge repositories in each project's respective corpus.
 }
 
-
 After extracting tokens, we split the tokens based on camel case,
 underscores, and non-letters.
 We only keep the split tokens; original tokens are discarded.
@@ -244,7 +243,22 @@ during the temporal evaluation.
 
 % TODO
 We create two corpora for each of our fourteen subject systems.
-We then model the documents into topics.
+
+To evaluate the performance of a topic-modeling-based FLT we cannot use
+measures such as precision and recall. This is because the FLT creates
+the rankings pairwise, causing every entity being searched to appear in the rankings.
+Poshyvanky et al. define an effectiveness measure that can be used for topic-modeling-based FLTs~\cite{Poshyvanyk-etal:2007}.
+The effectiveness measure is the rank of the first relevant document
+and represents the number of source code entities a developer would have to view before reaching a relevant one.
+The effectiveness measure allows evaluating the FLT by using 
+the mean reciprocal rank (MRR)~\cite{Voorhees:1999}, defined as:
+
+\begin{equation}
+    MRR = \frac{1}{|Q|} \sum_{i=1}^{|Q|} \frac{1}{e_i}
+\end{equation}
+
+where $Q$ is the set of queries
+and $e_i$ is the effectiveness measure for some query $Q_i$.
 
 To answer RQ1, we take the traditional approach to evaluation:
 

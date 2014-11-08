@@ -300,18 +300,16 @@ def run_temporal_helper(project, repos, corpus, queries, goldsets):
     return lda_rels, lsi_rels
 
 
-
-def do_science(prefix, changeset_first_rels, release_first_rels, ignore=False):
-    # Build a dictionary with each of the results for stats.
+def merge_first_rels(a, b, ignore=False):
     first_rels = dict()
 
-    for num, query_id, doc_meta in changeset_first_rels:
+    for num, query_id, doc_meta in a:
         if query_id not in first_rels:
             first_rels[query_id] = [num]
         else:
             logger.info('duplicate qid found: %s', query_id)
 
-    for num, query_id, doc_meta in release_first_rels:
+    for num, query_id, doc_meta in b:
         if query_id not in first_rels and not ignore:
             logger.info('qid not found: %s', query_id)
             first_rels[query_id] = [0]
@@ -325,6 +323,11 @@ def do_science(prefix, changeset_first_rels, release_first_rels, ignore=False):
 
     x = [v[0] for v in first_rels.values()]
     y = [v[1] for v in first_rels.values()]
+    return x, y
+
+def do_science(prefix, changeset_first_rels, release_first_rels, ignore=False):
+    # Build a dictionary with each of the results for stats.
+    x, y = merge_first_rels(changeset_first_rels, release_first_rels, ignore=ignore)
 
     print(prefix+' changeset mrr:', utils.calculate_mrr(x))
     print(prefix+' release mrr:', utils.calculate_mrr(y))

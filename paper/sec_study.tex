@@ -245,7 +245,7 @@ during the temporal evaluation.
 \renewcommand{\arraystretch}{1.3}
 \footnotesize
 \centering
-\caption{Subject Systems and Temporal Goldset Sizes}
+\caption{Reduced Temporal Goldset Sizes}
 \begin{tabular}{lrrr}
     \toprule
     Subject System      & Features  & Classes   & Methods \\
@@ -260,8 +260,8 @@ during the temporal evaluation.
     jEdit v4.3 & 148 & 359 & 746 \\
     Mahout v0.8 & 2 & 42 &   \\
     muCommander v0.8.5 & 91 & 302 & 716 \\
-    Openjpa v2.0.1 & 12 & 33 &   \\
-    Openjpa v2.2.0 & 5 & 29 &   \\
+    OpenJPA v2.0.1 & 12 & 33 &   \\
+    OpenJPA v2.2.0 & 5 & 29 &   \\
     Solr v4.4.0 & 20 & 97 &   \\
     Tika v1.3 & 4 & 11 &   \\
     ZooKeeper v3.4.5 & 21 & 89 &   \\
@@ -270,9 +270,6 @@ Total & 695 & 2234 & 4174
 \end{tabular}
 \label{table:subjects:temporal}
 \end{table}
-
-% TODO
-We create two corpora for each of our fourteen subject systems.
 
 To evaluate the performance of a topic-modeling-based FLT we cannot use
 measures such as precision and recall. This is because the FLT creates
@@ -290,12 +287,13 @@ the mean reciprocal rank (MRR)~\cite{Voorhees:1999}, defined as:
 where $Q$ is the set of queries
 and $e_i$ is the effectiveness measure for some query $Q_i$.
 
-To answer RQ1, we take the traditional approach to evaluation:
+To answer RQ1, we run the experiment on the snapshot and changeset
+datasets as outlined in Section~\ref{sec:methodology}.
+We then calculate the MRR between the two.
 
-To answer RQ2, we must take a different approach.
-Since both LDA and LSI can be used as online topic models, we can
-``simulate'' the results of a feature location technique over time.
-
+To answer RQ2, we run the experiment temporally as outlined in Section~\ref{sec:methodology}
+and compare it to the results from the snapshot experiment.
+We then calculate the MRR between the two.
 However, only the Dit et al. dataset includes traceability links between
 the queries and the commits the goldsets are extracted from.
 We did a best-effort search for the Moreno et al. traceability links
@@ -312,39 +310,35 @@ An updated version of Table~\ref{table:subjects} can be found in Table~\ref{tabl
 
 \subsection{Results}
 
-Table~\ref{table:mrr:classes} and Table~\ref{table:mrr:methods}
-summarize our results for each system.
-In particular, the left and right sides of teach table corresponds to RQ1 and RQ2, respectively.
-
-\begin{table*}[t]
+\begin{table*}[ht]
 \renewcommand{\arraystretch}{1.3}
 \footnotesize
 \centering
 \caption{MRR of subject systems classes}
-\begin{tabular}{l|rr|rr||rr|rr}
+\begin{tabular}{l|ll|ll||ll|ll}
     \toprule
                         & \multicolumn{2}{c|}{LDA}      &  \multicolumn{2}{c||}{LSI}    & \multicolumn{2}{c|}{LDA}      &  \multicolumn{2}{c}{LSI}  \\
     Subject System      & Snapshot      & Changeset     & Snapshot      & Changeset     & Snapshot      & Temporal      & Snapshot      & Temporal  \\
     \midrule
-    ArgoUML v0.22       & {\bf 0.2222}  &  0.1111       &               &               &               &               &               &           \\
-    ArgoUML v0.24       &               &               &               &               &               &               &               &           \\
-    ArgoUML v0.26.2     &               &               &               &               &               &               &               &           \\
-    BookKeeper v4.1.0   &               &               &               &               &               &               &               &           \\
-    Derby v10.7.1.1     &               &               &               &               &               &               &               &           \\
-    Derby v10.9.1.0     &               &               &               &               &               &               &               &           \\
-    Hibernate v3.5.0b2  &               &               &               &               & ---           & ---           & ---           & ---       \\
-    JabRef v2.6         &               &               &               &               &               &               &               &           \\
-    jEdit v4.3          &               &               &               &               &               &               &               &           \\
-    Lucene v4.0         &               &               &               &               & ---           & ---           & ---           & ---       \\
-    Mahout v0.8         &               &               &               &               &               &               &               &           \\
-    muCommander v0.8.5  &               &               &               &               &               &               &               &           \\
-    OpenJPA v2.0.1      &               &               &               &               &               &               &               &           \\
-    OpenJPA v2.2.0      &               &               &               &               &               &               &               &           \\
-    Pig v0.11.1         &               &               &               &               & ---           & ---           & ---           & ---       \\
-    Pig v0.8.0          &               &               &               &               & ---           & ---           & ---           & ---       \\
-    Solr v4.4.0         &               &               &               &               &               &               &               &           \\
-    Tika v1.3           &               &               &               &               &               &               &               &           \\
-    ZooKeeper v3.4.5    &               &               &               &               &               &               &               &           \\
+ArgoUML v0.22  & 0.117894 & {\bf 0.147477 } & 0.023883 & {\bf 0.025465 } & {\bf 0.117894 } & 0.111940 & 0.023883 & {\bf 0.056540 } \\
+ArgoUML v0.24  & {\bf 0.185603 } & 0.136062 & 0.001501 & {\bf 0.002817 } & {\bf 0.185603 } & 0.162652 & 0.001501 & {\bf 0.100166 } \\
+ArgoUML v0.26.2  & {\bf 0.226795 } & 0.152747 & 0.002669 & {\bf 0.006168 } & {\bf 0.235158 } & 0.205164 & 0.001235 & {\bf 0.049686 } \\
+Bookkeeper v4.1.0  & 0.017075 & {\bf 0.041524 } & 0.003611 & {\bf 0.011522 } & {\bf 0.037099 } & 0.006553 & 0.006395 & {\bf 0.027403 } \\
+Derby v10.7.1.1  & {\bf 0.016232 } & 0.003174 & {\bf 0.000659 } & 0.000543 & {\bf 0.050524 } & 0.007924 & 0.000526 & {\bf 0.005237 } \\
+Derby v10.9.1.0  & 0.003839 & {\bf 0.010012 } & 0.000552 & {\bf 0.000592 } & 0.001168 & {\bf 0.007514 } & 0.000474 & {\bf 0.002600 } \\
+Hibernate v3.5.0b2  & {\bf 0.003333 } & 0.000869 & 0.000537 & {\bf 0.001483 } & nan & nan & nan & nan \\
+Jabref v2.6  & {\bf 0.282994 } & 0.151127 & 0.001187 & {\bf 0.001195 } & {\bf 0.298368 } & 0.235677 & 0.001226 & {\bf 0.099428 } \\
+jEdit v4.3  & {\bf 0.280224 } & 0.134725 & {\bf 0.012334 } & 0.009393 & 0.281964 & {\bf 0.283543 } & 0.012411 & {\bf 0.035548 } \\
+Lucene v4.0  & {\bf 0.001180 } & 0.000000 & {\bf 0.001145 } & 0.000000 & nan & nan & nan & nan \\
+Mahout v0.8  & 0.002976 & {\bf 0.003310 } & 0.001032 & {\bf 0.001165 } & {\bf 0.009379 } & 0.001935 & 0.001378 & {\bf 0.002907 } \\
+Mucommander v0.8.5  & {\bf 0.268472 } & 0.211183 & 0.003516 & {\bf 0.013408 } & 0.271410 & {\bf 0.282706 } & 0.003548 & {\bf 0.117789 } \\
+OpenJPA v2.0.1  & 0.001713 & {\bf 0.002066 } & {\bf 0.000368 } & 0.000342 & 0.002413 & {\bf 0.005554 } & 0.000551 & {\bf 0.003109 } \\
+OpenJPA v2.2.0  & 0.001635 & {\bf 0.003255 } & {\bf 0.001121 } & 0.000549 & 0.000504 & {\bf 0.025957 } & 0.003423 & {\bf 0.003690 } \\
+Pig v0.11.1  & {\bf 0.027005 } & 0.009604 & 0.000988 & {\bf 0.011666 } & nan & nan & nan & nan \\
+Pig v0.8.0  & 0.007438 & {\bf 0.015208 } & 0.001292 & {\bf 0.001572 } & nan & nan & nan & nan \\
+Solr v4.4.0  & {\bf 0.002795 } & 0.000000 & {\bf 0.000570 } & 0.000000 & 0.001809 & {\bf 0.003087 } & 0.000741 & {\bf 0.007636 } \\
+Tika v1.3  & 0.007832 & {\bf 0.008343 } & 0.002084 & {\bf 0.002149 } & 0.013718 & {\bf 0.052773 } & 0.002140 & {\bf 0.056250 } \\
+Zookeeper v3.4.5  & 0.023125 & {\bf 0.025065 } & {\bf 0.003748 } & 0.003280 & {\bf 0.038860 } & 0.007438 & 0.002208 & {\bf 0.019434 } \\
     \midrule
     All                 &               &               &               &               &               &               &               &           \\
     \bottomrule
@@ -352,22 +346,23 @@ In particular, the left and right sides of teach table corresponds to RQ1 and RQ
 \label{table:mrr:classes}
 \end{table*}
 
-\begin{table*}[t]
+
+\begin{table*}[ht]
 \renewcommand{\arraystretch}{1.3}
 \footnotesize
 \centering
 \caption{MRR of subject systems methods}
-\begin{tabular}{l|rr|rr||rr|rr}
+\begin{tabular}{l|ll|ll||ll|ll}
     \toprule
                         & \multicolumn{2}{c|}{LDA}      &  \multicolumn{2}{c||}{LSI}    & \multicolumn{2}{c|}{LDA}      &  \multicolumn{2}{c}{LSI}  \\
     Subject System      & Snapshot      & Changeset     & Snapshot      & Changeset     & Snapshot      & Temporal      & Snapshot      & Temporal  \\
     \midrule
-    ArgoUML v0.22       & 0.1111        & {\bf 0.2222}  &               &               &               &               &               &           \\
-    ArgoUML v0.24       &               &               &               &               &               &               &               &           \\
-    ArgoUML v0.26.2     &               &               &               &               &               &               &               &           \\
-    JabRef v2.6         &               &               &               &               &               &               &               &           \\
-    jEdit v4.3          &               &               &               &               &               &               &               &           \\
-    muCommander v0.8.5  &               &               &               &               &               &               &               &           \\
+ArgoUML v0.22  & 0.044457 & {\bf 0.073552 } & {\bf 0.055535 } & 0.047246 & 0.045452 & {\bf 0.072741 } & {\bf 0.056780 } & 0.037277 \\
+ArgoUML v0.24  & 0.057022 & {\bf 0.086003 } & {\bf 0.052374 } & 0.050937 & {\bf 0.055925 } & 0.033152 & {\bf 0.051367 } & 0.048172 \\
+ArgoUML v0.26.2  & {\bf 0.075917 } & 0.067152 & {\bf 0.067679 } & 0.056058 & {\bf 0.076920 } & 0.073376 & {\bf 0.066626 } & 0.045590 \\
+Jabref v2.6  & {\bf 0.086691 } & 0.036863 & {\bf 0.005267 } & 0.003559 & {\bf 0.107592 } & 0.068359 & 0.006727 & {\bf 0.049223 } \\
+jEdit v4.3  & {\bf 0.065631 } & 0.049099 & 0.038576 & {\bf 0.045326 } & 0.065625 & {\bf 0.071610 } & {\bf 0.038575 } & 0.027338 \\
+muCommander v0.8.5 & 0.037569 & {\bf 0.046009 } & 0.021294 & {\bf 0.022017 } & 0.038280 & {\bf 0.070755 } & 0.021766 & {\bf 0.042647 } \\
     \midrule
     All                 &               &               &               &               &               &               &               &           \\
     \bottomrule
@@ -376,12 +371,19 @@ In particular, the left and right sides of teach table corresponds to RQ1 and RQ
 \end{table*}
 
 
+
+
+% Table~\ref{table:mrr:classes} and Table~\ref{table:mrr:methods}
+% summarize our results for each system.
+% In particular, the left and right sides of teach table corresponds to RQ1 and RQ2, respectively.
+
 % TODO
 RQ1 asks how well a topic model built upon changesets performs against
 one built on source code entities.
 We also wanted to know if there were any differences of performance
 between two popular algorithms, LSI and LDA.
-
+The left sides of Table~\ref{table:mrr:classes} and Table~\ref{table:mrr:methods}
+summarize the results for each system with regard to RQ1.
 
 RQ2 asks how well a simulation of using a topic model would perform as
 it were to be used in real-time.
@@ -389,4 +391,6 @@ This is a much closer evaluation of a feature location technique to it
 being used in an actual development environment.
 We also wanted to know if there were any differences of performance
 between two popular algorithms, LSI and LDA.
+The right sides of Table~\ref{table:mrr:classes} and Table~\ref{table:mrr:methods}
+summarize the results for each system with regard to RQ2.
 

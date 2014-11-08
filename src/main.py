@@ -416,14 +416,16 @@ def load_goldsets(project):
         ids = [x.strip() for x in f.readlines()]
 
     goldsets = list()
+    s = 0
     for id in ids:
         with open(os.path.join(project.full_path, 'goldsets', project.level,
                                 id + '.txt')) as f:
             golds = frozenset(x.strip() for x in f.readlines())
+            s += len(golds)
 
         goldsets.append((id, golds))
 
-    logger.info("Returning %d goldsets", len(goldsets))
+    logger.info("Returning %d goldsets %d", len(goldsets), s)
     return goldsets
 
 

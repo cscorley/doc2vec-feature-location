@@ -5,6 +5,7 @@ import csv
 import src.main
 import src.utils
 import logging
+import sys
 
 def ap(project, t):
     ranks = src.main.read_ranks(project, t)
@@ -15,48 +16,7 @@ def ap(project, t):
 
     return new
 
-projects = src.main.load_projects()
-t_lda = []
-t_lsi = []
-r_lda = []
-r_lsi = []
-c_lda = []
-c_lsi = []
-for project in projects:
-    desc = ' '.join([project.name, project.version, project.level])
-    try:
-        a = ap(project, 'release_lda')
-        b = ap(project, 'release_lsi')
-    except IOError:
-        a = []
-        b = []
-        print('MISSING RELEASE', project.name, project.version, project.level)
-
-    r_lda += a
-    r_lsi += b
-
-    try:
-        c = ap(project, 'changeset_lda')
-        d = ap(project, 'changeset_lsi')
-    except IOError:
-        c = []
-        d = []
-        print('MISSING CHANGESET', project.name, project.version, project.level)
-
-    c_lda += c
-    c_lsi += d
-
-    try:
-        e = ap(project, 'temporal_lda')
-        f = ap(project, 'temporal_lsi')
-    except IOError:
-        e = []
-        f = []
-        print('MISSING TEMPORAL', project.name, project.version, project.level)
-
-    t_lda += e
-    t_lsi += f
-
+def print_em(desc, a, b, c, d, e, f):
     acc = 6
     x, y = src.main.merge_first_rels(c, a)
     changeset_lda = round(src.utils.calculate_mrr(x), acc)
@@ -107,27 +67,52 @@ for project in projects:
 
     print(' & '.join(map(str, l)), '\\\\')
 
+projects = src.main.load_projects()
+t_lda = []
+t_lsi = []
+r_lda = []
+r_lsi = []
+c_lda = []
+c_lsi = []
+for project in projects:
+    if project.level != sys.argv[1]:
+        continue
 
-x, y = src.main.merge_first_rels(c_lda, r_lda)
-changeset_lda = src.utils.calculate_mrr(x)
-snapshot_lda = src.utils.calculate_mrr(y)
+    desc = ' '.join([project.name, project.version])
+    try:
+        a = ap(project, 'release_lda')
+        b = ap(project, 'release_lsi')
+    except IOError:
+        a = []
+        b = []
+        print('MISSING RELEASE', project.name, project.version, project.level)
 
-x, y = src.main.merge_first_rels(c_lsi, r_lsi)
-changeset_lsi = src.utils.calculate_mrr(x)
-snapshot_lsi = src.utils.calculate_mrr(y)
+    r_lda += a
+    r_lsi += b
 
-x, y = src.main.merge_first_rels(t_lda, r_lda, ignore=True)
-temporal_lda = src.utils.calculate_mrr(x)
-t_snapshot_lda = src.utils.calculate_mrr(y)
+    try:
+        c = ap(project, 'changeset_lda')
+        d = ap(project, 'changeset_lsi')
+    except IOError:
+        c = []
+        d = []
+        print('MISSING CHANGESET', project.name, project.version, project.level)
 
-x, y = src.main.merge_first_rels(t_lsi, r_lsi, ignore=True)
-temporal_lsi = src.utils.calculate_mrr(x)
-t_snapshot_lsi = src.utils.calculate_mrr(y)
-l = ["All",
-    snapshot_lda, changeset_lda,
-    snapshot_lsi, changeset_lsi,
-    t_snapshot_lda, temporal_lda,
-    t_snapshot_lsi, temporal_lsi,
-    ]
+    c_lda += c
+    c_lsi += d
 
-print(' & '.join(map(str, l)))
+    try:
+        e = ap(project, 'temporal_lda')
+        f = ap(project, 'temporal_lsi')
+    except IOError:
+        e = []
+        f = []
+        print('MISSING TEMPORAL', project.name, project.version, project.level)
+
+    t_lda += e
+    t_lsi += f
+
+    print_em(desc, a, b, c, d, e, f)
+
+
+print_em("ALL", r_lda, r_lsi, c_lda, c_lsi, t_lda, t_lsi)

@@ -2,7 +2,6 @@ from __future__ import print_function
 
 import csv
 import src.main
-import logging
 
 def print_psize(p):
     class_s = 0

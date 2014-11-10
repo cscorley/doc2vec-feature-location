@@ -104,15 +104,15 @@ ZooKeeper is a tool that works as a coordination service to help build distribut
 For snapshots, the process is straightforward.
 First, we build a model in batch mode from the snapshot corpus.
 That is, the model can see all documents in the corpus at once.
-Then, we infer a $\theta_{snapshot}$ from the snapshot corpus
-and a $\theta_{queries}$ from the query corpus.
+Then, we infer a $\theta_{Snapshot}$ from the snapshot corpus
+and a $\theta_{Queries}$ from the query corpus.
 Finally, we classifiy the results from both $\theta$s.
 
 \begin{comment}
 \begin{enumerate}
     \item Build model from the snapshot corpus in batch mode
-    \item Infer a $\theta_{snapshot}$ from the snapshot corpus
-    \item Infer a $\theta_{queries}$ from the query corpus
+    \item Infer a $\theta_{Snapshot}$ from the snapshot corpus
+    \item Infer a $\theta_{Queries}$ from the query corpus
     \item Classifiy, or rank, the results from both $\theta$s
 \end{enumerate}
 \end{comment}
@@ -120,17 +120,17 @@ Finally, we classifiy the results from both $\theta$s.
 
 For changesets, the process is varies slightly from a snapshot approach.
 First, we build a model in batch mode from the changeset corpus.
-Then, we infer a $\theta_{snapshot}$ from the snapshot corpus
-and a $\theta_{queries}$ from the query corpus.
-Note that we \emph{do not} infer a $\theta_{changesets}$ from the changeset corpus from which the model was built!
+Then, we infer a $\theta_{Snapshot}$ from the snapshot corpus
+and a $\theta_{Queries}$ from the query corpus.
+Note that we \emph{do not} infer a $\theta_{Changesets}$ from the changeset corpus from which the model was built!
 Finally, we classifiy the results from both $\theta$s.
 
 \begin{comment}
 \begin{enumerate}
     \item Build model from the changeset corpus in batch mode
-    \item \emph{Do not} infer a $\theta_{changesets}$
-    \item Infer a $\theta_{snapshot}$ from the snapshot corpus
-    \item Infer a  $\theta_{queries}$ from the query corpus
+    \item \emph{Do not} infer a $\theta_{Changesets}$
+    \item Infer a $\theta_{Snapshot}$ from the snapshot corpus
+    \item Infer a  $\theta_{Queries}$ from the query corpus
     \item Classifiy, or rank, the results from both $\theta$s
 \end{enumerate}
 \end{comment}
@@ -140,8 +140,8 @@ For the temporal simulation, we can take a slightly different approach.
 We first determine which changesets relate to an issue and partition mini-batches out of the changesets.
 Then, we initialize a model in online mode.
 For each mini-batch, or partition, we update the model with that mini-batch.
-Then, we infer a $\theta_{snapshot}$ from the snapshot corpus
-and a retrieve the $\theta_{queries}$ for the queries related to this changeset.
+Then, we infer a $\theta_{Snapshot}$ from the snapshot corpus
+and a retrieve the $\theta_{Queries}$ for the queries related to this changeset.
 Finally, we classifiy the results from both $\theta$s.
 
 \begin{comment}
@@ -151,8 +151,8 @@ Finally, we classifiy the results from both $\theta$s.
     \item For each mini-batch:
         \begin{enumerate}
             \item Update the model with mini-batch
-            \item Update $\theta_{snapshot}$ with the new inference of the source code document affected by this changeset
-            \item Infer a $\theta_{query}$ of the query related to the changeset we stopped at
+            \item Update $\theta_{Snapshot}$ with the new inference of the source code document affected by this changeset
+            \item Infer a $\theta_{Query}$ of the query related to the changeset we stopped at
             \item Classifiy, or rank, the results from both $\theta$s
         \end{enumerate}
 \end{enumerate}

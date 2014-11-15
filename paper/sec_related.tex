@@ -1,11 +1,6 @@
 % vim:syntax=tex
-requirements. Feature location techniques have been a favored activity in
 
-In this section we provide an overview of the document extraction and retreival process
-used for feature location.
-We also provide an overview of two topic models,
-latent semantic indexing (LSI) and latent Dirichlet allocation (LDA),
-and review closely related work.
+
 
 \subsection{Document Extraction and Retrieval Process}
 
@@ -123,10 +118,29 @@ Hybrid techniques~\cite{1183929} involve a combination of a static analysis of
 the source text and an analysis of scenarios in the execution trace. By
 blending the two it was found that this technique was applicable to working
 systems in providing higher precision for locating features.~\cite{4181710,
-ernst2004static, revelleimproving} In this study, we are applying two static techniques, an LDA based FLT and an LSI based FLT. 
+ernst2004static, revelleimproving} In this study, we are applying two static
+techniques, an LDA based FLT and an LSI based FLT. 
 
 We now review Dit et al ~\cite{dit2013feature} taxonomy and survey of feature
-location in source code covering the scope of techniques for FLTs.
-Marcus et al~\cite{1374321} use LSI based feature location to find concepts based on queries from the user and modules within the system in comparison to the dependence graph approach. 
+location in source code covering the scope of techniques for FLTs.  Marcus et
+al~\cite{1374321} use LSI based feature location to find concepts based on
+queries from the user and modules within the system in comparison to the
+dependence graph approach. They found that concepts in the code were able to be
+identified with user specified terms and identifiers as well as an easier build
+process. Lukins, Kraft and Etzkorn~\cite{4656405} find that LSI-based FLT does
+not work effectively on bug localization. As a comparison they applied an
+LDA-based FLT which analyzed the bugs much more effectively therefore
+outperforming LSI.  
 
-
+Antoniol and Gueheneuc~\cite{1510131, 1707664} use a combination of dynamic and
+static FLTs to better program comprehension of large multi-threaded
+objectuoriented systems, particularly they run this integrated technique on
+Mozilla and Firefox as well as smaller systems JHotDraw, XFig, Chimera and
+ICEBrowser. They take these systems and using static analysis, represent them
+in Abstract Object Language format which they manipualte using a meta model
+PADL that represents object oriented systems independent of the language. To
+avoid the noise and imprecision of dynamic FLT they use process emulation
+during the execution of scenarios assigning probablistic ranking of features as
+relevant or irrelevevant. Their approach proves to minimize the amount of code
+needed for program comprehension as well as providing microarchitectures of
+each system. 

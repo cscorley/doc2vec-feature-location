@@ -10,9 +10,9 @@ import scipy.stats
 
 def get_p(p):
     if p < 0.01:
-        return "p < 0.01"
+        return "$p < 0.01$"
     if p >= 0.01:
-        return "p = %f" % p
+        return "$p = %f$" % p
 
     if p < 0.05:
         return "p < 0.05"
@@ -31,20 +31,20 @@ def ap(project, t):
 def print_em(desc, a, b, c, d, ignore=False):
     acc = 6
     x, y = src.main.merge_first_rels(a, c, ignore=ignore)
-    T, p = scipy.stats.wilcoxon(x, y)
+    lda_T, p = scipy.stats.wilcoxon(x, y)
 
-    lda = "%d & $%s$"  % (T, get_p(p))
+    lda_p = get_p(p)
 
     x, y = src.main.merge_first_rels(b, d, ignore=ignore)
-    T, p = scipy.stats.wilcoxon(x, y)
+    lsi_T, p = scipy.stats.wilcoxon(x, y)
 
-    lsi = "%d & $%s$"  % (T, get_p(p))
+    lsi_p = get_p(p)
 
     if len(c) < 20 or len(a) < 20 or len(d) < 20 or len(b) < 20:
-        desc = "{\\it" + desc + "}"
+        desc = "{\\it " + desc + "}"
 
     l = [desc,
-         lda, lsi
+         lda_T, lda_p, lsi_T, lsi_p
         ]
     print(' & '.join(map(str, l)), '\\\\')
 

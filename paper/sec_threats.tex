@@ -16,12 +16,26 @@ We controlled for these threats by testing our tool chain and by assessing the q
 Because we applied the same tool chain to all subject systems, any errors are systematic and are unlikely
 to affect our results substantially.
 
+
+\begin{figure}[t]
+\footnotesize
+
+{\bf bookkeeper-server.src.main.java.}org.apache.bookkeeper.bookie.Bookie
+
+{\bf bookkeeper-server.src.main.java.}org.apache.bookkeeper.bookie.EntryLogger
+
+{\bf bookkeeper-server.src.test.java.}org.apache.bookkeeper.bookie.LedgerCacheTest
+
+\caption{Corrected BookKeeper goldset for issue \#10. Bold text denotes the portion removed.}
+\label{fig:goldsetfix}
+\vspace{-10pt}
+\end{figure}
+
+
 Additionaly, we found errors within the datasets themselves that would be a threat to internal validity.
 In particular, the Moreno et al. dataset included classes that had package names that were not valid.
-For example, the Bookkeeper goldset for issue report 29 listed
-\texttt{bookkeeper-server.src.main.java.org.apache.bookkeeper.bookie.EntryLogger}
-for the class fixed by this change, while the actual fully-qualified name of this class is
-\texttt{org.apache.bookkeeper.bookie.EntryLogger}.
+Figure~\ref{fig:goldsetfix} describes the classes reported in the dataset
+and the corrected classes.
 We make the assumption that the authors of this dataset used the directory structure of the project to build the package names.
 Manual correction was required as our tool parses the files and uses the package name given in the source file, not the directory structure.
 

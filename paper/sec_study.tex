@@ -208,7 +208,7 @@ After extracting tokens, we split the tokens based on camel case,
 underscores, and non-letters.
 We only keep the split tokens; original tokens are discarded.
 We normalize to lower case before filtering non-letters, English stop words~\cite{StopWords}, Java keywords, and words shorter than three characters long.
-We do not stem words. \attn{cite reason?}
+We do not stem words.
 
 We implemented our modeling using the Python library Gensim~\cite{Gensim}.
 Our evaluation is two-fold: we compare results for both LDA and LSI.
@@ -275,7 +275,8 @@ during the temporal evaluation.
     Tika v1.3 & 4 & 11 &   \\
     ZooKeeper v3.4.5 & 21 & 89 &   \\
     \midrule
-Total & 695 & 2234 & 4174
+Total & 695 & 2234 & 4174 \\
+    \bottomrule
 \end{tabular}
 \label{table:subjects:temporal}
 \end{table}
@@ -364,17 +365,6 @@ All & {\bf 0.124513 } & 0.086323 & 0.004832 & {\bf 0.006649 } \\
 \label{table:rq1:classes}
 \end{table}
 
-
-RQ2 asks how well a simulation of using a topic model would perform as
-it were to be used in real-time.
-This is a much closer evaluation of a feature location technique to it
-being used in an actual development environment.
-We also wanted to know if there were any differences of performance
-between two popular algorithms, LSI and LDA.
-The right sides of Table~\ref{table:rq2:classes} and Table~\ref{table:rq2:methods}
-summarize the results for each system with regard to RQ2.
-
-
 \begin{table}[t]
 \renewcommand{\arraystretch}{1.3}
 \centering
@@ -382,7 +372,7 @@ summarize the results for each system with regard to RQ2.
 \begin{tabular}{l|ll|ll}
     \toprule
                          & \multicolumn{2}{c|}{LDA}      &  \multicolumn{2}{c}{LSI}  \\
-    Subject System       & Snapshot      & Temporal      & Snapshot      & Temporal  \\
+    Subject System       & Snapshot      & Changeset      & Snapshot      & Changeset  \\
     \midrule
 ArgoUML v0.22 & 0.044457 & {\bf 0.073552 } & {\bf 0.055535 } & 0.047246  \\
 ArgoUML v0.24 & 0.057022 & {\bf 0.086003 } & {\bf 0.052374 } & 0.050937  \\
@@ -396,6 +386,18 @@ All & {\bf 0.062533 } & 0.060422 & {\bf 0.047253 } & 0.043663  \\
 \end{tabular}
 \label{table:rq1:methods}
 \end{table}
+
+
+RQ2 asks how well a simulation of using a topic model would perform as
+it were to be used in real-time.
+This is a much closer evaluation of a feature location technique to it
+being used in an actual development environment.
+We also wanted to know if there were any differences of performance
+between two popular algorithms, LSI and LDA.
+The right sides of Table~\ref{table:rq2:classes} and Table~\ref{table:rq2:methods}
+summarize the results for each system with regard to RQ2.
+
+
 
 \begin{table}[t]
 \renewcommand{\arraystretch}{1.3}

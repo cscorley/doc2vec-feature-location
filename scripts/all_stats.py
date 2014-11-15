@@ -8,6 +8,17 @@ import logging
 import sys
 import scipy.stats
 
+def get_p(p):
+    if p < 0.01:
+        return "p < 0.01"
+    if p >= 0.01:
+        return "p = %f" % p
+
+    if p < 0.05:
+        return "p < 0.05"
+    if p < 0.1:
+        return "p < 0.1"
+
 def ap(project, t):
     ranks = src.main.read_ranks(project, t)
     c = project.name+project.version
@@ -19,37 +30,22 @@ def ap(project, t):
 
 def print_em(desc, a, b, c, d, ignore=False):
     acc = 6
-    x, y = src.main.merge_first_rels(c, a, ignore=ignore)
+    x, y = src.main.merge_first_rels(a, c, ignore=ignore)
     T, p = scipy.stats.wilcoxon(x, y)
 
+    lda = "%d & $%s$"  % (T, get_p(p))
 
-    changeset_lda = round(src.utils.calculate_mrr(x), acc)
-    snapshot_lda = round(src.utils.calculate_mrr(y), acc)
-    if p < 0.01:
-        changeset_lda = "{\\bf %f }" % changeset_lda
-        snapshot_lda = "{\\bf %f }" % snapshot_lda
-    else:
-        snapshot_lda = "%f" % snapshot_lda
-        changeset_lda = "%f" % changeset_lda
-
-    x, y = src.main.merge_first_rels(d, b, ignore=ignore)
+    x, y = src.main.merge_first_rels(b, d, ignore=ignore)
     T, p = scipy.stats.wilcoxon(x, y)
 
-    changeset_lsi = round(src.utils.calculate_mrr(x), acc)
-    snapshot_lsi = round(src.utils.calculate_mrr(y), acc)
-    if p < 0.01:
-        changeset_lsi = "{\\bf %f }" % changeset_lsi
-        snapshot_lsi = "{\\bf %f }" % snapshot_lsi
-    else:
-        snapshot_lsi = "%f" % snapshot_lsi
-        changeset_lsi = "%f" % changeset_lsi
+    lsi = "%d & $%s$"  % (T, get_p(p))
 
+    if len(c) < 20 or len(a) < 20 or len(d) < 20 or len(b) < 20:
+        desc = "{\\it" + desc + "}"
 
     l = [desc,
-        snapshot_lda, changeset_lda,
-        snapshot_lsi, changeset_lsi,
+         lda, lsi
         ]
-
     print(' & '.join(map(str, l)), '\\\\')
 
 projects = src.main.load_projects()

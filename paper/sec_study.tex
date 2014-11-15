@@ -330,6 +330,13 @@ between two popular algorithms, LSI and LDA.
 The left sides of Table~\ref{table:rq1:classes} and Table~\ref{table:rq1:methods}
 summarize the results for each system with regard to RQ1.
 
+For 10 of the 19 software systems, we note an improvement in MRR for changesets.
+Likewise, 9 of the systems did not improve when using changesets.
+However, the results are comparable either way.
+We conduct the Wilcoxon signed-rank test across the rankings for all systems
+to determine if the differences are statistically significant.
+
+
 \begin{table}[t]
 \renewcommand{\arraystretch}{1.3}
 \centering
@@ -453,3 +460,115 @@ All & 0.063426 & {\bf 0.068713 } & {\bf 0.047242 } & 0.039814 \\
 \label{table:rq2:methods}
 \end{table}
 
+
+\begin{table}[t]
+\renewcommand{\arraystretch}{1.3}
+\centering
+\caption{RQ1: Wilcoxon of subject systems classes}
+\begin{tabular}{l|ll|ll}
+    \toprule
+                        & \multicolumn{2}{c|}{LDA}      &  \multicolumn{2}{c}{LSI}  \\
+    Subject System      & Ranksum & p & Ranksum & p \\
+    \midrule
+ArgoUML v0.22 & 1206 & $p < 0.01$ & 1448 & $p = 0.048561$ \\
+ArgoUML v0.24 & 466 & $p = 0.212675$ & 595 & $p = 0.391921$ \\
+ArgoUML v0.26.2 & 7464 & $p < 0.01$ & 8533 & $p = 0.038889$ \\
+Bookkeeper v4.1.0 & 149 & $p < 0.01$ & 327 & $p = 0.711564$ \\
+Derby v10.7.1.1 & 180 & $p = 0.116250$ & 197 & $p = 0.213611$ \\
+Derby v10.9.1.0 & 1323 & $p < 0.01$ & 1721 & $p = 0.038155$ \\
+{\it Hibernate v3.5.0b2} & 47 & $p = 0.277530$ & 59 & $p = 0.954708$ \\
+Jabref v2.6 & 307 & $p = 0.360885$ & 296 & $p = 0.282968$ \\
+jEdit v4.3 & 4013 & $p = 0.011549$ & 4830 & $p = 0.942115$ \\
+Lucene v4.0 & 210 & $p = 0.211017$ & 224 & $p = 0.316982$ \\
+Mahout v0.8 & 137 & $p = 0.083647$ & 208 & $p = 0.837211$ \\
+muCommander v0.8.5 & 1052 & $p < 0.01$ & 1627 & $p = 0.090923$ \\
+OpenJPA v2.0.1 & 108 & $p < 0.01$ & 202 & $p = 0.163369$ \\
+{\it OpenJPA v2.2.0} & 37 & $p = 0.034670$ & 72 & $p = 0.571243$ \\
+Pig v0.8.0 & 1496 & $p = 0.146345$ & 1378 & $p = 0.049127$ \\
+Pig v0.11.1 & 523 & $p = 0.508259$ & 398 & $p = 0.120766$ \\
+Solr v4.4.0 & 629 & $p = 0.237452$ & 638 & $p = 0.268719$ \\
+{\it Tika v1.3} & 28 & $p = 0.012264$ & 73 & $p = 0.886974$ \\
+Zookeeper v3.4.5 & 805 & $p < 0.01$ & 1380 & $p = 0.814088$ \\
+\midrule
+All & 251871 & $p < 0.01$ & 337349 & $p = 0.398182$ \\
+    \bottomrule
+\end{tabular}
+\label{table:rq1:classstats}
+\end{table}
+
+\begin{table}[t]
+\renewcommand{\arraystretch}{1.3}
+\centering
+\caption{RQ1: Wilcoxon of subject systems methods}
+\begin{tabular}{l|ll|ll}
+    \toprule
+                        & \multicolumn{2}{c|}{LDA}      &  \multicolumn{2}{c}{LSI}  \\
+    Subject System      & Ranksum & p & Ranksum & p \\
+    \midrule
+ArgoUML v0.22 & 1631 & $p = 0.093762$ & 1657 & $p = 0.116583$ \\
+ArgoUML v0.24 & 580 & $p = 0.746475$ & 527 & $p = 0.397818$ \\
+ArgoUML v0.26.2 & 9497 & $p = 0.141996$ & 8921 & $p = 0.069292$ \\
+Jabref v2.6 & 309 & $p = 0.372446$ & 388 & $p = 0.983299$ \\
+jEdit v4.3 & 4977 & $p = 0.447864$ & 4319 & $p = 0.072512$ \\
+muCommander v0.8.5 & 1511 & $p = 0.031028$ & 2012 & $p = 0.748518$ \\
+\midrule
+All & 83319 & $p < 0.01$ & 86151 & $p = 0.038320$ \\
+    \bottomrule
+\end{tabular}
+\label{table:rq1:methodstats}
+\end{table}
+
+
+
+\begin{table}[t]
+\renewcommand{\arraystretch}{1.3}
+\centering
+\caption{RQ2: Wilcoxon of subject systems classes}
+\begin{tabular}{l|ll|ll}
+    \toprule
+                        & \multicolumn{2}{c|}{Temporal LDA}      &  \multicolumn{2}{c}{Temporal LSI}  \\
+    Subject System      & Ranksum & p & Ranksum & p \\
+    \midrule
+ArgoUML v0.22 & 1344 & $p < 0.01$ & 247 & $p < 0.01$ \\
+ArgoUML v0.24 & 420 & $p = 0.055494$ & 68 & $p < 0.01$ \\
+ArgoUML v0.26.2 & 5034 & $p < 0.01$ & 505 & $p < 0.01$ \\
+{\it BookKeeper v4.1.0} & 43 & $p < 0.01$ & 35 & $p < 0.01$ \\
+{\it Derby v10.7.1.1} & 2 & $p < 0.01$ & 2 & $p < 0.01$ \\
+{\it Derby v10.9.1.0} & 41 & $p < 0.01$ & 0 & $p < 0.01$ \\
+Jabref v2.6 & 141 & $p < 0.01$ & 0 & $p < 0.01$ \\
+jEdit v4.3 & 2243 & $p < 0.01$ & 198 & $p < 0.01$ \\
+{\it Mahout v0.8} & 17 & $p < 0.01$ & 3 & $p < 0.01$ \\
+muCommander v0.8.5 & 804 & $p < 0.01$ & 13 & $p < 0.01$ \\
+{\it OpenJPA v2.0.1} & 1 & $p < 0.01$ & 1 & $p < 0.01$ \\
+{\it OpenJPA v2.2.0} & 0 & $p < 0.01$ & 1 & $p < 0.01$ \\
+Solr v4.4.0 & 33 & $p < 0.01$ & 0 & $p < 0.01$ \\
+{\it Tika v1.3} & 1 & $p < 0.01$ & 0 & $p < 0.01$ \\
+ZooKeeper v3.4.5 & 149 & $p < 0.01$ & 0 & $p < 0.01$ \\
+\midrule
+All & 65753 & $p < 0.01$ & 8489 & $p < 0.01$ \\
+    \bottomrule
+\end{tabular}
+\label{table:rq2:classstats}
+\end{table}
+
+\begin{table}[t]
+\renewcommand{\arraystretch}{1.3}
+\centering
+\caption{RQ2: Wilcoxon of subject systems methods}
+\begin{tabular}{l|ll|ll}
+    \toprule
+                        & \multicolumn{2}{c|}{Temporal LDA}      &  \multicolumn{2}{c}{Temporal LSI}  \\
+    Subject System      & Ranksum & p & Ranksum & p \\
+    \midrule
+ArgoUML v0.22 & 1543 & $p = 0.042361$ & 1305 & $p < 0.01$ \\
+ArgoUML v0.24 & 579 & $p = 0.572264$ & 240 & $p < 0.01$ \\
+ArgoUML v0.26.2 & 7108 & $p < 0.01$ & 4824 & $p < 0.01$ \\
+Jabref v2.6 & 145 & $p < 0.01$ & 42 & $p < 0.01$ \\
+jEdit v4.3 & 3732 & $p < 0.01$ & 3193 & $p < 0.01$ \\
+muCommander v0.8.5 & 669 & $p < 0.01$ & 1246 & $p < 0.01$ \\
+\midrule
+All & 61982 & $p < 0.01$ & 49538 & $p < 0.01$ \\
+    \bottomrule
+\end{tabular}
+\label{table:rq2:methodstats}
+\end{table}

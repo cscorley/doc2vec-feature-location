@@ -51,29 +51,29 @@ supplying us with both class- and method-level goldsets for the queries.
 \caption{Subject Systems and Goldset Sizes}
 \begin{tabular}{lrrr}
     \toprule
-    Subject System      & Features  & Classes   & Methods \\
+    Subject System     & Features & Classes & Methods \\
     \midrule
-    ArgoUML v0.22 & 91 & 287 & 701 \\
-    ArgoUML v0.24 & 52 & 154 & 357 \\
-    ArgoUML v0.26.2 & 209 & 706 & 1560 \\
-    BookKeeper v4.1.0 & 40 & 152 &   \\
-    Derby v10.7.1.1 & 32 & 55 &   \\
-    Derby v10.9.1.0 & 95 & 410 &   \\
-    Hibernate v3.5.0b2 & 20 & 53 &   \\
-    Jabref v2.6 & 39 & 131 & 280 \\
-    jEdit v4.3 & 150 & 361 & 748 \\
-    Lucene v4.0 & 35 & 103 &   \\
-    Mahout v0.8 & 30 & 159 &   \\
-    muCommander v0.8.5 & 92 & 303 & 717 \\
-    OpenJPA v2.0.1 & 35 & 82 &   \\
-    OpenJPA v2.2.0 & 18 & 53 &   \\
-    Pig v0.8.0 & 85 & 442 &   \\
-    Pig v0.11.1 & 48 & 129 &   \\
-    Solr v4.4.0 & 55 & 189 &   \\
-    Tika v1.3 & 18 & 34 &   \\
-    ZooKeeper v3.4.5 & 80 & 285 &   \\
+    ArgoUML v0.22      & 91       & 287     & 701     \\
+    ArgoUML v0.24      & 52       & 154     & 357     \\
+    ArgoUML v0.26.2    & 209      & 706     & 1560    \\
+    BookKeeper v4.1.0  & 40       & 152     &         \\
+    Derby v10.7.1.1    & 32       & 55      &         \\
+    Derby v10.9.1.0    & 95       & 410     &         \\
+    Hibernate v3.5.0b2 & 20       & 53      &         \\
+    Jabref v2.6        & 39       & 131     & 280     \\
+    jEdit v4.3         & 150      & 361     & 748     \\
+    Lucene v4.0        & 35       & 103     &         \\
+    Mahout v0.8        & 30       & 159     &         \\
+    muCommander v0.8.5 & 92       & 303     & 717     \\
+    OpenJPA v2.0.1     & 35       & 82      &         \\
+    OpenJPA v2.2.0     & 18       & 53      &         \\
+    Pig v0.8.0         & 85       & 442     &         \\
+    Pig v0.11.1        & 48       & 129     &         \\
+    Solr v4.4.0        & 55       & 189     &         \\
+    Tika v1.3          & 18       & 34      &         \\
+    ZooKeeper v3.4.5   & 80       & 285     &         \\
     \midrule
-    Total & 1224 & 4088 & 4363 \\
+    Total              & 1224     & 4088    & 4363    \\
     \bottomrule
 \end{tabular}
 \label{table:subjects}
@@ -320,6 +320,10 @@ An updated version of Table~\ref{table:subjects} can be found in Table~\ref{tabl
 
 \subsection{Results}
 
+\input{tables/rq1_class_lda}
+\input{tables/rq1_class_lsi}
+\input{tables/rq1_method_lda}
+\input{tables/rq1_method_lsi}
 
 
 % TODO
@@ -339,62 +343,9 @@ Likewise, for the LSI evaluation, we find changesets improve
 Overall, LSI improved slightly when using changesets instead of snapshots.
 
 
-\begin{table}[t]
-\renewcommand{\arraystretch}{1.3}
-\centering
-\caption{RQ1: MRR of subject systems classes}
-\begin{tabular}{l|ll|ll}
-    \toprule
-                        & \multicolumn{2}{c|}{LDA}      &  \multicolumn{2}{c}{LSI}  \\
-    Subject System      & Snapshot      & Changeset     & Snapshot      & Changeset   \\
-    \midrule
-ArgoUML v0.22 & 0.117894 & {\bf 0.147477 } & 0.023883 & {\bf 0.025465 }  \\
-ArgoUML v0.24 & {\bf 0.185603 } & 0.136062 & 0.001501 & {\bf 0.002817 }  \\
-ArgoUML v0.26.2 & {\bf 0.226795 } & 0.152747 & 0.002669 & {\bf 0.006168 }  \\
-Bookkeeper v4.1.0 & 0.017075 & {\bf 0.041524 } & 0.003611 & {\bf 0.011522 }  \\
-Derby v10.7.1.1 & {\bf 0.016232 } & 0.003174 & {\bf 0.000659 } & 0.000543  \\
-Derby v10.9.1.0 & 0.003839 & {\bf 0.010012 } & 0.000552 & {\bf 0.000592 }  \\
-Hibernate v3.5.0b2 & {\bf 0.003333 } & 0.000869 & 0.000537 & {\bf 0.001483 }  \\
-Jabref v2.6 & {\bf 0.282994 } & 0.151127 & 0.001187 & {\bf 0.001195 }  \\
-jEdit v4.3 & {\bf 0.280224 } & 0.134725 & {\bf 0.012334 } & 0.009393  \\
-Lucene v4.0 & 0.001180 & {\bf 0.001233 } & {\bf 0.001145 } & 0.000408  \\
-Mahout v0.8 & 0.002976 & {\bf 0.003310 } & 0.001032 & {\bf 0.001165 }  \\
-muCommander v0.8.5 & {\bf 0.268472 } & 0.211183 & 0.003516 & {\bf 0.013408 }  \\
-OpenJPA v2.0.1 & 0.001713 & {\bf 0.002066 } & {\bf 0.000368 } & 0.000342  \\
-OpenJPA v2.2.0 & 0.001635 & {\bf 0.003255 } & {\bf 0.001121 } & 0.000549  \\
-Pig v0.8.0 & 0.007438 & {\bf 0.015208 } & 0.001292 & {\bf 0.001572 }  \\
-Pig v0.11.1 & {\bf 0.027005 } & 0.009604 & 0.000988 & {\bf 0.011666 }  \\
-Solr v4.4.0 & {\bf 0.002795 } & 0.002150 & {\bf 0.000570 } & 0.000526 \\
-Tika v1.3 & 0.007832 & {\bf 0.008343 } & 0.002084 & {\bf 0.002149 }  \\
-Zookeeper v3.4.5 & 0.023125 & {\bf 0.025065 } & {\bf 0.003748 } & 0.003280  \\
-    \midrule
-All & {\bf 0.124513 } & 0.086323 & 0.004832 & {\bf 0.006649 } \\
-    \bottomrule
-\end{tabular}
-\label{table:rq1:classes}
-\end{table}
 
-\begin{table}[t]
-\renewcommand{\arraystretch}{1.3}
-\centering
-\caption{RQ1: MRR of subject systems methods}
-\begin{tabular}{l|ll|ll}
-    \toprule
-                         & \multicolumn{2}{c|}{LDA}      &  \multicolumn{2}{c}{LSI}  \\
-    Subject System       & Snapshot      & Changeset      & Snapshot      & Changeset  \\
-    \midrule
-ArgoUML v0.22 & 0.044457 & {\bf 0.073552 } & {\bf 0.055535 } & 0.047246  \\
-ArgoUML v0.24 & 0.057022 & {\bf 0.086003 } & {\bf 0.052374 } & 0.050937  \\
-ArgoUML v0.26.2 & {\bf 0.075917 } & 0.067152 & {\bf 0.067679 } & 0.056058  \\
-Jabref v2.6 & {\bf 0.086691 } & 0.036863 & {\bf 0.005267 } & 0.003559  \\
-jEdit v4.3 & {\bf 0.065631 } & 0.049099 & 0.038576 & {\bf 0.045326 }  \\
-muCommander v0.8.5 & 0.037569 & {\bf 0.046009 } & 0.021294 & {\bf 0.022017 }  \\
-    \midrule
-All & {\bf 0.062533 } & 0.060422 & {\bf 0.047253 } & 0.043663  \\
-    \bottomrule
-\end{tabular}
-\label{table:rq1:methods}
-\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 RQ2 asks how well a simulation of using a topic model would perform as
@@ -407,170 +358,7 @@ The right sides of Table~\ref{table:rq2:classes} and Table~\ref{table:rq2:method
 summarize the results for each system with regard to RQ2.
 
 
-
-\begin{table}[t]
-\renewcommand{\arraystretch}{1.3}
-\centering
-\caption{RQ2: MRR of subject systems classes}
-\begin{tabular}{l|ll|ll}
-    \toprule
-                        & \multicolumn{2}{c|}{LDA}      &  \multicolumn{2}{c}{LSI}  \\
-    Subject System      & Snapshot      & Temporal      & Snapshot      & Temporal  \\
-    \midrule
-ArgoUML v0.22 & {\bf 0.117894 } & 0.111940 & 0.023883 & {\bf 0.056540 } \\
-ArgoUML v0.24 & {\bf 0.185603 } & 0.162652 & 0.001501 & {\bf 0.100166 } \\
-ArgoUML v0.26.2 & {\bf 0.235158 } & 0.205164 & 0.001235 & {\bf 0.049686 } \\
-Bookkeeper v4.1.0 & {\bf 0.037099 } & 0.006553 & 0.006395 & {\bf 0.027403 } \\
-Derby v10.7.1.1 & {\bf 0.050524 } & 0.007924 & 0.000526 & {\bf 0.005237 } \\
-Derby v10.9.1.0 & 0.001168 & {\bf 0.007514 } & 0.000474 & {\bf 0.002600 } \\
-Jabref v2.6 & {\bf 0.298368 } & 0.235677 & 0.001226 & {\bf 0.099428 } \\
-jEdit v4.3 & 0.281964 & {\bf 0.283543 } & 0.012411 & {\bf 0.035548 } \\
-Mahout v0.8 & {\bf 0.009379 } & 0.001935 & 0.001378 & {\bf 0.002907 } \\
-muCommander v0.8.5 & 0.271410 & {\bf 0.282706 } & 0.003548 & {\bf 0.117789 } \\
-OpenJPA v2.0.1 & 0.002413 & {\bf 0.005554 } & 0.000551 & {\bf 0.003109 } \\
-OpenJPA v2.2.0 & 0.000504 & {\bf 0.025957 } & 0.003423 & {\bf 0.003690 } \\
-Solr v4.4.0 & 0.001809 & {\bf 0.003087 } & 0.000741 & {\bf 0.007636 } \\
-Tika v1.3 & 0.013718 & {\bf 0.052773 } & 0.002140 & {\bf 0.056250 } \\
-Zookeeper v3.4.5 & {\bf 0.038860 } & 0.007438 & 0.002208 & {\bf 0.019434 } \\
-    \midrule
-All & {\bf 0.204739 } & 0.191973 & 0.006999 & {\bf 0.057604 } \\
-    \bottomrule
-\end{tabular}
-\label{table:rq2:classes}
-\end{table}
-
-
-\begin{table}[t]
-\renewcommand{\arraystretch}{1.3}
-\centering
-\caption{RQ2: MRR of subject systems methods}
-\begin{tabular}{l|ll|ll}
-    \toprule
-                        & \multicolumn{2}{c|}{LDA}      &  \multicolumn{2}{c}{LSI}  \\
-    Subject System      & Snapshot      & Temporal      & Snapshot      & Temporal  \\
-    \midrule
-ArgoUML v0.22 & 0.045452 & {\bf 0.072741 } & {\bf 0.056780 } & 0.037277 \\
-ArgoUML v0.24 & {\bf 0.055925 } & 0.033152 & {\bf 0.051367 } & 0.048172 \\
-ArgoUML v0.26.2 & {\bf 0.076920 } & 0.073376 & {\bf 0.066626 } & 0.045590 \\
-Jabref v2.6 & {\bf 0.107592 } & 0.068359 & 0.006727 & {\bf 0.049223 } \\
-jEdit v4.3 & 0.065625 & {\bf 0.071610 } & {\bf 0.038575 } & 0.027338 \\
-muCommander v0.8.5 & 0.038280 & {\bf 0.070755 } & 0.021766 & {\bf 0.042647 } \\
-    \midrule
-All & 0.063426 & {\bf 0.068713 } & {\bf 0.047242 } & 0.039814 \\
-    \bottomrule
-\end{tabular}
-\label{table:rq2:methods}
-\end{table}
-
-
-\begin{table}[t]
-\renewcommand{\arraystretch}{1.3}
-\centering
-\caption{RQ1: Wilcoxon of subject systems classes}
-\begin{tabular}{l|ll|ll}
-    \toprule
-                        & \multicolumn{2}{c|}{LDA}      &  \multicolumn{2}{c}{LSI}  \\
-    Subject System      & Ranksum & p & Ranksum & p \\
-    \midrule
-ArgoUML v0.22 & 1206 & $p < 0.01$ & 1448 & $p = 0.048561$ \\
-ArgoUML v0.24 & 466 & $p = 0.212675$ & 595 & $p = 0.391921$ \\
-ArgoUML v0.26.2 & 7464 & $p < 0.01$ & 8533 & $p = 0.038889$ \\
-Bookkeeper v4.1.0 & 149 & $p < 0.01$ & 327 & $p = 0.711564$ \\
-Derby v10.7.1.1 & 180 & $p = 0.116250$ & 197 & $p = 0.213611$ \\
-Derby v10.9.1.0 & 1323 & $p < 0.01$ & 1721 & $p = 0.038155$ \\
-{\it Hibernate v3.5.0b2} & 47 & $p = 0.277530$ & 59 & $p = 0.954708$ \\
-Jabref v2.6 & 307 & $p = 0.360885$ & 296 & $p = 0.282968$ \\
-jEdit v4.3 & 4013 & $p = 0.011549$ & 4830 & $p = 0.942115$ \\
-Lucene v4.0 & 210 & $p = 0.211017$ & 224 & $p = 0.316982$ \\
-Mahout v0.8 & 137 & $p = 0.083647$ & 208 & $p = 0.837211$ \\
-muCommander v0.8.5 & 1052 & $p < 0.01$ & 1627 & $p = 0.090923$ \\
-OpenJPA v2.0.1 & 108 & $p < 0.01$ & 202 & $p = 0.163369$ \\
-{\it OpenJPA v2.2.0} & 37 & $p = 0.034670$ & 72 & $p = 0.571243$ \\
-Pig v0.8.0 & 1496 & $p = 0.146345$ & 1378 & $p = 0.049127$ \\
-Pig v0.11.1 & 523 & $p = 0.508259$ & 398 & $p = 0.120766$ \\
-Solr v4.4.0 & 629 & $p = 0.237452$ & 638 & $p = 0.268719$ \\
-{\it Tika v1.3} & 28 & $p = 0.012264$ & 73 & $p = 0.886974$ \\
-Zookeeper v3.4.5 & 805 & $p < 0.01$ & 1380 & $p = 0.814088$ \\
-\midrule
-All & 251871 & $p < 0.01$ & 337349 & $p = 0.398182$ \\
-    \bottomrule
-\end{tabular}
-\label{table:rq1:classstats}
-\end{table}
-
-\begin{table}[t]
-\renewcommand{\arraystretch}{1.3}
-\centering
-\caption{RQ1: Wilcoxon of subject systems methods}
-\begin{tabular}{l|ll|ll}
-    \toprule
-                        & \multicolumn{2}{c|}{LDA}      &  \multicolumn{2}{c}{LSI}  \\
-    Subject System      & Ranksum & p & Ranksum & p \\
-    \midrule
-ArgoUML v0.22 & 1631 & $p = 0.093762$ & 1657 & $p = 0.116583$ \\
-ArgoUML v0.24 & 580 & $p = 0.746475$ & 527 & $p = 0.397818$ \\
-ArgoUML v0.26.2 & 9497 & $p = 0.141996$ & 8921 & $p = 0.069292$ \\
-Jabref v2.6 & 309 & $p = 0.372446$ & 388 & $p = 0.983299$ \\
-jEdit v4.3 & 4977 & $p = 0.447864$ & 4319 & $p = 0.072512$ \\
-muCommander v0.8.5 & 1511 & $p = 0.031028$ & 2012 & $p = 0.748518$ \\
-\midrule
-All & 83319 & $p < 0.01$ & 86151 & $p = 0.038320$ \\
-    \bottomrule
-\end{tabular}
-\label{table:rq1:methodstats}
-\end{table}
-
-
-
-\begin{table}[t]
-\renewcommand{\arraystretch}{1.3}
-\centering
-\caption{RQ2: Wilcoxon of subject systems classes}
-\begin{tabular}{l|ll|ll}
-    \toprule
-                        & \multicolumn{2}{c|}{Temporal LDA}      &  \multicolumn{2}{c}{Temporal LSI}  \\
-    Subject System      & Ranksum & p & Ranksum & p \\
-    \midrule
-ArgoUML v0.22 & 1344 & $p < 0.01$ & 247 & $p < 0.01$ \\
-ArgoUML v0.24 & 420 & $p = 0.055494$ & 68 & $p < 0.01$ \\
-ArgoUML v0.26.2 & 5034 & $p < 0.01$ & 505 & $p < 0.01$ \\
-{\it BookKeeper v4.1.0} & 43 & $p < 0.01$ & 35 & $p < 0.01$ \\
-{\it Derby v10.7.1.1} & 2 & $p < 0.01$ & 2 & $p < 0.01$ \\
-{\it Derby v10.9.1.0} & 41 & $p < 0.01$ & 0 & $p < 0.01$ \\
-Jabref v2.6 & 141 & $p < 0.01$ & 0 & $p < 0.01$ \\
-jEdit v4.3 & 2243 & $p < 0.01$ & 198 & $p < 0.01$ \\
-{\it Mahout v0.8} & 17 & $p < 0.01$ & 3 & $p < 0.01$ \\
-muCommander v0.8.5 & 804 & $p < 0.01$ & 13 & $p < 0.01$ \\
-{\it OpenJPA v2.0.1} & 1 & $p < 0.01$ & 1 & $p < 0.01$ \\
-{\it OpenJPA v2.2.0} & 0 & $p < 0.01$ & 1 & $p < 0.01$ \\
-Solr v4.4.0 & 33 & $p < 0.01$ & 0 & $p < 0.01$ \\
-{\it Tika v1.3} & 1 & $p < 0.01$ & 0 & $p < 0.01$ \\
-ZooKeeper v3.4.5 & 149 & $p < 0.01$ & 0 & $p < 0.01$ \\
-\midrule
-All & 65753 & $p < 0.01$ & 8489 & $p < 0.01$ \\
-    \bottomrule
-\end{tabular}
-\label{table:rq2:classstats}
-\end{table}
-
-\begin{table}[t]
-\renewcommand{\arraystretch}{1.3}
-\centering
-\caption{RQ2: Wilcoxon of subject systems methods}
-\begin{tabular}{l|ll|ll}
-    \toprule
-                        & \multicolumn{2}{c|}{Temporal LDA}      &  \multicolumn{2}{c}{Temporal LSI}  \\
-    Subject System      & Ranksum & p & Ranksum & p \\
-    \midrule
-ArgoUML v0.22 & 1543 & $p = 0.042361$ & 1305 & $p < 0.01$ \\
-ArgoUML v0.24 & 579 & $p = 0.572264$ & 240 & $p < 0.01$ \\
-ArgoUML v0.26.2 & 7108 & $p < 0.01$ & 4824 & $p < 0.01$ \\
-Jabref v2.6 & 145 & $p < 0.01$ & 42 & $p < 0.01$ \\
-jEdit v4.3 & 3732 & $p < 0.01$ & 3193 & $p < 0.01$ \\
-muCommander v0.8.5 & 669 & $p < 0.01$ & 1246 & $p < 0.01$ \\
-\midrule
-All & 61982 & $p < 0.01$ & 49538 & $p < 0.01$ \\
-    \bottomrule
-\end{tabular}
-\label{table:rq2:methodstats}
-\end{table}
+\input{tables/rq2_class_lda}
+\input{tables/rq2_class_lsi}
+\input{tables/rq2_method_lda}
+\input{tables/rq2_method_lsi}

@@ -1,4 +1,7 @@
-all: test
+all: test 
+
+paper:
+	cd paper/ && make
 
 test:
 	nosetests tests/ || true

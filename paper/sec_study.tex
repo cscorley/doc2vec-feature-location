@@ -304,7 +304,7 @@ We use the Wilcoxon signed-rank test with Holm correction to determine
 the statistical significance of the difference between the two rankings.
 
 To answer RQ2, we run the experiment temporally as outlined in Section~\ref{sec:methodology}
-and compare it to the results from the snapshot experiment.
+and compare it to the results of changesets from RQ1..
 We then calculate the MRR between the two.  Again, we use the Wilcoxon signed-rank test.
 
 However, only the Dit et al. dataset includes traceability links between
@@ -360,8 +360,6 @@ Overall, for LDA, changesets perform slightly worse than snapshots with statisti
 LSI, again, performs slightly better with snapshots with no statistical significance.
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 \input{tables/rq2_class_lda}
 \input{tables/rq2_class_lsi}
@@ -383,18 +381,96 @@ evaluated at the method granularity.
 In each of the tables, we bold which of the two MRRs is greater,
 and denote which $p$-values were calculated on sample sizes $N<10$ with an asterix.
 
-For temporal LDA at the class-level we note an improvement in MRR for 7 of the 15 systems
-with 4 of these 7 systems statistically significant at $p<0.01$.
-Only 2 of the 8 systems with MRR in favor of snapshots were statistically significant.
-Likewise, for the temporal LSI evaluations at class granularity, all of the 15 systems improve with changesets
-with 10 of the systems statistically significant.
-Overall, for LDA, changesets perform slightly worse than snapshots with statistical significance.
-With temporal LSI, snapshots perform slightly worse with statistical significance.
+For temporal LDA at the class-level we note an improvement in MRR for 11 of the 15 systems
+with 5 of these 11 systems statistically significant at $p<0.01$.
+None of the 4 systems with MRR in favor of batch changesets were statistically significant.
+Likewise, for the temporal LSI evaluations at class granularity, 14 of the 15 systems improve
+with 11 of the systems statistically significant.
+Overall, temporal evaluation performs significantly better than batch under both LDA and LSI.
 
-For temporal LDA at the method-level we note an improvement in MRR for 3 of the 6 systems
-with 2 of the 3 systems statistically significant at $p<0.01$.
-Likewise, for the LSI evaluations at the method-level, 2 of the 6 systems improve temporally.
-All of the systems were statistically significant for temporal LSI.
-Overall, for temporal LDA, snapshots perform slightly worse with statistical significance.
-However, temporal LSI performs slightly worse than snapshots with statistical significance.
 
+For temporal LDA at the method-level we note an improvement in MRR for 4 of the 6 systems
+with 2 of the 4 systems statistically significant at $p<0.01$.
+Likewise, for the LSI evaluations at the method-level, 2 of the 6 systems improve
+with statistical significance on only 1 of those 2 systems.
+Overall, temporal evaluation performs significantly better than batch under LDA.
+However, temporal LSI performs slightly worse than batch with statistical significance.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Discussion}
+
+The results outlined in the previous section warrants some qualitative discussion.
+In particular, our statistical analysis shows significant affects between
+snapshots and changesets, and between snapshots and temporal evaluation.
+However, the results are mixed between each and are not conclusive.
+
+\subsubsection{LDA}
+In this subsection, we particularly focus on the MRR of LDA evaluations,
+summarized in Tables~\ref{table:rq1:class:lda}, \ref{table:rq2:class:lda},
+~\ref{table:rq1:method:lda}, and \ref{table:rq2:method:lda}.
+
+% Snapshots < Changeset && Batch > Temporal
+%  Method:
+%     argouml 22
+%     argouml 24
+%  Class:
+%     argouml 22
+%     bookkeeper
+%     mahout
+%     zookeeper
+In 4 of the 15 systems batch LDA changesets were better than both snapshots and temporal LDA at the class-level.
+This case holds for 2 of the 6 systems at the method-level.
+We hypothesize that this is due to the nature of the batch evaluation versus the temporal evaluation.
+In the batch evaluation, the model is trained on all data before being queried,
+while in the temporal evaluation the model is trained on partial data before being queried.
+This allows for the batch model to be more accurate because it is trained on more data
+and reveals feature location research evaluations may not be accurately portraying
+how an FLT would perform in a real scenario.
+
+% Snapshots < Changeset && Batch < Temporal
+%  Method:
+%     mucommander
+%  Class:
+%     derby 109
+%     openjpa 201
+%     openjpa 220
+%     tika
+Additionally, in 4 of the systems batch LDA changesets were better than snapshots but not temporal LDA at the class-level.
+This case holds for 1 of the 6 systems at the method-level.
+We hypothesize that this is due to the same previous reason, but that
+temporal evaluation more accurately captures the correct state of the system (i.e., the source code entities)
+at the point in time when querying is done.
+Since querying on the batch models is after the model is completely trained,
+there may be source code entities that do not exist in the system anymore
+that were at one time changed to complete a certain task.
+Again, the temporal evaluation better captures this scenario.
+
+%  Snapshots > Changeset && Batch < Temporal
+%  Method:
+%     argouml 262
+%     jabref
+%     jedit
+%  Class:
+%     argouml 24
+%     argouml 262
+%     derby 107
+%     jabref
+%     jedit
+%     mucommander
+%     solr
+For the remaining 7 systems, snapshots were better than changesets under batch LDA,
+but temporal LDA performed better than batch on changesets.
+This case holds for 3 of the 6 systems at the method-level.
+Similarly, this could be because of how the models are trained.
+Although the batch LDA changesets performed worse in both cases, it does
+improve during temporal evaluation.
+This does not mean that changesets are bad, but more accurately model
+the system over time.
+
+% Snapshots > Changeset && Batch > Temporal
+We note that no system had better batch LDA snapshots and better batch changesets over temporal LDA
+at either the class- or method-level.
+This also supports the hypothesis that temporal evaluation more accurately portrays the system over time.
+However, we cannot conclude this without also evaluating a snapshot-based topic models temporally.

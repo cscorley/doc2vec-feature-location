@@ -100,12 +100,12 @@ for level in ['class', 'method']:
 
     alldict = dict()
     for kind in ['lda', 'lsi']:
-        rname = 'release_' + kind
+        rname = 'changeset_' + kind
         cname = 'temporal_' + kind
         alldict[rname] = list()
         alldict[cname] = list()
         with open('paper/tables/rq2_%s_%s.tex' % (level, kind), 'w') as f:
-            print(HEADER % ('RQ2', level, 'temporal ' + kind.upper(), 'Snapshot', 'Temporal'), file=f)
+            print(HEADER % ('RQ2', level, 'changesets ' + kind.upper(), 'Batch', 'Temporal'), file=f)
             for project in projects:
                 if project.level != level:
                     continue

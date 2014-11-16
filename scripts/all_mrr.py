@@ -33,10 +33,16 @@ def print_em(desc, a, b, ignore=False, file=None):
         snapshot = "{\\bf %f }" % snapshot
         changeset = "%f" % changeset
 
-    if p < 0.01:
-        p = "$p < 0.01$"
+    if len(x) < 10:
+        star = "^{*}"
     else:
-        p = "$p = %f$" % p
+        star = ''
+
+    if p < 0.01:
+        p = "$p < 0.01%s$" % star
+    else:
+        p = "$p = %f%s$" % (p, star)
+
 
     l = [desc,
         snapshot, changeset,
@@ -50,10 +56,10 @@ HEADER="""
 \\renewcommand{\\arraystretch}{1.3}
 \\footnotesize
 \\centering
-\\caption{%s: MRR and p-values for %s %s evaluations}
+\\caption{%s: MRR and $p$-values for %s %s evaluations}
 \\begin{tabular}{l|ll|ll}
    \\toprule
-    Subject System & %s & %s & p-value  \\\\
+    Subject System & %s & %s & $p$-value  \\\\
     \\midrule
 """
 FOOTER="""
@@ -99,7 +105,7 @@ for level in ['class', 'method']:
         alldict[rname] = list()
         alldict[cname] = list()
         with open('paper/tables/rq2_%s_%s.tex' % (level, kind), 'w') as f:
-            print(HEADER % ('RQ2', level, kind.upper(), 'Snapshot', 'Temporal'), file=f)
+            print(HEADER % ('RQ2', level, 'temporal ' + kind.upper(), 'Snapshot', 'Temporal'), file=f)
             for project in projects:
                 if project.level != level:
                     continue
@@ -115,8 +121,8 @@ for level in ['class', 'method']:
                 alldict[rname] += a
                 alldict[cname] += b
 
-                print_em(desc, a, b, ignore=False, file=f)
+                print_em(desc, a, b, ignore=True, file=f)
 
             print('\\midrule', file=f)
-            print_em("All", alldict[rname], alldict[cname], ignore=False, file=f)
+            print_em("All", alldict[rname], alldict[cname], ignore=True, file=f)
             print(FOOTER % ('rq2', level, kind), file=f)

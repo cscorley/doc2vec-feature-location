@@ -1,7 +1,10 @@
 all: test 
 
-paper:
+paper: always_make
 	cd paper/ && make
+
+always_make:
+	true
 
 test:
 	nosetests tests/ || true

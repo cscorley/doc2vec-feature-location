@@ -21,7 +21,7 @@ def ap(project, t):
 def print_em(desc, a, b, ignore=False, file=None):
     acc = 6
     x, y = src.main.merge_first_rels(b, a, ignore=ignore)
-    T, p = scipy.stats.wilcoxon(x, y)
+    T, p = scipy.stats.wilcoxon(x, y, correction=True)
 
 
     changeset = round(src.utils.calculate_mrr(x), acc)
@@ -50,7 +50,7 @@ HEADER="""
 \\renewcommand{\\arraystretch}{1.3}
 \\footnotesize
 \\centering
-\\caption{%s: MRR and Wilcoxon signed-ranksum for %s %s}
+\\caption{%s: MRR and p-values for %s %s evaluations}
 \\begin{tabular}{l|ll|ll}
    \\toprule
     Subject System & %s & %s & p-value  \\\\
@@ -99,7 +99,7 @@ for level in ['class', 'method']:
         alldict[rname] = list()
         alldict[cname] = list()
         with open('paper/tables/rq2_%s_%s.tex' % (level, kind), 'w') as f:
-            print(HEADER % ('RQ2', level, kind.upper(), 'Snapshot', 'Changeset'), file=f)
+            print(HEADER % ('RQ2', level, kind.upper(), 'Snapshot', 'Temporal'), file=f)
             for project in projects:
                 if project.level != level:
                     continue

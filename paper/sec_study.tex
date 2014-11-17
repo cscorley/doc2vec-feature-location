@@ -106,14 +106,14 @@ First, we build a model in batch mode from the snapshot corpus.
 That is, the model can see all documents in the corpus at once.
 Then, we infer a $\theta_{Snapshot}$ from the snapshot corpus
 and a $\theta_{Queries}$ from the query corpus.
-Finally, we classifiy the results from both $\theta$s.
+Finally, we classify the results from both $\theta$s.
 
 \begin{comment}
 \begin{enumerate}
     \item Build model from the snapshot corpus in batch mode
     \item Infer a $\theta_{Snapshot}$ from the snapshot corpus
     \item Infer a $\theta_{Queries}$ from the query corpus
-    \item Classifiy, or rank, the results from both $\theta$s
+    \item Classify, or rank, the results from both $\theta$s
 \end{enumerate}
 \end{comment}
 
@@ -123,7 +123,7 @@ First, we build a model in batch mode from the changeset corpus.
 Then, we infer a $\theta_{Snapshot}$ from the snapshot corpus
 and a $\theta_{Queries}$ from the query corpus.
 Note that we \emph{do not} infer a $\theta_{Changesets}$ from the changeset corpus from which the model was built!
-Finally, we classifiy the results from both $\theta$s.
+Finally, we classify the results from both $\theta$s.
 
 \begin{comment}
 \begin{enumerate}
@@ -131,7 +131,7 @@ Finally, we classifiy the results from both $\theta$s.
     \item \emph{Do not} infer a $\theta_{Changesets}$
     \item Infer a $\theta_{Snapshot}$ from the snapshot corpus
     \item Infer a  $\theta_{Queries}$ from the query corpus
-    \item Classifiy, or rank, the results from both $\theta$s
+    \item Classify, or rank, the results from both $\theta$s
 \end{enumerate}
 \end{comment}
 
@@ -142,7 +142,7 @@ Then, we initialize a model in online mode.
 For each mini-batch, or partition, we update the model with that mini-batch.
 Then, we infer a $\theta_{Snapshot}$ from the snapshot corpus
 and a retrieve the $\theta_{Queries}$ for the queries related to this changeset.
-Finally, we classifiy the results from both $\theta$s.
+Finally, we classify the results from both $\theta$s.
 
 \begin{comment}
 \begin{enumerate}
@@ -153,7 +153,7 @@ Finally, we classifiy the results from both $\theta$s.
             \item Update the model with mini-batch
             \item Update $\theta_{Snapshot}$ with the new inference of the source code document affected by this changeset
             \item Infer a $\theta_{Query}$ of the query related to the changeset we stopped at
-            \item Classifiy, or rank, the results from both $\theta$s
+            \item Classify, or rank, the results from both $\theta$s
         \end{enumerate}
 \end{enumerate}
 \end{comment}
@@ -402,14 +402,30 @@ However, temporal LSI performs slightly worse than batch with statistical signif
 \subsection{Discussion}
 
 The results outlined in the previous section warrants some qualitative discussion.
-In particular, our statistical analysis shows significant affects between
+In particular, our analysis shows significant affects between
 snapshots and changesets, and between snapshots and temporal evaluation.
 However, the results are mixed between each and are not conclusive.
+In this subsection, we will focus on dicussing the results qualitatively.
 
-\subsubsection{LDA}
-In this subsection, we particularly focus on the MRR of LDA evaluations,
-summarized in Tables~\ref{table:rq1:class:lda}, \ref{table:rq2:class:lda},
-~\ref{table:rq1:method:lda}, and \ref{table:rq2:method:lda}.
+In this study, we've asked two research questions which lead to two comparisons.
+First, we compare a batch topic-modeling-based FLT trained on the changesets
+of a project's history to one trained on the snapshot.
+Second, we compare a batch topic-modeling-based FLT trained on changesets
+to a temporal topic-modeling-based FLT trained on the same changesets over time.
+Our results are mixed, hence we end up with four possible situations:
+
+\begin{enumerate}
+    \item Changesets in batch are better than shapshots in batch \emph{and}
+        changesets in batch are better than changesets temporally
+    \item Changesets in batch are better than snapshots in batch \emph{and}
+        changesets temporally are better than changesets in batch
+    \item Snapshots in batch are better than changesets in batch \emph{and}
+        changesets in batch are better than changesets temporally
+    \item Snapshots in batch are better than changesets in batch \emph{and}
+        changesets temporally are better than changesets in batch
+\end{enumerate}
+
+We will now discuss each of these situations in detail.
 
 % Snapshots < Changeset && Batch > Temporal
 %  LDA Method:
@@ -424,8 +440,12 @@ summarized in Tables~\ref{table:rq1:class:lda}, \ref{table:rq2:class:lda},
 %     bookkeeper
 %  LSI method:
 %     jedit
-In 4 of the 15 systems batch LDA changesets were better than both snapshots and temporal LDA at the class-level.
-This case holds for 2 of the 6 systems at the method-level.
+
+Situation \#1 occurs in
+4 out of 15 systems for LDA at the class-level,
+1 out of 15 systems for LSI at the class-level,
+2 out of 6 systems for LDA at the method-level,
+and 1 out of 6 systems for LSI at the method-level.
 We hypothesize that this is due to the nature of the batch evaluation versus the temporal evaluation.
 In the batch evaluation, the model is trained on all data before being queried,
 while in the temporal evaluation the model is trained on partial data before being queried.
@@ -446,17 +466,18 @@ how an FLT would perform in a real scenario.
 %     argouml 24
 %     argouml 262
 %     derby 109
-%     hibernate
 %     jabref
 %     mahout
 %     mucommander
-%     pig 8
-%     pig 11
 %     tika
 %  LSI method:
 %     mucommander
-Additionally, in 4 of the systems batch LDA changesets were better than snapshots but not temporal LDA at the class-level.
-This case holds for 1 of the 6 systems at the method-level.
+%
+Situation \#2 occurs in
+4 out of 15 systems for LDA at the class-level,
+8 out of 15 systems for LSI at the class-level,
+1 out of 6 systems for LDA at the method-level,
+and 1 out of 6 systems for LSI at the method-level.
 We hypothesize that this is due to the same previous reason, but that
 temporal evaluation more accurately captures the correct state of the system (i.e., the source code entities)
 at the point in time when querying is done.
@@ -481,7 +502,6 @@ Again, the temporal evaluation better captures this scenario.
 %  LSI class:
 %     derby 107
 %     jedit
-%     lucene
 %     openjpa 201
 %     openjpa 220
 %     solr
@@ -491,9 +511,12 @@ Again, the temporal evaluation better captures this scenario.
 %     argouml 24
 %     argouml 262
 %     jabref
-For the remaining 7 systems, snapshots were better than changesets under batch LDA,
-but temporal LDA performed better than batch on changesets.
-This case holds for 3 of the 6 systems at the method-level.
+
+Situation \#3 occurs in
+7 out of 15 systems for LDA at the class-level,
+6 out of 15 systems for LSI at the class-level,
+3 out of 6 systems for LDA at the method-level,
+and 4 out of 6 systems for LSI at the method-level.
 Similarly, this could be because of how the models are trained.
 Although the batch LDA changesets performed worse in both cases, it does
 improve during temporal evaluation.
@@ -501,7 +524,6 @@ This does not mean that changesets are bad, but more accurately model
 the system over time.
 
 % Snapshots > Changeset && Batch > Temporal
-We note that no system had better batch LDA snapshots and better batch changesets over temporal LDA
-at either the class- or method-level.
+We note that Situation \#4 never occurs.
 This also supports the hypothesis that temporal evaluation more accurately portrays the system over time.
 However, we cannot conclude this without also evaluating a snapshot-based topic models temporally.

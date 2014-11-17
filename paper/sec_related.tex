@@ -13,14 +13,16 @@
 \vspace{-2mm}
 \end{figure*}
 
-We use the following terminology to describe document extraction of source code.
-A \textit{word} is the basic unit of discrete data in a software lexicon and is a sequence of letters.
-A \textit{token} is a sequence of non-whitespace characters containing one or more words.
-An \textit{entity} is a named source element such as a method,
-and an \textit{identifier} is a token representing the name of an entity.
-\textit{Comments} and \textit{literals} are sequences of tokens delimited by language-specific markers (e.g., /* */ and quotes).
-The \textit{document} which corresponds to a class is a sequence of words $d = (w_1, \ldots, w_m)$,
-and a \textit{corpus} is a set of documents (i.e., classes) $D = (d_1, \ldots, d_n)$.
+We use the following terminology to describe document extraction of source
+code.  A \textit{word} is the basic unit of discrete data in a software lexicon
+and is a sequence of letters.  A \textit{token} is a sequence of non-whitespace
+characters containing one or more words.  An \textit{entity} is a named source
+element such as a method, and an \textit{identifier} is a token representing
+the name of an entity.  \textit{Comments} and \textit{literals} are sequences
+of tokens delimited by language-specific markers (e.g., /* */ and quotes).  The
+\textit{document} which corresponds to a class is a sequence of words $d =
+(w_1, \ldots, w_m)$, and a \textit{corpus} is a set of documents (i.e.,
+classes) $D = (d_1, \ldots, d_n)$.
 
 The left side of Figure~\ref{fig:snapshot} illustrates the document extraction process.
 A document extractor takes source code as input and produces a corpus as output.
@@ -42,20 +44,19 @@ The transformations~\cite{Marcus-etal:2004,Marcus-Menzies:2010}: % that we use a
 \end{itemize}
 
 The right side of Figure~\ref{fig:snapshot} illustrates the retrieval process.
-The main step of the retrieval process is to build the search engine.
-The search engine is constructed from the topic model trained from the corpus.
-The primary function of the search engine is to rank documents in relation to the query.
-The search engine performs a pairwise classification of the query
-to each document and ranks the documents according score.
+The main step of the retrieval process is to build the search engine.  The
+search engine is constructed from the topic model trained from the corpus.  The
+primary function of the search engine is to rank documents in relation to the
+query.  The search engine performs a pairwise classification of the query to
+each document and ranks the documents according score.
 
-To accomplish the classification step using a topic model,
-the search engine infers $\theta_{Snapshot}$, i.e.,
-the topic-document probability distribution of each document in the snapshot corpus,
-as well as $\theta_{Query}$, i.e., the topic-document probability distribution  of the query.
-Then a similarity measure for probability distributions, such as 
-cosine similarity or Hellinger distance, can be used to make pairwise comparisons
-between $\theta_{Query}$ and $\theta_{Snapshot}$.
-Hellinger distance ($H$) can be defined as:
+To accomplish the classification step using a topic model, the search engine
+infers $\theta_{Snapshot}$, i.e., the topic-document probability distribution
+of each document in the snapshot corpus, as well as $\theta_{Query}$, i.e., the
+topic-document probability distribution  of the query.  Then a similarity
+measure for probability distributions, such as cosine similarity or Hellinger
+distance, can be used to make pairwise comparisons between $\theta_{Query}$ and
+$\theta_{Snapshot}$.  Hellinger distance ($H$) can be defined as:
 
 \begin{equation}
     H(P, Q) = \frac{1}{\sqrt{2}} \; \sqrt{\sum_{i=1}^{k} (\sqrt{P_i} - \sqrt{Q_i})^2}

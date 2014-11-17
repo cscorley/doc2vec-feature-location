@@ -1,10 +1,11 @@
 % vim:syntax=tex
 
-In this section we describe the design of a case study in which we
-compare topic models trained on changesets to those trained on snapshots.
-We describe the case study using the Goal-Question-Metric approach~\cite{Basili-etal:94}.
+In this section we describe the design of a case study in which we compare
+topic models trained on changesets to those trained on snapshots.  We describe
+the case study using the Goal-Question-Metric approach~\cite{Basili-etal:94}.
 The data and source code for the case study is available in this paper's online
-appendix\footnote{\textbf{REVIEWER URL ONLY:} \url{http://cscorley.students.cs.ua.edu/cfl/}}.
+appendix\footnote{\textbf{REVIEWER URL ONLY:}
+\url{http://cscorley.students.cs.ua.edu/cfl/}}.
 
 \subsection{Definition and Context}
 
@@ -79,21 +80,32 @@ supplying us with both class- and method-level goldsets for the queries.
 \label{table:subjects}
 \end{table}
 
-ArgoUML is a UML CASE tool that supports standard UML diagrams\footnote{\url{http://argouml.tigris.org/}}.
-BookKeeper is a distributed logging service\footnote{\url{http://zookeeper.apache.org/bookkeeper/}}.
-Derby is a relational database management system\footnote{\url{http://db.apache.org/derby/}}.
-Eclipse is an intergrated development environment to develop applications in various programming languages\footnote{\url{https://www.eclipse.org/}}.
-Hibernate is a java package used to work with relational databases\footnote{\url{http://hibernate.org/}}.
-JEdit is a Java text editor\footnote{\url{http://www.jedit.org/}}.
-JabRef is a tool for managing bibliographical reference data\footnote{\url{http://http://jabref.sourceforge.net/}}.
-Lucene is an information retrieval library written in Java\footnote{\url{http://lucene.apache.org/core/}}.
-Mahout is a tool for scaleable machine learning\footnote{\url{https://mahout.apache.org/}}.
-MuCommander is a cross-platform file manager\footnote{\url{http://www.mucommander.com/}}.
-OpenJPA is object relational mapping tool\footnote{\url{http://openjpa.apache.org/}}.
-Pig is a platform for analyzing large datasets consisting of high-level language\footnote{\url{http://pig.apache.org/}}.
-Solr is an enterprised search platform\footnote{\url{http://lucene.apache.org/solr/}}.
-Tika is a toolkit for extracting metadata and text from various types of files\footnote{\url{http://tika.apache.org/}}.
-ZooKeeper is a tool that works as a coordination service to help build distributed applications\footnote{\url{http://zookeeper.apache.org/bookkeeper/}}.
+ArgoUML is a UML CASE tool that supports standard UML
+diagrams\footnote{\url{http://argouml.tigris.org/}}.  BookKeeper is a
+distributed logging
+service\footnote{\url{http://zookeeper.apache.org/bookkeeper/}}.  Derby is a
+relational database management
+system\footnote{\url{http://db.apache.org/derby/}}.  Eclipse is an intergrated
+development environment to develop applications in various programming
+languages\footnote{\url{https://www.eclipse.org/}}.  Hibernate is a java
+package used to work with relational
+databases\footnote{\url{http://hibernate.org/}}.  JEdit is a Java text
+editor\footnote{\url{http://www.jedit.org/}}.  JabRef is a tool for managing
+bibliographical reference
+data\footnote{\url{http://http://jabref.sourceforge.net/}}.  Lucene is an
+information retrieval library written in
+Java\footnote{\url{http://lucene.apache.org/core/}}.  Mahout is a tool for
+scaleable machine learning\footnote{\url{https://mahout.apache.org/}}.
+MuCommander is a cross-platform file
+manager\footnote{\url{http://www.mucommander.com/}}.  OpenJPA is object
+relational mapping tool\footnote{\url{http://openjpa.apache.org/}}.  Pig is a
+platform for analyzing large datasets consisting of high-level
+language\footnote{\url{http://pig.apache.org/}}.  Solr is an enterprised search
+platform\footnote{\url{http://lucene.apache.org/solr/}}.  Tika is a toolkit for
+extracting metadata and text from various types of
+files\footnote{\url{http://tika.apache.org/}}.  ZooKeeper is a tool that works
+as a coordination service to help build distributed
+applications\footnote{\url{http://zookeeper.apache.org/bookkeeper/}}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -118,12 +130,12 @@ Finally, we classifiy the results from both $\theta$s.
 \end{comment}
 
 
-For changesets, the process is varies slightly from a snapshot approach.
-First, we build a model in batch mode from the changeset corpus.
-Then, we infer a $\theta_{Snapshot}$ from the snapshot corpus
-and a $\theta_{Queries}$ from the query corpus.
-Note that we \emph{do not} infer a $\theta_{Changesets}$ from the changeset corpus from which the model was built!
-Finally, we classifiy the results from both $\theta$s.
+For changesets, the process varies slightly from a snapshot approach.  First,
+we build a model in batch mode from the changeset corpus.  Then, we infer a
+$\theta_{Snapshot}$ from the snapshot corpus and a $\theta_{Queries}$ from the
+query corpus.  Note that we \emph{do not} infer a $\theta_{Changesets}$ from
+the changeset corpus from which the model was built.  Finally, we classifiy the
+results from both $\theta$s.
 
 \begin{comment}
 \begin{enumerate}
@@ -131,7 +143,7 @@ Finally, we classifiy the results from both $\theta$s.
     \item \emph{Do not} infer a $\theta_{Changesets}$
     \item Infer a $\theta_{Snapshot}$ from the snapshot corpus
     \item Infer a  $\theta_{Queries}$ from the query corpus
-    \item Classifiy, or rank, the results from both $\theta$s
+    \item Classify, or rank, the results from both $\theta$s
 \end{enumerate}
 \end{comment}
 
@@ -142,7 +154,7 @@ Then, we initialize a model in online mode.
 For each mini-batch, or partition, we update the model with that mini-batch.
 Then, we infer a $\theta_{Snapshot}$ from the snapshot corpus
 and a retrieve the $\theta_{Queries}$ for the queries related to this changeset.
-Finally, we classifiy the results from both $\theta$s.
+Finally, we classify the results from both $\theta$s.
 
 \begin{comment}
 \begin{enumerate}
@@ -153,18 +165,17 @@ Finally, we classifiy the results from both $\theta$s.
             \item Update the model with mini-batch
             \item Update $\theta_{Snapshot}$ with the new inference of the source code document affected by this changeset
             \item Infer a $\theta_{Query}$ of the query related to the changeset we stopped at
-            \item Classifiy, or rank, the results from both $\theta$s
+            \item Classify, or rank, the results from both $\theta$s
         \end{enumerate}
 \end{enumerate}
 \end{comment}
 
-Since the Dit et al. dataset was extracted from the commit that implemented the change,
-we our partitioning is inclusive of that commit.
-That is, we update the model with the linked commit and infer the
-$\theta_{Snapshot}$ from that commit.
-This allows our evaluation to capture any entities added to address the issue report,
-as well as changed entities,
-but does not capture any entities that were removed by the change.
+Since the Dit et al. dataset was extracted from the commit that implemented the
+change, our partitioning is inclusive of that commit.  That is, we update
+the model with the linked commit and infer the $\theta_{Snapshot}$ from that
+commit.  This allows our evaluation to capture any entities added to address
+the issue report, as well as changed entities, but does not capture any
+entities that were removed by the change.
 
 
 
@@ -182,27 +193,26 @@ We extract documents from both a snapshot of the repository at a tagged
 snapshot and each commit reachable from that tag's commit.
 The same preprocessing steps are employed on all documents extracted.
 
-For our document extraction from a snapshot, we first parse each Java file using our tool, Taser.
-Taser is a text extractor implemented in Java using an open source Java 1.5 grammar and ANTLR v3.
-The tool extracts documents from the chosen source code entity type,
-either methods or classes, and treats inner entities to be distinct from the outer entity.
-We consider interfaces, enumerations, and annotation types to also be a class.
-The text of inner an entity (e.g., a method inside an anonymous class)
-is only attributed to that entity, and not the containing one.
-Comments, literals, and identifiers within a entity are considered as text of the entity.
-Block comments immediately preceding an entity are also included in this text.
+For our document extraction from a snapshot, we first parse each Java file
+using our tool, Taser.  Taser is a text extractor implemented in Java using an
+open source Java 1.5 grammar and ANTLR v3.  The tool extracts documents from
+the chosen source code entity type, either methods or classes, and treats inner
+entities to be distinct from the outer entity.  We consider interfaces,
+enumerations, and annotation types to also be a class.  The text of an inner
+entity (e.g., a method inside an anonymous class) is only attributed to that
+inner entity, and not the containing one.  Comments, literals, and identifiers
+within an entity are considered as text of the entity.  Block comments
+immediately preceding an entity are also included in this text.
 
-To extract text from the changesets, we look at the output of viewing
-the \texttt{git diff} between two commits.
-In our changeset text extractor, we extract all text related to the
-change, e.g., context, removed, and added lines; metadata lines are ignored.
-Note that we do not consider where the text originates from,
-only that it is text changed by the commit.\footnote{
-The Apache Lucene and Solr projects were merged into a single, new repository
-during their development.
-We only use changes that affect each project's subfolder in the merged repository,
-and also include all changes from the two pre-merge repositories in each project's respective corpus.
-}
+To extract text from the changesets, we look at the output of viewing the
+\texttt{git diff} between two commits.  In our changeset text extractor, we
+extract all text related to the change, e.g., context, removed, and added
+lines; metadata lines are ignored.  Note that we do not consider where the text
+originates from, only that it is text changed by the commit.\footnote{ The
+Apache Lucene and Solr projects were merged into a single, new repository
+during their development.  We only use changes that affect each project's
+subfolder in the merged repository, and also include all changes from the two
+pre-merge repositories in each project's respective corpus.  }
 
 After extracting tokens, we split the tokens based on camel case,
 underscores, and non-letters.
@@ -213,27 +223,29 @@ We do not stem words.
 We implemented our modeling using the Python library Gensim~\cite{Gensim}.
 Our evaluation is two-fold: we compare results for both LDA and LSI.
 We do this to evaluate the performance of using changesets as input
-documents regardless of chosen algorithm.
+documents independent of the chosen algorithm.
 
 \subsubsection{LDA configuration}
 
-Gensim's LDA implementation is based on an online LDA by Hoffman et al.~\cite{Hoffman-etal:2010}
-and uses variational inference instead of a Collapsed Gibbs Sampler.
-Unlike Gibbs sampling, in order to ensure that the model converges for each document,
-we allow LDA to see each mini-batch $5$ times by setting Gensim's initialization parameter \texttt{passes} to this value
-and allowing the inference step $1000$ iterations over a document.
-We set the following LDA parameters for all 14 systems:
-$500$ topics ($K$), a symmetric $\alpha=1/K$, and a symmetric $\beta=1/K$.
-These are default values for $\alpha$ and $\beta$ in Gensim.
+Gensim's LDA implementation is based on an online LDA by Hoffman et
+al.~\cite{Hoffman-etal:2010} and uses variational inference instead of a
+Collapsed Gibbs Sampler.  Unlike Gibbs sampling, in order to ensure that the
+model converges for each document, we allow LDA to see each mini-batch $5$
+times by setting Gensim's initialization parameter \texttt{passes} to this
+value and allowing the inference step $1000$ iterations over a document.  We
+set the following LDA parameters for all 14 systems: $500$ topics ($K$), a
+symmetric $\alpha=1/K$, and a symmetric $\beta=1/K$.  These are default values
+for $\alpha$ and $\beta$ in Gensim.
 
-For the temporal evaluation, we found it beneficial to consider two other parameters: $\kappa$ and $\tau_0$.
-As noted in Hoffman et al.~\cite{Hoffman-etal:2010}, it is beneficial to
-adjust $\kappa$ and $\tau_0$ to higher values for smaller mini-batches.
-These two parameters control how much influence a new mini-batch has on the model when training.
-However, the implementation of Gensim at the time of this paper did not
-include a way to adjust $\tau_0$, so we only adjust $\kappa$.
-We chose $\kappa=2.0$ for all systems, because the temporal evaluation
-would often have mini-batch sizes in single digits.
+For the temporal evaluation, we found it beneficial to consider two other
+parameters: $\kappa$ and $\tau_0$.  As noted in Hoffman et
+al.~\cite{Hoffman-etal:2010}, it is beneficial to adjust $\kappa$ and $\tau_0$
+to higher values for smaller mini-batches.  These two parameters control the
+degree of influence a new mini-batch has on the model when training.  However,
+the implementation of Gensim at the time of this paper did not include a way to
+adjust $\tau_0$, so we only adjust $\kappa$.  We chose $\kappa=2.0$ for all
+systems, because the temporal evaluation would often have mini-batch sizes in
+single digits.
 
 \subsubsection{LSI configuration}
 
@@ -282,13 +294,14 @@ Total                  & 695      & 2234    & 4174    \\
 \end{table}
 
 To evaluate the performance of a topic-modeling-based FLT we cannot use
-measures such as precision and recall. This is because the FLT creates
-the rankings pairwise, causing every entity being searched to appear in the rankings.
-Poshyvanky et al. define an effectiveness measure that can be used for topic-modeling-based FLTs~\cite{Poshyvanyk-etal:2007}.
-The effectiveness measure is the rank of the first relevant document
-and represents the number of source code entities a developer would have to view before reaching a relevant one.
-The effectiveness measure allows evaluating the FLT by using
-the mean reciprocal rank (MRR)~\cite{Voorhees:1999}, defined as:
+measures such as precision and recall. This is because the FLT creates the
+rankings pairwise, causing every entity being searched to appear in the
+rankings.  Poshyvanky et al. define an effectiveness measure that can be used
+for topic-modeling-based FLTs~\cite{Poshyvanyk-etal:2007}.  The effectiveness
+measure is the rank of the first relevant document and represents the number of
+source code entities a developer would have to view before reaching a relevant
+one.  The effectiveness measure allows evaluating the FLT by using the mean
+reciprocal rank (MRR)~\cite{Voorhees:1999}, defined as:
 
 \begin{equation}
     MRR = \frac{1}{|Q|} \sum_{i=1}^{|Q|} \frac{1}{e_i}
@@ -303,21 +316,23 @@ We then calculate the MRR between the two.
 We use the Wilcoxon signed-rank test with Holm correction to determine
 the statistical significance of the difference between the two rankings.
 
-To answer RQ2, we run the experiment temporally as outlined in Section~\ref{sec:methodology}
-and compare it to the results of changesets from RQ1..
-We then calculate the MRR between the two.  Again, we use the Wilcoxon signed-rank test.
+To answer RQ2, we run the experiment temporally as outlined in
+Section~\ref{sec:methodology} and compare it to the results of changesets from
+RQ1..  We then calculate the MRR between the two.  Again, we use the Wilcoxon
+signed-rank test.
 
-However, only the Dit et al. dataset includes traceability links between
-the queries and the commits the goldsets are extracted from.
-We did a best-effort search for the Moreno et al. traceability links using regular expressions.
-We were able to recover portions of the links for all subject systems in
-the Moreno et al. dataset with the exception of Hibernate, Pig (both versions), and Lucene.
-The issues in these subject systems could not be found by searching the commit logs.
-Additionally, in some cases, only a partial amount of the links could be
-recovered. In light of this, we reduced the evaluation for comparing the
-snapshot and temporal results to only those features found.
-An updated version of Table~\ref{table:subjects} can be found in Table~\ref{table:subjects:temporal}.
-Hence, some systems sample sizes are too small ($N<10$) for an accurate Wilcoxon signed-rank statistical test.
+However, only the Dit et al. dataset includes traceability links between the
+queries and the commits the goldsets are extracted from.  We did a best-effort
+search for the Moreno et al. traceability links using regular expressions.  We
+were able to recover portions of the links for all subject systems in the
+Moreno et al. dataset with the exception of Hibernate, Pig (both versions), and
+Lucene.  The issues in these subject systems could not be found by searching
+the commit logs.  Additionally, in some cases, only a partial amount of the
+links could be recovered. In light of this, we reduced the evaluation for
+comparing the snapshot and temporal results to only those features found.  An
+updated version of Table~\ref{table:subjects} can be found in
+Table~\ref{table:subjects:temporal}.  Hence, some systems sample sizes are too
+small ($N<10$) for an accurate Wilcoxon signed-rank statistical test.
 
 % Replace these systems with a diff test?
 
@@ -333,31 +348,32 @@ Hence, some systems sample sizes are too small ($N<10$) for an accurate Wilcoxon
 
 
 % TODO
-RQ1 asks how well a topic model built upon changesets performs against
-one built on source code entities.
-We also wanted to know if there were any differences of performance
-between two popular algorithms, LSI and LDA.
-Table~\ref{table:rq1:class:lda} and Table~\ref{table:rq1:class:lsi}
-summarize the results of each subject system when
-evaluated at the class granularity with LDA and LSI, respectively.
-Similarly, Table~\ref{table:rq1:method:lda} and Table~\ref{table:rq1:method:lsi}
-summarize the results of each subject system when
-evaluated at the method granularity.
+RQ1 asks how well a topic model built upon changesets performs against one
+built on source code entities.  We also wanted to know if there were any
+differences of performance between two popular algorithms, LSI and LDA.
+Table~\ref{table:rq1:class:lda} and Table~\ref{table:rq1:class:lsi} summarize
+the results of each subject system when evaluated at the class granularity with
+LDA and LSI, respectively.  Similarly, Table~\ref{table:rq1:method:lda} and
+Table~\ref{table:rq1:method:lsi} summarize the results of each subject system
+when evaluated at the method granularity.
 
-For LDA at the class-level we note an improvement in MRR for 10 of the 19 systems when using changesets.
-Additionally, 5 of these 10 systems were statistically significant at $p<0.01$.
-Only 2 of the 9 systems with MRR in favor of snapshots were statistically significant.
-Likewise, for the LSI evaluations at class granularity, 12 of the 19 systems improve with changesets.
+For LDA at the class-level we note an improvement in MRR for 10 of the 19
+systems when using changesets.  Additionally, 5 of these 10 systems were
+statistically significant at $p<0.01$.  Only 2 of the 9 systems with MRR in
+favor of snapshots were statistically significant.  Likewise, for the LSI
+evaluations at class granularity, 12 of the 19 systems improve with changesets.
 However, none of the systems presented a statistically significant value.
-Overall, for LDA, changesets perform slightly worse than snapshots with statistical significance.
-LSI, again, performs slightly better with snapshots with no statistical significance.
+Overall, for LDA, changesets perform slightly worse than snapshots with
+statistical significance.  LSI, again, performs slightly better with snapshots
+with no statistical significance.
 
-For LDA at the method-level we note an improvement in MRR for 3 of the 6 systems when using changesets.
-None of these were statistically significant at $p<0.01$.
-Likewise, for the LSI evaluations at class granularity, 2 of the 6 systems improve with changesets
-Again, none of the systems presented a statistically significant value.
-Overall, for LDA, changesets perform slightly worse than snapshots with statistical significance.
-LSI, again, performs slightly better with snapshots with no statistical significance.
+For LDA at the method-level we note an improvement in MRR for 3 of the 6
+systems when using changesets.  None of these were statistically significant at
+$p<0.01$.  Likewise, for the LSI evaluations at class granularity, 2 of the 6
+systems improve with changesets Again, none of the systems presented a
+statistically significant value.  Overall, for LDA, changesets perform slightly
+worse than snapshots with statistical significance.  LSI, again, performs
+slightly better with snapshots with no statistical significance.
 
 
 
@@ -366,142 +382,94 @@ LSI, again, performs slightly better with snapshots with no statistical signific
 \input{tables/rq2_method_lda}
 \input{tables/rq2_method_lsi}
 
-RQ2 asks how well a simulation of using a topic model would perform as
-it were to be used in real-time.
-This is a much closer evaluation of a feature location technique to it
-being used in an actual development environment.
-We also wanted to know if there were any differences of performance
-between two popular algorithms, LSI and LDA.
-Table~\ref{table:rq2:class:lda} and Table~\ref{table:rq2:class:lsi}
-summarize the results of each subject system when
-evaluated at the class granularity with LDA and LSI, respectively.
-Similarly, Table~\ref{table:rq2:method:lda} and Table~\ref{table:rq2:method:lsi}
-summarize the results of each subject system when
-evaluated at the method granularity.
-In each of the tables, we bold which of the two MRRs is greater,
-and denote which $p$-values were calculated on sample sizes $N<10$ with an asterix.
+RQ2 asks how well a simulation of using a topic model would perform as it were
+to be used in real-time.  This is a much closer evaluation of a feature
+location technique to it being used in an actual development environment.  We
+also wanted to know if there were any differences of performance between two
+popular algorithms, LSI and LDA.  Table~\ref{table:rq2:class:lda} and
+Table~\ref{table:rq2:class:lsi} summarize the results of each subject system
+when evaluated at the class granularity with LDA and LSI, respectively.
+Similarly, Table~\ref{table:rq2:method:lda} and
+Table~\ref{table:rq2:method:lsi} summarize the results of each subject system
+when evaluated at the method granularity.  In each of the tables, we bold which
+of the two MRRs is greater, and denote which $p$-values were calculated on
+sample sizes $N<10$ with an asterix.
 
-For temporal LDA at the class-level we note an improvement in MRR for 11 of the 15 systems
-with 5 of these 11 systems statistically significant at $p<0.01$.
-None of the 4 systems with MRR in favor of batch changesets were statistically significant.
-Likewise, for the temporal LSI evaluations at class granularity, 14 of the 15 systems improve
-with 11 of the systems statistically significant.
-Overall, temporal evaluation performs significantly better than batch under both LDA and LSI.
+For temporal LDA at the class-level we note an improvement in MRR for 11 of the
+15 systems with 5 of these 11 systems statistically significant at $p<0.01$.
+None of the 4 systems with MRR in favor of batch changesets were statistically
+significant.  Likewise, for the temporal LSI evaluations at class granularity,
+14 of the 15 systems improve with 11 of the systems statistically significant.
+Overall, temporal evaluation performs significantly better than batch under
+both LDA and LSI.
 
 
-For temporal LDA at the method-level we note an improvement in MRR for 4 of the 6 systems
-with 2 of the 4 systems statistically significant at $p<0.01$.
-Likewise, for the LSI evaluations at the method-level, 2 of the 6 systems improve
-with statistical significance on only 1 of those 2 systems.
-Overall, temporal evaluation performs significantly better than batch under LDA.
-However, temporal LSI performs slightly worse than batch with statistical significance.
+For temporal LDA at the method-level we note an improvement in MRR for 4 of the
+6 systems with 2 of the 4 systems statistically significant at $p<0.01$.
+Likewise, for the LSI evaluations at the method-level, 2 of the 6 systems
+improve with statistical significance on only 1 of those 2 systems.  Overall,
+temporal evaluation performs significantly better than batch under LDA.
+However, temporal LSI performs slightly worse than batch with statistical
+significance.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Discussion}
 
-The results outlined in the previous section warrants some qualitative discussion.
-In particular, our statistical analysis shows significant affects between
-snapshots and changesets, and between snapshots and temporal evaluation.
-However, the results are mixed between each and are not conclusive.
+The results outlined in the previous section warrants some qualitative
+discussion.  In particular, our statistical analysis shows significant affects
+between snapshots and changesets, and between snapshots and temporal
+evaluation.  However, the results are mixed between each and are not
+conclusive.
 
 \subsubsection{LDA}
 In this subsection, we particularly focus on the MRR of LDA evaluations,
 summarized in Tables~\ref{table:rq1:class:lda}, \ref{table:rq2:class:lda},
 ~\ref{table:rq1:method:lda}, and \ref{table:rq2:method:lda}.
 
-% Snapshots < Changeset && Batch > Temporal
-%  LDA Method:
-%     argouml 22
-%     argouml 24
-%  LDA Class:
-%     argouml 22
-%     bookkeeper
-%     mahout
-%     zookeeper
-%  LSI Class:
-%     bookkeeper
-%  LSI method:
-%     jedit
-In 4 of the 15 systems batch LDA changesets were better than both snapshots and temporal LDA at the class-level.
-This case holds for 2 of the 6 systems at the method-level.
-We hypothesize that this is due to the nature of the batch evaluation versus the temporal evaluation.
-In the batch evaluation, the model is trained on all data before being queried,
-while in the temporal evaluation the model is trained on partial data before being queried.
-This allows for the batch model to be more accurate because it is trained on more data
-and reveals feature location research evaluations may not be accurately portraying
-how an FLT would perform in a real scenario.
+% Snapshots < Changeset && Batch > Temporal LDA Method: argouml 22 argouml 24
+% LDA Class: argouml 22 bookkeeper mahout zookeeper LSI Class: bookkeeper LSI
+% method: jedit
+In 4 of the 15 systems batch LDA changesets were better than both snapshots and
+temporal LDA at the class-level.  This case holds for 2 of the 6 systems at the
+method-level.  We hypothesize that this is due to the nature of the batch
+evaluation versus the temporal evaluation.  In the batch evaluation, the model
+is trained on all data before being queried, while in the temporal evaluation
+the model is trained on partial data before being queried.  This allows for the
+batch model to be more accurate because it is trained on more data and reveals
+feature location research evaluations may not be accurately portraying how an
+FLT would perform in a real scenario.
 
-% Snapshots < Changeset && Batch < Temporal
-%  LDA Method:
-%     mucommander
-%  LDA Class:
-%     derby 109
-%     openjpa 201
-%     openjpa 220
-%     tika
-%  LSI class:
-%     argouml 22
-%     argouml 24
-%     argouml 262
-%     derby 109
-%     hibernate
-%     jabref
-%     mahout
-%     mucommander
-%     pig 8
-%     pig 11
-%     tika
-%  LSI method:
-%     mucommander
-Additionally, in 4 of the systems batch LDA changesets were better than snapshots but not temporal LDA at the class-level.
-This case holds for 1 of the 6 systems at the method-level.
-We hypothesize that this is due to the same previous reason, but that
-temporal evaluation more accurately captures the correct state of the system (i.e., the source code entities)
-at the point in time when querying is done.
-Since querying on the batch models is after the model is completely trained,
-there may be source code entities that do not exist in the system anymore
-that were at one time changed to complete a certain task.
-Again, the temporal evaluation better captures this scenario.
+% Snapshots < Changeset && Batch < Temporal LDA Method: mucommander LDA Class:
+% derby 109 openjpa 201 openjpa 220 tika LSI class: argouml 22 argouml 24
+% argouml 262 derby 109 hibernate jabref mahout mucommander pig 8 pig 11 tika
+% LSI method: mucommander
+Additionally, in 4 of the systems batch LDA changesets were better than
+snapshots but not temporal LDA at the class-level.  This case holds for 1 of
+the 6 systems at the method-level.  We hypothesize that this is due to the same
+previous reason, but that temporal evaluation more accurately captures the
+correct state of the system (i.e., the source code entities) at the point in
+time when querying is done.  Since querying on the batch models is after the
+model is completely trained, there may be source code entities that do not
+exist in the system anymore that were at one time changed to complete a certain
+task.  Again, the temporal evaluation better captures this scenario.
 
-%  Snapshots > Changeset && Batch < Temporal
-%  LDA Method:
-%     argouml 262
-%     jabref
-%     jedit
-%  LDA Class:
-%     argouml 24
-%     argouml 262
-%     derby 107
-%     jabref
-%     jedit
-%     mucommander
-%     solr
-%  LSI class:
-%     derby 107
-%     jedit
-%     lucene
-%     openjpa 201
-%     openjpa 220
-%     solr
-%     zookeeper
-%  LSI method:
-%     argouml 22
-%     argouml 24
-%     argouml 262
-%     jabref
-For the remaining 7 systems, snapshots were better than changesets under batch LDA,
-but temporal LDA performed better than batch on changesets.
-This case holds for 3 of the 6 systems at the method-level.
-Similarly, this could be because of how the models are trained.
-Although the batch LDA changesets performed worse in both cases, it does
-improve during temporal evaluation.
-This does not mean that changesets are bad, but more accurately model
-the system over time.
+%  Snapshots > Changeset && Batch < Temporal LDA Method: argouml 262 jabref
+%  jedit LDA Class: argouml 24 argouml 262 derby 107 jabref jedit mucommander
+%  solr LSI class: derby 107 jedit lucene openjpa 201 openjpa 220 solr
+%  zookeeper LSI method: argouml 22 argouml 24 argouml 262 jabref
+For the remaining 7 systems, snapshots were better than changesets under batch
+LDA, but temporal LDA performed better than batch on changesets.  This case
+holds for 3 of the 6 systems at the method-level.  Similarly, this could be
+because of how the models are trained.  Although the batch LDA changesets
+performed worse in both cases, it does improve during temporal evaluation.
+This does not mean that changesets are bad, but more accurately model the
+system over time.
 
 % Snapshots > Changeset && Batch > Temporal
-We note that no system had better batch LDA snapshots and better batch changesets over temporal LDA
-at either the class- or method-level.
-This also supports the hypothesis that temporal evaluation more accurately portrays the system over time.
-However, we cannot conclude this without also evaluating a snapshot-based topic models temporally.
+We note that no system had better batch LDA snapshots and better batch
+changesets over temporal LDA at either the class- or method-level.  This also
+supports the hypothesis that temporal evaluation more accurately portrays the
+system over time.  However, we cannot conclude this without also evaluating a
+snapshot-based topic models temporally.

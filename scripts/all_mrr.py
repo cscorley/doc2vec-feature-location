@@ -51,35 +51,30 @@ def print_em(desc, a, b, ignore=False, file=None):
 
     print(' & '.join(map(str, l)), '\\\\', file=file)
 
-HEADER="""
-\\begin{table}[t]
+HEADER="""\\begin{table}[t]
 \\renewcommand{\\arraystretch}{1.3}
 \\footnotesize
-\\centering
-\\caption{%s: MRR and $p$-values for %s %s evaluations}
+\\centering"""
+INNER_HEADER="""\\caption{%s: MRR and $p$-values of %s at the %s-level}
 \\begin{tabular}{l|ll|ll}
-   \\toprule
-    Subject System & %s & %s & $p$-value  \\\\
-    \\midrule
-"""
-FOOTER="""
-    \\bottomrule
-\\end{tabular}
-\\label{table:%s:%s:%s}
-\\end{table}
-"""
+\\toprule
+Subject System & %s & %s & $p$-value  \\\\
+\\midrule"""
+INNER_FOOTER= "\\bottomrule\n\\end{tabular}\n\\label{table:%s:%s:%s}"
+FOOTER="\\end{table}"
 
 projects = src.main.load_projects()
 
-for level in ['class', 'method']:
+for kind in ['lda', 'lsi']:
     alldict = dict()
-    for kind in ['lda', 'lsi']:
-        rname = 'release_' + kind
-        cname = 'changeset_' + kind
-        alldict[rname] = list()
-        alldict[cname] = list()
-        with open('paper/tables/rq1_%s_%s.tex' % (level, kind), 'w') as f:
-            print(HEADER % ('RQ1', level, kind.upper(), 'Snapshot', 'Changeset'), file=f)
+    with open('paper/tables/rq1_%s.tex' % kind, 'w') as f:
+        print(HEADER, file=f)
+        for level in ['class', 'method']:
+            rname = 'release_' + kind
+            cname = 'changeset_' + kind
+            alldict[rname] = list()
+            alldict[cname] = list()
+            print(INNER_HEADER % ('RQ1', kind.upper(),  level, 'Snapshot', 'Changeset'), file=f)
             for project in projects:
                 if project.level != level:
                     continue
@@ -96,16 +91,19 @@ for level in ['class', 'method']:
 
             print('\\midrule', file=f)
             print_em("All", alldict[rname], alldict[cname], ignore=False, file=f)
-            print(FOOTER % ('rq1', level, kind), file=f)
+            print(INNER_FOOTER % ('rq1', level, kind), file=f)
+
+        print(FOOTER, file=f)
 
     alldict = dict()
-    for kind in ['lda', 'lsi']:
-        rname = 'changeset_' + kind
-        cname = 'temporal_' + kind
-        alldict[rname] = list()
-        alldict[cname] = list()
-        with open('paper/tables/rq2_%s_%s.tex' % (level, kind), 'w') as f:
-            print(HEADER % ('RQ2', level, 'changesets ' + kind.upper(), 'Batch', 'Temporal'), file=f)
+    with open('paper/tables/rq2_%s.tex' % kind, 'w') as f:
+        print(HEADER, file=f)
+        for level in ['class', 'method']:
+            rname = 'changeset_' + kind
+            cname = 'temporal_' + kind
+            alldict[rname] = list()
+            alldict[cname] = list()
+            print(INNER_HEADER % ('RQ2', 'temporal ' + kind.upper(), level,  'Batch', 'Temporal'), file=f)
             for project in projects:
                 if project.level != level:
                     continue
@@ -125,4 +123,5 @@ for level in ['class', 'method']:
 
             print('\\midrule', file=f)
             print_em("All", alldict[rname], alldict[cname], ignore=True, file=f)
-            print(FOOTER % ('rq2', level, kind), file=f)
+            print(INNER_FOOTER % ('rq2', level, kind), file=f)
+        print(FOOTER, file=f)

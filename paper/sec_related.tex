@@ -1,9 +1,11 @@
 % vim:syntax=tex
 
 
+In this section, we review background material of the document extraction and retrieval process
+typically used on snapshot-based FLTs,
+and review related work on topic modeling and feature location.
 
 \subsection{Document Extraction and Retrieval Process}
-
 
 \begin{figure*}
 \vspace{2mm}
@@ -24,7 +26,8 @@ and a \textit{corpus} is a set of documents (i.e., classes) $D = (d_1, \ldots, d
 
 The left side of Figure~\ref{fig:snapshot} illustrates the document extraction process.
 A document extractor takes source code as input and produces a corpus as output.
-Each document in the corpus contains the words associated with a class.
+Each document in the corpus contains the words associated with a source code entity
+such as a class or method.
 The text extractor is the first part of the document extractor.
 It parses the source code and produces a token stream for each class.
 The preprocessor is the second part of the document extractor.
@@ -35,14 +38,13 @@ The transformations~\cite{Marcus-etal:2004,Marcus-Menzies:2010}: % that we use a
     \item {\it Splitting}: separate tokens into constituent words
         based on common coding style conventions (e.g., the use of camel case or underscores)
         and on the presence of non-letters (e.g., punctuation or digits)
-    \item {\it Normalizing}: replace each upper case letter with the corresponding
-        lower case letter \item {\it Filtering}: remove common words such as
-        articles (e.g., `an' or `the'),
+    \item {\it Normalizing}: replace each upper case letter with the corresponding lower case letter
+    \item {\it Filtering}: remove common words such as articles (e.g., `an' or `the'),
         programming language keywords, standard library entity names, or short words
 \end{itemize}
 
 The right side of Figure~\ref{fig:snapshot} illustrates the retrieval process.
-The main step of the retrieval process is to build the search engine.
+The main prerequisite of the retrieval process is to build the search engine.
 The search engine is constructed from the topic model trained from the corpus.
 The primary function of the search engine is to rank documents in relation to the query.
 The search engine performs a pairwise classification of the query
@@ -70,8 +72,26 @@ where $P$ and $Q$ are for two discrete probability distributions of length $k$.
 \end{comment}
 
 
+\subsection{Topic Modeling}
 
-\subsection{Latent Semantic Indexing}
+\subsubsection{Latent Dirichlet Allocation}
+
+Latent Dirichlet allocation~\cite{Blei-etal:2003} is a generative topic model.
+LDA models each document in a corpus of discrete data as a finite mixture over
+a set of topics and models each topic as an infinite mixture over a set of
+topic probabilities.  That is, LDA models each document as a probability
+distribution indicating the likelihood that it expresses each topic and models
+each topic that it infers as a probability distribution indicating the
+likelihood of a word from the corpus being assigned to the topic.
+
+Hoffman et al.~\cite{Hoffman-etal:2010} introduce a version of LDA which is 
+\emph{online}.
+Online LDA allows the model to be updated incrementally without needing
+to know about the documents prior to model construction.
+Zhai and Boyd-Graber~\cite{Zhai-Boyd-Graber:2013} introduce an extension of LDA 
+in which the model also does not need to know about the corpus vocabulary prior to construction.
+
+\subsubsection{Latent Semantic Indexing}
 
 Latent semantic indexing~\cite{Deerwester-etal:1990} is an indexing and
 retrieval methodology. LSI uses a statistical technique, singular value
@@ -81,16 +101,8 @@ close to one another creating a semantic space. That is, LSI estimates the
 latent structure by taking each document in the corpus and forming weighted
 vectors applying cosine similarity to the vectors measuring the semantic
 similarities between documents~\cite{Binkley-Lawrie:2010}.
-
-\subsection{Latent Dirichlet Allocation}
-
-Latent Dirichlet allocation~\cite{Blei-etal:2003} is a generative topic model.
-LDA models each document in a corpus of discrete data as a finite mixture over
-a set of topics and models each topic as an infinite mixture over a set of
-topic probabilities.  That is, LDA models each document as a probability
-distribution indicating the likelihood that it expresses each topic and models
-each topic that it infers as a probability distribution indicating the
-likelihood of a word from the corpus being assigned to the topic.
+{\v R}eh{\r u}{\v r}ek~\cite{Radim:2011} outlines extensions to LSI 
+which enable the algorithm to be online.
 
 
 \subsection{Feature Location}
@@ -156,3 +168,10 @@ as Petrenko et al, showed that the ontology fragments as queries, providing
 only partial knowledge, was enough to accurately locate concepts within the
 systems.
 
+Rao et al.~\cite{Rao-etal:2013} also target the problem of building
+topic models which are practical, introducing an incremental framework for bug localization.
+However, the approach involves using an extended topic modeler to allow
+updating, adding, and removing documents from the model and index post-hoc.
+While the approach is essentially equivalent to topic modeling in batch,
+Rao~\cite{Rao:2013} notes that these algorithm modifications have limitations and
+thus models may need to be periodically retrained.

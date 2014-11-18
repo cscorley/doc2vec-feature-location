@@ -45,7 +45,8 @@ The transformations~\cite{Marcus-etal:2004,Marcus-Menzies:2010}: % that we use a
 
 The right side of Figure~\ref{fig:snapshot} illustrates the retrieval process.
 The main prerequisite of the retrieval process is to build the search engine.
-The search engine is constructed from the topic model trained from the corpus.
+The search engine is constructed from the topic model trained from the corpus
+and an index of that corpus inferred from that model, known as $\theta$.
 The primary function of the search engine is to rank documents in relation to the query.
 The search engine performs a pairwise classification of the query
 to each document and ranks the documents according score.
@@ -53,7 +54,7 @@ to each document and ranks the documents according score.
 To accomplish the classification step using a topic model,
 the search engine infers $\theta_{Snapshot}$, i.e.,
 the topic-document probability distribution of each document in the snapshot corpus,
-as well as $\theta_{Query}$, i.e., the topic-document probability distribution  of the query.
+as well as $\theta_{Query}$, i.e., the topic-document probability distribution of the query.
 Then a similarity measure for probability distributions, such as
 cosine similarity or Hellinger distance, can be used to make pairwise comparisons
 between $\theta_{Query}$ and $\theta_{Snapshot}$.
@@ -84,11 +85,11 @@ distribution indicating the likelihood that it expresses each topic and models
 each topic that it infers as a probability distribution indicating the
 likelihood of a word from the corpus being assigned to the topic.
 
-Hoffman et al.~\cite{Hoffman-etal:2010} introduce a version of LDA which is 
+Hoffman et al.~\cite{Hoffman-etal:2010} introduce a version of LDA which is
 \emph{online}.
 Online LDA allows the model to be updated incrementally without needing
 to know about the documents prior to model construction.
-Zhai and Boyd-Graber~\cite{Zhai-Boyd-Graber:2013} introduce an extension of LDA 
+Zhai and Boyd-Graber~\cite{Zhai-Boyd-Graber:2013} introduce an extension of LDA
 in which the model also does not need to know about the corpus vocabulary prior to construction.
 
 \subsubsection{Latent Semantic Indexing}
@@ -101,7 +102,7 @@ close to one another creating a semantic space. That is, LSI estimates the
 latent structure by taking each document in the corpus and forming weighted
 vectors applying cosine similarity to the vectors measuring the semantic
 similarities between documents~\cite{Binkley-Lawrie:2010}.
-{\v R}eh{\r u}{\v r}ek~\cite{Radim:2011} outlines extensions to LSI 
+{\v R}eh{\r u}{\v r}ek~\cite{Radim:2011} outlines extensions to LSI
 which enable the algorithm to be online.
 
 
@@ -121,16 +122,16 @@ or bug localization~\cite{Lukins-etal:2008, Bassett-Kraft:2013} is analogous to 
 
 Feature location is commonly categorized as a static, dynamic or a hybrid
 technique involving a combination of the two. Static feature
-location~\cite{Biggers-etal:2014} is a method that statistically analyzes
+location~\cite{Zhao-etal:2006} is a method that statistically analyzes
 static documents, or source code. This is done by manually or automatically
 analyzing the text to explore the dependencies within the structure. Dynamic
 feature location applies a statistical analysis to the execution trace of a
 specific scenario, therefore requiring a working system~\cite{Eisenbarth-etal:2001,Poshyvanyk-etal:2007}.
-Hybrid techniques~\cite{Eisenbarth-etal:2003} involve a combination of a static analysis of
+Hybrid techniques~\cite{Eisenbarth-etal:2003, Eaddy-etal:2008, Revelle-etal:2010} involve a combination of a static analysis of
 the source text and an analysis of scenarios in the execution trace. By
 blending the two it was found that this technique was applicable to working
-systems in providing higher precision for locating features.~\cite{Poshyvanyk-etal:2007,
-Ernst:2004, Revelle-Coppitt:UNK} In this study, we are applying two static
+systems in providing higher precision for locating features~\cite{Poshyvanyk-etal:2007,
+Ernst:2004, Revelle-Coppitt:UNK}. In this study, we are applying two static
 techniques, an LDA-based FLT and an LSI-based FLT.
 
 Dit et al.~\cite{Dit-etal:2013b} provide a taxonomy and survey of feature
@@ -139,10 +140,16 @@ al~\cite{Marcus-etal:2004} use LSI-based feature location to find concepts based
 queries from the user and modules within the system in comparison to the
 dependence graph approach. They found that concepts in the code were able to be
 identified with user specified terms and identifiers as well as an easier build
-process. Lukins et al.~\cite{Lukins-etal:2008} find that LSI-based FLT does
-not work effectively on bug localization. As a comparison they applied an
-LDA-based FLT which analyzed the bugs much more effectively therefore
-outperforming LSI.
+process. LSI-based FLTs have been widely used by many others~\cite{
+Poshyvanyk-etal:2006, Poshyvanyk-Marcus:2007, Liu-etal:2007, Scanniello-Marcus:2011,
+Eaddy-etal:2008, Cubranic-etal:2005}
+
+Lukins et al.~\cite{Lukins-etal:2008} use an LDA-based FLT and
+find that that it outperforms an LSI-based FLT.
+Biggers et al.~\cite{Biggers-etal:2014} investigate the various configuration
+parameters for an LDA-based FLT.
+Bassett and Kraft~\cite{Bassett-Kraft:2013} find that using structural
+term weighting increases the performance of an LDA-based FLT.
 
 Antoniol and Gueheneuc~\cite{Antoniol-Gueheneuc:2005, Antoniol-Gueheneuc:2006} use a combination of dynamic and
 static FLTs to better program comprehension of large multi-threaded

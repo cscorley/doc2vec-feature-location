@@ -39,7 +39,8 @@ Most things related to this project can be found in the GitHub repository.
 
 Some files which you might find of immediate interest:
 
-- [Pre-print (pdf)](paper/paper.pdf)
+- [Pre-print (pdf)](./paper.pdf)
+- [Source code (.tar.gz)](./source.tar.gz)
 
 ### Dataset
 
@@ -48,11 +49,11 @@ but things such as the corpora go through extraction and pre-processing steps.
 
 **TODO: Explain the data/ layout**
 
-All project
-information is in `projects.csv`, and supplementary data is under the
-`data` directory:
-    - the repository URLs under `data/<project>/repos.txt`
-    - extracted release source code `data/<project>/<version>/src`
+All project information is in `projects.csv`, and supplementary data is under
+the `data` directory:
+
+- the repository URLs under `data/<project>/repos.txt`
+- extracted release source code `data/<project>/<version>/src`
 
 #### Corpora
 

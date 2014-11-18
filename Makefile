@@ -1,5 +1,16 @@
 all: test 
 
+web: always_make
+	mkdir -p web
+	tar cvzf web/source.tar.gz `git ls-files`
+	make paper
+	cp paper/paper.pdf web/
+	pandoc -s -o web/index.html README.md
+
+clean-web:
+	rm -rf web/
+
+
 paper: always_make
 	cd paper/ && make
 
@@ -10,7 +21,7 @@ test:
 	nosetests tests/ || true
 	find src tests -name '*.pyc' -exec rm {} \;
 
-clean: clean-corpora clean-models
+clean: clean-web clean-corpora clean-models
 	find src tests -name '*.pyc' -exec rm {} \;
 
 clean-corpora: clean-taser

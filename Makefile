@@ -2,7 +2,7 @@ all: test
 
 web: always_make
 	mkdir -p web
-	tar cvzf web/source.tar.gz `git ls-files`
+	git archive -o web/release.tar.gz --prefix="cfl/" HEAD
 	make paper
 	cp paper/paper.pdf web/
 	pandoc -s -o web/index.html README.md

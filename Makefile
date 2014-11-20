@@ -5,7 +5,7 @@ web: always_make
 	git archive -o web/release.tar.gz --prefix="cfl/" HEAD
 	make paper
 	cp paper/paper.pdf web/
-	pandoc -s -o web/index.html README.md
+	pandoc -s -o web/index.html README.md --css="/css/syntax.css" --css="/css/bootstrap.css" --css="/css/main.css"
 
 clean-web:
 	rm -rf web/

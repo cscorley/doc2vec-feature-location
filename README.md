@@ -38,9 +38,9 @@ Most things related to this project can be found in the GitHub repository.
 Some files which you might find of immediate interest:
 
 - [Pre-print (pdf)](./paper.pdf)
-- [Release (.tar.gz)](./release.tar.gz)
-    - Includes source code and starter data
+- [Release (.tar.gz)](./release.tar.gz) -- Includes source code and starter data
 - [GitHub Repository]() -- tbd
+- [Taser](https://github.com/nkraft/taser) -- Tool used for parsing Java source
 
 We include all of these sources (even the embarrassing commit history) to help
 encourage others in software engineering to engage in

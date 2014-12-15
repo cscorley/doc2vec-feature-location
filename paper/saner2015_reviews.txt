@@ -1,0 +1,212 @@
+Date: Mon, 15 Dec 2014 21:13:46 +0100
+From: SANER 2015 <saner2015@easychair.org>
+To: Christopher Corley <cscorley@ua.edu>
+Subject: SANER 2015 reject notification for paper 12
+
+Dear Christopher, 
+
+We regret to inform you that we could not accept your paper titled “Changeset Topics for Feature Location” for the research track of 
+SANER 2015. In total, we received 181 abstracts and 144 full paper submissions were sent to the 
+reviewers. Only 39 of these papers were accepted and 7 additional papers have been conditionally 
+accepted. 
+
+All papers went through a rigorous reviewing process in which they received at least three independent 
+reviews, followed by discussions among the assigned reviewers, and, finally, a discussion open to the 
+entire program committee. Whenever necessary, additional reviews or discussion comments were 
+solicited. The program committee selected papers for inclusion in the program without targeting any 
+quota or acceptance rate: merits and weaknesses of each paper were discussed independently of other 
+papers taken into consideration.
+
+Below, you can find the reviews of your paper. In some cases, an additional review was added with the 
+major discussion comments that might have impacted the decision for rejection. We hope that you will 
+find these comments helpful in the revision of your paper.
+
+In particular, we would like to encourage you to submit your work to one of the SANER workshops 
+http://saner.polymtl.ca/doku.php?id=en:workshops. 
+
+We hope that you will attend SANER 2015 in Montréal or one of the collocated events and we look 
+forward to welcoming you early March. 
+
+Thank you for submitting your paper to SANER 2015!
+
+Kind regards,
+
+Alexander Serebrenik and Bram Adams
+SANER 2015 Program Co-Chairs
+
+PS: If you have any questions or comments, please do not hesitate to contact us 
+[saner2015@easychair.org].
+
+
+----------------------- REVIEW 1 ---------------------
+PAPER: 12
+TITLE: Changeset Topics for Feature Location
+AUTHORS: Christopher Corley, Kelly Kashuda and Nicholas A. Kraft
+
+
+----------- REVIEW -----------
+This paper proposes to apply topic-modelling based information retrieval techniques (i.e., LDA and LSI) 
+for feature location from the incremental changesets of source code. As an online learning algorithm based 
+on changesets is adopted, it is not necessary to do retraining and get the updated topic models frequently.  
+The authors further conduct evaluation on 14 open source Java projects to show the feasibility and effectiveness 
+of the changesets approach. 
+
+Overall, this paper presents an interesting idea of using changesets for better feature location. Although 
+LDA and LSI have been widely investigated in feature location domain, it is innovative to use the changesets from 
+the version control system (e.g., SVN or Git) for feature location. The approach of modelling changeset topics 
+is originally from reference [7]. This paper’s contributions mainly lie in the application of the approach of 
+modelling changeset to feature location problem.  The evaluation also seems to be solid. The authors publish 
+the experiment data for public review. In the evaluation, it is good to use Wilcoxon signed-rank test with Holm 
+correction to determine the statistical significance of the difference between results from LDA and LSI. 
+However, as the authors mention in evaluation, few of the evaluated systems presented a statistically significant 
+value between Snapshot based approach and changeset based approach. 
+
+The following issues need to be clarified:
+First, in this paper the authors use commit message in Git and SVN as the representation of a changeset in a 
+version control system. Although the information among multiple versions of the project is used, the paper 
+still focuses on feature location in a single version of the product. My concern is that if a feature that 
+needs to be located is involved in several changes, how good can the proposed approach handle it? The authors 
+may also better to show the effectiveness of the approach for features that are relevant and irrelevant to commit messages. 
+
+Second, the authors may also need to relate their work to the work on feature location on multiple versions of products. 
+They may refer to the following literature and discuss about the application of modelling changeset topics for feature 
+location in multiple versions.
+Yinxing Xue, Zhenchang Xing, Stan Jarzabek: Feature Location in a Collection of Product Variants. WCRE 2012: 145-154
+
+Third, for evaluation, the authors may try different parameter setup and measures of retrieval accuracy. Currently, the 
+number of topic is set to 500. Actually, 500 topics may work well for normal documents based on natural language like 
+English (see S.T. Dumais. LSI meets TREC: A status report, in Proceeding of Text Retrieval Conference, pp. 137-152. 1992), 
+but a larger size of topic may be preferred for information retrieval on source code, considering more identifiers in source code. 
+With regard to the measures, the authors only use the mean reciprocal rank (MRR). The authors may also consider some measures used 
+in information retrieval domain, like Percentage of Relevant Queries (PRQ), Mean Average Precision (MAP) and Average Percentage of 
+Code Units Investigated (APCUI). The different measures may reveal the different aspects of the results. 
+
+Below are also some detailed comments on the presentation and language of the paper:
+1.	In introduction, in the last third paragraph, “Our results show that not only is our changeset approach feasible and 
+practical, but in some cases out-performs current snapshot approaches.” Here, the authors should be more specific about 
+the cases in which the proposed approach performs better. 
+
+2.	The approach section is a bit too simple. You may add more details, or merge it with some content in Section II.A 
+and Section II.B.
+
+3.	In the fourth paragraph of section IV.C, in the first sentence, “we our partitioning is inclusive of that commit.” 
+should be “our partitioning is inclusive of that commit.”
+
+
+----------------------- REVIEW 2 ---------------------
+PAPER: 12
+TITLE: Changeset Topics for Feature Location
+AUTHORS: Christopher Corley, Kelly Kashuda and Nicholas A. Kraft
+
+
+----------- REVIEW -----------
+Review follows A.J. Smith 4/90 IEEE/Computer 
+
+Recommendation. 
+maybe
+
+Summary and Significance. 
+ What is the purpose?   Is the the problem clearly stated? 
+	Incremental modeling of text-based retrieval systems for program comprehension. This is a significant goal for the SANER audience.
+
+Is there an early description of the accomplishments? 
+          No. in particular, the authors fail to mention that the method works only sometimes. 
+
+ Is the problem new?   Using I/R for program comprehension is not; the incremental change set approach is.
+
+     Has the design been built before?  no
+
+     Has the problem been solved before?  no
+
+     Is this a trivial variation on or an extension of a previous result?  no
+
+    Is the author aware of of related work? yes
+
+     Does the author cite previous work and make distinctions from  it?  yes
+
+    If an implementation, are there new ideas?  yes
+
+ Is the method of approach valid?  yes
+
+        Is the approach sufficient for the purpose? yes
+
+        Sufficient discussion of new ideas? no; reasons for failure to reject null hypothesis need to be clarified.
+
+Is the actual execution of the research correct? yes
+
+      Algorithms correct? Convincing?  yes
+
+      Did the author do what was claimed?  no
+
+ Are the correct conclusions drawn from the results?  no
+
+      What are the applications/implications of the results?  I'm not sure.
+
+      Adequate discussion of these results? 
+         There is discussion of what happened; not why it happened.
+
+ Is the presentation satisfactory? 
+
+      Readability? yes
+
+      Does abstract describe the paper?  please use a structured abstract.
+
+     Does the introduction describe the problem and the framework?  yes
+
+     Appropriate amount of detail?  yes
+
+     Figures/tables appropriate? too many.
+
+     Self-contained? yes
+
+
+----------------------- REVIEW 3 ---------------------
+PAPER: 12
+TITLE: Changeset Topics for Feature Location
+AUTHORS: Christopher Corley, Kelly Kashuda and Nicholas A. Kraft
+
+
+----------- REVIEW -----------
+The authors present an incremental topic-model approach to feature location based on change sets. They evaluate the technique by comparing changes sets, snapshots, and temporal change sets.
+
+Excellent job sharing materials and making the work replicable by others.
+
+Although the writing was clear, it was difficult to follow the thread of the research and how the study design answered the research questions. Especially missing are the big take away messages — what should a researcher or practitioner take away from this study in using change sets or snapshots for FLT?
+
+Specific comments:
+
+The explanation in section III seems unclear. Intuitively, I would think the topic model is run once on a snapshot, and then run incrementally on all the change sets after that point (up to the commit being searched). This approach is hinted at in the introduction (“online topic models can be instantiated once and incrementally updated over time.“) However, the wording in the following sentence:
+
+“The changeset topic modeling approach requires two types of document extraction: one for the snapshot of the state of source code at a commit of interest, such as a tagged release, and one for the every changeset in the source code history leading up to that commit.”
+
+Sounds like topic modeling is run on all the changes leading up to the snapshot. Is this the target usage scenario? Please clarify the writing to make the target usage scenario & algorithmic steps more clear. Figure 1 is a good start, but doesn’t clearly show how the change sets are involved. Figure 1 seems to show that the topic modeler is run on the whole snapshot every time, which I thought the purpose of the work was to avoid this?
+
+I think the key insight behind the approach — “The key intuition to our approach is that a topic model such as LDA or LSI can infer any given document’s topic proportions regardless of the documents used to train the model.” — needs to be expanded. Isn’t this idea one of the main contributions of the work? A concrete example showing why this intuition is valid would help.
+
+In section IV.C., the purpose of \theta_Queries is not yet clear, and it is difficult to see how this fits in to the larger study. It would be helpful if there were a big picture paragraph in the methodology section describing the parts of the study and how they are used to answer the research questions before diving in to the details. For instance, in this section I don’t yet know what temporal simulations look like, although that is one of the contributions of the work. It seems as if someone within the research team would perfectly comprehend section IV.C, but is not written so that a reader familiar with feature location can discern what is being evaluated and why when reading the paper from beginning to end.
+
+Section IV.E: “To answer RQ1, we run the experiment on the snapshot and changeset datasets as outlined in Section IV-C. We then calculate the MRR between the two.” What two? How does this comparison help us answer RQ1? And then: “To answer RQ2, we run the experiment temporally as outlined in Section IV-C” the high-level goals of the temporal experiment and how it differs from a traditional experiment have not yet been described. Why are traceability links important to answering the research questions? It seems that the authors had some trouble making use of the Moreno data set. What is the advantage to keeping it in? More replications? Why include both Tables I & II, if only the data from Table II is used in the study?
+
+It seems as if some of the high-level information I’m looking for might be partially buried in the discussion section in G, rather than being up front to help the reader understand the design of the experiment.
+
+The work of Rao, et al. Seems closely related. In section II, can you differentiate why such an approach is less desirable than your proposed approach? (or evaluate?)
+
+Typos:
+p. 5 C: “the process is varies slightly”
+p. 5 C: “we our partitioning is“
+- conclusion: In this paper WE? conducted a study
+
+
+----------------------- REVIEW 4 ---------------------
+PAPER: 12
+TITLE: Changeset Topics for Feature Location
+AUTHORS: Christopher Corley, Kelly Kashuda and Nicholas A. Kraft
+
+
+----------- REVIEW -----------
+Dear authors,
+
+We would like to thank you for your submission that has lead to a lively discussion in the program committee. The main concerns raised by the committee pertain to:
+ * the paper's claim that the proposed approach analyzes multi-versions of changeset data, yet it seems that the paper did not really make good use of multi-version changeset data in the proposed approach and in the evaluation.
+ * the fact that one of the reviewers familiar with this domain was not able to understand the approach since the paper has multiple issues making key points clear
+

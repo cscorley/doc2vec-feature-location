@@ -9,7 +9,7 @@ appendix\footnote{\textbf{REVIEWER URL ONLY:} \url{http://cscorley.students.cs.u
 \subsection{Definition and Context}
 
 % TODO
-Our \textit{goal} is to evaluate the usefulness of topic models built
+Our \textit{goal} is to evaluate the effective nature of topic models built
 from changesets.
 The \textit{quality focus} of the study is on informing development
 decisions and policy changes that could lead to software with fewer
@@ -119,11 +119,11 @@ Finally, we classify the results from both $\theta$s.
 \end{comment}
 
 
-For changesets, the process is varies slightly from a snapshot approach.
+In terms of changesets, the process varies slightly from a snapshot approach.
 First, we build a model in batch mode from the changeset corpus.
-Then, we infer a $\theta_{Snapshot}$ from the snapshot corpus
+Second, we infer a $\theta_{Snapshot}$ from the snapshot corpus
 and a $\theta_{Queries}$ from the query corpus.
-Note that we \emph{do not} infer a $\theta_{Changesets}$ from the changeset corpus from which the model was built!
+Note that we \emph{do not} infer a $\theta_{Changesets}$ from the changeset corpus from which the model was built.
 Finally, we classify the results from both $\theta$s.
 
 \begin{comment}
@@ -139,8 +139,8 @@ Finally, we classify the results from both $\theta$s.
 
 For the temporal simulation, we can take a slightly different approach.
 We first determine which changesets relate to an issue and partition mini-batches out of the changesets.
-Then, we initialize a model in online mode.
-For each mini-batch, or partition, we update the model with that mini-batch.
+We then proceed by initializing a model in online mode.
+Using each mini-batch, or partition, we update the model.
 Then, we infer a $\theta_{Snapshot}$ from the snapshot corpus
 and a retrieve the $\theta_{Queries}$ for the queries related to this changeset.
 Finally, we classify the results from both $\theta$s.
@@ -193,7 +193,7 @@ is only attributed to that entity, and not the containing one.
 Comments, literals, and identifiers within a entity are considered as text of the entity.
 Block comments immediately preceding an entity are also included in this text.
 
-To extract text from the changesets, we look at the output of viewing
+To extract text from the changesets, we look at
 the \texttt{git diff} between two commits.
 In our changeset text extractor, we extract all text related to the
 change, e.g., context, removed, and added lines; metadata lines are ignored.
@@ -234,7 +234,7 @@ These two parameters control how much influence a new mini-batch has on the mode
 However, the implementation of Gensim at the time of this paper did not
 include a way to adjust $\tau_0$, so we only adjust $\kappa$.
 We chose $\kappa=2.0$ for all systems, because the temporal evaluation
-would often have mini-batch sizes in single digits.
+often have mini-batch sizes in single digits.
 
 \subsubsection{LSI configuration}
 

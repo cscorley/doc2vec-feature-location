@@ -23,17 +23,17 @@ addition, or deletion, which may crosscut many source code entities.
 A \textit{commit} is a representation of a changeset in a version control system, such as Git or Subversion.
 
 The changeset topic modeling approach requires two types of document extraction:
-one for the snapshot of the state of source code at a commit of interest, such as a tagged release,
-and one for the every changeset in the source code history leading up to that commit.
+the first for the snapshot of the state of source code at a commit of interest, such as a tagged release,
+and the second for the every changeset in the source code history leading up to that commit.
 The left side of Figure~\ref{fig:changeset} illustrates the dual-document extraction approach.
 
-The document extraction process for the snapshot remains the same as covered in Section~\ref{sec:related}.
-The document extractor for the changesets parses each changeset for the removed, added, and context lines.
+The document extraction process for the snapshot remains the same as covered in Section~\ref{sec:related} while the 
+document extractor for the changesets parses each changeset for the removed, added, and context lines.
+The same preprocessor transformations as before occur in both the snapshots and changesets.
 From there, each line is tokenized by the text extractor.
 In a changeset it may be desirable to parse further for source code entities using island grammar parsing~\cite{Moonen:2001},
 although not necessary for this approach.
 It may also be desirable to only use portions of the changeset, such as only using added or removed lines.
-The same preprocessor transformations as before also occur in changesets.
 
 The right side of Figure~\ref{fig:changeset} illustrates the retrieval process.
 The key intuition to our approach is that a topic model such as LDA or LSI
@@ -42,7 +42,7 @@ Hence, we train a topic model on the changeset corpus,
 but search for related documents over the snapshot corpus.
 In the search engine, we can use a dynamic programming to
 keep $\theta_{Snapshot}$ up-to-date as new changesets are added to the model.
-That is, upon a update to the model, new inferences of only the source code documents affected by this changeset are made.
+That is, upon a update to the model, updates to the source code are made only to the documents that are affected by the changesets. 
 Additionally, we can then query the model as needed
 and rank the results of that query against $\theta_{Snapshot}$.
 Note that we never infer a $\theta_{Changeset}$

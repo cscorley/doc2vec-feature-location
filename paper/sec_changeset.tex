@@ -27,7 +27,7 @@ the first for the snapshot of the state of source code at a commit of interest, 
 and the second for the every changeset in the source code history leading up to that commit.
 The left side of Figure~\ref{fig:changeset} illustrates the dual-document extraction approach.
 
-The document extraction process for the snapshot remains the same as covered in Section~\ref{sec:related} while the 
+The document extraction process for the snapshot remains the same as covered in Section~\ref{sec:related} while the
 document extractor for the changesets parses each changeset for the removed, added, and context lines.
 The same preprocessor transformations as before occur in both the snapshots and changesets.
 From there, each line is tokenized by the text extractor.
@@ -42,7 +42,7 @@ Hence, we train a topic model on the changeset corpus,
 but search for related documents over the snapshot corpus.
 In the search engine, we can use a dynamic programming to
 keep $\theta_{Snapshot}$ up-to-date as new changesets are added to the model.
-That is, upon a update to the model, updates to the source code are made only to the documents that are affected by the changesets. 
+That is, upon a update to the model, updates to the source code are made only to the documents that are affected by the changesets.
 Additionally, we can then query the model as needed
 and rank the results of that query against $\theta_{Snapshot}$.
 Note that we never infer a $\theta_{Changeset}$

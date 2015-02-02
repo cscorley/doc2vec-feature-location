@@ -250,37 +250,6 @@ during the temporal evaluation.
 \subsection{Data Collection and Analysis}
 \label{sec:data}
 
-\begin{table}[t]
-\renewcommand{\arraystretch}{1.3}
-\footnotesize
-\centering
-\caption{Reduced Temporal Goldset Sizes}
-\begin{tabular}{lrrr}
-    \toprule
-    Subject System     & Features & Classes & Methods \\
-    \midrule
-    ArgoUML v0.22      & 91       & 287     & 701     \\
-    ArgoUML v0.24      & 52       & 154     & 357     \\
-    ArgoUML v0.26.2    & 191      & 627     & 1400    \\
-    BookKeeper v4.1.0  & 12       & 44      &         \\
-    Derby v10.7.1.1    & 4        & 7       &         \\
-    Derby v10.9.1.0    & 12       & 40      &         \\
-    Jabref v2.6        & 30       & 113     & 254     \\
-    jEdit v4.3         & 148      & 359     & 746     \\
-    Mahout v0.8        & 2        & 42      &         \\
-    muCommander v0.8.5 & 91       & 302     & 716     \\
-    OpenJPA v2.0.1     & 12       & 33      &         \\
-    OpenJPA v2.2.0     & 5        & 29      &         \\
-    Solr v4.4.0        & 20       & 97      &         \\
-    Tika v1.3          & 4        & 11      &         \\
-    ZooKeeper v3.4.5   & 21       & 89      &         \\
-    \midrule
-Total                  & 695      & 2234    & 4174    \\
-    \bottomrule
-\end{tabular}
-\label{table:subjects:temporal}
-\end{table}
-
 To evaluate the performance of a topic-modeling-based FLT we cannot use
 measures such as precision and recall. This is because the FLT creates
 the rankings pairwise, causing every entity being searched to appear in the rankings.
@@ -310,17 +279,9 @@ Again, we use the Wilcoxon signed-rank test.
 
 However, only the Dit et al.\ dataset includes traceability links between
 the queries and the commits the goldsets are extracted from.
-We did a best-effort search for the Moreno et al.\ traceability links using regular expressions.
-We were able to recover portions of the links for all subject systems in
-the Moreno et al.\ dataset with the exception of Hibernate, Pig (both versions), and Lucene.
-The issues in these subject systems could not be found by searching the commit logs.
-Additionally, in some cases, only a partial amount of the links could be
-recovered. In light of this, we reduced the evaluation for comparing the
-snapshot and temporal results to only those features found.
-An updated version of Table~\ref{table:subjects} can be found in Table~\ref{table:subjects:temporal}.
-Hence, some systems sample sizes are too small ($N<10$) for an accurate Wilcoxon signed-rank statistical test.
-
-% Replace these systems with a diff test?
+With respect to RQ2, we do not report on the entire Moreno et al.\ dataset.
+We do include the projects in common with the Dit et al.\ dataset
+since these queries and goldsets are the same.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -424,6 +385,8 @@ Our results are mixed, hence we end up with four possible situations:
 
 We will now discuss each of these situations in detail.
 
+\todo{This section needs to be re-written}
+
 % Snapshots < Changeset && Batch > Temporal
 %  LDA Method:
 %     argouml 22
@@ -523,4 +486,4 @@ the system over time.
 % Snapshots > Changeset && Batch > Temporal
 We note that Situation \#4 never occurs.
 This also supports the hypothesis that temporal evaluation more accurately portrays the system over time.
-However, we cannot conclude this without also evaluating a snapshot-based topic models temporally.
+However, we cannot conclude this without also evaluating snapshot-based topic models temporally.

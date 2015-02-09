@@ -10,55 +10,50 @@ can help developers to navigate and understand software repositories
 by discovering topics (word distributions) that reveal the thematic structure
 of the data~\cite{Linstead-etal:2007,Thomas-etal:2011,Hindle-etal:2012}.
 
-Typical topic-model-based FLTs construct models from corpora of text extracted from a source code snapshot.
-That is, a topic model is often trained on a corpus that contains documents that
-represent source code entities, such as methods or classes, from a particular version of the software.
-Keeping such a model up-to-date is expensive,
-because the frequency and scope of source code changes necessitate retraining the model on the updated corpus.
-In this paper we propose a fresh take on topic-modeling-based FLTs
-by leveraging online topic models and mining software repositories
-to construct topic models that can be used in real-time without needing retraining.
-Previous work in Corley et al.~\cite{Corley-etal:2014} has shown that
-topic models trained on changesets produce topics which have
-comparable topic distinctness scores~\cite{Thomas-etal:2011} as
-topic models trained on snapshots.
-We expand this work to demonstrate the effectiveness of changeset topic modeling for feature location.
+Typical topic-model-based feature location techniques (FLT) construct models from corpora of text extracted from a source code snapshot~\cite{Dit-etal:2013b}.
+That is, a topic model is often trained on a corpus of source code entities, such as methods or classes, from a particular version of the software.
+Keeping such a model up-to-date is expensive, because the frequency and scope of source code changes necessitate retraining the model on the updated corpus.
+This situation is sub-optimal whether your perspective is academic research or industrial tool-building.
+An optimal topic model is one that does not incur this computational cost to stay up-to-date.
 
-Online topic models are topic models which do not need to know
-the entire input corpus prior to training~\cite{Hoffman-etal:2010,Radim:2011}
+In this paper, we propose a fresh take on topic-modeling-based FLTs by leveraging online topic models and mining software repositories to construct topic models that do not need retraining.
+Online topic models do not need to know the entire input corpus prior to training~\cite{Hoffman-etal:2010,Radim:2011}.
 That is, online topic models can be instantiated once and incrementally updated over time.
-Additionally, training the model and infering how documents relate with the model
-can be intermixed.
-Moreover, a version control repository keeps a history of source code documents as they change over time.
-These changes are represented as changesets,
-which provide concise views of the differences between two versions of the same document.
-By training a topic model on changesets, we can enable practical topic
-modeling for automating software maintenance tasks such as feature
-location.
+% Additionally, training the model and infering how documents relate with the model can be intermixed.
+Moreover, a version control repository, such as Git, keeps a history of source code documents as they change over time.
+These changes are represented as changesets, which provide concise views of the differences between two revisions of the same document.
+By training a topic model on changesets, we can enable practical topic modeling for automating software maintenance tasks, such as feature location.
 
-In this paper we propose an approach to topic modeling changesets for feature location
-and report on an empirical study in which we investigate the feasibility of this approach.
+In our previous work~\cite{Corley-etal:2014}, we show that topic models trained on changesets produce topics which have comparable
+topic distinctness scores~\cite{Thomas-etal:2011} as topic models trained on snapshots.
+We expand the work to demonstrate the effectiveness of changeset topic modeling for feature location and report on an empirical study in which we investigate the feasibility of this approach.
 We define two topic-model-based FLTs on both LSI and LDA using changesets.
 We combine two benchmarks totaling over 1200 defects and features from fourteen open source Java projects.
-Our results show that not only is our changeset approach feasible and practical,
-but in some cases out-performs current snapshot approaches.
+We also present a \emph{temporal simulation} in which we approximate how the FLT would perform throughout the evolution of a project.
 
+Our results show that the changeset approach is feasible and practical.
+In many cases the changeset approach out-performs current snapshot approaches, but is no silver bullet to in defeating snapshot-based approaches.
+However, the performance in both the failing and succeeding cases are comparable.
+Hence, we argue that the changeset-based topic modeling warrants further investigation.
+
+% blah
+We also show that evalutating an FLT in a temporally-aware manner improves the performance of the FLT.
+That is, rather than training a topic model on the entire corpus at once,
+we train it on only the changes that occur within the time window between features in the benchmarks.
 
 This paper makes the following contributions:
 
 \begin{itemize}
     \item An approach using changesets for feature location
-    \item An approach to evaluate an FLT temporally
-    \item A case study of the two approaches
-    \item A tool that implements the two approaches
+    \item A empirical study of fourteen open source Java projects
     \item An updated dataset of systems used in this study
     \item Finally, towards increasing open science principles in software engineering:
-        the complete project history and data for replication of this study.
+        the complete project history, source code, and data for replication of this study.
 \end{itemize}
 
 The remainder of the paper is organized as follows.
 We first review background and related work (\S\ref{sec:related})
-before introducing our new feature location technique (\S\ref{sec:changeset}).
-We next discuss our case study (\S\ref{sec:study}), which spans fourteen open source Java projects. % 19 total w/ all versions
+before introducing our new changeset-based FLT (\S\ref{sec:changeset}).
+We next discuss our case study (\S\ref{sec:study}), which spans fourteen open source Java projects.
 We then conclude (\S\ref{sec:conclusion}).
 

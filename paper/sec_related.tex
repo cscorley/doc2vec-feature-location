@@ -44,18 +44,11 @@ The transformations~\cite{Marcus-etal:2004,Marcus-Menzies:2010}: % that we use a
 The right side of Figure~\ref{fig:snapshot} illustrates the retrieval process.
 The main prerequisite of the retrieval process is to build the search engine.
 The search engine is constructed from the topic model trained from the corpus
-and an index of that corpus inferred from that model, known as $\theta$.
+and an index of that corpus inferred from that model.
 The primary function of the search engine is to rank documents in relation to the query.
-The search engine performs a pairwise classification of the query
-to each document and ranks the documents based on their scores.
-
-To accomplish the classification step using a topic model,
-the search engine infers $\theta_{Snapshot}$, i.e.,
-the topic-document probability distribution of each document in the snapshot corpus,
-as well as $\theta_{Query}$, i.e., the topic-document probability distribution of the query.
-Then a similarity measure for probability distributions, such as
-cosine similarity or Hellinger distance, can be used to make pairwise comparisons
-between $\theta_{Query}$ and $\theta_{Snapshot}$.
+The search engine performs a pairwise classification of the query to each
+document in the index and ranks the documents based on their similarity score,
+such as cosine similarity or Hellinger distance.
 
 \subsection{Topic Modeling}
 

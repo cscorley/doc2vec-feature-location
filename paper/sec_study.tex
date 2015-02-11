@@ -1,7 +1,6 @@
 % vim:syntax=tex
 
-In this section we describe the design of a case study in which we
-compare topic models trained on changesets to those trained on snapshots.
+In this section we describe the design of a study in which we compare topic models trained on changesets to those trained on snapshots.
 We describe the case study using the Goal-Question-Metric approach~\cite{Basili-etal:94}.
 The data and source code for the case study is available in this paper's online
 appendix\footnote{\textbf{REVIEWER URL ONLY:} \url{http://christop.club/x/cfl/}}.
@@ -36,13 +35,12 @@ describe the setting of our study, and report our data collection and analysis p
 
 \subsection{Subject software systems}
 
-All of our subject software systems come from two publicly-available
-datasets.
-The first is a dataset of four software systems by Dit et al.~\cite{Dit-etal:2013} and contains method-level goldsets.
+All of our subject software systems come from two publicly-available datasets.
+The first is a dataset of six software systems by Dit et al.~\cite{Dit-etal:2013} and contains method-level goldsets.
 This dataset was automatically extracted from changesets that relate to the queries (issue reports).
 The second is a dataset of 14 software systems by Moreno et al.~\cite{Moreno-etal:2014} and contains class-level goldsets.
 This dataset was automatically extracted from patches attached to issue reports.
-The four software systems in the first dataset also appear in the second,
+The six software systems in the first dataset also appear in the second,
 supplying us with both class- and method-level goldsets for the queries.
 
 \begin{table}[t]
@@ -214,6 +212,9 @@ We implemented our modeling using the Python library Gensim~\cite{Gensim}, versi
 Our evaluation is two-fold: we compare results for both LDA and LSI.
 We do this to evaluate the performance of using changesets as input
 documents regardless of chosen algorithm.
+We also use the same configurations on each subject system to minimize confounding factors.
+We do realize that this may lead to topic models that are not best-suited for feature location on a particular subject.
+Again, our goal is to show the performance of changeset-based topic modeling against snapshot-based topic modeling under similar conditions.
 
 \subsubsection{LDA configuration}
 
@@ -242,7 +243,6 @@ Gensim's LSI implementation is based on an online LSI by {\v R}eh{\r u}{\v r}ek\
 We set the number of topics the same as LDA for each project.
 The remaining parameters are left at default values, including those used
 during the temporal evaluation.
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

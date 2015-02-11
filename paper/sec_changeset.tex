@@ -2,8 +2,6 @@
 In this section we describe how a topic model-based feature location
 technique can use changesets.
 
-
-
 \begin{figure*}
 \centerline{\includegraphics[width=.75\textwidth]{figures/changeset-flt}}
 \caption{Feature location using changesets}
@@ -23,8 +21,8 @@ addition, or deletion, which may crosscut many source code entities.
 A \textit{commit} is a representation of a changeset in a version control system, such as Git or Subversion.
 
 The changeset topic modeling approach requires two types of document extraction:
-the first for the snapshot of the state of source code at a commit of interest, such as a tagged release,
-and the second for the every changeset in the source code history leading up to that commit.
+the snapshot of the state of source code at a commit of interest, such as a tagged release,
+and every changeset in the source code history leading up to the same commit of interest.
 The left side of Figure~\ref{fig:changeset} illustrates the dual-document extraction approach.
 
 The document extraction process for the snapshot remains the same as covered in Section~\ref{sec:related} while the
@@ -38,23 +36,17 @@ It may also be desirable to only use portions of the changeset, such as only usi
 The right side of Figure~\ref{fig:changeset} illustrates the retrieval process.
 The key intuition to our approach is that a topic model such as LDA or LSI
 can infer any given document's topic proportions regardless of the documents used to train the model.
-Hence, we train a topic model on the changeset corpus,
-but search for related documents over the snapshot corpus.
-In the search engine, we can use a dynamic programming to
-keep $\theta_{Snapshot}$ up-to-date as new changesets are added to the model.
+Hence, we train a topic model on the changeset corpus, but search for related documents over the snapshot corpus index, $\theta_{Snapshot}$.
+In the search engine, we can use a dynamic programming to keep $\theta_{Snapshot}$ up-to-date as new changesets are added to the model.
 That is, upon a update to the model, updates to the source code are made only to the documents that are affected by the changesets.
-Additionally, we can then query the model as needed
-and rank the results of that query against $\theta_{Snapshot}$.
-Note that we never infer a $\theta_{Changeset}$
-for the changeset documents on which the model is built.
+Additionally, we can then query the model as needed and rank the results of that query against $\theta_{Snapshot}$.
+Note that we never construct an index of the changeset documents on which the model is trained.
 
-To leverage the online functionality of the topic models,
-we can also intermix the model training and retrieval steps.
+To leverage the online functionality of the topic models, we can also intermix the model training, indexing, and retrieval steps.
 First, we initialize a model in online mode.
 Then, as changes are made, the model is updated with the new changesets as they are committed.
 That is, with changesets, we incrementally update a model and can query it at any moment.
 Our temporal evaluation (\S~\ref{sec:methodology}) relies on this insight.
-
 
 
 \begin{figure*}[t]

@@ -13,7 +13,7 @@ of the data~\cite{Linstead-etal:2007,Thomas-etal:2011,Hindle-etal:2012}.
 One particular application of topic models is for \emph{feature location}.
 Feature location is the act of identifying the source code that implements a system feature.
 The current state-of-the-practice for feature location is to use a keyword search tool, such as \texttt{grep}.
-However, Ko et al.~\cite{Ko-etal:2006} show that developers fail using this type of searching upwards to 88\% of the time. 
+Ko et al.~\cite{Ko-etal:2006} show that developers fail using this type of searching upwards to 88\% of the time.
 Information retrieval techniques, such as topic modeling, show promise in remedying this problem~\cite{Marcus-etal:2004}.
 
 Typical topic-model-based feature location techniques (FLT) construct models from corpora of text extracted from a source code snapshot~\cite{Dit-etal:2013b}.
@@ -22,15 +22,16 @@ In the first step, a corpus of source code entities, such as methods or classes,
 The indexing step uses the trained model to construct an index of the source code entities based on their inferred topic distribution.
 Keeping such a model up-to-date is expensive, because the frequency and scope of source code changes, such as method removal, necessitate retraining the model on the updated corpus.
 This situation is sub-optimal whether your perspective is academic research or industrial tool-building.
-An optimal topic model is one that does not incur this computational cost to stay up-to-date.
+Like Rao et al.~\cite{Rao-etal:2013}, our primary research goal is elimination of this cost.
+However, unlike Rao et al., we do not intend to create special topic modeling techniques ourselves.
 
 In this paper, we propose a fresh take on topic-modeling-based FLTs by leveraging online topic models and mining software repositories to construct topic models that do not need retraining.
 Online topic models do not need to know the entire input corpus prior to training~\cite{Hoffman-etal:2010,Radim:2011}.
-That is, online topic models can be instantiated once and incrementally updated over time.
+That is, online topic models can be incrementally trained over time as more data becomes available.
 % Additionally, training the model and infering how documents relate with the model can be intermixed.
 Moreover, a version control repository, such as Git, keeps a history of source code documents as they change over time.
 These changes are represented as changesets, which provide concise views of the differences between two revisions of the same document.
-By training an online topic model on changesets and indexing the source code on that model, we can stream documents (i.e., changesets) from the version control repository to the topic model.
+By training an online topic model on changesets and indexing the source code on that model, we can stream documents (i.e., changesets) from the version control repository to incrementally train the topic model.
 This enables searching over the current source code index without retraining an entirely new model.
 
 In our previous work~\cite{Corley-etal:2014}, we show that topic models trained on changesets produce topics which have comparable
@@ -41,9 +42,9 @@ We combine two benchmarks totaling over 1200 defects and features from fourteen 
 We also present a \emph{temporal simulation} in which we approximate how the FLT would perform throughout the evolution of a project.
 
 Our results show that the changeset approach is feasible and practical.
-In many cases the changeset approach out-performs current snapshot approaches, but is no silver bullet to in defeating snapshot-based approaches.
-However, the performance in both the failing and succeeding cases are comparable.
-Hence, we argue that the changeset-based topic modeling warrants further investigation.
+In many cases the changeset approach out-performs current snapshot approaches, but is no silver bullet.
+The performance of the changeset approach in both the failing and succeeding cases are comparable to the performance of the snapshot approach.
+We argue that the evidence suggests that changeset-based topic modeling warrants further investigation.
 
 % blah
 We also show that evalutating an FLT in a temporally-aware manner improves the performance of the FLT.

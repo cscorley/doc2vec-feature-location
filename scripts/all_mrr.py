@@ -64,6 +64,7 @@ INNER_FOOTER= "\\bottomrule\n\\end{tabular}\n\\label{table:%s:%s:%s}"
 FOOTER="\\end{table}"
 
 projects = src.main.load_projects()
+rq2_projects = ['argouml', 'jabref', 'jedit', 'mucommander']
 
 for kind in ['lda', 'lsi']:
     alldict = dict()
@@ -106,6 +107,8 @@ for kind in ['lda', 'lsi']:
             print(INNER_HEADER % ('RQ2', 'temporal ' + kind.upper(), level,  'Batch', 'Temporal'), file=f)
             for project in projects:
                 if project.level != level:
+                    continue
+                if project.name not in rq2_projects:
                     continue
 
                 desc = ' '.join([project.printable_name, project.version])

@@ -66,7 +66,6 @@ def total_variation_distance(p, q):
 
 def score(model, fn):
     # thomas et al 2011 msr
-    #
     scores = list()
     for a, topic_a in norm_phi(model):
         score = 0.0

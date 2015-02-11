@@ -1,8 +1,6 @@
 Changeset Topics for Feature Location
 =====================================
 
-[![Build Status](https://magnum.travis-ci.com/cscorley/feature-location.svg?token=CjXwzG3DCkMLgDhpEr4U&branch=master)](https://magnum.travis-ci.com/cscorley/feature-location)
-
 ### Authors
 
 - Christopher S. Corley, <cscorley@crimson.ua.edu>

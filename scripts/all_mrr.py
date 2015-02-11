@@ -55,7 +55,7 @@ HEADER="""\\begin{table}[t]
 \\renewcommand{\\arraystretch}{1.3}
 \\footnotesize
 \\centering"""
-INNER_HEADER="""\\caption{%s: MRR and $p$-values of %s at the %s-level}
+INNER_HEADER="""\\caption{{\\bf %s}: MRR and $p$-values of %s-level %s}
 \\begin{tabular}{l|ll|ll}
 \\toprule
 Subject System & %s & %s & $p$-value  \\\\
@@ -75,7 +75,7 @@ for kind in ['lda', 'lsi']:
             cname = 'changeset_' + kind
             alldict[rname] = list()
             alldict[cname] = list()
-            print(INNER_HEADER % ('RQ1', kind.upper(),  level, 'Snapshot', 'Changeset'), file=f)
+            print(INNER_HEADER % ('RQ1', level, kind.upper(), 'Snapshot', 'Changeset'), file=f)
             for project in projects:
                 if project.level != level:
                     continue
@@ -104,7 +104,7 @@ for kind in ['lda', 'lsi']:
             cname = 'temporal_' + kind
             alldict[rname] = list()
             alldict[cname] = list()
-            print(INNER_HEADER % ('RQ2', 'temporal ' + kind.upper(), level,  'Batch', 'Temporal'), file=f)
+            print(INNER_HEADER % ('RQ2', level, kind.upper(), 'Batch', 'Temporal'), file=f)
             for project in projects:
                 if project.level != level:
                     continue

@@ -137,18 +137,24 @@ def cli(verbose, debug, force, nodownload, path, name, version, level):
 def write_ranks(project, prefix, ranks):
     with open(os.path.join(project.full_path, '-'.join([prefix, project.level, 'ranks.csv'])), 'w') as f:
         writer = csv.writer(f)
-        writer.writerow(['rank', 'id', 'item'])
-        writer.writerows(ranks)
+        writer.writerow(['id', 'rank', 'distance', 'item'])
+
+        for gid, rl in ranks.items():
+            for idx, rank in enumerate(rl):
+                dist, meta = rank
+                d_name, d_repo = meta
+                writer.writerow([gid, idx+1, dist, d_name])
 
 def read_ranks(project, prefix):
-    ranks = list()
+    ranks = dict()
     with open(os.path.join(project.full_path, '-'.join([prefix, project.level, 'ranks.csv']))) as f:
         reader = csv.reader(f)
-        next(reader)
-        # ranks, id, item
-        for row in reader:
-            rank = (int(row[0]), int(row[1]), row[2])
-            ranks.append(rank)
+        next(reader)  # skip header
+        for g_id, idx, dist, d_name in reader:
+            if g_id not in ranks:
+                ranks[g_id] = list()
+
+            ranks[g_id].append( (dist, (d_name, 'UNKNOWN')) )
 
     return ranks
 
@@ -160,7 +166,7 @@ def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=
     """
     logger.info("Running basic evaluation on the %s", kind)
     try:
-        lda_first_rels = read_ranks(project, kind.lower() + '_lda')
+        lda_ranks = read_ranks(project, kind.lower() + '_lda')
         logger.info("Sucessfully read previously written %s LDA ranks", kind)
         exists = True
     except IOError:
@@ -170,12 +176,14 @@ def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=
         lda_model, _ = create_lda_model(project, corpus, corpus.id2word, kind, use_level=use_level, force=force)
         lda_query_topic = get_topics(lda_model, queries)
         lda_doc_topic = get_topics(lda_model, other_corpus)
+
         lda_ranks = get_rank(lda_query_topic, lda_doc_topic)
-        lda_first_rels = get_frms(goldsets, lda_ranks)
-        write_ranks(project, kind.lower() + '_lda', lda_first_rels)
+        write_ranks(project, kind.lower() + '_lda', lda_ranks)
+
+    lda_first_rels = get_frms(goldsets, lda_ranks)
 
     try:
-        lsi_first_rels = read_ranks(project, kind.lower() + '_lsi')
+        lsi_ranks = read_ranks(project, kind.lower() + '_lsi')
         logger.info("Sucessfully read previously written %s LSI ranks", kind)
         exists = True
     except IOError:
@@ -187,8 +195,9 @@ def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=
         lsi_doc_topic = get_topics(lsi_model, other_corpus)
 
         lsi_ranks = get_rank(lsi_query_topic, lsi_doc_topic)
-        lsi_first_rels = get_frms(goldsets, lsi_ranks)
-        write_ranks(project, kind.lower() + '_lsi', lsi_first_rels)
+        write_ranks(project, kind.lower() + '_lsi', lsi_ranks)
+
+    lsi_first_rels = get_frms(goldsets, lsi_ranks)
 
     return lda_first_rels, lsi_first_rels
 
@@ -196,8 +205,11 @@ def run_temporal(project, repos, corpus, queries, goldsets, force=False):
     logger.info("Running temporal evaluation")
 
     try:
-        lda_rels = read_ranks(project, 'temporal_lda')
-        lsi_rels = read_ranks(project, 'temporal_lsi')
+        lda_ranks = read_ranks(project, 'temporal_lda')
+        lda_rels = get_frms(goldsets, lda_ranks)
+
+        lsi_ranks = read_ranks(project, 'temporal_lsi')
+        lsi_rels = get_frms(goldsets, lsi_ranks)
         logger.info("Sucessfully read previously written Temporal ranks")
     except IOError:
         force = True
@@ -292,11 +304,12 @@ def run_temporal_helper(project, repos, corpus, queries, goldsets):
     lda.save(lda_fname)
     lsi.save(lsi_fname)
 
+    write_ranks(project, 'temporal_lda', lda_ranks)
+    write_ranks(project, 'temporal_lsi', lsi_ranks)
+
     lda_rels = get_frms(goldsets, lda_ranks)
     lsi_rels = get_frms(goldsets, lsi_ranks)
 
-    write_ranks(project, 'temporal_lda', lda_rels)
-    write_ranks(project, 'temporal_lsi', lsi_rels)
     return lda_rels, lsi_rels
 
 
@@ -348,13 +361,12 @@ def get_frms(goldsets, ranks):
         else:
             logger.info('Getting best rank out of %d shas', len(ranks[g_id]))
             subfrms = list()
-            for rank in ranks[g_id]:
-                for idx, metadist in enumerate(rank):
-                    doc_meta, dist = metadist
-                    d_name, d_repo = doc_meta
-                    if d_name in goldset:
-                        subfrms.append((idx+1, int(g_id), d_name))
-                        break
+            for idx, rank in enumerate(ranks[g_id]):
+                dist, meta = rank
+                d_name, d_repo = meta
+                if d_name in goldset:
+                    subfrms.append((idx+1, int(g_id), d_name))
+                    break
 
             # i think this might be cheating? :)
             subfrms.sort()
@@ -377,12 +389,12 @@ def get_rank(query_topic, doc_topic, distance_measure=utils.hellinger_distance):
 
         for d_meta, doc in doc_topic:
             distance = distance_measure(query, doc)
-            q_dist.append((d_meta, distance))
+            q_dist.append((distance, d_meta))
 
-        if qid not in ranks:
-            ranks[qid] = list()
+        if qid in ranks:
+            raise Exception("WHAT")
 
-        ranks[qid].append(list(sorted(q_dist, key=lambda x: x[1])))
+        ranks[qid] = list(sorted(q_dist))
 
     logger.info('Returning %d ranks', len(ranks))
     return ranks

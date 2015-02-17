@@ -127,8 +127,8 @@ def cli(verbose, debug, force, nodownload, path, name, version, level):
     except IOError:
         logger.info("Files needed for temporal evaluation not found. Skipping.")
     else:
-        do_science('temporal_lda', temporal_lda, release_lda, ignore=True)
-        do_science('temporal_lsi', temporal_lsi, release_lsi, ignore=True)
+        do_science('temporal_lda', temporal_lda, changeset_lda, ignore=True)
+        do_science('temporal_lsi', temporal_lsi, changeset_lsi, ignore=True)
 
     # do this last so that the results are printed together
     do_science('basic_lda', changeset_lda, release_lda)

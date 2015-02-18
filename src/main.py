@@ -47,11 +47,12 @@ def error(*args, **kwargs):
 @click.option('--debug', is_flag=True)
 @click.option('--force', is_flag=True)
 @click.option('--nodownload', is_flag=True)
+@click.option('--temporal', is_flag=True)
 @click.option('--path', default='data/', help="Set the directory to work within")
 @click.argument('name')
 @click.option('--version', help="Version of project to run experiment on")
 @click.option('--level', help="Granularity level of project to run experiment on")
-def cli(verbose, debug, force, nodownload, path, name, version, level):
+def cli(verbose, debug, force, nodownload, temporal, path, name, version, level):
     """
     Changesets for Feature Location
     """
@@ -120,15 +121,17 @@ def cli(verbose, debug, force, nodownload, path, name, version, level):
     changeset_lda, changeset_lsi = run_basic(project, changeset_corpus,
                                              release_corpus, queries, goldsets,
                                              'Changeset', force=force)
-    try:
-        temporal_lda, temporal_lsi = run_temporal(project, repos,
-                                                  changeset_corpus, queries,
-                                                  goldsets, force=force)
-    except IOError:
-        logger.info("Files needed for temporal evaluation not found. Skipping.")
-    else:
-        do_science('temporal_lda', temporal_lda, changeset_lda, ignore=True)
-        do_science('temporal_lsi', temporal_lsi, changeset_lsi, ignore=True)
+
+    if temporal:
+        try:
+            temporal_lda, temporal_lsi = run_temporal(project, repos,
+                                                    changeset_corpus, queries,
+                                                    goldsets, force=force)
+        except IOError:
+            logger.info("Files needed for temporal evaluation not found. Skipping.")
+        else:
+            do_science('temporal_lda', temporal_lda, changeset_lda, ignore=True)
+            do_science('temporal_lsi', temporal_lsi, changeset_lsi, ignore=True)
 
     # do this last so that the results are printed together
     do_science('basic_lda', changeset_lda, release_lda)

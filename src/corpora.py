@@ -472,13 +472,13 @@ class ChangesetCorpus(GitCorpus):
             lines = diff_lines[2:]  # chop off file names hashtag rebel
 
             if not self.include_additions:
-                lines = filter(lambda x: addition.match(x), lines)
+                lines = filter(lambda x: not addition.match(x), lines)
 
             if not self.include_removals:
-                lines = filter(lambda x: removal.match(x), lines)
+                lines = filter(lambda x: not removal.match(x), lines)
 
             if not self.include_context:
-                lines = filter(lambda x: context.match(x), lines)
+                lines = filter(lambda x: not context.match(x), lines)
 
             lines = [line[1:] for line in lines]  # remove unified markers
 

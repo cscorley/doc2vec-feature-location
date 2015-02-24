@@ -371,6 +371,25 @@ class TaserReleaseCorpus(GeneralCorpus, TaserMixIn):
 
 
 class ChangesetCorpus(GitCorpus):
+    def __init__(self, repo, project=None, remove_stops=True, split=True,
+                 lower=True, min_len=3, max_len=40, id2word=None,
+                 lazy_dict=False, label=None, ref=None, include_removals=True,
+                 include_additions=True, include_context=True):
+        self.include_removals = include_removals
+        self.include_additions = include_additions
+        self.include_context = include_context
+        super(ChangesetCorpus, self).__init__(repo,
+                                              project=project,
+                                              remove_stops=remove_stops,
+                                              split=split,
+                                              lower=lower,
+                                              min_len=min_len,
+                                              max_len=max_len,
+                                              id2word=id2word,
+                                              lazy_dict=lazy_dict,
+                                              label=label,
+                                              ref=ref)
+
     def _get_diff(self, changeset):
         """ Return a text representing a `git diff` for the files in the
         changeset.
@@ -410,6 +429,9 @@ class ChangesetCorpus(GitCorpus):
     def get_texts(self):
         length = 0
         unified = re.compile(r'^[+ -].*')
+        context = re.compile(r'^ .*')
+        addition = re.compile(r'^\+.*')
+        removal = re.compile(r'^-.*')
         current = None
         low = list()  # collecting the list of words
 
@@ -448,7 +470,19 @@ class ChangesetCorpus(GitCorpus):
             # commit_fn = diff_lines[1][4:]
 
             lines = diff_lines[2:]  # chop off file names hashtag rebel
+
+            if not self.include_additions:
+                lines = filter(lambda x: addition.match(x), lines)
+
+            if not self.include_removals:
+                lines = filter(lambda x: removal.match(x), lines)
+
+            if not self.include_context:
+                lines = filter(lambda x: context.match(x), lines)
+
             lines = [line[1:] for line in lines]  # remove unified markers
+
+
             document = ' '.join(lines)
 
             # call the tokenizer

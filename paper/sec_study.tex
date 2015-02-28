@@ -209,7 +209,7 @@ We normalize to lower case before filtering non-letters, English stop words~\cit
 We do not stem words.
 
 We implemented our modeling using the Python library Gensim~\cite{Gensim}, version 0.10.2.
-Our evaluation is two-fold: we compare results for both LDA and LSI.
+We evaluate our approach using LDA.
 We do this to evaluate the performance of using changesets as input
 documents regardless of chosen algorithm.
 We also use the same configurations on each subject system to minimize confounding factors.
@@ -236,13 +236,6 @@ include a way to adjust $\tau_0$, so we only adjust $\kappa$.
 We chose $\kappa=2.0$ for all systems, because the temporal evaluation
 often have mini-batch sizes in single digits.
 
-\subsubsection{LSI configuration}
-
-% TODO
-Gensim's LSI implementation is based on an online LSI by {\v R}eh{\r u}{\v r}ek\cite{Radim:2011}.
-We set the number of topics the same as LDA for each project.
-The remaining parameters are left at default values, including those used
-during the temporal evaluation.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -290,63 +283,42 @@ since these queries and goldsets are the same.
 
 \input{tables/rq1_lda}
 
-\input{tables/rq1_lsi}
-
 
 RQ1 asks how well a topic model built upon changesets performs against
 one built on source code entities.
-We also wanted to know if there were any differences of performance
-between two popular algorithms, LSI and LDA.
-Table~\ref{table:rq1:class:lda} and Table~\ref{table:rq1:class:lsi}
+Table~\ref{table:rq1:class:lda} and Table~\ref{table:rq1:method:lda}
 summarize the results of each subject system when
-evaluated at the class granularity with LDA and LSI, respectively.
-Similarly, Table~\ref{table:rq1:method:lda} and Table~\ref{table:rq1:method:lsi}
-summarize the results of each subject system when
-evaluated at the method granularity.
+evaluated at the class and method granularity, respectively.
+In each of the tables, we bold which of the two MRRs is greater.
 
 For LDA at the class-level we note an improvement in MRR for 10 of the 19 systems when using changesets.
 Additionally, 5 of these 10 systems were statistically significant at $p<0.01$.
 Only 2 of the 9 systems with MRR in favor of snapshots were statistically significant.
-Likewise, for the LSI evaluations at class granularity, 12 of the 19 systems improve with changesets.
-However, none of the systems presented a statistically significant value.
 Overall, for LDA, changesets perform slightly worse than snapshots with statistical significance.
-LSI, again, performs slightly better with snapshots with no statistical significance.
 
 For LDA at the method-level we note an improvement in MRR for 3 of the 6 systems when using changesets.
 None of these were statistically significant at $p<0.01$.
-Likewise, for the LSI evaluations at class granularity, 2 of the 6 systems improve with changesets
-Again, none of the systems presented a statistically significant value.
 Overall, for LDA, changesets perform slightly worse than snapshots with statistical significance.
-LSI, again, performs slightly better with snapshots with no statistical significance.
 
 
 
 \input{tables/rq2_lda}
 
-\input{tables/rq2_lsi}
-
 RQ2 asks how well a simulation of using a topic model would perform as it were to be used in real-time.
 This is a much closer evaluation of a feature location technique to it being used in an actual development environment.
-We also wanted to know if there were any differences of performance between two popular algorithms, LSI and LDA.
-Table~\ref{table:rq2:class:lda} and Table~\ref{table:rq2:class:lsi} summarize the results of each subject system when
-evaluated at the class granularity with LDA and LSI, respectively.
-Similarly, Table~\ref{table:rq2:method:lda} and Table~\ref{table:rq2:method:lsi}
-summarize the results of each subject system when evaluated at the method granularity.
+Table~\ref{table:rq2:class:lda} and Table~\ref{table:rq2:method:lda}
+summarize the results of each subject system when
+evaluated at the class and method granularity, respectively.
 In each of the tables, we bold which of the two MRRs is greater.
 
 For temporal LDA at the class-level we note an improvement in MRR for 5 of the 6 systems
 with 3 of these 5 systems statistically significant at $p<0.01$.
 The one system with MRR in favor of batch changesets, ArgoUML v0.22, was not statistically significant.
-Likewise, for the temporal LSI evaluations at class granularity, 6 of the 6 systems improve
-with all systems statistically significant.
-Overall, temporal evaluation performs significantly better than batch under both LDA and LSI.
+Overall, temporal evaluation performs significantly better than batch.
 
 For temporal LDA at the method-level we note an improvement in MRR for 4 of the 6 systems
 with 2 of the 4 systems statistically significant at $p<0.01$.
-Likewise, for the LSI evaluations at the method-level, 2 of the 6 systems improve
-with statistical significance on only 1 of those 2 systems.
-Overall, temporal evaluation performs significantly better than batch under LDA
-while temporal LSI performs slightly worse than batch with statistical significance.
+Overall, temporal evaluation performs significantly better than batch.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -381,10 +353,8 @@ we will now discuss each of these situations in detail.
 %     jedit
 
 This situation occurs in
-1 out of 6 systems for LDA at the class-level,
-0 out of 6 systems for LSI at the class-level,
-2 out of 6 systems for LDA at the method-level,
-and 1 out of 6 systems for LSI at the method-level.
+1 out of 6 systems for LDA at the class-level, and
+2 out of 6 systems for LDA at the method-level.
 We hypothesize that this is due to the nature of the batch evaluation versus the temporal evaluation.
 In the batch evaluation, the model is trained on all data before being queried,
 while in the temporal evaluation the model is trained on partial data before being queried.
@@ -410,10 +380,8 @@ changesets temporally are better than changesets in batch}
 %     mucommander
 
 This situation occurs in
-0 out of 6 systems for LDA at the class-level,
-5 out of 6 systems for LSI at the class-level,
-1 out of 6 systems for LDA at the method-level,
-and 1 out of 6 systems for LSI at the method-level.
+0 out of 6 systems for LDA at the class-level, and
+1 out of 6 systems for LDA at the method-level.
 We hypothesize that this is due to the same previous reason, but that
 temporal evaluation more accurately captures the correct state of the system (i.e., the source code entities)
 at the point in time when querying is done.
@@ -446,10 +414,8 @@ changesets in batch are better than changesets temporally}
 %     jabref
 
 This situation occurs in
-5 out of 6 systems for LDA at the class-level,
-1 out of 6 systems for LSI at the class-level,
-3 out of 6 systems for LDA at the method-level,
-and 4 out of 6 systems for LSI at the method-level.
+5 out of 6 systems for LDA at the class-level, and
+3 out of 6 systems for LDA at the method-level.
 Similarly, this could be because of how the models are trained.
 Although the batch changesets performed worse in both cases, it does
 improve during temporal evaluation.

@@ -63,8 +63,9 @@ def split(iterator, keep_original=True):
                 word += char
 
             elif char in string.punctuation:
-                if len(word) > 0 and word != token:
-                    yield word
+                if len(word) > 0:
+                    if word != token:
+                        yield word
                     word = u''
 
                 # always yield punctuation as a single token

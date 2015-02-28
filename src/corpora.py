@@ -52,10 +52,10 @@ class GeneralCorpus(gensim.interfaces.CorpusABC):
 
         if id2word is None:
             id2word = gensim.corpora.Dictionary()
-            logger.info('[gen] Creating new dictionary %s for %s %s',
+            logger.debug('[gen] Creating new dictionary %s for %s %s',
                         id(id2word), self.__class__.__name__, id(self))
         else:
-            logger.info('[gen] Using provided dictionary %s for %s %s',
+            logger.debug('[gen] Using provided dictionary %s for %s %s',
                         id(id2word), self.__class__.__name__, id(self))
 
         self.id2word = id2word
@@ -75,7 +75,7 @@ class GeneralCorpus(gensim.interfaces.CorpusABC):
 
     @id2word.setter
     def id2word(self, val):
-        logger.info('[gen] Updating dictionary %s for %s %s', id(val),
+        logger.debug('[gen] Updating dictionary %s for %s %s', id(val),
                     self.__class__.__name__, id(self))
         self._id2word = val
 
@@ -129,7 +129,7 @@ class GitCorpus(GeneralCorpus):
             else:
                 ref = 'HEAD'
 
-        logger.info('[git] Creating %s corpus out of source files for commit %s: %s',
+        logger.debug('[git] Creating %s corpus out of source files for commit %s: %s',
                     self.__class__.__name__, ref, str(lazy_dict))
         self.repo = repo
 
@@ -560,7 +560,7 @@ class CorpusCombiner(GeneralCorpus):
 
     @id2word.setter
     def id2word(self, val):
-        logger.info('[com] Updating dictionary %s for %s %s', id(val),
+        logger.debug('[com] Updating dictionary %s for %s %s', id(val),
                     self.__class__.__name__, id(self))
         self._id2word = val
         for corpus in self.corpora:

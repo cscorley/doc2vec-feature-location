@@ -34,8 +34,10 @@ def to_unicode(document, info=[]):
     return document
 
 
-def split(iterator):
+def split(iterator, keep_original=True):
     for token in iterator:
+        if keep_original and token:
+            yield token
         word = u''
         for char in token:
             if char.isupper() and all(map(lambda x: x.isupper(), word)):
@@ -45,7 +47,7 @@ def split(iterator):
             elif char.islower() and all(map(lambda x: x.isupper(), word)):
                 # stop building if word is currently all uppercase,
                 # but be sure to take the first letter back
-                if len(word) > 1:
+                if len(word) > 1 and word != token:
                     yield word[:-1]
                     word = word[-1]
 
@@ -61,20 +63,21 @@ def split(iterator):
                 word += char
 
             elif char in string.punctuation:
-                if len(word) > 0:
+                if len(word) > 0 and word != token:
                     yield word
                     word = u''
 
                 # always yield punctuation as a single token
-                yield char
+                if char != token:
+                    yield char
 
             else:
-                if len(word) > 0:
+                if len(word) > 0 and word != token:
                     yield word
 
                 word = char
 
-        if len(word) > 0:
+        if len(word) > 0 and word != token:
             yield word
 
 

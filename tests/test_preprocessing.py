@@ -124,12 +124,7 @@ class PreprocessTests(unittest.TestCase):
                 word += string.punctuation[p]
 
             result = split([word])
-            if word:
-                expected = list(word)
-                if len(expected) > 1:
-                    expected = [word] + expected
-            else:
-                expected = list()
+            expected = list(word)
             self.assertEqual(list(result), expected)
 
     def test_split_creates_generator(self):

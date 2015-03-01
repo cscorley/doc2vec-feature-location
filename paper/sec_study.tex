@@ -208,33 +208,35 @@ We only keep the split tokens; original tokens are discarded.
 We normalize to lower case before filtering non-letters, English stop words~\cite{StopWords}, Java keywords, and words shorter than three characters long.
 We do not stem words.
 
-We implemented our modeling using the Python library Gensim~\cite{Gensim}, version 0.10.2.
-We evaluate our approach using LDA.
-We do this to evaluate the performance of using changesets as input
-documents regardless of chosen algorithm.
-We also use the same configurations on each subject system to minimize confounding factors.
-We do realize that this may lead to topic models that are not best-suited for feature location on a particular subject.
-Again, our goal is to show the performance of changeset-based topic modeling against snapshot-based topic modeling under similar conditions.
+We implemented our modeling using the Python library Gensim~\cite{Gensim},
+version 0.10.3. We use the same configurations on each subject system.  We do
+not try to adjust parameters between the different models to attempt to find
+a better, or best, solution; rather, we leave them the same to reduce
+confounding variables.  We do realize that this may lead to topic models that
+are not best-suited for feature location on a particular subject system.
+However, this gives us confidence that the measurements collected are fair, and
+that the results are not influenced by selective parameter tweaking.  Again, our
+goal is to show the performance of the changeset-based FLT against
+snapshot-based FLT under the same conditions.
 
-\subsubsection{LDA configuration}
+Gensim's LDA implementation is based on an online LDA by Hoffman et
+al.~\cite{Hoffman-etal:2010} and uses variational inference instead of
+a Collapsed Gibbs Sampler.  Unlike Gibbs sampling, in order to ensure that the
+model converges for each document, we allow LDA to see each mini-batch $5$ times
+by setting Gensim's initialization parameter \texttt{passes} to this value and
+allowing the inference step $1000$ iterations over a document.  We set the
+following LDA parameters for all 14 systems: $500$ topics ($K$), a symmetric
+$\alpha=1/K$, and a symmetric $\beta=1/K$.  These are default values for
+$\alpha$ and $\beta$ in Gensim.
 
-Gensim's LDA implementation is based on an online LDA by Hoffman et al.~\cite{Hoffman-etal:2010}
-and uses variational inference instead of a Collapsed Gibbs Sampler.
-Unlike Gibbs sampling, in order to ensure that the model converges for each document,
-we allow LDA to see each mini-batch $5$ times by setting Gensim's initialization parameter \texttt{passes} to this value
-and allowing the inference step $1000$ iterations over a document.
-We set the following LDA parameters for all 14 systems:
-$500$ topics ($K$), a symmetric $\alpha=1/K$, and a symmetric $\beta=1/K$.
-These are default values for $\alpha$ and $\beta$ in Gensim.
-
-For the temporal evaluation, we found it beneficial to consider two other parameters: $\kappa$ and $\tau_0$.
-As noted in Hoffman et al.~\cite{Hoffman-etal:2010}, it is beneficial to
-adjust $\kappa$ and $\tau_0$ to higher values for smaller mini-batches.
-These two parameters control how much influence a new mini-batch has on the model when training.
-However, the implementation of Gensim at the time of this paper did not
-include a way to adjust $\tau_0$, so we only adjust $\kappa$.
-We chose $\kappa=2.0$ for all systems, because the temporal evaluation
-often have mini-batch sizes in single digits.
+For the temporal evaluation, we found it beneficial to consider two other
+parameters: $\kappa$ and $\tau_0$.  As noted in Hoffman et
+al.~\cite{Hoffman-etal:2010}, it is beneficial to adjust $\kappa$ and $\tau_0$
+to higher values for smaller mini-batches.  These two parameters control how
+much influence a new mini-batch has on the model when training.  We follow the
+recommenations in Hoffman et al.\, chosing $\tau_0=1024$ and $\kappa=0.9$ for
+all systems, because the temporal evaluation often has mini-batch sizes in
+single digits.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

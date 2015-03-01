@@ -334,27 +334,18 @@ In this study, we've asked two research questions which lead to two comparisons.
 First, we compare a batch topic-modeling-based FLT trained on the changesets
 of a project's history to one trained on the snapshot of source code entities.
 Second, we compare a batch topic-modeling-based FLT trained on changesets
-to a temporal topic-modeling-based FLT trained on the same changesets over time.
+to a online topic-modeling-based FLT trained on the same changesets over time.
 Our results are mixed, hence we end up with four possible situations;
 we will now discuss each of these situations in detail.
 
-\subsubsection{Changesets in batch are better than shapshots in batch
-\emph{and} changesets in batch are better than changesets temporally}
+\subsubsection{Batch changesets are better than batch shapshot
+\emph{and} batch changesets are better than temporal changesets}
 
 % Snapshots < Changeset && Batch > Temporal
-%  LDA Class:
-%     argouml 22
-%  LDA Method:
-%     argouml 22
-%     argouml 24
-%
-%  LSI Class:
-%  LSI method:
-%     jedit
 
 This situation occurs in
-1 out of 6 systems for LDA at the class-level, and
-2 out of 6 systems for LDA at the method-level.
+z out of 6 systems for LDA at the class-level, and
+z out of 6 systems for LDA at the method-level.
 We hypothesize that this is due to the nature of the batch evaluation versus the temporal evaluation.
 In the batch evaluation, the model is trained on all data before being queried,
 while in the temporal evaluation the model is trained on partial data before being queried.
@@ -362,26 +353,14 @@ This allows for the batch model to be more accurate because it is trained on mor
 and reveals feature location research evaluations may not be accurately portraying
 how an FLT would perform in a real scenario.
 
-\subsubsection{Changesets in batch are better than snapshots in batch \emph{and}
-changesets temporally are better than changesets in batch}
+\subsubsection{Batch changesets are better than batch shapshot
+\emph{and} temporal changesets are better than batch changesets}
 
 % Snapshots < Changeset && Batch < Temporal
-%  LDA Class:
-%  LDA Method:
-%     mucommander
-%
-%  LSI class:
-%     argouml 22
-%     argouml 24
-%     argouml 262
-%     jabref
-%     mucommander
-%  LSI method:
-%     mucommander
 
 This situation occurs in
-0 out of 6 systems for LDA at the class-level, and
-1 out of 6 systems for LDA at the method-level.
+z out of 6 systems for LDA at the class-level, and
+z out of 6 systems for LDA at the method-level.
 We hypothesize that this is due to the same previous reason, but that
 temporal evaluation more accurately captures the correct state of the system (i.e., the source code entities)
 at the point in time when querying is done.
@@ -390,41 +369,23 @@ there may be source code entities that do not exist in the system anymore
 that were at one time changed to complete a certain task.
 Again, the temporal evaluation better captures this scenario.
 
-\subsubsection{Snapshots in batch are better than changesets in batch \emph{and}
-changesets in batch are better than changesets temporally}
+\subsubsection{Batch snapshot are better than batch changeset
+\emph{and} temporal changesets are better than batch changesets}
 
 %  Snapshots > Changeset && Batch < Temporal
-%  LDA Class:
-%     argouml 24
-%     argouml 262
-%     jabref
-%     jedit
-%     mucommander
-%  LDA Method:
-%     argouml 262
-%     jabref
-%     jedit
-%
-%  LSI class:
-%     jedit
-%  LSI method:
-%     argouml 22
-%     argouml 24
-%     argouml 262
-%     jabref
 
 This situation occurs in
-5 out of 6 systems for LDA at the class-level, and
-3 out of 6 systems for LDA at the method-level.
+z out of 6 systems for LDA at the class-level, and
+z out of 6 systems for LDA at the method-level.
 Similarly, this could be because of how the models are trained.
 Although the batch changesets performed worse in both cases, it does
 improve during temporal evaluation.
 This does not mean that changesets are bad, but more accurately model
 the system over time.
 
+\subsubsection{Batch snapshot are better than batch changeset
+\emph{and} batch changesets are better than temporal changesets}
 
-\subsubsection{Snapshots in batch are better than changesets in batch \emph{and}
-changesets temporally are better than changesets in batch}
 % Snapshots > Changeset && Batch > Temporal
 %
 We note that this situation never occurs.

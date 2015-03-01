@@ -7,7 +7,7 @@ and review related work on topic modeling and feature location.
 
 \subsection{Document Extraction and Retrieval Process}
 
-\begin{figure*}
+\begin{figure*}[t]
 \centerline{\includegraphics[width=.9\textwidth]{figures/snapshot-flt}}
 \caption{Feature location using snapshots}
 \label{fig:snapshot}
@@ -22,33 +22,39 @@ and an \textit{identifier} is a token representing the name of an entity.
 The \textit{document} which corresponds to a class is a sequence of words $d = (w_1, \ldots, w_m)$,
 and a \textit{corpus} is a set of documents (i.e., classes) $D = (d_1, \ldots, d_n)$.
 
-The left side of Figure~\ref{fig:snapshot} illustrates the document extraction process.
-A document extractor takes source code as input and produces a corpus as output.
-Each document in the corpus contains the words associated with a source code entity
-such as a class or method.
-The text extractor is the first part of the document extractor.
-It parses the source code and produces a token stream for each class.
-The preprocessor is the second part of the document extractor.
-It applies a series of transformations to each token and
-produces one or more words from the token.
+The left side of Figure~\ref{fig:snapshot} illustrates the document extraction
+process.  A document extractor takes source code as input and produces a corpus
+as output.  Each document in the corpus contains the words associated with
+a source code entity such as a class or method.  The text extractor is the first
+part of the document extractor.  It parses the source code and produces a token
+stream for each class.  The preprocessor is the second part of the document
+extractor.  It applies a series of transformations to each token and produces
+one or more words from the token.
 The transformations~\cite{Marcus-etal:2004,Marcus-Menzies:2010}: % that we use are:
 \begin{itemize}
-    \item {\it Splitting}: separate tokens into constituent words
-        based on common coding style conventions (e.g., the use of camel case or underscores)
-        and on the presence of non-letters (e.g., punctuation or digits)
-    \item {\it Normalizing}: replace each upper case letter with the corresponding lower case letter
-    \item {\it Filtering}: remove common words such as articles (e.g., `an' or `the'),
-        programming language keywords, standard library entity names, or short words
+    \item {\it Splitting}: separate tokens into constituent words based on
+        common coding style conventions (e.g., the use of camel case or
+        underscores) and on the presence of non-letters (e.g., punctuation or
+        digits)
+    \item {\it Normalizing}: replace each upper case letter with the
+        corresponding lower case letter
+    \item {\it Filtering}: remove common words such as articles (e.g., `an' or
+        `the'), programming language keywords, standard library entity names, or
+        short words
 \end{itemize}
 
 The right side of Figure~\ref{fig:snapshot} illustrates the retrieval process.
 The main prerequisite of the retrieval process is to build the search engine.
-The search engine is constructed from the topic model trained from the corpus
-and an index of that corpus inferred from that model.
-The primary function of the search engine is to rank documents in relation to the query.
-The search engine performs a pairwise classification of the query to each
-document in the index and ranks the documents based on their similarity score,
-such as cosine similarity or Hellinger distance.
+The search engine is constructed from a topic model trained from a corpus and an
+index of that corpus inferred from that model.
+This means that an index is no more than each input document's thematic
+structure, or inferred topic distribution.
+
+The primary function of the search engine is to rank documents in relation to
+the query.  First, the engine must first infer the thematic structure of the
+query.  This allows for a p airwise classification of the query to each document
+in the index and ranks the documents based on the similarities of their thematic
+structures.
 
 \subsection{Latent Dirichlet Allocation}
 
@@ -61,84 +67,86 @@ each topic that it infers as a probability distribution indicating the
 likelihood of a word from the corpus being assigned to the topic.
 
 Hoffman et al.~\cite{Hoffman-etal:2010} introduce a version of LDA which is
-\emph{online}.
-Online LDA allows the model to be updated incrementally without needing
-to know about the documents prior to model construction.
-Zhai and Boyd-Graber~\cite{Zhai-Boyd-Graber:2013} introduce an extension of LDA
-in which the model also does not need to know about the corpus vocabulary prior to training.
+\emph{online}.  Online LDA allows the model to be updated incrementally without
+needing to know about the documents prior to model construction.  Zhai and
+Boyd-Graber~\cite{Zhai-Boyd-Graber:2013} introduce an extension of LDA in which
+the model also does not need to know about the corpus vocabulary prior to
+training.
 
 
 \subsection{Feature Location}
 
-A feature~\cite{Biggerstaff-etal:1993} is a visible functionality within the source code
-(feature is defined weakly throughout the literature because of the vast
-context in which it can be used). Feature (or concept) location is a program
-comprehension technique to locate source code elements (i.e., methods)
+A feature~\cite{Biggerstaff-etal:1993} is a visible functionality within the
+source code (feature is defined weakly throughout the literature because of the
+vast context in which it can be used). Feature (or concept) location is
+a program comprehension technique to locate source code elements (i.e., methods)
 within the source code that relate to specific functional
-requirements~\cite{Eisenbarth-etal:2001, Biggers-etal:2014}. Locating functionalities
-within the source code is a prerequisite for software evolution.  Identifying features is a specifically crucial and frequent task for
-developers, when adding new features, modifying existing features and removing
-unwanted features (e.g.  bugs)~\cite{Rajlich-Gosavi:2004, Dit-etal:2013b}. Locating bugs,
-or bug localization~\cite{Lukins-etal:2008, Bassett-Kraft:2013} is analogous to removing unwanted features.
+requirements~\cite{Eisenbarth-etal:2001, Biggers-etal:2014}. Locating
+functionalities within the source code is a prerequisite for software evolution.
+Identifying features is a specifically crucial and frequent task for developers,
+when adding new features, modifying existing features and removing unwanted
+features (e.g.  bugs)~\cite{Rajlich-Gosavi:2004, Dit-etal:2013b}. Locating bugs,
+or bug localization~\cite{Lukins-etal:2008, Bassett-Kraft:2013} is analogous to
+removing unwanted features.
 
 Feature location is commonly categorized as a static, dynamic or a hybrid
 technique involving a combination of the two. Static feature
-location~\cite{Zhao-etal:2006} is a method that statistically analyzes
-static documents, or source code. This is done by manually or automatically
-analyzing the text to explore the dependencies within the structure. Dynamic
-feature location applies a statistical analysis to the execution trace of a
-specific scenario, therefore requiring a working system~\cite{Eisenbarth-etal:2001,Poshyvanyk-etal:2007}.
-Hybrid techniques~\cite{Eisenbarth-etal:2003, Eaddy-etal:2008, Revelle-etal:2010} involve a combination of a static analysis of
-the source text and an analysis of scenarios in the execution trace. By
-blending the two it was found that this technique was applicable to working
-systems in providing higher precision for locating features~\cite{Poshyvanyk-etal:2007,
-Ernst:2004, Revelle-Coppitt:UNK}.
+location~\cite{Zhao-etal:2006} is a method that statistically analyzes static
+documents, or source code. This is done by manually or automatically analyzing
+the text to explore the dependencies within the structure. Dynamic feature
+location applies a statistical analysis to the execution trace of a specific
+scenario, therefore requiring a working
+system~\cite{Eisenbarth-etal:2001,Poshyvanyk-etal:2007}.  Hybrid
+techniques~\cite{Eisenbarth-etal:2003, Eaddy-etal:2008, Revelle-etal:2010}
+involve a combination of a static analysis of the source text and an analysis of
+scenarios in the execution trace. By blending the two it was found that this
+technique was applicable to working systems in providing higher precision for
+locating features~\cite{Poshyvanyk-etal:2007, Ernst:2004, Revelle-Coppitt:UNK}.
 
 Dit et al.~\cite{Dit-etal:2013b} provide a taxonomy and survey of feature
 location in source code covering the scope of FLTs.  Marcus et
-al~\cite{Marcus-etal:2004} use LSI-based feature location to find concepts based on
-queries from the user, and modules within the system in comparison to the
+al~\cite{Marcus-etal:2004} use LSI-based feature location to find concepts based
+on queries from the user, and modules within the system in comparison to the
 dependence graph approach. They found that concepts in the code were able to be
 identified with user specified terms and identifiers as well as an easier build
 process. LSI-based FLTs have been widely used by many others~\cite{
-Poshyvanyk-etal:2006, Poshyvanyk-Marcus:2007, Liu-etal:2007, Scanniello-Marcus:2011,
-Eaddy-etal:2008, Cubranic-etal:2005}.
+Poshyvanyk-etal:2006, Poshyvanyk-Marcus:2007, Liu-etal:2007,
+Scanniello-Marcus:2011, Eaddy-etal:2008, Cubranic-etal:2005}.
 
-Lukins et al.~\cite{Lukins-etal:2008} use an LDA-based FLT and
-find that that it outperforms an LSI-based FLT.
-Biggers et al.~\cite{Biggers-etal:2014} investigate the various configuration
-parameters for an LDA-based FLT.
-Bassett and Kraft~\cite{Bassett-Kraft:2013} find that using structural
-term weighting increases the performance of an LDA-based FLT.
+Lukins et al.~\cite{Lukins-etal:2008} use an LDA-based FLT and find that that it
+outperforms an LSI-based FLT.  Biggers et al.~\cite{Biggers-etal:2014}
+investigate the various configuration parameters for an LDA-based FLT.  Bassett
+and Kraft~\cite{Bassett-Kraft:2013} find that using structural term weighting
+increases the performance of an LDA-based FLT.
 
-Antoniol and Gueheneuc~\cite{Antoniol-Gueheneuc:2005, Antoniol-Gueheneuc:2006} use a combination of dynamic and
-static FLTs to improve program comprehension of large multi-threaded
-object oriented systems, particularly they run this integrated technique on
-Mozilla and Firefox as well as smaller systems JHotDraw, XFig, Chimera and
-ICEBrowser. Taking these systems and using static analysis, they represent them
-in Abstract Object Language format and then manipulate them using a meta model,
-PADL that represents object oriented systems independent of the language. To
-avoid the noise and imprecision of dynamic FLT they use process emulation
-during the execution of scenarios assigning probabilistic ranking of features as
-relevant or irrelevant. Their approach proves to minimize the amount of code
-needed for program comprehension as well as providing micro-architectures of
-each system.
+Antoniol and Gueheneuc~\cite{Antoniol-Gueheneuc:2005, Antoniol-Gueheneuc:2006}
+use a combination of dynamic and static FLTs to improve program comprehension of
+large multi-threaded object oriented systems, particularly they run this
+integrated technique on Mozilla and Firefox as well as smaller systems JHotDraw,
+XFig, Chimera and ICEBrowser. Taking these systems and using static analysis,
+they represent them in Abstract Object Language format and then manipulate them
+using a meta model, PADL that represents object oriented systems independent of
+the language. To avoid the noise and imprecision of dynamic FLT they use process
+emulation during the execution of scenarios assigning probabilistic ranking of
+features as relevant or irrelevant. Their approach proves to minimize the amount
+of code needed for program comprehension as well as providing
+micro-architectures of each system.
 
-Petrenko et al.~\cite{Petrenko-etal:2008} perform a textual search with a grep-based
-feature location with ontology fragments using Eclipse and Mozilla for their
-study. The ontology fragments work as a template for a query, storing the
-developers' knowledge of the concept they is trying to locate, and updating the
-fragments as further knowledge is gained. Wilson~\cite{Wilson:2010} extended this
-study with a systematic approach, formulating the queries for grep-based search, and
-directly using the ontology fragments. Four developers using the same systems
-as Petrenko et al, showed that using the ontology fragments as queries, providing
-only partial knowledge, was enough to accurately locate concepts within the
-two systems.
+Petrenko et al.~\cite{Petrenko-etal:2008} perform a textual search with
+a grep-based feature location with ontology fragments using Eclipse and Mozilla
+for their study. The ontology fragments work as a template for a query, storing
+the developers' knowledge of the concept they is trying to locate, and updating
+the fragments as further knowledge is gained. Wilson~\cite{Wilson:2010} extended
+this study with a systematic approach, formulating the queries for grep-based
+search, and directly using the ontology fragments. Four developers using the
+same systems as Petrenko et al, showed that using the ontology fragments as
+queries, providing only partial knowledge, was enough to accurately locate
+concepts within the two systems.
 
-Rao et al.~\cite{Rao-etal:2013} also target the problem of building
-topic models, introducing an incremental framework for bug localization.
-Although practical, the approach involves using an extended topic modeler to allow
+Rao et al.~\cite{Rao-etal:2013} also target the problem of building topic
+models, introducing an incremental framework for bug localization.  Although
+practical, the approach involves using an extended topic modeler to allow
 updating, adding, and removing documents from the model and index post-hoc.
 While the approach is essentially equivalent to topic modeling in batch,
-Rao~\cite{Rao:2013} notes that these algorithm modifications have limitations and
-thus models may need to be periodically retrained.
+Rao~\cite{Rao:2013} notes that these algorithm modifications have limitations
+and thus models may need to be periodically retrained.

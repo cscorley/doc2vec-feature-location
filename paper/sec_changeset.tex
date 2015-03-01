@@ -48,7 +48,7 @@ and green lines (beginning with a single~\texttt{+}) denote line additions.}
 \vspace{-10pt}
 \end{figure*}
 
-\subsection{Feature location with changesets}
+\subsection{Feature location using changesets}
 
 \begin{figure*}
 \centerline{\includegraphics[width=.9\textwidth]{figures/changeset-flt}}
@@ -71,9 +71,11 @@ a subset of the changeset vocabulary.
 
 The right side of Figure~\ref{fig:changeset} illustrates the retrieval process.
 The key intuition to our approach is that a topic model such as LDA or LSI can
-infer any given document's topic proportions regardless of the documents used to
-train the model.  In fact, this is also what determining the topic proportions
-of a user-created query relies on.
+infer \emph{any} document's topic proportions regardless of the documents used
+to train the model.  In fact, this is also what determining the topic
+proportions of a user-created query relies on. Likewise, so are other unseen
+documents. In our approach, the seen documents are changesets and the unseen
+documents are the source code entities.
 
 Hence, we train a topic model on the changeset corpus and use the model to index
 the snapshot corpus.  Note that we never construct an index of the changeset

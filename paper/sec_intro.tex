@@ -1,67 +1,92 @@
 % vim:syntax=tex
 
-Software developers are often confronted with maintenance tasks that involve navigation of repositories that preserve vast amounts of project history.
-Navigating these software repositories can be a time-consuming task, because their organization can be difficult to understand.
-A software developer who is tasked with changing a large software system spends effort on program comprehension activities to gain the knowledge needed to make the change~\cite{Corbi:1989}.
-Fortunately, topic models such as
-latent semantic indexing (LSI)~\cite{Deerwester-etal:1990} and
-latent Dirichlet allocation (LDA)~\cite{Blei-etal:2003}
-can help developers to navigate and understand software repositories
-by discovering topics (word distributions) that reveal the thematic structure
-of the data~\cite{Linstead-etal:2007,Thomas-etal:2011,Hindle-etal:2012}.
+Software developers are often confronted with maintenance tasks that involve
+navigation of repositories that preserve vast amounts of project history.
+Navigating these software repositories can be a time-consuming task, because
+their organization can be difficult to understand.  A software developer who is
+tasked with changing a large software system spends effort on program
+comprehension activities to gain the knowledge needed to make the
+change~\cite{Corbi:1989}.  Fortunately, topic models such as latent semantic
+indexing (LSI)~\cite{Deerwester-etal:1990} and latent Dirichlet allocation
+(LDA)~\cite{Blei-etal:2003} can help developers to navigate and understand
+software repositories by discovering topics (word distributions) that reveal the
+thematic structure of the
+data~\cite{Linstead-etal:2007,Thomas-etal:2011,Hindle-etal:2012}.
 
 One particular application of topic models is for \emph{feature location}.
-Feature location is the act of identifying the source code that implements a system feature.
-The current state-of-the-practice for feature location is to use a keyword search tool, such as \texttt{grep}.
-Ko et al.~\cite{Ko-etal:2006} show that developers fail using this type of searching upwards to 88\% of the time.
-Text retrieval techniques, such as topic modeling, show promise in remedying this problem~\cite{Marcus-etal:2004}.
+Feature location is the act of identifying the source code that implements
+a system feature.  The current state-of-the-practice for feature location is to
+use a keyword search tool, such as \texttt{grep}.  Ko et al.~\cite{Ko-etal:2006}
+show that developers fail using this type of searching upwards to 88\% of the
+time.  Text retrieval techniques, such as topic modeling, show promise in
+remedying this problem~\cite{Marcus-etal:2004}.
 
-Typical topic-modeling-based feature location techniques (FLT) construct models from corpora of text extracted from a source code snapshot~\cite{Dit-etal:2013b}.
-To use a topic-modeling-based FLT, there are generally two key steps: training and indexing.
-In the first step, a corpus of source code entities, such as methods or classes, are used to train the model to learn word co-occurences within those entities.
-The indexing step uses the trained model to construct an index of the source code entities based on their inferred topic distribution. 
-That is, an index is made of each source code's \emph{thematic structure}, and not it's raw content.
-Keeping such a model and index up-to-date is expensive, because the frequency and scope of source code changes, such as method removal, necessitate retraining the model on the updated corpus and reindexing.
-This situation is sub-optimal whether your perspective is academic research or industrial tool-building.
-Like Rao et al.~\cite{Rao-etal:2013}, our primary research goal is elimination of this cost.
-However, unlike Rao et al., we do not intend to develop new topic modeling techniques,
-but rather use the existing ones.
+Typical topic-modeling-based feature location techniques (FLT) construct models
+from corpora of text extracted from a source code
+snapshot~\cite{Dit-etal:2013b}.  To use a topic-modeling-based FLT, there are
+generally two key steps: training and indexing.  In the first step, a corpus of
+source code entities, such as methods or classes, are used to train the model to
+learn word co-occurences within those entities.  The indexing step uses the
+trained model to construct an index of the source code entities based on their
+inferred topic distribution.  That is, an index is made of each source code's
+\emph{thematic structure}, and not it's raw content.  Keeping such a model and
+index up-to-date is expensive, because the frequency and scope of source code
+changes, such as file removal, necessitate retraining the model on the updated
+corpus and reindexing.  This situation is sub-optimal whether your perspective
+is academic research or industrial tool-building.  Like Rao et
+al.~\cite{Rao-etal:2013}, our primary research goal is elimination of this cost.
+However, unlike Rao et al., we do not intend to develop new topic modeling
+techniques, but rather use the existing ones.
 
-In this paper, we propose a fresh take on topic-modeling-based FLTs by leveraging online topic models and mining software repositories to construct topic models that do not need retraining.
-Online topic models do not need to know the entire input corpus prior to training~\cite{Hoffman-etal:2010,Radim:2011}.
-That is, online topic models can be incrementally trained over time as more data becomes available.
-% Additionally, training the model and infering how documents relate with the model can be intermixed.
-Moreover, a version control repository, such as Git, keeps a history of source code documents as they change over time.
-These changes are represented as changesets, which provide concise views of the differences between two revisions of the same document.
-By training an online topic model on changesets and indexing the source code on that model, we can stream documents (i.e., changesets) from the version control repository to incrementally train the topic model.
-This enables searching over the current source code index without retraining an entirely new model.
+In this paper, we propose a fresh take on topic-modeling-based FLTs by
+leveraging online topic models and mining software repositories to construct
+topic models that do not need retraining.  Online topic models do not need to
+know the entire input corpus prior to
+training~\cite{Hoffman-etal:2010,Radim:2011}.  That is, online topic models can
+be incrementally trained over time as more data becomes available.
+% Additionally, training the model and infering how documents relate with the
+% model can be intermixed.
+Moreover, a version control repository, such as Git, keeps a history of source
+code documents as they change over time.  These changes are represented as
+changesets, which provide concise views of the differences between two revisions
+of the same document.  By training an online topic model on changesets and
+indexing the source code on that model, we can stream documents (i.e.,
+changesets) from the version control repository to incrementally train the topic
+model.  This enables searching over the current source code index without
+retraining an entirely new model.
 
-In our previous work~\cite{Corley-etal:2014}, we show that topic models trained on changesets produce topics which have comparable
-topic distinctness scores~\cite{Thomas-etal:2011} as topic models trained on snapshots.
-We expand the work to demonstrate the effectiveness of changeset topic modeling for feature location and report on an empirical study in which we investigate the feasibility of this approach.
+In our previous work~\cite{Corley-etal:2014}, we show that topic models trained
+on changesets produce topics which have comparable topic distinctness
+scores~\cite{Thomas-etal:2011} as topic models trained on snapshots.  Further,
+we show that the corpora express the same frequency of words.  We expand the
+work to demonstrate the effectiveness of changeset topic modeling for feature
+location and report on an empirical study in which we investigate the
+feasibility of this approach.
 %We define two topic-modeling-based FLTs on both LSI and LDA using changesets.
-We define a LDA-based FLT using changesets.
-We combine two benchmarks totaling over 1200 defects and features from fourteen open source Java projects.
-We also present a \emph{temporal simulation} that approximates how the FLT would perform throughout the evolution of a project.
+We define a LDA-based FLT using changesets.  We combine two benchmarks totaling
+over 1200 defects and features from fourteen open source Java projects.  We also
+present a \emph{temporal simulation} that approximates how the FLT would perform
+throughout the evolution of a project.
 
-Our results show that the changeset approach is feasible and has performace comparable to the snapshot approach.
-In many cases the changeset approach out-performs current snapshot approaches, but is no silver bullet.
-We argue that the evidence suggests that changeset-based topic modeling warrants further investigation and adoption.
-Additionally, the temporal simulation suggests that current evaluation approaches do not accurately capture the true FLT performance.
+Our results show that the changeset approach is feasible and has performace
+comparable to the snapshot approach.  In many cases the changeset approach
+out-performs current snapshot approaches, but is no silver bullet.  We argue
+that the evidence suggests that changeset-based topic modeling warrants further
+investigation and adoption.  Additionally, the temporal simulation suggests that
+current evaluation approaches do not accurately capture the true FLT
+performance.
 
 This paper makes the following contributions:
 
-\begin{itemize}
-    \item An approach for using changesets for feature location
-    \item A empirical study of fourteen open source Java projects
-    \item Towards increasing open science principles in software engineering:
-        the complete project history, source code, and an updated dataset for
-        replication of this study.
-\end{itemize}
+\begin{itemize} \item An approach for using changesets for feature location
+        \item A empirical study of fourteen open source Java projects \item
+            Towards increasing open science principles in software engineering:
+            the complete project history, source code, and an updated dataset
+            for replication of this study.  \end{itemize}
 
-The remainder of the paper is organized as follows.
-We first review background and related work (\S\ref{sec:related})
-before introducing our new changeset-based FLT (\S\ref{sec:changeset}).
-We next discuss our case study (\S\ref{sec:study}), which spans fourteen open source Java projects.
-We then conclude (\S\ref{sec:conclusion}).
+The remainder of the paper is organized as follows.  We first review background
+and related work (\S\ref{sec:related}) before introducing our new
+changeset-based FLT (\S\ref{sec:changeset}).  We next discuss our case study
+(\S\ref{sec:study}), which spans fourteen open source Java projects.  We then
+conclude (\S\ref{sec:conclusion}).
 

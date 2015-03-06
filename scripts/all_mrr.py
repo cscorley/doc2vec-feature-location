@@ -9,10 +9,12 @@ import sys
 import scipy.stats
 
 def ap(project, t):
+    goldsets = src.main.load_goldsets(project)
     ranks = src.main.read_ranks(project, t)
+    frms = src.main.get_frms(goldsets, ranks)
     c = project.name+project.version
     new = list()
-    for r, i, g in ranks:
+    for r, i, g in frms:
         new.append((r, c+str(i), g))
 
     return new
@@ -66,16 +68,16 @@ FOOTER="\\end{table}"
 projects = src.main.load_projects()
 rq2_projects = ['argouml', 'jabref', 'jedit', 'mucommander']
 
-for kind in ['lda', 'lsi']:
+for kind in ['lda']: # 'lsi']:
     alldict = dict()
     with open('paper/tables/rq1_%s.tex' % kind, 'w') as f:
         print(HEADER, file=f)
         for level in ['class', 'method']:
-            rname = 'release_' + kind
-            cname = 'changeset_' + kind
+            rname = 'release' # + kind
+            cname = 'changeset' # + kind
             alldict[rname] = list()
             alldict[cname] = list()
-            print(INNER_HEADER % ('RQ1', level, kind.upper(), 'Snapshot', 'Changeset'), file=f)
+            print(INNER_HEADER % ('RQ1', level, 'Batch', 'Snapshot', 'Changeset'), file=f)
             for project in projects:
                 if project.level != level:
                     continue
@@ -100,11 +102,11 @@ for kind in ['lda', 'lsi']:
     with open('paper/tables/rq2_%s.tex' % kind, 'w') as f:
         print(HEADER, file=f)
         for level in ['class', 'method']:
-            rname = 'changeset_' + kind
-            cname = 'temporal_' + kind
+            rname = 'changeset' # + kind
+            cname = 'temporal' #+ kind
             alldict[rname] = list()
             alldict[cname] = list()
-            print(INNER_HEADER % ('RQ2', level, kind.upper(), 'Batch', 'Temporal'), file=f)
+            print(INNER_HEADER % ('RQ2', level, 'Temporal', 'Batch', 'Temporal'), file=f)
             for project in projects:
                 if project.level != level:
                     continue

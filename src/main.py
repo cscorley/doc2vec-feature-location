@@ -285,7 +285,7 @@ def run_temporal_helper(project, repos, corpus, queries, goldsets):
                 continue
 
             # do LDA magic
-            lda_query_topic = get_topics(lda, queries, by_id=qid)
+            lda_query_topic = get_topics(lda, queries, by_ids=[qid])
             lda_doc_topic = get_topics(lda, other_corpus)
             lda_subranks = get_rank(lda_query_topic, lda_doc_topic)
             if qid in lda_subranks:
@@ -414,7 +414,7 @@ def get_rank(query_topic, doc_topic, distance_measure=utils.hellinger_distance):
     return ranks
 
 
-def get_topics(model, corpus, by_id=None):
+def get_topics(model, corpus, by_ids=None, full=True):
     logger.info('Getting doc topic for corpus with length %d', len(corpus))
     doc_topic = list()
     corpus.metadata = True
@@ -422,9 +422,11 @@ def get_topics(model, corpus, by_id=None):
     corpus.id2word = model.id2word
 
     for doc, metadata in corpus:
-        if by_id is None or metadata[0] == by_id:
+        if by_ids is None or metadata[0] in by_ids:
             # get a vector where low topic values are zeroed out.
-            topics = sparse2full(model[doc], model.num_topics)
+            topics = model[doc]
+            if full:
+                topics = sparse2full(topics, model.num_topics)
 
             # this gets the "full" vector that includes low topic values
             # topics = model.__getitem__(doc, eps=0)

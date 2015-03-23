@@ -282,7 +282,7 @@ With respect to RQ2, we do not report on the entire Moreno et al.\ dataset.
 We do include the projects in common with the Dit et al.\ dataset
 since these queries and goldsets are the same.
 Additionally, some of the traceability links in the Dit et al.\ dataset
-have been lost after projects migrated from Subversion to Git. 
+have been lost after projects migrated from Subversion to Git.
 We also exclude these goldsets from our RQ2 evaluation.
 
 
@@ -333,18 +333,97 @@ Overall, temporal evaluation performs significantly better than batch.
 
 \subsection{Discussion}
 
-The results outlined in the previous section warrants some qualitative discussion.
-In particular, our analysis shows significant affects between snapshots and changesets,
-and between batch changesets and temporal changesets.
-However, the results are mixed between each and are not conclusive.
+The results outlined in the previous section warrants some qualitative
+discussion.  In particular, our analysis shows significant affects between
+snapshots and changesets, and between batch changesets and temporal changesets.
+The results are mixed between each and are not conclusive.  However, we argue
+this is desirable to show that the accuracy of a changeset-based FLT is similar
+to that of a snapshot-based FLT but without the retraining cost.
 
-In this study, we've asked two research questions which lead to two comparisons.
-First, we compare a batch topic-modeling-based FLT trained on the changesets
-of a project's history to one trained on the snapshot of source code entities.
-Second, we compare a batch topic-modeling-based FLT trained on changesets
-to a online topic-modeling-based FLT trained on the same changesets over time.
-Our results are mixed, hence we end up with four possible situations;
-we will now discuss each of these situations in detail.
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.4\textwidth]{figures/all_method}
+\includegraphics[width=0.4\textwidth]{figures/all_class}
+\caption{Effectiveness measures for methods and classes across all systems}
+\label{fig:em}
+\end{figure*}
+
+Figure~\ref{fig:em} shows the effectiveness measures for methods and classes
+across all systems. The figure suggests that snapshot-based models and
+changeset-based models have similar results overall, but does not help to
+understand how each feature query performs for each model.
+With respect to RQ1, we will investigate the queries and effectiveness measures in detail.
+
+For the 1214 successful queries of classes,
+each query returns the same effectiveness measure 30 out of 1214 times, or about 2.5\% of the time.
+For 178 queries (14.7\%), the effectiveness measure is within 10 ranks of each other.
+For 356 queries (29.3\%), the effectiveness measure is within 50 ranks of each other.
+The remaining 858 queries (70.6\%) performs noticibly worse ($> 50$ ranks apart).
+
+For the 629 successful queries of methods,
+each query returns the same effectiveness measure 12 out of 629 times, or about 1.9\% of the time.
+For 65 queries (10.3\%), the effectiveness measure is within 10 ranks of each other.
+For 151 queries (24.0\%), the effectiveness measure is within 50 ranks of each other.
+The remaining 478 queries (76.0\%) performs noticibly worse ($> 50$ ranks apart).
+
+
+\input{tables/argoumlqueries}
+
+ArgoUML v0.26.2 feature 5258 has an effectiveness measure of 1 under the
+snapshot-based model and 8138 under the changeset-based model, while feature
+5088 had 1 under the changeset-based model and 124 under the snapshot-based
+model.  Table~\ref{table:argoumlqueries} shows the bag-of-words representation
+of each feature query.
+
+Feature 5258 returns 3 related snapshot topics: 194 (58\%), 226 (18\%), and 464 (14\%).
+The most related snapshots topics of the first relevant method at rank 1,
+\texttt{GoClassifierToInstance.getRuleName()},
+are also 194 (82\%), 226 (6\%), and 464 (4\%).
+Hence, the snapshot model performs as expected.
+Feature 5258 returns 2 related changeset topics: 250 (48\%) and 365 (43\%).
+Unforunately, the first relevant method at rank 8138,
+\texttt{GoClassifierToInstance.getRuleName()},
+returns 2 different changeset topics: 432 (76\%) and 332 (17\%).
+However, with the exception of changeset topic 432, the top words in these
+topics are similar to that of the query. Changeset topic 432 appears to be a general
+topic, consisting of words like ``jar'' (8\%), ``argouml'' (6\%), and ``org'' (5\%).
+
+Feature 5088 returns 18 snapshot topics, with 3 highly ($> 10\%$) related: 281 (19\%), 283 (13\%), and 38 (11\%).
+There are 6 snapshot topics for the first relevant method at rank 142,
+\texttt{XmiWriterMDRImpl.write()},
+and the highly related topics are 283 (56\%), 82 (16\%), and 41 (12\%).
+We note that both each of these contain snapshot topic 283,
+but the feature does not relate as highly to the topic as the method does.
+We also note that the model seems confused about which topics are related to the feature.
+Feature 5088 returns 19 changeset topics, with 3 highly related: 446 (21\%), 426 (12\%), and 472 (11\%).
+The first relevant method at rank 1,
+\texttt{testWritePreviouslyLoadedProfile()},
+returns 10 changeset topics, with 3 highly related: 446 (47\%), 462 (15\%), and 426 (12\%).
+7 out of the 10 changeset topics also appear in the 19 related to the feature.
+Here, the changeset model was able to better discern which topics were related to the feature.
+
+
+\begin{comment}
+\input{tables/muqueries}
+
+MuCommander v0.8.5 feature 37 has an effectiveness measure of 1 under the
+snapshot-based model and 303 under the changeset-based model, while feature 142
+had 1 under the changeset-based model and 536 under the snapshot-based model.
+Table~\ref{table:muqueries} shows the bag-of-words representation of each
+feature query.
+
+\end{comment}
+
+%%%% Awkwardddddddddd
+
+In this study, we've also asked two research questions which lead to two
+distinct comparisons.  First, we compare a batch topic-modeling-based FLT
+trained on the changesets of a project's history to one trained on the snapshot
+of source code entities.  Second, we compare a batch topic-modeling-based FLT
+trained on changesets to a online topic-modeling-based FLT trained on the same
+changesets over time.  With respect to RQ2, our results are mixed, hence we end
+up with four possible situations; we will now discuss each of these situations
+in detail.
 
 \subsubsection{Batch changesets are better than batch shapshot
 \emph{and} batch changesets are better than temporal changesets}

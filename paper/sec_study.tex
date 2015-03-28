@@ -300,15 +300,24 @@ summarize the results of each subject system when
 evaluated at the class and method granularity, respectively.
 In each of the tables, we bold which of the two MRRs is greater.
 
+Since our goal is to show that training with changesets is just as good, or
+better than, training on snapshots, we only care about statistical significance
+when the MRR is in favor of snapshots.
+
 For LDA at the class-level we note an improvement in MRR for 11 of the 19 systems when using changesets.
 Additionally, 5 of these 10 systems were statistically significant at $p<0.01$.
 Only 1 of the 8 systems with MRR in favor of snapshots were statistically significant.
-Overall, for LDA, changesets perform slightly worse than snapshots with statistical significance.
+Hence, changeset topics perform on par with snapshot topics at the class-level 18 of the 19 times.
 
 For LDA at the method-level we note an improvement in MRR for 4 of the 6 systems when using changesets.
 None of these were statistically significant at $p<0.01$.
-Overall, for LDA, changesets perform slightly better than snapshots, but is not statistically significant.
+This suggests that changeset topics are just as accurate as snapshot topics at the method-level,
+especially since there is a lack of statistical significance for \emph{any} of the cases.
 
+\begin{framed}
+    \textbf{RQ1}:
+    Changeset topics have an accuracy that is on par with traditional snapshot-based FLTs.
+\end{framed}
 
 \input{tables/rq2_lda}
 
@@ -318,15 +327,22 @@ Table~\ref{table:rq2:class:lda} and Table~\ref{table:rq2:method:lda}
 summarize the results of each subject system when
 evaluated at the class and method granularity, respectively.
 In each of the tables, we bold which of the two MRRs is greater.
+Again, since our goal is to show that temporal considerations must be given
+during FLT evaluation, we only care about statistical significance when the MRR
+is in favor of batch.
 
 For temporal LDA at the class-level we note an improvement in MRR for 5 of the 6 systems
 with 4 of these 5 systems statistically significant at $p<0.01$.
 The one system with MRR in favor of batch changesets, ArgoUML v0.24, was not statistically significant.
-Overall, temporal evaluation performs significantly better than batch.
-
 For temporal LDA at the method-level we note an improvement in MRR for 4 of the 6 systems
 with 2 of the 4 systems statistically significant at $p<0.01$.
-Overall, temporal evaluation performs significantly better than batch.
+Temporal evaluation shows that it is better than batch at both the class- and method-level.
+
+\begin{framed}
+    \textbf{RQ2}:
+    Evaluating an FLT in a simulated developement environment is essential for
+    accurate measurements.
+\end{framed}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -425,6 +441,10 @@ changesets over time.  With respect to RQ2, our results are mixed, hence we end
 up with four possible situations; we will now discuss each of these situations
 in detail.
 
+%
+% Old blah-de-blah.
+%
+\begin{comment}
 \subsubsection{Batch changesets are better than batch shapshot
 \emph{and} batch changesets are better than temporal changesets}
 
@@ -502,3 +522,4 @@ the system over time.
 We note that this situation never occurs.
 This also supports the hypothesis that temporal evaluation more accurately portrays the system over time.
 However, we cannot conclude this without also evaluating snapshot-based topic models temporally.
+\end{comment}

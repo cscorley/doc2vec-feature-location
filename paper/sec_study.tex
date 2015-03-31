@@ -102,11 +102,11 @@ ZooKeeper is a tool that works as a coordination service to help build distribut
 \label{sec:methodology}
 
 For snapshots, the process is straightforward and corresponds to
-Figure~\ref{fig:snapshot}.  First, we build a model in batch mode from the
-snapshot corpus.  That is, the model can see all documents in the corpus at
-once.  Then, we infer an index of topic distributions from the snapshot corpus.
-For each query in the dataset, we infer the query's topic distribution and rank
-each entity in the index with pairwise comparisons.
+Figure~\ref{fig:snapshot}.  First, we build a model of the snapshot corpus in
+batch mode.  That is, the model can see all documents in the corpus at once.
+Then, we infer an index of topic distributions with the snapshot corpus.  For
+each query in the dataset, we infer the query's topic distribution and rank each
+entity in the index with pairwise comparisons.
 
 \begin{comment}
 \begin{enumerate}
@@ -119,12 +119,12 @@ each entity in the index with pairwise comparisons.
 
 
 In terms of changesets, the process varies slightly from a snapshot approach, as
-shown in Figure~\ref{fig:changeset}.  First, we build a model in batch mode
-from the changeset corpus.  Second, we infer an index of topic distributions
-from the snapshot corpus and a topic distribution of the query.  Note that we
-\emph{do not} infer topic distributions from the changeset corpus on which the
-model was built.  Finally, for each query in the dataset, we infer the query's
-topic distribution and rank each entity in the snapshot index with pairwise
+shown in Figure~\ref{fig:changeset}.  First, we build a model of the changeset
+corpus in batch mode.  Second, we infer an index of topic distributions with the
+snapshot corpus and a topic distribution of the query.  Note that we \emph{do
+not} infer topic distributions with the changeset corpus on which the model was
+built.  Finally, for each query in the dataset, we infer the query's topic
+distribution and rank each entity in the snapshot index with pairwise
 comparisons.
 
 \begin{comment}
@@ -142,7 +142,7 @@ For the historical simulation, we can take a slightly different approach.  We
 first determine which changesets relate to each query (or issue) and partition
 mini-batches out of the changesets.  We then proceed by initializing a model in
 online mode.  Using each mini-batch, or partition, we update the model.  Then,
-we infer an index of topic distributions from the snapshot corpus at that
+we infer an index of topic distributions with the snapshot corpus at that
 commit.  We also obtain a topic distribution for each query related to the
 changeset of interest.  For each query in the dataset related to the changeset,
 we infer the query's topic distribution and rank each entity in the snapshot

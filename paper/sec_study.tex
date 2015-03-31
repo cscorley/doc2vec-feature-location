@@ -82,12 +82,12 @@ supplying us with both class- and method-level goldsets for the queries.
 ArgoUML is a UML CASE tool that supports standard UML diagrams\footnote{\url{http://argouml.tigris.org/}}.
 BookKeeper is a distributed logging service\footnote{\url{http://zookeeper.apache.org/bookkeeper/}}.
 Derby is a relational database management system\footnote{\url{http://db.apache.org/derby/}}.
-Eclipse is an intergrated development environment to develop applications in various programming languages\footnote{\url{https://www.eclipse.org/}}.
-Hibernate is a java package used to work with relational databases\footnote{\url{http://hibernate.org/}}.
+Eclipse is an IDE for development in various programming languages\footnote{\url{https://www.eclipse.org/}}.
+Hibernate is a object and relational mapping framework\footnote{\url{http://hibernate.org/}}.
 JEdit is a Java text editor\footnote{\url{http://www.jedit.org/}}.
 JabRef is a tool for managing bibliographical reference data\footnote{\url{http://jabref.sourceforge.net/}}.
-Lucene is an information retrieval library written in Java\footnote{\url{http://lucene.apache.org/core/}}.
-Mahout is a tool for scaleable machine learning\footnote{\url{https://mahout.apache.org/}}.
+Lucene is an information retrieval library\footnote{\url{http://lucene.apache.org/core/}}.
+Mahout is a tool for scalable machine learning\footnote{\url{https://mahout.apache.org/}}.
 MuCommander is a cross-platform file manager\footnote{\url{http://www.mucommander.com/}}.
 OpenJPA is object relational mapping tool\footnote{\url{http://openjpa.apache.org/}}.
 Pig is a platform for analyzing large datasets consisting of high-level language\footnote{\url{http://pig.apache.org/}}.
@@ -138,7 +138,7 @@ comparisons.
 \end{comment}
 
 
-For the temporal simulation, we can take a slightly different approach.  We
+For the historical simulation, we can take a slightly different approach.  We
 first determine which changesets relate to each query (or issue) and partition
 mini-batches out of the changesets.  We then proceed by initializing a model in
 online mode.  Using each mini-batch, or partition, we update the model.  Then,
@@ -234,13 +234,13 @@ following LDA parameters for all 14 systems: $500$ topics ($K$), a symmetric
 $\alpha=1/K$, and a symmetric $\eta=1/K$.  These are default values for
 $\alpha$ and $\eta$ in Gensim.
 
-For the temporal evaluation, we found it beneficial to consider two other
+For the historical simulation, we found it beneficial to consider two other
 parameters: $\kappa$ and $\tau_0$.  As noted in Hoffman et
 al.~\cite{Hoffman-etal:2010}, it is beneficial to adjust $\kappa$ and $\tau_0$
 to higher values for smaller mini-batches.  These two parameters control how
 much influence a new mini-batch has on the model when training.  We follow the
 recommenations in Hoffman et al.\, chosing $\tau_0=1024$ and $\kappa=0.9$ for
-all systems, because the temporal evaluation often has mini-batch sizes in
+all systems, because the historical simulation often has mini-batch sizes in
 single digits.
 
 
@@ -272,8 +272,8 @@ We then calculate the MRR between the two.
 We use the Wilcoxon signed-rank test with Holm correction to determine
 the statistical significance of the difference between the two rankings.
 
-To answer RQ2, we run the experiment temporally as outlined in Section~\ref{sec:methodology}
-and compare it to the results of changesets from RQ1.
+To answer RQ2, we run the historical simulation as outlined in Section~\ref{sec:methodology}
+and compare it to the results of batch changesets from RQ1.
 We then calculate the MRR between the two.
 Again, we use the Wilcoxon signed-rank test.
 
@@ -331,16 +331,16 @@ Again, since our goal is to show that temporal considerations must be given
 during FLT evaluation, we only care about statistical significance when the MRR
 is in favor of batch.
 
-For temporal LDA at the class-level we note an improvement in MRR for 5 of the 6 systems
+At the class-level we note an improvement in MRR for 5 of the 6 systems
 with 4 of these 5 systems statistically significant at $p<0.01$.
 The one system with MRR in favor of batch changesets, ArgoUML v0.24, was not statistically significant.
-For temporal LDA at the method-level we note an improvement in MRR for 4 of the 6 systems
+A the method-level we note an improvement in MRR for 4 of the 6 systems
 with 2 of the 4 systems statistically significant at $p<0.01$.
-Temporal evaluation shows that it is better than batch at both the class- and method-level.
+Historical simulation shows that it is better than batch at both the class- and method-level.
 
 \begin{framed}
     \textbf{RQ2}:
-    Evaluating an FLT in a simulated developement environment is essential for
+    Evaluating an FLT in a simulated development environment is essential for
     accurate measurements.
 \end{framed}
 
@@ -351,7 +351,7 @@ Temporal evaluation shows that it is better than batch at both the class- and me
 
 The results outlined in the previous section warrants some qualitative
 discussion.  In particular, our analysis shows significant affects between
-snapshots and changesets, and between batch changesets and temporal changesets.
+snapshots and changesets, and between batch changesets and changesets in the simulated environment.
 The results are mixed between each and are not conclusive.  However, we argue
 this is desirable to show that the accuracy of a changeset-based FLT is similar
 to that of a snapshot-based FLT but without the retraining cost.
@@ -445,7 +445,7 @@ in detail.
 % Old blah-de-blah.
 %
 \subsubsection{Batch changesets are better than batch shapshot
-\emph{and} batch changesets are better than temporal changesets}
+\emph{and} batch changesets are better than changesets in the simulated environment}
 
 % Snapshots < Changeset && Batch > Temporal
 % Class
@@ -457,15 +457,15 @@ in detail.
 This situation occurs in
 1 out of 6 systems at the class-level, and
 1 out of 6 systems at the method-level.
-We hypothesize that this is due to the nature of the batch evaluation versus the temporal evaluation.
+We hypothesize that this is due to the nature of the batch evaluation versus the historical simulation.
 In the batch evaluation, the model is trained on all data before being queried,
-while in the temporal evaluation the model is trained on partial data before being queried.
+while in the historical simulation the model is trained on partial data before being queried.
 This allows for the batch model to be more accurate because it is trained on more data
 and reveals feature location research evaluations may not be accurately portraying
 how an FLT would perform in a real scenario.
 
 \subsubsection{Batch changesets are better than batch shapshot
-\emph{and} temporal changesets are better than batch changesets}
+\emph{and} changesets in the simulated environment are better than batch changesets}
 
 % Snapshots < Changeset && Batch < Temporal
 % Class
@@ -480,15 +480,15 @@ This situation occurs in
 1 out of 6 systems at the class-level, and
 3 out of 6 systems at the method-level.
 We hypothesize that this is due to the same previous reason, but that
-temporal evaluation more accurately captures the correct state of the system (i.e., the source code entities)
+historical simulation more accurately captures the correct state of the system (i.e., the source code entities)
 at the point in time when querying is done.
 Since querying on the batch models is after the model is completely trained,
 there may be source code entities that do not exist in the system anymore
 that were at one time changed to complete a certain task.
-Again, the temporal evaluation better captures this scenario.
+Again, the historical simulation better captures this scenario.
 
 \subsubsection{Batch snapshot are better than batch changeset
-\emph{and} temporal changesets are better than batch changesets}
+\emph{and} changesets in the simulated environment are better than batch changesets}
 
 %  Snapshots > Changeset && Batch < Temporal
 % Class
@@ -506,12 +506,12 @@ This situation occurs in
 2 out of 6 systems at the method-level.
 Similarly, this could be because of how the models are trained.
 Although the batch changesets performed worse in both cases, it does
-improve during temporal evaluation.
+improve during historical simulation.
 This does not mean that changesets are bad, but more accurately model
 the system over time.
 
 \subsubsection{Batch snapshot are better than batch changeset
-\emph{and} batch changesets are better than temporal changesets}
+\emph{and} batch changesets are better than changesets in the simulated environment}
 
 % Snapshots > Changeset && Batch > Temporal
 % Class
@@ -519,5 +519,5 @@ the system over time.
 % Method
 %
 We note that this situation never occurs.
-This also supports the hypothesis that temporal evaluation more accurately portrays the system over time.
-However, we cannot conclude this without also evaluating snapshot-based topic models temporally.
+This also supports the hypothesis that historical simulation more accurately portrays the system over time.
+However, we cannot conclude this without also historically simulating snapshot-based topic models.

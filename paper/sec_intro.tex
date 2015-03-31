@@ -1,16 +1,17 @@
 % vim:syntax=tex
 
 Feature location is a frequent and fundamental activity for a developer tasked with changing a software system.
-Whether a change task involves adding, modifying, or removing a feature, a developer cannot complete the change task before identifying the source code that implements the feature, and due to the scale of modern software systems, the developer cannot identify that source code manually.
-Consequently, feature location is essential to software maintenance and evolution, and automated feature location techniques (FLTs) are essential to developers.
-Given that the current state-of-the-practice for feature location is to use a keyword-search-based tool such as \texttt{grep}, and that developers fail about 90\% of the time when using such a tool~\cite{Ko-etal:2006}, the potential for FLT research to impact practice is evident.
-Unfortunately, recent FLTs suffer from key limitations that hinder their potential adoption in and impact on practice.
+Whether a change task involves adding, modifying, or removing a feature, a developer cannot complete the task without first locating the source code that implements the feature.
+The state-of-the-practice in feature location is to use an IDE tool based on keyword or regex search, but Ko et al.~\cite{Ko-etal:2006} observed such tools leading developers to failed searches about 90\% of the time.
 
-Recent FLTs are based on different combinations of dynamic, static, textual, and historical analysis, but most are based (at least in part) on textual analysis of source code~\cite{Dit-etal:11}.
-Each of these FLTs relies on a text retrieval (TR) model such as a vector space model (VSM), latent semantic indexing (LSI)~\cite{Deerwester-etal:1990}, or latent Dirichlet allocation (LDA)~\cite{Blei-etal:03}, and all of these FLTs share a common methodology in which a TR model is trained on a source code snapshot and an index is created from the trained model.
-Within this snapshot-based methodology, for an FLT to maintain its accuracy, its underlying TR model (and index) must be updated when the source code is changed.
-That is, for an FLT to provide accurate results as its snapshot becomes obsolete, the TR model must be retrained (and the index recreated), either incrementally (from the changesets) or completely (from the current snapshot).
-%This need for incremental or complete retraining of the TR model in response to source code changes is the source of the two major limitations that affect recent TR-based FLTs.
+The state-of-the-art in feature location~\cite{Dit-etal:2011} is to use a feature location technique (FLT) based, at least in part, on text retrieval (TR).
+The standard methodology~\cite{Marcus-etal:04} is to extract documents from a source code snapshot and to train a TR model on those documents, each of which corresponds to a class or method.
+Topics models (TMs) such as latent Dirichlet allocation (LDA)~\cite{Blei-etal:03} are the state-of-the-art in TR~\cite{Blei:ACM:Communications} and are more accurate than vector-space models (VSMs) in the contexts of natural language~\cite{} and source code~\cite{}.
+Yet, modern TMs such as online LDA~\cite{} only natively support the online addition of a new document, whereas VSMs also natively support the online modification or removal of an existing document.
+So, among FLTs that follow the standard methodology, TM-based FLTs are most accurate, but only VSM-based FLTs support all of the incremental update operations needed to maintain consistency with the source code as it changes.
+
+\begin{comment}
+despite the accuracy improvements offered by lda and the potential for further improvement offered by the tm research community
 
 Complete retraining of a TR model can be computationally expensive, particularly for a large software system.
 Therefore, an FLT that requires complete retraining in response to source code changes is not a viable option for inclusion in an IDE.
@@ -19,13 +20,12 @@ In particular, of the TR models on which FLTs from the literature are based, onl
 whereas LSI and LDA limit incremental retraining to cases of addition of a new document.
 Because studies indicate that LSI and LDA are superior to a VSM, both in general~\cite{} and in the context of source code search~\cite{},
 Rao~\cite{Rao:2013} extended LSI and LDA as part of an incremental FLT framework that requires complete retraining only periodically.
-Although the framework reduces retraining costs, it does not eliminate them completely, nor does it accept new TR models off the shelf (i.e., they must be extended).
-
-%Researchers typically evaluate TR-based FLTs in batch mode by issuing multiple queries (corresponding to multiple features of interest) to a single index (corresponding to a single source code snapshot of interest).
+Although the framework reduces retraining costs, it does not eliminate them completely, and it does not accept new TR models off the shelf (without extension).
 
 Fresh take\ldots
 
 Contributions\ldots
+\end{comment}
 
 
 

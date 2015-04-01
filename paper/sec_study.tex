@@ -1,9 +1,11 @@
 % vim:syntax=tex
 
-In this section we describe the design of a study in which we compare topic models trained on changesets to those trained on snapshots.
-We describe the case study using the Goal-Question-Metric approach~\cite{Basili-etal:94}.
-The data and source code for the case study is available in this paper's online
-appendix\footnote{\textbf{REVIEWER URL ONLY:} \url{http://christop.club/x/cfl/}}.
+In this section we describe the design of a study in which we compare our new
+methodology with the current practice. We describe the case study using the
+Goal-Question-Metric approach~\cite{Basili-etal:94}.  We discuss the results of
+using LDA as our topic modeler, and exclude the LSI discussion for brevity.
+Further, the data and source code for the full case study is available in this
+paper's online appendix\footnote{\url{http://christop.club/x/cfl/}}.
 
 \subsection{Definition and Context}
 
@@ -21,9 +23,15 @@ open source systems.
 
 Toward the achievement of our goal, we pose the following research questions:
 \begin{description}[font=\itshape\mdseries,leftmargin=10mm,style=sameline]
-% TODO
     \item[RQ1] Is a changeset-based FLT on par with a snapshot-based FLT?
-    \item[RQ2] Are FLTs accurately evaluated in life-like evaluation scenarios?
+\end{description}
+
+With our new methodology, we also gain the opportunity to simulate how the FLT
+would perform in a real development environment, an evaluation technique
+not previously feasible due to the run-time of the experiment.
+
+\begin{description}[font=\itshape\mdseries,leftmargin=10mm,style=sameline]
+    \item[RQ2] Are FLTs accurately evaluated in realistic evaluation scenarios?
 \end{description}
 
 At a high level, our goal is to determine the feasibility in using changesets
@@ -180,7 +188,7 @@ Our document extraction process is shown on the left side of Figure~\ref{fig:cha
 We implemented our document extractor in Python v2.7
 using the Dulwich library\footnote{\url{http://www.samba.org/~jelmer/dulwich/}}
 for interacting with the source code repository and
-Taser for parsing source code.
+Taser\footnote{\url{https://github.com/nkraft/taser}} for parsing source code.
 We extract documents from both a snapshot of the repository at a tagged
 snapshot and each commit reachable from that tag's commit.
 The same preprocessing steps are employed on all documents extracted.

@@ -19,9 +19,8 @@
 \end{figure*}
 
 
-In this section, we review background material of the document extraction and retrieval process
-typically used on snapshot-based FLTs,
-and review related work on topic modeling and feature location.
+In this section, we review the typical document extraction and retrieval process used by snapshot-based FLTs,
+as well as related work on topic modeling and feature location.
 
 \subsection{Document Extraction and Retrieval Process}
 \label{sec:snapshot-flt}
@@ -71,7 +70,7 @@ structures.
 
 \subsection{Latent Dirichlet Allocation}
 
-Latent Dirichlet allocation~\cite{Blei-etal:2003} is a generative topic model.
+LDA~\cite{Blei-etal:2003} is a generative topic model.
 LDA models each document in a corpus of discrete data as a finite mixture over
 a set of topics and models each topic as an infinite mixture over a set of
 topic probabilities.  That is, LDA models each document as a probability
@@ -90,57 +89,59 @@ training.
 \subsection{Feature Location}
 
 Feature location is the act of identifying the source code entity or entities
-that implement a feature~\cite{Rajlich-Wilde:2002}.  Bug localization can be
-seen as the process of identifying source code entities that implement an
-\emph{unwanted} feature~\cite{Lukins-etal:2010}.
-
-The most closely related work is Rao et al.~\cite{Rao-etal:2013}. Rao et al.\
-also target the problem of building topic models, introducing an incremental
-framework for bug localization.  Although practical, the approach involves using
-an extended topic modeler to allow updating, adding, and removing documents from
-the model and index post-hoc.  While the approach is essentially equivalent to
-topic modeling in batch, Rao~\cite{Rao:2013} notes that these algorithm
-modifications have limitations and thus models may need to be periodically
-retrained.
-
+that implement a feature~\cite{Rajlich-Wilde:2002}.
+%  Bug localization can be seen as the process of identifying source code entities that implement an \emph{unwanted} feature~\cite{Lukins-etal:2010}.
+%also target the problem of building topic models, introducing an incremental
+%framework for bug localization.  Although practical, the approach involves using
+%an extended topic modeler to allow updating, adding, and removing documents from
+%the model and index post-hoc.  While the approach is essentially equivalent to
+%topic modeling in batch, Rao~\cite{Rao:2013} notes that these algorithm
+%modifications have limitations and thus models may need to be periodically
+%retrained.
 Dit et al.~\cite{Dit-etal:2011} provide a taxonomy and survey of feature
 location in source code covering the scope of FLTs.  They identify 89 works
 related to feature location in their systematic literature survey and extract
 7 dimensions for their taxonomy.  The primary dimension, type of analysis, can
-be used for categoization purposes and consists of four categories: dynamic,
+be used for categorization purposes and consists of four categories: dynamic,
 static, historical, and textual.
+%Dynamic FLTs use information from a system's execution, such as stack
+%traces~\cite{Moreno-etal:2014}.  Static FLTs instead use semantic information
+%extracted directly from source code, such as method call
+%graphs~\cite{Saul-etal:2007}. 
+%Historical FLTs~\cite{Cubranic-etal:2005} mine software repositories
+%to extract meaningful information
+%Textual FLTs use textual information extracted
+%from software artifacts, such as source code comments, identifiers, and
+%literals~\cite{Biggers-etal:2014}.
+%Textual FLTs are the most closely related
+%category of our work and comprise the remainder of this section.
+Our methodology uses historical analysis (e.g., \cite{Cubranic-etal:2005}) and textual analysis (e.g., \cite{Marcus-etal:2004}).
 
-Dynamic FLTs use information from a system's execution, such as stack
-traces~\cite{Moreno-etal:2014}.  Static FLTs instead use semantic information
-extracted directly from source code, such as method call
-graphs~\cite{Saul-etal:2007}.  Historical FLTs use mining software repositories
-to extract meaningful information, such as in Cubranic et
-al.~\cite{Cubranic-etal:2005}.  Textual FLTs use textual information extracted
-from software artifacts, such as source code comments, identifiers, and
-literals~\cite{Biggers-etal:2014}. Textual FLTs are the most closely related
-category of our work and comprise the remainder of this section.
+The most relevant FLTs, by Rao~\cite{Rao-etal:2013, Rao:2013}, are described in the introduction.
+Other closely related work involves LSI-based FLTs~\cite{Marcus-etal:2004,Poshyvanyk-etal:2006,Poshyvanyk-Marcus:2007,Liu-etal:2007,Scanniello-Marcus:2011,Cubranic-etal:2005} or LDA-based FLTs~\cite{Lukins-etal:2008,Lukins-etal:2010,Biggers-etal:2014,Bassett-Kraft:2013}.
 
-Currently, developers rely on tools such as \texttt{grep} to find relevant
-source code entities. Petrenko et al.~\cite{Petrenko-etal:2008} develop
-a \texttt{grep}-based FLT. However, Ko et al.~\cite{Ko-etal:2006} show that
-developers fail using this type of searching upwards to 88\% of the time.  Text
-retrieval techniques, such as topic modeling, show promise in remedying this
-problem~\cite{Marcus-etal:2004}.
+% Currently, developers rely on tools such as \texttt{grep} to find relevant
+% source code entities. Petrenko et al.~\cite{Petrenko-etal:2008} develop
+% a \texttt{grep}-based FLT. However, Ko et al.~\cite{Ko-etal:2006} show that
+% developers fail using this type of searching upwards to 88\% of the time.  Text
+% retrieval techniques, such as topic modeling, show promise in remedying this
+% problem~\cite{Marcus-etal:2004}.
 
-Marcus et al~\cite{Marcus-etal:2004} use an FLT based on Latent Semantic
-Indexing (LSI)~\cite{Deerwester-etal:1990} to find concepts based on queries
-from the user, and modules within the system in comparison to the dependence
-graph approach. They found that concepts in the code were able to be identified
-with user specified terms and identifiers as well as an easier build process.
-LSI-based FLTs have been widely used by many others~\cite{ Poshyvanyk-etal:2006,
-Poshyvanyk-Marcus:2007, Liu-etal:2007, Scanniello-Marcus:2011, % Eaddy-etal:2008,
-Cubranic-etal:2005}.
 
-Lukins et al.~\cite{Lukins-etal:2008} introduce an FLT based on LDA and find
-that it outperforms an LSI-based FLT.  Biggers et al.~\cite{Biggers-etal:2014}
-investigate the various configuration parameters for an LDA-based FLT.  Bassett
-and Kraft~\cite{Bassett-Kraft:2013} find that using structural term weighting
-increases the performance of an LDA-based FLT.
+% Marcus et al~\cite{Marcus-etal:2004} use an FLT based on Latent Semantic
+% Indexing (LSI)~\cite{Deerwester-etal:1990} to find concepts based on queries
+% from the user, and modules within the system in comparison to the dependence
+% graph approach. They found that concepts in the code were able to be identified
+% with user specified terms and identifiers as well as an easier build process.
+% LSI-based FLTs have been widely used by many others~\cite{ Poshyvanyk-etal:2006,
+% Poshyvanyk-Marcus:2007, Liu-etal:2007, Scanniello-Marcus:2011, % Eaddy-etal:2008,
+% Cubranic-etal:2005}.
+
+% Lukins et al.~\cite{Lukins-etal:2008} introduce an FLT based on LDA and find
+% that it outperforms an LSI-based FLT.  Biggers et al.~\cite{Biggers-etal:2014}
+% investigate the various configuration parameters for an LDA-based FLT.  Bassett
+% and Kraft~\cite{Bassett-Kraft:2013} find that using structural term weighting
+% increases the performance of an LDA-based FLT.
 
 \subsection{Modeling Software Repositories}
 
@@ -152,10 +153,10 @@ coarse-grained and trains a topic model on changesets between two software
 snapshots, not changesets between two commits. Additionally, their goal in using
 this model is for modeling the evolution of topics, not for feature location.
 
-Finally, Hindle et al.~\cite{Hindle-etal:2009} present a technique that links
-requirement documents to code commits using LDA.  They apply LDA to extract
-topics from issue reports, requirement documents, and commit messages.  Their
-linking process relies on LDA inferencing to derive the topics of unseen
-documents.  Our methodology is constructed from this same inferencing concept to
-construct an index out of source code entities as they relate to topics learned
-from changesets.
+Hindle et al.~\cite{Hindle-etal:2009} present a technique that relates
+commits to requirements documents using LDA.  They apply LDA to extract
+topics from issue reports, requirements documents, and commit messages.  Their
+linking process relies on LDA inferencing to derive the topics of unseen documents.
+Hindle et al.~\cite{Hindle-etal:2014} use a similar approach.
+Our methodology is based on the same inferencing concept and
+creates an index of source code entities from learned changeset topics.

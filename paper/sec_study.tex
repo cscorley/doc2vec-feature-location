@@ -20,7 +20,7 @@ version histories of 14 open source systems.
 
 Toward the achievement of our goal, we pose the following research questions:
 \begin{description}[font=\itshape\mdseries,leftmargin=10mm,style=sameline]
-    \item[RQ1] Is a changeset-based FLT on par with a snapshot-based FLT?
+    \item[RQ1] Is a changeset-based FLT as accurate as a snapshot-based FLT?
 \end{description}
 
 With our new methodology, we also gain the opportunity to simulate how the FLT
@@ -28,14 +28,15 @@ would perform in a real development environment, an evaluation technique
 not previously feasible due to the run-time of the experiment.
 
 \begin{description}[font=\itshape\mdseries,leftmargin=10mm,style=sameline]
-    \item[RQ2] Are FLTs accurately evaluated in realistic evaluation scenarios?
+    \item[RQ2] Are FLTs accurately evaluated in realistic contexts?
 \end{description}
 
 At a high level, our goal is to determine the feasibility in using changesets
-to train topic models for feature location.
+to train topic models for feature location, especially in realistic contexts.
 
 In the remainder of this section we introduce the subjects of our study,
-describe the setting of our study, and report our data collection and analysis procedures.
+describe the setting of our study, our data collection and analysis procedures,
+and report the results of the study using LDA.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -84,19 +85,19 @@ supplying us with both class- and method-level goldsets for the queries.
 \label{table:subjects}
 \end{table}
 
-ArgoUML is a UML CASE tool that supports standard UML diagrams\footnote{\url{http://argouml.tigris.org/}}.
+ArgoUML is a UML diagramming tool\footnote{\url{http://argouml.tigris.org/}}.
 BookKeeper is a distributed logging service\footnote{\url{http://zookeeper.apache.org/bookkeeper/}}.
 Derby is a relational database management system\footnote{\url{http://db.apache.org/derby/}}.
 Eclipse is an IDE for development in various programming languages\footnote{\url{https://www.eclipse.org/}}.
-Hibernate is a object and relational mapping framework\footnote{\url{http://hibernate.org/}}.
-JEdit is a Java text editor\footnote{\url{http://www.jedit.org/}}.
-JabRef is a tool for managing bibliographical reference data\footnote{\url{http://jabref.sourceforge.net/}}.
+Hibernate is a object/relational mapping framework\footnote{\url{http://hibernate.org/}}.
+jEdit is a text editor\footnote{\url{http://www.jedit.org/}}.
+JabRef is a BibTeX bibliography management tool\footnote{\url{http://jabref.sourceforge.net/}}.
 Lucene is an information retrieval library\footnote{\url{http://lucene.apache.org/core/}}.
 Mahout is a tool for scalable machine learning\footnote{\url{https://mahout.apache.org/}}.
-MuCommander is a cross-platform file manager\footnote{\url{http://www.mucommander.com/}}.
-OpenJPA is object relational mapping tool\footnote{\url{http://openjpa.apache.org/}}.
-Pig is a platform for analyzing large datasets consisting of high-level language\footnote{\url{http://pig.apache.org/}}.
-Solr is an enterprised search platform\footnote{\url{http://lucene.apache.org/solr/}}.
+muCommander is a cross-platform file manager\footnote{\url{http://www.mucommander.com/}}.
+OpenJPA is object/relational mapping tool\footnote{\url{http://openjpa.apache.org/}}.
+Pig is a platform for analyzing large datasets\footnote{\url{http://pig.apache.org/}}.
+Solr is a search platform\footnote{\url{http://lucene.apache.org/solr/}}.
 Tika is a toolkit for extracting metadata and text from various types of files\footnote{\url{http://tika.apache.org/}}.
 ZooKeeper is a tool that works as a coordination service to help build distributed applications\footnote{\url{http://zookeeper.apache.org/bookkeeper/}}.
 
@@ -107,8 +108,8 @@ ZooKeeper is a tool that works as a coordination service to help build distribut
 \label{sec:methodology}
 
 For snapshots, the process is straightforward and corresponds to
-Figure~\ref{fig:snapshot}.  First, we build a model of the snapshot corpus in
-batch mode.  That is, the model can see all documents in the corpus at once.
+Figure~\ref{fig:snapshot}.  First, we train a model on the snapshot corpus using
+batch training.  That is, the model can see all documents in the corpus at once.
 Then, we infer an index of topic distributions with the snapshot corpus.  For
 each query in the dataset, we infer the query's topic distribution and rank each
 entity in the index with pairwise comparisons.
@@ -124,13 +125,12 @@ entity in the index with pairwise comparisons.
 
 
 In terms of changesets, the process varies slightly from a snapshot approach, as
-shown in Figure~\ref{fig:changeset}.  First, we build a model of the changeset
-corpus in batch mode.  Second, we infer an index of topic distributions with the
-snapshot corpus and a topic distribution of the query.  Note that we \emph{do
-not} infer topic distributions with the changeset corpus on which the model was
-built.  Finally, for each query in the dataset, we infer the query's topic
-distribution and rank each entity in the snapshot index with pairwise
-comparisons.
+shown in Figure~\ref{fig:changeset}.  First, we train a model of the changeset
+corpus using batch training.  Second, we infer an index of topic distributions
+with the snapshot corpus.  Note that we \emph{do not} infer topic distributions
+with the changeset corpus on which the model was built.  Finally, for each query
+in the dataset, we infer the query's topic distribution and rank each entity in
+the snapshot index with pairwise comparisons.
 
 \begin{comment}
 \begin{enumerate}
@@ -143,16 +143,16 @@ comparisons.
 \end{comment}
 
 
-For the historical simulation, we can take a slightly different approach.  We
-first determine which changesets relate to each query (or issue) and partition
-mini-batches out of the changesets.  We then proceed by initializing a model in
-online mode.  Using each mini-batch, or partition, we update the model.  Then,
-we infer an index of topic distributions with the snapshot corpus at that
-commit.  We also obtain a topic distribution for each query related to the
-changeset of interest.  For each query in the dataset related to the changeset,
-we infer the query's topic distribution and rank each entity in the snapshot
-index with pairwise comparisons. Finally, we continue by updating the model with
-the next mini-batch.
+For the historical simulation, we take a slightly different approach.  We first
+determine which commits relate to each query (or issue) and partition
+mini-batches out of the changesets.  We then proceed by initializing a model for
+online training.  Using each mini-batch, or partition, we update the model.
+Then, we infer an index of topic distributions with the snapshot corpus at the
+commit the partition ends on.  We also obtain a topic distribution for each
+query related to the commit.  For each query, we infer the query's topic
+distribution and rank each entity in the snapshot index with pairwise
+comparisons. Finally, we continue by updating the model with the next
+mini-batch.
 
 \begin{comment}
 \begin{enumerate}
@@ -171,7 +171,7 @@ the next mini-batch.
 Since the Dit et al. dataset was extracted from the commit that implemented the
 change, our partitioning is inclusive of that commit.  That is, we update the
 model with the linked commit and infer the snapshot index from that commit.
-This allows our evaluation to capture any entities added to address the issue
+This allows our evaluations to capture any entities added to address the issue
 report, as well as changed entities, but does not capture any entities that were
 removed by the change.
 
@@ -181,7 +181,7 @@ removed by the change.
 
 \subsection{Setting}
 
-Our document extraction process is shown on the left side of Figure~\ref{fig:changeset}
+Our document extraction process is shown on the left side of Figure~\ref{fig:changeset}.
 We implemented our document extractor in Python v2.7
 using the Dulwich library\footnote{\url{http://www.samba.org/~jelmer/dulwich/}}
 for interacting with the source code repository and
@@ -192,8 +192,7 @@ The same preprocessing steps are employed on all documents extracted.
 
 For our document extraction from a snapshot, we first parse each Java file using our tool, Taser.
 Taser is a text extractor implemented in Java using an open source Java 1.5 grammar and ANTLR v3.
-The tool extracts documents from the chosen source code entity type,
-either methods or classes, and treats inner entities to be distinct from the outer entity.
+The tool extracts documents from the chosen source code entity type, either methods or classes.
 We consider interfaces, enumerations, and annotation types to also be a class.
 The text of inner an entity (e.g., a method inside an anonymous class)
 is only attributed to that entity, and not the containing one.
@@ -220,13 +219,13 @@ We do not stem words.
 
 We implemented our modeling using the Python library Gensim~\cite{Gensim},
 version 0.10.3. We use the same configurations on each subject system.  We do
-not try to adjust parameters between the different models to attempt to find
+not try to adjust parameters between the different systems to attempt to find
 a better, or best, solution; rather, we leave them the same to reduce
 confounding variables.  We do realize that this may lead to topic models that
-are not best-suited for feature location on a particular subject system.
-However, this gives us confidence that the measurements collected are fair, and
-that the results are not influenced by selective parameter tweaking.  Again, our
-goal is to show the performance of the changeset-based FLT against
+may not be best-suited for feature location on a particular subject system.
+However, this constraint gives us confidence that the measurements collected are
+fair and that the results are not influenced by selective parameter tweaking.
+Again, our goal is to show the performance of the changeset-based FLT against
 snapshot-based FLT under the same conditions.
 
 Gensim's LDA implementation is based on an online LDA by Hoffman et
@@ -272,15 +271,14 @@ where $Q$ is the set of queries
 and $e_i$ is the effectiveness measure for some query $Q_i$.
 
 To answer RQ1, we run the experiment on the snapshot and changeset
-datasets as outlined in Section~\ref{sec:methodology}.
-We then calculate the MRR between the two.
+corpora as outlined in Section~\ref{sec:methodology}.
+We then calculate the MRR between the two sets of effectiveness measures.
 We use the Wilcoxon signed-rank test with Holm correction to determine
 the statistical significance of the difference between the two rankings.
 
 To answer RQ2, we run the historical simulation as outlined in Section~\ref{sec:methodology}
 and compare it to the results of batch changesets from RQ1.
-We then calculate the MRR between the two.
-Again, we use the Wilcoxon signed-rank test.
+Again, we calculate the MRR and use the Wilcoxon signed-rank test.
 
 However, only the Dit et al.\ dataset includes traceability links between
 the queries and the commits the goldsets are extracted from.
@@ -312,7 +310,7 @@ when the MRR is in favor of snapshots.
 For LDA at the class-level we note an improvement in MRR for 11 of the 19 systems when using changesets.
 Additionally, 5 of these 10 systems were statistically significant at $p<0.01$.
 Only 1 of the 8 systems with MRR in favor of snapshots were statistically significant.
-Hence, changeset topics perform on par with snapshot topics at the class-level 18 of the 19 times.
+Hence, changeset topics perform just as well as snapshot topics at the class-level 18 of the 19 times.
 
 For LDA at the method-level we note an improvement in MRR for 4 of the 6 systems when using changesets.
 None of these were statistically significant at $p<0.01$.
@@ -321,7 +319,7 @@ especially since there is a lack of statistical significance for \emph{any} of t
 
 \begin{framed}
     \textbf{RQ1}:
-    Changeset topics have an accuracy that is on par with traditional snapshot-based FLTs.
+    Changeset topics have an accuracy that rivals traditional snapshot-based FLTs.
 \end{framed}
 
 \input{tables/rq2_lda}

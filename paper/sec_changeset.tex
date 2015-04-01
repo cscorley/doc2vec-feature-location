@@ -4,18 +4,19 @@ In this section we describe how a TM-based FLT can use changesets.
 
 \subsection{Terminology}
 
-In addition to the terminology described in Section~\ref{sec:related},
-we use the following terminology to describe document extraction of changesets.
+In addition to the terminology described in Section~\ref{sec:related}, we use
+the following terminology to describe the document extraction and retrieval
+process of changesets.
 
 A \textit{diff} is a set of text which represents the differences between two texts.
 A \textit{patch} is a set of instructions (i.e., diffs) that is used to transform one set of texts into another.
 \textit{Context lines} denote text useful for transforming the text, but do not represent the differences.
 \textit{Added lines} are lines which were added in order to transform the first text into the second.
 Similarly, \textit{removed lines} are lines which are removed for this same purpose.
-Figure~\ref{fig:diff} shows an example of what a changeset might look like.
 A \textit{changeset}, ideally, represents a single feature modification,
 addition, or deletion, which may crosscut many source code entities.
 A \textit{commit} is a representation of a changeset in a version control system, such as Git or Subversion.
+Figure~\ref{fig:diff} shows an example changeset from Git.
 
 
 \begin{figure*}[t]
@@ -49,15 +50,16 @@ and green lines (beginning with a single~\texttt{+}) denote line additions.}
 
 \subsection{Feature location using changesets}
 
-The overall difference in our approach and a typical approach described in Section~\ref{sec:snapshot-flt} is minimal.
+The overall difference in our methodology and the standard methodology described in Section~\ref{sec:snapshot-flt} is minimal.
 For example, compare Figures~\ref{fig:snapshot}~and~\ref{fig:changeset}.
 In the changeset approach, we only need to replace the documents on which the topic model is trained
 while the remainder of the approach remains the same.
-Our work can be viewed as a hybrid of textual and historical analyses
-under the Dit et al.~\cite{Dit-etal:2011} taxonomy.
+%Our work can be viewed as a hybrid of textual and historical analyses
+%under the Dit et al.~\cite{Dit-etal:2011} taxonomy.
+% % already mentioned elsewhere
 
 
-The changeset topic modeling approach requires two types of document extraction:
+The changeset approach requires two types of document extraction:
 the snapshot of the state of source code at a commit of interest, such as
 a tagged release, and every changeset in the source code history leading up to
 the same commit of interest.  The left side of Figure~\ref{fig:changeset}
@@ -67,16 +69,16 @@ The document extraction process for the snapshot remains the same as covered in
 Section~\ref{sec:related} while the document extractor for the changesets parses
 each changeset for the removed, added, and context lines.  From there, each line
 is tokenized by the text extractor.  The same preprocessor transformations as
-before occur in both the snapshots and changesets.  The snapshot vocabulary is
-a subset of the changeset vocabulary.
+before occur in both the snapshot and changesets.  The snapshot vocabulary is
+always a subset of the changeset vocabulary~\cite{Corley-etal:2014}.
 
 The right side of Figure~\ref{fig:changeset} illustrates the retrieval process.
-The key intuition to our approach is that a topic model such as LDA or LSI can
+The key intuition to our methodology is that a topic model such as LDA or LSI can
 infer \emph{any} document's topic proportions regardless of the documents used
 to train the model.  In fact, this is also what determining the topic
 proportions of a user-created query relies on. Likewise, so are other unseen
 documents. In our approach, the seen documents are changesets and the unseen
-documents are the source code entities.
+documents are the source code entities of the snapshot.
 
 Hence, we train a topic model on the changeset corpus and use the model to index
 the snapshot corpus.  Note that we never construct an index of the changeset
@@ -101,20 +103,20 @@ update a model and can query it at any moment.  Our historical simulation
 
 We choose to train the model on changesets, rather than another source of
 information, because they also represent what we are primarily interested in:
-program features.  A single changeset gives us a view of an addition, removal,
-or modification of a single feature.  A developer can to some degree comprehend
-what a changeset accomplishes by examining it, much like examining a source
-file.
+program features.  A single changeset provides text of an addition, removal, or
+modification of a single feature.  A developer can to some degree comprehend
+what a changeset accomplishes by examining it, such as during a code review,
+much like examining a source file directly.
 
 While a snapshot corpus has documents that represent a program, a changeset
 corpus has documents that represent programming.  If we consider every changeset
 affecting a particular source code entity, then we gain a sliding-window view of
-that source code entity over time and the contexts those changes was performed
+that source code entity over time and the contexts those changes were performed
 in.  This is akin to summarizing code snippets with machine
 learning\cite{Ying-Robillard:2013}, where in our case a changeset gives
-a snippet-like view of the code required to complete a task.
-For example, in Figure~\ref{fig:diff}, we can see the entire method being changed
-when the context lines are considered.
+a snippet-like view of the code required to complete a task.  For example, in
+Figure~\ref{fig:diff}, we can see the entire method being changed when the
+context lines are considered.
 
 Additionally, Vasa et al.~\cite{Vasa-etal:2007} observe that code rarely changes
 as software evolves. The implication is that the topic modeler will see
@@ -129,8 +131,9 @@ changed. This implies that the noisy information would likely remain in both
 snapshot-based models and changeset-based models.
 
 Indeed, it appears desirable to remove changesets from the model that are old
-and no longer relevant. There would be no need for this because online LDA
-already contains features for increasing the influence newer documents have on
-the model, thereby decaying the affect of the older documents on the model.
+and no longer relevant to the current snapshot of the system. There would be no
+need for this because online LDA already contains features for increasing the
+influence newer documents have on the model, thereby decaying the affect of the
+older documents on the model.
 
 

@@ -19,30 +19,31 @@
 \end{figure*}
 
 
-In this section, we review the typical document extraction and retrieval process used by snapshot-based FLTs,
-as well as related work on topic modeling and feature location.
+In this section, we review the standard methodology for document extraction and
+retrieval process used by snapshot-based FLTs, as well as related work on topic
+modeling and feature location.
 
 \subsection{Document Extraction and Retrieval Process}
 \label{sec:snapshot-flt}
 
-We use the following terminology to describe document extraction of source code.
+We use the following terminology to describe document extraction of a source code snapshot.
 A \textit{word} is the basic unit of discrete data in a software lexicon and is a sequence of letters.
 A \textit{token} is a sequence of non-whitespace characters containing one or more words.
 An \textit{entity} is a named source element such as a method,
 and an \textit{identifier} is a token representing the name of an entity.
 \textit{Comments} and \textit{literals} are sequences of tokens delimited by language-specific markers (e.g., /* */ and quotes).
-The \textit{document} which corresponds to a class is a sequence of words $d = (w_1, \ldots, w_m)$,
-and a \textit{corpus} is a set of documents (i.e., classes) $D = (d_1, \ldots, d_n)$.
+The \textit{document} which corresponds to an entity is a sequence of words $d = (w_1, \ldots, w_m)$,
+and a \textit{corpus} is a set of documents (i.e., methods) $D = (d_1, \ldots, d_n)$.
 
 The left side of Figure~\ref{fig:snapshot} illustrates the document extraction
-process.  A document extractor takes source code as input and produces a corpus
+process.  A document extractor takes a source code snapshot as input and produces a corpus
 as output.  Each document in the corpus contains the words associated with
-a source code entity such as a class or method.  The text extractor is the first
-part of the document extractor.  It parses the source code and produces a token
-stream for each class.  The preprocessor is the second part of the document
+a source code entity, such as a class or method.  The text extractor is the first
+part of the document extractor and parses the source code to produce a token
+stream for each document.  The preprocessor is the second part of the document
 extractor.  It applies a series of transformations to each token and produces
 one or more words from the token.
-The transformations~\cite{Marcus-etal:2004,Marcus-Menzies:2010}: % that we use are:
+The transformations commonly used are~\cite{Marcus-etal:2004,Marcus-Menzies:2010}: % that we use are:
 \begin{itemize}
     \item {\it Splitting}: separate tokens into constituent words based on
         common coding style conventions (e.g., the use of camel case or
@@ -60,7 +61,7 @@ The main prerequisite of the retrieval process is to build the search engine.
 The search engine is constructed from a topic model trained from a corpus and an
 index of that corpus inferred from that model.
 This means that an index is no more than each input document's thematic
-structure, or inferred topic distribution.
+structure (i.e., the document's inferred topic distribution).
 
 The primary function of the search engine is to rank documents in relation to
 the query~\cite{Croft-etal:2010}.  First, when using a TM-based approach, the

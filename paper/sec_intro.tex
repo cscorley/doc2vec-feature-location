@@ -2,30 +2,54 @@
 
 Feature location is a frequent and fundamental activity for a developer tasked with changing a software system.
 Whether a change task involves adding, modifying, or removing a feature, a developer cannot complete the task without first locating the source code that implements the feature.
-The state-of-the-practice in feature location is to use an IDE tool based on keyword or regex search, but Ko et al.~\cite{Ko-etal:2006} observed such tools leading developers to failed searches about 90\% of the time.
+The state-of-the-practice in feature location is to use an IDE tool based on keyword or regex search, but Ko et al.~\cite{Ko-etal:2006} observed such tools leading developers to failed searches nearly 90\% of the time.
 
 The state-of-the-art in feature location~\cite{Dit-etal:2011} is to use a feature location technique (FLT) based, at least in part, on text retrieval (TR).
 The standard methodology~\cite{Marcus-etal:2004} is to extract a document for each class or method in a source code snapshot, to train a TR model on those documents, and to create an index of the documents from the trained model.
-Topics models (TMs) such as latent Dirichlet allocation (LDA)~\cite{Blei-etal:2003} are the state-of-the-art in TR~\cite{Blei:2012} and are more accurate than vector-space models (VSMs) in the contexts of natural language~\cite{Deerwester-etal:1990,Blei-etal:2003} and source code~\cite{Poshyvanyk-etal:2007,Lukins-etal:2010}.
-Yet, modern TMs such as online LDA~\cite{Hoffman-etal:2010} only natively support the online addition of a new document, whereas VSMs also natively support the online modification or removal of an existing document.
-So, TM-based FLTs provide the best accuracy, but unlike VSM-based FLTs, they require computationally-expensive retraining in response to source code changes.
+Topics models (TMs)~\cite{Blei:2012} such as latent Dirichlet allocation (LDA)~\cite{Blei-etal:2003} are the state-of-the-art in TR and outperform vector-space models (VSMs) in the contexts of natural language~\cite{Deerwester-etal:1990,Blei-etal:2003} and source code~\cite{Poshyvanyk-etal:2007,Lukins-etal:2010}.
+Yet, modern TMs such as online LDA~\cite{Hoffman-etal:2010} natively support only the online addition of a new document, whereas VSMs also natively support online modification or removal of an existing document.
+So, TM-based FLTs provide the best accuracy, but unlike VSM-based FLTs, they require computationally-expensive retraining subsequent to source code changes.
 
-Rao~\cite{Rao:2013} proposed FLTs based on custom versions of LSI and LDA that support online modification and removal.
-These FLTs require less-frequent retraining than others based on TMs.
-However, the cost of periodic retraining inhibits their application to large software, and the reliance on custom TMs hinders their extension to new TR models.
+Rao\cite{Rao:2013} proposed FLTs based on customizations of LDA and latent semantic indexing (LSI) that support online modification and removal.
+%These FLTs require less-frequent retraining than others based on TMs.
+These FLTs require less-frequent retraining than other TM-based FLTs,
+but the remaining cost of periodic retraining inhibits their application to large software, and the reliance on customization hinders their extension to new TMs.
 
-We envision an FLT that is accurate like a TM-based FLT, inexpensive to update like a VSM-based FLT, and extensible to accommodate any TR model that supports online addition of a new document.
+We envision an FLT that is: (1)~accurate like a TM-based FLT, (2)~inexpensive to update like a VSM-based FLT, and (3)~extensible to accommodate any off-the-shelf TR model that supports online addition of a new document.
 Unfortunately, our vision is incompatible with the standard methodology for FLTs.
 Existing VSM-based FLTs fail to satisfy the first criteria, and existing TM-based FLTs fail to satisfy the second or third criteria.
 Indeed, given the current state-of-the-art in TR, it is impossible for an FLT to satisfy all three criteria while following the standard methodology.
 
 In this paper we propose a new methodology for FLTs.
-Our methodology is to extract a document for each changeset in the source code history and to train a TR model on the changeset documents, and then to extract a document for each class or method in a source code snapshot and to create an index of the class/method documents from the trained model.
-This new methodology stems from three key observations:
-(1)~like a class or method definition, a changeset contains program text,
-(2)~unlike a class or method definition, a changeset is immutable, and
-(3)~a changeset corresponds to a commit, and an atomic commit involves a single feature.
-Thus, it is possible for an FLT following our methodology both to be based on an off-the-shelf TM and to satisfy the three criteria above.
+Our methodology is to extract a document for each changeset in the source code history and to train a TR model on the changeset documents, and then to extract a document for each class or method in a source code snapshot and to create an index of the class/method documents from the trained (changeset) model.
+This new methodology stems from four key observations:
+\begin{itemize}[leftmargin=*]
+  \item
+    Like a class/method definition, a changeset has program text.
+  \item
+    Unlike a class/method definition, a changeset is immutable.
+  \item
+    A changeset corresponds to a commit.
+  \item
+    An atomic commit involves a single feature.
+\end{itemize}
+It follows from the first two observations that it is possible for an FLT following our methodology to satisfy all three of the criteria above.
+The next two observations influence the training and indexing steps of our methodology,
+which have the conceptual effect of relating classes (or methods) to changeset topics.
+By contrast, the training and indexing steps of the standard methodology
+have the conceptual effect of relating classes to class topics (or methods to method topics).
+
+To evaluate the new methodology, we used it to implement FLTs based on online LSI and online LDA.
+We next used two benchmarks to compare the accuracy of these FLTs to the accuracy of comparable FLTs that follow the standard methodology.
+Combined, the two benchmarks comprise over 1,200 defects and features from 14 open-source Java projects.
+We then used a subset of over 600 defects and features to conduct a historical simulation that demonstrates how the FLTs perform as a project evolves.
+Our evaluation results provide evidence that our new methodology is sound and indicate that FLTs following it provide similar accuracy to those following the standard methodology while eliminating retraining costs.
+
+The remainder of the paper is organized as follows.
+We first review background and related work (\S\ref{sec:related})
+We next present our new methodology for FLTs (\S\ref{sec:changeset}) and report evaluation results for the online-LDA-based FLT (\S\ref{sec:study}).
+We then conclude (\S\ref{sec:conclusion}).
+
 
 
 

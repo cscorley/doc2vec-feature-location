@@ -1,5 +1,5 @@
-Changeset Topics for Feature Location
-=====================================
+Modeling Changeset Topics for Feature Location
+==============================================
 
 ### Authors
 
@@ -9,22 +9,21 @@ Changeset Topics for Feature Location
 
 ### Abstract
 
-> Feature location is a program comprehension activity in which a developer
-> inspects source code to locate the classes or methods that implement a
-> feature of interest. Many feature location techniques (FLTs) are based on
-> text retrieval models, and in such FLTs it is typical for the models to be
-> built from source code snapshots. However, source code evolution leads to
-> model obsolescence and thus to the need to retrain the model from the latest
-> snapshot. In this paper, we introduce a topic-modeling-based FLT in which the
-> model is built incrementally from source code *changesets*. By training an
-> online learning algorithm using changesets, the FLT maintains an up-to-date
-> model without incurring the non-trivial computational cost associated with
-> retraining traditional FLTs. We demonstrate the robustness of the new FLT via
-> an empirical study of two popular text retrieval models: latent semantic
-> indexing and latent Dirichlet allocation. Overall, we studied over 1200
-> defects and features from 14 open-source Java projects. We also present a
-> *temporal simulation* in which we approximate how the FLT would perform
-> throughout the evolution of a project.
+>Feature location is a program comprehension activity in which a developer
+>inspects source code to locate the classes or methods that implement a feature
+>of interest. Many feature location techniques (FLTs) are based on text
+>retrieval models, and in such FLTs it is typical for the models to be trained
+>on source code snapshots. However, source code evolution leads to model
+>obsolescence and thus to the need to retrain the model from the latest
+>snapshot. In this paper, we introduce a topic-modeling-based FLT in which the
+>model is built incrementally from source code history. By training an online
+>learning algorithm using changesets, the FLT maintains an up-to-date model
+>without incurring the non-trivial computational cost associated with
+>retraining traditional FLTs. Overall, we studied over 1,200 defects and
+>features from 14 open-source Java projects. We also present a historical
+>simulation that demonstrates how the FLT performs as a project evolves. Our
+>results indicate that the accuracy of a changeset-based FLT is similar to that
+>of a snapshot-based FLT, but without the retraining costs.
 
 
 ### Description
@@ -37,14 +36,17 @@ Some files which you might find of immediate interest:
 
 - [Pre-print (pdf)](./paper.pdf)
 - [Release (.tar.gz)](./release.tar.gz) -- Includes source code and starter data
-- [GitHub Repository]() -- tbd
+- [Full dataset (.7z)](./fulldata.7z) (6.8GB) -- The full dataset, including
+  generated corpora, models, and results. 
 - [Taser](https://github.com/nkraft/taser) -- Tool used for parsing Java source
+- [GitHub Repository]() -- tbd
 
 We include all of these sources (even the embarrassing commit history) to help
 encourage others in software engineering to engage in
 [open science principles](http://en.wikipedia.org/wiki/Open_Science).
 If there is anything you'd like to see included, feel free to email at
-<cscorley@crimson.ua.edu>.
+<cscorley@crimson.ua.edu>. ***Please*** don't download the full dataset unless
+you're absolutely sure you need it; I have limited bandwidth :)
 
 ### Dataset
 
@@ -81,9 +83,6 @@ Each subdirectory of `data/` follows the following schema:
 There may be other files in the directories which originate from the two
 original datasets.
 
-#### Preprocessed Corpora
-
-**TODO: Generate corpora .gz files for download**
 
 ### Code
 

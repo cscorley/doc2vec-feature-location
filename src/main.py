@@ -24,7 +24,8 @@ import dulwich.repo
 import scipy.stats
 import numpy
 from gensim.corpora import MalletCorpus, Dictionary
-from gensim.models import LdaModel, LsiModel, LdaMallet
+from gensim.models import LdaModel, LsiModel
+from gensim.models.wrappers import LdaMallet
 from gensim.matutils import sparse2full
 from gensim.utils import smart_open
 

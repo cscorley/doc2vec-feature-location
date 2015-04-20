@@ -34,9 +34,9 @@ Most things related to this project can be found in the GitHub repository.
 
 Some files which you might find of immediate interest:
 
-- [Pre-print (pdf)](./paper.pdf)
-- [Release (.tar.gz)](./release.tar.gz) -- Includes source code and starter data
-- [Full dataset (.7z)](./fulldata.7z) (6.8GB) -- The full dataset, including
+- [Pre-print (pdf)](http://christop.club/x/cfl/paper.pdf)
+- [Release (.tar.gz)](http://christop.club/x/cfl/release.tar.gz) -- Includes source code and starter data
+- [Full dataset (.7z)](http://christop.club/x/cfl/fulldata.7z) (6.8GB) -- The full dataset, including
   generated corpora, models, and results. 
 - [Taser](https://github.com/nkraft/taser) -- Tool used for parsing Java source
 - [GitHub Repository](https://github.com/cscorley/changeset-feature-location/)

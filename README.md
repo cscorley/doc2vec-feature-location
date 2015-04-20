@@ -39,7 +39,8 @@ Some files which you might find of immediate interest:
 - [Full dataset (.7z)](./fulldata.7z) (6.8GB) -- The full dataset, including
   generated corpora, models, and results. 
 - [Taser](https://github.com/nkraft/taser) -- Tool used for parsing Java source
-- [GitHub Repository]() -- tbd
+- [GitHub Repository](https://github.com/cscorley/changeset-feature-location/)
+  -- The source code and project history
 
 We include all of these sources (even the embarrassing commit history) to help
 encourage others in software engineering to engage in

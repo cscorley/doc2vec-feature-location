@@ -24,14 +24,14 @@ import dulwich.repo
 import scipy.stats
 import numpy
 from gensim.corpora import MalletCorpus, Dictionary
-from gensim.models import LdaModel, LsiModel
+from gensim.models import LdaModel, LsiModel, Doc2Vec
 from gensim.matutils import sparse2full
 from gensim.utils import smart_open
 
 import utils
 from corpora import (ChangesetCorpus, SnapshotCorpus, ReleaseCorpus,
                      TaserSnapshotCorpus, TaserReleaseCorpus,
-                     CorpusCombiner, GeneralCorpus)
+                     CorpusCombiner, GeneralCorpus, LabeledCorpus)
 from errors import TaserError
 
 
@@ -98,27 +98,28 @@ def run_experiment(project, force):
     collect_info(project, repos, queries, goldsets, changeset_corpus, release_corpus)
 
     # release-based evaluation is #basic 💁
-    release_lda, release_lsi = run_basic(project, release_corpus,
+    release_lda, release_vec = run_basic(project, release_corpus,
                                          release_corpus, queries, goldsets,
                                          'Release', use_level=True, force=force)
 
-    changeset_lda, changeset_lsi = run_basic(project, changeset_corpus,
+    changeset_lda, changeset_vec = run_basic(project, changeset_corpus,
                                              release_corpus, queries, goldsets,
                                              'Changeset', force=force)
 
     try:
-        temporal_lda, temporal_lsi = run_temporal(project, repos,
+        temporal_lda, temporal_vec = run_temporal(project, repos,
                                                 changeset_corpus, queries,
                                                 goldsets, force=force)
     except IOError:
         logger.info("Files needed for temporal evaluation not found. Skipping.")
     else:
         do_science('temporal', temporal_lda, changeset_lda, ignore=True)
-        do_science('temporal_lsi', temporal_lsi, changeset_lsi, ignore=True)
+        do_science('temporal_vec', temporal_vec, changeset_vec, ignore=True)
 
     # do this last so that the results are printed together
     do_science('basic', changeset_lda, release_lda)
-    do_science('basic_lsi', changeset_lsi, release_lsi)
+    do_science('basic_vec', changeset_vec, release_vec)
+
 
 def collect_info(project, repos, queries, goldsets, changeset_corpus, release_corpus):
     changeset_corpus.metadata = True
@@ -161,6 +162,21 @@ def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=
     changesets over time.
     """
     logger.info("Running basic evaluation on the %s", kind)
+
+    try:
+        vec_ranks = read_ranks(project, kind.lower() + '_vec')
+        logger.info("Sucessfully read previously written %s vec ranks", kind)
+        exists = True
+    except IOError:
+        exists = False
+
+    if force or not exists:
+        vec_model, _ = create_vec_model(project, corpus, corpus.id2word, kind, use_level=use_level, force=force)
+        vec_ranks = get_rank_vec(vec_model, queries, other_corpus)
+        write_ranks(project, kind.lower() + '_vec', vec_ranks)
+
+    vec_first_rels = get_frms(goldsets, vec_ranks)
+
     try:
         lda_ranks = read_ranks(project, kind.lower())
         logger.info("Sucessfully read previously written %s LDA ranks", kind)
@@ -178,24 +194,7 @@ def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=
 
     lda_first_rels = get_frms(goldsets, lda_ranks)
 
-    try:
-        lsi_ranks = read_ranks(project, kind.lower() + '_lsi')
-        logger.info("Sucessfully read previously written %s LSI ranks", kind)
-        exists = True
-    except IOError:
-        exists = False
-
-    if force or not exists:
-        lsi_model, _ = create_lsi_model(project, corpus, corpus.id2word, kind, use_level=use_level, force=force)
-        lsi_query_topic = get_topics(lsi_model, queries)
-        lsi_doc_topic = get_topics(lsi_model, other_corpus)
-
-        lsi_ranks = get_rank(lsi_query_topic, lsi_doc_topic)
-        write_ranks(project, kind.lower() + '_lsi', lsi_ranks)
-
-    lsi_first_rels = get_frms(goldsets, lsi_ranks)
-
-    return lda_first_rels, lsi_first_rels
+    return lda_first_rels, vec_first_rels
 
 def run_temporal(project, repos, corpus, queries, goldsets, force=False):
     logger.info("Running temporal evaluation")
@@ -204,16 +203,16 @@ def run_temporal(project, repos, corpus, queries, goldsets, force=False):
         lda_ranks = read_ranks(project, 'temporal')
         lda_rels = get_frms(goldsets, lda_ranks)
 
-        lsi_ranks = read_ranks(project, 'temporal_lsi')
-        lsi_rels = get_frms(goldsets, lsi_ranks)
+        vec_ranks = read_ranks(project, 'temporal_vec')
+        vec_rels = get_frms(goldsets, vec_ranks)
         logger.info("Sucessfully read previously written Temporal ranks")
     except IOError:
         force = True
 
     if force:
-        lda_rels, lsi_rels = run_temporal_helper(project, repos, corpus, queries, goldsets)
+        lda_rels, vec_rels = run_temporal_helper(project, repos, corpus, queries, goldsets)
 
-    return lda_rels, lsi_rels
+    return lda_rels, vec_rels
 
 
 def run_temporal_helper(project, repos, corpus, queries, goldsets):
@@ -230,12 +229,12 @@ def run_temporal_helper(project, repos, corpus, queries, goldsets):
     lda, lda_fname = create_lda_model(project, None, corpus.id2word,
                                       'Temporal', use_level=False, force=True)
 
-    lsi, lsi_fname = create_lsi_model(project, None, corpus.id2word,
+    vec, vec_fname = create_vec_model(project, None, corpus.id2word,
                                       'Temporal', use_level=False, force=True)
 
     indices = list()
     lda_ranks = dict()
-    lsi_ranks = dict()
+    vec_ranks = dict()
     docs = list()
     corpus.metadata = True
     prev = 0
@@ -259,7 +258,7 @@ def run_temporal_helper(project, repos, corpus, queries, goldsets):
             docs.append(corpus[i])
 
         lda.update(docs, decay=0.99)
-        lsi.add_documents(docs)
+        vec.add_documents(docs)
 
         for qid in git2issue[sha]:
             logger.info('Getting ranks for query id %s', qid)
@@ -282,29 +281,27 @@ def run_temporal_helper(project, repos, corpus, queries, goldsets):
             else:
                 logger.info('Couldnt find qid %s', qid)
 
-            # do LSI magic
-            lsi_query_topic = get_topics(lsi, queries, by_ids=[qid])
-            lsi_doc_topic = get_topics(lsi, other_corpus)
-            lsi_subranks = get_rank(lsi_query_topic, lsi_doc_topic)
-            if qid in lsi_subranks:
-                if qid not in lsi_ranks:
-                    lsi_ranks[qid] = list()
+            # do vec magic
+            vec_subranks = get_rank_vec(vec, queries, other_corpus, by_ids=[qid])
+            if qid in vec_subranks:
+                if qid not in vec_ranks:
+                    vec_ranks[qid] = list()
 
-                rank = lsi_subranks[qid]
-                lsi_ranks[qid].extend(rank)
+                rank = vec_subranks[qid]
+                vec_ranks[qid].extend(rank)
             else:
                 logger.info('Couldnt find qid %s', qid)
 
     lda.save(lda_fname)
-    lsi.save(lsi_fname)
+    vec.save(vec_fname)
 
     write_ranks(project, 'temporal', lda_ranks)
-    write_ranks(project, 'temporal_lsi', lsi_ranks)
+    write_ranks(project, 'temporal_vec', vec_ranks)
 
     lda_rels = get_frms(goldsets, lda_ranks)
-    lsi_rels = get_frms(goldsets, lsi_ranks)
+    vec_rels = get_frms(goldsets, vec_ranks)
 
-    return lda_rels, lsi_rels
+    return lda_rels, vec_rels
 
 
 def merge_first_rels(a, b, ignore=False):
@@ -373,6 +370,37 @@ def get_frms(goldsets, ranks):
 
     logger.info('Returning %d FRMS', len(frms))
     return frms
+
+def get_rank_vec(model, queries, corpus, by_ids=None):
+    queries = LabeledCorpus(queries.fname)
+    corpus = LabeledCorpus(corpus.fname)
+
+    ranks = dict()
+    for query in queries:
+        q_dist = list()
+
+        # labeledcorpus is arhghhh
+        qid = query.labels[0].replace('DOC__', '')
+        if by_ids is not None and qid not in by_ids:
+            logger.info('skipping')
+            continue
+
+        qwords = filter(lambda x: x in model.vocab, query.words)
+
+        for doc in corpus:
+            did = doc.labels[0].replace('DOC__', '')
+            dwords = filter(lambda x: x in model.vocab, doc.words)
+
+            if len(dwords) and len(qwords):
+                # best thing to do without inference
+                sim = model.n_similarity(qwords, dwords)
+                q_dist.append((1.0 - sim, (did, 'UNKNOWN')))
+            else:
+                logger.info('no words to measure')
+
+        ranks[qid] = list(sorted(q_dist))
+
+    return ranks
 
 
 def get_rank(query_topic, doc_topic, distance_measure=utils.hellinger_distance):
@@ -682,6 +710,26 @@ def create_lsi_model(project, corpus, id2word, name, use_level=True, force=False
 
     return model, model_fname
 
+def create_vec_model(project, corpus, id2word, name, use_level=True, force=False):
+    model_fname = project.full_path + name + str(project.num_topics)
+    if use_level:
+        model_fname += project.level
+
+    model_fname += '.vec.gz'
+
+    corpus = LabeledCorpus(corpus.fname)
+
+    if not os.path.exists(model_fname) or force:
+        model = Doc2Vec(corpus, size=project.num_topics)
+
+        if corpus:
+            model.save(model_fname)
+    else:
+        model = Doc2Vec.load(model_fname)
+
+    return model, model_fname
+
+
 
 def create_mallet_model(project, corpus, name, use_level=True):
     model_fname = project.full_path + name + str(project.num_topics)
@@ -782,4 +830,5 @@ def create_release_corpus(project, repos, forced_ref=None):
             return create_corpus(project, [None], RC)
         except TaserError:
             return create_corpus(project, repos, SC, forced_ref=forced_ref)
+
 

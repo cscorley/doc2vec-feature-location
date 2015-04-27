@@ -21,19 +21,27 @@ test:
 	nosetests tests/ || true
 	find src tests -name '*.pyc' -exec rm {} \;
 
-clean: clean-web clean-corpora clean-models
+clean: clean-web clean-corpora clean-models clean-results
 	find src tests -name '*.pyc' -exec rm {} \;
 
 clean-corpora: clean-taser
+	find data -name '*.labeled*' -exec rm {} \;
 	find data -name '*.mallet.gz.index' -exec rm {} \;
 	find data -name '*.mallet.index.gz' -exec rm {} \;
 	find data -name '*.mallet.gz' -exec rm {} \;
 	find data -name '*.dict.gz' -exec rm {} \;
 
-clean-models: clean-lda clean-lsi
+clean-models: clean-lda clean-lsi clean-vec
 
 clean-taser:
 	rm -rf /tmp/taser_*
+
+clean-results:
+	find data -name '*-ranks.csv.gz' -exec rm {} \;
+
+clean-vec:
+	find data -name 'VEC*' -exec rm {} \;
+	find data -name '*.vec*' -exec rm {} \;
 
 clean-lda:
 	find data -name 'LDA*' -exec rm {} \;

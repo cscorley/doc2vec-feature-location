@@ -1,27 +1,28 @@
-PAPER 		= paper
+PAPER     = paper
+LATEX     = pdflatex -halt-on-error
+BIBTEX    = bibtex
 
-LATEX 		= pdflatex
-BIBTEX		= bibtex
+CLS_FILES = $(shell find . -name '*.cls')
+TEX_FILES = $(shell find . -name '*.tex')
+BIB_FILES = $(shell find . -name '*.bib')
+GFX_FILES = $(shell find ./figures)
 
-GRAPHICS	= graphics
-
-EPS_GFX		= $(shell echo $(GRAPHICS)/*.eps)
-GEN_GFX 	= $(addsuffix .pdf, $(basename $(EPS_GFX)))
-GFX_FILES	= #$(GEN_GFX)
-
-CLS_FILES	= $(shell find . -name '*.cls')
-TEX_FILES	= $(shell find . -name '*.tex')
-BIB_FILES	= $(shell find . -name '*.bib')
-
-DEP_FILES	= $(CLS_FILES) $(TEX_FILES) $(BIB_FILES) $(GFX_FILES)
-
+DEP_FILES = $(CLS_FILES) $(TEX_FILES) $(BIB_FILES) $(GFX_FILES)
 
 all: $(PAPER).pdf
 
+.ONESHELL edit:
+	make view &> /dev/null
+	while true; do \
+		sleep 1 && \
+		inotifywait -r -e modify,attrib,close_write,move,create,delete . && \
+		make; done &> /dev/null &
+	$(EDITOR) $(TEX_FILES) && kill %1
+
 $(PAPER).pdf: $(DEP_FILES)
-	$(LATEX) $(PAPER)
-	$(BIBTEX) $(PAPER)
-	$(LATEX) $(PAPER)
+	$(LATEX) $(PAPER) || $(BIBTEX) $(PAPER)
+	$(BIBTEX) $(PAPER) || $(LATEX) $(PAPER)
+	$(LATEX) $(PAPER) || $(BIBTEX) $(PAPER)
 	$(LATEX) $(PAPER)
 
 tidy:
@@ -34,12 +35,6 @@ tidy:
 
 clean: tidy
 	$(RM) $(PAPER).pdf
-
-edit:
-	$(EDITOR) paper.tex sec_intro.tex sec_related.tex sec_changeset.tex sec_study.tex sec_threats.tex sec_conclusion.tex
-
-%.pdf: %.eps
-	epstopdf --outfile=$@ $<
 
 OS = $(shell uname -s)
 ifeq ($(strip $(OS)),Linux)

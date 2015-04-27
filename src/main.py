@@ -25,7 +25,6 @@ import scipy.stats
 import numpy
 from gensim.corpora import MalletCorpus, Dictionary
 from gensim.models import LdaModel, LsiModel
-from gensim.models.wrappers import LdaMallet
 from gensim.matutils import sparse2full
 from gensim.utils import smart_open
 
@@ -48,13 +47,10 @@ def error(*args, **kwargs):
 @click.option('--verbose', is_flag=True)
 @click.option('--debug', is_flag=True)
 @click.option('--force', is_flag=True)
-@click.option('--nodownload', is_flag=True)
-@click.option('--temporal', is_flag=True)
-@click.option('--path', default='data/', help="Set the directory to work within")
-@click.argument('name')
+@click.option('--name', help="Name of project to run experiment on")
 @click.option('--version', help="Version of project to run experiment on")
 @click.option('--level', help="Granularity level of project to run experiment on")
-def cli(verbose, debug, force, nodownload, temporal, path, name, version, level):
+def cli(verbose, debug, force, name, version, level):
     """
     Changesets for Feature Location
     """
@@ -70,40 +66,24 @@ def cli(verbose, debug, force, nodownload, temporal, path, name, version, level)
 
     # load project info
     projects = load_projects()
-    project_found = False
     for project in projects:
-        if name == project.name:
-            if version and version != project.version:
-                continue
+        if name:
+            if name == project.name:
+                if version and version != project.version:
+                    continue
 
-            if level and level != project.level:
-                continue
+                if level and level != project.level:
+                    continue
 
-            project_found = True
-            break # got the right name/version/level
+                run_experiment(project, force)
+                sys.exit(0) # done, boom shakalaka
+        else:
+            run_experiment(project, force)
 
-    if not project_found:
-        error("Could not find project in projects.csv!")
 
-
+def run_experiment(project, force):
     logger.info("Running project on %s", str(project))
     print(project)
-
-    nodownload = True # not using this just yet
-    if not nodownload:
-        logger.info("Downloading %s %s release from %s" % (project.name, project.version, project.src_url))
-        utils.mkdir(project.src_path)
-        fn = utils.download_file(project.src_url, project.src_path)
-
-        if fn.endswith('zip'):
-            with zipfile.ZipFile(fn, 'r') as z:
-                z.extractall(project.src_path)
-        elif fn.endswith('tar.bz2'):
-            with tarfile.open(fn, 'r:bz2') as z:
-                z.extractall(project.src_path)
-        elif fn.endswith('tar.gz') or fn.endswith('.tgz'):
-            with tarfile.open(fn, 'r:gz') as z:
-                z.extractall(project.src_path)
 
     repos = load_repos(project)
 
@@ -115,6 +95,8 @@ def cli(verbose, debug, force, nodownload, temporal, path, name, version, level)
     changeset_corpus = create_corpus(project, repos, ChangesetCorpus, use_level=False)
     release_corpus = create_release_corpus(project, repos)
 
+    collect_info(project, repos, queries, goldsets, changeset_corpus, release_corpus)
+
     # release-based evaluation is #basic 💁
     release_lda, release_lsi = run_basic(project, release_corpus,
                                          release_corpus, queries, goldsets,
@@ -124,20 +106,29 @@ def cli(verbose, debug, force, nodownload, temporal, path, name, version, level)
                                              release_corpus, queries, goldsets,
                                              'Changeset', force=force)
 
-    if temporal:
-        try:
-            temporal_lda, temporal_lsi = run_temporal(project, repos,
-                                                    changeset_corpus, queries,
-                                                    goldsets, force=force)
-        except IOError:
-            logger.info("Files needed for temporal evaluation not found. Skipping.")
-        else:
-            do_science('temporal', temporal_lda, changeset_lda, ignore=True)
-            #do_science('temporal_lsi', temporal_lsi, changeset_lsi, ignore=True)
+    try:
+        temporal_lda, temporal_lsi = run_temporal(project, repos,
+                                                changeset_corpus, queries,
+                                                goldsets, force=force)
+    except IOError:
+        logger.info("Files needed for temporal evaluation not found. Skipping.")
+    else:
+        do_science('temporal', temporal_lda, changeset_lda, ignore=True)
+        do_science('temporal_lsi', temporal_lsi, changeset_lsi, ignore=True)
 
     # do this last so that the results are printed together
     do_science('basic', changeset_lda, release_lda)
-    #do_science('basic_lsi', changeset_lsi, release_lsi)
+    do_science('basic_lsi', changeset_lsi, release_lsi)
+
+def collect_info(project, repos, queries, goldsets, changeset_corpus, release_corpus):
+    changeset_corpus.metadata = True
+    release_corpus.metadata = True
+    with smart_open(os.path.join(project.full_path, '-'.join([project.level, 'info.csv'])), 'w') as f:
+        pass
+
+    logger.info("Collecting basic info")
+    changeset_corpus.metadata = False
+    release_corpus.metadata = False
 
 def write_ranks(project, prefix, ranks):
     with smart_open(os.path.join(project.full_path, '-'.join([prefix, project.level, str(project.num_topics), 'ranks.csv.gz'])), 'w') as f:
@@ -187,7 +178,6 @@ def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=
 
     lda_first_rels = get_frms(goldsets, lda_ranks)
 
-    """
     try:
         lsi_ranks = read_ranks(project, kind.lower() + '_lsi')
         logger.info("Sucessfully read previously written %s LSI ranks", kind)
@@ -204,8 +194,6 @@ def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=
         write_ranks(project, kind.lower() + '_lsi', lsi_ranks)
 
     lsi_first_rels = get_frms(goldsets, lsi_ranks)
-    """
-    lsi_first_rels = dict()
 
     return lda_first_rels, lsi_first_rels
 
@@ -216,10 +204,8 @@ def run_temporal(project, repos, corpus, queries, goldsets, force=False):
         lda_ranks = read_ranks(project, 'temporal')
         lda_rels = get_frms(goldsets, lda_ranks)
 
-        """
         lsi_ranks = read_ranks(project, 'temporal_lsi')
         lsi_rels = get_frms(goldsets, lsi_ranks)
-        """
         logger.info("Sucessfully read previously written Temporal ranks")
     except IOError:
         force = True
@@ -241,13 +227,11 @@ def run_temporal_helper(project, repos, corpus, queries, goldsets):
 
     logger.info("Stopping at %d commits for %d issues", len(git2issue), len(issue2git))
 
-    lda, lda_fname = create_lda_model(project, None, corpus.id2word, 'Temporal',
-                                      use_level=False, force=True)
+    lda, lda_fname = create_lda_model(project, None, corpus.id2word,
+                                      'Temporal', use_level=False, force=True)
 
-    """
-    lsi, lsi_fname = create_lsi_model(project, None, corpus.id2word, 'Temporal',
-                                      use_level=False, force=True)
-    """
+    lsi, lsi_fname = create_lsi_model(project, None, corpus.id2word,
+                                      'Temporal', use_level=False, force=True)
 
     indices = list()
     lda_ranks = dict()
@@ -274,8 +258,8 @@ def run_temporal_helper(project, repos, corpus, queries, goldsets):
         for i in xrange(start, end):
             docs.append(corpus[i])
 
-        lda.update(docs, decay=2.0)#, offset=1024)
-        #lsi.add_documents(docs)
+        lda.update(docs, decay=0.99)
+        lsi.add_documents(docs)
 
         for qid in git2issue[sha]:
             logger.info('Getting ranks for query id %s', qid)
@@ -298,12 +282,9 @@ def run_temporal_helper(project, repos, corpus, queries, goldsets):
             else:
                 logger.info('Couldnt find qid %s', qid)
 
-            """
             # do LSI magic
-            lsi_query_topic = get_topics(lsi, queries, by_id=qid)
+            lsi_query_topic = get_topics(lsi, queries, by_ids=[qid])
             lsi_doc_topic = get_topics(lsi, other_corpus)
-            # for some reason the ranks from LSI cause hellinger_distance to
-            # cry, use cosine distance instead
             lsi_subranks = get_rank(lsi_query_topic, lsi_doc_topic)
             if qid in lsi_subranks:
                 if qid not in lsi_ranks:
@@ -313,17 +294,15 @@ def run_temporal_helper(project, repos, corpus, queries, goldsets):
                 lsi_ranks[qid].extend(rank)
             else:
                 logger.info('Couldnt find qid %s', qid)
-            """
 
     lda.save(lda_fname)
-    #lsi.save(lsi_fname)
+    lsi.save(lsi_fname)
 
     write_ranks(project, 'temporal', lda_ranks)
-    #write_ranks(project, 'temporal_lsi', lsi_ranks)
+    write_ranks(project, 'temporal_lsi', lsi_ranks)
 
     lda_rels = get_frms(goldsets, lda_ranks)
-    #lsi_rels = get_frms(goldsets, lsi_ranks)
-    lsi_rels = dict()
+    lsi_rels = get_frms(goldsets, lsi_ranks)
 
     return lda_rels, lsi_rels
 
@@ -332,18 +311,20 @@ def merge_first_rels(a, b, ignore=False):
     first_rels = dict()
 
     for num, query_id, doc_meta in a:
-        if query_id not in first_rels:
-            first_rels[query_id] = [num]
+        qid = int(query_id)
+        if qid not in first_rels:
+            first_rels[qid] = [num]
         else:
             logger.info('duplicate qid found: %s', query_id)
 
     for num, query_id, doc_meta in b:
-        if query_id not in first_rels and not ignore:
-            logger.info('qid not found: %s', query_id)
-            first_rels[query_id] = [0]
+        qid = int(query_id)
+        if qid not in first_rels and not ignore:
+            logger.info('qid not found: %s', qid)
+            first_rels[qid] = [0]
 
-        if query_id in first_rels:
-            first_rels[query_id].append(num)
+        if qid in first_rels:
+            first_rels[qid].append(num)
 
     for key, v in first_rels.items():
         if len(v) == 1:
@@ -359,9 +340,9 @@ def do_science(prefix, changeset_first_rels, release_first_rels, ignore=False):
 
     print(prefix+' changeset mrr:', utils.calculate_mrr(x))
     print(prefix+' release mrr:', utils.calculate_mrr(y))
-    print(prefix+' ranksums:', scipy.stats.ranksums(x, y))
-    print(prefix+' mann-whitney:', scipy.stats.mannwhitneyu(x, y))
     print(prefix+' wilcoxon signedrank:', scipy.stats.wilcoxon(x, y))
+    #print(prefix+' ranksums:', scipy.stats.ranksums(x, y))
+    #print(prefix+' mann-whitney:', scipy.stats.mannwhitneyu(x, y))
     #print('friedman:', scipy.stats.friedmanchisquare(x, y, x2, y2))
 
 
@@ -374,7 +355,7 @@ def get_frms(goldsets, ranks):
         if g_id not in ranks:
             logger.info('Could not find ranks for goldset id %s', g_id)
         else:
-            logger.info('Getting best rank out of %d shas', len(ranks[g_id]))
+            logger.debug('Getting best rank out of %d shas', len(ranks[g_id]))
             subfrms = list()
             for idx, rank in enumerate(ranks[g_id]):
                 dist, meta = rank

@@ -7,4 +7,4 @@
 #
 # See LICENSE for details.
 
-import main
+from . import main

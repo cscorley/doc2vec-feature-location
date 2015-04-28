@@ -47,10 +47,11 @@ def error(*args, **kwargs):
 @click.option('--verbose', is_flag=True)
 @click.option('--debug', is_flag=True)
 @click.option('--force', is_flag=True)
+@click.option('--temporal', is_flag=True)
 @click.option('--name', help="Name of project to run experiment on")
 @click.option('--version', help="Version of project to run experiment on")
 @click.option('--level', help="Granularity level of project to run experiment on")
-def cli(verbose, debug, force, name, version, level):
+def cli(verbose, debug, temporal, force, name, version, level):
     """
     Changesets for Feature Location
     """
@@ -75,13 +76,13 @@ def cli(verbose, debug, force, name, version, level):
                 if level and level != project.level:
                     continue
 
-                run_experiment(project, force)
+                run_experiment(project, temporal, force)
                 sys.exit(0) # done, boom shakalaka
         else:
-            run_experiment(project, force)
+            run_experiment(project, temporal, force)
 
 
-def run_experiment(project, force):
+def run_experiment(project, temporal, force):
     logger.info("Running project on %s", str(project))
     print(project)
 
@@ -106,18 +107,19 @@ def run_experiment(project, force):
                                              release_corpus, queries, goldsets,
                                              'Changeset', force=force)
 
-    try:
-        temporal_lda, temporal_vec = run_temporal(project, repos,
-                                                changeset_corpus, queries,
-                                                goldsets, force=force)
-    except IOError:
-        logger.info("Files needed for temporal evaluation not found. Skipping.")
-    else:
-        do_science('temporal', temporal_lda, changeset_lda, ignore=True)
-        do_science('temporal_vec', temporal_vec, changeset_vec, ignore=True)
+    if temporal:
+        try:
+            temporal_lda, temporal_vec = run_temporal(project, repos,
+                                                    changeset_corpus, queries,
+                                                    goldsets, force=force)
+        except IOError:
+            logger.info("Files needed for temporal evaluation not found. Skipping.")
+        else:
+            do_science('temporal_lda', temporal_lda, changeset_lda, ignore=True)
+            do_science('temporal_vec', temporal_vec, changeset_vec, ignore=True)
 
     # do this last so that the results are printed together
-    do_science('basic', changeset_lda, release_lda)
+    do_science('basic_lda', changeset_lda, release_lda)
     do_science('basic_vec', changeset_vec, release_vec)
 
 
@@ -374,6 +376,7 @@ def get_frms(goldsets, ranks):
 def get_rank_vec(model, queries, corpus, by_ids=None):
     queries = LabeledCorpus(queries.fname)
     corpus = LabeledCorpus(corpus.fname)
+    logger.info('Getting ranks for Doc2Vec model')
 
     ranks = dict()
     for query in queries:
@@ -395,8 +398,6 @@ def get_rank_vec(model, queries, corpus, by_ids=None):
                 # best thing to do without inference
                 sim = model.n_similarity(qwords, dwords)
                 q_dist.append((1.0 - sim, (did, 'UNKNOWN')))
-            else:
-                logger.info('no words to measure')
 
         ranks[qid] = list(sorted(q_dist))
 

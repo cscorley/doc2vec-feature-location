@@ -1,0 +1,155 @@
+\documentclass[conference]{IEEEtran}
+
+\makeatletter
+% IEEEtran.cls defines \labelindent for backward compatibility reasons
+% Undefine \labelindent to allow the use of package enumitem
+\let\labelindent\relax
+\makeatother
+
+
+\usepackage[T1]{fontenc}
+\usepackage[para]{footmisc}
+\usepackage[pdftex]{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage{array}
+\usepackage{balance}
+\usepackage{booktabs}
+\usepackage{cite}
+\usepackage{color}
+\usepackage{comment}
+\usepackage{enumitem}
+\usepackage{framed}
+\usepackage{listings}
+\usepackage{microtype}
+\usepackage{subcaption}
+\usepackage{url}
+
+
+% SQUEEZE
+%\addtolength{\parskip}{-1pt}
+
+
+\definecolor{lightred}{RGB}{150,0,0}
+\definecolor{lightgreen}{RGB}{0,150,0}
+\definecolor{lightblue}{RGB}{0,0,150}
+
+\lstdefinelanguage{diff}{
+  morecomment=[f][\color{lightblue}]{diff },
+  morecomment=[f][\color{lightblue}]{index },
+  morecomment=[f][\color{lightblue}]{@@},     % group identifier
+  morecomment=[f][\color{lightred}]-,         % deleted lines
+  morecomment=[f][\color{lightgreen}]+,       % added lines
+  morecomment=[f][\color{lightblue}]{---},    % Diff header lines (must appear after +,-)
+  morecomment=[f][\color{lightblue}]{+++},
+}
+\hyphenation{}
+
+\newcommand{\attn}[1]{{\color{red}#1}}
+\newcommand{\desc}[1]{{\emph{\color{blue}#1}}}
+\newcommand{\needcite}{\attn{\tiny{[cite]}}}
+\newcommand{\todo}[1]{\strut\smash{\colorbox{yellow}{\bf TODO: #1}}}
+\setlength\OuterFrameSep{0.5em}
+\setlength\FrameSep{0.5em}
+
+\begin{document}
+\title{Exploring the Use of Deep Learning for Feature Location in Source Code}
+\author{
+    \IEEEauthorblockN{
+        Christopher S.\ Corley
+    }
+    \IEEEauthorblockA{
+        The University of Alabama\\
+        Tuscaloosa, AL, USA\\
+        cscorley@ua.edu
+    }
+    \and
+    \IEEEauthorblockN{
+        Nicholas A.\ Kraft
+    }
+    \IEEEauthorblockA{
+        ABB Corporate Research\\
+        Raleigh, NC, USA\\
+        nicholas.a.kraft@us.abb.com
+    }
+    \and
+    \IEEEauthorblockN{
+        Kostadin Damevski
+    }
+    \IEEEauthorblockA{
+	Virginia State University\\
+	Petersburg, VA, USA\\
+        damevski@acm.org
+    }
+}
+
+
+\maketitle
+
+\begin{abstract}
+\end{abstract}
+
+\begin{IEEEkeywords}
+feature location;
+\end{IEEEkeywords}
+
+\section{Introduction}
+         
+
+\section{Background and Related Work}
+
+%   i.) Deep Learning for NL; and in SE
+%
+
+
+%  ii.) Feature Location Current State of the Art / Practice
+%       *bag of words approaches
+%  iii.) Context based approaches to feature location
+%	*Emily Hill et al. “One the use of Positional Proximity for IR-Based Feature Location”
+
+hill~\cite{hill_use_2014}
+
+\section{Design of Feature Location System Based on Deep Learning}
+
+%   i.) Describe all the steps of the system
+%       *is it Sando-like except for the model? (i.e. parsing->stopwords->splitting->indexing+program_element_based_weighting)
+%
+%  ii.) Describe optimal values for parameters (like window size and feature vector length)
+%	*use paper by Poshyvanyk for hints on this
+%
+%  iii.) What are the expected advantages over its counterparts (n-grams, V-DO, MRF)?
+%       *speed and retrieval effectiveness, i suppose
+%
+%  iv.) Other advantages of deep learning?
+%       *e.g. query recommendation based on semantic similarity from deep learning
+
+
+\section{Preliminary Results}
+%approx (2.5 pages)
+
+%     (compare to LDA and VSM)
+%     i. effectiveness on gold sets (F-measure; Mean Average Precision & Precision at Rank 1?)
+%	*the deep learning works better as the number of terms grows, so make sure those characteristics come out
+%
+%     ii. speed 
+%           (for corpus building; for retrieval)
+
+\section{Future Work and Conclusion}
+%(~1 page including references)
+
+
+%future work: 
+%try in the field (e.g. in Sando)
+%maybe try at larger scale 
+%incorporate program structure information
+%paragraph for each new problem in feature location that this could help (e.g. recommendation)
+%Context (compare to n-gram, V-DO stuff)
+
+
+
+\section*{Acknowledgment}
+We acknowledge noone.
+
+\bibliographystyle{IEEEtran}
+\bibliography{doc2vec}
+
+\end{document}

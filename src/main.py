@@ -1,11 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
-# [The "New BSD" license]
-# Copyright (c) 2014 The Board of Trustees of The University of Alabama
-# All rights reserved.
-#
-# See LICENSE for details.
 
 from __future__ import print_function
 
@@ -26,7 +20,7 @@ import numpy
 from gensim.corpora import MalletCorpus, Dictionary
 from gensim.models import LdaModel, LsiModel, Doc2Vec
 from gensim.matutils import sparse2full
-from gensim.utils import smart_open
+from gensim.utils import smart_open, to_unicode, to_utf8
 
 import utils
 from corpora import (ChangesetCorpus, SnapshotCorpus, ReleaseCorpus,
@@ -48,10 +42,21 @@ def error(*args, **kwargs):
 @click.option('--debug', is_flag=True)
 @click.option('--force', is_flag=True)
 @click.option('--temporal', is_flag=True)
+@click.option('--lda', is_flag=True)
+@click.option('--lsi', is_flag=True)
+@click.option('--d2v', is_flag=True)
 @click.option('--name', help="Name of project to run experiment on")
 @click.option('--version', help="Version of project to run experiment on")
-@click.option('--level', help="Granularity level of project to run experiment on")
-def cli(verbose, debug, temporal, force, name, version, level):
+@click.option('--level', default="class", help="Granularity level of project to run experiment on")
+@click.option('--num_topics', default=500, type=click.INT)
+@click.option('--chunksize', default=2000, type=click.INT)
+@click.option('--passes', default=5, type=click.INT)
+@click.option('--iterations', default=1000, type=click.INT)
+@click.option('--decay', default=0.5, type=click.FLOAT)
+@click.option('--offset', default=1.0, type=click.FLOAT)
+@click.option('--eta', type=click.FLOAT)
+@click.option('--alpha', default='symmetric')
+def cli(debug, verbose, name, version, *args, **kwargs):
     """
     Changesets for Feature Location
     """
@@ -66,23 +71,21 @@ def cli(verbose, debug, temporal, force, name, version, level):
         logging.root.setLevel(level=logging.ERROR)
 
     # load project info
-    projects = load_projects()
+    projects = load_projects(kwargs)
     for project in projects:
         if name:
+            name = name.lower()
             if name == project.name:
                 if version and version != project.version:
                     continue
 
-                if level and level != project.level:
-                    continue
-
-                run_experiment(project, temporal, force)
+                run_experiment(project)
                 sys.exit(0) # done, boom shakalaka
         else:
-            run_experiment(project, temporal, force)
+            run_experiment(project)
 
 
-def run_experiment(project, temporal, force):
+def run_experiment(project):
     logger.info("Running project on %s", str(project))
     print(project)
 
@@ -93,19 +96,20 @@ def run_experiment(project, temporal, force):
     goldsets = load_goldsets(project)
 
     # get corpora
-    changeset_corpus = create_corpus(project, repos, ChangesetCorpus, use_level=False)
+    #changeset_corpus = create_corpus(project, repos, ChangesetCorpus, use_level=False)
     release_corpus = create_release_corpus(project, repos)
 
-    collect_info(project, repos, queries, goldsets, changeset_corpus, release_corpus)
+    #collect_info(project, repos, queries, goldsets, changeset_corpus, release_corpus)
 
     # release-based evaluation is #basic 💁
     release_lda, release_vec = run_basic(project, release_corpus,
                                          release_corpus, queries, goldsets,
-                                         'Release', use_level=True, force=force)
+                                         'Release', use_level=True)
 
+    """
     changeset_lda, changeset_vec = run_basic(project, changeset_corpus,
                                              release_corpus, queries, goldsets,
-                                             'Changeset', force=force)
+                                             'Changeset')
 
     if temporal:
         try:
@@ -121,6 +125,8 @@ def run_experiment(project, temporal, force):
     # do this last so that the results are printed together
     do_science('basic_lda', changeset_lda, release_lda)
     do_science('basic_vec', changeset_vec, release_vec)
+    """
+    do_science('basic', release_lda, release_vec)
 
 
 def collect_info(project, repos, queries, goldsets, changeset_corpus, release_corpus):
@@ -142,7 +148,7 @@ def write_ranks(project, prefix, ranks):
             for idx, rank in enumerate(rl):
                 dist, meta = rank
                 d_name, d_repo = meta
-                writer.writerow([gid, idx+1, dist, d_name])
+                writer.writerow([gid, idx+1, dist, to_utf8(d_name)])
 
 def read_ranks(project, prefix):
     ranks = dict()
@@ -153,48 +159,53 @@ def read_ranks(project, prefix):
             if g_id not in ranks:
                 ranks[g_id] = list()
 
-            ranks[g_id].append( (dist, (d_name, 'x')) )
+            ranks[g_id].append( (dist, (to_unicode(d_name), 'x')) )
 
     return ranks
 
 
-def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=False, force=False):
+def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=False):
     """
     This function runs the experiment in one-shot. It does not evaluate the
     changesets over time.
     """
     logger.info("Running basic evaluation on the %s", kind)
 
-    try:
-        vec_ranks = read_ranks(project, kind.lower() + '_vec')
-        logger.info("Sucessfully read previously written %s vec ranks", kind)
-        exists = True
-    except IOError:
-        exists = False
+    vec_first_rels = list()
+    if project.d2v:
+        try:
+            vec_ranks = read_ranks(project, kind.lower() + '_vec')
+            logger.info("Sucessfully read previously written %s vec ranks", kind)
+            exists = True
+        except IOError:
+            exists = False
 
-    if force or not exists:
-        vec_model, _ = create_vec_model(project, corpus, corpus.id2word, kind, use_level=use_level, force=force)
-        vec_ranks = get_rank_vec(vec_model, queries, other_corpus)
-        write_ranks(project, kind.lower() + '_vec', vec_ranks)
+        if project.force or not exists:
+            vec_model, _ = create_vec_model(project, corpus, corpus.id2word, kind, use_level=use_level)
+            vec_ranks = get_rank_vec(vec_model, queries, other_corpus)
+            write_ranks(project, kind.lower() + '_vec', vec_ranks)
 
-    vec_first_rels = get_frms(goldsets, vec_ranks)
+        vec_first_rels = get_frms(goldsets, vec_ranks)
 
-    try:
-        lda_ranks = read_ranks(project, kind.lower())
-        logger.info("Sucessfully read previously written %s LDA ranks", kind)
-        exists = True
-    except IOError:
-        exists = False
 
-    if force or not exists:
-        lda_model, _ = create_lda_model(project, corpus, corpus.id2word, kind, use_level=use_level, force=force)
-        lda_query_topic = get_topics(lda_model, queries)
-        lda_doc_topic = get_topics(lda_model, other_corpus)
+    lda_first_rels = list()
+    if project.lda:
+        try:
+            lda_ranks = read_ranks(project, kind.lower() + '_lda')
+            logger.info("Sucessfully read previously written %s LDA ranks", kind)
+            exists = True
+        except IOError:
+            exists = False
 
-        lda_ranks = get_rank(lda_query_topic, lda_doc_topic)
-        write_ranks(project, kind.lower(), lda_ranks)
+        if project.force or not exists:
+            lda_model, _ = create_lda_model(project, corpus, corpus.id2word, kind, use_level=use_level)
+            lda_query_topic = get_topics(lda_model, queries)
+            lda_doc_topic = get_topics(lda_model, other_corpus)
 
-    lda_first_rels = get_frms(goldsets, lda_ranks)
+            lda_ranks = get_rank(lda_query_topic, lda_doc_topic)
+            write_ranks(project, kind.lower() + '_lda', lda_ranks)
+
+        lda_first_rels = get_frms(goldsets, lda_ranks)
 
     return lda_first_rels, vec_first_rels
 
@@ -460,12 +471,15 @@ def load_goldsets(project):
     goldsets = list()
     s = 0
     for id in ids:
-        with open(os.path.join(project.full_path, 'goldsets', project.level,
-                                id + '.txt')) as f:
-            golds = frozenset(x.strip() for x in f.readlines())
-            s += len(golds)
+        try:
+            with open(os.path.join(project.full_path, 'goldsets', project.level,
+                                    id + '.txt')) as f:
+                golds = frozenset(x.strip() for x in f.readlines())
+                s += len(golds)
 
-        goldsets.append((id, golds))
+            goldsets.append((id, golds))
+        except IOError:
+            pass
 
     logger.info("Returning %d goldsets %d", len(goldsets), s)
     return goldsets
@@ -544,17 +558,16 @@ def load_issue2git(project, ids):
     return i2g, g2i
 
 
-def load_projects():
+def load_projects(config):
     projects = list()
     with open("projects.csv", 'r') as f:
         reader = csv.reader(f)
         header = next(reader)
         customs = ['data_path', 'full_path', 'src_path']
-        Project = namedtuple('Project',  ' '.join(header + customs))
+        Project = namedtuple('Project',  ' '.join(header + customs + config.keys()))
         # figure out which column index contains the project name
         name_idx = header.index("name")
         version_idx = header.index("version")
-        level_idx = header.index("level")
 
         # find the project in the csv, adding it's info to config
         for row in reader:
@@ -567,24 +580,7 @@ def load_projects():
             # build the src_path value
             row += (os.path.join('data', row[name_idx], row[version_idx], 'src'),)
 
-            # try to convert string values to numbers
-            for idx, item in enumerate(row):
-                if item:
-                    # try int first, floats will throw an error here
-                    try:
-                        row[idx] = int(item)
-                        continue
-                    except ValueError:
-                        pass
-
-                    # try float second
-                    try:
-                        row[idx] = float(item)
-                    except ValueError:
-                        pass
-                else:
-                    # set all empty fields to None
-                    row[idx] = None
+            row += config.values()
 
             projects.append(Project(*row))
 
@@ -667,7 +663,7 @@ def create_lda_model(project, corpus, id2word, name, use_level=True, force=False
     model_fname += '.lda.gz'
 
 
-    if not os.path.exists(model_fname) or force:
+    if not os.path.exists(model_fname) or project.force or force:
         if corpus:
             update_every=None # run in batch if we have a pre-supplied corpus
         else:
@@ -677,6 +673,7 @@ def create_lda_model(project, corpus, id2word, name, use_level=True, force=False
                          id2word=id2word,
                          alpha=project.alpha,
                          eta=project.eta,
+                         chunksize=project.chunksize,
                          passes=project.passes,
                          num_topics=project.num_topics,
                          iterations=project.iterations,
@@ -720,7 +717,7 @@ def create_vec_model(project, corpus, id2word, name, use_level=True, force=False
 
     corpus = LabeledCorpus(corpus.fname)
 
-    if not os.path.exists(model_fname) or force:
+    if not os.path.exists(model_fname) or project.force or force:
         model = Doc2Vec(corpus, size=project.num_topics)
 
         if corpus:

@@ -1,0 +1,5 @@
+According to the JPA specification, the user must manually maintain the @Version column in objects that are updated via a bulk update. This is a potential bug in the waiting, and is impossible to do correctly for time-based version fields.
+
+OpenJPA should automatically increment version counters when a bulk update is issued that does not maintain version counters itself.
+
+Of course, this will not change the fact that bulk updates do not do any optimistic lock checks; that behavior is inherent to the nature of bulk updates in the JPA specification, since they are evaluated entirely against the database.

@@ -1,0 +1,72 @@
+Removing a parent object in OneToMany with cascade=CascadeType.ALL raises foreign key constraints exception
+
+JpaParent.java
+  @OneToMany(mappedBy="parent", cascade=CascadeType.ALL)
+  private Set<JpaChild> children = new HashSet<JpaChild>();
+
+JpaChild.java
+  @ManyToOne(optional=false)
+  @JoinColumn(name="ParentId", nullable=false)
+  private JpaParent parent = null;
+
+// This raises the following exception.  If foreign key is removed, it works OK (Maybe I have to let OpenJPA know about foreign key constraints)
+JpaParent parent = em.find(JpaParent.class, 1);
+em.remove(parent);
+
+<2|true|0.9.0-incubating-SNAPSHOT> org.apache.openjpa.persistence.RollbackException: The transaction has been rolled back.  See the nested exceptions for details on the errors that occurred.
+	at org.apache.openjpa.persistence.EntityManagerImpl.commit(EntityManagerImpl.java:371)
+	at openjpa.test.BaseTestCase.destroyTestCase(BaseTestCase.java:82)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:585)
+	at org.junit.internal.runners.BeforeAndAfterRunner.invokeMethod(BeforeAndAfterRunner.java:74)
+	at org.junit.internal.runners.BeforeAndAfterRunner.runAfters(BeforeAndAfterRunner.java:65)
+	at org.junit.internal.runners.BeforeAndAfterRunner.runProtected(BeforeAndAfterRunner.java:37)
+	at org.junit.internal.runners.TestMethodRunner.runMethod(TestMethodRunner.java:75)
+	at org.junit.internal.runners.TestMethodRunner.run(TestMethodRunner.java:45)
+	at org.junit.internal.runners.TestClassMethodsRunner.invokeTestMethod(TestClassMethodsRunner.java:71)
+	at org.junit.internal.runners.TestClassMethodsRunner.run(TestClassMethodsRunner.java:35)
+	at org.junit.internal.runners.TestClassRunner$1.runUnprotected(TestClassRunner.java:42)
+	at org.junit.internal.runners.BeforeAndAfterRunner.runProtected(BeforeAndAfterRunner.java:34)
+	at org.junit.internal.runners.TestClassRunner.run(TestClassRunner.java:52)
+	at org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:38)
+	at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:460)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:673)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:386)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:196)
+Caused by: <0|true|0.9.0-incubating-SNAPSHOT> org.apache.openjpa.persistence.PersistenceException: The transaction has been rolled back.  See the nested exceptions for details on the errors that occurred.
+	at org.apache.openjpa.kernel.BrokerImpl.newFlushException(BrokerImpl.java:2028)
+	at org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:1876)
+	at org.apache.openjpa.kernel.BrokerImpl.flushSafe(BrokerImpl.java:1772)
+	at org.apache.openjpa.kernel.BrokerImpl.beforeCompletion(BrokerImpl.java:1706)
+	at org.apache.openjpa.kernel.LocalManagedRuntime.commit(LocalManagedRuntime.java:76)
+	at org.apache.openjpa.kernel.BrokerImpl.commit(BrokerImpl.java:1271)
+	at org.apache.openjpa.kernel.DelegatingBroker.commit(DelegatingBroker.java:831)
+	at org.apache.openjpa.persistence.EntityManagerImpl.commit(EntityManagerImpl.java:360)
+	... 21 more
+Caused by: <0|false|0.9.0-incubating-SNAPSHOT> org.apache.openjpa.persistence.PersistenceException: [BEA][SQLServer JDBC Driver][SQLServer]DELETE statement conflicted with COLUMN REFERENCE constraint 'JpaChild_Parent_FK'. The conflict occurred in database 'pocdb', table 'JpaChild', column 'ParentId'. 
+{prepstmnt 32048085 DELETE FROM JpaParent WHERE Id = ? AND OptLock = ? [params=(int) 1, (int) 1]} [code=547, state=23000]
+FailedObject: openjpa.model.JpaParent-1
+	at org.apache.openjpa.jdbc.sql.DBDictionary.newStoreException(DBDictionary.java:3701)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:94)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:64)
+	at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flushInternal(PreparedStatementManagerImpl.java:103)
+	at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flush(PreparedStatementManagerImpl.java:68)
+	at org.apache.openjpa.jdbc.kernel.OperationOrderUpdateManager.flushPrimaryRow(OperationOrderUpdateManager.java:158)
+	at org.apache.openjpa.jdbc.kernel.OperationOrderUpdateManager.flush(OperationOrderUpdateManager.java:86)
+	at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.flush(AbstractUpdateManager.java:88)
+	at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.flush(AbstractUpdateManager.java:68)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.flush(JDBCStoreManager.java:512)
+	at org.apache.openjpa.kernel.DelegatingStoreManager.flush(DelegatingStoreManager.java:127)
+	... 28 more
+Caused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: [BEA][SQLServer JDBC Driver][SQLServer]DELETE statement conflicted with COLUMN REFERENCE constraint 'JpaChild_Parent_FK'. The conflict occurred in database 'pocdb', table 'JpaChild', column 'ParentId'. {prepstmnt 32048085 DELETE FROM JpaParent WHERE Id = ? AND OptLock = ? [params=(int) 1, (int) 1]}
+ [code=547, state=23000]
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.wrap(LoggingConnectionDecorator.java:186)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.access$700(LoggingConnectionDecorator.java:53)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection$LoggingPreparedStatement.executeUpdate(LoggingConnectionDecorator.java:839)
+	at org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement.executeUpdate(DelegatingPreparedStatement.java:266)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager$CancelPreparedStatement.executeUpdate(JDBCStoreManager.java:1359)
+	at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flushInternal(PreparedStatementManagerImpl.java:92)
+	... 35 more

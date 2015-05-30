@@ -1,0 +1,32 @@
+Multi-query optimization throws an error when merging 2 level splits. Following is the script to reproduce the error
+
+data = LOAD 'data' USING PigStorage() AS (id:int, name:chararray);
+
+ids = FOREACH data GENERATE id;
+allId = GROUP ids all;
+allIdCount = FOREACH allId GENERATE group as allId, COUNT(ids) as total;
+idGroup = GROUP ids by id;
+idGroupCount = FOREACH idGroup GENERATE group as id, COUNT(ids) as count;
+countTotal = cross idGroupCount, allIdCount;
+idCountTotal = foreach countTotal generate
+        id,
+        count,
+        total,
+        (double)count / (double)total as proportion;
+orderedCounts = order idCountTotal by count desc;
+STORE orderedCounts INTO 'mq_problem/ids';
+
+names = FOREACH data GENERATE name;
+allNames = GROUP names all;
+allNamesCount = FOREACH allNames GENERATE group as namesAll, COUNT(names) as total;
+nameGroup = GROUP names by name;
+nameGroupCount = FOREACH nameGroup GENERATE group as name, COUNT(names) as count;
+namesCrossed = cross nameGroupCount, allNamesCount;
+nameCountTotal = foreach namesCrossed generate
+        name,
+        count,
+        total,
+        (double)count / (double)total as proportion;
+nameCountsOrdered = order nameCountTotal by count desc;
+STORE nameCountsOrdered INTO 'mq_problem/names';
+

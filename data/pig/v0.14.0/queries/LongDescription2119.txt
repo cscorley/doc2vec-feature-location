@@ -1,0 +1,41 @@
+The input:
+
+
+grunt> cat b.txt
+a       11
+b       3
+c       10
+a       12
+b       10
+c       15
+
+
+
+The script:
+
+
+a = load 'b.txt' AS (id:chararray, num:int);
+b = group a by id;
+c = foreach b { 
+  d = order a by num DESC;
+  n = COUNT(a);
+  e = limit d 1;
+  generate n;
+}
+
+
+
+The exception:
+
+
+Caused by: java.lang.ClassCastException: org.apache.pig.newplan.logical.relational.LOLimit cannot be cast to org.apache.pig.newplan.logical.relational.LOGenerate
+        at org.apache.pig.newplan.logical.rules.DuplicateForEachColumnRewrite$DuplicateForEachColumnRewriteTransformer.check(DuplicateForEachColumnRewrite.java:87)
+        at org.apache.pig.newplan.optimizer.PlanOptimizer.optimize(PlanOptimizer.java:108)
+
+
+
+
+I know the script is a bit pointless, but I was just testing and modifying the script bit by bit.
+If I remove the limit in any case I get the same exception but with LOSort.
+
+The problem, I think, is that the rule assumes there is only 1 sink in the nested block and that this sink is a LOGenerate.

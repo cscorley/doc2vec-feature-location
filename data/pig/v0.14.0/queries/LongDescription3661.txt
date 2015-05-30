@@ -1,0 +1,13 @@
+To reproduce:
+A =load '/tmp/data' as (a1:int, a2:int, a3:int);
+B = load '/tmp/data1' as (b1:chararray, b2:chararray, b3:chararray);
+store A into '/tmp/out/a' using org.apache.pig.piggybank.storage.avro.AvroStorage();
+store B into '/tmp/out2/b' using org.apache.pig.piggybank.storage.avro.AvroStorage();
+
+It either fails in the map job if schema is incompatible, or B gets schema of A and B merged leading to incorrect results.
+
+Reason is schema is stored and accessed from a property of UDFContext without using a context signature.
+
+UDFContext context = UDFContext.getUDFContext();
+        Properties property = context.getUDFProperties(ResourceSchema.class);
+        String prevSchemaStr = property.getProperty(AVRO_OUTPUT_SCHEMA_PROPERTY);

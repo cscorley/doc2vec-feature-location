@@ -1,0 +1,24 @@
+Spinoff from this discussion:
+
+  http://n2.nabble.com/getting-text-from-MS-Word-docs-with-tracked-changes...-td2463811.html
+
+When extracting text from an MS Word doc (2003 format) that has
+unapproved pending changes, the text from both old and new is glommed
+together.
+
+EG I had a doc that contained text "Field.Index.TOKENIZED", and I
+changed TOKENIZED to ANALYZED with track changes enabled, and
+then when I extract text (using TikaCLI) it produces this:
+
+  Field.Index.TOKENIZEDANALYZED
+
+So, first, it'd be nice to at least get whitespace inserted between
+old & new text.
+
+And, second, it'd be great to have an option to control whether it's
+old or new text that's indexed (or at least an option to only see
+"new" text, ie the current document).
+
+From the discussion above, it seems like POI may expose the
+fine-grained APIs to allow Tika to do this; it's just that Tika's not
+leveraging these APIs  for MS Word docs.

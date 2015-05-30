@@ -1,0 +1,13 @@
+Standard configuration of Mime4j accepts only 1000 characters per line and 1000 charackters per header. The streaming approach of tika should not need theese limitations, an exception is being thrown and none of the data read is available.
+
+Solution:
+Replace all occurences of:
+
+Parser parser = new RFC822Parser();
+
+by:
+
+MimeEntityConfig config = new MimeEntityConfig();
+config.setMaxLineLen(-1);
+config.setMaxContentLen(-1);
+Parser parser = new RFC822Parser(config);

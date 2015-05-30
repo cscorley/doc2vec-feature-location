@@ -1,0 +1,27 @@
+I discovered this problem while trying to get suites.All to run on the phoneME advanced platform, but it is easy to reproduce also with Java SE. 
+
+The problem is that importing a table fails if there exists a table with the same name in a different schema. The error is:
+
+ERROR 42X04: Column 'COLUMN2' is either not in any table in the FROM list or appears within a join specification and is outside the scope of the join specification or appears in a HAVING clause and is not in the GROUP BY list. If this is a CREATE or ALTER TABLE  statement then 'COLUMN2' is not a column in the target table.
+
+If the table in the other schema is removed, the import command succeeds. If the import command is executed with an explicit schema name, instead of relying on "null" to give the default schema, the command also succeeds.
+
+I believe this is a bug.
+
+The following sequence of commands reproduces the problem:
+
+ij version 10.4
+ij> connect 'jdbc:derby:MyDbTest;create=true';
+ij> create table t1 (a int);
+0 rows inserted/updated/deleted
+ij> insert into t1 values 1,2,3;
+3 rows inserted/updated/deleted
+ij> call SYSCS_UTIL.SYSCS_EXPORT_TABLE(null, 'T1', 't1.txt', null, null, null);
+0 rows inserted/updated/deleted
+ij>  create schema iep;
+0 rows inserted/updated/deleted
+ij> create table iep.t1 (b int);
+0 rows inserted/updated/deleted
+ij> call SYSCS_UTIL.SYSCS_IMPORT_TABLE(null, 'T1', 't1.txt', null, null, null, 0);
+ERROR 38000: The exception 'java.sql.SQLException: Column 'COLUMN2' is either not in any table in the FROM list or appears within a join specification and is outside the scope of the join specification or appears in a HAVING clause and is not in the GROUP BY list. If this is a CREATE or ALTER TABLE  statement then 'COLUMN2' is not a column in the target table.' was thrown while evaluating an expression.
+ERROR 42X04: Column 'COLUMN2' is either not in any table in the FROM list or appears within a join specification and is outside the scope of the join specification or appears in a HAVING clause and is not in the GROUP BY list. If this is a CREATE or ALTER TABLE  statement then 'COLUMN2' is not a column in the target table.

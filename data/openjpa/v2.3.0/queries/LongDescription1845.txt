@@ -1,0 +1,18 @@
+I have a problem with upgrading from OpenJPA-2.0.0 to 2.0.1.
+
+One of my services executes the following query (this is the 'id' I get in PreparedQueryCacheImpl#get(String id) ):
+
+SELECT distinct e FROM Employment em, Person e WHERE em.employeeId = e.employeeId and em.orgUnitCode = :orgUnitCode AND em.employmentPosition in (:employmentPositions) AND em.start <= :startBefore AND em.end >= :endAfter ORDER BY e.familyName ASC
+
+Somehow when I execute my service a few times with different employmentPositions params (ArrayList<String>) I still get the 'old' cached param values!
+
+I tried to disable this behaviour in my persistence.xml with
+
+  <property name="openjpa.QueryCache" value="false"/>
+
+but this didn't work.
+
+Maybe this was a side effect of the ORDER BY which made this query work in 2.0.0 (caching of queries with ORDER BY got only fixed after 2.0.0), so I'd like to write a unit test for it.
+
+As Jeremy pointed out, this can get fixed by setting <property name="openjpa.jdbc.QuerySQLCache" value="false"/> in my persistence.xml.
+Nontheless this is a problematic bug because it is very hard to find and lead to finding wrong data in your application (would be less problematic if it would 'just' throw an Exception).

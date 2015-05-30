@@ -1,0 +1,22 @@
+I noticed a couple of things that could be cleaned up in CoalesceTest:
+
+
+	It keeps statements in instance variables. These are closed in tearDown(), but not nulled out, so they are not gc'ed when the test completes.
+
+
+
+
+	It has much code that follows the pattern
+
+
+
+  try 
+{
+     s.execute(...);
+  }
+ catch (SQLException sqle) 
+{
+     assertSQLState(state, sqle);
+  }
+
+which means it won't report a failure if the execution of the statement succeeds unexpectedly.

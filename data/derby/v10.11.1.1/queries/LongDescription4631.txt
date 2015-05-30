@@ -1,0 +1,63 @@
+SQL:2003 says that the join columns in a natural join or in a named
+columns join should be added to the select list by coalescing the
+column from the left table with the column from the right table.
+
+Section 7.7, <joined table>, syntax rules:
+
+> 1) Let TR1 be the first <table reference>, and let TR2 be the <table
+> reference> or <table factor> that is the second operand of the
+> <joined table>. Let RT1 and RT2 be the row types of TR1 and TR2,
+> respectively. Let TA and TB be the range variables of TR1 and TR2,
+> respectively. (...)
+
+and
+
+> 7) If NATURAL is specified or if a <join specification> immediately
+> containing a <named columns join> is specified, then:
+(...)
+> d) If there is at least one corresponding join column, then let SLCC
+> be a <select list> of <derived column>s of the form
+>
+> COALESCE ( TA.C, TB.C ) AS C
+>
+> for every column C that is a corresponding join column, taken in
+> order of their ordinal positions in RT1.
+
+For a right outer join, Derby doesn't use COALESCE(TA.C, TB.C), but
+rather just TB.C (the column in the right table) directly.
+
+This is in most cases OK, because COALESCE(TA.C, TB.C) = TB.C is an
+invariant in a right outer join. (Because TA.C is either NULL or equal
+to TB.C.)
+
+However, in a database with territory-based collation, equality
+between two values does not mean they are identical, especially now
+that the strength of the collator can be specified (DERBY-1748).
+
+Take for instance this join:
+
+ij> connect 'jdbc:derby:testdb;create=true;territory=en_US;collation=TERRITORY_BASED:SECONDARY';
+ij> create table big(x varchar(5));
+0 rows inserted/updated/deleted
+ij> insert into big values 'A','B','C';
+3 rows inserted/updated/deleted
+ij> create table small(x varchar(5));
+0 rows inserted/updated/deleted
+ij> insert into small values 'b','c','d';
+3 rows inserted/updated/deleted
+ij> select x, t1.x, t2.x, coalesce(t1.x, t2.x) from small t1 natural right outer join big t2;
+X    |X    |X    |4    
+-----------------------
+A    |NULL |A    |A    
+B    |b    |B    |b    
+C    |c    |C    |c    
+
+3 rows selected
+
+I believe that the expected result from the above query is that the
+first column should have the same values as the last column. That is,
+the first column should contain 
+{'A', 'b', 'c'}
+, not 
+{'A', 'B', 'C'}
+.

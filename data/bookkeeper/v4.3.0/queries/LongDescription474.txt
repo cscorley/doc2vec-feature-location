@@ -1,0 +1,7 @@
+This test was created to catch the BOOKKEEPER-5, which is where we hang due to orphaned netty connections. Netty connections are made when we first send an add entry to the bookie. 
+
+The creates 10000 ledgers, and writes 200 entries to across these (note, this is not 200 each, but 200 across all ledgers). Therefore, a maximum 200 connections could be created. So the test isn't doing what it think it is doing.
+
+The test takes between 4 & 7 minutes (most of this time creating unused ledgers) on jenkins. It is then run 4 times as BookieReadWriteTest is a Parameterized test.
+
+This adds up to 28 minutes to a build on jenkins. This test should take no longer than 30 seconds.

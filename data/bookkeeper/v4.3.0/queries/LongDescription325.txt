@@ -1,0 +1,9 @@
+When RW found that ledger's last fragment is in underReplication state, then we should delay that ledger replication for some grace period. optimally we can replicate other fragments.
+
+The idea is, Whenever it finds the last fragement is under replicated, It can add into PendingReplication list.
+There will be a small daemon, which will check for the timeouts of this ledgers. 
+
+Once it timed out , it will trigger the normal replication process if it is not in last fragment. Otherwise, it will fence the ledger and will trigger the replication nomally.
+
+see the discussion for more info:
+http://markmail.org/message/ruhhxxgvuqnjlu2s#query:+page:1+mid:f6ifo4sizulwiaem+state:results

@@ -1,0 +1,7 @@
+Simple refresh(PESSIMISTIC_WRITE) generates multiple SQL statements. E.g.
+
+    em.refresh(t1, LockModeType.PESSIMISTIC_WRITE);
+    //SELECT t0.CMLT_FOLDER_CONTEXT_UPDATE_TMS, t0.CRE_TIME FROM T1 t0 WHERE t0.c1 = ?  [params=(String) c1]
+    //SELECT t0.c1 FROM T1 t0 WHERE t0.c1 = ?  FOR READ ONLY WITH RR USE AND KEEP UPDATE LOCKS [params=(String) c1]
+
+It would be nice if a single SQL is executed to optimize SQL execution and chances that another thread may compete to lock the same row.

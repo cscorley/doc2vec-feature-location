@@ -1,0 +1,11 @@
+I'm having a lot problems testing the 3.4.0 release candidate (0). I'm seeing frequent failures in RO unit tests, also the solaris tests are broken on jenkins, some of which is due to RO mode:
+https://builds.apache.org/view/S-Z/view/ZooKeeper/job/ZooKeeper_trunk_solaris/30/#showFailuresLink
+
+I'm also seeing ERROR level messages in the logs during test runs that are a result of attempting to start RO mode.
+
+Given this is a new feature, one that could be very disruptive, I think we need to control whether the feature is enabled or not through a config option (system prop is fine), disabled by default.
+
+I'll look at the RO mode tests to see if I can find the cause of the failures on solaris, but I may also turn off these tests for the time being. (I need to look at this further).
+
+
+I'm marking this as a blocker for 3.4.0, Mahadev LMK if you feel similarly or whether I should be shooting for 3.4.1 with this. (or perhaps I'm just way off in general).

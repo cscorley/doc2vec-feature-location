@@ -1,0 +1,25 @@
+Someone decided to use a large number for their myid file.  This cause session ids to go negative, and our software (Apache Accumulo) did not handle this very well.  While diagnosing the problem, I noticed this in SessionImpl:
+
+
+   public static long initializeNextSession(long id) {
+        long nextSid = 0;
+        nextSid = (System.currentTimeMillis() << 24) >> 8;
+        nextSid =  nextSid | (id <<56);
+        return nextSid;
+    }
+
+
+
+When the 40th bit in System.currentTimeMillis() is a one, sign extension will fill the upper 8 bytes of nextSid, and id will not make the session id unique.  I recommend changing the right shift to the logical shift:
+
+
+   public static long initializeNextSession(long id) {
+        long nextSid = 0;
+        nextSid = (System.currentTimeMillis() << 24) >>> 8;
+        nextSid =  nextSid | (id <<56);
+        return nextSid;
+    }
+
+
+
+But, we have until the year 2022 before we have to worry about it.

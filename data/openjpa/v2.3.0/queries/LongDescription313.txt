@@ -1,0 +1,45 @@
+We have an object inheritance hierarchy as follows.
+
+    FixedAnnuity extends Annuity
+    EquityAnnuity extends Annuity
+
+Then we have following code:
+
+    List<IAnnuity> annuities = getServerAdapter().findHolderAnnuities(holder);
+
+from which we expect to have a list of "Annuity" (could be Annuity, FixedAnnuity or 
+EquityAnnuity) from following code
+	EntityManager em = null;
+	try
+{		 						
+		em = factory.createEntityManager();
+		Query query = em.createNamedQuery("GetHolderAnnuities");
+		query.setParameter("holderId", holder.getId());		
+		return (List<IAnnuity>) query.getResultList();
+	}
+
+Here is the query
+	<named-query name="GetHolderAnnuities">
+	<query>SELECT a FROM Annuity AS a WHERE a.annuityHolderId = :holderId</query>
+	</named-query>
+
+In the end, the list returned only the first object with the correct Object, the 
+rest of the objects all casted into the basic type "Annuity"
+e.g. we have following code:
+
+	EntityManager em = null;
+	try{		 								em = factory.createEntityManager();		Query query = em.createNamedQuery("GetHolderAnnuities");		query.setParameter("holderId", holder.getId());				return (List<IAnnuity>) query.getResultList();	}
+
+	FixedAnnuity fixed1 = new FixedAnnuity();
+	fixed1.setHolder(holder);
+	EquityAnnuity equity1 = new EquityAnnuity();
+	equity1.setHolder(holder);
+	FixedAnnuity fixed1 = new FixedAnnuity();
+	fixed2.setHolder(holder);
+	EquityAnnuity equity2 = new EquityAnnuity();
+	equity2.setHolder(holder);
+
+	List<IAnnuity> annuities = getServerAdapter().findHolderAnnuities(holder);
+
+Only annuities.get(0) returns the correct object as FixedAnnuity, the other 3 
+objects returned all returned as Annuity 

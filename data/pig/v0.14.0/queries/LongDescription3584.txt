@@ -1,0 +1,14 @@
+I found an issue this morning with AvroStorage and arrays of strings. Suppose that you have an Avro file with an array of strings like this:
+
+{"name" : "example",
+ "namespace" : "org.apache.pig.avro",
+ "type" : "record",
+ "fields" : [
+ {"name" : "arrayOfStrings",
+  "type" : "type" : "array", "items" : "string"}}
+
+The current version of AvroStorage would translate this schema into a bag of tuples, each containing a single chararray field. 
+
+The current version of AvroStorage will naively place each value in the array into a tuple inside a bag of values. Unfortunately, each value is a Utf8 item (not a Java String type). This can cause problems in later processing steps, because Pig does not know how to deal with Utf8 objects. 
+
+I've written a patch for AvroStorage that will correctly translate objects in arrays into a form that Pig can process. (While I was at it, I made sure that we correctly translated other Avro types, including fixed, enums, and unions.)

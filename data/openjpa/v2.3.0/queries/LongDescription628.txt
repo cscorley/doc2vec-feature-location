@@ -1,0 +1,54 @@
+There seems to be an issue with recursive one-to-many relations that did not exist prior to 1.1.0.  I have tested my scenario on both 1.0.1 and 1.0.2 and the behavior works as expected, but the exact same scenario does not work under 1.1.0.  It seems that level two joins do not persist on an update of an object graph.
+
+To illustrate my problem I've included the source and a application to run the test.  The entity classes are as follows:
+
+1)       A given "Tree" object holds one-to-many "Node" objects.  "Tree" is neither derived by nor derived from any other classes.
+2)       A given "Node" object holds one-to-many child "Node" objects.  "Node" is neither derived by nor derived from any classes.
+
+Scenario 1:
+
+1)       Create a "Tree" object.
+2)       Add one or more "Node" objects to "Tree"
+3)       Add one or more child "Node" objects to one or more of the "node" objects associated with "tree".
+4)       Persist and commit "tree".
+5)       Close the entity manager.
+
+Result: The tree, nodes and child nodes are persisted to the database as expected.  Referential integrity is correct.
+
+Scenario 2:
+
+1)       Create a "Tree" object.
+2)       Add one or more "Node" objects to "Tree"
+3)       Persist and commit the tree.
+4)       Close the entity manager.
+
+Result:  The tree and nodes are persisted to the database as expected.
+
+5)       Read the "tree" from a new entity manager
+6)       Add child nodes to one or more of the "nodes" objects associated with "tree"
+7)       Commit the "tree"
+8)       Close the entity manager.
+
+Result: Under 1.0.1 and 1.0.2, the child nodes are persisted to the database as expected.  Referential integrity is correct.  Under 1.1.0, the child nodes are not persisted to the database.  No errors or exceptions are thrown.  This appears to be broken with the 1.1.0 release.
+
+I have included my test application for you to review.  The test was run against a SQL Server database, however you should be able to easily modify the persistence.xml file to run against any database platform you wish.  The table structure is as follows:
+
+Counters:
+
+            PrimKey: NUMERIC(18,0) (18,0) PrimaryKey, NOT NULL
+            Counter: NUMERIC(18,0) (18, 0) NOT NULL
+
+Trees:
+            OID: NUMERIC(18,0) PrimaryKey, NOT NULL
+            ParentOID: NUMERIC(18,0) NULL
+            Sequence: NUMERIC(18,0) NULL
+            Name: VARCHAR(50) NOT NULL
+            Version: NUMERIC(18,0) NOT NULL
+
+Nodes:
+            OID: NUMERIC(18,0) PrimaryKey, NOT NULL
+            Name: VARCHAR(50) NOT NULL
+            Version: NUMERIC(18,0) NOT NULL
+
+Please let me know if you have any questions.  Thanks for your attention into this matter.
+

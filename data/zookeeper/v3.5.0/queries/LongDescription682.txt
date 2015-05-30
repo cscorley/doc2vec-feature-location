@@ -1,0 +1,7 @@
+After the event notification response from server is received, the client will convert the server path to the client path if chrooted by:
+
+event.setPath(serverPath.substring(chrootPath.length());
+
+If chrootPath and serverPath are the same, then the event's path will be set to a null string.
+
+But the key of the watcher's map is "/", not a null string, so the watcher will not get notified at all.

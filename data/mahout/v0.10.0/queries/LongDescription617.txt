@@ -1,0 +1,54 @@
+FPGrowth reports the support of itemsets individually - in that - if Item X appears "individually" 12 times and appears with item Y 10 times (a total of 22 times) AND item Y appears "individually" 4 times (a total of 14 times) then this is what the output will be (say for min-support 2)
+
+12 X
+10 XY
+4  Y
+
+Instead of 
+22 X
+10 XY
+14 Y
+
+Also, because of this If the minimum support is 5 then the output will look like : 
+12 X
+10 X Y
+Thus totally Ignoring Y
+
+if the minimum support is 11 then the output will look like 
+12 X
+again Ignoring Y
+
+if the minimum support is 13 then there will be NO output. even though all the way along Xs support was 22 and Y's was 14
+
+
+
+Even if we want to show just the maximal itemsets (although i would like to see ALL the frequent itemsets - maximal or not) this output is wrong as with a support of 13 we should still have seen X(22) and Y(14)
+
+
+Now Say you add XYZ 11 times
+
+
+for support 1 you'd see
+12 X
+10 X Y
+11 X Y Z
+4   Y
+
+
+
+
+And for support 11 you'd see
+12 X
+11 X Y Z
+
+Although I'd expect the output (for both s=1 & s=11) to be 
+33 X
+25 Y 
+21 XY
+11 Z
+11 XZ
+11 YZ
+11 XYZ
+
+
+attached are the sample inputs: 

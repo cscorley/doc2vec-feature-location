@@ -1,0 +1,60 @@
+Since revision 1454647 the suites.All no longer kicks off with weme 6.2.
+
+The stack trace (which does not get copied to my apache location because the test doesn't finish) looks like this:
+
+
+Failed to invoke class org.apache.derbyTesting.functionTests.tests.derbynet._Suite
+java.lang.reflect.InvocationTargetException
+	at java.lang.reflect.AccessibleObject.invokeL(AccessibleObject.java:205)
+	at java.lang.reflect.Method.invoke(Method.java:252)
+	at org.apache.derbyTesting.functionTests.suites.AllPackages.invokeSuite(AllPackages.java:179)
+	at org.apache.derbyTesting.functionTests.suites.AllPackages.suite(AllPackages.java:63)
+	at org.apache.derbyTesting.functionTests.suites.All.suite(All.java:51)
+	at java.lang.reflect.AccessibleObject.invokeL(AccessibleObject.java:203)
+	at java.lang.reflect.Method.invoke(Method.java:252)
+	at junit.runner.BaseTestRunner.getTest(BaseTestRunner.java:126)
+	at junit.textui.TestRunner.start(TestRunner.java:184)
+	at junit.textui.TestRunner.main(TestRunner.java:143)
+Caused by: junit.framework.AssertionFailedError: unexpected error
+	at org.apache.derbyTesting.junit.BaseTestCase.fail(BaseTestCase.java:1104)
+	at org.apache.derbyTesting.junit.JDBCDataSource.getDataSourceObject(JDBCDataSource.java:187)
+	at org.apache.derbyTesting.junit.JDBCDataSource.getDataSource(JDBCDataSource.java:108)
+	at org.apache.derbyTesting.junit.JDBCDataSource.getDataSource(JDBCDataSource.java:93)
+	at org.apache.derbyTesting.junit.DataSourceConnector.setConfiguration(DataSourceConnector.java:51)
+	at org.apache.derbyTesting.junit.TestConfiguration.initConnector(TestConfiguration.java:1484)
+	at org.apache.derbyTesting.junit.TestConfiguration.<init>(TestConfiguration.java:1393)
+	at org.apache.derbyTesting.junit.TestConfiguration.<clinit>(TestConfiguration.java:138)
+	at java.lang.J9VMInternals.initializeImpl(Native Method)
+	at java.lang.J9VMInternals.initialize(J9VMInternals.java:209)
+	at org.apache.derbyTesting.functionTests.tests.derbynet.ShutDownDBWhenNSShutsDownTest.suite(ShutDownDBWhenNSShutsDownTest.java:53)
+	at org.apache.derbyTesting.functionTests.tests.derbynet._Suite.suite(_Suite.java:50)
+	at java.lang.reflect.AccessibleObject.invokeL(AccessibleObject.java:203)
+	... 9 more
+Caused by: java.lang.NullPointerException
+	at org.apache.derbyTesting.junit.TestConfiguration.getCurrent(TestConfiguration.java:220)
+	at org.apache.derbyTesting.junit.JDBCDataSource.getDataSourceObject(JDBCDataSource.java:183)
+	... 20 more
+Failed to invoke suite():java.lang.reflect.InvocationTargetException
+
+The changes between the previous successful run and this one were:
+
+r1454600 | rhillegas | 2013-03-08 14:05:09 -0800 (Fri, 08 Mar 2013) | 1 line
+
+DERBY-6094: Enforce login timeouts in the embedded driver and data sources.
+------------------------------------------------------------------------
+r1454537 | rhillegas | 2013-03-08 12:42:08 -0800 (Fri, 08 Mar 2013) | 1 line
+
+DERBY-6022: Add an optional tool for turning on optimizer tracing and dumping the trace to the console.
+------------------------------------------------------------------------
+r1454358 | kahatlen | 2013-03-08 04:58:58 -0800 (Fri, 08 Mar 2013) | 1 line
+
+Add the generated source folder to the NetBeans project.
+------------------------------------------------------------------------
+r1454296 | kahatlen | 2013-03-08 01:13:04 -0800 (Fri, 08 Mar 2013) | 3 lines
+
+DERBY-6075: Use modern collections in impl/sql/compile
+
+Replace Hashtable fields with HashSets.
+
+
+I think we should not be running the derbynet suite with weme at all, but we should be able to get a datasource...

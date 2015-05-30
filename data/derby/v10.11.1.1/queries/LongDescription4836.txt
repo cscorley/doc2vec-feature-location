@@ -1,0 +1,123 @@
+After changes for DERBY-4757, revision 1004460, multiple tests are failing with ibm 1.5 and 1.6 jvms on windows XP.
+See: http://people.apache.org/~myrnavl/derby_test_results/main/windows/testSummary-1004498.html
+
+The first error is this (linebreaks inserted at [\n] for readability of this JIRA):
+1) testBoundaries(org.apache.derbyTesting.functionTests.tests.jdbcapi.InternationalConnectTest)java.sql.SQLException:[\n] 
+DERBY SQL error: SQLCODE: -1, SQLSTATE: XJ001, SQLERRMC: java.security.AccessControlExceptionAccess denied[\n] 
+(java.io.FilePermission C:\derbyt\tst\system\AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA[\n]
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA[\n]
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\tmp delete)[\n]
+XJ001.U
+	at org.apache.derby.client.am.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:96)
+	at org.apache.derby.client.am.SqlException.getSQLException(SqlException.java:358)
+	at org.apache.derby.jdbc.ClientDriver.connect(ClientDriver.java:149)
+	at java.sql.DriverManager.getConnection(DriverManager.java:322)
+	at java.sql.DriverManager.getConnection(DriverManager.java:273)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.InternationalConnectTest.testBoundaries(InternationalConnectTest.java:92)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:48)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:109)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:16)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:16)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:16)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+Caused by: org.apache.derby.client.am.SqlException: DERBY SQL error: SQLCODE: -1, SQLSTATE: XJ001, SQLERRMC: [\n]
+java.security.AccessControlExceptionAccess denied (java.io.FilePermission C:\derbyt\tst\system\AAAAAAAAAAAAAAAAAAA[\n]
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA[\n]
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA[\n]
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\tmp delete)XJ001.U
+	at org.apache.derby.client.am.Connection.completeSqlca(Connection.java:2117)
+	at org.apache.derby.client.net.NetConnectionReply.parseRdbAccessFailed(NetConnectionReply.java:541)
+	at org.apache.derby.client.net.NetConnectionReply.parseAccessRdbError(NetConnectionReply.java:434)
+	at org.apache.derby.client.net.NetConnectionReply.parseACCRDBreply(NetConnectionReply.java:297)
+	at org.apache.derby.client.net.NetConnectionReply.readAccessDatabase(NetConnectionReply.java:121)
+	at org.apache.derby.client.net.NetConnection.readSecurityCheckAndAccessRdb(NetConnection.java:846)
+	at org.apache.derby.client.net.NetConnection.flowSecurityCheckAndAccessRdb(NetConnection.java:769)
+	at org.apache.derby.client.net.NetConnection.flowUSRIDONLconnect(NetConnection.java:601)
+	at org.apache.derby.client.net.NetConnection.flowConnect(NetConnection.java:408)
+	at org.apache.derby.client.net.NetConnection.<init>(NetConnection.java:218)
+	at org.apache.derby.client.net.NetConnection40.<init>(NetConnection40.java:77)
+	at org.apache.derby.client.net.ClientJDBCObjectFactoryImpl40.newNetConnection(ClientJDBCObjectFactoryImpl40.java:269)
+	at org.apache.derby.jdbc.ClientDriver.connect(ClientDriver.java:83)
+	... 41 more
+==========================
+after which other tests fail with database shutdown errors and the like. For instance:
+==========================
+2) shutdownDerby(org.apache.derbyTesting.functionTests.tests.store.BootAllTest)java.lang.NullPointerException
+	at org.apache.derby.impl.services.monitor.TopService.getService(Unknown Source)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.shutdown(Unknown Source)
+	at org.apache.derby.jdbc.InternalDriver.connect(Unknown Source)
+	at org.apache.derby.jdbc.AutoloadedDriver.connect(Unknown Source)
+	at java.sql.DriverManager.getConnection(DriverManager.java:572)
+	at java.sql.DriverManager.getConnection(DriverManager.java:165)
+	at org.apache.derbyTesting.junit.DriverManagerConnector.getConnectionByAttributes(DriverManagerConnector.java:134)
+	at org.apache.derbyTesting.junit.DriverManagerConnector.shutEngine(DriverManagerConnector.java:117)
+	at org.apache.derbyTesting.junit.TestConfiguration.shutdownEngine(TestConfiguration.java:1522)
+	at org.apache.derbyTesting.functionTests.tests.store.BootAllTest.shutdownDerby(BootAllTest.java:116)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:79)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:109)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+
+===============
+
+
+This does not occur with the sun jdk on this hardware (build 1.6.0_21-b07).
+It also does not occur with the same jvm levels on unix.
+
+Interestingly, when I try running the test by itself with ibm 1.6 on windows, it also fails:
+===============
+1) testBoundaries(org.apache.derbyTesting.functionTests.tests.jdbcapi.InternationalConnectTest)java.sql.SQLException: No suitable driver
+	at java.sql.DriverManager.getConnection(DriverManager.java:330)
+	at java.sql.DriverManager.getConnection(DriverManager.java:273)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.InternationalConnectTest.testBoundaries(InternationalConnectTest.java:92)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:48)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:109)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+
+This is the second time testBoundaries fixture gets run.
+
+This does happen on linux with the same jvm level (ibm16 sr8), but does this occur on Windows XP with sun/oracle jdk 1.6.
+
+

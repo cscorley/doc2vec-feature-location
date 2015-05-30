@@ -1,0 +1,16 @@
+We removed two level access in PIG-847. However, there is another occurrence we miss in ResourceSchema.java:
+
+
+
+            if (type == DataType.BAG && fieldSchema.schema != null
+                    && !fieldSchema.schema.isTwoLevelAccessRequired()) { 
+                log.info("Insert two-level access to Resource Schema");
+                FieldSchema fs = new FieldSchema("t", fieldSchema.schema);
+                inner = new Schema(fs);                
+            }
+
+
+
+Though by default schema.isTwoLevelAccessRequired is false, we shall not use this flag in Pig. User could set this flag in legacy UDF.
+
+Thanks Woody uncovered this.

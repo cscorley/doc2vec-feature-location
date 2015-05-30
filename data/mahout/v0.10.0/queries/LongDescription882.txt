@@ -1,0 +1,11 @@
+I believe TopUsers.getTopUsers() is not properly handling the rescoredSimilarity:
+
+
+TopItems.getTopUsers:
+double rescoredSimilarity = rescorer == null ? similarity : rescorer.rescore(userID, similarity);
+      if (!Double.isNaN(rescoredSimilarity) && (!full || rescoredSimilarity > lowestTopValue)) {
+        topUsers.add(new SimilarUser(userID, similarity));
+
+
+
+It is checking rescoredSimilarity for everything, but then not passing it in like getTopItems does.

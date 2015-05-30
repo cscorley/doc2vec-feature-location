@@ -1,0 +1,15 @@
+Hi -
+I catch an exception processing the following mp3 file:
+
+$ curl -s http://www.thecoolspot.gov/sounds/coolspot.mp3 | java -jar tika-app-0.7.jar
+Exception in thread "main" org.apache.tika.exception.TikaException: Unexpected RuntimeException from org.apache.tika.parser.mp3.Mp3Parser@1d2940b3
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:134)
+	at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:99)
+	at org.apache.tika.cli.TikaCLI.process(TikaCLI.java:155)
+	at org.apache.tika.cli.TikaCLI.main(TikaCLI.java:65)
+Caused by: java.lang.NullPointerException
+	at org.apache.tika.sax.XHTMLContentHandler.characters(XHTMLContentHandler.java:196)
+	at org.apache.tika.sax.XHTMLContentHandler.element(XHTMLContentHandler.java:205)
+	at org.apache.tika.parser.mp3.Mp3Parser.parse(Mp3Parser.java:77)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:132)
+	... 3 more

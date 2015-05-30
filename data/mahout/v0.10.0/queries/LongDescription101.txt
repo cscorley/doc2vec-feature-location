@@ -1,0 +1,14 @@
+Some column names in MySQLJDBCDiffStorage.java are hard coded instead of using the values provided in the constructor.
+
+proposed fix:
+
+in MySQLJDBCDiffStorage.java:
+
+116c117
+<           " WHERE " + itemIDBColumn + " = item_id AND " + userIDColumn + "=? UNION DISTINCT" +
+—
+>           " WHERE " + itemIDBColumn + " = " + itemIDColumn + " AND " + userIDColumn + "=? UNION DISTINCT" +
+118c119
+<           " WHERE " + itemIDAColumn + " = item_id AND " + userIDColumn +
+—
+>           " WHERE " + itemIDAColumn + " = " + itemIDColumn + " AND " + userIDColumn +

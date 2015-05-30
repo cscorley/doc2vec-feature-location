@@ -1,0 +1,11 @@
+Query result data are packed into user-visible forms by a ResultPacker.
+The logic of data packing is limited to certain extent.
+This limitation is obvious if the query projection contains multiple constructor terms e.g.
+    "select new foo(p.name, p.age), Bar(p.age, p.name) from PObject p"
+
+The limitation is further highlighted with new (and rather hairy) specification on result processing in JPA 2.0 via introduction of several methods related to selection of projection terms namely select(), multiselect(), array(), tuple(), constructor(). In fact, JavaDoc for CriteriaQuery.multiselect() is a fine example of an API design following 'design-by-committee' approach. 
+
+Data packing result need to improve. The solution is made difficult because 
+a) it is risky to change the input data structures (the projection terms, aliases held by QueryExpressions) as they will have wide impact on query formation. 
+b) this new data packing should not impact the JPQL based queries or their result processing.  
+c) ResultPacker is an implementation not an interface.

@@ -1,0 +1,34 @@
+If in a statement of the form "UPDATE ... SET ... WHERE CURRENT OF ..." the SET clause includes a correlated subquery that has a predicate referencing the table that is being updated, Derby will fail with an ASSERT failure in sane mode and an IndexOutOfBounds exception in insane mode.
+
+For example, if we have a cursor CUR1 for the results of a SELECT query on BASICTABLE1, and then we try to execute the following update statement:
+
+update BASICTABLE1 set C3 = (SELECT CC3 FROM
+  BASICTABLE2 WHERE BASICTABLE1.ID=BASICTABLE2.IID) 
+where current of CUR1
+
+the result in SANE mode will be:
+
+org.apache.derby.shared.common.sanity.AssertFailure: ASSERT FAILED tableNumber is expected to be non-negative.
+
+and in INSANE mode will be:
+
+java.lang.IndexOutOfBoundsException: bitIndex < 0: -1
+
+The failure occurs during preprocessing of the subquery node when Derby is trying to "categorize" a predicate to see if it is pushable.  The exact code is in ColumnReference.categorize():
+
+  public boolean categorize(JBitSet referencedTabs, boolean simplePredsOnly)
+  {
+    if (SanityManager.DEBUG)
+      SanityManager.ASSERT(tableNumber >= 0,
+         "tableNumber is expected to be non-negative");
+    referencedTabs.set(tableNumber);
+
+    return ( ! replacesAggregate ) &&
+        ( (source.getExpression() instanceof ColumnReference) ||
+        (source.getExpression() instanceof VirtualColumnNode) ||
+        (source.getExpression() instanceof ConstantNode));
+  }
+
+We get to this code for a ColumnReference who's tableNumber is -1, which means that, in sane mode, the assert will fire; in insane mode, we'll call "referencedTabs.set()" passing in a -1, which leads to the IndexOutOfBoundsException.
+
+This failure occurs in embedded and with both clients, and occurs in 10.0, 10.1, and the 10.2 trunk.

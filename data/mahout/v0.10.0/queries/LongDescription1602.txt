@@ -1,0 +1,17 @@
+Within the file:
+
+/mrlegacy/src/main/java/org/apache/mahout/cf/taste/impl/similarity/EuclideanDistanceSimilarity.java
+
+Mentions that the implementation should be sqrt / (1 + distance).
+
+Once the equation is simplified, should be: 
+1 / ((1 + distance) / sqrt)
+
+Coded:
+return 1.0 / ((1.0 + Math.sqrt(sumXYdiff2)) / Math.sqrt);
+
+But instead is (missing grouping brackets): 
+1 / (1 + distance / sqrt )
+
+Coded:
+return 1.0 / (1.0 + Math.sqrt(sumXYdiff2) / Math.sqrt);

@@ -1,0 +1,64 @@
+I think there is something wrong with the indexStats.     
+
+The problem happens on many tables in the database.   
+None of these tables are changing however, no inserts or deletes or updates.  They are being queried, however.  
+
+Here is one such table.
+
+Here is the statistics for this table:
+
+Table (Index)     2              3
+ACCOUNTTABLE_CONFIG_BUNDLE (SQL081029110443810)          numunique= 38390 numrows= 38390     2012-03-30 13:00:26.84
+ACCOUNTTABLE_CONFIG_BUNDLE (SQL100922215819290)          numunique= 38390 numrows= 38390     2012-03-30 13:00:26.917
+
+There are in fact 38390 rows in the table.
+
+Here is some of the indexStat trace:
+
+Fri Mar 30 12:47:12 EDT 2012 Thread[DRDAConnThread_43,5,main] 
+{istat} "PKG_9145E_V1"."ACCOUNTTABLE_CONFIG_BUNDLE": update scheduled, reason=[t-est=38390, i-est=2355 => cmp=2.7912562815443245] (queueSize=12)
+Fri Mar 30 12:47:48 EDT 2012 Thread[index-stat-thread,5,main] {istat}
+ "PKG_9145E_V1"."ACCOUNTTABLE_CONFIG_BUNDLE": wrote stats for index SQL081029110443810 (fc33890d-011d-491f-3d8c-0000376d74d3): rows=38390, card=[38390]
+Fri Mar 30 12:47:48 EDT 2012 Thread[index-stat-thread,5,main] 
+{istat} "PKG_9145E_V1"."ACCOUNTTABLE_CONFIG_BUNDLE": wrote stats for index SQL100922215819290 (75608675-012b-3c38-b55c-000043ea6398): rows=38390, card=[38390]
+Fri Mar 30 12:47:48 EDT 2012 Thread[index-stat-thread,5,main] {istat}
+ "PKG_9145E_V1"."ACCOUNTTABLE_CONFIG_BUNDLE": scan durations (c30625=91ms,c30625=98ms)
+Fri Mar 30 12:47:48 EDT 2012 Thread[index-stat-thread,5,main] 
+{istat} "PKG_9145E_V1"."ACCOUNTTABLE_CONFIG_BUNDLE": generation complete (210 ms)
+
+Fri Mar 30 12:47:49 EDT 2012 Thread[DRDAConnThread_44,5,main] {istat}
+ "PKG_9145E_V1"."ACCOUNTTABLE_CONFIG_BUNDLE": update scheduled, reason=[t-est=38390, i-est=2355 => cmp=2.7912562815443245] (queueSize=19)
+Fri Mar 30 12:48:25 EDT 2012 Thread[index-stat-thread,5,main] 
+{istat} "PKG_9145E_V1"."ACCOUNTTABLE_CONFIG_BUNDLE": wrote stats for index SQL081029110443810 (fc33890d-011d-491f-3d8c-0000376d74d3): rows=38390, card=[38390]
+Fri Mar 30 12:48:25 EDT 2012 Thread[index-stat-thread,5,main] {istat}
+ "PKG_9145E_V1"."ACCOUNTTABLE_CONFIG_BUNDLE": wrote stats for index SQL100922215819290 (75608675-012b-3c38-b55c-000043ea6398): rows=38390, card=[38390]
+Fri Mar 30 12:48:25 EDT 2012 Thread[index-stat-thread,5,main] 
+{istat} "PKG_9145E_V1"."ACCOUNTTABLE_CONFIG_BUNDLE": scan durations (c30625=93ms,c30625=95ms)
+Fri Mar 30 12:48:25 EDT 2012 Thread[index-stat-thread,5,main] {istat}
+ "PKG_9145E_V1"."ACCOUNTTABLE_CONFIG_BUNDLE": generation complete (211 ms)
+Fri Mar 30 12:48:25 EDT 2012 Thread[DRDAConnThread_50,5,main] 
+{istat} "PKG_9145E_V1"."ACCOUNTTABLE_CONFIG_BUNDLE": update scheduled, reason=[t-est=38390, i-est=2355 => cmp=2.7912562815443245] (queueSize=18)
+
+Fri Mar 30 12:48:57 EDT 2012 Thread[index-stat-thread,5,main] {istat}
+ "PKG_9145E_V1"."ACCOUNTTABLE_CONFIG_BUNDLE": wrote stats for index SQL081029110443810 (fc33890d-011d-491f-3d8c-0000376d74d3): rows=38390, card=[38390]
+Fri Mar 30 12:48:57 EDT 2012 Thread[index-stat-thread,5,main] 
+{istat} "PKG_9145E_V1"."ACCOUNTTABLE_CONFIG_BUNDLE": wrote stats for index SQL100922215819290 (75608675-012b-3c38-b55c-000043ea6398): rows=38390, card=[38390]
+Fri Mar 30 12:48:57 EDT 2012 Thread[index-stat-thread,5,main] {istat}
+ "PKG_9145E_V1"."ACCOUNTTABLE_CONFIG_BUNDLE": generation complete (243 ms)
+
+Fri Mar 30 12:49:27 EDT 2012 Thread[DRDAConnThread_56,5,main] 
+{istat} "PKG_9145E_V1"."ACCOUNTTABLE_CONFIG_BUNDLE": update scheduled, reason=[t-est=38390, i-est=2355 => cmp=2.7912562815443245] (queueSize=20)
+Fri Mar 30 12:49:36 EDT 2012 Thread[index-stat-thread,5,main] {istat}
+ "PKG_9145E_V1"."ACCOUNTTABLE_CONFIG_BUNDLE": wrote stats for index SQL081029110443810 (fc33890d-011d-491f-3d8c-0000376d74d3): rows=38390, card=[38390]
+Fri Mar 30 12:49:37 EDT 2012 Thread[index-stat-thread,5,main] 
+{istat} "PKG_9145E_V1"."ACCOUNTTABLE_CONFIG_BUNDLE": wrote stats for index SQL100922215819290 (75608675-012b-3c38-b55c-000043ea6398): rows=38390, card=[38390]
+Fri Mar 30 12:49:37 EDT 2012 Thread[index-stat-thread,5,main] {istat}
+ "PKG_9145E_V1"."ACCOUNTTABLE_CONFIG_BUNDLE": scan durations (c30625=111ms,c30625=108ms)
+Fri Mar 30 12:49:37 EDT 2012 Thread[index-stat-thread,5,main] 
+{istat} "PKG_9145E_V1"."ACCOUNTTABLE_CONFIG_BUNDLE": generation complete (238 ms)
+
+Fri Mar 30 12:49:37 EDT 2012 Thread[DRDAConnThread_49,5,main] {istat}
+ "PKG_9145E_V1"."ACCOUNTTABLE_CONFIG_BUNDLE": update scheduled, reason=[t-est=38390, i-est=2355 => cmp=2.7912562815443245] (queueSize=18)
+
+
+As can be seen, the "i-est" appears to be wrong and is used over and over even though the statistics for the indexes have been updated.

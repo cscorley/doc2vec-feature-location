@@ -1,0 +1,11 @@
+Every time a commit happens two Stats instances [org.apache.solr.common.util.ConcurrentLRUCache.Stats] are leaking.
+
+Following code [org.apache.solr.search.FastLRUCache] to maintain cumulative cache statistics causing this Stats object leak. 
+
+
+    cumulativeStats = (List<ConcurrentLRUCache.Stats>) persistence;
+    cumulativeStats.add(cache.getStats());
+
+
+
+Everytime a commit happens a new cache object is getting created and its stats is added to the list which is not released at all.

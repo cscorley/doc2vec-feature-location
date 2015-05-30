@@ -1,0 +1,28 @@
+As per the wiki page http://wiki.apache.org/db-derby/BuiltInLanguageBasedOrderingDERBY-1478, Section Collation Determination, Rule 4), result of CAST will take the collation of the current compilation schema. This is what Derby 10.3 codeline has implemented for CAST in the CastNode.bindCastNodeOnly() method.
+
+But that is not the right thing to do for CAST nodes that get generated internally. One specific example of such a case
+
+connect 'jdbc:derby:c:/dellater/db1Norway;create=true;territory=no;collation=TERRITORY_BASED';
+create table t (id int, type char(10), typeVarchar varchar(10));
+insert into t values (1,'CAR','CAR'),(2,'SUV','SUV'); 
+set schema sys;
+SELECT  type FROM app.t WHERE CASE WHEN 1=1 THEN type ELSE typevarchar END = type; – the sql in question
+
+Note that the DTD associated with THEN clause expression is of type CHAR and the DTD associated with ELSE clause expression is of type VARCHAR. And in Derby, VARCHAR has higher type precedence than CHAR.
+
+Now, during the compilation of the SELECT statement above, the ConditionalNode.bindExpression makes following call which causes ConditionalNode to have a DTD which has same properties as the DTD of ELSE clause expression which is of type VARCHAR(since VARCHAR has higher type precedence than CHAR) with collation type of territory based and collation derivation of IMPLICIT. So far, so good. 
+  setType(thenElseList.getDominantTypeServices());
+
+Later, the ConditionalNode.bindExpression has following if statement which will return true for our specific SELECT statement
+  if (thenTypeId.typePrecedence() != condTypeId.typePrecedence())
+This is because the datatype(CHAR) of "type" in THEN clause does not have same type precedence as datatype(VARCHAR) of ConditionalNode and so the code inside the if statement in ConditionalNode.bindExpression generates a CAST node on the top of the THEN clause expression and that CAST node uses the SAME physical DTD of the ConditionalNode, which in this case is a VARCHAR datatype with collation type of territory based and collation derivation of IMPLICIT. Next,  ConditionalNode.bindExpression calls bind on the newly created cast node using following
+   cast = cast.bindExpression(fromList, 
+           subqueryList,
+           aggregateVector);
+During the bind of the CAST, we always have the CAST node take the collation of the current compilation schema, which in this case is SYS and hence we end up assigining collation type of UCS_BASIC to DTD associated with the CAST node.. But since the CAST is associated with the same physical DTD that is used by the ConditionalNode, the ConditionalNode ends up having it's collation type changed from territory based to UCS_BASIC and this causes the above SELECT statement to fail at compilation time because of mismatch of collation type between CASE... = type. The left hand side of CASE... = type ends up having collation of UCS_BASIC whereas right hand side "type" has collation type of territory based and hence the SELECT compilation fails. This is incorrect behavior. The CASE node should have held on to it's collation type of territory based. 
+
+Possible solution to the problem as discussed on Derby mailing list under title "Collation info of internally generated CAST node'
+The setting of CAST node's collation type to current compilation schema's collation type can be moved out of CastNode.bindCastNodeOnly() method and into CastNode.bindExpression (). I checked through Derby code for internally generated CAST nodes and noticed that except for ConditionalNode, everywhere else, after the CAST node is created, we call CastNode.bindCastNodeOnly() method on it. For some unknown reason, ConditionalNode doesn't call just CastNode.bindCastNodeOnly() but instead calls CastNode.bindExpression(). So, the complete fix to the problem could be to have ConditionalNode call CastNode.bindCastNodeOnly() instead of CastNode.bindExpression() and the collation type setting moved into CastNode.bindExpression() from CastNode.bindCastNodeOnly().
+
+This solution will be cleaner if with the above solution to also have an explicit boolean field in CastNode that indicates if the CAST is internal or not. The use of different methods (as above) probably works, but those current method names don't imply the behaviour we are expecting them to implement. So there's some chance in the future that a new call may
+break the assumptions. Having explicit code would be clear and easy to understand.

@@ -1,0 +1,27 @@
+The following code
+
+        PreparedStatement ps = c.prepareStatement("values cast(? as boolean)");
+        ps.setObject(1, "true", Types.BIT);
+        ResultSet rs = ps.executeQuery();
+        rs.next();
+        System.out.println(rs.getString(1));
+
+executes successfully using the embedded driver, but fails when using the client driver:
+
+Exception in thread "main" java.sql.SQLDataException: Invalid character string format for type INTEGER.
+	at org.apache.derby.client.am.SQLExceptionFactory40.getSQLException(Unknown Source)
+	at org.apache.derby.client.am.SqlException.getSQLException(Unknown Source)
+	at org.apache.derby.client.am.PreparedStatement.setObject(Unknown Source)
+	at Test.main(Test.java:8)
+Caused by: org.apache.derby.client.am.SqlException: Invalid character string format for type INTEGER.
+	at org.apache.derby.client.am.CrossConverters.setObject(Unknown Source)
+	at org.apache.derby.client.am.CrossConverters.setObject(Unknown Source)
+	at org.apache.derby.client.am.PreparedStatement.setObjectX(Unknown Source)
+	... 2 more
+Caused by: java.lang.NumberFormatException: For input string: "true"
+	at java.lang.NumberFormatException.forInputString(NumberFormatException.java:48)
+	at java.lang.Integer.parseInt(Integer.java:449)
+	at java.lang.Integer.valueOf(Integer.java:554)
+	... 5 more
+
+This issue was found when running the Java EE CTS with Derby 10.7.1.1.

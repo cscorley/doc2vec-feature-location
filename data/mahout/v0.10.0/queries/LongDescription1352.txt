@@ -1,0 +1,11 @@
+Can we add an option to output a SequenceFile? I hard coded it to allow the Solr-recommender to work with the output file but it is probably best put in an option.
+
+
+      //extract out the recommendations
+     Job aggregateAndRecommend = prepareJob(
+             new Path(aggregateAndRecommendInput), outputPath, SequenceFileInputFormat.class,
+             PartialMultiplyMapper.class, VarLongWritable.class, PrefAndSimilarityColumnWritable.class,
+             AggregateAndRecommendReducer.class, VarLongWritable.class, RecommendedItemsWritable.class,
+             SequenceFileOutputFormat.class); <-- text format in Mahout trunk
+
+Should be able to choose format class from the params.

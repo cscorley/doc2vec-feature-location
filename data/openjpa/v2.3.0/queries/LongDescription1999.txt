@@ -1,0 +1,8 @@
+Optional support for less strict following of positional parameters. e.g.
+
+    Query query = entityManager.createQuery("SELECT m from Movie as m WHERE m.title = ?2 AND m.year = ?4"); 
+    query.setParameter(2, "Foo"); 
+    query.setParameter(4, 2011); 
+    return query.getResultList(); 
+
+Previous OpenJPA releases support this as do current EclipseLink and Hibernate versions.  For the migration and upgrade scenarios and the development scenario – can be a pain to have to always update positional parameters while tweaking queries – this could make a compelling optional feature.

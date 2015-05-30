@@ -1,0 +1,7 @@
+There is a need for negative filter queries to avoid long filter generation times and large caching requirements.
+
+Currently, if someone wants to filter out a small number of documents, they must specify the complete set of documents to express those negative conditions against.  
+
+q=foo&fq=id:[* TO *] -id:101
+
+In this example, to filter out a single document, the complete set of documents (minus one) is generated, and a large bitset is cached.  You could also add the restriction to the main query, but that doesn't work with the dismax handler which doesn't have a facility for this.

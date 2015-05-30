@@ -1,0 +1,29 @@
+The basic idea is to have a single method called "multi" that will accept a list of create, delete, update or check objects each of which has a desired version or file state in the case of create.  If all of the version and existence constraints can be satisfied, then all updates will be done atomically.
+
+Two API styles have been suggested.  One has a list as above and the other style has a "Transaction" that allows builder-like methods to build a set of updates and a commit method to finalize the transaction.  This can trivially be reduced to the first kind of API so the list based API style should be considered the primitive and the builder style should be implemented as syntactic sugar.
+
+The total size of all the data in all updates and creates in a single transaction should be limited to 1MB.
+
+Implementation-wise this capability can be done using standard ZK internals.  The changes include:
+
+
+	update to ZK clients to all the new call
+
+
+
+
+	additional wire level request
+
+
+
+
+	on the server, in the code that converts transactions to idempotent form, the code should be slightly extended to convert a list of operations to idempotent form.
+
+
+
+
+	on the client, a down-rev server that rejects the multi-update should be detected gracefully and an informative exception should be thrown.
+
+
+
+To facilitate shared development, I have established a github repository at https://github.com/tdunning/zookeeper  and am happy to extend committer status to anyone who agrees to donate their code back to Apache.  The final patch will be attached to this bug as normal.

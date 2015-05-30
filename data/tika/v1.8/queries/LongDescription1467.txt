@@ -1,0 +1,10 @@
+When extracting metadata from the encryption_noprinting.pdf file found in the pdfCabinetOfHorrors (https://github.com/openplanets/format-corpus/tree/master/pdfCabinetOfHorrors)
+
+$java -jar tika-app-1.7-20141105.092424-471.jar -j encryption_noprinting.pdf
+
+We get a 
+INFO - Document is encrypted
+
+but the resulting JSON has : "pdf:encrypted":"false"
+
+Looking at the PDFParser, it seems that the first information comes when reading the PDF but when the metadata is retrieve the PDF is no longer encrypted... the encryption fact should be retain to be added to the metadata.

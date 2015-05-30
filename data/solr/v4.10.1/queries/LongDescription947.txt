@@ -1,0 +1,32 @@
+This
+
+QueryParsing.toString()
+if (query instanceof TermQuery) {
+    :
+} else if (query instanceof RangeQuery) {
+    :
+} else if (query instanceof ConstantScoreRangeQuery) {
+    :
+}
+:
+
+
+
+should be
+
+QueryParsing.toString()
+if (query instanceof TermQuery) {
+    :
+} else if (query instanceof ConstantScoreRangeQuery) {
+	:
+} else if (query instanceof RangeQuery) {
+	:
+}
+:
+
+
+
+This causes NPE when open ended range query (price:[1 TO *]) with debugQuery=on.
+
+This is reported on the thread:
+http://www.nabble.com/http-internal-error-if-i-enable-debugQuery%3Don-td21210570.html

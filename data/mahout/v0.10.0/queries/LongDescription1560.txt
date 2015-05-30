@@ -1,0 +1,5 @@
+In MultithreadedBatchItemSimilarities method queueItemIDsInBatches handles last batch incorrectly. Last batch length is calculated incorrectly. As a result last batch is either truncated or too long with superfluous positions filled with item indexes from previous batch (or zeros if it is also the first batch as in attached test).
+
+Attached test fails for very short model (with only 4 items) with NoSuchItemException.
+
+Attached patch corrects this issue.

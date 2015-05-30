@@ -1,0 +1,44 @@
+While runniing "ant test-core-java" QuorumPeerTestBase.java and ZooKeeperServerMainTest.java fail. The problem seems to be in ZookeeperserverMainTest.java:MainThread():66 and in QuorumPeerBaseTest.java:MainThread:76.
+
+FileWriter.write() writes windows path to the conf file. Java does not like windows path. Therefore, the test complains that it cannot find myid and fails. 
+
+Solution - convert windows path to UNIX path. This worked for me on windows.  Diffs are attached below. Solution not tested on Linux since for some reason build is failing (due to problems not related to this change).
+
+
+vmc-floorb-dhcp116-114:/opt/zksrc/zookeeper-3.3.0/src/java/test/org/apache/zookeeper/server # svn diff
+Index: ZooKeeperServerMainTest.java
+===================================================================
+— ZooKeeperServerMainTest.java	(revision 931240)
++++ ZooKeeperServerMainTest.java	(working copy)
+@@ -61,7 +61,8 @@
+             if (!dataDir.mkdir()) 
+{
+                 throw new IOException("unable to mkdir " + dataDir);
+             }
+
+	fwriter.write("dataDir=" + dataDir.toString() + "\n");
++            String data = dataDir.toString().replace('', '/');
++            fwriter.write("dataDir=" + data + "\n");
+
+
+
+             fwriter.write("clientPort=" + clientPort + "\n");
+             fwriter.flush();
+Index: quorum/QuorumPeerTestBase.java
+===================================================================
+— quorum/QuorumPeerTestBase.java	(revision 931240)
++++ quorum/QuorumPeerTestBase.java	(working copy)
+@@ -73,7 +73,8 @@
+             if (!dataDir.mkdir()) 
+{
+                 throw new IOException("Unable to mkdir " + dataDir);
+             }
+
+	fwriter.write("dataDir=" + dataDir.toString() + "\n");
++            String data = dataDir.toString().replace('', '/');
++            fwriter.write("dataDir=" + data + "\n");
+
+
+
+             fwriter.write("clientPort=" + clientPort + "\n");
+             fwriter.write(quorumCfgSection + "\n");

@@ -1,0 +1,10 @@
+Bincond operator throws parser error when true condition contains a constant bag with 1 tuple containing a single field of int type with -ve value. 
+
+Here is the script to reproduce the issue
+
+A = load 'A' as (s: chararray, x: int, y: int);
+B = group A by s;
+C = foreach B generate group, flatten(((COUNT(A) < 1L) ? 
+{(-1)}
+ : A.x));
+dump C;

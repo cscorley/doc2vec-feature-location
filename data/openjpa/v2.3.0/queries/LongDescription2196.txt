@@ -1,0 +1,10 @@
+Sorry my bad english ..
+
+when annotated a entity with @SequenceGenerator and with allocationSize = 1 and initialValue = 1, the method DBDictionary.commonCreateAlterSequenceSQL is creating a alter sequence sql invalid for Postgres 9.1.
+Despite the documentation of postgres inform you that the other parameters are optional (http://www.postgresql.org/docs/9.1/static/sql-altersequence.html), an error occurs in executing the sql below.
+
+Eg: ALTER SEQUENCE schema_experimento.usuario_sq (no other attributes)
+
+Even the method NativeJDBCSeq.udpateSql being fault tolerant, the connection is marked for rollback and not allowing run the next val of sequence.
+
+Hêndi Marcos

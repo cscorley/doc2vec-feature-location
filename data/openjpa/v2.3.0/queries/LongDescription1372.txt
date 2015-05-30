@@ -1,0 +1,5 @@
+When sequence table does not exist and mutliple threads get EntityManagers from EntityManageFactory, an insert into sequence table may fail because of duplicate primary key value.
+
+EMF is created lazily by default and users reported various problems with concurrent initialization (e.g. failures in resolving aliases in JPQL queries, IIRC) of EMF. This issue might have the same roots.
+
+Issue and test case originally reported by Pinaki in OPENJPA-466.

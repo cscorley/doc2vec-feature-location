@@ -1,0 +1,27 @@
+If just having zebra.jar as being registered in a PIG script but not in the CLASSPATH, the query using zebra fails since there appear to be multiple classes loaded into JVM, causing static variable set previously not seen after one instance of the class is created through reflection. (After the zebra.jar is specified in CLASSPATH, it works fine.) The exception stack is as follows:
+
+ackend error message during job submission
+-------------------------------------------
+org.apache.pig.backend.executionengine.ExecException: ERROR 2118: Unable to create input splits for: hdfs://hostname/pathto/zebra_dir :: null
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigInputFormat.getSplits(PigInputFormat.java:284)
+        at org.apache.hadoop.mapred.JobClient.writeNewSplits(JobClient.java:907)
+        at org.apache.hadoop.mapred.JobClient.submitJobInternal(JobClient.java:801)
+        at org.apache.hadoop.mapred.JobClient.submitJob(JobClient.java:752)
+        at org.apache.hadoop.mapred.jobcontrol.Job.submit(Job.java:378)
+        at org.apache.hadoop.mapred.jobcontrol.JobControl.startReadyJobs(JobControl.java:247)
+        at org.apache.hadoop.mapred.jobcontrol.JobControl.run(JobControl.java:279)
+        at java.lang.Thread.run(Thread.java:619)
+Caused by: java.lang.NullPointerException
+        at org.apache.hadoop.zebra.io.ColumnGroup.getNonDataFilePrefix(ColumnGroup.java:123)
+        at org.apache.hadoop.zebra.io.ColumnGroup$CGPathFilter.accept(ColumnGroup.java:2413)
+        at org.apache.hadoop.zebra.mapreduce.TableInputFormat$DummyFileInputFormat$MultiPathFilter.accept(TableInputFormat.java:718)
+        at org.apache.hadoop.fs.FileSystem$GlobFilter.accept(FileSystem.java:1084)
+        at org.apache.hadoop.fs.FileSystem.globStatusInternal(FileSystem.java:919)
+        at org.apache.hadoop.fs.FileSystem.globStatus(FileSystem.java:866)
+        at org.apache.hadoop.zebra.mapreduce.TableInputFormat$DummyFileInputFormat.listStatus(TableInputFormat.java:780)
+        at org.apache.hadoop.mapreduce.lib.input.FileInputFormat.getSplits(FileInputFormat.java:246)
+        at org.apache.hadoop.zebra.mapreduce.TableInputFormat.getRowSplits(TableInputFormat.java:863)
+        at org.apache.hadoop.zebra.mapreduce.TableInputFormat.getSplits(TableInputFormat.java:1017)
+        at org.apache.hadoop.zebra.mapreduce.TableInputFormat.getSplits(TableInputFormat.java:961)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigInputFormat.getSplits(PigInputFormat.java:269)
+        ... 7 more

@@ -1,0 +1,16 @@
+The following code is repeated 4 times and should be put in a method that either throws the Exception or returns the incremented version (see below).
+
+
+version = setDataRequest.getVersion();
+int currentVersion = nodeRecord.stat.getVersion();
+if (version != -1 && version != currentVersion) {
+    throw new KeeperException.BadVersionException(path);
+}
+version = currentVersion + 1;
+
+
+
+
+
+private static int checkAndIncVersion(int currentVersion, int versionToCompare, String path )
+

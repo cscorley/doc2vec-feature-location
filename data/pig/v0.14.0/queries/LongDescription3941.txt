@@ -1,0 +1,24 @@
+With attached patch, if Over is constructed with a colon-delimited string like 'bob:int', the first part is used to set the return field's name and the second part its type. Otherwise, if a type is given the name of the return field is set to 'result'.
+
+
+
+cities = LOAD 'us_city_pops.tsv' AS (city:chararray, state:chararray, pop:int);
+DEFINE IOver                  org.apache.pig.piggybank.evaluation.Over('state_rk:int');
+
+ranked = FOREACH(GROUP cities BY state) {
+  c_ord = ORDER cities BY pop DESC;
+  GENERATE FLATTEN(Stitch(c_ord,
+    IOver(c_ord, 'rank', -1, -1, 2))); -- beginning (-1) to end (-1) on third field (2)
+};
+DESCRIBE ranked;
+-- ranked: {stitched::city: chararray,stitched::state: chararray,stitched::pop: int,stitched::state_rk: int}
+DUMP ranked;
+-- ...
+-- (Nashville,Tennessee,609644,2)
+-- (Houston,Texas,2145146,1)
+-- (San Antonio,Texas,1359758,2)
+-- (Dallas,Texas,1223229,3)
+-- (Austin,Texas,820611,4)
+-- ...
+
+

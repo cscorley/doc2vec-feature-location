@@ -1,0 +1,19 @@
+Before Java 6, files created by Derby would have the default
+permissions of the operating system context. Under Unix, this would
+depend on the effective umask of the process that started the Java VM.
+
+In Java 6 and 7, there are methods available that allows tightening up this
+(File.setReadable, setWritable), making it less likely that somebody
+would accidentally run Derby with a too lenient default.
+
+I suggest we take advantage of this, and let Derby by default (in Java
+6 and higher) limit the visibility to the OS user that starts the VM,
+e.g. on Unix this would be equivalent to running with umask 0077. More
+secure by default is good, I think.
+
+We could have a flag, e.g. "derby.storage.useDefaultFilePermissions"
+that when set to true, would give the old behavior.
+
+
+
+

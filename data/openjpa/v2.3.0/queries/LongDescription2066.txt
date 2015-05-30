@@ -1,0 +1,6 @@
+openJPA-1227 fixes the wrong SQL generation error when superclass contains an eager to-many field, and this is the only field selected in the superclass, and when one or more fields are selected in the subclass, openjpa fails to create a join between the subclass and superclass. But the issue still remains when one or more fields are selected from subclasses two levels down the hierarchy.
+
+Example:
+GrandChildClass extends ChildChildClass extends ChildClass extends ParentClass.
+
+When I select a filed from GrandChildClass and a to-many field from ParentClass then openjpa fails to create a join between the classes.

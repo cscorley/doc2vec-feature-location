@@ -1,0 +1,24 @@
+Not sure if this is a test issue, a product issue or a JVM issue. It started happening when JDK 7 was upgraded from b116 to b131 in the nightly tests. I haven't been able to reproduce the failure in my environment, but it happens frequently in the nightly testing. For example here:
+
+http://dbtg.foundry.sun.com/derby/test/Daily/jvm1.7/testing/testlog/sol/1078053-suitesAll_diff.txt
+
+19) testSetBytesLargeBlob(org.apache.derbyTesting.functionTests.tests.jdbc4.BlobSetMethodsTest)java.sql.SQLException: Unable to set stream: 'Reached EOF prematurely; expected 1,024, got 0.'.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.setStreamFailure(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedBlob.truncate(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.jdbc4.BlobSetMethodsTest.testSetBytesLargeBlob(BlobSetMethodsTest.java:102)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:112)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+Caused by: java.sql.SQLException: Unable to set stream: 'Reached EOF prematurely; expected 1,024, got 0.'.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(Unknown Source)
+
+The problem does not appear to be the reordering of the test cases that we've seen in many other tests when running on Java 7 b131. According to the traces printed to the test log (for example in the above mentioned URL), this failure is also seen in the cases where the test cases run in the same order as on most other platforms.

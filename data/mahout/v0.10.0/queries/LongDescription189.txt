@@ -1,0 +1,7 @@
+This is another one of my concept issues, and I'm posting this for discussion. It can be shot down or modified.
+
+I believe the assert keyword is for declaring conditions that can't be false in a bug-free program. They are checks that are enabled during development – to find out when the program isn't bug-free! – but disabled in production, for performance. Since, of course, they'll always be true right?
+
+So, in particular, they are never for checking arguments to a non-private method. I see a number of cases where asserts are used for argument checking. This is bad, since these checks will be disabled in production!
+
+If this is a reasonable position, then I volunteer to review all uses of assert and change many to some kind of if-statement plus IllegalArgumentException.

@@ -1,0 +1,18 @@
+In Pig 0.9, if I have a describe without an alias, it throws a NullPointerException like below.
+
+ERROR 2999: Unexpected internal error. null
+
+java.lang.NullPointerException
+        at org.apache.pig.tools.grunt.GruntParser.processDescribe(GruntParser.java:270)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:317)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:188)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:164)
+        at org.apache.pig.tools.grunt.Grunt.exec(Grunt.java:81)
+        at org.apache.pig.Main.run(Main.java:553)
+        at org.apache.pig.Main.main(Main.java:108)
+
+
+For example;
+describe;
+
+This message is of no use from a users perspective. Especially when my script becomes large and I have added couple of describe statements. 

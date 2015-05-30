@@ -1,0 +1,9 @@
+Boolean type's correct maximum width is 1.
+
+Seen by the COLUMN_SIZE column from DatabaseMetaData.getColumns returning 0 instead of 1.
+
+Caused by passing a 0 instead of a 1 in SYSAliasesRowFactory, will be fixed by DERBY-1734, which stops
+code like this passing in information that is redundant (and hence a chance for it to be wrong).
+
+Don't believe ir has any affect on the runtime behaviour of the system, adding this issue to investigate if an upgrade fix is required
+or just leave it at the wrong value for old databases.

@@ -1,0 +1,32 @@
+According to the documentation (http://hadoop.apache.org/pig/docs/r0.7.0/piglatin_ref2.html#DEFINE) the syntax for DEFINE when used to define a streaming command is:
+
+DEFINE cmd INPUT(stdin|path) OUTPUT(stdout|stderr|path) SHIP(path [, path, ...]) CACHE (path [, path, ...])
+
+However, the actual parser accepts something pretty different.  Consider the following script:
+
+
+
+define strm `wc -l` INPUT(stdin) 
+                    CACHE('/Users/gates/.vimrc#myvim') 
+                    OUTPUT(stdin)
+                    INPUT('/tmp/fred') 
+                    OUTPUT('/tmp/bob')
+                    SHIP('/Users/gates/.bashrc') 
+                    SHIP('/Users/gates/.vimrc') 
+                    CACHE('/Users/gates/.bashrc#mybash')
+                    stderr('/tmp/errors' limit 10);
+
+A = load '/Users/gates/test/data/studenttab10';
+B = stream A through strm;
+dump B;
+
+
+
+The above actually parsers.  I see several issues here:
+
+
+	What do multiple INPUT and OUTPUT statements mean in the context of streaming?  These should not be allowed.
+	The documentation implies an order (INPUT, OUTPUT, SHIP, CACHE) that is not enforced by the parser.  We should either enforce the order in the parser or update the documentation.  Most likely the latter to avoid breaking existing scripts.
+	Why are multiple SHIP and CACHE clauses allowed when each can take multiple paths?  It seems we should only allow one of each.
+	The error clause is completely different that what is given in the documentation.  I suspect this is a documentation error and the grammar supported by the parser here is what we want.
+

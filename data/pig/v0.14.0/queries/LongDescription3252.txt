@@ -1,0 +1,24 @@
+Given the Avro schema:
+
+
+
+{"type":"record",
+ "name":"toplevel",
+ "fields":[{"name":"a","
+            "type":{"type":"record",
+                    "name":"x",
+                    "fields":[{"name":"key","type":"int"},
+                              {"name":"value","type":"string"}]}},
+           {"name":"b","type":"x"}]}
+
+
+
+we should get back the Pig schema
+
+
+ {a: (key: int,value: string),b:(key: int,value: string)} 
+
+but instead it is
+
+
+ {a: (key: int,value: string),b: bytearray} 

@@ -1,0 +1,7 @@
+I am testing a scenario where I have an Entity with a number of eager/lazy relationships and at runtime, using a FetchPlan, I want to mark all relationships as lazy. I was able to hack around a bug reported previously on this list about not being able to remove fields from a fetch plan by creating a new fetch plan, removing the default fetch group, and re-adding all fields you want back into the new fetch plan. This all seems to work.
+
+I found that owned *toOne relationships that are marked as lazy via annotations we will select the foreign keys. If the relationships were marked as eager, we don't select the foreign keys. This is where I believe the bug is. In JDBCStoreManager.optSelect(...) we have a bit of code that looks to see if a field is a not a part of the default fetch group, and if it was not removed explicitly. This is wrong because for the sake of the load that is in progress, I'm not using the default fetch group.
+
+With this JIRA I'd like to remove the two conditionals '!fm.isInDefaultFetchGroup() && !fm.isDefaultFetchGroupExplicit()' so that we will load the fks for lazy and eager marked fields.
+
+This seems safe enough to do as worst case, we will select an extra field from a table that we are already selecting from. Best case, when accessing a lazy collection, we will issue a select by FK rather than a select with a join.

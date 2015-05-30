@@ -1,0 +1,13 @@
+Here's an overview of what is happening:
+
+Oozie workflow has a sub-workflow (and in my case a sub-workflow to the sub-workflow, so 3 levels down) that launches a Mahout job, such as the vectorizer as a Java action. This job fails due to class loading issues, e.g. vectorizer code cannot load a Lucene class, which it's definitely in the job jar and definitely gets found just fine if launched from a simple Oozie (1-level) workflow.
+
+The solution is to include Oozie's action.xml as a configuration resource of the Hadoop Configuration object, i.e.
+
+        String oozieActionConfXml = System.getProperty("oozie.action.conf.xml");            
+        if (oozieActionConfXml != null) 
+{
+            conf.addResource(new Path("file:///", oozieActionConfXml));
+        }
+
+As you can see, there's no adverse affects if not running in an Oozie workflow. This code could be added to AbstractJob with minimal impact and much benefit to those of us using Mahout in our Oozie workflows.

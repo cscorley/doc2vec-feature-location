@@ -1,0 +1,16 @@
+NetConnection40.java contains this:
+
+...
+import org.apache.derby.impl.jdbc.Util;
+...
+   public boolean isValid(int timeout) throws SQLException {
+       // Validate that the timeout has a legal value
+       if (timeout < 0) 
+{
+           throw Util.generateCsSQLException(SQLState.INVALID_API_PARAMETER,
+                                             new Integer(timeout), "timeout",
+                                             "java.sql.Connection.isValid");
+       }
+...
+
+This was added as part of DERBY-1090. This should be changed to use the client's method of throwing exceptions.

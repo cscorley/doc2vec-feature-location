@@ -1,0 +1,7 @@
+USE CASE:
+You have a document that is composed of (short) title and (long) body fields and want body to be highlighted.
+In order to avoid highlighted body field to be empty, you can use hl.alternateField parameter.
+Although you want to set f.body.hl.alternateField=body, you may set f.body.hl.alternateField=title,
+because response time is awful when the body values are big. But the title field provides users with
+information smaller than body field.
+In this case, you can use f.body.hl.alternateFieldLen=100 to limit the body length to 100 characters.

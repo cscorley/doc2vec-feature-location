@@ -1,0 +1,7 @@
+NamedList (org/apache/solr/common/util/NamedList ) currently has a heterogenous List (even numbered indices are String-s ) and the odd-numbered indices are the specific types.  As per benchmarks ( see SOLR-912 ) - the implementation could be improved in favor of a Map.Entry<String, T> that beats in performance and ease of code maintenance. 
+
+As per the discussion in SOLR-912 , a separate issue in JIRA is created that temporarily deprecates the List ctor. in NamedList and replaces the same with a Map.Entry<String, T> [] arg. constructor . 
+
+This would be go in 1.4 to enable people to migrate their code for the new ctor. and move away from List<?> . 
+
+At a later version of Solr (may be v2) - the optimal implementation would be brought back in with the List <Map.Entry<String, ?> > for better type-safety and performance. 

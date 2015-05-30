@@ -1,0 +1,6 @@
+TestConfiguration has a notion of the old test harness. It is used when the old harness is running JUnit tests, and differs mostly by reading the system properties set by the harness and propagating these to the test configuration.
+
+I found only one JUnit test being run from the harness; LobStreamsTest.junit. However, this is also run by the JUnit suite jdbcapi.
+My suggestion is to remove the code related to the old harness in TestConfiguration and disable LobStreamsTest in derbynetclientmats.
+
+A quick test showed that only LobStreamsTest failed when removing all the relevant code in TestConfiguration (ran both derbyall and suites.All).

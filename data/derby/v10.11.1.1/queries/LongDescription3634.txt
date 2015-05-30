@@ -1,0 +1,19 @@
+The following query works correctly:
+
+select abs(a), row_number() over ()
+from t
+where a > 100 and a < 111
+order by abs(a)
+
+I expected the following query to also work, but it raised an exception:
+
+select abs(a), row_number() over ()
+from t
+where a > 100 and a < 111
+order by row_number() over ()
+
+This is the error I saw: "ERROR 42X01: Syntax error: Encountered "over" at line 5, column 23".
+
+Here are the reasons why I think that this syntax is supposed to be supported:
+
+According to my reading of the 2003 SQL spec, the ORDER BY clause should be able to sort on any expression in the SELECT list. That includes OLAP expressions. I believe this is so because, according to part 2, section 10.10 (<sort specification>), a <sort key> can be any <value expression> and if you follow the grammar for <value expression>, it can resolve to be a <value expression primary> (see section 6.3), which can in turn resolve to be a <window function>. This reasoning is supported by tracing the hotlinks on the following page which lays out the SQL 2003 BNF: http://savage.net.au/SQL/sql-2003-2.bnf.html This interpretation is further supported by the example of an ORDER BY clause referencing an OLAP expression which is provided on page 23 of the introduction to OLAP written by Fred Zemke, Krishna Kulkarni, Andy Witkowski, and Bob Lyle: www.cse.iitb.ac.in/dbms/Data/Papers-Other/SQL1999/OLAP-99-154r2.pdf

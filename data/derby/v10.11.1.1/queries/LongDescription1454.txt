@@ -1,0 +1,27 @@
+The server is disconnecting the client connection.  Client is sending a CNTQRY, the server is receiving it 
+and then server disconnects the client.   When I start the server, after a while, I see the message
+agentThread[DRDAConnThread_4,5,main].
+
+Further debugging, this message gets printed out  because of the agentError that is thrown in splitQRYDTA.
+
+The error seems to come from this part of the code  in splitQRYDTA,  It hits the temp.length==0 case.
+
+   private void splitQRYDTA(DRDAStatement stmt, int blksize) throws SQLException,
+           DRDAProtocolException
+   {
+       // make copy of extra data
+       byte [] temp = writer.copyDSSDataToEnd(blksize);
+       // truncate to end of blocksize
+       writer.truncateDSS(blksize);
+       if (temp.length == 0)
+           agentError("LMTBLKPRC violation: splitQRYDTA was " +
+               "called to split a QRYDTA block, but the " +
+               "entire row fit successfully into the " +
+               "current block. Server rowsize computation " +
+               "was probably incorrect (perhaps an off-by-" +
+               "one bug?). QRYDTA blocksize: " + blksize);
+       stmt.setSplitQRYDTA(temp);
+   }
+  In doneData and writeFDODTA, it looks like if (writer.getDSSLength() >= blksize)  , then the splitQRYDTA 
+is called. From testing, it seems like they are hitting an edge case, where the writer.getDSSLength() 
+is equal to blksize and this DSS is the only dss in the send buffer. 

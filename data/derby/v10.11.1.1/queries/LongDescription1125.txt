@@ -1,0 +1,21 @@
+This security exception can occur if derbyclient.jar is before derby.jar after revision 370815.  
+See:
+http://www.nabble.com/regression-%21-all-tests-in-jdbcapi-fails-for-me-t1298249.html#a3462544
+
+
+From Andrew's email:
+
+On 3/17/06, Andreas Korneliussen <Andreas.Korneliussen@sun.com> wrote:
+> </snip a whole bunch of stuff>
+>
+> Exception: java.lang.SecurityException: sealing violation: can't seal package org.apache.derby.iapi.services.info:
+already loaded
+
+See DERBY-848 and DERBY-1046.
+
+iapi.services.info.ProductVersionHolder and friends were added to
+derbyclient.jar by David in DERBY-848, specifically with revision
+370815.
+
+There are two clear solutions: unseal iapi.services.info or copy the
+info classes to a new shared info package.

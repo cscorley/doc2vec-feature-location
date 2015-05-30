@@ -1,0 +1,47 @@
+There is a leak in memory in the EntityManagerImpl push/popFetchPlan processing where fetch plan associated with the current fetch configuration is add to the _plans IdentityHashMap but never remove from it. 
+
+    private Map<FetchConfiguration,FetchPlan> _plans = new IdentityHashMap<FetchConfiguration,FetchPlan>(1);
+
+    public FetchPlan getFetchPlan() {
+        assertNotCloseInvoked();
+        _broker.lock();
+        try {
+            FetchConfiguration fc = _broker.getFetchConfiguration();
+            FetchPlan fp = _plans.get(fc);
+            if (fp == null) 
+{
+                fp = _emf.toFetchPlan(_broker, fc);
+                _plans.put(fc, fp);                         <<< added to _plans
+            }
+            return fp;
+        } finally 
+{
+            _broker.unlock();
+        }
+    }
+
+    public FetchPlan pushFetchPlan() {
+        assertNotCloseInvoked();
+        _broker.lock();
+        try {
+            _broker.pushFetchConfiguration();
+            return getFetchPlan();
+        } finally {
+            _broker.unlock();
+        }
+    }
+
+    public void popFetchPlan() {
+        assertNotCloseInvoked();
+        _broker.lock();
+        try 
+{
+            _broker.popFetchConfiguration();      <<< but never remove when the fetch plan is popped.
+        }
+ finally 
+{
+            _broker.unlock();
+        }
+    }
+
+The only time _plans is cleaned up are during clear() or closed().

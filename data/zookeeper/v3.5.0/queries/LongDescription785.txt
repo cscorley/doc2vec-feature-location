@@ -1,0 +1,44 @@
+The following config causes an infinite loop
+
+[zoo.cfg]
+tickTime=2000
+dataDir=/var/zookeeper/
+clientPort=2181
+initLimit=10
+syncLimit=5
+server.0=localhost:2888:3888
+
+Output:
+
+2010-06-01 16:20:32,471 - INFO [main:QuorumPeerMain@119] - Starting quorum peer
+2010-06-01 16:20:32,489 - INFO [main:NIOServerCnxn$Factory@143] - binding to port 0.0.0.0/0.0.0.0:2181
+2010-06-01 16:20:32,504 - INFO [main:QuorumPeer@818] - tickTime set to 2000
+2010-06-01 16:20:32,504 - INFO [main:QuorumPeer@829] - minSessionTimeout set to -1
+2010-06-01 16:20:32,505 - INFO [main:QuorumPeer@840] - maxSessionTimeout set to -1
+2010-06-01 16:20:32,505 - INFO [main:QuorumPeer@855] - initLimit set to 10
+2010-06-01 16:20:32,526 - INFO [main:FileSnap@82] - Reading snapshot /var/zookeeper/version-2/snapshot.c
+2010-06-01 16:20:32,547 - INFO [Thread-1:QuorumCnxManager$Listener@436] - My election bind port: 3888
+2010-06-01 16:20:32,554 - INFO [QuorumPeer:/0:0:0:0:0:0:0:0:2181:QuorumPeer@620] - LOOKING
+2010-06-01 16:20:32,556 - INFO [QuorumPeer:/0:0:0:0:0:0:0:0:2181:FastLeaderElection@649] - New election. My id = 0, Proposed zxid = 12
+2010-06-01 16:20:32,558 - INFO [QuorumPeer:/0:0:0:0:0:0:0:0:2181:FastLeaderElection@689] - Notification: 0, 12, 1, 0, LOOKING, LOOKING, 0
+2010-06-01 16:20:32,560 - WARN [QuorumPeer:/0:0:0:0:0:0:0:0:2181:QuorumPeer@623] - Unexpected exception
+java.lang.NullPointerException
+at org.apache.zookeeper.server.quorum.FastLeaderElection.totalOrderPredicate(FastLeaderElection.java:496)
+at org.apache.zookeeper.server.quorum.FastLeaderElection.lookForLeader(FastLeaderElection.java:709)
+at org.apache.zookeeper.server.quorum.QuorumPeer.run(QuorumPeer.java:621)
+2010-06-01 16:20:32,560 - INFO [QuorumPeer:/0:0:0:0:0:0:0:0:2181:QuorumPeer@620] - LOOKING
+2010-06-01 16:20:32,560 - INFO [QuorumPeer:/0:0:0:0:0:0:0:0:2181:FastLeaderElection@649] - New election. My id = 0, Proposed zxid = 12
+2010-06-01 16:20:32,561 - INFO [QuorumPeer:/0:0:0:0:0:0:0:0:2181:FastLeaderElection@689] - Notification: 0, 12, 2, 0, LOOKING, LOOKING, 0
+2010-06-01 16:20:32,561 - WARN [QuorumPeer:/0:0:0:0:0:0:0:0:2181:QuorumPeer@623] - Unexpected exception
+java.lang.NullPointerException
+at org.apache.zookeeper.server.quorum.FastLeaderElection.totalOrderPredicate(FastLeaderElection.java:496)
+at org.apache.zookeeper.server.quorum.FastLeaderElection.lookForLeader(FastLeaderElection.java:709)
+at org.apache.zookeeper.server.quorum.QuorumPeer.run(QuorumPeer.java:621)
+2010-06-01 16:20:32,561 - INFO [QuorumPeer:/0:0:0:0:0:0:0:0:2181:QuorumPeer@620] - LOOKING
+2010-06-01 16:20:32,562 - INFO [QuorumPeer:/0:0:0:0:0:0:0:0:2181:FastLeaderElection@649] - New election. My id = 0, Proposed zxid = 12
+2010-06-01 16:20:32,562 - INFO [QuorumPeer:/0:0:0:0:0:0:0:0:2181:FastLeaderElection@689] - Notification: 0, 12, 3, 0, LOOKING, LOOKING, 0
+2010-06-01 16:20:32,562 - WARN [QuorumPeer:/0:0:0:0:0:0:0:0:2181:QuorumPeer@623] - Unexpected exception
+java.lang.NullPointerException
+
+
+Things like HBase require that the zookeeper servers be listed in the zoo.cfg. This is a bug on their part, but zookeeper shouldn't null pointer in a loop though.

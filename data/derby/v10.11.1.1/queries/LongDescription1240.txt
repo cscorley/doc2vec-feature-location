@@ -1,0 +1,16 @@
+creating/restoring  a database from a backup copy with exteral log location  copies the transaction log to the default location.  db uses the external location , but there is unnessary copy of transaction log at default location. 
+
+
+connect 'wombat;create=true';
+create table t1(a int );
+insert into t1 values(15);
+call SYSCS_UTIL.SYSCS_BACKUP_DATABASE('extinout/mybackup');
+connect 'wombat;shutdown=true';
+disconnect;
+
+— create a db from the backup using a different log location.
+connect 'crwombat;createFrom=extinout/mybackup/wombat;logDevice=extinout/crwombatlog';
+select * from t1;
+
+— If you loook under the "crwombat" dir  you will find the log dir , it should not  be there because 
+–  transaction log  is place st  extinout/crwombatlog  as specified in the  connection URL.

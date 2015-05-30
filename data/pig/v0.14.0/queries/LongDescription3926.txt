@@ -1,0 +1,16 @@
+The too-often used trick of rounding to a fixed number of decimal places by writing '1000 * Math.round(num / 1000.0)' is not only unsightly, it's numerically imprecise (http://stackoverflow.com/a/12684082/41857). The attached patch adds a function to do this.
+
+ROUND_TO(val, digits) accepts a single float or double value, along with an integer number of digits, and returns the value to that number of decimal places 
+
+Examples:  
+
+
+
+ROUND_TO(3.14159f, 3) -- returns a float 3.142
+ROUND_TO(3.14159d, 0) -- returns a double 3.0.
+
+
+
+I also added unit tests for ROUND – there were none before that I could find.
+
+I don't know how to write a unit test that the schema correctly routes to FloatRoundTo and DoubleRoundTo – if the ones I provided are insufficient please point me to a simple example to emulate.

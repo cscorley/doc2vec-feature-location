@@ -1,0 +1,14 @@
+The current L2 / DataCache implementation is exhibits write-through behavior. When an entity is updated its contents are updated in the datacache and then flushed to the backing store when the transaction completes. 
+
+This feature will enable write-behind behavior - instead of updating the backing store when the transaction completes, the updates will be cached in memory until until triggered to truly flush. This approach has the effect of reducing the load on the backing store and (hopefully) improving overall throughput. 
+
+Naturally there are some caveats to this approach. 
+
+1. A DataCache must be used in conjunction with the WriteBehind cache. The DataCache will be kept in sync with the WriteBehind cache reducing the possibility of stale reads. 
+2. When operating in write-behind mode you need to take care that OpenJPA is the only application accessing these rows. Updates from other applications may lead to errors when the write-behind cache is flushed. 
+2a. Some care must be taken when running on multiple JVMs. The DataCache & WriteBehindCache need to be kept in sync across JVMs. The DataCache has some capability in this area and the WriteBehindCache will further extend that. 
+2b. The application must contain some logic to recover from a failed update. 
+3. Database generated columns (ie IDENTITY, SEQUENCE) will not work correctly (at least not with the initial version of write-behind)
+3a. Table generated columns will work, but the SQL used to obtain the value from the table will bypass the WriteBehindCache (ie you may see some database traffic in this case). 
+
+This support may not be suitable for every application. Write heavy applications will see great benefit as will applications which place high load on the database. The feature should not be enabled by default and should be considered strictly optional. 

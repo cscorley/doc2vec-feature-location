@@ -1,0 +1,13 @@
+Vector assign() and aggregate() can be significantly improved in some conditions taking into account the different properties of the vectors we're working with.
+
+This issue relates to the design document at https://docs.google.com/document/d/1g1PjUuvjyh2LBdq2_rKLIcUiDbeOORA1sCJiSsz-JVU/edit#heading=h.koi571fvwha3jj
+
+and the patch at
+https://reviews.apache.org/r/10669
+
+The benchmarks are at
+https://docs.google.com/spreadsheet/ccc?key=0AochdzPoBmWodG9RTms1UG40YlNQd3ByUFpQY0FLWmc&pli=1#gid=10
+
+and while there are a few regressions (which will be fixed later regarding RandomAccessSparseVectors), it improves a lot of benchmarks as well as cleans up the code significantly.
+
+Part 1, the new function interfaces is merged. [Committed revision 1478853.]

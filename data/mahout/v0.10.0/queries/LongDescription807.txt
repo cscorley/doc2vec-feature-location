@@ -1,0 +1,7 @@
+The org.apache.mahout.text.PrefixAdditionFilter is not working as intended. The prefix is computed wrong when there is recursion (this is when there is at least one subdirectory).
+
+I think the line:
+fs.listStatus(fst.getPath(), new PrefixAdditionFilter(getConf(), getPrefix() + Path.SEPARATOR + current.getName(), getOptions(), writer, fs));
+
+should better be:
+fs.listStatus(fst.getPath(), new PrefixAdditionFilter(getConf(), getPrefix() + Path.SEPARATOR + current.getName() + Path.SEPARATOR + fst.getPath().getName(), getOptions(), writer, fs));

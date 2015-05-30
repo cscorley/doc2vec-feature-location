@@ -1,0 +1,14 @@
+A number of users have mentioned that our use of "calculated" values for error codes makes it very difficult to track error reports from the logs.  In both c/java we have:
+
+int ERROR = 100
+int X_ERROR= ERROR + 1
+int Y_ERROR= ERROR + 2
+etc...
+
+which makes it difficult to grep/search for "101" and find these references. A number of users have mentioned that having non-calculated values (ie X_ERROR=101) would make it easier. 
+
+I personally find calculated constants like this an anti-pattern.
+
+We should convert these values to non-calculated at a minimum, perhaps even redefine them as enums if possible.
+
+Also documentation, esp in the c code (the names btw c and java don't match btw) is lacking. We need to beef up docs in this area.

@@ -1,0 +1,12 @@
+The equals method in the range query has the collator comparison implemented as:
+(this.collator != null && ! this.collator.equals(other.collator))
+
+When this.collator = null and other.collator = someCollator  this method will incorrectly assume they are equal. 
+
+So adding something like
+
+
+ (this.collator == null && other.collator != null)
+would fix the problem
+
+

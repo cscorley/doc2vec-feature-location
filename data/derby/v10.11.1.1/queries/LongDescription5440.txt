@@ -1,0 +1,35 @@
+During the QA Cycle for 10.8.2.1 I also ran on a next version of the iseries OS, and saw this failure. It did not reproduce when I reran the test by itself. The test has the following comment:
+       // Give the other thread time to obtain the lock
+        Thread.sleep(1000);
+
+        // Perform an index scan. Will be blocked for a while when fetching
+        // the row where x=100, but should be able to resume the scan.
+        ResultSet rs = s.executeQuery(
+                "select * from t --DERBY-PROPERTIES index=IDX");
+        for (int i = 0; i < 300; i++) 
+{
+            assertTrue(rs.next());
+            assertEquals(i, rs.getInt(1));                           <==== this is the line of the failure.
+        }
+
+I think this is a rather slow machine, and that's likely why I saw the failure, perhaps the sleep wasn't long enough on this machine.
+Here is the stack trace:
+
+1) testBTreeForwardScan_fetchRows_resumeAfterWait_nonUnique_split(org.apache.derbyTesting.functionTests.tests.store.IndexSplitDeadlockTest)junit.framework.AssertionFailedError: expected:<1> but was:<0>
+	at java.lang.Throwable.<init>(Throwable.java:195)
+	at java.lang.Error.<init>(Error.java:49)
+	at junit.framework.AssertionFailedError.<init>(AssertionFailedError.java:13)
+	at org.apache.derbyTesting.functionTests.tests.store.IndexSplitDeadlockTest.testBTreeForwardScan_fetchRows_resumeAfterWait_nonUnique_split(IndexSplitDeadlockTest.java:526)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:27)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:92)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+
+derby.log has no useful info.

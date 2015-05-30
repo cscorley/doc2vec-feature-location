@@ -1,0 +1,28 @@
+hadoop jar core/target/mahout-core-0.2-SNAPSHOT.joborg.apache.mahout.clustering.lda.LDADriver -i mahout/foo/foo-vectors -o mahout/foo/lda-cluster -w -k 1000 -v 82342 --maxIter 2
+
+[...]
+09/11/09 22:02:00 WARN mapred.JobClient: No job jar file set.  User
+classes may not be found. See JobConf(Class) or
+JobConf#setJar(String).
+[...]
+09/11/09 22:02:00 INFO input.FileInputFormat: Total input paths to process : 1
+09/11/09 22:02:01 INFO mapred.JobClient: Running job: job_200911091316_0005
+09/11/09 22:02:02 INFO mapred.JobClient:  map 0% reduce 0%
+09/11/09 22:02:12 INFO mapred.JobClient: Task Id :
+attempt_200911091316_0005_m_000000_0, Status : FAILED
+java.lang.RuntimeException: java.lang.ClassNotFoundException:
+org.apache.mahout.clustering.lda.LDAMapper
+       at org.apache.hadoop.conf.Configuration.getClass(Configuration.java:808)
+       at org.apache.hadoop.mapreduce.JobContext.getMapperClass(JobContext.java:157)
+       at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:532)
+       at org.apache.hadoop.mapred.MapTask.run(MapTask.java:305)
+       at org.apache.hadoop.mapred.Child.main(Child.java:170)
+Caused by: java.lang.ClassNotFoundException:
+org.apache.mahout.clustering.lda.LDAMapper
+       at java.net.URLClassLoader$1.run(URLClassLoader.java:200)
+
+Can be fixed by adding the following line to LDADriver after line 299 in r831743:
+
+job.setJarByClass(LDADriver.class);
+
+(will attach trivial patch)

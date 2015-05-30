@@ -1,0 +1,35 @@
+Fix for DERBY-649 implemented scalar (single table) predicate push down into UNIONs. While this improves performance for one set of queries, ability to push join-predicates further improves Derby performance by enabling use of indices where possible.
+
+For example,
+
+create view V1 as select i, j from T1 union all select i,j from T2; 
+create view V2 as select a,b from T3 union all select a,b from T4; 
+insert into T1 values (1,1), (2,2), (3,3), (4,4), (5,5); 
+
+For a query like
+
+select * from V1, V2 where V1.j = V2.b and V1.i =1;
+
+If the join order choosen is V1,V2, V1 can use index on V1.i (if present) following fix for DERBY-649. But if there is a index on V2.b also, Derby currently can't use that index. By pushing join predicate, Derby would be able to use the index and improve performance. Some of the queries I have seen (not the one shown here...) could improve from 70-120 seconds to about one second.
+
+Note there is a good comment by Jeff Lichtman about join-predicate push down. I am copying parts of it here for completeness of this report: (Modified)
+
+If predicate push down is done during optimization, it would be possible to push joins into the union as long as it's in the right place in the join order.
+
+For example:
+
+create view v as select * from t1 union all select * from t2;
+
+select * from v, t3 where v.c1 = t3.c2;
+
+In this select, if t3 is the outer table then the qualification could be pushed into the union and optimized there, but if t3 is the inner table the qualification can't be pushed into the union.
+
+If the pushing is done at preprocess time (i.e. before optimization) it is impossible to know whether a join qualification like this can be safely pushed.
+
+There's a comment in UnionNode.optimizeIt() saying:
+
+/* RESOLVE - don't try to push predicated through for now */
+
+This is where I'd expect to see something for pushing predicates into the union during optimization.
+
+BTW, the business of pushing and pulling predicates during optimization can be hard to understand and debug, so maybe it's best to only handle the simple cases and do it during preprocessing.

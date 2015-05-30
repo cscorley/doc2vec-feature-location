@@ -1,0 +1,11 @@
+TransactonTable.java:
+public ContextManager findTransactionContextByGlobalId(
+....
+       if (entry.getGid() != null && 
+					entry.getGid().equals(global_id))
+—
+}
+
+In the above code  gid in the  entry can get set to null , if  the transaction the entry referes to is  committed. 
+So second part of the above condition can get a NPE. 
+

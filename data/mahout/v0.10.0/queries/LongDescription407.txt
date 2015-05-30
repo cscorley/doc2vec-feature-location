@@ -1,0 +1,5 @@
+In order to keep the item-similarity-matrix sparse, it would be a useful improvement to add an option like "maxSimilaritiesPerItem" to o.a.m.cf.taste.hadoop.similarity.item.ItemSimilarityJob, which would make it try to cap the number of similar items per item.
+
+However as we store each similarity pair only once it could happen that there are more than "maxSimilaritiesPerItem" similar items for a single item as we can't drop some of the pairs because the other item in the pair might have too little similarities otherwise.
+
+A default value of 100 co-occurrences (similarities) will be used because this is already the default in the distributed recommender.

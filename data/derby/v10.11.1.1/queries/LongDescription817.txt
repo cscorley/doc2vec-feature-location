@@ -1,0 +1,32 @@
+When working on DERBY-210, following came up as cases for possible improvements/optimizations:
+
+
+	Bryan pointed out that synchronization is missing when accessing openStatements_ and CommitAndRollbackListeners_ , which are members of org.apache.derby.client.am.Connection class.
+
+
+
+
+	Bryan suggested adding convenience methods to access these lists.
+
+
+
+
+	Do we need to add Lobs to CommitAndRollbackListeners_? In case of Lobs, I cannot see anything else being done with it other than adding and removing from this list. Is there any other purpose for adding Lobs to this list?
+
+
+
+
+	Do we need to add PreparedStatements to CommitAndRollbackListeners_? A comment in the code mentions they are added to the list because prepared statements need to be re-prepared after commit/rollback. As I understand, this is not required. Also, in the code, only internal statements like statements used for auto-generated keys etc are being re-prepared. Maybe, this can be avoided.
+
+
+
+
+	Do we need to add all result sets to the HashTable 'positionedUpdateCursorNameToResultSet_' in SectionManager? All ResultSets get added to this Hashtable though only ResultSets from positioned update statements are retrieved and used from this table. There seems to be some extra work going on in client driver in just adding and removing "all" result sets to this hashtable. I think this can be avoided. Can we avoid adding result sets from positioned update statements to this hashtable? Some analysis can be done to see if this hashtable itself can be removed.
+
+
+
+The items listed above are independent and sub-tasks may be opened to work on them individually. Some of them are questions and depending on findings, they may not need further work. 
+
+These issues were discussed in the following threads:
+http://www.nabble.com/-jira-Updated%3A-%28DERBY-210%29-Network-Server-will-leak-prepared-statements-if-not-explicitly-closed-by-the-user-until-the-connection-is-closed-t914229.html#a2371474
+http://www.nabble.com/-jira-Commented%3A-%28DERBY-210%29-Network-Server-will-leak-prepared-statements-if-not-explicitly-closed-by-the-user-until-the-connection-is-closed-t915113.html#a2373800

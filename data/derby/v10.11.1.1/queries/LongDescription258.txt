@@ -1,0 +1,14 @@
+If an explicit method signature has Java type that does not match the correct SQL to Java mapping as defined by JDBC, then method resolution seems to try and pick the incorrect method.
+
+With this example an attempt is made to force an INT procedure parameter to resolve to a java.lang.String, which is not supported. However the engine trys to resolve to a method with an Integr parameter.
+
+
+ij> CREATE PROCEDURE SIGNATURE_BUG_1(IN A INT)
+  LANGUAGE JAVA PARAMETER STYLE JAVA
+  EXTERNAL NAME 'java.lang.System.load(java.lang.String)';
+0 rows inserted/updated/deleted
+ij> CALL SIGNATURE_BUG_1(4);
+ERROR 38000: The exception 'java.lang.NoSuchMethodError: java.lang.System.load(Ljava/lang/Integer;)V' was thrown while evaluating an expression.
+ERROR XJ001: Java exception: 'java.lang.System.load(Ljava/lang/Integer;)V: java.lang.NoSuchMethodError'.
+
+I believe that the resolution should fail with an illegal conversion error if the supplied Java type is not a match for the SQL type according to JDBC, in this case int or java.lang.Integer.

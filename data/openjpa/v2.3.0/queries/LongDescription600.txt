@@ -1,0 +1,40 @@
+Customers want to use a version of OpenJPA in their applications other than the version bundled with WebLogic. It enables customers to use an upgraded version of OpenJPA than is shipped with the product. 
+
+The customer's application would have openjpa.jar and kodo.jar in its lib or APP-INF/lib directory, and use the filtering classloader to filter out org.apache.openjpa., com.solarmetric. and kodo.*.
+
+When I deploy a sample application with embedded openjpa.jar to weblogic server, the following exception is thrown during deployment:
+
+java.lang.NoClassDefFoundError: org/apache/openjpa/enhance/PCEnhancer
+	at org.apache.openjpa.enhance.PCClassFileTransformer.transform(PCClassFileTransformer.java:127)
+	at org.apache.openjpa.persistence.PersistenceProviderImpl$ClassTransformerImpl.transform(PersistenceProviderImpl.java:201)
+	at weblogic.deployment.PersistenceUnitInfoImpl$ClassPreProcessorImpl.preProcess(PersistenceUnitInfoImpl.java:490)
+	at weblogic.utils.classloaders.ClassPreProcessor$ClassPreProcessorSupport.preProcess(ClassPreProcessor.java:95)
+	at weblogic.utils.classloaders.GenericClassLoader.doPreProcess(GenericClassLoader.java:351)
+	at weblogic.utils.classloaders.GenericClassLoader.defineClass(GenericClassLoader.java:332)
+	at weblogic.utils.classloaders.GenericClassLoader.findLocalClass(GenericClassLoader.java:291)
+	at weblogic.utils.classloaders.GenericClassLoader.findClass(GenericClassLoader.java:259)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:306)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:251)
+	at weblogic.utils.classloaders.GenericClassLoader.loadClass(GenericClassLoader.java:179)
+	at java.lang.Class.getDeclaredMethods0(Native Method)
+	at java.lang.Class.privateGetDeclaredMethods(Class.java:2427)
+	at java.lang.Class.privateGetPublicMethods(Class.java:2547)
+	at java.lang.Class.getMethods(Class.java:1410)
+	at weblogic.ejb.container.ejbc.VersionHelperImpl.computeCRC(VersionHelperImpl.java:350)
+	at weblogic.ejb.container.ejbc.VersionHelperImpl.makeFileHash(VersionHelperImpl.java:268)
+	at weblogic.ejb.container.ejbc.VersionHelperImpl.<init>(VersionHelperImpl.java:78)
+	at weblogic.ejb.container.deployer.EJBDeployer.compileIfNecessary(EJBDeployer.java:521)
+	at weblogic.ejb.container.deployer.EJBDeployer.prepare(EJBDeployer.java:1154)
+	at weblogic.ejb.container.deployer.EJBModule.prepare(EJBModule.java:400)
+	at weblogic.application.internal.flow.ModuleListenerInvoker.prepare(ModuleListenerInvoker.java:93)
+	at weblogic.application.internal.flow.DeploymentCallbackFlow$1.next(DeploymentCallbackFlow.java:385)
+	at weblogic.application.utils.StateMachineDriver$ParallelChange$1.run(StateMachineDriver.java:71)
+	at weblogic.security.acl.internal.AuthenticatedSubject.doAs(AuthenticatedSubject.java:321)
+	at weblogic.security.service.SecurityManager.runAs(Unknown Source)
+	at weblogic.application.utils.StateMachineDriver$ParallelChange.run(StateMachineDriver.java:79)
+	at java.lang.Thread.run(Thread.java:619)
+
+Note this error happens in pure-JIT JVM such as JRocket only, not with the interpreting JVMs (for instance HotSpot).
+
+The error is because the tranformer plugin in openjpa makes a faulty assumption (which happens to work on interpreters), that types can be 
+resolved during execution of a method. Read up on the VM/lanf spec, it clearly states that you may not make such an assumption. Thus, while it might work with the reference, the preprocessor is quite broken.

@@ -1,0 +1,27 @@
+java.lang.NullPointerException
+	at org.apache.openjpa.kernel.SingleFieldManager.dereferenceEmbedDependent(SingleFieldManager.java:432)
+	at org.apache.openjpa.kernel.SingleFieldManager.delete(SingleFieldManager.java:317)
+	at org.apache.openjpa.kernel.SingleFieldManager.dereferenceDependent(SingleFieldManager.java:294)
+	at org.apache.openjpa.kernel.StateManagerImpl.settingObjectField(StateManagerImpl.java:2031)
+	at embeddable.Department.pcSetdepartmentEmbeddable(Department.java)
+	at embeddable.Department.setDepartmentEmbeddable(Department.java:62)
+	at embeddable.TestEmbeddable.testFind(TestEmbeddable.java:52)
+
+where:
+
+private DepartmentEmbeddable makeEmbeddable() 
+{
+ 		 DepartmentEmbeddable d1 = new DepartmentEmbeddable();
+ 		 d1.setDeptname("name");
+ 		 d1.setMgrno("qw");
+ 		 return d1;
+ }
+
+ @Override
+ public void test() 
+{
+ 		 Department d = em.find(Department.class, "1");
+ 		 DepartmentEmbeddable d2 = new DepartmentEmbeddable();
+ 		 d.setDepartmentEmbeddable(makeEmbeddable());
+ 		 d.setDepartmentEmbeddable(makeEmbeddable()); <== NPE is thrown
+ }

@@ -1,0 +1,22 @@
+I found a scenario where extra queries were being generated while cascading a persist to a new Entity. See the following example:
+
+@Entity
+public class CascadePersistEntity implements Serializable 
+{
+    private static final long serialVersionUID = -8290604110046006897L;
+
+    @Id
+    long id;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    CascadePersistEntity other;
+...
+}
+
+and the following scenario:
+CascadePersistEntity cpe1 = new CascadePersistEntity(1);
+CascadePersistEntity cpe2 = new CascadePersistEntity(2);
+cpe1.setOther(cpe2);
+em.persist(cpe1);
+
+This results in two inserts and one select. The extra select is what I'm going to get rid of with this JIRA.

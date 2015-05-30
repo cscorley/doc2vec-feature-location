@@ -1,0 +1,19 @@
+HTTP 503 error, e.g. exceeded limit of maxWarmingSearchers, is overwritten by the following code in SolrCore:
+
+SolrCore.java
+protected void setResponseHeaderValues(SolrRequestHandler handler, SolrQueryRequest req, SolrQueryResponse rsp) {
+    // :
+    responseHeader.add("status",rsp.getException()==null ? 0 : 500);
+    responseHeader.add("QTime",qtime);
+    rsp.getToLog().add("status",rsp.getException()==null ? 0 : 500);
+    rsp.getToLog().add("QTime",qtime);
+
+
+
+then logged 500, not 503:
+
+
+SEVERE: org.apache.solr.common.SolrException: Error opening new searcher. exceeded limit of maxWarmingSearchers=2, try again later.
+   :
+INFO: [] webapp=/solr path=/update params={} status=500 QTime=146
+

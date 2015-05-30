@@ -1,0 +1,8 @@
+Currently the LukeRequestHandler is calling: 
+ int docCount = searcher.numDocs( q, matchAllDocs ); 
+followed by:
+ DocList ds = searcher.getDocList( q, (Query)null, (Sort)null, 0, 1 );
+to get the doc count (and then the first doc returned)
+
+This can be replaced with:
+ TopDocs top = searcher.search( q, 1 );

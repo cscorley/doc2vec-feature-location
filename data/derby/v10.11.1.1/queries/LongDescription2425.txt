@@ -1,0 +1,7 @@
+Client getColumnDisplaySize on a BLOB(1G) column returns 
+-2147483648
+
+embedded returns  2147483647
+
+In client, the issue is that for binary values it multiplies the length * 2 and this overflows the int range.
+return (int) (2 * sqlLength_[column - 1]); 

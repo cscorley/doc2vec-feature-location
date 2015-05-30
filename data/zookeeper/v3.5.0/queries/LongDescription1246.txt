@@ -1,0 +1,13 @@
+This is a regression introduced by ZOOKEEPER-965 (multi transactions). The catch(Exception e) block in PrepRequestProcessor.pRequest contains an if block with condition request.getHdr() != null. This condition will always evaluate to false since the changes in ZOOKEEPER-965.
+
+This is caused by a change in sequence: Before ZK-965, the txnHeader was set before the deserialization of the request. Afterwards the deserialization happens before request.setHdr is set. So the following RequestProcessors won't see the request as a failed one but as a Read request, since it doesn't have a hdr set.
+
+Notes:
+
+	it is very bad practice to catch Exception. The block should rather catch IOException
+	The check whether the TxnHeader is set in the request is used at several places to see whether the request is a read or write request. It isn't obvious for a newby, what it means whether a request has a hdr set or not.
+	at the beginning of pRequest the hdr and txn of request are set to null. However there is no chance that these fields could ever not be null at this point. The code however suggests that this could be the case. There should rather be an assertion that confirms that these fields are indeed null. The practice of doing things "just in case", even if there is no chance that this case could happen, is a very stinky code smell and means that the code isn't understandable or trustworthy.
+	The multi transaction switch case block in pRequest is very hard to read, because it missuses the request.
+{hdr|txn}
+ fields as local variables.
+

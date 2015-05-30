@@ -1,0 +1,14 @@
+The project uses commons-math3, since about a year ago. However there is a use of old commons-math (2.2) lurking:
+
+core/src/main/java/org/apache/mahout/classifier/sgd/TPrior.java:
+import org.apache.commons.math.special.Gamma;
+
+This happens to have worked since commons-math has been pulled in by hadoop-common. But it no longer is in HEAD:
+
+http://svn.apache.org/viewvc/hadoop/common/trunk/hadoop-common-project/hadoop-common/pom.xml?view=markup
+
+So this will no longer compile against the latest Hadoop. I believe it will also not actually run again the latest Hadoop, even if one were to use a version compiled versus older Hadoop 2, since the class that uses it is used in the context of Writables – that is, outside the client environment that might happen to have packaged commons-math – and so would fail on the cluster.
+
+The change is trivial, to import the commons-math3 class. I've verified that tests pass and a patch is attached.
+
+Question is how much of a 'blocker' this should be for the pending release. It would cause it to stop working with the next Hadoop 2 release, so would be useful to get in, IMHO.

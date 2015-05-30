@@ -1,0 +1,12 @@
+Rule.java which is used for finding patterns in the logical plan during logical plan optimization does not work with patterns where the leaves/sinks in the patter are not siblings.
+
+For eg, it will not work with a pattern such as  -
+
+
+A->B
+|-> C -> D
+In this example, B and D are leaves, but not siblings.
+
+
+
+In org.apache.pig.newplan.optimizer.Rule.java, the code in the for loop at line 138 (in this revision - http://svn.apache.org/viewvc/pig/trunk/src/org/apache/pig/newplan/optimizer/Rule.java?annotate=1005230) checks if the leaves in the pattern are are sibling of the node that matched. This is an undocumented limitation. Note that none of the existing logical plan optimization rules have such a patter, so this issue does not have any impact on the user.

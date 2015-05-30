@@ -1,0 +1,36 @@
+Currently, Pig has no support for case statement. To mimic it, users often use nested bincond operators. However, that easily becomes unreadable when there are multiple levels of nesting.
+
+For example,
+
+
+a = LOAD '1.txt' USING PigStorage(',') AS (i:int);
+b = FOREACH a GENERATE (
+    i % 3 == 0 ? '3n' : (i % 3 == 1 ? '3n + 1' : '3n + 2')
+);
+
+
+This can be re-written much more nicely using case statement as follows:
+
+
+a = LOAD '1.txt' USING PigStorage(',') AS (i:int);
+b = FOREACH a GENERATE (
+    CASE i % 3
+        WHEN 0 THEN '3n'
+        WHEN 1 THEN '3n + 1'
+        ELSE        '3n + 2'
+    END
+);
+
+
+I propose that we implement case statement in the following manner:
+
+	Add built-in UDFs that take expressions as args. Take for example the aforementioned case statement, we can define a UDF such as builtInUdf(i % 3, 0, '3n', 1, '3n + 1', '3n + 2').
+	Add syntactical sugar for these built-in UDFs.
+
+
+
+In fact, I burrowed this idea from HIVE-164. 
+
+One downside of this approach is that all the possible args schemas of these UDFs must be pre-computed. Specifically, we need to populate the full list of possible args schemas in EvalFunc.getArgToFuncMapping.
+
+In particular, since we obviously cannot support infinitely long args, it is necessary to impose a limit on the size of when branches. For now, I arbitrarily chose 50, but it can be easily changed.

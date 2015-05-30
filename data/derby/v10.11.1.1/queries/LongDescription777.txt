@@ -1,0 +1,23 @@
+Hang is in the java library call java/io/InputStreamReader.getEncoding
+
+Looking at the Derby code, this call is used to get the default encoding as a String, however
+the default encoding value is not required, the localization code can just use the constructors
+that use default encoding. Will attach a 10.1 branch patch soon. See if this can work around
+the hang in the java library.
+
+3XMTHREADINFO      "main" (TID:0x0A06D000, sys_thread_t:0x09F396EC, state:R, native ID:0x098B7500) prio=5
+4XESTACKTRACE          at java/io/FileInputStream.readBytes(Native Method)
+4XESTACKTRACE          at java/io/FileInputStream.read(FileInputStream.java:229)
+4XESTACKTRACE          at java/io/BufferedInputStream.read1(BufferedInputStream.java:265)
+4XESTACKTRACE          at java/io/BufferedInputStream.read(BufferedInputStream.java:324)
+4XESTACKTRACE          at java/io/BufferedInputStream.fill(BufferedInputStream.java:229)
+4XESTACKTRACE          at java/io/BufferedInputStream.read(BufferedInputStream.java:246)
+4XESTACKTRACE          at sun/nio/cs/StreamDecoder$LocalizedSD.sdInit(StreamDecoder.java:662)
+4XESTACKTRACE          at sun/nio/cs/StreamDecoder$LocalizedSD.encodingName(StreamDecoder.java:625)
+4XESTACKTRACE          at sun/nio/cs/StreamDecoder.getEncoding(StreamDecoder.java:180)
+4XESTACKTRACE          at java/io/InputStreamReader.getEncoding(InputStreamReader.java:184)
+4XESTACKTRACE          at org/apache/derby/iapi/tools/i18n/LocalizedResource.init(Bytecode PC:53)
+4XESTACKTRACE          at org/apache/derby/iapi/tools/i18n/LocalizedResource.<init>(Bytecode PC:30)
+4XESTACKTRACE          at org/apache/derby/impl/drda/NetworkServerControlImpl.init(Bytecode PC:9)
+4XESTACKTRACE          at org/apache/derby/impl/drda/NetworkServerControlImpl.<init>(Bytecode PC:222)
+4XESTACKTRACE          at org/apache/derby/drda/NetworkServerControl.main(Bytecode PC:6)

@@ -1,0 +1,52 @@
+Hi all,
+ I have a script which does 2 replicated joins in succession. Please note that the inputs do not exist on the HDFS.
+
+
+
+A = LOAD '/tmp/abc' USING PigStorage('\u0001') AS (a:long, b, c);
+A1 = FOREACH A GENERATE a;
+B = GROUP A1 BY a;
+C = LOAD '/tmp/xyz' USING PigStorage('\u0001') AS (x:long, y);
+D = JOIN C BY x, B BY group USING "replicated";
+E = JOIN A BY a, D by x USING "replicated";
+dump E;
+
+
+
+2009-12-16 19:12:00,253 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size before optimization: 4
+2009-12-16 19:12:00,254 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - Merged 1 map-only splittees.
+2009-12-16 19:12:00,254 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - Merged 1 map-reduce splittees.
+2009-12-16 19:12:00,254 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - Merged 2 out of total 2 splittees.
+2009-12-16 19:12:00,254 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size after optimization: 2
+2009-12-16 19:12:00,713 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 2998: Unhandled internal error. unable to create new native thread
+Details at logfile: pig_1260990666148.log
+
+Looking at the log file:
+
+Pig Stack Trace
+---------------
+ERROR 2998: Unhandled internal error. unable to create new native thread
+
+java.lang.OutOfMemoryError: unable to create new native thread
+        at java.lang.Thread.start0(Native Method)
+        at java.lang.Thread.start(Thread.java:597)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher.launchPig(MapReduceLauncher.java:131)
+        at org.apache.pig.backend.hadoop.executionengine.HExecutionEngine.execute(HExecutionEngine.java:265)
+        at org.apache.pig.PigServer.executeCompiledLogicalPlan(PigServer.java:773)
+        at org.apache.pig.PigServer.store(PigServer.java:522)
+        at org.apache.pig.PigServer.openIterator(PigServer.java:458)
+        at org.apache.pig.tools.grunt.GruntParser.processDump(GruntParser.java:532)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:190)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:166)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:142)
+        at org.apache.pig.tools.grunt.Grunt.exec(Grunt.java:89)
+        at org.apache.pig.Main.main(Main.java:397)
+================================================================================
+
+If we want to look at the explain output, we find that there is no Map Reduce plan that is generated. 
+
+ Why is the M/R plan not generated?
+
+
+Attaching the script and explain output.
+Viraj

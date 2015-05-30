@@ -1,0 +1,36 @@
+Tim Dudgeon, on the user list, reports that the following query returns no results in 10.3.1.4 but works correctly in 10.2. I have verified that the query returns no results in the mainline as well. If you eliminate either of the the conjuncts, then the query returns the correct results:
+
+SELECT MYTABLE.MY_ID
+ FROM MYTABLE
+ WHERE MYTABLE.MY_ID < 100 AND MYTABLE.MY_ID IN (
+2,15,19,20,21,48,49
+)
+
+Here is a more complete script which demonstrates the problem:
+
+drop table mytable;
+
+create table mytable ( id int primary key );
+
+insert into mytable ( id )
+values
+( 0 ), ( 1 ), ( 2 ), ( 3 ), ( 4 ), ( 5 ), ( 6 ), ( 7 ), ( 8 ), ( 9 );
+
+insert into mytable select id + 10 from mytable;
+insert into mytable select id + 20 from mytable;
+insert into mytable select id + 40 from mytable;
+insert into mytable select id + 100 from mytable;
+
+select mytable.id
+from mytable
+where mytable.id < 100;
+
+
+select mytable.id
+from mytable
+where mytable.id in ( 2, 15, 19, 20, 21, 48, 49 );
+
+select mytable.id
+from mytable
+where mytable.id < 100
+and mytable.id in ( 2, 15, 19, 20, 21, 48, 49 );

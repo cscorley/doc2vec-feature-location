@@ -1,0 +1,38 @@
+3 issues:
+In zoo_add_auth: there is a race condition:
+   2940     // ZOOKEEPER-800 zoo_add_auth should return ZINVALIDSTATE if
+   2941     // the connection is closed.
+   2942     if (zoo_state(zh) == 0) 
+{
+   2943         return ZINVALIDSTATE;
+   2944     }
+when we do zookeeper_init, the state is initialized to 0 and above we check if state = 0 then throw exception.
+There is a race condition where the doIo thread is slow and has not changed the state to CONNECTING, then you end up returning back ZKINVALIDSTATE.
+The problem is we use 0 for CLOSED state and UNINITIALIZED state. in case of uninitialized case it should let it go through.
+
+2nd issue:
+
+Another Bug: in send_auth_info, the check is not correct
+
+while (auth->next != NULL) 
+{ //--BUG: in cases where there is only one auth in the list, this will never send that auth, as its next will be NULL 
+   rc = send_info_packet(zh, auth); 
+   auth = auth->next; 
+}
+
+FIX IS:
+do 
+{ 
+  rc = send_info_packet(zh, auth); 
+  auth = auth->next; 
+ }
+ while (auth != NULL); //this will make sure that even if there is one auth ,that will get sent.
+
+3rd issue:
+   2965     add_last_auth(&zh->auth_h, authinfo);
+   2966     zoo_unlock_auth(zh);
+   2967
+   2968     if(zh->state == ZOO_CONNECTED_STATE || zh->state == ZOO_ASSOCIATING_STATE)
+   2969         return send_last_auth_info(zh);
+
+if it is connected, we only send the last_auth_info, which may be different than the one we added, as we unlocked it before sending it.

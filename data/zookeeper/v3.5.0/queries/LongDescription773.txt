@@ -1,0 +1,28 @@
+Zkgraph is a log viewer for zookeeper. It can handle transaction logs and message logs. There are currently two view.
+
+  a) Server view
+     The server view shows the interactions between the different servers in an ensemble. The X axis represents time. 
+
+	Exceptions show up as red dots. Hovering your mouse over them will give you more details of the exception
+	The colour of the line represents the election state of the server.
+
+
+	orange means LOOKING for leader
+	dark green means the server is the leader
+	light green means the server is following a leader
+	yellow means there isn't enough information to determine the state of the server.
+
+
+	The gray arrows denote election messages between servers. Pink dashed arrows are messages that were sent but never delivered.
+
+
+
+   b) Session view
+      The session view shows the lifetime of sessions on a server. Use the time filter to narrow down the view. Any more than about 2000 events will take a long time to view in your browser. 
+      The Y axis represents time in this case. Each line is a session. The black dots represent events on the session. You can click on the black dots for more details of the event.
+
+2 - Compiling & Running
+
+Run "ant jar" in src/contrib/zkgraph/. This will download all dependencies and compile all the zkgraph code.
+
+Once compilation has finished, you can run it the the zkgraph.sh script in src/contrib/zkgraph/bin. This will start and embedded web server on you machine. Navigate to http://localhost:8182/graph/main.html.

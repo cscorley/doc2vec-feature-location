@@ -1,0 +1,47 @@
+When a SequentialAccessSparseVector is serialized and deserialized using VectorWritable, the result vector and the original vector are equivalent, yet equals returns false.
+
+The following unit-test reproduces the problem:
+
+
+@Test
+public void testSequentialAccessSparseVectorEquals() throws Exception {
+    final Vector v = new SequentialAccessSparseVector(1);
+    final VectorWritable vectorWritable = new VectorWritable(v);
+    final VectorWritable vectorWritable2 = new VectorWritable();
+    writeAndRead(vectorWritable, vectorWritable2);
+    final Vector v2 = vectorWritable2.get();
+
+    assertTrue(AbstractVector.equivalent(v, v2));
+    assertEquals(v, v2); // This line fails!
+}
+
+private void writeAndRead(Writable toWrite, Writable toRead) throws IOException {
+    final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    final DataOutputStream dos = new DataOutputStream(baos);
+    toWrite.write(dos);
+
+    final ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+    final DataInputStream dis = new DataInputStream(bais);
+    toRead.readFields(dis);
+}
+
+
+
+
+The problem seems to be that the original vector name is null, while the new vector's name is an empty string. The same issue probably also happens with RandomAccessSparseVector.
+
+SequentialAccessSparseVectorWritable (line 40):
+
+
+dataOutput.writeUTF(getName() == null ? "" : getName());
+
+
+
+RandomAccessSparseVectorWritable (line 42):
+
+
+dataOutput.writeUTF(this.getName() == null ? "" : this.getName());
+
+
+
+The simplest fix is probably to change the default Vector's name from null to the empty string.

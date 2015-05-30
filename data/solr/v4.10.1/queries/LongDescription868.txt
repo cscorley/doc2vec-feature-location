@@ -1,0 +1,14 @@
+This patch includes a zipfile snapshot of current solrjs trunk. The folder structure is applied to standard solr layout.  It can be extracted to "contrib/javascript".
+
+it includes a build.xml:
+
+
+	ant dist -> creates a single js file and a jar that holds velocity templates.
+	ant docs -> creates js docs. test in browser: doc/index.html
+	ant example-init -> (depends ant dist on solr root) copies the current built of solr.war and solr-velocity.jar to example/testsolr/..
+	ant example-start -> starts the testsolr server on port 8983
+	ant example-import -> imports 3000 test data rows (requires a started testserver)
+
+
+
+Point your browser to example/testClientside.html ,example/testServerSide.html or test/reuters/index.html to see it working.

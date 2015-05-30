@@ -1,0 +1,5 @@
+With Hadoop 2.4, I often see Pig client fails due to OOM when there are many tasks (~100K) with 1GB heap size.
+
+The heap dump (attached) shows that TaskReport[] occupies about 80% of heap space at the time of OOM.
+
+The problem is that JobClient.getMap/ReduceTaskReports() returns an array of TaskReport objects, which can be huge if the number of task is large.

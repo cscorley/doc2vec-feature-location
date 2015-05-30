@@ -1,0 +1,10 @@
+Currently if the strategy of the generated id is GenerationType.IDENTITY,  when an entity object is created, openjpa will generate two SQL statements. The following is an example running on DB2:
+
+(1) INSERT INTO EntityA (col1, col2, col3, version) VALUES (?, ?, ?, ?) 
+[params=(int) 1, (int) 1, (int) 1, (int) 1]
+
+(2) SELECT IDENTITY_VAL_LOCAL() FROM SYSIBM.SYSDUMMY1
+
+A performance improvement is to take advantage of the "select from final table" feature in DB2 to combine the insert and select statement into a single SQL statement as shown below:
+
+SELECT id FROM FINAL TABLE (INSERT INTO EntityA (col1, col2, col3, version) VALUES (?, ?, ?, ?) )

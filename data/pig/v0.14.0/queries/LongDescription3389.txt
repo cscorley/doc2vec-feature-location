@@ -1,0 +1,11 @@
+The "job.name" property can be used to overwrite the default job name in Pig, but the dump command does not honor it.
+
+To reproduce the issue, run the following commands in Grunt shell in MR mode:
+
+
+SET job.name 'FOO';
+a = LOAD '/foo';
+DUMP a;
+
+
+You will see the job name is not 'FOO' in the JT UI. However, using store instead of dump sets the job name correctly.

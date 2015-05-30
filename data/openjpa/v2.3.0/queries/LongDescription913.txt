@@ -1,0 +1,71 @@
+A deadlock issue happens when OpenJPA entity manager is
+concurrently called and DirtyListener is used and 
+DirtyListener.beforeDirty calls an entity manager related 
+operation. To call OpenJPA entity manager concurrently, 
+we need to define openjpa.MulthThreaded option as true.
+
+Following is test scenario.
+
+1. Thread A calls entityMangaer.refresh() repeatedly.
+   In refresh() method, entityManager acquires BrokerImpl
+   lock. And then, entityManager acquires LifecycleEventManager
+   lock to call lifecycle callback.
+2. Thread B calls persistedObject.getAItems() (getting
+   collection items).
+3. In enhanced getItems() method, entityManager tries
+   to mark it as "dirty". Before marking, callback listener
+   DirtyListener.beforeDirty is called. In this point,
+   LifecycleEventManager lock is acquired without acquiring
+   BrokerImpl lock.
+4. In the testcase, beforeDirty calls persistedObject.getAItems().
+   And then, entity manager tries to acquire BrokerImpl lock.
+   But, sometimes BrokerImpl lock is already acquired by Thread B.
+   So, a deadlock issue happens. deadlock stack is as follows.
+
+====
+     [java] "Thread-1" prio=1 tid=0x09e98b28 nid=0x7fcc waiting on condition [0xb15f3000..0xb15f4130]
+     [java]     at sun.misc.Unsafe.park(Native Method)
+     [java]     at java.util.concurrent.locks.LockSupport.park(LockSupport.java:118)
+     [java]     at java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(AbstractQueuedSynchronizer.java:716)
+     [java]     at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(AbstractQueuedSynchronizer.java:746)
+     [java]     at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(AbstractQueuedSynchronizer.java:1076)
+     [java]     at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(ReentrantLock.java:184)
+     [java]     at java.util.concurrent.locks.ReentrantLock.lock(ReentrantLock.java:256)
+     [java]     at org.apache.openjpa.kernel.BrokerImpl.lock(BrokerImpl.java:4168)
+     [java]     at org.apache.openjpa.kernel.BrokerImpl.beginOperation(BrokerImpl.java:1770)
+     [java]     at org.apache.openjpa.kernel.BrokerImpl.isActive(BrokerImpl.java:1742)
+     [java]     at org.apache.openjpa.kernel.StateManagerImpl.beforeRead(StateManagerImpl.java:964)
+     [java]     at org.apache.openjpa.kernel.StateManagerImpl.accessingField(StateManagerImpl.java:1501)
+     [java]     at model.A.getAItems(A.java)
+     [java]     at model.ADirtyListener.beforeDirty(ADirtyListener.java:24)
+     [java]     at org.apache.openjpa.event.LifecycleEventManager.fireEvent(LifecycleEventManager.java:423)
+     [java]     at org.apache.openjpa.event.LifecycleEventManager.fireEvent(LifecycleEventManager.java:289)
+     [java]     - locked <0x51b4e4b0> (a org.apache.openjpa.event.LifecycleEventManager)
+     [java]     at org.apache.openjpa.kernel.BrokerImpl.fireLifecycleEvent(BrokerImpl.java:693)
+     [java]     at org.apache.openjpa.kernel.StateManagerImpl.fireLifecycleEvent(StateManagerImpl.java:364)
+     [java]     at org.apache.openjpa.kernel.StateManagerImpl.dirty(StateManagerImpl.java:1596)
+     [java]     at org.apache.openjpa.kernel.StateManagerImpl.dirty(StateManagerImpl.java:1539)
+     [java]     at org.apache.openjpa.util.Proxies.dirty(Proxies.java:66)
+     [java]     at org.apache.openjpa.util.ProxyCollections.beforeAdd(ProxyCollections.java:57)
+     [java]     at org.apache.openjpa.util.java$util$HashSet$proxy.add(Unknown Source)
+     [java]     at business.Test$2.run(Test.java:80)
+     [java]     at java.lang.Thread.run(Thread.java:595)
+
+     [java] "Thread-0" prio=1 tid=0x09e9d010 nid=0x7fcb waiting for monitor entry [0xb1674000..0xb1674db0]
+     [java]     at org.apache.openjpa.event.LifecycleEventManager.fireEvent(LifecycleEventManager.java:272)
+     [java]     - waiting to lock <0x51b4e4b0> (a org.apache.openjpa.event.LifecycleEventManager)
+     [java]     at org.apache.openjpa.kernel.BrokerImpl.fireLifecycleEvent(BrokerImpl.java:693)
+     [java]     at org.apache.openjpa.kernel.StateManagerImpl.fireLifecycleEvent(StateManagerImpl.java:364)
+     [java]     at org.apache.openjpa.kernel.StateManagerImpl.clearFields(StateManagerImpl.java:2647)
+     [java]     at org.apache.openjpa.kernel.StateManagerImpl.beforeRefresh(StateManagerImpl.java:1239)
+     [java]     at org.apache.openjpa.kernel.BrokerImpl.refreshInternal(BrokerImpl.java:2835)
+     [java]     at org.apache.openjpa.kernel.BrokerImpl.refresh(BrokerImpl.java:2781)
+     [java]     at org.apache.openjpa.kernel.DelegatingBroker.refresh(DelegatingBroker.java:1078)
+     [java]     at org.apache.openjpa.persistence.EntityManagerImpl.refresh(EntityManagerImpl.java:694)
+     [java]     at business.Test$1.run(Test.java:64)
+     [java]     at java.lang.Thread.run(Thread.java:595)
+====
+
+Intially the problem is reproduced on OpenJPA 1.x. But,
+I verified the problem could be reproduced with latest 
+OpenJPA head.

@@ -1,0 +1,15 @@
+After months of development, I feel tez branch reaches to a point we can merge back into trunk. The merge will not introduce any known regression, that is: 
+1. All existing unit tests pass in mr mode
+2. All existing e2e tests pass in mr mode
+3. No backward-incompitable changes
+
+The tez branch is stable enough, that is:
+1. All migrated unit tests pass in tez mode
+2. Vast majority of e2e tests pass in tez mode, minor number of failures are properly investigated
+
+Ongoing tez work can continue after the merge. It is unlikely major changes to other part of Pig code will be involved going forward.
+
+Known limitations for Pig on tez at this moment:
+1. Some unit tests are not ported (PIG-3840)
+2. Several operators are missing: native, merge-sparse join, collected cogroup
+3. auto-parallelism is not in (PIG-3846)

@@ -1,0 +1,60 @@
+Running the MappingToolTask causes an error like this : 
+
+Buildfile: build.xml
+
+clean:
+   [delete] Deleting directory /home/mikedd/workspaces/jpa/ant/target
+
+compile:
+    [mkdir] Created dir: /home/mikedd/workspaces/jpa/ant/target
+    [javac] Compiling 1 source file to /home/mikedd/workspaces/jpa/ant/target
+    [mkdir] Created dir: /home/mikedd/workspaces/jpa/ant/target/META-INF
+     [copy] Copying 2 files to /home/mikedd/workspaces/jpa/ant/target/META-INF
+
+enhance:
+
+map:
+  [mapping] 87  persistence-tests  INFO   [main] openjpa.jdbc.JDBC - Using dictionary class "org.apache.openjpa.jdbc.sql.DerbyDictionary".
+  [mapping] 169  persistence-tests  INFO   [main] openjpa.Tool - Mapping tool running on type "class mdd.TestEntity" with action "buildSchema".
+  [mapping] <openjpa-1.1.0-SNAPSHOT-r420667:580087 fatal user error> org.apache.openjpa.util.MetaDataException: Type "class mdd.TestEntity" does not have persistence metadata.
+  [mapping] 	at org.apache.openjpa.jdbc.meta.MappingTool.getMapping(MappingTool.java:679)
+  [mapping] 	at org.apache.openjpa.jdbc.meta.MappingTool.buildSchema(MappingTool.java:745)
+  [mapping] 	at org.apache.openjpa.jdbc.meta.MappingTool.run(MappingTool.java:643)
+  [mapping] 	at org.apache.openjpa.jdbc.meta.MappingTool.run(MappingTool.java:1066)
+  [mapping] 	at org.apache.openjpa.jdbc.ant.MappingToolTask.executeOn(MappingToolTask.java:194)
+  [mapping] 	at org.apache.openjpa.lib.ant.AbstractTask.execute(AbstractTask.java:172)
+  [mapping] 	at org.apache.tools.ant.UnknownElement.execute(UnknownElement.java:275)
+  [mapping] 	at org.apache.tools.ant.Task.perform(Task.java:364)
+  [mapping] 	at org.apache.tools.ant.Target.execute(Target.java:341)
+  [mapping] 	at org.apache.tools.ant.Target.performTasks(Target.java:369)
+  [mapping] 	at org.apache.tools.ant.Project.executeSortedTargets(Project.java:1216)
+  [mapping] 	at org.apache.tools.ant.Project.executeTarget(Project.java:1185)
+  [mapping] 	at org.apache.tools.ant.helper.DefaultExecutor.executeTargets(DefaultExecutor.java:40)
+  [mapping] 	at org.apache.tools.ant.Project.executeTargets(Project.java:1068)
+  [mapping] 	at org.apache.tools.ant.Main.runBuild(Main.java:668)
+  [mapping] 	at org.apache.tools.ant.Main.startAnt(Main.java:187)
+  [mapping] 	at org.apache.tools.ant.launch.Launcher.run(Launcher.java:246)
+  [mapping] 	at org.apache.tools.ant.launch.Launcher.main(Launcher.java:67)
+
+Running from the command line generates the expected result : 
+
+52  persistence-tests  INFO   [main] openjpa.jdbc.JDBC - Using dictionary class "org.apache.openjpa.jdbc.sql.DerbyDictionary".
+59  persistence-tests  INFO   [main] openjpa.Tool - No targets were given.  Running on all classes listed in your configuration, or all persistent classes in the classpath if no classes are configured.  Use -help to display tool usage information.
+130  persistence-tests  INFO   [main] openjpa.Tool - Mapping tool running on type "class mdd.TestEntity" with action "buildSchema".
+343  persistence-tests  INFO   [main] openjpa.Tool - Recording mapping and schema changes.
+
+The root problem here lies with the ant classloaders. The ant classloader appears to be unable to load the annotation classes unless they're found in $
+{ANT_HOME}/lib. 
+
+Example : 
+@Entity
+public class MyEntity  {
+   // . . .
+}
+
+MyEntity.class.isAnnotationPresent(Entity.class); 
+// returns false with the ant classloader
+// returns true with the ant classloader if you copy geronimo-jpa_3.0_spec-1.0.jar to ${ANT_HOME}
+/lib
+// returns true if we create a temporary classloader - similar to the PCEnhancerTask. 
+

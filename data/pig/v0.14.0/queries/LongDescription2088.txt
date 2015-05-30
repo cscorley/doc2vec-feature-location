@@ -1,0 +1,21 @@
+The following script
+
+
+
+define test() returns b { 
+   a = load 'data' as (name, age, gpa);
+-- message 
+   $b = filter a by (int)age > 40; 
+};
+
+beta = test();
+store beta into 'output';
+
+
+
+results in a validation failure:
+
+
+
+ERROR 1200 "Macro test missing return alias b"
+

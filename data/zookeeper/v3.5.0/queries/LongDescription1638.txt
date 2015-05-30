@@ -1,0 +1,3 @@
+Learner.syncWithLeader calls zk.getZKDatabase().clear() right before zk.getZKDatabase().deserializeSnapshot(leaderIs); Then the first thing deserializeSnapshot does is another clear(). 
+
+Suggest to remove the clear() in syncWithLeader.

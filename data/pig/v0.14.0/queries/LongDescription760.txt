@@ -1,0 +1,20 @@
+I'm finding PigStorage() really convenient for storage and data interchange because it compresses well and imports into Excel and other analysis environments well.
+
+However, it is a pain when it comes to maintenance because the columns are in fixed locations and I'd like to add columns in some cases.
+
+It would be great if load PigStorage() could read a default schema from a .schema file stored with the data and if store PigStorage() could store a .schema file with the data.
+
+I have tested this out and both Hadoop HDFS and Pig in -exectype local mode will ignore a file called .schema in a directory of part files.
+
+So, for example, if I have a chain of Pig scripts I execute such as:
+
+A = load 'data-1' using PigStorage() as ( a: int , b: int );
+
+store A into 'data-2' using PigStorage();
+
+B = load 'data-2' using PigStorage();
+
+describe B;
+
+describe B should output something like 
+{ a: int, b: int }

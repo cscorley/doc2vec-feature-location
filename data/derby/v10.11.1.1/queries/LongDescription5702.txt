@@ -1,0 +1,144 @@
+When a foreign key constraints is created on a column which already has a primary key constraint, the statistics for foreign key constraint do not get created automatically. Have to run update statistics by hand to add statistics for foreign key constraint. I hope my understanding of statistics creation is correct in this regards. Following script shows the issue
+
+java -Dderby.storage.indexStats.auto=false -Dij.exceptionTrace=true org.apache.derby.tools.ij
+connect 'jdbc:derby:db1;create=true'; 
+CREATE TABLE TEST_TAB_1 
+( 
+    ID INTEGER NOT NULL primary key
+); 
+CREATE TABLE TEST_TAB_2 
+( 
+   ID INTEGER not null, ID1 INTEGER not null
+); 
+insert into TEST_TAB_1 values (1); 
+insert into test_tab_2 values(1,1);
+CALL SYSCS_UTIL.SYSCS_UPDATE_STATISTICS('APP','TEST_TAB_1', null); 
+CALL SYSCS_UTIL.SYSCS_UPDATE_STATISTICS('APP','TEST_TAB_2', null); 
+
+--At this point, we will find statistics row for primary key constraint on TEST_TAB_1
+select 
+c.TABLEID, 
+c.CONGLOMERATENUMBER, 
+c.CONGLOMERATENAME, 
+c.ISINDEX, 
+c.ISCONSTRAINT, 
+c.CONGLOMERATEID, 
+t.TABLEID, 
+t.TABLENAME, 
+t.TABLETYPE, 
+s.STATID, 
+s.REFERENCEID, 
+s.TABLEID, 
+s.CREATIONTIMESTAMP, 
+s.TYPE, 
+s.VALID, 
+s.COLCOUNT, 
+CAST(STATISTICS AS VARCHAR(40)) as STATISTICS 
+from sys.SYSCONGLOMERATES c join sys.SYSTABLES t on c.TABLEID = t.TABLEID join sys.SYSSTATISTICS s on s.TABLEID = t.TABLEID 
+where t.TABLENAME = 'TEST_TAB_1' and c.ISINDEX = false; 
+
+--Now create primary key constraint on TEST_TAB_2 
+ALTER TABLE TEST_TAB_2 
+                ADD CONSTRAINT TEST_TAB_2_PK_1
+        		PRIMARY KEY (id);
+
+--At this point, we will find statistics row for primary key constraint on TEST_TAB_2
+select 
+c.TABLEID, 
+c.CONGLOMERATENUMBER, 
+c.CONGLOMERATENAME, 
+c.ISINDEX, 
+c.ISCONSTRAINT, 
+c.CONGLOMERATEID, 
+t.TABLEID, 
+t.TABLENAME, 
+t.TABLETYPE, 
+s.STATID, 
+s.REFERENCEID, 
+s.TABLEID, 
+s.CREATIONTIMESTAMP, 
+s.TYPE, 
+s.VALID, 
+s.COLCOUNT, 
+CAST(STATISTICS AS VARCHAR(40)) as STATISTICS 
+from sys.SYSCONGLOMERATES c join sys.SYSTABLES t on c.TABLEID = t.TABLEID join sys.SYSSTATISTICS s on s.TABLEID = t.TABLEID 
+where t.TABLENAME = 'TEST_TAB_2' and c.ISINDEX = false; 
+
+--Now if we create a foreign key constraint on TEST_TAB_2(ID), there will be no statistics created for it.
+ALTER TABLE TEST_TAB_2
+                ADD CONSTRAINT TEST_TAB_2_FK_1 
+        		FOREIGN KEY(id) REFERENCES TEST_TAB_1(id);
+
+--still only one statistics row for TEST_TAB_2
+select 
+c.TABLEID, 
+c.CONGLOMERATENUMBER, 
+c.CONGLOMERATENAME, 
+c.ISINDEX, 
+c.ISCONSTRAINT, 
+c.CONGLOMERATEID, 
+t.TABLEID, 
+t.TABLENAME, 
+t.TABLETYPE, 
+s.STATID, 
+s.REFERENCEID, 
+s.TABLEID, 
+s.CREATIONTIMESTAMP, 
+s.TYPE, 
+s.VALID, 
+s.COLCOUNT, 
+CAST(STATISTICS AS VARCHAR(40)) as STATISTICS 
+from sys.SYSCONGLOMERATES c join sys.SYSTABLES t on c.TABLEID = t.TABLEID join sys.SYSSTATISTICS s on s.TABLEID = t.TABLEID 
+where t.TABLENAME = 'TEST_TAB_2' and c.ISINDEX = false; 
+
+--Running statistics creation by hand will create 2nd statistics row for TEST_TAB_2
+CALL SYSCS_UTIL.SYSCS_UPDATE_STATISTICS('APP','TEST_TAB_2', null); 
+
+– now will have 2 statistics rows for TEST_TAB_2
+select 
+c.TABLEID, 
+c.CONGLOMERATENUMBER, 
+c.CONGLOMERATENAME, 
+c.ISINDEX, 
+c.ISCONSTRAINT, 
+c.CONGLOMERATEID, 
+t.TABLEID, 
+t.TABLENAME, 
+t.TABLETYPE, 
+s.STATID, 
+s.REFERENCEID, 
+s.TABLEID, 
+s.CREATIONTIMESTAMP, 
+s.TYPE, 
+s.VALID, 
+s.COLCOUNT, 
+CAST(STATISTICS AS VARCHAR(40)) as STATISTICS 
+from sys.SYSCONGLOMERATES c join sys.SYSTABLES t on c.TABLEID = t.TABLEID join sys.SYSSTATISTICS s on s.TABLEID = t.TABLEID 
+where t.TABLENAME = 'TEST_TAB_2' and c.ISINDEX = false; 
+
+--If I create foreign key on a column that does not share backing index with primary key, stats will get created automatically
+ALTER TABLE TEST_TAB_2
+                ADD CONSTRAINT TEST_TAB_2_FK_2 
+        		FOREIGN KEY(id1) REFERENCES TEST_TAB_1(id);
+
+--will have additional constraint row for new foreign key constraint on TEST_TAB_2
+select 
+c.TABLEID, 
+c.CONGLOMERATENUMBER, 
+c.CONGLOMERATENAME, 
+c.ISINDEX, 
+c.ISCONSTRAINT, 
+c.CONGLOMERATEID, 
+t.TABLEID, 
+t.TABLENAME, 
+t.TABLETYPE, 
+s.STATID, 
+s.REFERENCEID, 
+s.TABLEID, 
+s.CREATIONTIMESTAMP, 
+s.TYPE, 
+s.VALID, 
+s.COLCOUNT, 
+CAST(STATISTICS AS VARCHAR(40)) as STATISTICS 
+from sys.SYSCONGLOMERATES c join sys.SYSTABLES t on c.TABLEID = t.TABLEID join sys.SYSSTATISTICS s on s.TABLEID = t.TABLEID 
+where t.TABLENAME = 'TEST_TAB_2' and c.ISINDEX = false; 

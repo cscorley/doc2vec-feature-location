@@ -1,0 +1,23 @@
+Using the timestampdiff function produces and integer overflow except for very small intervals. Error message is:
+
+[Error Code: -1, SQL State: 22003]  The resulting value is outside the range for the data type INTEGER.
+
+I inserted the following row into my test table:
+
+insert into datetest (ID, 
+startdate, 
+enddate) values (
+5, 
+'2006-11-20 04:20:00.0', 
+'2006-11-20 04:20:00.2');
+
+This test row works:
+
+select 
+{fn timestampdiff(SQL_TSI_FRAC_SECOND, startdate, enddate)}
+ as diff from datetest where id = 5
+
+DIFF
+200000000
+
+The value also looks too large, which could be exacerbating the problem.

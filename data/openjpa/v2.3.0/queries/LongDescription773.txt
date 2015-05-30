@@ -1,0 +1,38 @@
+Here are few basic points on upgrading to JPA 2.0 API. This is an effort to consolidate the ongoing discussion on this issue and some how-to steps for those who are involved in developing JPA 2.0 features or writing tests.
+
+1. A draft version of JPA 2.0 Specification is published on Oct 31, 2008 [1]
+
+2. The source code of the new and modified JPA API is not available
+
+3. OpenJPA community has decided
+    a) to develop its own version of JPA API Source code according to the spec [2].
+       This decision helps us to control our own destiny especially in terms of few implemented classes.
+    b) JPA API 2.0 Source will reside in Geronimo Source Code repository [2].
+       Geronimo Developer Mr.David Jencks will commit the source on behalf of OpenJPA.
+    c) JPA 2.0 related development work will be carried out on OpenJPA trunk [3]
+
+
+Few basic steps on the process
+
+1. Check out the JPA 2.0 API Source code from Geronimo SVN [4]
+
+2. Modify or add the new API or Annotation
+
+3. Create a patch and post the patch to Geronimo JIRA-4410 [5]
+
+4. After David has committed the patch, add a test case to OpenJPA that exercises the modified API
+   even if the implementation of the API is incomplete. Simply annotate the test class
+   with @AllowFailure. Please refer to [6] for further details.
+
+5. One iteration of the above steps were followed to add new Criteria API. The new API sources
+   generated a snapshot version of JPA API jar. OpenJPA Maven build scripts are accordingly
+   updated [7] to link against this new jar.
+
+[1] http://jcp.org/aboutJava/communityprocess/edr/jsr317/index.html
+[2] http://n2.nabble.com/Updating-the-JPA-spec-jar-for-JPA-2.0-tt1482013.html
+[3] http://n2.nabble.com/JPA-2.0-development-plans...-tt1129341.html
+
+[4] https://svn.apache.org/repos/asf/geronimo/specs/trunk/geronimo-jpa_2.0_spec/
+[5] http://issues.apache.org/jira/browse/GERONIMO-4410
+[6] https://issues.apache.org/jira/browse/OPENJPA-766
+[7] https://issues.apache.org/jira/browse/OPENJPA-772

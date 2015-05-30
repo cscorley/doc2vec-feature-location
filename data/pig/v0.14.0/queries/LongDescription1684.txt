@@ -1,0 +1,30 @@
+Pig seems to be using multiple instances of StoreFuncInterface in the reducer inconsistently.
+Some hadoop api calls are made to one instance and others made to other : which makes state management very inconsistent and is requiring hacks on our part to deal with it.
+
+
+The call snippet below should hopefully indicate the issue.
+The format is :
+
+Instance.toString()   method_call.
+
+
+com.yahoo.psox.fish.pig.IndexJoinStore@1be4777 getOutputFormat()
+com.yahoo.psox.fish.pig.IndexJoinStore@1be4777 getOutputCommitter
+com.yahoo.psox.fish.pig.IndexJoinStore@1be4777 setupTask
+com.yahoo.psox.fish.pig.IndexJoinStore@1be4777 init
+com.yahoo.psox.fish.pig.IndexJoinStore@1429cb2 getOutputFormat()
+com.yahoo.psox.fish.pig.IndexJoinStore@1429cb2 getRecordWriter
+com.yahoo.psox.fish.pig.IndexJoinStore@1429cb2 init
+com.yahoo.psox.fish.pig.IndexJoinStore@1429cb2 putNext()
+... 
+com.yahoo.psox.fish.pig.IndexJoinStore@1be4777 needsTaskCommit
+com.yahoo.psox.fish.pig.IndexJoinStore@1be4777 commitTask
+com.yahoo.psox.fish.pig.IndexJoinStore@1be4777 finish()
+
+
+
+As is obvious, two instances are used for different purposes - one to get the record writer and do the actual write, and another to call the OutputCommitter and its methods.
+Since they are from different instances (StoreFuncInterface), the output committer is unable to gracefully commit and cleanup.
+
+
+I am not attaching the StoreFunc, but any user defined StoreFunc will exhibit this behavior.

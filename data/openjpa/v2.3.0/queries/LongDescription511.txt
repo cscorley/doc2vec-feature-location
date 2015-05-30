@@ -1,0 +1,9 @@
+Some databases support using WITH $
+{var} AS (SELECT . . .) SELECT ${var}
+, . . . The variable may be used in a future select statement.
+
+Currently OpenJPA checks whether a native query begins with "select" (case insensitive) and throws an exception if an application calls getSingleResult() or getResultList() if select isn't found.  As I understand it the WITH statement may only be used in conjunction with a SELECT statement, so it should be safe to treat the WITH statement as a select. 
+
+I'm not sure how many databases support this syntax so it might be best to limit the support to specific databases. 
+
+The only database to support the WITH statement that I know of is DB2, but this may apply to other databases too. Additional documentation can be found in the DB2 infocenter : http://publib.boulder.ibm.com/infocenter/db2luw/v8/index.jsp?topic=/com.ibm.datatools.sqlbuilder.doc/topics/ruisqlbldrwth.html. 

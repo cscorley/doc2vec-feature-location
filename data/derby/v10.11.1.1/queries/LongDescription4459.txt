@@ -1,0 +1,7 @@
+An insane Derby raises a verification error when trying to run the following query:
+
+values( negateInt( getNullInt() ) );
+
+where negateInt() takes a primitive int argument and getNullInt() returns an Integer.
+
+Sane Derby raises an assertion. The same test case, run against 10.3.3.1, also fails but raises a more graceful compile-time exception.

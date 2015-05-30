@@ -1,0 +1,7 @@
+stored procedure is used to fetch localised message in net work client
+because of issue 1059 the call to the stored prcedures fails resulting in SqlException. When  SqlException.getSQLException, to set exceptionThrownOnStoredProcInvocation_, is called it again results in a call to SqlException.getMessage which call Sqlca.getJDBCMessage. 
+The cycle repeats and finally ends up with StackOverfilowError
+
+fixing 1059 will solve this problem temporarily but some other situaltion may cause it again.
+
+Isuggest seting SqlException itself to exceptionThrownOnStoredProcInvocation_ to break this loop.

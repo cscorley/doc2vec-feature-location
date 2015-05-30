@@ -1,0 +1,30 @@
+Reporting JIRA on behalf of a user without access to JIRAs...
+
+OK - nearly there! Presumably because we're no longer hooked in to the container, OpenJPA was pumping out its log messages to system out. I set openjpa.Log to "commons" and, as desired, it now sends trace to java.util.logging. The only problem is that, when I set trace to "openjpa.*=all" I get a NullPointerException (that isn't there when trace is turned off):
+
+[31/05/12 11:31:05:576 BST] 00000020 id=         com.ibm.amc.AmcRuntimeException                              3 printStackTrace java.lang.NullPointerException
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.find(JDBCStoreManager.java:979)
+	at org.apache.openjpa.jdbc.meta.strats.UntypedPCValueHandler.toObjectValue(UntypedPCValueHandler.java:127)
+	at org.apache.openjpa.jdbc.meta.strats.HandlerStrategies.loadObject(HandlerStrategies.java:207)
+	at org.apache.openjpa.jdbc.meta.strats.HandlerCollectionTableFieldStrategy.loadElement(HandlerCollectionTableFieldStrategy.java:78)
+	at org.apache.openjpa.jdbc.meta.strats.StoreCollectionFieldStrategy.load(StoreCollectionFieldStrategy.java:558)
+	at org.apache.openjpa.jdbc.meta.FieldMapping.load(FieldMapping.java:934)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.load(JDBCStoreManager.java:673)
+	at com.ibm.ws.persistence.jdbc.kernel.WsJpaJDBCStoreManager.load(WsJpaJDBCStoreManager.java:130)
+	at org.apache.openjpa.kernel.DelegatingStoreManager.load(DelegatingStoreManager.java:117)
+	at org.apache.openjpa.kernel.ROPStoreManager.load(ROPStoreManager.java:78)
+	at org.apache.openjpa.kernel.StateManagerImpl.loadFields(StateManagerImpl.java:3071)
+	at org.apache.openjpa.kernel.StateManagerImpl.loadField(StateManagerImpl.java:3148)
+	at org.apache.openjpa.kernel.StateManagerImpl.beforeAccessField(StateManagerImpl.java:1612)
+	at org.apache.openjpa.kernel.StateManagerImpl.accessingField(StateManagerImpl.java:1597)
+	at com.ibm.amc.server.action.impl.ActionStatusImpl.pcGetupdates(ActionStatusImpl.java)
+	at com.ibm.amc.server.action.impl.ActionStatusImpl.getUpdates(ActionStatusImpl.java:206)
+
+This NPE looks to be due to dumping the parameters for the JDBCStoreManager.find():
+
+        if (_log.isTraceEnabled()) 
+{
+            _log.trace("find: oid="+oid+" "+vm.getDeclaredTypeMapping().getDescribedType());
+        }
+
+And, either vm or vm.getDeclaredTypeMapping() is null...

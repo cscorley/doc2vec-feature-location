@@ -1,0 +1,35 @@
+Currently, partition filter push down is quite costly. For example, if you have many nested or/and expressions, Pig hangs:
+
+
+base = load '<partitioned table>' using MyStorage();
+filt = filter base by
+(dateint == 20130719 and batchid == 'merged_1' and hour IN (19,20,21,22,23))
+or
+(dateint == 20130720 and batchid == 'merged_1' and hour IN (0,1,2,3,4,5,6,7,8))
+or
+(dateint == 20130720 and batchid == 'merged_2' and hour == 7)
+or
+(dateint == 20130720 and batchid == 'merged_1' and hour IN (9,10,11,12,13,14,15,16,17,18,19,20,21,22,23))
+or
+(dateint == 20130721 and batchid == 'merged_1' and hour IN (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23))
+or
+(dateint == 20130722 and batchid == 'merged_1' and hour IN (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16));
+dump filt;
+
+
+Note that IN operator is converted to nested OR's by Pig parser.
+
+Looking at the thread dump, I found it creates almost 60 stack frames and makes JVM suffer. (I will attach full stack trace.)
+
+
+<repeated ...>
+at org.apache.pig.newplan.PColFilterExtractor.visit(PColFilterExtractor.java:504)
+at org.apache.pig.newplan.PColFilterExtractor.visit(PColFilterExtractor.java:237)
+at org.apache.pig.newplan.PColFilterExtractor.visit(PColFilterExtractor.java:504)
+at org.apache.pig.newplan.PColFilterExtractor.visit(PColFilterExtractor.java:214)
+at org.apache.pig.newplan.PColFilterExtractor.visit(PColFilterExtractor.java:504)
+at org.apache.pig.newplan.PColFilterExtractor.visit(PColFilterExtractor.java:211)
+at org.apache.pig.newplan.PColFilterExtractor.visit(PColFilterExtractor.java:108)
+
+
+Although the filter expression can be simplified, it seems possible to make PColFilterExtractor more efficient.

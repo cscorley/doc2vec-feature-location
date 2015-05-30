@@ -1,0 +1,8 @@
+When an Avro file is created there exists the option to set the "String Type" to a different class than the default Utf8.
+A very common situation is that the "String Type" is set to the default String class.
+
+When trying to read such an Avro file in Pig using the AvroStorage LoadFunc from the included piggybank this gives the following Exception:
+
+Caused by: java.lang.ClassCastException: java.lang.String cannot be cast to org.apache.avro.util.Utf8
+        at org.apache.pig.piggybank.storage.avro.PigAvroDatumReader.readString(PigAvroDatumReader.java:154)
+        at org.apache.avro.generic.GenericDatumReader.read(GenericDatumReader.java:150)

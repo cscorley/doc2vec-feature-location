@@ -1,0 +1,61 @@
+I'm doing some work in string manipulation UDFs and I've found that it would be very convenient if I could always convert the argument to a chararray (internally a Java String).
+
+For example TOLOWERCASE(arg) shouldn't really care whether arg is a bytearray, chararray, int, long, double, or float, it should be treated as a string and operated on.
+
+The simplest and most foolproof method would be if the DataTypes added a static function of  DataTypes.toString which did all of the argument type checking and provided consistent translation.
+
+I believe that this function might be coded as:
+
+    public static String toString(Object o) throws ExecException {
+        try {
+			switch (findType(o)) 
+{
+			case BOOLEAN:
+			    if (((Boolean)o) == true) return new String('1');
+			    else return new String('0');
+
+			case BYTE:
+			    return ((Byte)o).toString();
+
+			case INTEGER:
+			    return ((Integer)o).toString();
+
+			case LONG:
+			    return ((Long)o).toString();
+
+			case FLOAT:
+			    return ((Float)o).toString();
+
+			case DOUBLE:
+			    return ((Double)o).toString();
+
+			case BYTEARRAY:
+			    return ((DataByteArray)o).toString();
+
+			case CHARARRAY:
+		            return (String)o;
+
+			case NULL:
+			    return null;
+
+			case MAP:
+			case TUPLE:
+			case BAG:
+			case UNKNOWN:
+			default:
+			    int errCode = 1071;
+			    String msg = "Cannot convert a " + findTypeName(o) +
+			    " to an String";
+			    throw new ExecException(msg, errCode, PigException.INPUT);
+			}
+		} catch (ExecException ee) 
+{
+			throw ee;
+		}
+ catch (Exception e) 
+{
+			int errCode = 2054;
+			String msg = "Internal error. Could not convert " + o + " to String.";
+			throw new ExecException(msg, errCode, PigException.BUG);
+		}
+    }

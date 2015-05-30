@@ -1,0 +1,30 @@
+[Note: spinoff from the tika-dev thread "Issue in text extraction in
+Solr / Tika" on Aug 19 2011, by nirnaydewan]
+
+When parsing a Word doc where some contiguous text is bolded, due to
+differences in how the user had bolded different parts of the text
+with Word, TikaCLI -x or -h will sometimes generate output like this:
+
+
+<p>F<b>oob</b>a<b>r</b>
+</p>
+
+
+
+and other times like this (extra newline & 2 adjacent bold sections):
+
+
+<p>F<b>oo</b>
+<b>b</b>a<b>r</b>
+</p>
+
+
+
+The extra newline in the second example causes browsers (I tried
+Firefox, Safari, Chrome), JTidy and Tika itself to (incorrectly)
+insert a space when rending/extracting text, breaking up the word.
+
+While this might be technically correct/OK (ie, XML white space rules
+might allow for non-significant space after the </b> within a <p>
+should be ignored), I think we should still fix Tika to not insert
+newlines, if we can.

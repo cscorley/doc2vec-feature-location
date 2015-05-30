@@ -1,0 +1,13 @@
+Follow-up to MAHOUT-1417. There's a customer running this and observing it take an unreasonably long time on about 2GB of data – like, >24 hours when other RDF M/R implementations take 9 minutes. The difference is big enough to probably be considered a defect. MAHOUT-1417 got that down to about 5 hours. I am trying to further improve it.
+
+One key issue seems to be how splits are evaluated over numeric features. A split is tried for every distinct numeric value of the feature in the whole data set. Since these are floating point values, they could (and in the customer's case are) all distinct. 200K rows means 200K splits to evaluate every time a node is built on the feature.
+
+A better approach is to sample percentiles out of the feature and evaluate only those as splits. Really doing that efficiently would require a lot of rewrite. However, there are some modest changes possible which get some of the benefit, and appear to make it run about 3x faster. That is --on a data set that exhibits this problem – meaning one using numeric features which are generally distinct. Which is not exotic.
+
+There are comparable but different problems with handling of categorical features, but that's for a different patch.
+
+I have a patch, but it changes behavior to some extent since it is evaluating only a sample of splits instead of every single possible one. In particular it makes the output of "OptIgSplit" no longer match the "DefaultIgSplit". Although I think the point is that "optimized" may mean giving different choices of split here, which could yield differing trees. So that test probably has to go.
+
+(Along the way I found a number of micro-optimizations in this part of the code that added up to maybe a 3% speedup. And fixed an NPE too.)
+
+I will propose a patch shortly with all of this for thoughts.

@@ -1,0 +1,21 @@
+The DatabaseMetaData returned by DB2 does not include delimiters for column names which include whitespace. This causes potential duplicate column names if we merge into an existing schema.
+
+The problem can be illustrated by running the TestManualDelimitedJoinAnnotations test twice sequentially. The first time the test is executed the database will be clean (presumably) and everything will work. Subsequent executions read the existing column information from the database (non delimited) and end up creating a duplicate column.
+
+Example stacktrace : 
+ <openjpa-2.0.0-SNAPSHOT-r422266:794075M nonfatal general error> org.apache.openjpa.persistence.PersistenceException: DB2 SQL Error: SQLCODE=-104, SQLSTATE=42601, SQLERRMC=);entityCs_c id OTHER;<references_spec>, DRIVER=3.50.152 
+{stmnt 10751758 CREATE TABLE "delim id"."c d" ("entityCs_c id" INTEGER, ENTITYDS_ID INTEGER, entityCs_c id OTHER)}
+ [code=-104, state=42601]
+	at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:553)
+	at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:453)
+       <snip>
+
+To resolve the problem we can detect a column / table / schema name which contains whitespace and add the appropriate delimiters (when the name is provided by the database). One place to make this change is in DBDictionary.newColumn() 
+    protected Column newColumn(ResultSet colMeta)
+        throws SQLException {
+        Column c = new Column();
+        c.setSchemaName(colMeta.getString("TABLE_SCHEM"));
+        c.setTableName(colMeta.getString("TABLE_NAME"));
+        c.setName(colMeta.getString("COLUMN_NAME"));  // detect whether we need delimiters and add them
+
+It's also worth noting that the testcase drops the offending table and then recreates it. There may be a larger issue where the metadata is cached improperly (could be DB2 specific).

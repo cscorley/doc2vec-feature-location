@@ -1,0 +1,19 @@
+jhighlight jar is a Tika dependency.  The Lucene team discovered that, while it claims to be a CDDL/LGPL dual-license, some of its functionality is LGPL only:
+
+
+
+Solr's contrib/extraction contains jhighlight-1.0.jar which declares itself as dual CDDL or LGPL license. However, some of its classes are distributed only under LGPL, e.g.
+
+com.uwyn.jhighlight.highlighter.
+  CppHighlighter.java
+  GroovyHighlighter.java
+  JavaHighlighter.java
+  XmlHighlighter.java
+
+I downloaded the sources from Maven (http://search.maven.org/remotecontent?filepath=com/uwyn/jhighlight/1.0/jhighlight-1.0-sources.jar) to confirm that, and also found this SVN repo: http://svn.rifers.org/jhighlight/tags/release-1.0, though the project's website seems to not exist anymore (https://jhighlight.dev.java.net/).
+
+I didn't find any direct usage of it in our code, so I guess it's probably needed by a 3rd party dependency, such as Tika. Therefore if we e.g. omit it, things will compile, but may fail at runtime.
+
+
+
+Is it possible to remove this dependency for future releases, or allow only optional inclusion of this package?  It is of concern to the ManifoldCF project because we distribute a binary package that includes Tika and its required dependencies, which currently includes jHighlight.

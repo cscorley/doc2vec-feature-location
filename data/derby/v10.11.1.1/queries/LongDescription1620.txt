@@ -1,0 +1,9 @@
+This bug appears to be related to the DERBY-7 bug (NULLIF() function).   When NULL is used during a CASE statement, Derby requires the NULL to be CAST to the appropriate type.  This does not appear to meet the SQL 2003 Standard for the Case Expression (see attached Word document).   See the attached Word document to view the Derby Community Discussion about this issue.  See the attached .TXT to view the SYSINFO and to see an example of the steps to reproduce using IJ.
+
+Steps to Reproduce:
+
+ij>values case when 1=2 then 3 else NULL end;
+ERROR 42X89:  Types 'INTEGER' and 'CHAR' are not type compatible.  Neither type is assignable to the other type.
+
+Current Workaround:
+ij>values case when 1=2 then 3 else cast(NULL as INT) end;

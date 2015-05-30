@@ -1,0 +1,16 @@
+This is a suggested improvement to PlusAnonymousUserDataModel. 
+
+Currently the ID of the anonymous user is fixed to Long.MIN_VALUE. Only one set
+of temp data can be inserted into the model and used at one time.
+
+I propose the change to enable multiple users to insert into this
+model concurrently in a thread-safe manner.
+
+The idea is to define a pool of available anonymous user IDs. Every
+time a new anonymous user makes a request, the next available
+TEMP_USER_ID is pulled from the queue. After recommendations are
+retrieved, the TEMP_USER_ID can be returned to the pool.
+
+The discussion about this topic can be found in:
+http://mail-archives.apache.org/mod_mbox/mahout-dev/201202.mbox/%3CCAEccTywC7QJuAJj-u3C1C=WW0yEeBcScUE6Kmj=bedBrxOpsSg@mail.gmail.com%3E
+

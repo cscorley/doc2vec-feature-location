@@ -1,0 +1,27 @@
+Currently, in DefaultTuple, we estimate the memory footprint for string as if it is char array. The formula we use is:  length * 2 + 12. It turns out we underestimate the memory usage for string. Here is a list of real memory footprint for string we get from memory dump:
+
+
+
+ length of string 
+ memory in bytes 
+
+
+ 7 
+ 56 
+
+
+ 3 
+ 48 
+
+
+ 1 
+ 40 
+
+
+
+
+I did a search and find the following formula can accurately estimate the memory footprint for string:
+
+
+8 * (int) (((length * 2) + 45) / 8) 
+

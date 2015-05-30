@@ -1,0 +1,21 @@
+This little patch makes the code for LuceneGapFragmenter.isNewFragment(Token) slightly more intuitive.
+
+The method currently features the line
+
+
+fragOffsetAccum += token.endOffset() - fragOffsetAccum;
+
+
+
+This can be simplified, though, to just
+
+
+fragOffsetAccum = token.endOffset();
+
+
+
+Maybe it's just me, but I find the latter expression's intent to be sufficiently clearer than the former to warrant committing such a change.
+
+This patch makes this simplification. Also, if you do make this simplification, then it doesn't really make sense to think of fragOffsetAccum as an accumulator anymore, so in the patch we rename the variable to just fragOffset.
+
+Tests from HighlighterTest.java pass with the patch applied.

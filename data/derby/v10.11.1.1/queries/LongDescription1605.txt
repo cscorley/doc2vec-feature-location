@@ -1,0 +1,38 @@
+The wctme5.7 run shows failures like so:
+
+	
+	
+		
+		
+			Start: iepnegativetests jdk1.3.1 subset - 2.2 derbyall:derbytools 2006-07-24 11:41:43 ***
+16 del
+< ERROR 38000: The exception 'java.sql.SQLException: Table/View 'IEP.NOTABLE' does not exist.' was thrown while evaluating an expression.
+16a16
+> ERROR 38000: The exception 'SQL Exception: Table/View 'IEP.NOTABLE' does not exist.' was thrown while evaluating an expression.
+...
+		
+		
+	
+	
+
+
+
+It seems to me this is because it evaluates the major/minor version (2.2) as isJDBC4 in functionTests/harness/RunTest.java :
+       JavaVersionHolder	jvh = getProperties(sp);
+	boolean				isJDBC4 = jvh.atLeast( 1, 6 );
+and is gets passed on to Sed.java.
+
+The following tests fail with this jvm because of this:
+lang/compressTable.sql
+lang/nestedCommit.sql
+lang/releaseCompileLocks.sql
+tools/iepnegativetests.sql
+tools/importExportThruIJ.sql
+tools/ieptests.sql
+jdbcapi/statementJdbc20.java
+i18n/iepnegativetests_ES.sql
+store/streamingColumn.java
+store/TransactionTable.sql
+lang/procedureInTrigger.sql
+
+It seems to me we need an  if (!jvmName.startsWith("j9")) or some such around the isJDBC4 assignment.

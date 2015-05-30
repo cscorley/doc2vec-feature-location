@@ -1,0 +1,119 @@
+I see the following assertion failure on the console when running AutomaticIndexStatisticsTest standalone against debug jars. This may be related to DERBY-5026, DERBY-5030, and DERBY-5031. The test itself completes successfully:
+
+...Exception in thread "index-stat-thread" org.apache.derby.shared.common.sanity.AssertFailure: ASSERT FAILED No page at pagenumber: 1; ContainerHandle = BaseContainerHandle:(Container(0, 1153))
+	at org.apache.derby.shared.common.sanity.SanityManager.THROWASSERT(SanityManager.java:162)
+	at org.apache.derby.shared.common.sanity.SanityManager.THROWASSERT(SanityManager.java:147)
+	at org.apache.derby.impl.store.access.btree.ControlRow.get(ControlRow.java:838)
+	at org.apache.derby.impl.store.access.btree.ControlRow.get(ControlRow.java:820)
+	at org.apache.derby.impl.store.access.btree.BTreeScan.reposition(BTreeScan.java:850)
+	at org.apache.derby.impl.store.access.btree.BTreeForwardScan.fetchRows(BTreeForwardScan.java:109)
+	at org.apache.derby.impl.store.access.btree.BTreeScan.fetchNextGroup(BTreeScan.java:1596)
+	at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl$KeyComparator.fetchRows(IndexStatisticsDaemonImpl.java:1103)
+	at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.updateIndexStatsMinion(IndexStatisticsDaemonImpl.java:453)
+	at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.generateStatistics(IndexStatisticsDaemonImpl.java:324)
+	at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.run(IndexStatisticsDaemonImpl.java:710)
+	at java.lang.Thread.run(Thread.java:637)
+---------------
+Stack traces for all live threads:
+Thread name=derby.rawStoreDaemon id=13 priority=5 state=TIMED_WAITING isdaemon=true
+	java.lang.Object.wait(Native Method)
+	org.apache.derby.impl.services.daemon.BasicDaemon.rest(BasicDaemon.java:576)
+	org.apache.derby.impl.services.daemon.BasicDaemon.run(BasicDaemon.java:390)
+	java.lang.Thread.run(Thread.java:637)
+
+Thread name=Finalizer id=3 priority=8 state=WAITING isdaemon=true
+	java.lang.Object.wait(Native Method)
+	java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:118)
+	java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:134)
+	java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:159)
+
+Thread name=Reference Handler id=2 priority=10 state=WAITING isdaemon=true
+	java.lang.Object.wait(Native Method)
+	java.lang.Object.wait(Object.java:485)
+	java.lang.ref.Reference$ReferenceHandler.run(Reference.java:116)
+
+Thread name=main id=1 priority=5 state=RUNNABLE isdaemon=false
+	java.security.AccessController.doPrivileged(Native Method)
+	org.apache.derby.impl.store.raw.data.BaseDataFileFactory.releaseJBMSLockOnDB(BaseDataFileFactory.java:2040)
+	org.apache.derby.impl.store.raw.data.BaseDataFileFactory.stop(BaseDataFileFactory.java:519)
+	org.apache.derby.impl.services.monitor.TopService.stop(TopService.java:442)
+	org.apache.derby.impl.services.monitor.TopService.shutdown(TopService.java:393)
+	org.apache.derby.impl.services.monitor.BaseMonitor.shutdown(BaseMonitor.java:229)
+	org.apache.derby.impl.db.DatabaseContextImpl.cleanupOnError(DatabaseContextImpl.java:62)
+	org.apache.derby.iapi.services.context.ContextManager.cleanupOnError(ContextManager.java:343)
+	org.apache.derby.impl.jdbc.TransactionResourceImpl.cleanupOnError(TransactionResourceImpl.java:433)
+	org.apache.derby.impl.jdbc.EmbedConnection.<init>(EmbedConnection.java:633)
+	org.apache.derby.impl.jdbc.EmbedConnection30.<init>(EmbedConnection30.java:73)
+	org.apache.derby.impl.jdbc.EmbedConnection40.<init>(EmbedConnection40.java:56)
+	org.apache.derby.jdbc.Driver40.getNewEmbedConnection(Driver40.java:70)
+	org.apache.derby.jdbc.InternalDriver.connect(InternalDriver.java:248)
+	org.apache.derby.jdbc.EmbeddedDataSource.getConnection(EmbeddedDataSource.java:480)
+	org.apache.derby.jdbc.EmbeddedDataSource.getConnection(EmbeddedDataSource.java:424)
+	org.apache.derbyTesting.junit.JDBCDataSource.shutdownDatabase(JDBCDataSource.java:266)
+	org.apache.derbyTesting.functionTests.tests.store.AutomaticIndexStatisticsTest.testShutdownWhileScanningThenDelete(AutomaticIndexStatisticsTest.java:180)
+	sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	java.lang.reflect.Method.invoke(Method.java:597)
+	junit.framework.TestCase.runTest(TestCase.java:164)
+	junit.framework.TestCase.runBare(TestCase.java:130)
+	org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:112)
+	junit.framework.TestResult$1.protect(TestResult.java:106)
+	junit.framework.TestResult.runProtected(TestResult.java:124)
+	junit.framework.TestResult.run(TestResult.java:109)
+	junit.framework.TestCase.run(TestCase.java:120)
+	junit.framework.TestSuite.runTest(TestSuite.java:230)
+	junit.framework.TestSuite.run(TestSuite.java:225)
+	junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	junit.framework.TestResult.runProtected(TestResult.java:124)
+	junit.extensions.TestSetup.run(TestSetup.java:25)
+	org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	junit.framework.TestResult.runProtected(TestResult.java:124)
+	junit.extensions.TestSetup.run(TestSetup.java:25)
+	junit.textui.TestRunner.doRun(TestRunner.java:121)
+	junit.textui.TestRunner.start(TestRunner.java:185)
+	junit.textui.TestRunner.main(TestRunner.java:143)
+
+Thread name=index-stat-thread id=18 priority=5 state=RUNNABLE isdaemon=true
+	java.lang.Thread.dumpThreads(Native Method)
+	java.lang.Thread.getAllStackTraces(Thread.java:1511)
+	org.apache.derby.shared.common.sanity.ThreadDump.getStackDumpString(ThreadDump.java:34)
+	sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	java.lang.reflect.Method.invoke(Method.java:597)
+	org.apache.derby.shared.common.sanity.AssertFailure$1.run(AssertFailure.java:165)
+	java.security.AccessController.doPrivileged(Native Method)
+	org.apache.derby.shared.common.sanity.AssertFailure.dumpThreads(AssertFailure.java:159)
+	org.apache.derby.shared.common.sanity.AssertFailure.<init>(AssertFailure.java:72)
+	org.apache.derby.shared.common.sanity.SanityManager.THROWASSERT(SanityManager.java:162)
+	org.apache.derby.shared.common.sanity.SanityManager.THROWASSERT(SanityManager.java:147)
+	org.apache.derby.impl.store.access.btree.ControlRow.get(ControlRow.java:838)
+	org.apache.derby.impl.store.access.btree.ControlRow.get(ControlRow.java:820)
+	org.apache.derby.impl.store.access.btree.BTreeScan.reposition(BTreeScan.java:850)
+	org.apache.derby.impl.store.access.btree.BTreeForwardScan.fetchRows(BTreeForwardScan.java:109)
+	org.apache.derby.impl.store.access.btree.BTreeScan.fetchNextGroup(BTreeScan.java:1596)
+	org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl$KeyComparator.fetchRows(IndexStatisticsDaemonImpl.java:1103)
+	org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.updateIndexStatsMinion(IndexStatisticsDaemonImpl.java:453)
+	org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.generateStatistics(IndexStatisticsDaemonImpl.java:324)
+	org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.run(IndexStatisticsDaemonImpl.java:710)
+	java.lang.Thread.run(Thread.java:637)
+
+Thread name=Signal Dispatcher id=5 priority=9 state=RUNNABLE isdaemon=true
+
+Thread name=Timer-0 id=9 priority=5 state=WAITING isdaemon=true
+	java.lang.Object.wait(Native Method)
+	java.lang.Object.wait(Object.java:485)
+	java.util.TimerThread.mainLoop(Timer.java:483)
+	java.util.TimerThread.run(Timer.java:462)
+
+
+---------------
+
+....
+Time: 153.799
+
+OK (7 tests)

@@ -1,0 +1,5 @@
+There is a race condition in the java close operation on ZooKeeper.java.
+
+Client is sending a disconnect request to the server. Server will close any open connections with the client when it receives this. If the client has not yet shutdown it's subthreads (event/send threads for example) these threads may consider the condition an error. We see this alot in the tests where the clients output error logs because they are unaware that a disconnection has been requested by the client.
+
+Ben mentioned: perhaps we just have to change state to closed (on client) before sending disconnect request.

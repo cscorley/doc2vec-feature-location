@@ -1,0 +1,82 @@
+Trigger plan does not recompile on upgrade from 10.5.3.0 to 10.6.1.0  causing the following exception  the first time the trigger is fired after upgrade.
+
+ATABASE = wombat), (DRDAID = null), Failed Statement is: INSERT INTO tidlggls(blt_number,create_date,update_date,propagation_date,glossary_status,
+     time_stamp,min_max_size )
+ VALUES ( (select max(blt_number) from tidlrblt), CURRENT_DATE,
+CURRENT_DATE, CURRENT_DATE, '00' , CURRENT_TIMESTAMP, (select min_max_size from tidlrblt where blt_number = (select max(blt_number) from tidlrblt)))
+
+java.lang.NoSuchMethodError: org/apache/derby/iapi/sql/execute/ResultSetFactory.getProjectRestrictResultSet(Lorg/apache/derby/iapi/sql/execute/NoPutResultSet;Lorg/apache/derby/iapi/services/loader/GeneratedMethod;Lorg/apache/derby/iapi/services/loader/GeneratedMethod;ILorg/apache/derby/iapi/services/loader/GeneratedMethod;IZZDD)Lorg/apache/derby/iapi/sql/execute/NoPutResultSet;
+
+	at org.apache.derby.exe.acf81e0010x012bx823cxd0d3x00000026c4a00.g0(Unknown Source)
+
+	at org.apache.derby.exe.acf81e0010x012bx823cxd0d3x00000026c4a00.execute(Unknown Source)
+
+	at org.apache.derby.impl.sql.GenericActivationHolder.execute(Unknown Source)
+
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(Unknown Source)
+
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeSubStatement(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.GenericTriggerExecutor.executeSPS(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.StatementTriggerExecutor.fireTrigger(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.TriggerEventActivator.notifyEvent(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.InsertResultSet.normalInsertCore(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.InsertResultSet.open(Unknown Source)
+
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(Unknown Source)
+
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(Unknown Source)
+
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(Unknown Source)
+
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+
+	at org.apache.derby.impl.tools.ij.ij.executeImmediate(Unknown Source)
+
+	at org.apache.derby.impl.tools.ij.utilMain.doCatch(Unknown Source)
+
+	at org.apache.derby.impl.tools.ij.utilMain.runScriptGuts(Unknown Source)
+
+	at org.apache.derby.impl.tools.ij.utilMain.go(Unknown Source)
+
+	at org.apache.derby.impl.tools.ij.Main.go(Unknown Source)
+
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Unknown Source)
+
+	at org.apache.derby.impl.tools.ij.Main.main(Unknown Source)
+
+	at org.apache.derby.tools.ij.main(Unknown Source)
+
+Cleanup action completed
+
+To reproduce, run the attached script 10_5_3_work.sql with the 10.5.3.0  release and then connect with 10.6.1.0 and insert into the table with the trigger:
+
+connect 'jdbc:derby:wombat;upgrade=true';
+
+INSERT INTO tidlrblt(BLT,BLT_SIZE,MIN_MAX_SIZE) VALUES('Mamatha Testing2', 15, 20);
+ERROR XJ001: Java exception: 'org/apache/derby/iapi/sql/execute/ResultSetFactory
+.getProjectRestrictResultSet(Lorg/apache/derby/iapi/sql/execute/NoPutResultSet;L
+org/apache/derby/iapi/services/loader/GeneratedMethod;Lorg/apache/derby/iapi/ser
+vices/loader/GeneratedMethod;ILorg/apache/derby/iapi/services/loader/GeneratedMe
+thod;IZZDD)Lorg/apache/derby/iapi/sql/execute/NoPutResultSet;: java.lang.NoSuchM
+ethodError'.
+
+
+I think this may be related to the DERBY-1107 change in handleMinorRevisionChange which has the code:
+if (fromVersion.majorVersionNumber >= DataDictionary.DD_VERSION_DERBY_10_5)
+				bootingDictionary.updateMetadataSPSes(tc);
+			else
+				bootingDictionary.clearSPSPlans();
+
+Likely, clearSPSPlans() should not be in the else clause but rather executed unconditionally.
+
+To work around the issue, after connecting with 10.6.1, drop and recreate the trigger as in workaround.sql
+
+
+

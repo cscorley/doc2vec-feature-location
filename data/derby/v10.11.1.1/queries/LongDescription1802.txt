@@ -1,0 +1,65 @@
+Attached is a patch which contains JUnit tests for DERBY-475 and DERBY-592, the built-in math functions and JDBC escape functions.
+
+I ran the patch, DERBY-475_DERBY-592_20060831.diff, against these four tests:
+
+java junit.textui.TestRunner org.apache.derbyTesting.functionTests.tests.lang.MathTrigFunctionsTest
+java org.apache.derbyTesting.functionTests.harness.RunTest lang/MathTrigFunctionsTest.junit
+java org.apache.derbyTesting.functionTests.harness.RunTest lang/_Suite.junit
+java org.apache.derbyTesting.functionTests.harness.RunSuite derbylang
+
+svn status:
+
+A      java\testing\org\apache\derbyTesting\functionTests\tests\lang\MathTrigFunctionsTest.java
+M      java\testing\org\apache\derbyTesting\functionTests\tests\lang_Suite.java
+M      java\testing\org\apache\derbyTesting\functionTests\tests\lang\LangScripts.java
+(Note: I edited this file, but changed it back to the original contents.)
+
+I created the patch on Windows XP, tested it on Windows XP and then applied the patch on Linux and ran the above 4 tests on Linux.
+
+sysinfo output:
+------------------ Java Information ------------------
+Java Version:    1.4.2_09
+Java Vendor:     Sun Microsystems Inc.
+Java home:       C:\JDK\jdk1.4.2_09\jre
+Java classpath:  C:\derby_src\development_branch\trunk\classes;C:\derby_src\deve
+lopment_branch\trunk\tools\java\junit.jar;C:\derby_src\development_branch\trunk\
+tools\java\jakarta-oro-2.0.8.jar;.
+OS name:         Windows XP
+OS architecture: x86
+OS version:      5.1
+Java user name:  slc
+Java user home:  C:\Documents and Settings\Administrator
+Java user dir:   C:\derby_src\development_branch\trunk
+java.specification.name: Java Platform API Specification
+java.specification.version: 1.4
+--------- Derby Information --------
+JRE - JDBC: J2SE 1.4.2 - JDBC 3.0
+[C:\derby_src\development_branch\trunk\classes] 10.3.0.0 alpha - (1)
+------------------------------------------------------
+----------------- Locale Information -----------------
+Current Locale :  [English/United States [en_US]]
+Found support for locale: [de_DE]
+         version: 10.3.0.0 alpha - (1)
+Found support for locale: [es]
+         version: 10.3.0.0 alpha - (1)
+Found support for locale: [fr]
+         version: 10.3.0.0 alpha - (1)
+Found support for locale: [it]
+         version: 10.3.0.0 alpha - (1)
+Found support for locale: [ja_JP]
+         version: 10.3.0.0 alpha - (1)
+Found support for locale: [ko_KR]
+         version: 10.3.0.0 alpha - (1)
+Found support for locale: [pt_BR]
+         version: 10.3.0.0 alpha - (1)
+Found support for locale: [zh_CN]
+         version: 10.3.0.0 alpha - (1)
+Found support for locale: [zh_TW]
+         version: 10.3.0.0 alpha - (1)
+------------------------------------------------------
+
+I would appreciate it if a committer would commit this patch.
+
+Thanks,
+
+Susan

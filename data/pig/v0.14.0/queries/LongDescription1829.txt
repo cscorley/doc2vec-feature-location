@@ -1,0 +1,3 @@
+Pig runtime calls JobClient.getMapTaskReports(jobId) and JobClient.getReduceTaskReports(jobId) to get statistics about numbers of maps/reducers, as well as max/min/avg time of these tasks. But from time to time, these calls return empty lists. When that happens pig is reports 0 values for the stats. 
+
+The jobtracker keeps the stats information only for a limited duration based on the configuration parameters  mapred.jobtracker.completeuserjobs.maximum and mapred.job.tracker.retiredjobs.cache.size. Since pig collects the stats after jobs have finished running, it is possible that the stats for the initial jobs are no longer available. To have better chances of getting the stats, it should be collected as soon as the job is over. 

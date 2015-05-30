@@ -1,0 +1,3 @@
+In many situations it is desirable to have constraints checking taking place only at transaction commit time, and not before. If e.g. there is a chain of foreign key constraints between tables, insert statements have to be ordered to avoid constraint violations. If foreign key references are circular, the DML has to be split into insert statements and subsequent update statements by the user.
+
+In other words, with deferred constraints checking, life is much easier for the user. Also it can create problems with softwares such as object-relational mapping tools that are not prepared for statement ordering and thus depend on deferred constraints checking.

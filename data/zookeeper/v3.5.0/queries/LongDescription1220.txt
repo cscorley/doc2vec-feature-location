@@ -1,0 +1,38 @@
+Few problems while executing create command,
+
+If we will give command like 
+
+1)[zk: localhost:2181(CONNECTED) 0] create -s -e /node1
+
+       Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: 4
+	at org.apache.zookeeper.ZooKeeperMain.processZKCmd(ZooKeeperMain.java:692)
+	at org.apache.zookeeper.ZooKeeperMain.processCmd(ZooKeeperMain.java:593)
+	at org.apache.zookeeper.ZooKeeperMain.executeLine(ZooKeeperMain.java:365)
+	at org.apache.zookeeper.ZooKeeperMain.run(ZooKeeperMain.java:323)
+	at org.apache.zookeeper.ZooKeeperMain.main(ZooKeeperMain.java:282)
+
+
+      but actually it should create emphemeral sequential node.
+
+2)[zk: localhost:2181(CONNECTED) 0] create -s -e
+
+    Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: 3
+
+
+    here it should print the list of commands that is the default behaviour of zkCli for invalid/incomplete commands.
+
+3)[zk: localhost:2181(CONNECTED) 3] create -s -e "data"
+
+     Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: 4
+
+
+     here command is wrong so it should print list of commnads. . 
+
+4)[zk: localhost:2181(CONNECTED) 0] create /node1
+    zkCli is treating it as a invalid command.because for args.length  check (3)is their but behaviour is 
+    if user haven't given any of the option it should create persistent node.
+	  
+	  if (cmd.equals("create") && args.length >= 3) {
+            int first = 0;
+            CreateMode flags = CreateMode.PERSISTENT;
+

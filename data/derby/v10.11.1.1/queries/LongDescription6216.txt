@@ -1,0 +1,25 @@
+I am running Derby 10.9.1.0 and am trying to figure out a  performance problem with query taking too long.   I don’t actually want to run the query so from the documentation, I try:
+
+call syscs_util.syscs_set_runtimestatistics(1);
+call syscs_util.syscs_set_xplain_schema('STATS');
+call syscs_util.syscs_set_xplain_mode(1);
+— my query here
+call syscs_util.syscs_set_runtimestatistics(0);
+call syscs_util.syscs_set_xplain_schema('');
+call syscs_util.syscs_set_xplain_mode(0);
+
+When it runs my query, I get:
+
+ERROR XCL16: ResultSet not open. Operation 'getMetaData' not permitted. Verify that autocommit is OFF.
+
+I try the following with IJ just to see:
+
+call syscs_util.syscs_set_runtimestatistics(1);
+call syscs_util.syscs_set_xplain_schema('STATS');
+call syscs_util.syscs_set_xplain_mode(1);
+select sql_text from syscs_diag.transaction_table where status != 'IDLE';
+call syscs_util.syscs_set_runtimestatistics(0);
+call syscs_util.syscs_set_xplain_schema('');
+call syscs_util.syscs_set_xplain_mode(0);
+
+Note I have tried this with real tables as apposed to the syscs_diag.transaction_table with the same result.  The only reason that I posted this with this table is that it is a table that is accessible for any database.

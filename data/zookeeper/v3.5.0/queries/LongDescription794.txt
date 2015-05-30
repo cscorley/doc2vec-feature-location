@@ -1,0 +1,4 @@
+I noticed that ZooKeeper has different behaviors when calling synchronous or asynchronous actions on a closed ZooKeeper client.
+Actually a synchronous call will throw a "session expired" exception while an asynchronous call will do nothing. No exception, no callback invocation.
+
+Actually, even if the EventThread receives the Packet with the session expired err code, the packet is never processed since the thread has been killed by the ventOfDeath. So the call back is not invoked.

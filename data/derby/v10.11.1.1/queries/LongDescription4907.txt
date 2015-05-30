@@ -1,0 +1,44 @@
+Setting the ;create=true attribute in setDatabaseName with EmbededXADataSource and EmbeddedXADataSource40  fails with 
+$ java TestDerbyCreate
+Exception in thread "main" java.sql.SQLException: Database not available
+        at org.apache.derby.jdbc.EmbeddedXADataSource.setupResourceAdapter(Embe
+dedXADataSource.java:175)
+        at org.apache.derby.jdbc.EmbeddedXADataSource.getXAConnection(EmbeddedX
+DataSource.java:101)
+        at TestDerbyCreate.main(TestDerbyCreate.java:18)
+
+
+using the create attributie in databaseName works fine with EmbeddedDataSource.  
+
+Using setCreateDatabase("create") with EmbeddedXADataSource is a good work around and I think generally preferable.
+
+
+
+import java.sql.*;
+import javax.sql.*;
+
+public class TestDerbyCreate
+{
+    public static void main(String[] args) throws Throwable
+    {
+        org.apache.derby.jdbc.EmbeddedXADataSource ds =
+            new 
+org.apache.derby.jdbc.EmbeddedXADataSource();
+
+        ds.setDatabaseName("TestDB;create=true");
+        ds.setUser("dbuser1");
+        ds.setPassword("dbpwd1");
+
+	PooledConnection pooledConn = ds.getXAConnection();
+        Connection conn = pooledConn.getConnection();
+
+
+        System.out.println("Database product: " + 
+conn.getMetaData().getDatabaseProductName());
+        System.out.println("Database version: " + 
+conn.getMetaData().getDatabaseProductVersion());
+        System.out.println("Driver name:      " + 
+conn.getMetaData().getDriverName());
+        System.out.println("Driver version:   " + 
+conn.getMetaData().getDriverVersion());
+        System.out.println("JDBC driver major ve

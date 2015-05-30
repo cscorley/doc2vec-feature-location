@@ -1,0 +1,30 @@
+There is a bug in  Network Server that it closes prepared statements if
+an error occurs during execution on OPNQRY (usually PreparedStatement.execute())
+Basically the problem is this code in DRDAConnThread.java
+processCommands() which catches any exception that occurs during  OPNQRY
+and closes the prepared statement .  OPNQRY is just the statement execution and any statement level exceptions should not cause the statement to be closed.
+
+catch (SQLException e)
+                    {
+                        writer.clearDSSesBackToMark(writerMark);
+                        try 
+{
+                            // Try to cleanup if we hit an error.
+                            if (ps != null)
+                                ps.close();
+                            writeOPNQFLRM(e);
+                        }
+                        catch (SQLException pse) {}
+                        errorInChain(e);
+                    }
+
+
+There are cases in jdbcapi/setTransactionIsolation when run with JCC that trigger this case and yield a 
+'Statement' already closed message. 
+
+This was the core issue with DERBY-1047 but there were problems with the DERBY-1047 Jira entry in that the description of the problem was wrong and also the issue itself no longer occurs with the fix for DERBY-1158.
+DERBY-1047 will be closed invalid and this issue will be used to  track  the fix.
+
+
+
+

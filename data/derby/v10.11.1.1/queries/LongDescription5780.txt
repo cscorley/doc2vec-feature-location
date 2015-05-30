@@ -1,0 +1,289 @@
+Mamta has run some performance tests on windows, with (Enable write caching on the device AND Turn off Windows write-cache buffer flushing on the device) that shows 
+performance degredation of identity columns.  See results posted in DERBY-5471, copied here:
+Rick, first of all, I want to apologize for not responding to this jira sooner. I allowed other jiras to prioritize over this but I finally got around to running a long set of tests and here are the results of them. I have truned off debugging prints in these test runs.
+
+I ran lots of test as explained below on released 10.8.2.2 jars and top of the trunk(revision 1341151) insane jars with write caching off and the test results between the 2 set of jars do vary. I have Windows7 service pack1 laptop(Intel(R) Core(TM) i7-2720QM CPU @2.20GHz, 8GB RAM) with IBM jdk 1.6
+
+I chose to run with preallocation sizes of 5 and 20 because I think the default preallocation for 10.8 is 5 and for trunk is 20.
+
+Variations of test(with 3 test runs of each on 10.8 and trunk jars)
+1)Identity column 10 threads with 20 preallocation
+java -Dderby.system.home=$derbyHome -Dderby.language.sequence.preallocator=20 org.apache.derbyTesting.perf.clients.Runner -driver org.apache.derby.jdbc.EmbeddedDriver -init -load seq_gen -load_opts debugging=0,numberOfGenerators=5,tablesPerGenerator=10,insertsPerTransaction=100,identityTest=1 -gen b2b -threads 10 	
+
+	10.8 Runs
+Test run 1)
+Number of transactions: 10630
+Average throughput (tx/s):      177.16666666666666
+15427 successful transactions, including warmup phase.
+Test run 2)
+Number of transactions: 10432
+Average throughput (tx/s):      173.86376893718437
+15282 successful transactions, including warmup phase.
+Test run 3)
+Number of transactions: 10377
+Average throughput (tx/s):      172.89524983755143
+14908 successful transactions, including warmup phase.	
+
+	Trunk Runs
+Test run 1)
+Number of transactions: 3002
+Average throughput (tx/s):      50.021661612290465
+4542 successful transactions, including warmup phase.
+Test run 2)
+Number of transactions: 2924
+Average throughput (tx/s):      48.733333333333334
+4370 successful transactions, including warmup phase.
+Test run 3)
+Number of transactions: 2547
+Average throughput (tx/s):      42.45
+4023 successful transactions, including warmup phase.
+
+2)Identity column 10 threads with 5 preallocation
+java -Dderby.system.home=$derbyHome -Dderby.language.sequence.preallocator=5 org.apache.derbyTesting.perf.clients.Runner -driver org.apache.derby.jdbc.EmbeddedDriver -init -load seq_gen -load_opts debugging=0,numberOfGenerators=5,tablesPerGenerator=10,insertsPerTransaction=100,identityTest=1 -gen b2b -threads 10 
+	10.8 Runs
+Test run 1)
+Number of transactions: 10677
+Average throughput (tx/s):      177.92627649646712
+15222 successful transactions, including warmup phase.
+Test run 2)
+Number of transactions: 11188
+Average throughput (tx/s):      186.46355894068432
+15744 successful transactions, including warmup phase.
+Test run 3)
+Number of transactions: 10571
+Average throughput (tx/s):      176.18039699338345
+15012 successful transactions, including warmup phase.
+
+	Trunk Runs
+Test run 1)
+Number of transactions: 2453
+Average throughput (tx/s):      40.88333333333333
+3716 successful transactions, including warmup phase.
+Test run 2)
+Number of transactions: 2531
+Average throughput (tx/s):      42.18333333333333
+3668 successful transactions, including warmup phase.
+Test run 3)
+Number of transactions: 3076
+Average throughput (tx/s):      51.266666666666666
+4615 successful transactions, including warmup phase.
+
+
+3)Identity column 1 thread with 20 preallocation
+java -Dderby.system.home=$derbyHome -Dderby.language.sequence.preallocator=20 org.apache.derbyTesting.perf.clients.Runner -driver org.apache.derby.jdbc.EmbeddedDriver -init -load seq_gen -load_opts debugging=0,numberOfGenerators=5,tablesPerGenerator=10,insertsPerTransaction=100,identityTest=1 -gen b2b -threads 1 
+	10.8 Runs
+Test run 1)
+Number of transactions: 5865
+Average throughput (tx/s):      97.75
+8773 successful transactions, including warmup phase.
+Test run 2)
+Number of transactions: 5753
+Average throughput (tx/s):      95.88173530441159
+8359 successful transactions, including warmup phase.
+Test run 3)
+Number of transactions: 6326
+Average throughput (tx/s):      105.43333333333334
+9231 successful transactions, including warmup phase.
+	Trunk Runs
+Test run 1)
+Number of transactions: 526
+Average throughput (tx/s):      8.766666666666667
+801 successful transactions, including warmup phase.
+Test run 2)
+Number of transactions: 546
+Average throughput (tx/s):      9.1
+831 successful transactions, including warmup phase.
+Test run 3)
+Number of transactions: 572
+Average throughput (tx/s):      9.533174447092549
+841 successful transactions, including warmup phase.
+
+
+
+4)Identity column 1 thread with 5 preallocation
+java -Dderby.system.home=$derbyHome -Dderby.language.sequence.preallocator=5 org.apache.derbyTesting.perf.clients.Runner -driver org.apache.derby.jdbc.EmbeddedDriver -init -load seq_gen -load_opts debugging=0,numberOfGenerators=5,tablesPerGenerator=10,insertsPerTransaction=100,identityTest=1 -gen b2b -threads 1 
+	10.8 Runs
+Test run 1)
+Number of transactions: 5948
+Average throughput (tx/s):      99.13333333333334
+8799 successful transactions, including warmup phase.
+Test run 2)
+Number of transactions: 5658
+Average throughput (tx/s):      94.3
+8337 successful transactions, including warmup phase.
+Test run 3)
+Number of transactions: 6314
+Average throughput (tx/s):      105.21755070072822
+9197 successful transactions, including warmup phase.
+	Trunk Runs
+Test run 1)
+Number of transactions: 470
+Average throughput (tx/s):      7.833202779953668
+737 successful transactions, including warmup phase.
+Test run 2)
+Number of transactions: 548
+Average throughput (tx/s):      9.133333333333333
+814 successful transactions, including warmup phase.
+Test run 3)
+Number of transactions: 559
+Average throughput (tx/s):      9.315424610051993
+851 successful transactions, including warmup phase.
+
+
+
+5)Sequence column 10 threads with 20 preallocation
+java -Dderby.system.home=$derbyHome -Dderby.language.sequence.preallocator=20 org.apache.derbyTesting.perf.clients.Runner -driver org.apache.derby.jdbc.EmbeddedDriver -init -load seq_gen -load_opts debugging=0,numberOfGenerators=5,tablesPerGenerator=10,insertsPerTransaction=100,identityTest=0 -gen b2b -threads 10 
+	10.8 Runs
+Test run 1)
+Number of transactions: 20978
+Average throughput (tx/s):      349.6275062082299
+31469 successful transactions, including warmup phase.
+Test run 2)
+Number of transactions: 20496
+Average throughput (tx/s):      341.6
+30196 successful transactions, including warmup phase.
+Test run 3)
+Number of transactions: 17433
+Average throughput (tx/s):      290.545157580707
+24772 successful transactions, including warmup phase.
+	Trunk Runs
+Test run 1)
+Number of transactions: 470
+Average throughput (tx/s):      7.833202779953668
+737 successful transactions, including warmup phase.
+Test run 2)
+Number of transactions: 548
+Average throughput (tx/s):      9.133333333333333
+814 successful transactions, including warmup phase.
+Test run 3)
+Number of transactions: 559
+Average throughput (tx/s):      9.315424610051993
+851 successful transactions, including warmup phase.
+
+
+6)Sequence column 10 threads with 5 preallocation
+java -Dderby.system.home=$derbyHome -Dderby.language.sequence.preallocator=5 org.apache.derbyTesting.perf.clients.Runner -driver org.apache.derby.jdbc.EmbeddedDriver -init -load seq_gen -load_opts debugging=0,numberOfGenerators=5,tablesPerGenerator=10,insertsPerTransaction=100,identityTest=0 -gen b2b -threads 10 
+	10.8 Runs
+Test run 1)
+Number of transactions: 19927
+Average throughput (tx/s):      332.11113148114197
+30250 successful transactions, including warmup phase.
+Test run 2)
+Number of transactions: 21048
+Average throughput (tx/s):      350.8
+31331 successful transactions, including warmup phase.
+Test run 3)
+Number of transactions: 20707
+Average throughput (tx/s):      345.1166666666667
+30251 successful transactions, including warmup phase.
+	Trunk Runs
+Test run 1)
+Number of transactions: 7038
+Average throughput (tx/s):      117.29804503258279
+13041 successful transactions, including warmup phase.
+Test run 2)
+Number of transactions: 10129
+Average throughput (tx/s):      168.8138531024483
+15210 successful transactions, including warmup phase.
+Test run 3)
+Number of transactions: 13775
+Average throughput (tx/s):      229.58333333333334
+19609 successful transactions, including warmup phase.
+
+
+
+
+7)Sequence column 1 thread with 20 preallocation
+java -Dderby.system.home=$derbyHome -Dderby.language.sequence.preallocator=20 org.apache.derbyTesting.perf.clients.Runner -driver org.apache.derby.jdbc.EmbeddedDriver -init -load seq_gen -load_opts debugging=0,numberOfGenerators=5,tablesPerGenerator=10,insertsPerTransaction=100,identityTest=0 -gen b2b -threads 1
+	10.8 Runs
+Test run 1)
+Number of transactions: 12989
+Average throughput (tx/s):      216.47972533791105
+19048 successful transactions, including warmup phase.
+Test run 2)
+Number of transactions: 12521
+Average throughput (tx/s):      208.68333333333334
+18560 successful transactions, including warmup phase.
+Test run 3)
+Number of transactions: 11970
+Average throughput (tx/s):      199.5
+17763 successful transactions, including warmup phase.
+
+	Trunk Runs
+Test run 1)
+Number of transactions: 6853
+Average throughput (tx/s):      114.21476308728188
+10286 successful transactions, including warmup phase.
+Test run 2)
+Number of transactions: 7277
+Average throughput (tx/s):      121.2813119781337
+10733 successful transactions, including warmup phase.
+Test run 3)
+Number of transactions: 7293
+Average throughput (tx/s):      121.55
+10772 successful transactions, including warmup phase.
+
+
+8)Sequence column 1 thread with 5 preallocation
+java -Dderby.system.home=$derbyHome -Dderby.language.sequence.preallocator=5 org.apache.derbyTesting.perf.clients.Runner -driver org.apache.derby.jdbc.EmbeddedDriver -init -load seq_gen -load_opts debugging=0,numberOfGenerators=5,tablesPerGenerator=10,insertsPerTransaction=100,identityTest=0 -gen b2b -threads 1
+	10.8 Runs
+Test run 1)
+Number of transactions: 12059
+Average throughput (tx/s):      200.93979637745156
+17215 successful transactions, including warmup phase.
+Test run 2)
+Number of transactions: 11071
+Average throughput (tx/s):      184.51359144014268
+16884 successful transactions, including warmup phase.
+Test run 3)
+Number of transactions: 12073
+Average throughput (tx/s):      201.21331311144814
+17489 successful transactions, including warmup phase.
+
+	Trunk Runs
+Test run 1)
+Number of transactions: 2479
+Average throughput (tx/s):      41.31597806703222
+3673 successful transactions, including warmup phase.
+Test run 2)
+Number of transactions: 2657
+Average throughput (tx/s):      44.2825952900785
+3921 successful transactions, including warmup phase.
+Test run 3)
+Number of transactions: 2518
+Average throughput (tx/s):      41.96596723387943
+3698 successful transactions, including warmup phase.
+
+
+> Stress test for identity columns and sequence seem to be taking longer on trunk compared to 10.8.2.2 RC3
+> --------------------------------------------------------------------------------------------------------
+>
+>                 Key: DERBY-5471
+>                 URL: https://issues.apache.org/jira/browse/DERBY-5471
+>             Project: Derby
+>          Issue Type: Task
+>          Components: Test
+>    Affects Versions: 10.9.1.0
+>         Environment: Windows XP version 2.18
+> Genuine Intel(R) CPU T2600 dual core @2.16GHz 2.00GB of RAM 
+> $ java -version
+> java version "1.6.0"
+> Java(TM) SE Runtime Environment (build pwi3260sr9fp1-20110208_03(SR9 FP1))
+> IBM J9 VM (build 2.4, JRE 1.6.0 IBM J9 2.4 Windows XP x86-32 jvmwi3260sr9-201102
+> 03_74623 (JIT enabled, AOT enabled)
+> J9VM - 20110203_074623
+> JIT  - r9_20101028_17488ifx3
+> GC   - 20101027_AA)
+> JCL  - 20110203_01
+>            Reporter: Mamta A. Satoor
+>         Attachments: 5471-performance.html
+>
+>
+> I have been trying to run org.apache.derbyTesting.perf.clients.Runner (which provides ways to stress test sequence generator and identity columns) on trunk and 10.8.2.2 RC3 to compare the performance and I find that it takes almost double the time for the tests to finish on trunk. Additionally, the identity column test consistently ran into lock timeouts on trunk. I am running with insane jars on trunk and 10.8.2.2 RC3. The test in question is not in official jars for the release candidate so I manually copied them to 10.8.2.2 RC3 environment during my test(basically copied the entire org.apache.derbyTesting.perf.clients.Runner directory from trunk to 10.8.2.2 RC3 environment).
+> Command to do sequence stress testing is as follows
+> java org.apache.derbyTesting.perf.clients.Runner -driver org.apache.derby.jdbc.EmbeddedDriver -init -load seq_gen -load_opts debugging=1,numberOfGenerators=5,tablesPerGenerator=10,insertsPerTransaction=100,identityTest=0 -gen b2b -threads 10
+> Command to do identity column stress testing is as follows
+> time java org.apache.derbyTesting.perf.clients.Runner -driver org.apache.derby.jdbc.EmbeddedDriver -init -load seq_gen -load_opts debugging=1,numberOfGenerators=5,tablesPerGenerator=10,insertsPerTransaction=100,identityTest=1 -gen b2b -threads 10
+> An average run on 10.8.2.2 RC3 for sequence stress test is about a minute and 46 secs. On trunk, on an average it takes 2 and half minutes
+> An average run on 10.8.2.2 RC3 for identity stress test is about a minute and 50 secs. On trunk, on an average it takes 3minsutes and 30 secs. Also, on trunk, this test runs into lock timeouts.
+> I was wondering if this is the right behavior. The performance should be better in trunk because of pre-allocation of range for sequences and identity columns(which defaults to 20) but unless I have missed something in my tests, the results don't show the performance improvement.

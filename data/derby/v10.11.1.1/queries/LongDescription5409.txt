@@ -1,0 +1,168 @@
+With my last "svn up " I see the following failure when I run with Java
+7 (not with 6), sane classes or sane jars (I didn't test insane), on
+Solaris 11.
+
+It seems the recent checkin 1167226 introduced this failure.
+
+Caveat, there are knows issues with the first Java 7 release. If it
+looks mysterious, we could wait till the update release is available to
+track this down..
+
+----------------------------------------------------------
+> derbyjunit GrantRevokeDDLTest
+------------------ Java Information ------------------
+Java Version:    1.7.0
+Java Vendor:     Oracle Corporation
+Java home:       /usr/jdk/instances/jdk1.7.0-b147/jre
+Java classpath:  /export/home/dag/java/sb/sb1/classes:/usr/local/share/java/db2jcc/lib/db2jcc.jar:/usr/local/share/java/db2jcc/lib/db2jcc_license_c.jar:/export/home/dag/java/sb/sb1/tools/java/jakarta-oro-2.0.8.jar:/export/home/dag/java/sb/sb1/tools/java/jdbc2_0-stdext.jar:/export/home/dag/java/sb/sb1/tools/java/junit.jar:/export/home/dag/java/sb/sb1/tools/java/jce1_2_2.jar:/export/home/dag/java/sb/sb1/tools/java/xalan.jar:/export/home/dag/java/sb/sb1/tools/java/serializer.jar:/export/home/dag/java/sb/sb1/tools/java/xercesImpl.jar
+OS name:         SunOS
+OS architecture: x86
+OS version:      5.11
+Java user name:  dag
+Java user home:  /export/home/dag
+Java user dir:   /export/home/dag/java/sb/tests/derby-5363-full-1-lang.GrantRevokeDDLTest-sb.sb1.classes-1.7.0-12870
+java.specification.name: Java Platform API Specification
+java.specification.version: 1.7
+java.runtime.version: 1.7.0-b147
+--------- Derby Information --------
+JRE - JDBC: ?-?
+[/export/home/dag/java/sb/sb1/classes] 10.9.0.0 alpha - (1169692M)
+------------------------------------------------------
+----------------- Locale Information -----------------
+Current Locale :  [English/United States [en_US]]
+Found support for locale: [cs]
+	 version: 10.9.0.0 alpha - (1169692M)
+Found support for locale: [de_DE]
+	 version: 10.9.0.0 alpha - (1169692M)
+Found support for locale: [es]
+	 version: 10.9.0.0 alpha - (1169692M)
+Found support for locale: [fr]
+	 version: 10.9.0.0 alpha - (1169692M)
+Found support for locale: [hu]
+	 version: 10.9.0.0 alpha - (1169692M)
+Found support for locale: [it]
+	 version: 10.9.0.0 alpha - (1169692M)
+Found support for locale: [ja_JP]
+	 version: 10.9.0.0 alpha - (1169692M)
+Found support for locale: [ko_KR]
+	 version: 10.9.0.0 alpha - (1169692M)
+Found support for locale: [pl]
+	 version: 10.9.0.0 alpha - (1169692M)
+Found support for locale: [pt_BR]
+	 version: 10.9.0.0 alpha - (1169692M)
+Found support for locale: [ru]
+	 version: 10.9.0.0 alpha - (1169692M)
+Found support for locale: [zh_CN]
+	 version: 10.9.0.0 alpha - (1169692M)
+Found support for locale: [zh_TW]
+	 version: 10.9.0.0 alpha - (1169692M)
+------------------------------------------------------
+java -client -Xms128M -Xmx512M -XX:MaxPermSize=192m -DderbyTesting.oldReleasePath=/usr/local/share/java/derby/lib-debug junit.textui.TestRunner org.apache.derbyTesting.functionTests.tests.lang.GrantRevokeDDLTest
+.....F.E..
+Time: 9.37
+There was 1 error:
+1) testGrantRevokeDDL2(org.apache.derbyTesting.functionTests.tests.lang.GrantRevokeDDLTest)java.sql.SQLException: Schema 'USER1' already exists.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:98)
+	at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Util.java:256)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:400)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:348)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:2290)
+	at org.apache.derby.impl.jdbc.ConnectionChild.handleException(ConnectionChild.java:82)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1334)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:630)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(EmbedStatement.java:179)
+	at org.apache.derbyTesting.functionTests.tests.lang.GrantRevokeDDLTest.testGrantRevokeDDL2(GrantRevokeDDLTest.java:6540)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:113)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+Caused by: java.sql.SQLException: Schema 'USER1' already exists.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(SQLExceptionFactory40.java:122)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:71)
+	... 61 more
+Caused by: ERROR X0Y68: Schema 'USER1' already exists.
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:295)
+	at org.apache.derby.impl.sql.execute.CreateSchemaConstantAction.executeConstantActionMinion(CreateSchemaConstantAction.java:138)
+	at org.apache.derby.impl.sql.execute.CreateSchemaConstantAction.executeConstantAction(CreateSchemaConstantAction.java:104)
+	at org.apache.derby.impl.sql.execute.MiscResultSet.open(MiscResultSet.java:61)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:436)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:317)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1242)
+	... 55 more
+There was 1 failure:
+1) testGrantRevokeDDL(org.apache.derbyTesting.functionTests.tests.lang.GrantRevokeDDLTest)junit.framework.AssertionFailedError: Column value mismatch @ column 'SCHEMANAME', row 4:
+    Expected: >SATHEESH<
+    Found:    >USER1<
+	at org.apache.derbyTesting.junit.JDBC.assertRowInResultSet(JDBC.java:1213)
+	at org.apache.derbyTesting.junit.JDBC.assertRowInResultSet(JDBC.java:1125)
+	at org.apache.derbyTesting.junit.JDBC.assertFullResultSetMinion(JDBC.java:1012)
+	at org.apache.derbyTesting.junit.JDBC.assertFullResultSet(JDBC.java:935)
+	at org.apache.derbyTesting.junit.JDBC.assertFullResultSet(JDBC.java:892)
+	at org.apache.derbyTesting.functionTests.tests.lang.GrantRevokeDDLTest.testGrantRevokeDDL(GrantRevokeDDLTest.java:397)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:113)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+
+FAILURES!!!
+Tests run: 8,  Failures: 1,  Errors: 1
+
+Log /export/home/dag/java/sb/tests/derby-5363-full-1-lang.GrantRevokeDDLTest-sb.sb1.classes-1.7.0-12870/test.log
+dag@T61pOS:~/java/sb/sb1$ 

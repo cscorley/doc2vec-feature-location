@@ -1,0 +1,42 @@
+If the system crashes after a rollforward backup; last log file 
+is empty(say log2.dat). On next crash-recovery system ignores the  empty log 
+file and starts writing to the previous log(say log1.dat),  
+even thought there was successfule log file switch  before the crash.
+The reason I belive it is done this way to avoid special 
+handling of crashes  during the log switch process. 
+
+Problem is  on rollfroward restore from a backup log1.dat will get overwritten 
+from the copy in the backup, so any transaction that got added to log1.dat
+after the backup was taken will be lost. 
+
+One possible solution that comes to my mind to solve this problem is 
+ 1) check if an  empty a log file exist after a redo crash-recovery , if 
+     the log archive mode is enabled.
+ 2) If it exists , delete and do log file switch again 
+
+
+Repro:
+connect 'jdbc:derby:wombat;create=true';
+create table t1(a int ) ;
+insert into t1 values(1) ;
+insert into t1 values(2) ;
+call SYSCS_UTIL.SYSCS_BACKUP_DATABASE_AND_ENABLE_LOG_ARCHIVE_MODE(
+    'extinout/mybackup', 0);
+
+--crash (NO LOG RECORDS WENT IN AFTER THE BACKUP).
+
+connect 'jdbc:derby:wombat';
+insert into t1 select a*2 from t1 ;
+insert into t1 select a*2 from t1 ;
+insert into t1 select a*2 from t1 ;
+insert into t1 select a*2 from t1 ;
+insert into t1 select a*2 from t1 ;
+insert into t1 select a*2 from t1 ;
+insert into t1 select a*2 from t1 ;
+select count from t1 ;
+
+--exit from jvm and restore from backup
+
+connect
+'jdbc:derby:wombat;rollForwardRecoveryFrom=extinout/mybackup/wombat';
+select count from t1 ;  – THIS WILL GIVE INCORRECT VALUES

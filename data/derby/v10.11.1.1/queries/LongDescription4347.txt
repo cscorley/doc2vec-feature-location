@@ -1,0 +1,34 @@
+ Sometimes when running JUnit tests with jvm options that are known to slow things down significantly network server start timeouts can occur e.g.
+SecureServerTest( Opened = false, Authenticated= false, CustomDerbyProperties= null, WildCardHost= null )junit.framework.AssertionFailedError: Timed out waiting for network server to start:Spawned SpawnedNetworkServer exitCode=143
+		 at org.apache.derbyTesting.junit.NetworkServerTestSetup.setUp(NetworkServerTestSetup.java:203)
+		 at junit.extensions.TestSetup$1.protect(TestSetup.java:18)
+		 at junit.extensions.TestSetup.run(TestSetup.java:23)
+		 at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+		 at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+		 at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+		 at junit.extensions.TestSetup.run(TestSetup.java:23)
+		 at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+		 at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+		 at junit.extensions.TestSetup.run(TestSetup.java:23)
+		 at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+		 at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+		 at junit.extensions.TestSetup.run(TestSetup.java:23)
+
+
+The current wait time is 40 seconds and is set in org.apache.derbyTesting.junit.NetworkServerTestSetup
+
+/** Setting maximum wait time to 40 seconds.   On some platforms
+
+	it may take this long to start the server.  Increasing the wait
+	time should not adversely affect those
+	systems with fast port turnaround as the actual code loops for
+	SLEEP_TIME intervals, so should never see WAIT_TIME.
+     */
+    private static final long WAIT_TIME = 40000;
+
+
+
+
+It would be nice to have system property (maybe derby.tests.networkServerStartTimeout=<ms>)  to allow this to be configurable in environments where we expect the start to take longer.
+
+I am not sure if there are other timeouts in the tests for replication etc or if they all use this same setting.

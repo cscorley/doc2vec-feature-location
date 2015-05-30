@@ -1,0 +1,5 @@
+The XmlRootExtractor class tries to set the secure-processing feature that JAXP requires all parser implementations to support. Unfortunately Android (and presumably some other parsers) don't support the feature.  When run it causes the following exception: "org.xml.sax.SAXNotRecognizedException: Feature 'http://javax.xml.XMLConstants/feature/secure-processing' is not recognized."
+
+However this exception is swallowed and ignored by XmlRootExtractor which returns null.  When org.apache.tika.mime.MimeTypes sees that no root element was found it assumes that the file is not valid XML and downgrades the result to text/plain.
+
+This was fixed long ago by TIKA-271, but as Michael Pisula points out, commit 1004050 broke it again.  I'd simply reopen that issue, but I don't have permission to do that.

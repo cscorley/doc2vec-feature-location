@@ -1,0 +1,18 @@
+On a slow machine, derbynetclientmats was seen to fail (with no test pass, nor fail) with the following error:
+
+org.apache.derby.drda.NetworkServerControl start 
+Attempt to shutdown framework: DerbyNetClient
+Server Process did not complete in time. Destroying...
+Server Process did not complete in time. Destroying...
+Exception in thread "main" java.io.IOException: Interrupted system call
+	at java.io.BufferedInputStream.fill(BufferedInputStream.java:235)
+	at java.io.BufferedInputStream.read1(BufferedInputStream.java:275)
+	at java.io.BufferedInputStream.read(BufferedInputStream.java:334)
+	at org.apache.derbyTesting.functionTests.harness.BackgroundStreamSaver.run(BackgroundStreamSaver.java:51)
+	at java.lang.Thread.run(Thread.java:853)
+
+It seems to me that the problem is here that in functionTests.harness.NetServer the waitFor() method has a hard value of 60 in it. Instead, this value should be configurable.
+In functionTests.harness.RunTest the waitFor() method uses 
+				TimedProcess tp = new TimedProcess(pr);
+				tp.waitFor(timeout*60);
+It seems NetServer should also be able to check on the timeout value.

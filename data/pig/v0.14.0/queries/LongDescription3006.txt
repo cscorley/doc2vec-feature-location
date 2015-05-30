@@ -1,0 +1,10 @@
+A lot of the tests use antiquated patterns. My goal was to refactor them in a couple ways:
+
+	get rid of the annotation specifying Junit 4. All should use JUnit 4 (question: where is the Junit 3 dependency even being pulled in?)
+	Nothing should extend TestCase. Everything should be annotation driven.
+	Properly use asserts. There was a lot of assertTrue(null==thing), so I replaced it with assertNull(thing), and so on.
+	Get rid of MiniCluster use in a handful of cases.
+
+
+
+I've run every test and they pass, EXCEPT TestLargeFile which is failing on trunk anyway.

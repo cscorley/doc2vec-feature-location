@@ -1,0 +1,5 @@
+With Hadoop 0.20/1.0, storeSchema will be called after the temporary task files have been promoted to the output directory.
+
+In 0.23, the timing of temporary task file promotion has changed by design, now when storeSchema is called the files have not been promoted to the output directory.
+
+We have existing applications that depend on the temporary task files being promoted when storeSchema is called. This is a regression from 20.

@@ -1,0 +1,22 @@
+The fifth parameter in a call to DatabaseMetaData.getBestRowIdentifier(String catalog, String schema, String table, int scope, boolean nullable) is getting ignored.
+
+Thus, in the following situation:
+        s.execute("create table a (i int not null, j int not null, k int, unique (i,j))");
+        s.execute("insert into a values (1,1,1)");  
+        DatabaseMetaData dmd = conn.getMetaData(); 
+
+The call:
+            ResultSet rs = dmd.getBestRowIdentifier(null,"APP","A",0,true);
+gives the same results(columns i & j) as
+            ResultSet rs = dmd.getBestRowIdentifier(null,"APP","A",0,false);
+
+This has been documented as incorrect in the test bestrowidentifier.sql but I could not find any bug logged.
+The text in bestrowidentifier was:
+– REMIND: we aren't handling nullOk flag correctly
+– we just drop nullable cols, we should skip an answer
+– that has nullable cols in it instead and look for another one.
+create table t13 (i int not null, j int not null, k int, unique (i,j));
+
+– result: columns i, j (WRONG) 
+– the correct answer is k: the non-null columns of the table
+execute bestrow using 'values(''APP'',''T13'',0,''false'')';

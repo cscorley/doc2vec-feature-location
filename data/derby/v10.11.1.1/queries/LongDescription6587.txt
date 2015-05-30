@@ -1,0 +1,16 @@
+There is a problem in org.apache.derby.impl.sql.execute.RIBulkChecker:
+
+result = fkCol.compare(refCol);
+
+            if (result == 1)
+            {
+                return GREATER_THAN;
+            }
+            else if (result == -1)
+            {
+                return LESS_THAN;
+            }
+
+where the JavaDoc for "compare" explicitly states that one must not use 1 or -1 to check the return value.
+
+The problem can be reproduced when creating a table with two fields, "UUID_FIELD char (16) for bit data" and "NUM_FIELD integer", then having a foreign key to these two fields and then using the bulk import, i.e. "CALL SYSCS_UTIL.SYSCS_IMPORT_TABLE ..."

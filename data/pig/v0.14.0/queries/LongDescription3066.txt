@@ -1,0 +1,10 @@
+This is a regression from PIG-2924. The size of output in PigStats used to be off by 1 byte per store, but that was fixed by PIG-2924. However, two test cases in TestPigRunner wasn't corrected, so they fail in trunk.
+
+The reason why the size of output in PigStats were off by 1 byte per store is because the size variable was initialized by -1 instead of 0.
+
+
+long bytes = -1;
+...
+bytes += status.getLen();
+...
+

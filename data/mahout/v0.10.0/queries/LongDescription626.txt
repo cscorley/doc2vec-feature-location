@@ -1,0 +1,5 @@
+Users are reporting that the T1 and T2 threshold values which work in sequential mode don't work as well in the mapreduce mode because both the mapper and reducer are using the same values. The effect of coalescing a number of points into a single centroid done by the mapper changes the distances enough that independent threshold values are needed in the reducer. 
+
+Here is a patch which implements optional T3 and T4 threshold values which are only used by the canopy reducer. Convenience methods have been added for API compatibility and defaults included so that these values will default to T1 and T2. A new unit test confirms the thresholds are being set correctly.
+
+If this works out as a positive improvement, I will make the same changes to MeanShift and commit them

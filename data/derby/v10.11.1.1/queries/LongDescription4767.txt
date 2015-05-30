@@ -1,0 +1,29 @@
+For the sql script below:
+
+create table t1(c11 int, c12 int);
+
+– insert data into tables
+insert into t1 values(1,1);
+insert into t1 values(2,2);
+
+– set autocommit off
+autocommit off;
+
+get with nohold cursor jdk1 as 'SELECT * FROM t1';
+
+– do fetches from the cursor
+next jdk1;
+
+--commit
+commit;
+
+– now try the fetch on cursor again after commit
+– cursors jdk1 will give Error XCL16
+next jdk1;
+
+– clean up.
+close jdk1;
+
+for the line "next jdk1;", an Error XCL16 will be thrown. However, detailed prompt for Error XCL16 is different between Client and Embed.
+In client mode, we get "ERROR XCL16: ResultSet not open.  Verify that autocommit is OFF."
+While, in embed mode, we get "ERROR XCL16: ResultSet not open. Operation 'next' not permitted. Verify that autocommit is OFF."

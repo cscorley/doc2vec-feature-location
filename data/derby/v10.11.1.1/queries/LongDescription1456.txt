@@ -1,0 +1,9 @@
+The Network Server code uses an assertion-check utility routine called agentError()
+under certain circumstances. When these agentError() calls arise, for example as
+in DERBY-1454, there is no server side logging of the error except to the console. 
+
+The user application  that hit DERBY-1454 had not been capturing console output and there 
+was no clue in the derby.log, this made the problem hard to track down when they 
+suddenly hit this boundary deep within their stress tests.
+
+See also DERBY-743 for another issue with Network Server's agentError routine.

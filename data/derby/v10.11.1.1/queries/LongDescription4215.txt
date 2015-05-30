@@ -1,0 +1,22 @@
+If you hard-upgrade a 10.0 database to 10.2 or later (without an intermediate hard-upgrade to 10.1), you will see an extra permissions tuple in SYSROUTINEPERMS.
+
+Running the following query
+
+  select p.grantee, p.grantor, a.alias, p.grantoption from sys.sysroutineperms p, sys.sysaliases a where a.aliasid = p.aliasid
+
+returns the following results when run against a 10.0 database which was hard-upgraded to 10.3.3.0:
+
+PUBLIC | null | SYSCS_INPLACE_COMPRESS_TABLE | N
+PUBLIC | APP | SYSCS_SET_RUNTIMESTATISTICS | N
+PUBLIC | APP | SYSCS_SET_STATISTICS_TIMING | N
+PUBLIC | APP | SYSCS_INPLACE_COMPRESS_TABLE | N
+PUBLIC | APP | SYSCS_COMPRESS_TABLE | N
+PUBLIC | APP | SYSCS_GET_RUNTIMESTATISTICS | N
+
+versus the following results when the same query is run against a freshly created 10.3 database:
+
+PUBLIC | APP | SYSCS_COMPRESS_TABLE | N
+PUBLIC | APP | SYSCS_SET_RUNTIMESTATISTICS | N
+PUBLIC | APP | SYSCS_SET_STATISTICS_TIMING | N
+PUBLIC | APP | SYSCS_GET_RUNTIMESTATISTICS | N
+PUBLIC | APP | SYSCS_INPLACE_COMPRESS_TABLE | N

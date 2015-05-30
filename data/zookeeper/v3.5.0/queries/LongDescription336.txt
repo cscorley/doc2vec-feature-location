@@ -1,0 +1,3 @@
+One user saw a case where a single mis-programmed client was overloading the server with connections - the client was creating a huge number of sessions to the server. This caused all of the fds on the  server to become used.
+
+Seems like we should have some way of limiting (configurable override) the maximum number of sessions from a single client (say 10 by default?) Also we should output warnings when this limit is exceeded (or attempt to exceed).

@@ -1,0 +1,20 @@
+When DBDictionary.getPlaceholderValueString is called with Types.BIT, it returns "0". 
+PostgreSQL actually requires that a boolean be set. It cannot handle a numeric argument.
+
+Fix Description:
+Overriden DBDictionary.getPlaceholderValueString() inside PostgresDictionary to process Types.BIT correctly. 
+Now, the method returns 'false' value when Types.BIT is passed as Column.type.
+
+Test case:
+The above bug is exposed from Kodo product which internally uses openJPA.
+When a query is made on a subclass using kodo api.
+Kodo generates an SQL ( with help of openJPA) that has UNION in it.
+
+It generates a SQL similar to the following:
+
+ SELECT 0  FROM public.classA t0 UNION ALL SELECT t0.guidance FROM public.classB t0
+
+It got 0 from the openJPA DBDictionary.getPlaceholderValueString as the guidance data type is boolean.
+
+The above SQL will throw an exception in postgreSQL db saying: 
+ERROR: UNION types integer and boolean cannot be matched.

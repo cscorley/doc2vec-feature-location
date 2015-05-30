@@ -1,0 +1,13 @@
+Currently, Limit, Sample only takes a constant. It would be better we can use a scalar in the place of constant. Eg:
+
+
+
+a = load 'a.txt';
+b = group a all;
+c = foreach b generate COUNT(a) as sum;
+d = order a by $0;
+e = limit d c.sum/100;
+
+
+
+This is a candidate project for Google summer of code 2011. More information about the program can be found at http://wiki.apache.org/pig/GSoc2011

@@ -1,0 +1,3 @@
+As PIG-2652 observed, currently the code for setting number of reducers is a little messy. MapReduceOper.requestedParallelism seems being misused in some plases, and now we support runtime estimation of #reducer which further complicates the problem.
+
+For example, if we specify parallel 1 for the order-by, the estimated #reducer will be used. If we specify parallel 2 while it estimates 4, order-by will fail due to "Illegal partition for Null". If we specify parallel 4 while it estimates 2, then some reducers will have nothing to do. 

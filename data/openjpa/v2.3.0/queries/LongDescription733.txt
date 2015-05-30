@@ -1,0 +1,173 @@
+Problem reported by Chris Tillman on user forum and can be easily reproduced with the code provided:
+
+When upgrading a standalone Java application from OpenJPA 1.1 to 1.2 i ran
+into a problem regarding embedded classes.
+
+Accessing a field from an embedded class (say, Address) in a detached entity
+(Customer) doesn't seem to work anymore. OpenJPA 1.2 throws an
+InvalidStateException. It worked fine with OpenJPA 1.1.
+
+The field (street) contains the correct value as loaded from the database,
+but when the getter is used, e.g. customer.getAddress().getStreet(), the ISE
+is thrown:
+
+org.apache.openjpa.persistence.InvalidStateException: The context has been
+closed.
+       at org.apache.openjpa.kernel.BrokerImpl.assertOpen(BrokerImpl.java:4367)
+       at
+org.apache.openjpa.kernel.BrokerImpl.beginOperation(BrokerImpl.java:1766)
+       at org.apache.openjpa.kernel.BrokerImpl.isActive(BrokerImpl.java:1736)
+       at
+org.apache.openjpa.kernel.StateManagerImpl.beforeRead(StateManagerImpl.java:941)
+       at
+org.apache.openjpa.kernel.StateManagerImpl.accessingField(StateManagerImpl.java:1476)
+       at org.test.Address.pcGetstreet(Address.java)
+       at org.test.Address.getStreet(Address.java:22)
+       at org.test.Test.main(Test.java:30)
+
+Upon investigation, it seems to work OK in OpenJPA 1.2 using runtime
+enhancement (Java 6) but not using compile-time enhancement. However, in
+OpenJPA 1.1 it's the other way around.
+
+OpenJPA 1.1 with compile-time enhancement uses a DetachedStateManager for
+both the entity and the embeddable. As can be seen from the stacktrace,
+OpenJPA 1.2 uses a StateManagerImpl instead for the embeddable.
+
+Is this a regression in OpenJPA 1.2?
+
+Test code below:
+//-------------------------
+
+package org.test;
+
+import java.util.List;
+
+import javax.persistence.*;
+
+public class Test {
+       public static void main(String[] args) {
+               EntityManagerFactory factory = Persistence
+                               .createEntityManagerFactory("test");
+
+               Customer customer = new Customer();
+               Address address = new Address();
+
+               customer.setLastName("Doe");
+               address.setStreet("Main Street");
+               customer.setAddress(address);
+
+               try 
+{
+                       persistCustomer(factory, customer);
+
+                       customer = queryCustomers(factory,
+                                       "select customer from Customer customer" +
+                                       " where customer.lastName = 'Doe'")
+                                       .get(0);
+
+                       System.out.println(customer.getLastName());
+                       System.out.println(customer.getAddress().getStreet());
+
+                       factory.close();
+               }
+ catch (Throwable t) 
+{
+                       t.printStackTrace();
+               }
+       }
+
+       static void persistCustomer(EntityManagerFactory factory, Customer
+customer)
+                       throws Exception {
+               final EntityManager em = factory.createEntityManager();
+               final EntityTransaction tx = em.getTransaction();
+
+               tx.begin();
+
+               try 
+{
+                       em.persist(customer);
+
+                       tx.commit();
+               }
+ finally {
+                       if (!tx.isActive()) 
+{
+                               em.close();
+                       }
+               }
+       }
+
+       public static List<Customer> queryCustomers(EntityManagerFactory factory,
+                       String query) throws Exception {
+               final EntityManager em = factory.createEntityManager();
+               final EntityTransaction tx = em.getTransaction();
+
+               tx.begin();
+
+               try {
+                       final List<Customer> list = (List<Customer>) em.createQuery(query)
+                                       .getResultList();
+
+                       tx.commit();
+
+                       return list;
+               } finally {
+                       if (!tx.isActive()) {                               em.close();                       }
+               }
+       }
+}
+//-------------------------
+
+package org.test;
+
+import javax.persistence.*;
+
+@Entity
+public class Customer {
+       @Id @GeneratedValue long id;
+
+       @Basic String lastName;
+
+       @Embedded Address address;
+
+       public String getLastName() 
+{
+               return lastName;
+       }
+
+       public void setLastName(String lastName) 
+{
+               this.lastName = lastName;
+       }
+
+       public Address getAddress() 
+{
+               return address;
+       }
+
+       public void setAddress(Address address) 
+{
+               this.address = address;
+       }
+}
+//-------------------------
+
+package org.test;
+
+import javax.persistence.*;
+
+@Embeddable
+public class Address {
+       @Basic String street;
+
+       public String getStreet() 
+{
+               return street;
+       }
+
+       public void setStreet(String street) 
+{
+               this.street = street;
+       }
+}

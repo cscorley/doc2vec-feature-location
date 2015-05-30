@@ -1,0 +1,13 @@
+Code in SQLChar.like(dvd, dvd) method at line number 1767 is executed for non-national/non-collation sensitive character types ie for UCS_BASIC character types and the code looks as follows
+  // Make sure we fail for both varchar an nvarchar
+  // for multiple collation characters.
+  SQLChar escapeSQLChar = (SQLChar) escape;
+  int[] escapeIntArray = escapeSQLChar.getIntArray();
+  if (escapeIntArray != null && (escapeIntArray.length != 1))
+  {
+  throw StandardException.newException(SQLState.LANG_INVALID_ESCAPE_CHARACTER,new String (escapeSQLChar.getCharArray()));
+   }
+
+It appears that we are trying to see if number of collation elements associated with escape character is more than 1 and if yes, then we throw exception. Seems like a code like above should be done for collation sensitive character types and not for UCS_BASIC character types. Interestingly, nothing like this is getting checked for national character datatypes. 
+
+This behavior was detected while working on DERBY-3302

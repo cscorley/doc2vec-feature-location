@@ -1,0 +1,4 @@
+Some classes in the Classification component internally use the hadoop's FileSystem class, however, they instantiate the hadoop configuration locally in the method using new Configuration(). This limits the ability to integrate these tools within applications that manage and enrich their own configuration rather than rely on the default hadoop resources that get loaded when calling new Configuration().
+The fix is simply to make these methods take a Configuration parameter rather than creating a new instance when needed. An example for an that creates a new Configuration instances is: org.apache.mahout.clustering.kmeans.KMeansUtil.configureWithClusterInfo(Path, List<Cluster>)
+
+This problem could also exists beyond the Clustering module, but this issue only addresses the Clustering code.

@@ -1,0 +1,35 @@
+The following script fail:
+
+
+
+a = load '1.txt' as (a0:int, a1:map[]);
+
+b = filter a by a0==1;
+
+c = FOREACH b {
+        b0 = a1#'key1';
+        generate ((b0 is null or b0 == '')?1:0);
+}
+
+dump c;
+
+
+
+In the foreach inner plan, b0 is used twice. 
+
+Error message:
+java.lang.ClassCastException: org.apache.pig.data.BinSedesTuple cannot be cast to java.util.Map
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POMapLookUp.getNext(POMapLookUp.java:100)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POMapLookUp.getNext(POMapLookUp.java:117)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POIsNull.getNext(POIsNull.java:72)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POOr.getNext(POOr.java:67)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POBinCond.getNext(POBinCond.java:172)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.processPlan(POForEach.java:355)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.getNext(POForEach.java:291)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:236)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:231)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:53)
+	at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144)
+	at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:621)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:305)
+	at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:177)

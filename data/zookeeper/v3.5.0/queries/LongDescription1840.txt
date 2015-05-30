@@ -1,0 +1,71 @@
+Submitted this bug on a suggestion of Alexander Shraer (see https://issues.apache.org/jira/browse/ZOOKEEPER-1691)
+
+How to reproduce:
+
+== Server 1 zoo.cfg:
+standaloneEnabled=false
+dynamicConfigFile=<path to>/confdyn1/zoo.cfg.dynamic
+
+== Server 1 zoo.cfg.dynamic:
+server.1=localhost:2888:3888:participant;localhost:2181
+
+== Server 2 zoo.cfg:
+standaloneEnabled=false
+dynamicConfigFile=<path to>/confdyn2/zoo.cfg.dynamic
+
+== Server 2 zoo.cfg.dynamic (it is "aware" of the server 1, as mentioned in the Dynamic Reconfiguration - User Manual
+that I should have read more carefully yesterday):
+server.1=localhost:2888:3888:participant;localhost:2181
+server.2=localhost:2889:3889:participant;localhost:2182
+
+Start server 1 
+Start server 2 
+
+== use client 1 to issue a reconfig command on server 1:
+[zk: localhost:2181(CONNECTED) 1] reconfig -add server.2=localhost:2889:3889:participant;localhost:2182
+Committed new configuration:
+server.1=localhost:2888:3888:participant;localhost:2181
+server.2=localhost:2889:3889:participant;localhost:2182
+version=100000003
+
+There are strange stack traces in both server consoles.
+
+Server 1:
+2013-12-12 22:31:40,888 [myid:1] - WARN [ProcessThread(sid:1 cport:-1)::QuorumCnxManager@390] - Cannot open channel to 2 at election address localhost/127.0.0.1:3889
+java.net.ConnectException: Connection refused: connect
+at java.net.PlainSocketImpl.socketConnect(Native Method)
+at java.net.PlainSocketImpl.doConnect(PlainSocketImpl.java:351)
+at java.net.PlainSocketImpl.connectToAddress(PlainSocketImpl.java:213)
+at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:200)
+at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:366)
+at java.net.Socket.connect(Socket.java:529)
+at org.apache.zookeeper.server.quorum.QuorumCnxManager.connectOne(QuorumCnxManager.java:375)
+at org.apache.zookeeper.server.quorum.QuorumPeer.connectNewPeers(QuorumPeer.java:1252)
+at org.apache.zookeeper.server.quorum.QuorumPeer.setLastSeenQuorumVerifier(QuorumPeer.java:1272)
+at org.apache.zookeeper.server.quorum.Leader.propose(Leader.java:1071)
+at org.apache.zookeeper.server.quorum.ProposalRequestProcessor.processRequest(ProposalRequestProcessor.java:78)
+at org.apache.zookeeper.server.PrepRequestProcessor.pRequest(PrepRequestProcessor.java:864)
+at org.apache.zookeeper.server.PrepRequestProcessor.run(PrepRequestProcessor.java:144)
+2013-12-12 22:31:41,919 [myid:1] - WARN [LearnerHandler-/127.0.0.1:52301:QuorumPeer@1259] - Restarting Leader Election
+2013-12-12 22:31:41,920 [myid:1] - INFO [localhost/127.0.0.1:3888:QuorumCnxManager$Listener@571] - Leaving listener
+2013-12-12 22:31:41,920 [myid:1] - INFO [QuorumPeerListener:QuorumCnxManager$Listener@544] - My election bind port: localhost/127.0.0.1:3888
+2013-12-12 22:31:44,438 [myid:1] - INFO [WorkerReceiver[myid=1]:FastLeaderElection$Messenger$WorkerReceiver@410] - WorkerReceiver is down
+2013-12-12 22:31:44,439 [myid:1] - INFO [WorkerSender[myid=1]:FastLeaderElection$Messenger$WorkerSender@442] - WorkerSender is down
+
+Server 2:
+2013-12-12 22:31:41,894 [myid:2] - WARN [QuorumPeer[myid=2]/127.0.0.1:2182:QuorumCnxManager@390] - Cannot open channel to 2 at election address localhost/127.0.0.1:3889
+java.net.ConnectException: Connection refused: connect
+at java.net.PlainSocketImpl.socketConnect(Native Method)
+at java.net.PlainSocketImpl.doConnect(PlainSocketImpl.java:351)
+at java.net.PlainSocketImpl.connectToAddress(PlainSocketImpl.java:213)
+at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:200)
+at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:366)
+at java.net.Socket.connect(Socket.java:529)
+at org.apache.zookeeper.server.quorum.QuorumCnxManager.connectOne(QuorumCnxManager.java:375)
+at org.apache.zookeeper.server.quorum.QuorumPeer.connectNewPeers(QuorumPeer.java:1252)
+at org.apache.zookeeper.server.quorum.QuorumPeer.setLastSeenQuorumVerifier(QuorumPeer.java:1272)
+at org.apache.zookeeper.server.quorum.Follower.processPacket(Follower.java:131)
+at org.apache.zookeeper.server.quorum.Follower.followLeader(Follower.java:89)
+at org.apache.zookeeper.server.quorum.QuorumPeer.run(QuorumPeer.java:967)
+2013-12-12 22:31:41,923 [myid:2] - WARN [QuorumPeer[myid=2]/127.0.0.1:2182:QuorumPeer@1259] - Restarting Leader Election
+2013-12-12 22:31:41,924 [myid:2] - INFO [QuorumPeerListener:QuorumCnxManager$Listener@544] - My election bind port: localhost/127.0.0.1:3889

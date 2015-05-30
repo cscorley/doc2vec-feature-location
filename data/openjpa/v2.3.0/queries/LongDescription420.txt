@@ -1,0 +1,27 @@
+DISTINCT keyword,It can be supported in the simple query and subquery,but use  constructor query,example:select distinct new org.apache.A(a.id...),the distinct keyword is ignored .
+I fixed as so:
+java file:org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder
+private Expression evalSelectClause(QueryExpressions exps) {
+        if (exps.operation != QueryOperations.OP_SELECT)
+            return null;
+
+        JPQLNode selectNode = root();
+
+        JPQLNode constructor = selectNode.findChildByID(JJTCONSTRUCTOR, true);
+        if (constructor != null) 
+{
+           ...
+
+            // add:now assign the distinct of the select clause
+            JPQLNode selectClause = selectNode.findChildByID(JJTSELECTCLAUSE, false);
+            if (selectClause != null && selectClause.hasChildID(JJTDISTINCT))
+              exps.distinct = exps.DISTINCT_TRUE | exps.DISTINCT_AUTO;
+            else
+              exps.distinct = exps.DISTINCT_FALSE;
+            
+            return assignProjections(right(constructor), exps);
+        }
+ else 
+{
+            ..
+        }

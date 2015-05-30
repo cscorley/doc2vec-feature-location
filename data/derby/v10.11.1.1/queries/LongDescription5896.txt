@@ -1,0 +1,18 @@
+Change all the network server code under java/drda to use spaces instead of tabs.
+
+Having mixed tabs and spaces can be confusing, irritating  and time consuming for developers especially in the network code where client is all spaces and the server mostly tabs.
+
+With the  -x -b options on svn merge and svn diff, merges should be reasonable even if we change all the tabs to 4 spaces in the files under java/drda with a script something like (not yet tried):
+
+#!/bin/bash
+files=$@
+for file in $files
+{
+   echo $file
+   mv  $file $file.orig
+   sed -e 's/\t/    /g' < $file.orig > $file
+   rm $file.orig
+}
+
+
+Are there any objections to this change?  If not does anyone have any pending DRDA changes they would like to get in before I make the change?

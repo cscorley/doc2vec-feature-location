@@ -1,0 +1,29 @@
+cited from the http://gcmd.nasa.gov/add/difguide/WRITEADIF.pdf 
+"The Directory Interchange Format (DIF) is metadata format used to create directory entries that describe scientific data
+sets. A DIF holds a collection of fields, which detail specific information about the data."
+ The .dif file respect proper xml format that describe the scientific data set, the schema xsd files can be found inside the .dif xml file.
+i,e, http://gcmd.gsfc.nasa.gov/Aboutus/xml/dif/dif_v9.8.4.xsd
+
+The reason opening this ticket is tika parser for this dif file is being under consideration with development, the support to identify the type of xml file is needed.
+Although dif file in this case seems to be an proper xml file which can be parsed by xmlparser, still it might need a specific process on some of the fields to be extracted and injected into the Solr System for analysis.
+Then it is proposed that the following type 'text/dif+xml' is appended and used in the tika-mimetypes.xml to be able to support the specific xml type detection which extends the application/xml, so that some special process can be applied to this particular xml file.
+
+<mime-type type="text/dif+xml">
+   <root-XML localName="DIF"/>
+   <root-XML localName="DIF" namespaceURI="http://gcmd.gsfc.nasa.gov/Aboutus/xml/dif/"/>
+   <glob pattern="*.dif"/>
+   <sub-class-of type="application/xml"/>
+</mime-type>
+
+
+Expected MIME type: text/dif+xml
+The following is the link to the dif format guide
+http://gcmd.nasa.gov/add/difguide/
+
+
+example dif files:
+1) https://www.aoncadis.org/dataset/id/005f3222-7548-11e2-851e-00c0f03d5b7c.dif
+2) https://www.aoncadis.org/dataset/id/0091cf0c-7ad3-11e2-851e-00c0f03d5b7c.dif
+3) https://www.aoncadis.org/dataset/id/02a6301c-3ab3-11e4-8ee7-00c0f03d5b7c.dif
+
+an example dif file has also been attached.

@@ -1,0 +1,10 @@
+Problem Zookeeper is not shut down completely when dataDir disk space is full and ZK Cluster went into unserviceable state.
+
+
+Scenario
+If the leader zookeeper disk is made full, the zookeeper is trying to shutdown. But it is waiting indefinitely while shutting down the SyncRequestProcessor thread.
+
+Root Cause 
+this.join() is invoked in the same thread where System.exit(11) has been triggered.
+
+When disk space full happens, It got the exception as follows 'No space left on device' and invoked System.exit(11) from the SyncRequestProcessor thread(The following logs shows the same). Before exiting JVM, ZK will execute the ShutdownHook of QuorumPeerMain and the flow comes to SyncRequestProcessor.shutdown(). Here this.join() is invoked in the same thread where System.exit(11) has been invoked.

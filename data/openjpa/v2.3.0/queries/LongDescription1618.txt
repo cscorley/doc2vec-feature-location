@@ -1,0 +1,50 @@
+With the folliowing code:
+
+		emProperties.put("javax.persistence.transactionType", "RESOURCE_LOCAL");
+		EntityManagerFactory factory = Persistence.createEntityManagerFactory("myPu", emProperties);
+
+This exception is thrown:
+
+Provider named org.apache.openjpa.persistence.PersistenceProviderImpl threw unexpected exception at create EntityManagerFactory: 
+java.lang.IllegalArgumentException
+java.lang.IllegalArgumentException: No enum const class javax.persistence.spi.PersistenceUnitTransactionType.JAVAX.PERSISTENCE.TRANSACTIONTYPE
+	at java.lang.Enum.valueOf(Enum.java:196)
+	at org.apache.openjpa.persistence.JPAProperties.getEnumValue(JPAProperties.java:207)
+	at org.apache.openjpa.persistence.JPAProperties.getEnumValue(JPAProperties.java:190)
+	at org.apache.openjpa.persistence.PersistenceUnitInfoImpl.fromUserProperties(PersistenceUnitInfoImpl.java:310)
+	at org.apache.openjpa.persistence.PersistenceProductDerivation$ConfigurationParser.endElement(PersistenceProductDerivation.java:804)
+	at org.apache.openjpa.lib.meta.XMLMetaDataParser.endElement(XMLMetaDataParser.java:456)
+	at com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.endElement(AbstractSAXParser.java:601)
+	at com.sun.org.apache.xerces.internal.impl.xs.XMLSchemaValidator.endElement(XMLSchemaValidator.java:795)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanEndElement(XMLDocumentFragmentScannerImpl.java:1774)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl$FragmentContentDriver.next(XMLDocumentFragmentScannerImpl.java:2930)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl.next(XMLDocumentScannerImpl.java:648)
+	at com.sun.org.apache.xerces.internal.impl.XMLNSDocumentScannerImpl.next(XMLNSDocumentScannerImpl.java:140)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(XMLDocumentFragmentScannerImpl.java:510)
+	at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:807)
+	at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:737)
+	at com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(XMLParser.java:107)
+	at com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.parse(AbstractSAXParser.java:1205)
+	at com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser.parse(SAXParserImpl.java:522)
+	at javax.xml.parsers.SAXParser.parse(SAXParser.java:395)
+	at org.apache.openjpa.lib.meta.XMLMetaDataParser.parseNewResource(XMLMetaDataParser.java:393)
+	at org.apache.openjpa.lib.meta.XMLMetaDataParser.parse(XMLMetaDataParser.java:334)
+	at org.apache.openjpa.lib.meta.XMLMetaDataParser.parse(XMLMetaDataParser.java:311)
+	at org.apache.openjpa.lib.meta.XMLMetaDataParser.parse(XMLMetaDataParser.java:284)
+	at org.apache.openjpa.persistence.PersistenceProductDerivation$ConfigurationParser.parse(PersistenceProductDerivation.java:741)
+	at org.apache.openjpa.persistence.PersistenceProductDerivation.parseResources(PersistenceProductDerivation.java:550)
+	at org.apache.openjpa.persistence.PersistenceProductDerivation.load(PersistenceProductDerivation.java:520)
+	at org.apache.openjpa.persistence.PersistenceProductDerivation.load(PersistenceProductDerivation.java:334)
+	at org.apache.openjpa.persistence.PersistenceProviderImpl.createEntityManagerFactory(PersistenceProviderImpl.java:89)
+	at org.apache.openjpa.persistence.PersistenceProviderImpl.createEntityManagerFactory(PersistenceProviderImpl.java:154)
+	at org.apache.openjpa.persistence.PersistenceProviderImpl.createEntityManagerFactory(PersistenceProviderImpl.java:65)
+	at javax.persistence.Persistence.createEntityManagerFactory(Persistence.java:110)
+	at com.dreikraft.persistence.SyncSchema.testSetOwner(SyncSchema.java:32)
+
+
+due to the following code in PersistenceUnitInfoImpl:
+
+          else if (JPAProperties.TRANSACTION_TYPE.equals(key)) {
+                setTransactionType(JPAProperties.getEnumValue(PersistenceUnitTransactionType.class, key));
+
+which quite clearly should use the value to lookup the enum value, and not the key.

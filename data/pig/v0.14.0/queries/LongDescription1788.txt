@@ -1,0 +1,17 @@
+Issue 1
+
+
+
+grunt> l = load 'x' as (a,b,c);        
+grunt> g = group l by a;
+grunt> f = foreach g generate COUNT(g);       -- g is unintentionally being used as scalar , the user intends it to be COUNT(l) . 
+2011-01-05 12:44:53,098 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1000: Error during parsing. Scalars can be only used with projections
+
+
+
+Since the user did not intend to use a scalar, the scalar error messages are hard to understand. 
+It will be useful to have the relation being used in scalar context in the error message. Something like - "ERROR 1000: Error during parsing. Relation g being used in scalar context at ... .Scalars can be only used with projections"
+
+Issue 2
+The error message "Scalars can be only used with projections" is not easy to understand. A better error message is needed, something like "A column needs to be projected from relation used in scalar context."
+

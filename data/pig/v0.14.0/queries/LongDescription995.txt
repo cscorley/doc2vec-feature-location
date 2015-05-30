@@ -1,0 +1,17 @@
+The following script fail:
+
+A = load '1.txt' AS (a0, a1, a2);
+B = order A by a1;
+C = limit B 10;
+D = foreach C generate $0;
+dump D;
+
+Error log:
+Caused by: org.apache.pig.impl.plan.VisitorException: ERROR 2156: Error while fixing projections. Projection map of node to be replaced is null.
+        at org.apache.pig.impl.logicalLayer.ProjectFixerUpper.visit(ProjectFixerUpper.java:138)
+        at org.apache.pig.impl.logicalLayer.LOProject.visit(LOProject.java:408)
+        at org.apache.pig.impl.logicalLayer.LOProject.visit(LOProject.java:58)
+        at org.apache.pig.impl.plan.DepthFirstWalker.depthFirst(DepthFirstWalker.java:65)
+        at org.apache.pig.impl.plan.DepthFirstWalker.walk(DepthFirstWalker.java:50)
+        at org.apache.pig.impl.plan.PlanVisitor.visit(PlanVisitor.java:51)
+        at org.apache.pig.impl.logicalLayer.LOForEach.rewire(LOForEach.java:761)

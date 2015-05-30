@@ -1,0 +1,12 @@
+When compressing a large table, Derby failed with the following exception:
+IllegalArgumentException; Illegal Capacity: -X
+
+I was able to access the database afterwards, but haven't yet checked if all the data is still available.
+The compress was started with CALL SYSCS_UTIL.SYSCS_COMPRESS_TABLE('schema', 'table', 1) from ij.
+
+The data in the table was inserted with 25 concurrent threads. This seems to cause excessive table growth, as the data inserted should weigh in at around 2 GB. The table size after the insert is ten times bigger, 20 GB.
+I have been able to generate the table and do a compress earlier, but then I have been using fewer insert threads.
+I have also been able to successfully compress the table when retrying after the failure occurred (shut down the database, then booted again and compressed).
+
+I'm trying to reproduce, and will post more information (like the stack trace) later.
+So far my attempts at reproducing has failed. Normally the data is generated and the compress is started without shutting down the database. My attempts this far has consisted of doing compress on the existing database (where the failure was first seen).

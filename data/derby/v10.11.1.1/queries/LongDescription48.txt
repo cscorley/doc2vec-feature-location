@@ -1,0 +1,59 @@
+A connection request that has a default schema that is being
+created by another transaction will block until that transaction
+completes (or time out). Probably in this situation the connection
+request should be succeed as if the schema does not exist.
+
+This is a problem in particular for a prepared  XA transaction, where even after restarting the system, the user cannot reconnect and recover the transaction.
+
+Here is the reproduction in ij.
+java -Dij.exceptionTrace=true -Dij.protocol=jdbc:derby: -Dij.user=me -Dij.password=pw org.apache.derby.tools.ij
+ij version 10.0 (C) Copyright IBM Corp. 1997, 2004.
+
+ij> connect 'testdb;create=true';
+ij> autocommit off;
+ij> create table mytabi(i int);
+0 rows inserted/updated/deleted
+ij> connect 'testdb';
+ERROR 40XL1: A lock could not be obtained within the time requestedERROR 40XL1: A lock could not be obtained within the time requested
+        at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:295)
+        at org.apache.derby.impl.services.locks.LockSet.lockObject(LockSet.java:408)
+        at org.apache.derby.impl.services.locks.SinglePool.lockAnObject(SinglePool.java:168)
+        at org.apache.derby.impl.services.locks.SinglePool.lockObject(SinglePool.java:220)
+        at org.apache.derby.impl.store.raw.xact.RowLocking3.lockRecordForRead(RowLocking3.java:181)
+        at org.apache.derby.impl.store.access.heap.HeapController.lockRow(HeapController.java:425)
+        at org.apache.derby.impl.store.access.heap.HeapController.lockRow(HeapController.java:543)
+        at org.apache.derby.impl.store.access.btree.index.B2IRowLocking3.lockRowOnPage(B2IRowLocking3.java:329)
+        at org.apache.derby.impl.store.access.btree.index.B2IRowLocking3._lockScanRow(B2IRowLocking3.java:571)
+        at org.apache.derby.impl.store.access.btree.index.B2IRowLockingRR.lockScanRow(B2IRowLockingRR.java:115)
+        at org.apache.derby.impl.store.access.btree.BTreeForwardScan.fetchRows(BTreeForwardScan.java:374)
+        at org.apache.derby.impl.store.access.btree.BTreeScan.next(BTreeScan.java:1691)
+        at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.getDescriptorViaIndex(DataDictionaryImpl.java:7118)
+        at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.locateSchemaRow(DataDictionaryImpl.java:1381)
+        at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.getSchemaDescriptor(DataDictionaryImpl.java:1291)
+        at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.initDefaultSchemaDescriptor(GenericLanguageCon
+        at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.initialize(GenericLanguageConnectionContext.ja
+        at org.apache.derby.impl.db.BasicDatabase.setupConnection(BasicDatabase.java:267)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.startTransaction(TransactionResourceImpl.java:182)
+        at org.apache.derby.impl.jdbc.EmbedConnection.<init>(EmbedConnection.java:237)
+        at org.apache.derby.impl.jdbc.EmbedConnection20.<init>(EmbedConnection20.java:49)
+        at org.apache.derby.impl.jdbc.EmbedConnection30.<init>(EmbedConnection30.java:56)
+        at org.apache.derby.jdbc.Driver30.getNewEmbedConnection(Driver30.java:68)
+        at org.apache.derby.jdbc.Driver169.connect(Driver169.java:172)
+        at java.sql.DriverManager.getConnection(DriverManager.java:512)
+        at java.sql.DriverManager.getConnection(DriverManager.java:140)
+        at org.apache.derby.impl.tools.ij.ij.dynamicConnection(ij.java:843)
+        at org.apache.derby.impl.tools.ij.ij.ConnectStatement(ij.java:700)
+        at org.apache.derby.impl.tools.ij.ij.ijStatement(ij.java:528)
+        at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:283)
+        at org.apache.derby.impl.tools.ij.Main.go(Main.java:204)
+        at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:170)
+        at org.apache.derby.impl.tools.ij.Main14.main(Main14.java:50)
+        at org.apache.derby.tools.ij.main(ij.java:54)
+
+
+
+
+
+
+
+

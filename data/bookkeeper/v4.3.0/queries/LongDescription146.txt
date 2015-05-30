@@ -1,0 +1,33 @@
+to repro
+
+
+while [ $? = 0 ]; do mvn test -Dtest=TestConcurrentTopicAcquisition; done
+
+
+
+The stacktrace where it hangs looks very like BOOKKEEPER-5
+
+
+
+"main" prio=5 tid=102801000 nid=0x100601000 waiting on condition [1005ff000]
+   java.lang.Thread.State: TIMED_WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  <7bd8e1090> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:196)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(AbstractQueuedSynchronizer.java:2025)
+	at java.util.concurrent.ThreadPoolExecutor.awaitTermination(ThreadPoolExecutor.java:1253)
+	at org.jboss.netty.util.internal.ExecutorUtil.terminate(ExecutorUtil.java:107)
+	at org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory.releaseExternalResources(NioClientSocketChannelFactory.java:143)
+	at org.apache.hedwig.client.netty.HedwigClientImpl.close(HedwigClientImpl.java:234)
+	at org.apache.hedwig.client.HedwigClient.close(HedwigClient.java:70)
+	at org.apache.hedwig.server.topics.TestConcurrentTopicAcquisition.tearDown(TestConcurrentTopicAcquisition.java:99)
+	at junit.framework.TestCase.runBare(TestCase.java:140)
+	at junit.framework.TestResult$1.protect(TestResult.java:110)
+	at junit.framework.TestResult.runProtected(TestResult.java:128)
+	at junit.framework.TestResult.run(TestResult.java:113)
+	at junit.framework.TestCase.run(TestCase.java:124)
+	at junit.framework.TestSuite.runTest(TestSuite.java:232)
+	at junit.framework.TestSuite.run(TestSuite.java:227)
+	at org.junit.internal.runners.JUnit38ClassRunner.run(JUnit38ClassRunner.java:83)
+
+

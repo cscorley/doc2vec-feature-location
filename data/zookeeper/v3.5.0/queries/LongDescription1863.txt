@@ -1,0 +1,42 @@
+In CommitProcessor.java processor, if we are at the primary request handler on line 167:
+
+                while (!stopped && !isWaitingForCommit() &&
+                       !isProcessingCommit() &&
+                       (request = queuedRequests.poll()) != null) {
+                    if (needCommit(request)) {
+                        nextPending.set(request);
+                    } else {
+                        sendToNextProcessor(request);
+                    }
+                }
+
+
+
+A request can be handled in this block and be quickly processed and completed on another thread. If queuedRequests is empty, we then exit the block. Next, before this thread makes any more progress, we can get 2 more requests, one get_children(say), and a sync placed on queuedRequests for the processor. Then, if we are very unlucky, the sync request can complete and this object's commit() routine is called (from FollowerZookeeperServer), which places the sync request on the previously empty committedRequests queue. At that point, this thread continues.
+
+We reach line 182, which is a check on sync requests.
+
+                if (!stopped && !isProcessingRequest() &&
+                    (request = committedRequests.poll()) != null) {
+
+
+
+Here we are not processing any requests, because the original request has completed. We haven't dequeued either the read or the sync request in this processor. Next, the poll above will pull the sync request off the queue, and in the following block, the sync will get forwarded to the next processor.
+
+This is a problem because the read request hasn't been forwarded yet, so requests are now out of order.
+
+I've been able to reproduce this bug reliably by injecting a Thread.sleep(5000) between the two blocks above to make the race condition far more likely, then in a client program.
+
+
+        zoo_aget_children(zh, "/", 0, getchildren_cb, NULL);
+        //Wait long enough for queuedRequests to drain
+        sleep(1);
+        zoo_aget_children(zh, "/", 0, getchildren_cb, &th_ctx[0]);
+        zoo_async(zh, "/", sync_cb, &th_ctx[0]);
+
+
+
+When this bug is triggered, 3 things can happen:
+1) Clients will see requests complete out of order and fail on xid mismatches.
+2) Kazoo in particular doesn't handle this runtime exception well, and can orphan outstanding requests.
+3) I've seen zookeeper servers deadlock, likely because the commit cannot be completed, which can wedge the commit processor.

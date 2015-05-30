@@ -1,0 +1,3 @@
+'timeoutExecutor' is leaking for every bookie client, it should be closed during bookie client closure. I've seen in tests, scheduler is running and periodically executing the TimeoutTask even after bk client closure.
+
+Also, timeoutExecutor is missing thread name. IMHO, no need to raise another issue, just including the small change with this JIRA.

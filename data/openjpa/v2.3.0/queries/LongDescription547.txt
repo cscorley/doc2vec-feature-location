@@ -1,0 +1,36 @@
+INNER JOIN FETCH should not generate SQL LEFT join.
+
+Example:
+
+                         lineitems (ToMany, FetchType=LAZY)
+  Order    <===================================> OrderItem
+                         order (ToOne, FetchType=LAZY)
+
+For Query:  select o from Order  left join fetch o.lineitems
+
+SQL generated
+    for DB2:
+
+SELECT t0.oid, t0.version, t0.amount, t0.delivered, t1.ORDER_OID, t1.lid, t1.version, t1.cost, t1.quantity 
+FROM TORDER t0 LEFT OUTER JOIN TORDERITEM t1 ON t0.oid = t1.ORDER_OID ORDER BY t1.ORDER_OID ASC 
+
+    for Oracle:
+
+SELECT t0.oid, t0.version, t0.amount, t0.delivered, t1.ORDER_OID, t1.lid, t1.version, t1.cost, t1.quantity FROM TORDER t0, TORDERITEM t1 WHERE t0.oid = t1.ORDER_OID ORDER BY t1.ORDER_OID ASC
+
+The above SQL pushdown looked good.
+
+However, if left join fetch is changed to inner join fetch:
+   select o from Order o inner join fetch o.lineitems
+
+We are generating extra redundant LEFT joins:
+
+   for DB2:
+SELECT t0.oid, t0.version, t0.amount, t0.delivered, t2.ORDER_OID, t2.lid, t2.version, t2.cost, t2.quantity 
+FROM TORDER t0 INNER JOIN TORDERITEM t1 ON t0.oid = t1.ORDER_OID LEFT OUTER JOIN TORDERITEM t2 ON t0.oid = t2.ORDER_OID ORDER BY t2.ORDER_OID ASC
+
+   for Oracle:
+SELECT t0.oid, t0.version, t0.amount, t0.delivered, t2.ORDER_OID, t2.lid, t2.version, t2.cost, t2.quantity FROM TORDER t0, TORDERITEM t1, TORDERITEM t2 WHERE t0.oid = t1.ORDER_OID AND t0.oid = t2.ORDER_OID ORDER BY t2.ORDER_OID ASC
+
+Why do we generate the  extra LEFT joins even for quereis explicitly requesting INNER join fetch ?
+

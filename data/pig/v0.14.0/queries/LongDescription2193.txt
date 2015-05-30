@@ -1,0 +1,29 @@
+I've some data in HBase 0.90.3 and I run a simple script on them.
+
+This script badly returns 0 records. From time to time, under yet undefined conditions, the same script on the same data works (it return correct data).
+
+When data are loaded from HDFS instead of HBase, the script runs perfectly.
+
+Here is the script loading from HDFS (works): 
+
+start_sessions = LOAD 'start_sessions' AS (sid:chararray, infoid:chararray, imei:chararray, start:long);
+end_sessions = LOAD 'end_sessions' AS (sid:chararray, end:long, locid:chararray);
+infos = LOAD 'infos' AS (infoid:chararray, network_type:chararray, network_subtype:chararray, locale:chararray, version_name:chararray, carrier_country:chararray, carrier_name:chararray, phone_manufacturer:chararray, phone_model:chararray, firmware_version:chararray, firmware_name:chararray);
+sessions = JOIN start_sessions BY sid, end_sessions BY sid;
+sessions = FILTER sessions BY end > start AND end - start < 86400000L;
+sessions = JOIN sessions BY infoid, infos BY infoid;
+sessions = LIMIT sessions 100;
+dump sessions;
+
+The same script loading from HBase (don't work):
+
+start_sessions = LOAD 'startSession' USING org.apache.pig.backend.hadoop.hbase.HBaseStorage('meta:sid meta:infoid meta:imei meta:timestamp') AS (sid:chararray, infoid:chararray, imei:chararray, start:long);
+end_sessions = LOAD 'endSession' USING org.apache.pig.backend.hadoop.hbase.HBaseStorage('meta:sid meta:timestamp meta:locid') AS (sid:chararray, end:long, locid:chararray);
+infos = LOAD 'info' USING org.apache.pig.backend.hadoop.hbase.HBaseStorage('meta:infoid data:networkType data:networkSubtype data:locale data:applicationVersionName data:carrierCountry data:carrierName data:phoneManufacturer data:phoneModel data:firmwareVersion data:firmwareName') AS (infoid:chararray, network_type:chararray, network_subtype:chararray, locale:chararray, version_name:chararray, carrier_country:chararray, carrier_name:chararray, phone_manufacturer:chararray, phone_model:chararray, firmware_version:chararray, firmware_name:chararray);
+sessions = JOIN start_sessions BY sid, end_sessions BY sid;
+sessions = FILTER sessions BY end > start AND end - start < 86400000L;
+sessions = JOIN sessions BY infoid, infos BY infoid;
+sessions = LIMIT sessions 100;
+dump sessions;
+
+I guess it definitively means there is a nasty bug in the HBase loader.

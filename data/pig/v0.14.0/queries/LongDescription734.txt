@@ -1,0 +1,3 @@
+With the addition of types to pig, maps were changed to allow any atomic type to be a key.  However, in practice we do not see people using keys other than strings.  And allowing multiple types is causing us issues in serializing data (we have to check what every key type is) and in the design for non-java UDFs (since many scripting languages include associative arrays such as Perl's hash).
+
+So I propose we scope back maps to only have string keys.  This would be a non-compatible change.  But I am not aware of anyone using non-string keys, so hopefully it would have little or no impact.

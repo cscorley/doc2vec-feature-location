@@ -1,0 +1,42 @@
+The server is allowing a client to set data larger than the server can then later read:
+
+
+2012-07-18 14:28:12,555 - FATAL [main:QuorumPeer@400] - Unable to load database on disk 
+java.io.IOException: Unreasonable length = 1048583 
+at org.apache.jute.BinaryInputArchive.readBuffer(BinaryInputArchive.java:100) 
+at org.apache.zookeeper.server.persistence.Util.readTxnBytes(Util.java:232) 
+at org.apache.zookeeper.server.persistence.FileTxnLog$FileTxnIterator.next(FileTxnLog.java:602) 
+at org.apache.zookeeper.server.persistence.FileTxnLog$FileTxnIterator.init(FileTxnLog.java:529) 
+at org.apache.zookeeper.server.persistence.FileTxnLog$FileTxnIterator.<init>(FileTxnLog.java:504) 
+at org.apache.zookeeper.server.persistence.FileTxnLog.read(FileTxnLog.java:341) 
+at org.apache.zookeeper.server.persistence.FileTxnSnapLog.restore(FileTxnSnapLog.java:131) 
+at org.apache.zookeeper.server.ZKDatabase.loadDataBase(ZKDatabase.java:222) 
+at org.apache.zookeeper.server.quorum.QuorumPeer.start(QuorumPeer.java:398) 
+at org.apache.zookeeper.server.quorum.QuorumPeerMain.runFromConfig(QuorumPeerMain.java:143) 
+at org.apache.zookeeper.server.quorum.QuorumPeerMain.initializeAndRun(QuorumPeerMain.java:103) 
+at org.apache.zookeeper.server.quorum.QuorumPeerMain.main(QuorumPeerMain.java:76) 
+2012-07-18 14:28:12,555 - FATAL [main:QuorumPeerMain@87] - Unexpected exception, exiting abnormally 
+java.lang.RuntimeException: Unable to run quorum server 
+at org.apache.zookeeper.server.quorum.QuorumPeer.start(QuorumPeer.java:401) 
+at org.apache.zookeeper.server.quorum.QuorumPeerMain.runFromConfig(QuorumPeerMain.java:143) 
+at org.apache.zookeeper.server.quorum.QuorumPeerMain.initializeAndRun(QuorumPeerMain.java:103) 
+at org.apache.zookeeper.server.quorum.QuorumPeerMain.main(QuorumPeerMain.java:76) 
+Caused by: java.io.IOException: Unreasonable length = 1048583 
+at org.apache.jute.BinaryInputArchive.readBuffer(BinaryInputArchive.java:100) 
+at org.apache.zookeeper.server.persistence.Util.readTxnBytes(Util.java:232) 
+at org.apache.zookeeper.server.persistence.FileTxnLog$FileTxnIterator.next(FileTxnLog.java:602) 
+at org.apache.zookeeper.server.persistence.FileTxnLog$FileTxnIterator.init(FileTxnLog.java:529) 
+at org.apache.zookeeper.server.persistence.FileTxnLog$FileTxnIterator.<init>(FileTxnLog.java:504) 
+at org.apache.zookeeper.server.persistence.FileTxnLog.read(FileTxnLog.java:341) 
+at org.apache.zookeeper.server.persistence.FileTxnSnapLog.restore(FileTxnSnapLog.java:131) 
+at org.apache.zookeeper.server.ZKDatabase.loadDataBase(ZKDatabase.java:222) 
+at org.apache.zookeeper.server.quorum.QuorumPeer.start(QuorumPeer.java:398) 
+... 3 more
+
+
+
+Notice the size is 0x100007 - 7 bytes beyond.
+
+The SetDataTxn contains the client data + a couple extra fields. On ingest the server is applying the jute.maxbuffer size to the data (expected) but not handling the fact that the data plus these extra fields may exceed the jute.maxbuffer check when reading from disk.
+
+Workaround was simple here: set the jute.maxbuffer size a bit higher (and fix the mis-behaving client, expectation was not that the data would grow this large).

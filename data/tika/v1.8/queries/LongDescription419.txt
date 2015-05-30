@@ -1,0 +1,3 @@
+Since TIKA-317 we've used the javax.imageio.spi.ServiceRegistry.lookupProviders(Class<?>) method to look up all the currently available Parser implementations. This method uses the context class loader of the current thread for looking up Parser classes.
+
+As seen in NUTCH-810 and discussed on tika-users@, this is troublesome for applications with more complex class loading mechanisms. To solve the issue, it would be good to allow the client to optionally specify an explicit class loader instance from which parsers are to be looked up.

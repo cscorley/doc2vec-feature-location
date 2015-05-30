@@ -1,0 +1,19 @@
+The EvalFunc<T> base class has logic in its default ctor to attempt to determine the runtime type of its type parameter T. This logic is brittle when the derived class has type parameters of its own. For instance:
+
+
+
+public static abstract EvalFunc1<T> extends EvalFunc<T> {}
+public static abstract EvalFunc2<X, T> extends EvalFunc1<T> {}
+public static EvalFunc3<X> extends EvalFunc1<X, DataBag> { ... }
+
+
+
+Here, EvalFunc3<X> does specify concrete type DataBag for T of EvalFunc<T>, but the existing logic in the default ctor fails to identify it.
+
+Here's a unit test which reproduces this failure:
+
+https://github.com/sagemintblue/pig/compare/apache:trunk...hazen/repro_eval_func_reflection_bug
+
+Here's the test with an update to EvalFunc's logic which fixes the issue:
+
+https://github.com/sagemintblue/pig/compare/apache:trunk...hazen/fix_eval_func_reflection

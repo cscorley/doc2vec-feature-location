@@ -1,0 +1,3 @@
+I'm working on a larger patch that makes the Request class immutable. To see, where the hdr and txn fields are modified, it helped to introduce accessor methods. The JVM should happily inline the method calls so no performance overhead should be expected.
+
+There's a minor, unrelated change included: ToBeAppliedRequestProcessor had a reference to the toBeApplied list of the Leader. So it was hard to find all places, where this list was actually modified. The patch gives instead the leader instance to the toBeAppliedRequestProcessor and the processor then accesses leader.toBeApplied.

@@ -1,0 +1,37 @@
+i am getting this exception:
+
+org.springframework.orm.jpa.JpaSystemException: No state snapshot is available for instance of type "de.logentis.bwh.model.Payment", but this instance uses state-comparison for dirty detection.; nested exception is <openjpa-1.1.0-r422266:657916 fatal general error> org.apache.openjpa.persistence.PersistenceException...
+
+Here are the relevant pieces of the casses:
+
+@Entity
+@Table(name = "orders")
+@VersionColumn(name = "_version")
+public class Order {
+...
+   @Embedded
+   Payment payment;
+}
+
+@Embeddable
+public class Payment {
+
+   @Basic
+   @Enumerated(EnumType.STRING)
+   @Column(name = "paymenttype")
+   PaymentType type;
+
+   @Column(name = "currency")
+   String currency;
+
+   @Column(name = "pricing")
+   String pricing;
+
+   @Column(name = "cost")
+   int cost;
+}
+
+The point is, persisting is no problem at all, the exception will be thrown by issueing:
+
+Query query = getEntityManager().createQuery("select o FROM Order o");
+query.getResultList();

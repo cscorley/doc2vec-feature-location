@@ -1,0 +1,38 @@
+derby.authentication.server does not recognize secure ldap url - ie if  the url starts with ldaps:// 
+
+Trying to connect using LDAP authentication with the following properties set
+derby.authentication.provider=LDAP
+derby.authentication.server=ldaps://xyz.abc.com:636
+derby.authentication.ldap.searchBase='ou=xyz,o=abc.com'
+derby.authentication.ldap.searchFilter='(emailaddress=%USERNAME%)'
+derby.connection.requireAuthentication=true
+
+throws InvalidNameException
+
+ij> connect 'jdbc:derby:testdb;user=a;password=p';
+ERROR 08004: Connection refused : javax.naming.InvalidNameException: Invalid name: /xyz.abc.com:636
+
+Code - LDAPAuthenticationSchemeImpl#setJNDIProviderProperties.
+Problem is the code expects that if Context.PROVIDER_URL is not and if derby.authentication.server is set, then the ldapServer is either of the format //server:port  or it already starts with ldap://  else it just adds ldap://  .
+
+Thus for a ldaps://xyz.com:636  url , it will become ldap://ldaps://xyz.com:636
+
+                                                                                     in the code snippet, dflLDAPURL is ldap://
+
+				if (ldapServer.startsWith(dfltLDAPURL))
+					this.providerURL = ldapServer;
+				else if (ldapServer.startsWith("//"))
+					this.providerURL = "ldap:" + ldapServer;
+				else
+					this.providerURL = dfltLDAPURL + ldapServer;
+			}
+			initDirContextEnv.put(Context.PROVIDER_URL, providerURL);
+
+
+We should support specifiying secure ldap , ie ldaps://  in the derby.authentication.server. Add condition to support the ldaps:// 
+ie. 
+			if (ldapServer.startsWith(dfltLDAPURL) || ldapServer.startsWith("ldaps://"))
+					this.providerURL = ldapServer;
+
+========
+A workaround to the problem is to set the Context.PROVIDER_URL instead.  

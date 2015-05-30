@@ -1,0 +1,6 @@
+Large result sets do not work as documented. I did some googling around [1] and found a number of posts talking about how setFetchSize on the JDBC driver isn't being honored, some dating back as far as 2002. The MySQL docs [2] state "When using versions of the JDBC driver earlier than 3.2.1, and connected to server versions earlier than 5.0.3, the setFetchSize() method has no effect, other than to toggle result set streaming as described above.". The doc outlines some additional instructions on how to create a statement that is going to allow a streaming result set. 
+
+I spoke with Fey and she provided me with a patch that will allow us to use LRS with some limitations. I'm in the process of updating the docs and adding tests for the patch that Fey provided.
+
+[1] Google "mysql jdbc setFetchSize"
+[2]http://dev.mysql.com/doc/refman/5.0/en/connector-j-reference-implementation-notes.html

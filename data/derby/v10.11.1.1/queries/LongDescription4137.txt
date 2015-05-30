@@ -1,0 +1,41 @@
+When using JTA for transaction control and a transaction timeout is set,
+EmbedXAResource ends up calling XATransactionState.scheduleTimeoutTask() which
+in turn registers a timeoutTask with java.util.Timer. In the normal case where
+the transaction finishes before the timeout, XATransactionState.xa_finalize()
+then calls timeoutTask.cancel(). So far this so good. The problem, however, is
+that java.util.TimerTask.cancel() does not actually remove the task from the
+timer queue, meaning that a strong reference to the timeoutTask is kept (and
+through that to XATransactionState, the EmbedConnection, etc). The reference
+is not removed until the time at which the timeout would have fired, which can
+be a long time. Under load this can quickly lead to an OOM situation.
+
+A simple fix is to call Timer.purge() every so often. While the javadocs talk
+about purge() being rarely needed and that it's not extremely cheap, I've
+found that calling it after every cancel() is the best approach, for several
+reasons: 1) the scenario here is that almost all tasks are cancelled, and
+hence this somewhat fits the Timer.purge() description of an "application that
+cancels a large number of tasks"; 2) there usually isn't a very large number
+of simultaneous transactions, and hence purge() is actually quite cheap; 3)
+this ensures the strong reference is immediately removed, allowing the GC to
+do a better job. Interestingly enough, I've had this exact same issue on a
+different type of db, and I had tested the purge() there and found it to be in
+the sub-microsecond range for 100 transactions (or similar - I don't recall
+the exact data), i.e. completely negligible.
+
+In short, my suggestion is to change xa_finalize as follows:
+
+    synchronized void xa_finalize() {
+        if (timeoutTask != null) 
+{
+            timeoutTask.cancel();
+            Monitor.getMonitor().getTimerFactory().
+                    getCancellationTimer().purge();
+        }
+        isFinished = true;
+    }
+
+As a temporary workaround, applications can do this themselves, i.e.
+add something like the following whenever they close a Connection:
+
+  import org.apache.derby.iapi.services.monitor.Monitor;
+  Monitor.getMonitor().getTimerFactory().getCancellationTimer().purge();

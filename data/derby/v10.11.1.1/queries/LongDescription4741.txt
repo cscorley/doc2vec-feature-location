@@ -1,0 +1,5 @@
+When not executing on a small device VM, Derby has been using the Java NIO classes java.nio.clannel.* for file io for extra concurrency.
+If a thread is interrupted while executing blocking IO operations in NIO, the ClosedByInterruptException will get thrown. Unfortunately, Derby isn't current architected to retry and complete such operations (before passing on the interrupt), so the Derby database store can be left in an inconsistent state, although no data is corrupted, and we therefore have to return a database level error to perform shutdown and recovery. This means the applications can no longer access the database while a shutdown and reboot including a recovery is taking place.
+
+It would be nice if Derby could somehow detect and finish IO operations underway when thread interrupts happen before passing the exception on to the application. Derby embedded is sometimes embedded in applications that use Thread.interrupt to stop threads.
+

@@ -1,0 +1,22 @@
+latest trunk failed at TestBookKeeperPersistenceManager.
+
+sees that it caused by uncaught exception:
+
+
+java.util.NoSuchElementException
+        at java.util.AbstractQueue.remove(AbstractQueue.java:90)
+        at org.apache.bookkeeper.client.PendingReadOp.nextElement(PendingReadOp.java:345)
+        at org.apache.bookkeeper.client.PendingReadOp.nextElement(PendingReadOp.java:53)
+        at org.apache.bookkeeper.client.LedgerRecoveryOp.readComplete(LedgerRecoveryOp.java:100)
+        at org.apache.bookkeeper.client.PendingReadOp.submitCallback(PendingReadOp.java:338)
+        at org.apache.bookkeeper.client.PendingReadOp.readEntryComplete(PendingReadOp.java:327)
+        at org.apache.bookkeeper.proto.PerChannelBookieClient.handleReadResponse(PerChannelBookieClient.java:627)
+        at org.apache.bookkeeper.proto.PerChannelBookieClient$7.safeRun(PerChannelBookieClient.java:529)
+        at org.apache.bookkeeper.util.SafeRunnable.run(SafeRunnable.java:31)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:439)
+        at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+        at java.lang.Thread.run(Thread.java:680)
+

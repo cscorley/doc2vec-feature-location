@@ -1,0 +1,40 @@
+When attempting to create an EntityManagerFactory in an OSGi environment the org.apache.openjpa.kernel.Bootstrap class attempts to instantiate a BrokerFactory using reflection. When the Bootstrap class attempts to load this class it only ever uses the ClassLoader passed in by the PersistenceUnitInfo. This means that the default broker (contained within OpenJPA) can never be loaded. The client bundle should not have to import the internals of OpenJPA to make this work, so OpenJPA should attempt to load the class using its own bundle classloader. This is the expected behaviour for an OSGi bundle.
+
+Additionally, the implementation uses Class.forName() which should be used carefully in an OSGi envrionment (to see why read http://blog.bjhargrave.com/2007/09/classforname-caches-defined-class-in.html ). It should be fine here because the variant that takes a ClassLoader is used.
+
+The following exception is generated when OpenJPA attempts to use the application classloader to load an internal class.
+
+<openjpa-2.0.0-SNAPSHOT-r422266:905001 fatal user error> org.apache.openjpa.persistence.ArgumentException: Could not invoke the static newInstance method on the named factory class "<<openjpa-2.0.0-SNAPSHOT-r422266:905001 fatal user error> org.apache.openjpa.util.UserException: The named BrokerFactory "org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory" is not valid.>".
+	at org.apache.openjpa.kernel.Bootstrap.newBrokerFactory(Bootstrap.java:70)
+	at org.apache.openjpa.persistence.PersistenceProviderImpl.getBrokerFactory(PersistenceProviderImpl.java:145)
+	at org.apache.openjpa.persistence.PersistenceProviderImpl.createContainerEntityManagerFactory(PersistenceProviderImpl.java:180)
+	at org.apache.openjpa.persistence.PersistenceProviderImpl.createContainerEntityManagerFactory(PersistenceProviderImpl.java:62)
+	at org.apache.aries.jpa.container.impl.EntityManagerFactoryManager.createEntityManagerFactories(EntityManagerFactoryManager.java:227)
+	at org.apache.aries.jpa.container.impl.EntityManagerFactoryManager.bundleStateChange(EntityManagerFactoryManager.java:121)
+	at org.apache.aries.jpa.container.impl.PersistenceBundleManager.modifiedBundle(PersistenceBundleManager.java:197)
+	at org.apache.aries.util.tracker.MultiBundleTracker$InternalBundleTracker.modifiedBundle(MultiBundleTracker.java:108)
+	at org.osgi.util.tracker.BundleTracker$Tracked.customizerModified(BundleTracker.java:453)
+	at org.osgi.util.tracker.AbstractTracked.track(AbstractTracked.java:237)
+	at org.osgi.util.tracker.BundleTracker$Tracked.bundleChanged(BundleTracker.java:413)
+	at org.eclipse.osgi.framework.internal.core.BundleContextImpl.dispatchEvent(BundleContextImpl.java:916)
+	at org.eclipse.osgi.framework.eventmgr.EventManager.dispatchEvent(EventManager.java:220)
+	at org.eclipse.osgi.framework.eventmgr.ListenerQueue.dispatchEventSynchronous(ListenerQueue.java:149)
+	at org.eclipse.osgi.framework.internal.core.Framework.publishBundleEventPrivileged(Framework.java:1350)
+	at org.eclipse.osgi.framework.internal.core.Framework.publishBundleEvent(Framework.java:1301)
+	at org.eclipse.osgi.framework.internal.core.BundleHost.stopWorker(BundleHost.java:490)
+	at org.eclipse.osgi.framework.internal.core.AbstractBundle.suspend(AbstractBundle.java:546)
+	at org.eclipse.osgi.framework.internal.core.Framework.suspendBundle(Framework.java:1098)
+	at org.eclipse.osgi.framework.internal.core.PackageAdminImpl.suspendBundle(PackageAdminImpl.java:314)
+	at org.eclipse.osgi.framework.internal.core.PackageAdminImpl.processDelta(PackageAdminImpl.java:460)
+	at org.eclipse.osgi.framework.internal.core.PackageAdminImpl.doResolveBundles(PackageAdminImpl.java:241)
+	at org.eclipse.osgi.framework.internal.core.PackageAdminImpl$1.run(PackageAdminImpl.java:176)
+	at java.lang.Thread.run(Thread.java:735)
+Caused by: <openjpa-2.0.0-SNAPSHOT-r422266:905001 fatal user error> org.apache.openjpa.persistence.ArgumentException: The named BrokerFactory "org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory" is not valid.
+	at org.apache.openjpa.kernel.Bootstrap.getFactoryClass(Bootstrap.java:159)
+	at org.apache.openjpa.kernel.Bootstrap.invokeFactory(Bootstrap.java:111)
+	at org.apache.openjpa.kernel.Bootstrap.newBrokerFactory(Bootstrap.java:62)
+	... 23 more
+Caused by: java.lang.ClassNotFoundException: org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory
+	at java.lang.Class.forName(Class.java:169)
+	at org.apache.openjpa.kernel.Bootstrap.getFactoryClass(Bootstrap.java:157)
+	... 25 more

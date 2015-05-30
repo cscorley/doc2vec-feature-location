@@ -1,0 +1,11 @@
+It would be useful to be able to register handlers after SolrCore has been initialized initialized.  It is also useful to be able to ask what handlers are registered and to where.  This patch adds the following functions to SolrCore:
+
+SolrRequestHandler registerRequestHandler(String handlerName, SolrRequestHandler handler);
+Collection<SolrRequestHandler> getRequestHandlers(Class<? extends SolrRequestHandler> clazz);
+
+It also guarantees that request handlers will be initialized with an argument saying what path it is registered to.  RequestHandlerBase gets a bean for the registered path.
+
+While discussing this, Yonik suggested making it possible to defer initialization of some handlers that will be infrequently used.  I added the 'LazyRequestHandlerWrapper'  (if taking this out makes the patch any easier to commit - it can get its own issue)
+
+check:
+http://www.nabble.com/Dynamic-RequestHandler-loading-tf3351707.html

@@ -1,0 +1,37 @@
+Hi all,
+
+Since ClusterDumper doesnt seem to have elaborate documentation, just created a page https://cwiki.apache.org/confluence/display/MAHOUT/Cluster+Dumper
+While playing around with clusterdump utility, I learned that it can be run on hadoop or as a standalone java program.
+As most of you are aware, when executed on hadoop, the seqFileDir and pointsDir should be the HDFS location else the local system path location. Since some of the clustering related wiki pages specified that we can get the output from HDFS and then run clusterdump, I was assuming that the clusterdump would always read data from local FS.
+
+I am not sure if newbies would have this same thought process.. So I was thinking if we'd need to make this explicit by changing the help list of clusterdump
+Currently ClusterDumper.java has 
+ addOption(SEQ_FILE_DIR_OPTION, "s", "The directory containing Sequence Files for the Clusters", true);
+Should we specify something like
+ addOption(SEQ_FILE_DIR_OPTION, "s", "The directory (HDFS if using Hadoop / Local filesystem if on standalone mode) containing Sequence Files for the Clusters", true);
+and so on..
+The problem with this approach is itz repetitive in that we'd need to change in quite a few places.. (I believe vectordump also follows the same principle)
+
+or 
+
+should we modify CommandLineUtil to have a generic message in the help specifying the fact that while running hadoop, the directories should reference HDFS location else local FS.
+How about adding it to the footer like 
+formatter.setFooter("Specify HDFS directories while running hadoop; else specify local File System directories");
+formatter.printFooter();
+
+Appreciate your feedbacks / thots.
+
+thanks
+Joe.
+
+from	Jeff Eastman <jdog@windwardsolutions.com>
+reply-to	dev@mahout.apache.org
+to	dev@mahout.apache.org
+date	Fri, Sep 3, 2010 at 2:45 PM
+subject	Re: ClusterDumper - Hadoop or standalone ?
+mailed-by	mahout.apache.org
+hide details Sep 3 (12 days ago)
+
+	Show quoted text -
++1 to generic message approach
+

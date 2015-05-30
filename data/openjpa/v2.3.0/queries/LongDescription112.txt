@@ -1,0 +1,32 @@
+native queries fail when use named parameters
+
+ int parm3 = 100;
+String sql = "SELECT deptno,budget,NAME,MGR_EMPID,REPORTSTO_DEPTNO FROM DeptBean WHERE deptno >= :deptno ";
+Query getDept = _em.createNativeQuery(sql,DeptBean.class
+getDept.setParameter("deptno",parm3);
+List<DeptBean> rl = (getDept.getResultList());
+
+
+<4|false|0.9.7-incubating-SNAPSHOT> org.apache.openjpa.persistence.ArgumentException: The parameter name or position "deptno" passed to execute() is not valid.  All map keys must be a declared parameter name or a number matching the parameter position. 
+	at org.apache.openjpa.kernel.QueryImpl.toParameterArray(QueryImpl.java:897)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:825)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:763)
+	at org.apache.openjpa.kernel.DelegatingQuery.execute(DelegatingQuery.java:520)
+	at org.apache.openjpa.persistence.QueryImpl.execute(QueryImpl.java:224)
+	at org.apache.openjpa.persistence.QueryImpl.getResultList(QueryImpl.java:264)
+	at com.ibm.ws.query.tests.JUNamedNativeQueryTest.testSelectDeptBean2(JUNamedNativeQueryTest.java:514)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:64)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:615)
+	at junit.framework.TestCase.runTest(Unknown Source)
+	at junit.framework.TestCase.runBare(Unknown Source)
+	at junit.framework.TestResult$1.protect(Unknown Source)
+	at junit.framework.TestResult.runProtected(Unknown Source)
+	at junit.framework.TestResult.run(Unknown Source)
+	at junit.framework.TestCase.run(Unknown Source)
+	at junit.framework.TestSuite.runTest(Unknown Source)
+	at junit.framework.TestSuite.run(Unknown Source)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:478)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:344)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:196)

@@ -1,0 +1,12 @@
+This issue found with BK-248. see comment
+
+Issue is: 
+1) Two Workers started and trying to get the lock for same ledger.
+2) Both worker found that lock file does not exist.
+3) both gone ahead for creating the lock node.
+4) One worker failed with NodeExists exception
+
+Then it is just removing the children from the list and go for latch wait for the watch notification.
+
+But here unfortunately we added the watch on lockPath with exists check call. But that time lockPatch really did not exists. SO, the lock may be invalid. Then it will never get the notification when lock has been cleaned by other worker.
+Here other worker partly replicated and now the current worker should take lock. But it can not get that notification as it added that watch when node does not exist.

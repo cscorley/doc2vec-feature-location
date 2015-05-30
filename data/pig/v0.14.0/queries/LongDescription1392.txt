@@ -1,0 +1,11 @@
+Using this script below, parser fails to recognize a valid field in the relation and throws error
+
+A = LOAD '/tmp' as (a:int, b:chararray, c:int);
+B = GROUP A BY (a, b);
+C = FOREACH B 
+{ bg = A.(b,c); GENERATE group, bg; }
+ ;
+
+The error thrown is
+
+2010-04-23 10:16:20,610 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1000: Error during parsing. Invalid alias: c in {group: (a: int,b: chararray),A: {a: int,b: chararray,c: int}}

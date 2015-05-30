@@ -1,0 +1,12 @@
+A trigger registers a dependency in the Dependency Manager for those columns which cause the firing of the trigger, but does not register a dependency on tables and columns which are used in the body of the trigger. This means that the trigger may unexpectedly become invalid due to a change to one of those tables and columns in its body, and the user may be surprised that Derby did not warn them of this problem when the underlying table/column change was made.
+
+An example of this problem is as follows:
+
+create table t1 (c1 int);
+create table t2 (c2 int);
+create trigger tr1 after update of c1 on t1  for each row mode db2sql insert into t2 (c2) values (1);
+
+With this set of definitions, Derby will warn/prevent the user about changes to table t1 and column c1, but will not warn the user about changes to table t2 and column c2. If the user drops or renames t2 or c2, the trigger will then give an error the next time it fires.
+
+It seems like it would be an improvement for the trigger to record this dependency on table t2 and column c2.
+

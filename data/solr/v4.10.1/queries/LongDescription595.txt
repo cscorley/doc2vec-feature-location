@@ -1,0 +1,16 @@
+Allow boosting to be specified for particular fields when using more like this.
+
+
+	Parse out "mlt.qf parameters" to get boosts in dismax like format (existing code from DisMax param parse code used to produce a Map<String,Float>)
+	Iterate through mltquery terms, get boost by looking at field from which mltquery term came,  and multiply boost specified in map by existing term boost.
+
+
+
+
+	If mlt.boost=false, then you get the same boost values as in map/mlt.qf parameters,
+
+
+
+
+	If mlt.boost=true then you get normalized boost multiplied by specified boost (which makes sense to me).
+

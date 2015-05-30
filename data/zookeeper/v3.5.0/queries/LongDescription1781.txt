@@ -1,0 +1,18 @@
+If snapCount is set to 1, ZooKeeper Server can start but it fails with the below error:
+
+2013-10-02 18:09:07,600 [myid:1] - ERROR [SyncThread:1:SyncRequestProcessor@151] - Severe unrecoverable error, exiting
+java.lang.IllegalArgumentException: n must be positive
+        at java.util.Random.nextInt(Random.java:300)
+        at org.apache.zookeeper.server.SyncRequestProcessor.run(SyncRequestProcessor.java:93)
+
+In source code,  it maybe be supposed that snapCount must be 2 or more:
+org.apache.zookeeper.server.SyncRequestProcessor.java
+
+     91             // we do this in an attempt to ensure that not all ofthe servers
+     92             // in the ensemble take a snapshot at the same time
+     93             int randRoll = r.nextInt(snapCount/2);
+
+
+
+I think this supposition is not bad because snapCount = 1 is not realistic setting...
+But, it may be better to mention this restriction in documentation or add a validation in the source code.

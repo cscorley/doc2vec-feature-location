@@ -1,0 +1,2 @@
+We've seen multiple occasions where users accidentally try to store 2 or more different relations to the same destination directory. Currently, this passes the Pig planner and fails on MR side due to concurrent attempts to create the same part file on the reducer. This is extremely confusing to the user, and hard to debug.
+We should instead fail their scripts before they are even submitted, since we can identify the erroneous condition from the beginning.

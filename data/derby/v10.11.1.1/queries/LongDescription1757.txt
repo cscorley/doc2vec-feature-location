@@ -1,0 +1,113 @@
+Seen while testing the 10.2.1.0 beta, in two different environments.
+
+Test produces no output, most likely it hangs and is killed after 1 hour.
+
+
+
+	
+	
+		
+		
+			
+			
+				
+				
+					
+					
+						
+						
+							
+							
+								
+								
+									Diff file derbyall/derbynetclientmats/DerbyNetClient/derbynetmats/jdk14/checkDataSource30.diff
+								
+								
+							
+							
+						
+						
+					
+					
+				
+				
+			
+			
+			Start: checkDataSource30 jdk1.5.0_04 DerbyNetClient derbynetmats:jdk14 2006-08-15 01:21:15 ***
+711 del
+< By default, autocommit is true for a connection
+< Default holdability for a connection is HOLD_CURSORS_OVER_COMMIT
+< CONNECTION(not in xa transaction yet) HOLDABILITY true
+< Notice that autocommit now is false for connection because it is part of the global transaction
+< Notice that connection's holdability at this point is CLOSE_CURSORS_AT_COMMIT because it is part of the global transaction
+< CONNECTION(in xa transaction) HOLDABILITY false
+< CONNECTION(in xa transaction) HOLDABILITY false
+< Autocommit on Connection inside global transaction has been set correctly to false
+< CONNECTION(non-xa) HOLDABILITY false
+< STATEMENT HOLDABILITY false
+< STATEMENT HOLDABILITY false
+< STATEMENT HOLDABILITY true
+< PREPARED STATEMENT HOLDABILITY true
+< CALLABLE STATEMENT HOLDABILITY true
+< H@1 id 1
+< H@2 id 2
+< H@3 id 3
+< CONNECTION(xa) HOLDABILITY false
+< STATEMENT(this one was created with holdability false, outside the global transaction. Check it's holdability inside global transaction) HOLDABILITY false
+< STATEMENT(this one was created with holdability true, outside the global transaction. Check it's holdability inside global transaction) HOLDABILITY true
+< STATEMENT(this one was created with default holdability inside this global transaction. Check it's holdability) HOLDABILITY false
+< PREPAREDSTATEMENT(this one was created with default holdability inside this global transaction. Check it's holdability) HOLDABILITY false
+< CALLABLESTATEMENT(this one was created with default holdability inside this global transaction. Check it's holdability) HOLDABILITY false
+< X@1 id 1
+< X@2 id 2
+< Expected SQLException No current connection. : 
+< Expected SQLException ResultSet not open.  Verify that autocommit is OFF.
+< resume XA transaction and keep using rs
+< Check holdability of various jdbc objects after resuming XA transaction
+< CONNECTION(xa) HOLDABILITY false
+< STATEMENT(this one was created with holdability false, outside the global transaction. Check it's holdability inside global transaction) HOLDABILITY false
+< STATEMENT(this one was created with holdability true, outside the global transaction. Check it's holdability inside global transaction) HOLDABILITY true
+< STATEMENT(this one was created with default holdability inside the global transaction when it was first started. Check it's holdability) HOLDABILITY false
+< PREPAREDSTATEMENT(this one was created with default holdability inside the global transaction when it was first started. Check it's holdability) HOLDABILITY false
+< CALLABLESTATEMENT(this one was created with default holdability inside the global transaction when it was first started. Check it's holdability) HOLDABILITY false
+< STATEMENT(this one was created with default holdability after the global transaction was resumed. Check it's holdability) HOLDABILITY false
+< PREPAREDSTATEMENT(this one was created with default holdability after the global transaction was resumed. Check it's holdability) HOLDABILITY false
+< CALLABLESTATEMENT(this one was created with default holdability after the global transaction was resumed. Check it's holdability) HOLDABILITY false
+< Expected SQLException ResultSet not open.  Verify that autocommit is OFF.
+< Expected SQLException ResultSet not open.  Verify that autocommit is OFF.
+< Set connection to hold 
+< CONNECTION(held) HOLDABILITY true
+< CONNECTION(xa) HOLDABILITY false
+< Expected SQLException(setHoldability) Cannot set holdability ResultSet.HOLD_CURSORS_OVER_COMMIT for a global transaction.
+< HOLDABLE Statement in global xact false connection warning ResultSetHoldability restricted to ResultSet.CLOSE_CURSORS_AT_COMMIT for a global transaction.
+< HOLDABLE PreparedStatement in global xact false connection warning ResultSetHoldability restricted to ResultSet.CLOSE_CURSORS_AT_COMMIT for a global transaction.
+< HOLDABLE CallableStatement in global xact false connection warning ResultSetHoldability restricted to ResultSet.CLOSE_CURSORS_AT_COMMIT for a global transaction.
+< CONNECTION(held) HOLDABILITY true
+< PASS XA HOLDABILITY TEST
+< **Test holdability state for: PooledConnection **
+< PASS: Holdability matches expected holdability:HOLD_CURSORS_OVER_COMMIT
+< ** Test autoCommit state for: PooledConnection**
+< PASS: autoCommit reset on getConnection
+< done creating  table
+< *** Test isolation level reset on PooledConnection.getConnection()***
+< setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED
+< PASS: No lock timeout occurs for READ_UNCOMMITTED
+< Get a new connection with PooledConnection.getConnection()
+< Isolation level should be reset to READ_COMMITTED
+< PASS: Expected lock timeout for READ_COMMITTED
+< done creating  table
+< *** Test isolation level reset on XAConnection.getConnection()***
+< setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED
+< PASS: No lock timeout occurs for READ_UNCOMMITTED
+< Get a new connection with XAConnection.getConnection()
+< Isolation level should be reset to READ_COMMITTED
+< PASS: Expected lock timeout for READ_COMMITTED
+< Checked class declared as: javax.sql.DataSource
+< Completed checkDataSource30
+Test Failed.
+			End:   checkDataSource30 jdk1.5.0_04 DerbyNetClient derbynetmats:jdk14 2006-08-15 02:21:22 ***
+		
+		
+	
+	
+

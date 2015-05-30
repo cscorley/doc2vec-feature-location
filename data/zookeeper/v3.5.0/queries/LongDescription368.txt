@@ -1,0 +1,24 @@
+Edit (Henry Robinson/henryr) 12/11/09:
+
+This JIRA specifically concerns the implementation of non-voting peers called Observers, their documentation and their tests. 
+
+Explicit goals are 1. not breaking any current ZK functionality, 2. enabling at least one deployment scenario involving Observers, 3. documentation describing how to use the feature and 4. tests validating the correct behaviour of 2. 
+
+Non goals of this JIRA are 1. performance optimizations specific to Observers, 2. compatibility with every feature of ZooKeeper (in particular all leader election protocols), which are both to be addressed in future JIRAs. 
+
+See http://wiki.apache.org/hadoop/ZooKeeper/Observers for more detail of use cases, proposed design and usage.
+
+See http://wiki.apache.org/hadoop/ZooKeeper/Observers/ReviewGuide for a brief commentary on the current patch. 
+
+-------------
+
+Currently, all servers of an ensemble participate actively in reaching agreement on the order of ZooKeeper transactions. That is, all followers receive proposals, acknowledge them, and receive commit messages from the leader. A leader issues commit messages once it receives acknowledgments from a quorum of followers. For cross-colo operation, it would be useful to have a third role: observer. Using Paxos terminology, observers are similar to learners. An observer does not participate actively in the agreement step of the atomic broadcast protocol. Instead, it only commits proposals that have been accepted by some quorum of followers.
+
+One simple solution to implement observers is to have the leader forwarding commit messages not only to followers but also to observers, and have observers applying transactions according to the order followers agreed upon. In the current implementation of the protocol, however, commit messages do not carry their corresponding transaction payload because all servers different from the leader are followers and followers receive such a payload first through a proposal message. Just forwarding commit messages as they currently are to an observer consequently is not sufficient. We have a couple of options:
+
+1- Include the transaction payload along in commit messages to observers;
+2- Send proposals to observers as well.
+
+Number 2 is simpler to implement because it doesn't require changing the protocol implementation, but it increases traffic slightly. The performance impact due to such an increase might be insignificant, though.
+
+For scalability purposes, we may consider having followers also forwarding commit messages to observers. With this option, observers can connect to followers, and receive messages from followers. This choice is important to avoid increasing the load on the leader with the number of observers. 

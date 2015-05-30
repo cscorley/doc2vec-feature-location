@@ -1,0 +1,6 @@
+We read a file in the UDF constructor. (The file is transferred to the compute nodes via distache)
+To avoid this case in the front-end while the script is in the compile stage,
+we differentiate between front end and back end execution depending upon a condition ( UDFContext.getUDFContext().getJobConf() == null )
+
+This was working till Pig 0.9.1, in the current Pig 0.9 version this is breaking.
+ie, If I have any 'fs' commands after the STORE statement, the GruntParser invokes the udf constructor again and the above condition check returns false causing errors.

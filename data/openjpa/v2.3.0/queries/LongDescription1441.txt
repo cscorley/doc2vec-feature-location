@@ -1,0 +1,20 @@
+I'm unable to enhance a Serializable class that has a version field when I have the DetachState property set as follows: openjpa.DetachState=fgs(DetachedStateField=true).
+
+The exception I'm seeing is : 
+
+
+null
+Exception in thread "main" <openjpa-2.0.0-SNAPSHOT-r422266:890859 nonfatal general error> org.apache.openjpa.util.GeneralException: An error occurred while enhancing com.test.acme.annuity.common.bean.jpa.AbstractPersistebleObject. Exception message: null
+	at org.apache.openjpa.enhance.PCEnhancer.run(PCEnhancer.java:545)
+	at org.apache.openjpa.enhance.PCEnhancer.run(PCEnhancer.java:4652)
+	at org.apache.openjpa.enhance.PCEnhancer.run(PCEnhancer.java:4594)
+	at main.EnhancerDriver.main(EnhancerDriver.java:19)
+Caused by: java.lang.NullPointerException
+	at org.apache.openjpa.enhance.PCEnhancer.addGetManagedValueCode(PCEnhancer.java:4320)
+	at org.apache.openjpa.enhance.PCEnhancer.addGetManagedValueCode(PCEnhancer.java:4278)
+	at org.apache.openjpa.enhance.PCEnhancer.writeExternal(PCEnhancer.java:4266)
+	at org.apache.openjpa.enhance.PCEnhancer.addWriteExternal(PCEnhancer.java:4203)
+	at org.apache.openjpa.enhance.PCEnhancer.addDetachExternalize(PCEnhancer.java:3991)
+	at org.apache.openjpa.enhance.PCEnhancer.addAttachDetachCode(PCEnhancer.java:3761)
+	at org.apache.openjpa.enhance.PCEnhancer.run(PCEnhancer.java:532)
+	... 3 more

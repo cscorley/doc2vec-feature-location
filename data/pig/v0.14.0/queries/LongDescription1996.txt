@@ -1,0 +1,6 @@
+The following query fails with the new parser:
+
+B = FOREACH (group (load 'a') ALL PARALLEL 16) generate group;
+
+runt> B = FOREACH (group (load 'a') ALL PARALLEL 16) generate group;
+2011-04-14 16:57:23,413 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1200: <line 1, column 34>  mismatched input 'PARALLEL' expecting RIGHT_PAREN

@@ -1,0 +1,26 @@
+Problem:
+When training doc/topic model no paths for the term/topic model found (outputs null).
+These paths are set using setModelPaths in CVB0Driver.
+
+
+Reason for Problem:
+Variety of Job instances call this method. 
+The Job is passed to the method instead of the Configuration object given to the Job.
+The configuration is retrieved from the Job instance itself.
+I believe that this Configuration instance is a clone of the original.
+This is a problem as the variable MODEL_PATHS is set on the clone which is then discarded when the given Job is complete.
+The original Configuration has no MODEL_PATHS String set and therefore returns null.
+The code stipulates that if it cannot find a model to use a new random matrix. This happens every time as MODEL_PATHS is not set for the Configuration instance used.
+
+Solution:
+Do not pass the Job to the setModels method, but pass the Configuration instance passed into the method which created the Job.
+i.e.
+change from:
+setModelPaths(Job job, Path modelPath)
+
+to:
+setModelPaths(Configuration conf, Path modelPath)
+
+And change all calling methods accordingly (obviously).
+
+So far what little testing I have done appears to solve this problem.

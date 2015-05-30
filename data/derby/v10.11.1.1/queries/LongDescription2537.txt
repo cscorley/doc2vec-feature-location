@@ -1,0 +1,17 @@
+Implement subtasks associated with pushing and using collation info in store.
+
+As was discussed on list the aproach will be:
+o store collation info gets passed into createConglomerate() using an enhanced version of the exising CollumnOrdering interface
+o store collation info will also have to get passed into interface that adds a column to a heap
+o collation info will be added to the store metadata so that correct collation datatypes can be created internal to store where there
+    may no access to system catalogs (for instance at  database recovery time).   A new heap and btree metadata version will be
+    added which will included a "sparse" on disk format which will describe those columns that have a collation id that is different
+    than the default.  
+o soft upgrade will be handled by insuring old format is readable by existing code and automatically creates current version of in memory structures by
+    assuming all old format conglomerates have default collation info.  Soft upgrade will never create new format heap or btree metadata.
+o hard upgrade will  write new format conglomerate metadata for conglomerates created after the upgrade, no work  will be done at upgrade time.  
+    Note the  proposed implementation of collation feature in 10.3 will only allow new dbs to set alternate collation, so in 10.3 hard upgrade is not 
+    actually necessary but  provides a consistent approach to internal store structures.  It also will allow  for a future where more collation control
+    is allowed in dbs.
+o store needs to create templates sometimes, to do this with correct collation info some of the Monitor functionality to create templates will be
+    moved from monitor into datatype factory and enhanced to take collaiton id info where it currently only takes format ids.

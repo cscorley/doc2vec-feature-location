@@ -1,0 +1,27 @@
+In many cases, we have seen users debugging a lot of time for simple schema definition mistakes in jython udfs.
+I believe adding some log messages could help users in this case.
+
+For Ex, the below script results in exception (field row doesnt exist) in line P since the schema definition is not annotated properly (@ is missing). Also There are no error messages from the python.
+
+register 'schemabug.py' using jython as schemabug;
+A = load 'schemabugA.txt' using PigStorage() as (  x : chararray,y : chararray, z : long );
+M = group A by (x, y);
+N = foreach M generate schemabug.numberrows(A) as udfout; 
+O = foreach N generate FLATTEN(udfout);
+P = foreach O generate row.x;
+dump P;
+
+
+schemabug.py
+------------
+outputSchema("numberrows:bag
+{rownum:tuple(row:tuple(x:chararray,y:chararray,z:long),number:long)}
+")
+def numberrows(inBag):
+  outBag = []
+  number = 0
+  for row in inBag:
+    number = number + 1
+    tup = (row, number)
+    outBag.append(tup)
+  return outBag

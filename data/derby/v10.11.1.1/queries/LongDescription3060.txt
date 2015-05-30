@@ -1,0 +1,21 @@
+DRDAConnThread#getConnFromDatabaseName incorrectly assumes that all SQLExceptions with error code 08004 thrown when trying to connect to a database are caused by an authentication failure.
+
+DRDAConnThread lines 1295-1296:
+-----8<----- 
+if (sqlState.regionMatches(0,SQLState.LOGIN_FAILED,0,5)) 
+    return CodePoint.SECCHKCD_USERIDINVALID;
+----->8-----
+
+
+I have added an exception to BasicDatabase#setupConnection with error code 08004.C.7. The exception is thrown if the connection is refused because the database has been booted in slave replication mode. This exception is, however, translated into an authentication exception by DRDAConnThread:
+
+
+When the NetworkServer has already booted a database 'test' in slave replication mode, I get the following output from ij:
+
+ij> connect 'jdbc:derby://localhost/test';
+ERROR 08004: Connection authentication failure occurred.  Reason: userid or password invalid.
+
+If I change the SQL code of the exception to XRE02.C and repeat, I get:
+
+ij> connect 'jdbc:derby://localhost/test';
+ERROR XRE02: DERBY SQL error: SQLCODE: -1, SQLSTATE: XRE02, SQLERRMC: Connect refused to database 'test' because it is in replication slave mode.

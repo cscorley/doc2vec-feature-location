@@ -1,0 +1,35 @@
+Entity :
+@Table(name = "JOBS_APPLICATION")
+@NamedQuery(name = "Application_resetByUserId", query = "UPDATE Application a SET a.user = NULL WHERE a.user.id = :userId")
+
+public class Application {
+    @ManyToOne
+    @JoinColumn(name = "ID_USER", nullable = true)
+    @ForeignKey(deleteAction=ForeignKeyAction.NULL)
+    private User user;
+.............
+
+execting named query 
+
+      final long pUserId =  10 ;
+
+        int result = em.createNamedQuery("Application_resetByUserId")
+        .setParameter("userId", pUserId).executeUpdate() ;
+
+exception:
+
+<1.0.0 nonfatal user error> org.apache.openjpa.persistence.ArgumentException: An error occurred while parsing the query filter "UPDATE Application a SET a.user = null WHERE a.user.id = :userId". Error message: Expression "UPDATEVALUE" requires at least one child.
+	at org.apache.openjpa.kernel.exps.AbstractExpressionBuilder.parseException(AbstractExpressionBuilder.java:116)
+	at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.firstChild(JPQLExpressionBuilder.java:1439)
+	at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.onlyChild(JPQLExpressionBuilder.java:1403)
+	at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.evalSetClause(JPQLExpressionBuilder.java:465)
+	at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.getQueryExpressions(JPQLExpressionBuilder.java:270)
+	at org.apache.openjpa.kernel.jpql.JPQLParser.eval(JPQLParser.java:61)
+	at org.apache.openjpa.kernel.ExpressionStoreQuery$DataStoreExecutor.<init>(ExpressionStoreQuery.java:657)
+	at org.apache.openjpa.kernel.ExpressionStoreQuery.newDataStoreExecutor(ExpressionStoreQuery.java:165)
+	at org.apache.openjpa.datacache.QueryCacheStoreQuery.newDataStoreExecutor(QueryCacheStoreQuery.java:260)
+	at org.apache.openjpa.kernel.QueryImpl.createExecutor(QueryImpl.java:725)
+	at org.apache.openjpa.kernel.QueryImpl.compileForDataStore(QueryImpl.java:683)
+	at org.apache.openjpa.kernel.QueryImpl.compileForExecutor(QueryImpl.java:665)
+	at org.apache.openjpa.kernel.QueryImpl.compile(QueryImpl.java:565)
+	at kodo.kernel.KodoQuery.compile(KodoQuery.java:75)

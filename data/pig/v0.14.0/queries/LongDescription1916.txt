@@ -1,0 +1,16 @@
+It is useful to have cross inside foreach nested statement. One typical use case for nested foreach is after cogroup two relations, we want to flatten the records of the same key, and do some processing. This is naturally to be achieved by cross. Eg:
+
+
+C = cogroup user by uid, session by uid;
+D = foreach C {
+    crossed = cross user, session; -- To flatten two input bags
+    filtered = filter crossed by user::region == session::region;
+    result = foreach crossed generate processSession(user::age, user::gender, session::ip);  --Nested foreach Jira: PIG-1631
+    generate result;
+}
+
+
+
+If we don't have cross, user have to write a UDF process the bag user, session. It is much harder than a UDF process flattened tuples. This is especially true when we have nested foreach statement(PIG-1631).
+
+This is a candidate project for Google summer of code 2011. More information about the program can be found at http://wiki.apache.org/pig/GSoc2011

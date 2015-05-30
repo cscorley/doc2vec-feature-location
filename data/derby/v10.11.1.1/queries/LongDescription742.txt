@@ -1,0 +1,49 @@
+BinaryLogicalOperatorNode.generateExpression() creates a BooleanDataValue for the result of the expression, this is to avoid object generation during runtime.
+
+The code is logically like (ignoring the short circuit logic) for the SQL <left> AND <right>
+
+BooleanDataValue   e34; // instance field for the result
+
+ e34 = <left>.and( <right>,  e34);
+
+The and method on BooleanDataValue will create a new BooleanDataValue if the passed in e34 is null, otherwise re-use it.
+On the first execution e34 will be null, and thus the 'and' method will create an object and it will get stored in e34.
+[ Ignore for the moment the inefficiency of setting e34 everytime to the same value on every subsequent execution. ]
+[ This approach is standard practice in the generated code and elsewhere and ensures that  object allocation within a Derby ]
+[ statement execution is a fixed cost, and not linear with the number of rows scanned. ]
+
+This issue is about what happens when multiple boolean expressions get combined, as in the query in DERBY-732. For each AND/OR
+a new BooleanDataValue field is created to hold the result of the intrermediate step, e.g. for the SQL ( <A> AND <B> ) AND <C>
+
+
+BooleanDataValue   e34; // instance field for the result of A and B
+BooleanDataValue   e35; // instance field for the final result
+
+ e34 = <A>.and( <B>,  e34);
+ e35 = <e34>.and(<C>, e35);
+
+But since this is a single expression, of the same type up and down the tree, why not  have a single BooleanDataValue for the result
+
+BooleanDataValue   e36; // instance field for the final result
+
+ e36 = <A>.and( <B>,  e36);
+ e36 = <e36>.and(<C>, e36);
+
+or
+
+e36 = new BooleanDataValue(); // through data value factory
+<A>.and( <B>,  e36);
+<e36>.and(<C>, e36);
+
+The query for DERBY-732 has over 500 BooleanDataValue   fields, which I think are all intermediate result holders.
+
+Would need to document that the and and or methods return the result passed in if it is not null, which I think is the case for
+all DataValueDescriptor methods that take a result parameter.
+
+
+
+
+
+
+
+[ [ 

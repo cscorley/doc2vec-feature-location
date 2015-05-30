@@ -1,0 +1,44 @@
+The following script fail:
+
+
+a = load '1.txt' as (a0:chararray, a1:chararray, a2);
+b = foreach a generate CONCAT(a0,a1) as b0, a0, a2;
+c = foreach b generate a0, a2;
+dump c;
+
+
+
+Error message:
+ERROR 2185: Column $0 of (Name: b: ForEach 1-50 Operator Key: 1-50) inconsistent pruning
+
+org.apache.pig.impl.logicalLayer.FrontendException: ERROR 1066: Unable to open iterator for alias c
+        at org.apache.pig.PigServer.openIterator(PigServer.java:698)
+        at org.apache.pig.tools.grunt.GruntParser.processDump(GruntParser.java:595)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:291)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:162)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:138)
+        at org.apache.pig.tools.grunt.Grunt.exec(Grunt.java:90)
+        at org.apache.pig.Main.run(Main.java:451)
+        at org.apache.pig.Main.main(Main.java:103)
+Caused by: org.apache.pig.impl.logicalLayer.FrontendException: ERROR 1002: Unable to store alias c
+        at org.apache.pig.PigServer.storeEx(PigServer.java:804)
+        at org.apache.pig.PigServer.store(PigServer.java:760)
+        at org.apache.pig.PigServer.openIterator(PigServer.java:680)
+        ... 7 more
+Caused by: org.apache.pig.impl.plan.optimizer.OptimizerException: ERROR 2212: Unable to prune plan
+        at org.apache.pig.impl.logicalLayer.optimizer.PruneColumns.prune(PruneColumns.java:826)
+        at org.apache.pig.impl.logicalLayer.optimizer.LogicalOptimizer.optimize(LogicalOptimizer.java:240)
+        at org.apache.pig.PigServer.compileLp(PigServer.java:1180)
+        at org.apache.pig.PigServer.storeEx(PigServer.java:799)
+        ... 9 more
+Caused by: org.apache.pig.impl.plan.VisitorException: ERROR 2188: Cannot prune columns for (Name: b: ForEach 1-50 Operator Key: 1-50)
+        at org.apache.pig.impl.logicalLayer.ColumnPruner.prune(ColumnPruner.java:177)
+        at org.apache.pig.impl.logicalLayer.ColumnPruner.visit(ColumnPruner.java:202)
+        at org.apache.pig.impl.logicalLayer.LOForEach.visit(LOForEach.java:132)
+        at org.apache.pig.impl.logicalLayer.LOForEach.visit(LOForEach.java:47)
+        at org.apache.pig.impl.plan.DependencyOrderWalker.walk(DependencyOrderWalker.java:69)
+        at org.apache.pig.impl.plan.PlanVisitor.visit(PlanVisitor.java:51)
+        at org.apache.pig.impl.logicalLayer.optimizer.PruneColumns.prune(PruneColumns.java:821)
+        ... 12 more
+Caused by: org.apache.pig.impl.plan.optimizer.OptimizerException: ERROR 2185: Column $0 of (Name: b: ForEach 1-50 Operator Key: 1-50) inconsistent pruning
+        at org.apache.pig.impl.logicalLayer.ColumnPruner.prune(ColumnPruner.java:148)

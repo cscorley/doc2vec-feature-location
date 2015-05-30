@@ -1,0 +1,39 @@
+assume the following table:
+
+create table TEST (TEST_ID integer not null, TEST_DATA blob not null);
+
+insert a record with a blob value larger than 32k, e.g. of size 100000
+
+read that record using a stmt like "select TEST_DATA from TEST where TEST_ID = ?"
+
+the following code fragment demonstrates the issue:
+
+InputStream in = resultSet.getBinaryStream(1);
+byte[] buf = new byte[33000];
+int n = in.read(buf);
+
+==> n == 32668, i.e. < buf.length !
+
+the problem occurs with all chunked reads that cross the boundary at offset 32668, e.g.
+
+InputStream in = resultSet.getBinaryStream(1);
+byte[] buf 1= new byte[32660];
+int n = in.read(buf1);
+// ok, n == buf1.length
+byte[] buf 2= new byte[20];
+n = in.read(buf2);
+// n == 8, i.e. < buf2.length !
+
+
+workarounds for this bug:
+
+
+	read byte by byte i.e. using in.read()
+	use resultSet.getBytes()
+
+
+
+
+the faulty code seems to be in org.apache.derby.impl.store.raw.data.MemByteHolder
+
+

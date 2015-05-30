@@ -1,0 +1,102 @@
+I have a NPE in Derby 10.3.2.1 (10.3.1.4 does not show this behaviour) that is probably the same one discussed in DERBY-3216
+
+FATAL 38406 [Main] (Start.java:153) - Start FAILED
+org.springframework.transaction.TransactionSystemException: Could not commit JDBC transaction; nested exception is java.sql.SQLException: Java exception: ': java.lang.NullPointerException'.
+Caused by:
+java.sql.SQLException: Java exception: ': java.lang.NullPointerException'.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.Util.javaException(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedConnection.commit(Unknown Source)
+        at org.apache.commons.dbcp.DelegatingConnection.commit(DelegatingConnection.java:238)
+        at org.apache.commons.dbcp.PoolingDataSource$PoolGuardConnectionWrapper.commit(PoolingDataSource.java:199)
+        at org.springframework.jdbc.datasource.DataSourceTransactionManager.doCommit(DataSourceTransactionManager.java:245)
+        at org.springframework.transaction.support.AbstractPlatformTransactionManager.processCommit(AbstractPlatformTransactionManager.java:651)
+        at org.springframework.transaction.support.AbstractPlatformTransactionManager.commit(AbstractPlatformTransactionManager.java:621)
+        at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:146)
+        at com.aaa.bbb.cccFactory$ddd.add(cccFactory.java:324)
+        at com.aaa.eee.fff.ggg.reload(ggg.java:44)
+        at com.aaa.eee.fff.ggg.startup(ggg.java:57)
+        at com.aaa.eee.fff.Start.startupEee(Start.java:170)
+        at com.aaa.eee.fff.Start.startup(Start.java:146)
+        at com.aaa.start.Starter.startup(Starter.java:264)
+        at com.aaa.start.Main.startup(Main.java:270)
+        at com.aaa.start.Main.main(Main.java:199)
+Caused by: java.sql.SQLException: Java exception: ': java.lang.NullPointerException'.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(Unknown Source)
+        ... 21 more
+Caused by: java.lang.NullPointerException
+        at org.apache.derby.impl.store.access.btree.ControlRow.getControlRowForPage(Unknown Source)
+        at org.apache.derby.impl.store.access.btree.ControlRow.get(Unknown Source)
+        at org.apache.derby.impl.store.access.btree.ControlRow.get(Unknown Source)
+        at org.apache.derby.impl.store.access.btree.BTreePostCommit.purgeRowLevelCommittedDeletes(Unknown Source)
+        at org.apache.derby.impl.store.access.btree.BTreePostCommit.performWork(Unknown Source)
+        at org.apache.derby.impl.store.raw.xact.Xact.postTermination(Unknown Source)
+        at org.apache.derby.impl.store.raw.xact.Xact.completeCommit(Unknown Source)
+        at org.apache.derby.impl.store.raw.xact.Xact.commit(Unknown Source)
+        at org.apache.derby.impl.store.raw.xact.Xact.commit(Unknown Source)
+        at org.apache.derby.impl.store.access.RAMTransaction.commit(Unknown Source)
+        at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.doCommit(Unknown Source)
+        at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.userCommit(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.commit(Unknown Source)
+        ... 15 more
+
+and derby.log:
+
+2008-01-28 08:26:36.148 GMT Thread[Main,5,main] (XID = 1888), (SESSIONID = 2), (DATABASE = directory:myDB), (DRDAID = null), Executing prepared statement: SELECT COUNT FROM ZZZ WHERE nID IS NULL :End prepared statement
+2008-01-28 08:26:36.150 GMT Thread[Main,5,main] (XID = 1888), (SESSIONID = 2), (DATABASE = directory:myDB), (DRDAID = null), Committing
+2008-01-28 08:26:36.188 GMT Thread[Main,5,main] (XID = 1888), (SESSIONID = 2), (DATABASE = directory:myDB), (DRDAID = null), Cleanup action starting
+2008-01-28 08:26:36.188 GMT Thread[Main,5,main] (XID = 1888), (SESSIONID = 2), (DATABASE = directory:myDB), (DRDAID = null), Failed Statement is: null with 2 parameters begin parameter #1: 1 :end parameter begin parameter #2: 1 :end param
+eter
+java.lang.NullPointerException
+        at org.apache.derby.impl.store.access.btree.ControlRow.getControlRowForPage(Unknown Source)
+        at org.apache.derby.impl.store.access.btree.ControlRow.get(Unknown Source)
+        at org.apache.derby.impl.store.access.btree.ControlRow.get(Unknown Source)
+        at org.apache.derby.impl.store.access.btree.BTreePostCommit.purgeRowLevelCommittedDeletes(Unknown Source)
+        at org.apache.derby.impl.store.access.btree.BTreePostCommit.performWork(Unknown Source)
+        at org.apache.derby.impl.store.raw.xact.Xact.postTermination(Unknown Source)
+        at org.apache.derby.impl.store.raw.xact.Xact.completeCommit(Unknown Source)
+        at org.apache.derby.impl.store.raw.xact.Xact.commit(Unknown Source)
+        at org.apache.derby.impl.store.raw.xact.Xact.commit(Unknown Source)
+        at org.apache.derby.impl.store.access.RAMTransaction.commit(Unknown Source)
+        at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.doCommit(Unknown Source)
+        at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.userCommit(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.commit(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedConnection.commit(Unknown Source)
+        at org.apache.commons.dbcp.DelegatingConnection.commit(DelegatingConnection.java:238)
+        at org.apache.commons.dbcp.PoolingDataSource$PoolGuardConnectionWrapper.commit(PoolingDataSource.java:199)
+        at org.springframework.jdbc.datasource.DataSourceTransactionManager.doCommit(DataSourceTransactionManager.java:245)
+        at org.springframework.transaction.support.AbstractPlatformTransactionManager.processCommit(AbstractPlatformTransactionManager.java:651)
+        at org.springframework.transaction.support.AbstractPlatformTransactionManager.commit(AbstractPlatformTransactionManager.java:621)
+        at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:146)
+        at com.aaa.bbb.cccFactory$ddd.add(cccFactory.java:324)
+        at com.aaa.eee.fff.ggg.reload(ggg.java:44)
+        at com.aaa.eee.fff.ggg.startup(ggg.java:57)
+        at com.aaa.eee.fff.Start.startupEee(Start.java:170)
+        at com.aaa.eee.fff.Start.startup(Start.java:146)
+        at com.aaa.start.Starter.startup(Starter.java:264)
+        at com.aaa.start.Main.startup(Main.java:270)
+        at com.aaa.start.Main.main(Main.java:199)
+Cleanup action completed
+
+
+This is a long transaction that has suddenly started throwing a NPE.
+Nothing strange happens during the transaction, but on closing I get
+the NPE.
+
+If I reorder some of the statements in the transaction (keeping
+functional equivalence) the NPE is sometimes not thrown.
+
+I have already moved any table/index create statements to a different (previously committed) transaction. (I have had a few NPE before and locking issues that led me to this practice).
+
+For a while I thought that shutting down derby after creating tables solved the problem, but this has been proven false.
+
+I have tried to run with a sane version, but then I am blocked by too many DERBY-3360.
+
+Also:
+
+On occasion the transaction DOES commit. Or seems to, but then Derby becomes unresponsive, the db files do not grow, but CPU rises and new connections can connect but get no response to commands. I don't know if this is really connected or not, but I thought I would mention it, as this unresponsive problem is what I am supposed to be diagnosing. When I say seems to commit, I mean that sometimes commit returns, sometimes it doesn't. Not very helpful, I know.

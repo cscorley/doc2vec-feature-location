@@ -1,0 +1,3 @@
+The java client is sending a SetWatches message even on a new session (always empty). Additionally SetWatches is called
+even in the case of re-establishing session, however no watches are set. The code should check for watches before
+sending this (ie don't send empty setwatches). I see this on java, investigate c as well.

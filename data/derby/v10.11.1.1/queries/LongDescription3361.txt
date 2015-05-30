@@ -1,0 +1,87 @@
+Specifying a non-existant slaveHost for startSlave seemingly succeeds in starting slave mode.
+-----------------------------------------------------------------------------------------------------------------------
+
+ CONNECT 'jdbc:derby://atum11:9999/test;startSlave=true;slaveHost=noSuchHost;slavePort=8989';
+ERROR XRE08: DERBY SQL error: SQLCODE: -1, SQLSTATE: XRE08, SQLERRMC: Replication slave mode started successfully for database 'test'. Connection refused because the database is in replication slave mode. 
+
+
+
+Slave derby.log shows a NPE:
+--------------------------------------
+
+2008-01-29 11:52:40.050 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.0.0 alpha - (615841M): instance c013800d-0117-c563-d051-000003bf6570
+on database directory /export/home/tmp/os136789/Replication_common_Trunk/slave/test  
+
+Database Class Loader started - derby.database.classpath=''
+
+2008-01-29 11:52:40.308 GMT:
+Shutting down instance c013800d-0117-c563-d051-000003bf6570
+----------------------------------------------------------------
+----------------------------------------------------------------
+2008-01-29 11:52:40.320 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.0.0 alpha - (615841M): instance a816c00e-0117-c563-d051-000003bf6570
+on database directory /export/home/tmp/os136789/Replication_common_Trunk/slave/test  
+
+2008-01-29 11:52:40.814 GMT Thread[DRDAConnThread_2,5,main] Cleanup action starting
+ERROR XRE08: Replication slave mode started successfully for database 'test'. Connection refused because the database is in replication slave mode. 
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:290)
+	at org.apache.derby.impl.jdbc.EmbedConnection.<init>(EmbedConnection.java:423)
+	at org.apache.derby.impl.jdbc.EmbedConnection30.<init>(EmbedConnection30.java:73)
+	at org.apache.derby.impl.jdbc.EmbedConnection40.<init>(EmbedConnection40.java:54)
+	at org.apache.derby.jdbc.Driver40.getNewEmbedConnection(Driver40.java:68)
+	at org.apache.derby.jdbc.InternalDriver.connect(InternalDriver.java:211)
+	at org.apache.derby.jdbc.AutoloadedDriver.connect(AutoloadedDriver.java:119)
+	at org.apache.derby.impl.drda.Database.makeConnection(Database.java:234)
+	at org.apache.derby.impl.drda.DRDAConnThread.getConnFromDatabaseName(DRDAConnThread.java:1346)
+	at org.apache.derby.impl.drda.DRDAConnThread.verifyUserIdPassword(DRDAConnThread.java:1296)
+	at org.apache.derby.impl.drda.DRDAConnThread.parseSECCHK(DRDAConnThread.java:3033)
+	at org.apache.derby.impl.drda.DRDAConnThread.parseDRDAConnection(DRDAConnThread.java:1090)
+	at org.apache.derby.impl.drda.DRDAConnThread.processCommands(DRDAConnThread.java:932)
+	at org.apache.derby.impl.drda.DRDAConnThread.run(DRDAConnThread.java:277)
+Cleanup action completed
+2008-01-29 11:52:40.816 GMT Thread[DRDAConnThread_2,5,main] Cleanup action starting
+ERROR XRE08: Replication slave mode started successfully for database 'test'. Connection refused because the database is in replication slave mode. 
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:290)
+	at org.apache.derby.impl.jdbc.EmbedConnection.<init>(EmbedConnection.java:423)
+	at org.apache.derby.impl.jdbc.EmbedConnection30.<init>(EmbedConnection30.java:73)
+	at org.apache.derby.impl.jdbc.EmbedConnection40.<init>(EmbedConnection40.java:54)
+	at org.apache.derby.jdbc.Driver40.getNewEmbedConnection(Driver40.java:68)
+	at org.apache.derby.jdbc.InternalDriver.connect(InternalDriver.java:211)
+	at org.apache.derby.jdbc.AutoloadedDriver.connect(AutoloadedDriver.java:119)
+	at org.apache.derby.impl.drda.Database.makeConnection(Database.java:234)
+	at org.apache.derby.impl.drda.DRDAConnThread.getConnFromDatabaseName(DRDAConnThread.java:1346)
+	at org.apache.derby.impl.drda.DRDAConnThread.verifyUserIdPassword(DRDAConnThread.java:1296)
+	at org.apache.derby.impl.drda.DRDAConnThread.parseSECCHK(DRDAConnThread.java:3033)
+	at org.apache.derby.impl.drda.DRDAConnThread.parseDRDAConnection(DRDAConnThread.java:1090)
+	at org.apache.derby.impl.drda.DRDAConnThread.processCommands(DRDAConnThread.java:932)
+	at org.apache.derby.impl.drda.DRDAConnThread.run(DRDAConnThread.java:277)
+Cleanup action completed
+2008-01-29 11:52:40.816 GMT Thread[DRDAConnThread_2,5,main] (DATABASE = test), (DRDAID = 
+{1}
+), Replication slave mode started successfully for database 'test'. Connection refused because the database is in replication slave mode. 
+New exception raised during cleanup null
+java.lang.NullPointerException
+	at org.apache.derby.impl.services.replication.slave.SlaveController.stopSlave(SlaveController.java:259)
+	at org.apache.derby.impl.services.replication.slave.SlaveController.stopSlave(SlaveController.java:287)
+	at org.apache.derby.impl.db.SlaveDatabase.stop(SlaveDatabase.java:149)
+	at org.apache.derby.impl.services.monitor.TopService.stop(TopService.java:405)
+	at org.apache.derby.impl.services.monitor.TopService.shutdown(TopService.java:349)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.shutdown(BaseMonitor.java:235)
+	at org.apache.derby.impl.db.DatabaseContextImpl.cleanupOnError(DatabaseContextImpl.java:60)
+	at org.apache.derby.iapi.services.context.ContextManager.cleanupOnError(ContextManager.java:330)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.cleanupOnError(TransactionResourceImpl.java:419)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:337)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:1859)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleStopReplicationSlave(EmbedConnection.java:747)
+	at org.apache.derby.impl.jdbc.EmbedConnection.<init>(EmbedConnection.java:296)
+	at org.apache.derby.impl.jdbc.EmbedConnection30.<init>(EmbedConnection30.java:73)
+	at org.apache.derby.impl.jdbc.EmbedConnection40.<init>(EmbedConnection40.java:54)
+	at org.apache.derby.jdbc.Driver40.getNewEmbedConnection(Driver40.java:68)
+	at org.apache.derby.jdbc.InternalDriver.connect(InternalDriver.java:211)
+	at org.apache.derby.jdbc.AutoloadedDriver.connect(AutoloadedDriver.java:119)
+	at org.apache.derby.impl.db.SlaveDatabase.handleShutdown(SlaveDatabase.java:317)
+	at org.apache.derby.impl.db.SlaveDatabase.access$200(SlaveDatabase.java:73)
+	at org.apache.derby.impl.db.SlaveDatabase$SlaveDatabaseBootThread.run(SlaveDatabase.java:293)
+	at java.lang.Thread.run(Thread.java:619)
+Cleanup action completed

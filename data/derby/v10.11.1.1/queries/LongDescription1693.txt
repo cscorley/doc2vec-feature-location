@@ -1,0 +1,28 @@
+While running a test with blobs and clobs of random size but not exceeding more than 5MB , with derby.language.logStatementText=true , The inserts are faling with out of memory error. Once that error occurs then the test loses all connections to the database. If I take off the derby.language.logStatementText=true property from derby.properties, the test runs fine. Here is the stack Trace
+
+
+java.lang.OutOfMemoryError: Java heap space
+
+--SQLException Caught--
+
+SQLState:   XJ001
+Severity: 0
+Message:  Java exception: 'Java heap space: java.lang.OutOfMemoryError'.
+java.lang.OutOfMemoryError: Java heap space
+java.sql.SQLException: No current connection.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExc
+eptionFactory.java:45)
+        at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Util.java:89)
+        at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Util.java:105)
+        at org.apache.derby.impl.jdbc.Util.noCurrentConnection(Util.java:209)
+        at org.apache.derby.impl.jdbc.EmbedConnection.checkIfClosed(EmbedConnect
+ion.java:1351)
+        at org.apache.derby.impl.jdbc.EmbedConnection.setupContextStack(EmbedCon
+nection.java:1529)
+        at org.apache.derby.impl.jdbc.EmbedConnection.rollback(EmbedConnection.j
+ava:946)
+        at com.ibm.db2j.tests.scenario.utils.DbTasks.insertMail(DbTasks.java:400
+)
+        at com.ibm.db2j.tests.scenario.tasks.Refresh.insertMail(Refresh.java:62)
+        at com.ibm.db2j.tests.scenario.tasks.Refresh.doWork(Refresh.java:43)
+        at com.ibm.db2j.tests.scenario.tasks.Refresh.run(Refresh.java:21)

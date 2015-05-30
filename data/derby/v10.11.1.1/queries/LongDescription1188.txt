@@ -1,0 +1,3 @@
+Currently the truncate defragment pass holds locks until it commits.  It would be better if it committed more often.  To do this
+the loop must be enhanced to pick up ddl level state change when the commits happen and release locks.  It may be that
+work being done in 10.2 for scrollable updatable result sets across commits in open cursors will help with this.

@@ -1,0 +1,10 @@
+Prior to 0.7, Pig had its own local execution mode, in addition to hadoop map reduce execution mode. To support these two different execution modes, Pig implemented an abstraction layer with a set of interfaces and abstract classes.  Pig 0.7 replaced the local mode with hadoop local mode and made this abstraction layer redundant.
+
+Our goal is to remove those extra code. But we need also keep code backward compatible since some interfaces are exposed by top-level API.
+
+So we propose the first steps:
+
+
+	Deprecate methods on FileLocalizer that have DataStorage as parameter.
+	Remove ExecPhysicalOperator, ExecPhysicalPlan, ExecScopedLogicalOperator, ExecutionEngine and util/ExecTools from org.apache.pig.backend.executionengine package.
+

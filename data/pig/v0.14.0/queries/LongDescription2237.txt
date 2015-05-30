@@ -1,0 +1,35 @@
+Hi,
+
+For a script
+
+========
+A = load 'test.txt' using PigStorage() as (a:int,b:int);
+B = order A by a ;
+C = limit B 2;
+store C into 'op1' using PigStorage();
+========
+
+Limit and ORDER BY are done in the same MR job if no explicit PARALLELism is mentioned.
+In this case, the no of reducers are determined by pig and sometimes it is calculated > 1.
+Since limit happens at the reduce side, each reduce tasks does a limit separately generating n*2 records where n is the no of reduce tasks calculated by pig.
+
+If an explicit specification of no of reduce tasks using PARALLEL keyword is done on ORDER BY,
+
+==========
+B = order A by a PARALLEL 4;
+==========
+
+another MR is created with 1 reduce task where the limit is done. 
+
+In short, the issue occurs when the no of reducers calculated by pig is greater than 1 and a limit is involved in the MR.
+
+The issue can be replicated by specifying
+
+==========
+-Dpig.exec.reducers.bytes.per.reducer
+==========
+
+The issue is seen in 0.8 and 0.9 version. It works good in 0.7
+
+Regards,
+Anitha

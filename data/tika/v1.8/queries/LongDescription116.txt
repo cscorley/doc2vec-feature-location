@@ -1,0 +1,3 @@
+The current OpenOfficeParser first reads the entire meta.xml and content.xml files from the given OpenDocument zip into memory, then parses the in-memory files to DOM trees, merges the trees, and finally evaluates a number of XPath expressions against the resulting DOM tree to extract metadata and document content. All this requires quite a bit of memory and multiple passes over the document.
+
+It would be better if the document could be streamed directly through zip and sax parsers without keeping a full copy of the document in memory or doing multiple passes over the document.

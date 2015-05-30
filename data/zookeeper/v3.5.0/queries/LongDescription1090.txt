@@ -1,0 +1,55 @@
+I think I have found a bug in the snapshot mechanism.
+
+The problem occurs because dt.lastProcessedZxid is not synchronized (or rather set before the data tree is modified):
+
+FileTxnSnapLog:
+
+
+    public void save(DataTree dataTree,
+            ConcurrentHashMap<Long, Integer> sessionsWithTimeouts)
+        throws IOException {
+        long lastZxid = dataTree.lastProcessedZxid;
+        LOG.info("Snapshotting: " + Long.toHexString(lastZxid));
+        File snapshot=new File(
+                snapDir, Util.makeSnapshotName(lastZxid));
+        snapLog.serialize(dataTree, sessionsWithTimeouts, snapshot);   <=== the Datatree may not have the modification for lastProcessedZxid
+    }
+
+
+
+DataTree:
+
+
+    public ProcessTxnResult processTxn(TxnHeader header, Record txn) {
+        ProcessTxnResult rc = new ProcessTxnResult();
+
+        String debug = "";
+        try {
+            rc.clientId = header.getClientId();
+            rc.cxid = header.getCxid();
+            rc.zxid = header.getZxid();
+            rc.type = header.getType();
+            rc.err = 0;
+            if (rc.zxid > lastProcessedZxid) {
+                lastProcessedZxid = rc.zxid;
+            }
+            [...modify data tree...]           
+ }
+
+
+The lastProcessedZxid must be set after the modification is done.
+
+As a result, if server crashes after taking the snapshot (and the snapshot does not contain change corresponding to lastProcessedZxid) restore will not restore the data tree correctly:
+
+
+public long restore(DataTree dt, Map<Long, Integer> sessions,
+            PlayBackListener listener) throws IOException {
+        snapLog.deserialize(dt, sessions);
+        FileTxnLog txnLog = new FileTxnLog(dataDir);
+        TxnIterator itr = txnLog.read(dt.lastProcessedZxid+1); <=== Assumes lastProcessedZxid is deserialized
+ }
+
+
+
+
+I have had offline discussion with Ben and Camille on this. I will be posting the discussion shortly.

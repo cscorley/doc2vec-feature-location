@@ -1,0 +1,5 @@
+There is a trivial bug in o.a.tika.server.TikaServerCLI where we double log that we are starting the server. The initial logging statement reading in static String value from a properties file. This static value is currently set to $
+{project.version}
+ which is strange...
+Secondly, there is actually no requirement to have this file as this is the only property contained within the file and it is only used in this context.
+This simple issue improves INFO logging to server initialization as well as removal of useless properties file. 

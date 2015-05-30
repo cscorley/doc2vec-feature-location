@@ -1,0 +1,21 @@
+A test would look as follows:
+
+
+PigServer pigServer = new PigServer(ExecType.LOCAL);
+TupleFactory tf = TupleFactory.getInstance();
+Data data = Storage.resetData(pigServer.getPigContext());
+data.set("foo", Arrays.asList(
+    tf.newTuple("a"),
+    tf.newTuple("b"),
+    tf.newTuple("c")
+    ));
+
+pigServer.registerQuery("A = LOAD 'foo' USING mock.Storage();");
+// some complex script to test
+pigServer.registerQuery("STORE A INTO 'bar' USING mock.Storage();");
+
+Iterator<Tuple> out = data.get("bar").iterator();
+assertEquals("a", out.next().get(0));
+assertEquals("b", out.next().get(0));
+assertEquals("c", out.next().get(0));
+

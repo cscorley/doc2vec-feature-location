@@ -1,0 +1,20 @@
+The XMLLoader in piggy bank always add an empty tuple. Everytime this has to be filtered out. Instead the same could be done by the loader itself.
+Consider the below script :
+a= load 'a.xml' using org.apache.pig.piggybank.storage.XMLLoader('name');
+dump a;
+b= filter a by $0  is not null;
+dump b;
+
+
+The output of first dump is :
+(<name> foobar </name>)
+(<name> foo </name>)
+(<name> justname </name>)
+()
+
+The output of second dump is :
+(<name> foobar </name>)
+(<name> foo </name>)
+(<name> justname </name>)
+
+Again another case is if I dont have a matching tag , still the loader will generate the empty tuple.

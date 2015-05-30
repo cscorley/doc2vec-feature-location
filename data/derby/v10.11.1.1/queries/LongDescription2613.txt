@@ -1,0 +1,107 @@
+I am not sure what is broken here.  it looks like a test problem, but that is only a guess.   When I got this problem I was trying to run
+a full set of upgrade tests against the trunk and I had jars for all of the releases available from :
+https://svn.apache.org/repos/asf/db/derby/jars
+(ie. :
+m1_ibm15:64>ls */lib
+10.0.2.1/lib:
+derby.jar              derbyLocale_it.jar     derbyLocale_zh_CN.jar
+derbyLocale_de_DE.jar  derbyLocale_ja_JP.jar  derbyLocale_zh_TW.jar
+derbyLocale_es.jar     derbyLocale_ko_KR.jar  derbynet.jar
+derbyLocale_fr.jar     derbyLocale_pt_BR.jar  derbytools.jar
+
+10.1.1.0/lib:
+derby.jar              derbyLocale_ja_JP.jar  derbyTesting.jar
+derbyLocale_de_DE.jar  derbyLocale_ko_KR.jar  derbyclient.jar
+derbyLocale_es.jar     derbyLocale_pt_BR.jar  derbynet.jar
+derbyLocale_fr.jar     derbyLocale_zh_CN.jar  derbytools.jar
+derbyLocale_it.jar     derbyLocale_zh_TW.jar
+
+10.1.2.1/lib:
+derby.jar              derbyLocale_ja_JP.jar  derbyTesting.jar
+derbyLocale_de_DE.jar  derbyLocale_ko_KR.jar  derbyclient.jar
+derbyLocale_es.jar     derbyLocale_pt_BR.jar  derbynet.jar
+derbyLocale_fr.jar     derbyLocale_zh_CN.jar  derbytools.jar
+derbyLocale_it.jar     derbyLocale_zh_TW.jar
+
+10.1.3.1/lib:
+derby.jar              derbyLocale_ja_JP.jar  derbyTesting.jar
+derbyLocale_de_DE.jar  derbyLocale_ko_KR.jar  derbyclient.jar
+derbyLocale_es.jar     derbyLocale_pt_BR.jar  derbynet.jar
+derbyLocale_fr.jar     derbyLocale_zh_CN.jar  derbytools.jar
+derbyLocale_it.jar     derbyLocale_zh_TW.jar
+
+10.2.1.6/lib:
+derby.jar              derbyLocale_ja_JP.jar  derbyclient.jar
+derbyLocale_de_DE.jar  derbyLocale_ko_KR.jar  derbynet.jar
+derbyLocale_es.jar     derbyLocale_pt_BR.jar  derbyrun.jar
+derbyLocale_fr.jar     derbyLocale_zh_CN.jar  derbytools.jar
+derbyLocale_it.jar     derbyLocale_zh_TW.jar
+
+10.2.2.0/lib:
+derby.jar              derbyLocale_ja_JP.jar  derbyTesting.jar
+derbyLocale_cs.jar     derbyLocale_ko_KR.jar  derbyclient.jar
+derbyLocale_de_DE.jar  derbyLocale_pl.jar     derbynet.jar
+derbyLocale_es.jar     derbyLocale_pt_BR.jar  derbyrun.jar
+derbyLocale_fr.jar     derbyLocale_ru.jar     derbytools.jar
+derbyLocale_hu.jar     derbyLocale_zh_CN.jar
+derbyLocale_it.jar     derbyLocale_zh_TW.jar
+
+
+The phase that it broke in was when it was trying to test  was the following hierarchy as reported by junit.swingui.TestRunner:
+Upgrade Suite
+    Upgrade Tests from 10.0.2.1
+         Upgrade Phase: UPGRADE
+
+It looks like this phase does not even get started as it can't find the db.  Note in the same run there is one soft upgrade error that happens in a 
+previous phase.  I have reported that as a separate issue in DERBY-2612 .
+
+Here is the error reported:
+2) Upgrade Phase: UPGRADEjava.sql.SQLException: Failed to start database 'single
+Use/oneuse0', see the next exception for details.
+    at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExcepti
+onFactory.java:45)
+    at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Util.java:88)
+    at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Util.java:94)
+    at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Util.java:173)
+    at org.apache.derby.impl.jdbc.EmbedConnection.newSQLException(EmbedConnectio
+n.java:2119)
+    at org.apache.derby.impl.jdbc.EmbedConnection.bootDatabase(EmbedConnection.j
+ava:1783)
+    at org.apache.derby.impl.jdbc.EmbedConnection.<init>(EmbedConnection.java:24
+9)
+    at org.apache.derby.jdbc.Driver30.getNewEmbedConnection(Driver30.java:74)
+    at org.apache.derby.jdbc.InternalDriver.connect(InternalDriver.java:209)
+    at org.apache.derby.jdbc.EmbeddedDataSource.getConnection(EmbeddedDataSource
+.java:479)
+    at org.apache.derby.jdbc.EmbeddedDataSource.getConnection(EmbeddedDataSource
+.java:423)
+    at org.apache.derbyTesting.functionTests.tests.upgradeTests.PhaseChanger.set
+Up(PhaseChanger.java:94)
+    at junit.extensions.TestSetup$1.protect(TestSetup.java:18)
+    at junit.extensions.TestSetup.run(TestSetup.java:23)
+    at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+    at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+    at junit.extensions.TestSetup.run(TestSetup.java:23)
+    at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+    at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+    at junit.extensions.TestSetup.run(TestSetup.java:23)
+    at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+    at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+    at junit.extensions.TestSetup.run(TestSetup.java:23)
+    at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+    at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+    at junit.extensions.TestSetup.run(TestSetup.java:23)
+    at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+    at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+    at junit.extensions.TestSetup.run(TestSetup.java:23)
+    at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+    at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+    at junit.extensions.TestSetup.run(TestSetup.java:23)
+    at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+    at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+    at junit.extensions.TestSetup.run(TestSetup.java:23)
+    at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+    at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+    at junit.extensions.TestSetup.run(TestSetup.java:23)
+
+

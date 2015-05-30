@@ -1,0 +1,37 @@
+I used to import data with CALL SYSCS_UTIL.SYSCS_IMPORT_TABLE procedure with 
+success in JAVA and DERBY 10.2.2.0.
+
+Since 10.3.1.4, the import procedure fails.
+
+The error message is : 
+The exception 'java.sql.SQLException: No current connection.' was thrown while 
+evaluating an expression.
+
+I'm sure there is a connection, the same which created the statement : 
+***************************************************************************************************
+    protected boolean importTableDataCOUNTRIES() {
+        try 
+{
+            java.sql.Statement st = 
+conn.createStatement(java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, 
+java.sql.ResultSet.CONCUR_UPDATABLE);
+            String sql = "";
+
+            sql = "CALL 
+SYSCS_UTIL.SYSCS_IMPORT_TABLE('NMSET', 'PAYS', '/tmp/lst_pays.csv', 
+null, null, null, 1)";
+            st.executeUpdate(sql);
+            
+            return true;
+        }
+ catch (SQLException ex) 
+{
+            debug(ex.getMessage());
+        }
+        return false;
+    }
+***************************************************************************************************
+The database is not being accessed by another application. The table does 
+exist. The CSV file is comma separated and strings are enclosed by ".
+
+Thank you for considering this issue.

@@ -1,0 +1,20 @@
+Currently user can not register pig jars with globing.
+
+For example following register script will fail.
+
+
+register /etc/jars/*.jar  
+
+It will be great if we can support such globing for registering jars.
+
+Release notes:
+We allow globbing in register statement. User can use "*" to denote a globbing, eg:
+register key*.jar
+register /home/jarpath/key*.jar
+register jars/key*.jar
+
+The path can be absolute path or relative path start with working directory. 
+
+Note globbing does not further search in classpath as non-globbing case does, eg: 
+"register key1234.jar" works if key1234.jar in classpath, but not in working directory, however,
+"register key*.jar" will not locate key1234.jar in this case.

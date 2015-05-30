@@ -1,0 +1,19 @@
+Join is broken after LOJoin patch (Optimizer_Phase5.patch of [PIG-697|https://issues.apache.org/jira/browse/PIG-697). Even the simplest join script is not working under local mode:
+
+eg:
+a = load '1.txt';
+b = load '2.txt';
+c = join a by $0, b by $0;
+dump c;
+
+Caused by: java.lang.NullPointerException
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POPackage.getNext(POPackage.java:206)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:231)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.getNext(POForEach.java:191)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:231)
+        at org.apache.pig.backend.local.executionengine.physicalLayer.counters.POCounter.getNext(POCounter.java:71)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:231)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POStore.getNext(POStore.java:117)
+        at org.apache.pig.backend.local.executionengine.LocalPigLauncher.runPipeline(LocalPigLauncher.java:146)
+        at org.apache.pig.backend.local.executionengine.LocalPigLauncher.launchPig(LocalPigLauncher.java:109)
+        at org.apache.pig.backend.local.executionengine.LocalExecutionEngine.execute(LocalExecutionEngine.java:165)

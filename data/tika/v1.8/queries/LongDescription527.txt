@@ -1,0 +1,17 @@
+Background
+-----------------
+As of Tika 0.7, tika-config.xml is not longer mandatory and loading 3rd party parsers as plugins through service architecture is supported.
+
+This introduces great flexibility, and even allows for extending Tika's file format support by simply dropping in jar's on the classpath. This is great for configuring Tika when it's embedded as part of another application such as Solr or Nutch. You can easily add support for e.g. a commercial document filter with Tika wrapper without changing Tika or the consuming application, or even maintaining a tika-config.xml.
+
+This serves the majority of all use cases.
+
+Problem
+------------
+However, as the variety of 3rd party document parsers increases, we'll start seeing an overlap of parsers supporting the same mime-types. A very likely scenario is a company specialized in document filters packaging their parsers as a Tika plugin, under whatever license they choose.
+
+In this scenario, a system integrator (working with e.g. Solr) wants to gather all the parsers that the particular customer needs, and then choose which parser should handle each mime-type. She may want to let a 3rd party parser plugin handle Word files but the Tika supplied POI parser handle Excel.
+
+Today, the last parser plugin that gets loaded by the class-loader happens to "win" the mime-types it supports. As it is not uncommon for one parser to register multiple mime-types, re-claiming a subset of the types is not possible unless you are consuming Tika directly.
+
+We thus need an "override" mime-to-parser mapping by configuration, and Tika needs to look for this config by default when starting.

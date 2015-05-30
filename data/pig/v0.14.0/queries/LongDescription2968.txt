@@ -1,0 +1,20 @@
+Sample code 
+
+
+$ cat test/foreach.pig 
+daily = load 'nyse' as (exchange, symbol);
+grpd = group daily by exchange;
+uniquecnt = foreach grpd {
+        sym = daily.symbol;
+        uniq_sym = distinct sym;
+        generate group, uniq_sym;
+};
+another = FOREACH uniquecnt GENERATE group;
+explain another;
+
+
+
+
+This breaks when it tries to prune uniq_sym->sym->innerload_daily
+
+2012-10-12 14:54:11,031 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 2000: Error processing rule ColumnMapKeyPrune. Try -t ColumnMapKeyPrune

@@ -1,0 +1,21 @@
+In GenericOptionsParser work, we have these lines:
+
+
+
+GenericOptionsParser parser = new GenericOptionsParser(args);
+Configuration conf = parser.getConfiguration();    
+
+Properties properties = new Properties();
+properties.putAll(ConfigurationUtil.toProperties(conf));
+PropertiesUtil.loadDefaultProperties(properties);
+
+
+
+conf contains two sources: one from hadoop default config files (core-site.xml, hdfs-site.xml, mapred-site.xml), the other is from hadoop related command line options. Override conf over pig property files is wrong for the default hadoop configuration part. We shall not bring default hadoop configuration in. The following code illustrate how to do that:
+
+
+
+Configuration conf = new Configuration(false);
+GenericOptionsParser parser = new GenericOptionsParser(conf, args);
+conf = parser.getConfiguration();
+

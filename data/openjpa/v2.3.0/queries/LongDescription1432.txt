@@ -1,0 +1,5 @@
+The JPA 2.0 version is detected from persistence.xml and then set to the Compatibility object in ConfigurationImpl. However, this Compatibility object will be nullified if the following property is passed as an argument to createEntityManagerFactory:   
+
+Map<Object,Object> map = new HashMap<Object,Object>();
+map.put("openjpa.Compatibility", "StrictIdentityValues=true");
+EntityManagerFactory emf = Persistence.createEntityManagerFactory("test", map);

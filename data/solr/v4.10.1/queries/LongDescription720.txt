@@ -1,0 +1,10 @@
+CoreContainer.persist() writes the core container properties at the 'wrong' place in the XML.
+A Solr webapp with a solr.xml stating persistent='true' may fail to restart if the file is written.
+They should be written under /solr - not /solr/cores aka before (not after):
+
+  /** Write the cores configuration through a writer.*/
+  void persist(Writer writer) throws IOException {
+...
+    writer.write("<cores adminPath='");
+...
+

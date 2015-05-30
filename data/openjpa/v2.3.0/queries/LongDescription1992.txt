@@ -1,0 +1,4 @@
+Query q = em.createQuery("SELECT x FROM Magazine x WHERE x.title = ?2 and x.price > ?3");
+q.setParameter(2, "JDJ").setParameter(3, 25.0);
+
+When the query is executed, java.lang.ArrayIndexOutOfBoundsException will be thrown. Since "JDJ" and "25.0" will be stored in arr[0] and arr[1] (when arr.size =2) but the query execution code tries to get them via arr[2] and arr[3].

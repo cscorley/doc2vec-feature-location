@@ -1,0 +1,28 @@
+Hey Alexander Shraer,
+
+I noticed today that my Observers are spamming each other trying to open connections to the election port. I've got tons of these:
+
+
+2013-11-01 22:19:45,819 - DEBUG [WorkerSender[myid=13]] - There is a connection already for server 9
+2013-11-01 22:19:45,819 - DEBUG [WorkerSender[myid=13]] - There is a connection already for server 10
+2013-11-01 22:19:45,819 - DEBUG [WorkerSender[myid=13]] - There is a connection already for server 6
+2013-11-01 22:19:45,819 - DEBUG [WorkerSender[myid=13]] - There is a connection already for server 12
+2013-11-01 22:19:45,819 - DEBUG [WorkerSender[myid=13]] - There is a connection already for server 14
+
+
+
+and so and so on ad nauseam. 
+
+Now, looking around I found this inside FastLeaderElection.java from when you committed ZOOKEEPER-107:
+
+
+     private void sendNotifications() {
+-        for (QuorumServer server : self.getVotingView().values()) {
+-            long sid = server.id;
+-
++        for (long sid : self.getAllKnownServerIds()) {
++            QuorumVerifier qv = self.getQuorumVerifier();
+
+
+
+Is that really desired? I suspect that is what's causing Observers to try to connect to each other (as opposed as just connecting to participants). I'll give it a try now and let you know. (Also, we use observer ids that are > 0, and I saw some parts of the code that might not deal with that assumption - so it could be that too..). 

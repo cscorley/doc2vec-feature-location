@@ -1,0 +1,1 @@
+PORelationToExprProject currently uses "BagFactory.newDefaultBag()" to create an empty bag in cases where it has to send an empty bag on EOP - each such empty bag created will be registered with the SpillableMemoryManager as a spillable bag. Since it is an empty bag, it really should not be registered as a spillable bag. For this, NonSpillableDataBag can be used.

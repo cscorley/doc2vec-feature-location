@@ -1,0 +1,3 @@
+POPartialAgg.aggregate() counts the number of output columns (valueTuple.size() - 1), but checkSizeReduction() compares this to the number of input tuples. 
+
+When multiple columns are aggregated, this causes the reduction factor to be calculated as too high by a factor of the number of columns being aggregated, which causes in-memory aggregation to be disabled when it should not be, adversely affecting performance,

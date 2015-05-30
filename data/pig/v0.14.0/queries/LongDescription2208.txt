@@ -1,0 +1,11 @@
+PIG 8.0 implemented Hadoop counters to track the number of records read for each input and the number of records written for each output (PIG-1389 & PIG-1299). On the other hand, Hadoop has imposed limit on per job counters (MAPREDUCE-1943) and jobs will fail if the counters exceed the limit.
+
+Therefore we need a way to cap the number of PIG generated counters.
+
+Here are the two options:
+
+1. Add a integer property (e.g., pig.counter.limit) to the pig property file (e.g., 20). If the number of inputs of a job exceeds this number, the input counters are disabled. Similarly, if the number of outputs of a job exceeds this number, the output counters are disabled.
+
+2. Add a boolean property (e.g., pig.disable.counters) to the pig property file (default: false). If this property is set to true, then the PIG generated counters are disabled.
+
+

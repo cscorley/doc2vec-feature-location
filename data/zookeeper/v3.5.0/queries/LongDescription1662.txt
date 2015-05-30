@@ -1,0 +1,4 @@
+Fix to two small bugs in ReconfigTest.testPortChange():
+1. the test expected a port change to happen immediately, which is not necessarily
+going to happen. The fix waits a bit and also tries several times.
+2. when a client port changes, the test created a new ZooKeeper handle, but didn't specify a Watcher object, which generated some NullPointerException events when the watcher was triggered.

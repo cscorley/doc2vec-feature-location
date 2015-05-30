@@ -1,0 +1,51 @@
+The following script fail:
+
+
+
+a = load '1.txt' as (a0, a1, a2);
+b = load '2.txt' as (b0, b1);
+c = join a by a0, b by b0;
+d = foreach c {
+    d0 = a::a0;
+    d1 = a::a1;
+    generate ((d0 is not null)? d0 : d1);
+}
+explain d;
+
+
+
+Stack:
+ERROR 2015: Invalid physical operators in the physical plan
+
+org.apache.pig.impl.logicalLayer.FrontendException: ERROR 1067: Unable to explain alias d
+        at org.apache.pig.PigServer.explain(PigServer.java:957)
+        at org.apache.pig.tools.grunt.GruntParser.explainCurrentBatch(GruntParser.java:353)
+        at org.apache.pig.tools.grunt.GruntParser.processExplain(GruntParser.java:285)
+        at org.apache.pig.tools.grunt.GruntParser.processExplain(GruntParser.java:248)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.Explain(PigScriptParser.java:605)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:327)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:165)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:141)
+        at org.apache.pig.tools.grunt.Grunt.exec(Grunt.java:90)
+        at org.apache.pig.Main.run(Main.java:498)
+        at org.apache.pig.Main.main(Main.java:107)
+Caused by: org.apache.pig.impl.logicalLayer.FrontendException: ERROR 2042: Error in new logical plan. Try -Dpig.usenewlogicalplan=false.
+        at org.apache.pig.backend.hadoop.executionengine.HExecutionEngine.compile(HExecutionEngine.java:308)
+        at org.apache.pig.PigServer.compilePp(PigServer.java:1350)
+        at org.apache.pig.PigServer.explain(PigServer.java:926)
+        ... 10 more
+Caused by: org.apache.pig.backend.hadoop.executionengine.physicalLayer.LogicalToPhysicalTranslatorException: ERROR 2015: Invalid physical operators in the physical plan
+        at org.apache.pig.newplan.logical.expression.ExpToPhyTranslationVisitor.visit(ExpToPhyTranslationVisitor.java:474)
+        at org.apache.pig.newplan.logical.expression.BinCondExpression.accept(BinCondExpression.java:82)
+        at org.apache.pig.newplan.ReverseDependencyOrderWalker.walk(ReverseDependencyOrderWalker.java:70)
+        at org.apache.pig.newplan.logical.relational.LogToPhyTranslationVisitor.visit(LogToPhyTranslationVisitor.java:519)
+        at org.apache.pig.newplan.logical.relational.LOForEach.accept(LOForEach.java:71)
+        at org.apache.pig.newplan.DependencyOrderWalker.walk(DependencyOrderWalker.java:75)
+        at org.apache.pig.newplan.PlanVisitor.visit(PlanVisitor.java:50)
+        at org.apache.pig.backend.hadoop.executionengine.HExecutionEngine.compile(HExecutionEngine.java:295)
+        ... 12 more
+Caused by: org.apache.pig.impl.plan.PlanException: ERROR 0: Attempt to give operator of type org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POProject multiple outputs.  This operator does not support multiple outputs.
+        at org.apache.pig.impl.plan.OperatorPlan.connect(OperatorPlan.java:180)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.plans.PhysicalPlan.connect(PhysicalPlan.java:133)
+        at org.apache.pig.newplan.logical.expression.ExpToPhyTranslationVisitor.visit(ExpToPhyTranslationVisitor.java:470)
+        ... 19 more

@@ -1,0 +1,12 @@
+In a Java procedure called from SQL any dynamic ResultSets that are created using a PreparedStatement or CallableStatement leave their activations open until :
+
+	the statement that created it is garbage collected (which requires the outer statement to be garbage collected)
+	and the LCC processes unused Activations.
+
+
+
+Dynamic ResultSets that are created by a Statement object are handled correctly because they are marked single use activation and thus the close of the ResultSet also closes the activation.
+
+Fix is to mark the activation as single use in EmbedResultSet when the EmbedResultSet is marked as being a dynamic ResultSet. This will then lead to the close of the ResultSet also closing the activation.
+
+Can't see how to write a test for this, I can see the activations stacking up in a debugger, but typically there will be no visible user impact.

@@ -1,0 +1,48 @@
+Here is my installation:
+Solr Specification Version: 1.2.2008.08.13.13.05.16
+Lucene Implementation Version: 2.4-dev 685576 - 2008-08-13 10:55:25
+
+I did the following query today:
+author:(r*a* AND fisher)
+
+And get the following 500 error:
+
+maxClauseCount is set to 1024
+
+org.apache.lucene.search.BooleanQuery$TooManyClauses: maxClauseCount is set to 1024
+        at org.apache.lucene.search.BooleanQuery.add(BooleanQuery.java:165)
+        at org.apache.lucene.search.BooleanQuery.add(BooleanQuery.java:156)
+        at org.apache.lucene.search.MultiTermQuery.rewrite(MultiTermQuery.java:63)
+        at org.apache.lucene.search.WildcardQuery.rewrite(WildcardQuery.java:54)
+        at org.apache.lucene.search.BooleanQuery.rewrite(BooleanQuery.java:385)
+        at org.apache.lucene.search.IndexSearcher.rewrite(IndexSearcher.java:163)
+        at org.apache.lucene.search.Query.weight(Query.java:94)
+        at org.apache.lucene.search.Searcher.createWeight(Searcher.java:175)
+        at org.apache.lucene.search.Searcher.search(Searcher.java:126)
+        at org.apache.lucene.search.Searcher.search(Searcher.java:105)
+        at org.apache.solr.search.SolrIndexSearcher.getDocListNC(SolrIndexSearcher.java:966)
+        at org.apache.solr.search.SolrIndexSearcher.getDocListC(SolrIndexSearcher.java:838)
+        at org.apache.solr.search.SolrIndexSearcher.search(SolrIndexSearcher.java:269)
+        at org.apache.solr.handler.component.QueryComponent.process(QueryComponent.java:160)
+        at org.apache.solr.handler.component.SearchHandler.handleRequestBody(SearchHandler.java:167)
+        at org.apache.solr.handler.RequestHandlerBase.handleRequest(RequestHandlerBase.java:135)
+        at org.apache.solr.core.SolrCore.execute(SolrCore.java:1156)
+        at org.apache.solr.servlet.SolrDispatchFilter.execute(SolrDispatchFilter.java:341)
+        at org.apache.solr.servlet.SolrDispatchFilter.doFilter(SolrDispatchFilter.java:272)
+        at org.mortbay.jetty.servlet.ServletHandler$CachedChain.doFilter(ServletHandler.java:1088)
+        at org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:360)
+        at org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)
+        at org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:181)
+        at org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:729)
+        at org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:405)
+        at org.mortbay.jetty.handler.ContextHandlerCollection.handle(ContextHandlerCollection.java:206)
+        at org.mortbay.jetty.handler.HandlerCollection.handle(HandlerCollection.java:114)
+        at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+        at org.mortbay.jetty.Server.handle(Server.java:324)
+        at org.mortbay.jetty.HttpConnection.handleRequest(HttpConnection.java:505)
+        at org.mortbay.jetty.HttpConnection$RequestHandler.headerComplete(HttpConnection.java:829)
+        at org.mortbay.jetty.HttpParser.parseNext(HttpParser.java:513)
+        at org.mortbay.jetty.HttpParser.parseAvailable(HttpParser.java:211)
+        at org.mortbay.jetty.HttpConnection.handle(HttpConnection.java:380)
+        at org.mortbay.io.nio.SelectChannelEndPoint.run(SelectChannelEndPoint.java:395)
+        at org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:488)

@@ -1,0 +1,33 @@
+the following script fails: 
+
+ 
+
+            a = load '/zebra/singlefile/studenttab10k' using org.apache.hadoop.zebra.pig.TableLoader() as (name, age, gpa);
+
+                        b = load '/zebra/singlefile/votertab10k' using org.apache.hadoop.zebra.pig.TableLoader() as (name, age, registration, contributions);
+
+                        c = filter a by age < 20;
+
+                        d = filter b by age < 20;
+
+                        store c into '/user/pig/out//ZebraMultiQuery_30.out.1' using org.apache.hadoop.zebra.pig.TableStorer('');
+
+                        store d into '/user/pig/out//ZebraMultiQuery_30.out.2' using org.apache.hadoop.zebra.pig.TableStorer('');
+
+                        e = cogroup c by name, d by name;
+
+                        f = foreach e generate flatten(c), flatten(d);
+
+                        store f into '/user/pig//ZebraMultiQuery_30.out.3' using org.apache.hadoop.zebra.pig.TableStorer('');
+
+
+
+Here the schema of f has names like c::name and it looks like zebra storefunc does not allow '::' in column name 
+
+The stack trace is
+
+
+
+ERROR 2997: Unable to recreate exception from backend error: java.io.IOException: ColumnGroup.Writer constructor failed : Partition constructor failed :Encountered " ":" ": "" at line 1, column 3.
+
+

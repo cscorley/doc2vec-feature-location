@@ -1,0 +1,40 @@
+When we replace/remove/insert a node, we will use disconnect/connect methods of OperatorPlan. When we disconnect an edge, we shall save the position of the edge in origination and destination, and use this position when connect to the new predecessor/successor. Some of the pattens are:
+
+Insert a new node:
+
+
+Pair<Integer, Integer> pos = plan.disconnect(pred, succ);
+plan.connect(pred, pos.first, newnode, 0);
+plan.connect(newnode, 0, succ, pos.second);
+
+
+
+Remove a node:
+
+
+Pair<Integer, Integer> pos1 = plan.disconnect(pred, nodeToRemove);
+Pair<Integer, Integer> pos2 = plan.disconnect(nodeToRemove, succ);
+plan.connect(pred, pos1.first, succ, pos2.second);
+
+
+
+Replace a node:
+
+
+Pair<Integer, Integer> pos1 = plan.disconnect(pred, nodeToReplace);
+Pair<Integer, Integer> pos2 = plan.disconnect(nodeToReplace, succ);
+plan.connect(pred, pos1.first, newNode, pos1.second);
+plan.connect(newNode, pos2.first, succ, pos2.second);
+
+
+
+There are couple of places of we does not follow this pattern, that results some error. For example, the following script fail:
+
+
+a = load '1.txt' as (a0, a1, a2, a3);
+b = foreach a generate a0, a1, a2;
+store b into 'aaa';
+c = order b by a2;
+d = foreach c generate a2;
+store d into 'bbb';
+

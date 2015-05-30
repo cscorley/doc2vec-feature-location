@@ -1,0 +1,69 @@
+I would like to report some strange behavior with detach and merge. To me it looks like a bug.
+
+I'm trying implement the following strategy:
+
+persistence context A:
+  1. get persistent object
+  2. detach the object
+no persistence context:
+  3. modify the (detached) object
+persistence context B:
+  4. attach (merge) the object
+
+This is quite simple and straight forward. It generally works except in one situation. When committing the merge() (step 4) an "optimistic locking error" is is thrown under the following condition: (step 3) a (String) field is set to the same text that it already contains but using a different String instance. In other words, when the following expressions are true:
+
+    newString.equals(oldString)
+    newString != oldString
+
+I have written some test code that reproduces this effect (see Attachment).
+
+The tests are using the same code except for one line:
+
+Test 1 sets the String to a different one than the object contains:
+    record.setContent("a text different than the one in the record");
+
+Test 2 sets the String to the same instance the object contains:
+  record.setContent(record.getContent());
+
+Test 3 sets the String to the same text but as a different String instance:
+  record.setContent(record.getContent()+"");
+
+ This is the result (output of the test run):
+----------------------------------
+Test 1: SUCCESS
+Test 2: SUCCESS
+Test 3: FAILED (Optimistic locking errors were detected when flushing 
+                to the data store. The following objects may have been
+                concurrently modified in another transaction: 
+                [test.Record-1])
+----------------------------------
+
+While doing some debugging I noticed two things:
+
+1. When setting the value:
+
+Class: org.apache.openjpa.kernel.DetachedStateManager
+Line: 555
+Method: settingStringField()
+
+        if (cur == next || !_loaded.get(idx))
+          return;
+
+Here the old and the new value (String) is compared with the == operator.
+The expression can be false with the same text (but different instances). I find this interesting as it matches exacly the problematic condition. I think an .equals() would fix the issue I am having. But I suppose there is something going wrong at another place as well.
+
+2. Here is the point where execution splits into different ways when calling commit().
+
+Class: org.apache.openjpa.jdbc.kernel.AbstractUpdateManager
+Line: 151
+Method: populateRowManager()
+
+    } else if ((dirty = ImplHelper.getUpdateFields(sm)) != null) {
+
+In the tests that succeed "ImplHelper.getUpdateFields(sm)" will return a BitSet. So the condition is true.
+In the tests that fail "ImplHelper.getUpdateFields(sm)" will return null. So the condition is false.
+
+Note: the problem persist with OpenJPA 1.1.0-SNAPSHOT. When run without enhancing the Record class, all tests will succeed though (printing this message „INFO   [main] openjpa.Enhance - Creating subclass for "[class test.Record]". This means that your application will be less efficient and will consume more memory than it would if you ran the OpenJPA enhancer. Additionally, lazy loading will not be available for one-to-one and many-to-one persistent attributes in types using field access; they will be loaded eagerly instead.")
+
+Regards
+Jonas

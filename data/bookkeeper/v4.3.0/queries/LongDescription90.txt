@@ -1,0 +1,24 @@
+HedwigClient#getSslFactory shouldn't be public
+HedwigClient#getConsumeCallback shouldn't be public
+HedwigClient#doConnect shouldn't be public
+HedwigClient#getHostFromChannel shouldn't be public
+HedwigClient#getResponseHandlerFromChannel shouldn't be public
+HedwigClient#getHostForTopic shouldn't be public
+HedwigClient#clearAllTopicsForHost shouldn't be public
+HedwigClient#getClientTimer shoulnd't be public
+HedwigClient#stop should throw some sort of Exception in the case of errors
+
+HedwigPublisher#publish shouldn't use protobuf ByteString, as it requires the user to import protobufs
+HedwigPublisher#getChannelForHost shouldn't be public
+
+HedwigSubscriber#HedwigSubscriber shouldn't be public
+HedwigSubscriber#doConsume shouldn't be public
+HedwigSubscriber#hasSubscription probably shouldn't be public
+HedwigSubscriber#getSubscriptionList shoulnd't exist
+HedwigSubscriber#getChannelForTopic shouldn't be public
+HedwigSubscriber#setChannelforTopic shouldn't be public
+HedwigSubscriber#removeChannelForTopic shound't be public
+
+MessageHandler#consume should be called 'deliver'
+
+The hedwig client is under a netty package. There's nothing netty specific about the api, so it should be in the org.apache.hedwig.client package. 

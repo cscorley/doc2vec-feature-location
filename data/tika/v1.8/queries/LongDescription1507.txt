@@ -1,0 +1,23 @@
+Under OSGi, if you try to use ForkParser with the Tesseract OCR parser, it will fail with:
+
+java.lang.NoClassDefFoundError: org/apache/tika/parser/external/ExternalParser
+	at org.apache.tika.parser.ocr.TesseractOCRParser.hasTesseract(TesseractOCRParser.java:117)
+	at org.apache.tika.parser.ocr.TesseractOCRParser.getSupportedTypes(TesseractOCRParser.java:91)
+	at org.apache.tika.parser.CompositeParser.getParsers(CompositeParser.java:81)
+	at org.apache.tika.parser.DefaultParser.getParsers(DefaultParser.java:95)
+	at org.apache.tika.parser.CompositeParser.getParser(CompositeParser.java:209)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:244)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:622)
+	at org.apache.tika.fork.ForkServer.call(ForkServer.java:144)
+	at org.apache.tika.fork.ForkServer.processRequests(ForkServer.java:124)
+	at org.apache.tika.fork.ForkServer.main(ForkServer.java:69)
+Caused by: java.lang.ClassNotFoundException: Unable to find class org.apache.tika.parser.external.ExternalParser
+	at org.apache.tika.fork.ClassLoaderProxy.findClass(ClassLoaderProxy.java:117)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:323)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:268)
+	... 13 more
+
+ExternalParser lives in the Tika Core jar, not the Tika Parsers one. This all works fine outside of OSGi, so it looks like something about the OSGi bundling is causing the fork parser to fail to send the parser-related classes from Tika Core over to the forked JVM

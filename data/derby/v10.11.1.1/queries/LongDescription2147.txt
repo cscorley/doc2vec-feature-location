@@ -1,0 +1,30 @@
+Given "create table t (v varchar(32));"  the query "select * from t where 'dilldall' like v; " gives ERROR 42824. 
+The problem is easily bypassed using a cast: "select * from t where 'dilldall' like cast (v as varchar(32));".
+
+
+create table t (v varchar(32));
+insert into t values ('%lda%');
+select * from t where 'dilldall' like v; – ERROR 42824: An operand of LIKE is not a string, or the first operand is not a column.
+select * from t where 'dilldall' like cast (v as varchar(32)); – 1 row. OK
+select * from t where v like 'dilldall'; – 0 rows - OK, not a pattern as right op.
+select * from t where cast (v as varchar(32)) like 'dilldall';  – 0 rows - OK, not a pattern as right op.
+
+A column reference as a righthand operand should be accepted according to
+ISO/IEC 9075-2:1999 (E):
+
+8.5 <like predicate>
+<like predicate> ::= 
+    <character like predicate> | <octet like predicate>
+<character like predicate> ::= 
+    <character match value> [ NOT ] LIKE <character pattern> [ ESCAPE <escape character> ]
+<character match value> ::= <character value expression>
+<character pattern> ::= <character value expression>
+
+6.27 <string value expression>
+<character value expression> ::= <concatenation> | <character factor>
+<character factor> ::= <character primary> [ <collate clause> ]
+<character primary> ::= <value expression primary> | <string value function>
+
+6.23 <value expression>
+<value expression primary> ::= <parenthesized value expression> | <nonparenthesized value expression primary>
+<nonparenthesized value expression primary> ::= <unsigned value specification> | <column reference> | ....

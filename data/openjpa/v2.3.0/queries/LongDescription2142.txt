@@ -1,0 +1,21 @@
+When a merge is done on a new object with an Id that contains an Entity, the following exception occurs:
+
+<openjpa-2.2.1-SNAPSHOT-r422266:1292578 nonfatal user error> org.apache.openjpa.persistence.InvalidStateException: Attempt to change a primary key field of an instance that already has a final object id.  Only new, unflushed instances whose id you have not retrieved can have their primary keys changed.
+FailedObject: hat.entities.Child@38d138d1
+	at org.apache.openjpa.kernel.StateManagerImpl.assertNoPrimaryKeyChange(StateManagerImpl.java:2108)
+	at org.apache.openjpa.kernel.StateManagerImpl.settingObjectField(StateManagerImpl.java:2043)
+	at org.apache.openjpa.kernel.AttachStrategy.attachField(AttachStrategy.java:236)
+	at org.apache.openjpa.kernel.VersionAttachStrategy.attach(VersionAttachStrategy.java:155)
+	at org.apache.openjpa.kernel.AttachManager.attach(AttachManager.java:252)
+	at org.apache.openjpa.kernel.AttachStrategy.attachCollection(AttachStrategy.java:370)
+	at org.apache.openjpa.kernel.AttachStrategy.replaceList(AttachStrategy.java:431)
+	at org.apache.openjpa.kernel.AttachStrategy.attachField(AttachStrategy.java:255)
+	at org.apache.openjpa.kernel.AttachManager.handleCascade(AttachManager.java:267)
+	at org.apache.openjpa.kernel.AttachManager.attach(AttachManager.java:241)
+	at org.apache.openjpa.kernel.AttachManager.attach(AttachManager.java:105)
+	at org.apache.openjpa.kernel.BrokerImpl.attach(BrokerImpl.java:3474)
+	at org.apache.openjpa.kernel.DelegatingBroker.attach(DelegatingBroker.java:1214)
+	at org.apache.openjpa.persistence.EntityManagerImpl.merge(EntityManagerImpl.java:878)
+	...
+
+During the merge, a copy is made of the original object, with a copy of the key fields. But, if a key field is an Entity, it is not copied, causing this exception in later processing. The fix is to attach this field immediately after the original object is copied.

@@ -1,0 +1,48 @@
+However, here's a query that works in 10.1.2.1 but not in 10.2.1.1  – database can be assumed to be the same in Derby - 1205
+
+SELECT DISTINCT 
+ZONE.ZONE_ID ZONE_ID, 
+PORT.PORT_ID PORT_ID, 
+ENTITY_TO_PORT.TYPE, 
+ENTITY_TO_PORT.PREFIX_ID, 
+ENTITY_TO_PORT.ENTITY_ID, 
+ENTITY_TO_PORT.DISPLAY_NAME, 
+ENTITY_TO_PORT.PORT_DISPLAY_NAME, 
+PORT2ZONE.MEMBER_NAME, 
+PORT2ZONE.ZONE_MEMBER_ID, 
+PORT.PORT_NUMBER 
+FROM 
+T_RES_ZONE ZONE left outer join T_VIEW_PORT2ZONE PORT2ZONE on 
+ZONE.ZONE_ID = PORT2ZONE.ZONE_ID left outer join T_RES_PORT PORT on 
+PORT2ZONE.PORT_ID = PORT.PORT_ID left outer join T_VIEW_ENTITY_TO_PORT ENTITY_TO_PORT on 
+PORT2ZONE.PORT_ID = ENTITY_TO_PORT.PORT_ID and 
+PORT2ZONE.ZONE_ID = ENTITY_TO_PORT.ZONE_ID, T_RES_FABRIC FABRIC 
+WHERE PORT2ZONE.ZONE_ID = ZONE.ZONE_ID and 
+ZONE.FABRIC_WWN = FABRIC.FABRIC_WWN and 
+FABRIC.FABRIC_ID = 1 
+
+Same db as before. 
+
+In 10.2.1.1 it gives the following error (should this be a new issue?) 
+
+
+java.sql.SQLException: DERBY SQL error: SQLCODE: -1, SQLSTATE: XJ001, SQLERRMC: java.lang.NullPointerExceptionXJ001.U 
+at org.apache.derby.client.am.SQLExceptionFactory.getSQLException(Unknown Source) 
+at org.apache.derby.client.am.SqlException.getSQLException(Unknown Source) 
+at org.apache.derby.client.am.Connection.prepareStatement(Unknown Source) 
+at org.eclipse.aperi.server.guireq.topology.views.ViewerSanL1.init(ViewerSanL1.java:1828) 
+at org.eclipse.aperi.server.guireq.topology.views.ViewerInit.init(ViewerInit.java:41) 
+at org.eclipse.aperi.server.guireq.topology.views.ViewerInit.main(ViewerInit.java:69) 
+Caused by: org.apache.derby.client.am.SqlException: DERBY SQL error: SQLCODE: -1, SQLSTATE: XJ001, SQLERRMC: java.lang.NullPointerExceptionXJ001.U 
+at org.apache.derby.client.am.Statement.completeSqlca(Unknown Source) 
+at org.apache.derby.client.net.NetStatementReply.parsePrepareError(Unknown Source) 
+at org.apache.derby.client.net.NetStatementReply.parsePRPSQLSTTreply(Unknown Source) 
+at org.apache.derby.client.net.NetStatementReply.readPrepareDescribeOutput(Unknown Source) 
+at org.apache.derby.client.net.StatementReply.readPrepareDescribeOutput(Unknown Source) 
+at org.apache.derby.client.net.NetStatement.readPrepareDescribeOutput_(Unknown Source) 
+at org.apache.derby.client.am.Statement.readPrepareDescribeOutput(Unknown Source) 
+at org.apache.derby.client.am.PreparedStatement.readPrepareDescribeInputOutput(Unknown Source) 
+at org.apache.derby.client.am.PreparedStatement.flowPrepareDescribeInputOutput(Unknown Source) 
+at org.apache.derby.client.am.PreparedStatement.prepare(Unknown Source) 
+at org.apache.derby.client.am.Connection.prepareStatementX(Unknown Source) 
+... 4 more 

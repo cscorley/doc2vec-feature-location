@@ -1,0 +1,35 @@
+It may just be related to firewall interference, but sometimes testBootLock fails with:
+
+1) testBootLock(org.apache.derbyTesting.functionTests.tests.store.BootLockTest)j
+unit.framework.AssertionFailedError: Minion did not start or boot db in 60 secon
+ds.
+----Minion's stderr:
+java.net.ConnectException: Connection refused: connect  at java.net.PlainSocketI
+mpl.socketConnect(Native Method)        at java.net.PlainSocketImpl.doConnect(Pl
+ainSocketImpl.java:352) at java.net.PlainSocketImpl.connectToAddress(PlainSocket
+Impl.java:214)  at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:201)at
+java.net.SocksSocketImpl.connect(SocksSocketImpl.java:378)      at java.net.Sock
+et.connect(Socket.java:537)     at java.net.Socket.connect(Socket.java:487)
+----Minion's stderr ended
+        at org.apache.derbyTesting.functionTests.tests.store.BootLockTest.testBo
+otLock(BootLockTest.java:173)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.
+java:48)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAcces
+sorImpl.java:37)
+        at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:
+109)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+        at junit.extensions.TestSetup.run(TestSetup.java:16)
+        at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57
+)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+        at junit.extensions.TestSetup.run(TestSetup.java:16)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+        at junit.extensions.TestSetup.run(TestSetup.java:16)
+
+It used to pass on my machine, but I got this today and I think the IBM nightly runs have been hitting the problem.

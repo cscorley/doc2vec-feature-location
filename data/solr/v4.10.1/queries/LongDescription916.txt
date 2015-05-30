@@ -1,0 +1,14 @@
+In CoreContainer.java :: register(name, core, returnPrev) - the documentation says 
+  it would return a previous core having the same name if it existed and returnPrev = true.
+
+
+	@return a previous core having the same name if it existed and returnPrev==true
+  */
+ public SolrCore register(String name, SolrCore core, boolean returnPrev) ..
+
+
+
+
+But as per the code towards the end - the previous core is returned anyway, irrespective of the value of returnPrev. The difference, though, seems to be that when returnPrev is false, the previous core (of the same name, if exists) is closed.
+
+Which one of them is correct . If the code were correct , would the variable be better renamed as closePrevious , as opposed to returnPrevious.

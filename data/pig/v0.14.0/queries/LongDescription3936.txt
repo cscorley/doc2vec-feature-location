@@ -1,0 +1,3 @@
+When trying to store a null value into an integer column in Postgres we were getting a JDBC error on the insert statement.  I tracked it down to always using varchar as the type when writing nulls in Pig.  
+
+To fix the issue I use the schema (if present) to determine the type of the field with the null value.  

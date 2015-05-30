@@ -1,0 +1,32 @@
+there is typo in Bookie#shutdown. so it doesn't quit with right exit code when encountering exceptions.
+
+
+    synchronized int shutdown(int exitCode) {
+        try {
+            if (running) { // avoid shutdown twice
+                // the exitCode only set when first shutdown usually due to exception found
+                this.exitCode = exitCode;
+                // mark bookie as in shutting down progress
+                shuttingdown = true;
+                // shut down gc thread, which depends on zookeeper client
+                // also compaction will write entries again to entry log file
+                gcThread.shutdown();
+                // Shutdown the ZK client
+                if(zk != null) zk.close();
+                this.interrupt();
+                this.join();
+                syncThread.shutdown();
+
+                // Shutdown the EntryLogger which has the GarbageCollector Thread running
+                entryLogger.shutdown();
+                // close Ledger Manager
+                ledgerManager.close();
+                // setting running to false here, so watch thread in bookie server know it only after bookie shut down
+                running = false;
+            }    
+        } catch (InterruptedException ie) {
+            LOG.error("Interrupted during shutting down bookie : ", ie); 
+        }    
+        return exitCode;
+    }
+

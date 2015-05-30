@@ -1,0 +1,15 @@
+Error message:
+
+
+    [javac] /grid/0/workspace/champlain-hdp-compile/bigtop/build/pig/rpm/BUILD/pig-0.13.0.2.2.0.0/shims/src/hadoop23/org/apache/pig/backend/hadoop/executionengine/shims/HadoopShims.java:122: exception java.lang.InterruptedException is never thrown in body of corresponding try statement
+    [javac]         } catch (InterruptedException ir) {
+    [javac]           ^
+    [javac] /grid/0/workspace/champlain-hdp-compile/bigtop/build/pig/rpm/BUILD/pig-0.13.0.2.2.0.0/shims/src/hadoop23/org/apache/pig/backend/hadoop/executionengine/shims/HadoopShims.java:199: exception java.lang.InterruptedException is never thrown in body of corresponding try statement
+    [javac]         } catch (InterruptedException ir) {
+    [javac]           ^
+    [javac] /grid/0/workspace/champlain-hdp-compile/bigtop/build/pig/rpm/BUILD/pig-0.13.0.2.2.0.0/shims/src/hadoop23/org/apache/pig/backend/hadoop/executionengine/shims/HadoopShims.java:210: exception java.lang.InterruptedException is never thrown in body of corresponding try statement
+    [javac]         } catch (InterruptedException ir) {
+
+
+
+This is due to the method signature change of Hadoop, such as Job.getCounters(), no longer throw InterruptedException.

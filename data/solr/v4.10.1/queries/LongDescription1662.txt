@@ -1,0 +1,34 @@
+As part of writing tests for SOLR-1657, I rewrote one of the base classes (BaseTokenTestCase) to use the new TokenStream API, but also with some additional safety.
+
+
+ public static String tsToString(TokenStream in) throws IOException {
+    StringBuilder out = new StringBuilder();
+    TermAttribute termAtt = (TermAttribute) in.addAttribute(TermAttribute.class);
+    // extra safety to enforce, that the state is not preserved and also
+    // assign bogus values
+    in.clearAttributes();
+    termAtt.setTermBuffer("bogusTerm");
+    while (in.incrementToken()) {
+      if (out.length() > 0)
+        out.append(' ');
+      out.append(termAtt.term());
+      in.clearAttributes();
+      termAtt.setTermBuffer("bogusTerm");
+    }
+
+    in.close();
+    return out.toString();
+  }
+
+
+
+Setting the term text to bogus values helps find bugs in tokenstreams that do not clear or clone properly. In this case there is a problem with a tokenstream AB_AAB_Stream in TestBufferedTokenStream, it converts A B -> A A B but does not clone, so the values get overwritten.
+
+This can be fixed in two ways: 
+
+	BufferedTokenStream does the cloning
+	subclasses are responsible for the cloning
+
+
+
+The question is which one should it be?

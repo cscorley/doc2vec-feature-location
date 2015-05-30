@@ -1,0 +1,33 @@
+I'm not sure if this is a problem with the Tika JAX-RS server, or with how it uses CXF under the hood. Anyway:
+
+I have a large text extraction job (10-15 million documents) that I'm using the web service for. It would be nice to be able to distribute this horizontally across multiple nodes to speed up the processing. I had thought to have a job queue with a couple consumers, farming out PUT requests across several Tika web service endpoints.
+
+But the JAX-RS web service will only respond to queries made to http://localhost:9998/tika.
+
+I can't call http://hostname:9998/tika – even if it's still a local operation.
+
+Here is a list of things I've tried:
+
+	I changed line 89 of TikaServerCLI.java to compute the name of the host at runtime. No go: the server starts up, and immediately terminates.
+	I changed line 89 of TikaServerCLI.java to be a hostname (not a FQDN), and re-compiled:
+	
+		mvn compile -rf :tika-server compiles successfully. Start up the server, and it terminates, just like when I tried to compute the hostname at runtime
+		mvn install from the topmost Tika directory gets the service responding to both http://hostname:9998/tika and http://hostname.domain.net:9998/tika (Seemed weird, this is why I was thinking it was further up the chain in CXF?)
+	
+	
+
+
+
+In a perfect world:
+
+	The server should respond to any valid calls that make sense:
+	
+		127.0.0.1
+		localhost
+		hostname
+		host.domain.tld
+		ip_address
+	
+	
+	A hostname invocation parameter could be used to limit what the service responds to when it's started up. (A very optional, nice-to-have.)
+

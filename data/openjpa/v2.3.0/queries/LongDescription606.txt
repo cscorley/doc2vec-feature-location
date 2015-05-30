@@ -1,0 +1,22 @@
+In testing Informix backend store,  there are many query test string failed:
+1. parameter of a boolean value does not work, should use 't for true, 'f' for false
+ WHERE (t1.isManager = ?) [params=(boolean) false]
+
+   should generate  WHERE (t1.isManager = ?) [params=(String) f]
+
+2. SELECT COUNT(DISTINCT(t1.name)) reported  syntax error  [code=-201, state=42000]
+
+    should generate COUNT(DISTINCT t1.name ) 
+
+3. CROSS JOIN syntax error 
+
+    should generate JOIN with ON 1 = 1
+
+
+4. There is no equivalent  function for LOCATE.  Informix users must create INSTR as a user defined function.  
+
+
+3. CONCAT function in '||' does not take parameter markers
+  WHERE ((?||t0.name) LIKE ? ESCAPE '\')
+
+  should generate  CONCAT(?, t0.name)

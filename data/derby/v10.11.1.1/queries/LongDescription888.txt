@@ -1,0 +1,21 @@
+Improve performance of page allocation by no longer requiring sync of the allocated pages.  The reason for the sync
+currently is so that during redo recovery we did not have to handle the case of redoing the allocate and finding no space
+available on the disk.   During tasks like single user load this sync allocation is a significant performance issue - in the
+case where one does 1000 insert per transaction the total time aproaches very close to durability=test where no syncing
+is done in the whole system.
+
+For instance in a test of loading a 150 meg db with a number of tables and indexes, on a 1.7 ghz laptop with one ide disk,
+sun jdk1.4.2, windows XP
+i got the following types of results:
+default system:  6 minutes
+no alloc sync:      1 minute, 43 seconds
+no syncing:          1 minute , 1 second
+
+Once syncing is disabled then recovery must be enhanced to handle the possible out of space condition.  Recovery already
+handles out of space during undo, so this will just handle the error the same as that.  It will stop recovery and produce an error
+indicating that user must add disk space and rerun recovery before system can be brought online.  I actually think on most
+JVM's/OS's this won't happen as the system will still be asking the JVM/OS for the space, just not syncing the values in those
+pages to disk.  Most OS's at this point will reserve the space in the file tables and not let others grab that space.  
+
+This project will make sure that out of space recovery path has tests.  It will also make sure that redo recovery encountering garbage
+in a newly allocated page during redo of an create page is tested.

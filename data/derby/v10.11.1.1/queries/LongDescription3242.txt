@@ -1,0 +1,20 @@
+When I execute this sql script in ij
+
+------
+create table t (x int);
+/*
+insert into t values 1, 2, 3;
+insert into t values 4, 5, 6;
+*/
+------
+
+the first INSERT statement in the comment is correctly ignored, but the second one is executed. So after running the script, table T contains these rows:
+
+ij> select * from t;
+X          
+-----------
+4          
+5          
+6          
+
+3 rows selected

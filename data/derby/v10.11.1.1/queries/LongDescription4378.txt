@@ -1,0 +1,9 @@
+See the coverage report for MultiProbeTableScanResultSet: http://dbtg.foundry.sun.com/derby/test/coverage/jvm1.6/sol/suitesAll82289/_files/401.html
+
+There are three red lines (lines that are not exercised by the tests).
+
+Adding a test case where the probe list contains duplicate values will exercise the first red line in getNextProbeValue().
+
+If the duplicates are also the last elements in the probe list, the other two red lines (in getNextProbeValue() and reopenScanController()) will be exercised too.
+
+Note that MultiProbeTableScanResultSet will sort the probe list, so the last element in the probe list is not necessarily identical to the last element in the query's IN list. It will also remove duplicates at compile time, if possible, so the IN list needs to contain parameters.

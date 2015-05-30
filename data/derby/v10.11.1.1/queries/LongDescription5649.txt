@@ -1,0 +1,24 @@
+The system test nstest ran into a number of error situations during the 10.8.2 QA cycle. However, some are known, some were found to be pre-existing situations (although intermittent, so we've been lucky/unlucky not to run into them). Some errors are expected. And some problems were indeed new.
+However, the test output is very wordy and it's complicated identifying real issues and sorting through the messages.
+It would be helpful to clean this up some.
+
+I found the following areas for easy improvement:
+
+	InitThread messages and Intializer.java: exited add_one_row: 1 rows
+	seems like this is really the same message. 
+	If we eliminate one, we'll have limited that part of the output by 50%.
+	TesterThreads - seems to send one message re 'attempting to', one for fail/success.
+   	Again, if we eliminate the 'attempted to' messages, we'd have made the output smaller.
+	db_util.pick_one - seems also unnecessary - can this be combined with the
+   insert / update / delete messages that are using the picked row?
+	ERROR 22003 -> The resulting value is ourside the range for data type DECIMAL/NUMERIC(5,0)
+	The column is t_decimal(decimal), i.e. a decimal(5,0). The value it's attempting to insert is clearly 
+        not suitable. From the code (in dbUtil) it does not look like this was intended to be a negative test.
+        Eliminating the error (and its corresponding stack prints) would probably make the output considerably smaller
+        and make looking for interesting errors easier.
+	There seems to be a section that can be used as a smaller test case, but you need to comment out the 'normal' settings, and uncomment out these settings. It would make more sense to make the small configuration as an option.
+	With a small configuration, the backup thread would run on when all other tests are done, because it has the same
+   value for MAX_ITERATIONS, but in contrast to the tester threads, the backup threads runs every 10 minutes.
+   Thus, when all other threads are done, the backup threads continue until 50x10 minutes have passed (plus the time it takes to actually do the backup, re-encrypt, restore). So it would make more sense to finish the backup threads if there is no further activity to the database.
+	there are some typos and strange line-spacings making some comments hard to read.
+

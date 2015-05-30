@@ -1,0 +1,38 @@
+Hi all,
+
+As I was going through wikipedia example, I encountered a situation with TrainClassifier wherein some of the options with default values are actually mandatory. 
+The documentation / command line help says that 
+default source (--datasource) is hdfs but TrainClassifier has withRequired(true) while building the --datasource option. We are checking if the dataSourceType is hbase else set it to hdfs. so ideally withRequired should be set to false
+default --classifierType is bayes but withRequired is set to true and we have code like
+if ("bayes".equalsIgnoreCase(classifierType)) 
+{
+        log.info("Training Bayes Classifier");
+        trainNaiveBayes(inputPath, outputPath, params);
+        
+      }
+ else if ("cbayes".equalsIgnoreCase(classifierType)) 
+{
+        log.info("Training Complementary Bayes Classifier");
+        // setup the HDFS and copy the files there, then run the trainer
+        trainCNaiveBayes(inputPath, outputPath, params);
+      }
+
+which should be changed to
+
+if ("cbayes".equalsIgnoreCase(classifierType)) 
+{
+        log.info("Training Complementary Bayes Classifier");
+        trainCNaiveBayes(inputPath, outputPath, params);
+        
+      }
+ else  
+{
+        log.info("Training  Bayes Classifier");
+        // setup the HDFS and copy the files there, then run the trainer
+        trainNaiveBayes(inputPath, outputPath, params);
+      }
+
+Please let me know if this looks valid and I'll submit a patch for a JIRA issue.
+
+reg
+Joe.

@@ -1,0 +1,57 @@
+According to the discussion on DERBY-6429, CHECK constraints run under the aegis of the constraint owner and their privileges do not need to be checked when running INSERT/UPDATE statements. However, Derby requires the INSERTer/UPDATEr to have EXECUTE privilege on functions invoked by CHECK constraints and USAGE privilege on types mentioned by CHECK constraints.
+
+Hopefully, this bug will be fixed by the work on DERBY-6429.
+
+The following script shows this behavior:
+
+connect 'jdbc:derby:memory:db;user=test_dbo;create=true';
+
+call syscs_util.syscs_create_user( 'TEST_DBO', 'test_dbopassword' );
+call syscs_util.syscs_create_user( 'RUTH', 'ruthpassword' );
+
+– bounce database to turn on authentication and authorization
+connect 'jdbc:derby:memory:db;shutdown=true';
+connect 'jdbc:derby:memory:db;user=test_dbo;password=test_dbopassword' as dbo;
+
+– schema
+create function absoluteValue( inputValue int ) returns int
+language java parameter style java deterministic no sql
+external name 'java.lang.Math.abs';
+
+create type hashmap external name 'java.util.HashMap' language java;
+
+create function makeHashMap() returns hashmap
+language java parameter style java no sql
+external name 'org.apache.derbyTesting.functionTests.tests.lang.UDTTest.makeHashMap';
+
+create table t1_check_function
+(
+    a int check ( absoluteValue( a ) > 100 )
+);
+
+create table t1_check_type
+(
+    a hashmap check( (a is not null) or (a is not null) )
+);
+
+– data
+insert into t1_check_function( a ) values -101;
+
+insert into t1_check_type( a ) values ( makeHashMap() );
+
+– privileges
+grant insert on t1_check_function to ruth;
+grant update on t1_check_function to ruth;
+
+grant insert on t1_check_type to ruth;
+grant update on t1_check_type to ruth;
+
+connect 'jdbc:derby:memory:db;user=ruth;password=ruthpassword' as ruth;
+
+– incorrectly fails because ruth does not have EXECUTE privilege on absoluteValue()
+insert into test_dbo.t1_check_function values ( -102 );
+update test_dbo.t1_check_function set a = -103;
+
+– incorrectly fails because ruth does not have USAGE privilege on hashmap
+insert into test_dbo.t1_check_type values ( null );
+update test_dbo.t1_check_type set a = null;

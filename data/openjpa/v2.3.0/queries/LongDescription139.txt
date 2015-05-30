@@ -1,0 +1,18 @@
+I get the following exception when I try to merge an entity which contains a java.util.Calendar field. 
+
+<0|true|0.0.0> org.apache.openjpa.persistence.PersistenceException: mikedd.entities.CalendarEntity.cal
+	at org.apache.openjpa.kernel.AttachStrategy.attachField(AttachStrategy.java:255)
+	at org.apache.openjpa.kernel.VersionAttachStrategy.attach(VersionAttachStrategy.java:131)
+	at org.apache.openjpa.kernel.AttachManager.attach(AttachManager.java:236)
+	at org.apache.openjpa.kernel.AttachManager.attach(AttachManager.java:97)
+	at org.apache.openjpa.kernel.BrokerImpl.attach(BrokerImpl.java:3141)
+	at org.apache.openjpa.kernel.DelegatingBroker.attach(DelegatingBroker.java:1128)
+	at org.apache.openjpa.persistence.EntityManagerImpl.merge(EntityManagerImpl.java:650)
+	at mikedd.tests.TestCalendar.testMergeCalendar(TestCalendar.java:47)
+        <snip>
+
+I'm running the test in eclipse and my classpath probably isn't set up to properly display the openjpa version, 
+output from svnversion -c : 406193:505052M
+
+It looks like we're missing a case statement for JavaTypes.CALENDAR in org.apache.openjpa.kernelAttachStrategy.attachField. I added one under JavaTypes.DATE and that resolved the issue for me. 
+

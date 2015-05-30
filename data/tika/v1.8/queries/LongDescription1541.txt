@@ -1,0 +1,9 @@
+I thought to implement an extremely simple implementation of StringsParser, a parser based on the strings command (or strings-alternative command), instead of using the dummy EmptyParser for undetected files. It is a preliminary work (you can see a lot of todos). It is inspired by the work on TesseractOCRParser. You can find the patch in attachment.
+
+I created a GitHub repository for sharing the code. As first test, you can clone the repo, build the code using the build.sh script, and then run the parser using the run.sh script on some govdocs1 files (grabbed from "016" subset) detected as application/octet-stream. The latter script launches a simple StringsTest class for testing.
+
+I hope you will find the StringsParser a good solution for extracting ASCII strings from undetected filetypes. As far as I understood, many "sophisticated" forensics tools work in a similar manner for indexing purposes. They use a sort of strings command against files that they are not able to detect.
+
+In addition to run strings on undetected files, the StringsParser launches the file command on undetected files and then writes the output in the strings:file_output property (I noticed that sometimes the file command is able to detect the media type for documents not detected by Tika).
+
+Finally, you can fine an old discussion about this topic here. Thanks Chris A. Mattmann.

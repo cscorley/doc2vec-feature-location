@@ -1,0 +1,26 @@
+All integer-based maps currently use HashFunctions.hash(int) which just returns the key value:
+
+
+  /**
+   * Returns a hashcode for the specified value.
+   *
+   * @return a hash code value for the specified value.
+   */
+  public static int hash(int value) {
+    return value;
+
+    //return value * 0x278DDE6D; // see org.apache.mahout.math.jet.random.engine.DRand
+
+    /*
+    value &= 0x7FFFFFFF; // make it >=0
+    int hashCode = 0;
+    do hashCode = 31*hashCode + value%10;
+    while ((value /= 10) > 0);
+
+    return 28629151*hashCode; // spread even further; h*31^5
+    */
+  }
+ 
+
+
+This easily leads to very degenerate behavior on keys that have constant lower bits (long collision chains). A simple (and strong) hash function like the final step of murmurhash3 goes a long way at ensuring the keys distribution is more uniform regardless of the input distribution.

@@ -1,0 +1,48 @@
+Currently, when Derby needs to check if 2 DTDs are comparable or not, it calls TypeCompiler.comparable method. This method now has to move to DTD because we should consider collation information while deciding if 2 DTDs are comparable or not. That collation information is not available to TypeCompiler but it is available at DTD level. More information on this can be found at http://www.nabble.com/Re%3A-Changes-to-comparable-method-in-TypeCompiler-tf3603373.html#a10089238. Some of the important info from the thread is copied below
+
+> I think what you are suggesting is to move comparable method out from 
+> the TypeCompiler and into DataTypeDescriptor altogether. So, the 
+> existing code, where we use TypeCompiler to decide if 2 types can be 
+> compared or not should now call a method on DTD to determine 
+> comparability. This might be cleaner than stuffing collation information 
+> in CharTypeCompiler but I am just wondering why was comparable not 
+> defined on DTD at the very start. Why do we go through TypeCompiler and 
+> what functionality does TypeCompiler provide that DTD does not? In other 
+> words, I don't understand the connection between TypeCompiler and DTD 
+> and how they fit together. 
+
+It's not that TypeCompiler provides functionality that DTD does not, but 
+instead DTD has functionality/information that TypeCompiler does not. 
+Ignoring the "compiler" aspect for the moment there are two components 
+to a DataTypeDescriptor, the underlying SQL type (INTEGER, CHAR, 
+VARCHAR, XML etc.) represented as TypeId and attributes of the 
+descriptor (nullablity, length, precision, scale and now collation). 
+
+Thus 
+
+  DTD = TypeId + 
+{attributes}
+ 
+
+Some functionality is applicable to a type regardless of a specific 
+DTD's attributes, thus methods for that functionality can be declared on 
+TypeId instead of DTD. 
+
+Some functionality on the other hand needs the attribute information as 
+well, say the display length of a type is a function of its 
+length/precision&scale and its underlying SQL type. 
+
+The collation changes have moved the comparable check from being only 
+reliant on the SQL type (TypeId) to being dependent on the type's 
+attributes (collation type and implicit/explicit). Thus the original 
+location for the comparable method made sense, but now does not. 
+
+The TypeCompiler/TypeId split was due to an early plan to have a 
+execute-only version of the technology, this never happened as there was 
+no demand for it. One of the benefits of a SQL engine is the ability to 
+execute arbitrary queries, which would not be available in an execute 
+only version. Code cleanup could be done here which probably would 
+decrease the footrprint of derby. 
+
+HTH, 
+Dan. 

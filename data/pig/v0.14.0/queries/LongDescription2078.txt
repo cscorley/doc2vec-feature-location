@@ -1,0 +1,28 @@
+The following script fail with "-t MergeForEach"
+
+
+a = load '1.txt' as (a0:bag{}, a1:int);
+b = foreach a generate a0;
+dump b;
+
+
+
+1.txt:
+{(1)}
+   2
+        3
+
+Error stack:
+java.lang.NullPointerException
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POProject.consumeInputBag(POProject.java:310)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POProject.getNext(POProject.java:251)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.getNext(PhysicalOperator.java:316)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.processPlan(POForEach.java:332)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.getNext(POForEach.java:284)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:261)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:256)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:1)
+	at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144)
+	at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:621)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:305)
+	at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:177)

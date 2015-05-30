@@ -1,0 +1,18 @@
+I encountered the following exception when doing some load testing:
+Caused by: java.lang.IllegalMonitorStateException
+ 	at java.util.concurrent.locks.ReentrantLock$Sync.tryRelease(ReentrantLock.java:139)
+ 	at java.util.concurrent.locks.AbstractQueuedSynchronizer.release(AbstractQueuedSynchronizer.java:1187)
+ 	at java.util.concurrent.locks.ReentrantLock.unlock(ReentrantLock.java:443)
+ 	at org.apache.openjpa.util.CacheMap.writeUnlock(CacheMap.java:203)
+ 	at org.apache.openjpa.datacache.ConcurrentDataCache.writeUnlock(ConcurrentDataCache.java:108)
+ 	at org.apache.openjpa.datacache.DataCacheStoreManager.cacheStateManager(DataCacheStoreManager.java:382)
+ 	at org.apache.openjpa.datacache.DataCacheStoreManager.initialize(DataCacheStoreManager.java:353)
+	at org.apache.openjpa.kernel.DelegatingStoreManager.initialize(DelegatingStoreManager.java:111)
+ 	at org.apache.openjpa.kernel.ROPStoreManager.initialize(ROPStoreManager.java:57)
+ 	at org.apache.openjpa.kernel.BrokerImpl.initialize(BrokerImpl.java:998)
+ 	at org.apache.openjpa.kernel.BrokerImpl.find(BrokerImpl.java:956)
+ 	... 43 more
+
+At first glance it seemed impossible that this exception was happening... Everywhere that CacheMap.writeUnlock()  is called there is a corresponding CacheMap.writeLock() prior to that call. 
+
+I discovered that the bug is in org.apache.openjpa.datacache.ConcurrentDataCache.removeAllInternal(Class<?> cls, boolean subs). The problem is that this method modifies the underlying cache, but doesn't obtain a writeLock first.

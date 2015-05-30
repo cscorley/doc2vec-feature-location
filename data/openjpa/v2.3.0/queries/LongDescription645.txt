@@ -1,0 +1,38 @@
+An entity has an attribute of type java.util.Date, annotated with @Temporal(TemporalType.TIMESTAMP):
+
+@Temporal(TemporalType.TIMESTAMP)
+public Date udate;
+
+This gets mapped in Informix to a column of type:
+
+udate DATETIME YEAR TO FRACTION (3)
+
+and in SQLServer to 
+
+udate DATETIME
+
+When the udate attribute is assigned a value with millisecond precision, say "12:34:56:789", OpenJPA chops off the millisecond fractional part when it generates the INSERT statement.
+
+In DBDictionary, for this type, we come to setDate() with the 'val' parameter set to the correct java.util.Date value "12:34:56:789". (The millisecond value is stored in the (Gregorian.Date) cdate.millis attribute of java.util.Date). setDate() then calls setTimestamp() - the last else - with a new instance of java.sql.Timestamp:
+
+setTimestamp(stmnt, idx, new Timestamp(val.getTime()), null, col);
+
+java.sql.Timestamp is made up of 2 parts - a date part that stores the time upto seconds, and a separate attribute, called nanos, that stores everything that is fractional of seconds. 
+
+So the new Timestamp value that is sent to setTimestamp() has this:
+
+(Gregorian.Date) cdate = 12:34:56
+nanos = 789000000
+
+In setTimestamp() there is a check for supportsTimestampNanos. Because in the InformixDictionary and SQLServer dictionaries this is set to false, the code then zeros out the nanos field:
+
+if (supportsTimestampNanos)
+    val.setNanos(nanos);
+else
+    val.setNanos(0);
+
+Consequently, all fractional seconds information is lost for these 2 database types from the INSERT statement for this timestamp value. 
+
+The nanos field in java.sql.Timestamp does not really mean that only nanoseconds are stored there - it means that any fractional value, after seconds  will be stored there.This problem happens not only with the Date field in the entity, but also with java.util.Calendar and java.sql.Timestamp. The solution is to always set the nanoseconds value in the (java.sql.Timestamp)val field. The check for supportsTimestampNanos, as well as the flag itself, is not needed, because both IDS and SQLServer do allow fractional seconds.
+
+Will attach a patch ASAP. Albert has reviewed the proposed solution.

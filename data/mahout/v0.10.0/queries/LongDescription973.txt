@@ -1,0 +1,26 @@
+Although I'm using a little bit different the TFIDFConverter, but the problem will occur the same way with SparseVectorsFromSequenceFiles when somebody wants to create a TFIDF vectors for their documents.
+
+Basically if maxDFSigma is not set then because of SparseVectorsFromSequenceFiles.java:281
+long maxDF = maxDFPercent;
+
+maxDF will be 99. which is then passed to TFIDFConvert.processTfIdf function as an argument, where it is interpreted as "The max percentage of vectors for the DF." Partial vectors will be created with TFIDFPartialVectorReducer.class and because of TFIDFPartialVectorReducer.java:81 as maxDF = 99 if (df > maxDF) the term will be ignored.
+
+the problem here is that two different quantities are compared. df value is the number of documents which contains the given term, and it's not normalized by the document number, i.e. it's not a percentage! see TermDocumentCountReducer.java for details. while maxDF is interpreted as a percentage, see above. Thus, as soon as the df count gets higher than 99, or in the best case 100, meaning the given term occurs in more than 99 or 100 different documents, it'll be ignored... and this is not what we would like it to do.
+
+I.e. there's a bug in TFIDFPartialVectorReducer.java at line 81.
+
+I've attached a possible fix for this problem.
+
+the bug was introduced a61e5ff8 commit (git) or rev 1210994 in svn:
+@@ -78,7 +78,7 @@ public class TFIDFPartialVectorReducer extends
+         continue;
+       }
+       long df = dictionary.get(e.index());
+
+	if (df * 100.0 / vectorCount > maxDfPercent) {
++      if (maxDf > -1 && df > maxDf) 
+{
+         continue;
+       }
+       if (df < minDf) {
+

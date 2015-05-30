@@ -1,0 +1,22 @@
+Calling ResultSet.updateObject(column, object) causes the network driver to give NullPointerException if the object parameter is null.
+
+Stack trace from test:
+
+Test output:
+........E.
+Time: 7.597
+There was 1 error:
+1) testUpdateObjectWithNull(org.apache.derbyTesting.functionTests.tests.jdbcapi.UpdateXXXTest)java.lang.NullPointerException
+        at org.apache.derby.client.am.CrossConverters.setObject(CrossConverters.java:845)
+        at org.apache.derby.client.am.ResultSet.updateObject(ResultSet.java:3073)
+        at org.apache.derbyTesting.functionTests.tests.jdbcapi.UpdateXXXTest.testUpdateObjectWithNull(UpdateXXXTest.java:215)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+
+Will attach the test.
+
+To run:
+java -Dframework=DerbyNetClient org.apache.derbyTesting.functionTests.harness.RunTest jdbcapi/UpdateXXXTest.junit
+
+The test does not fail with the embedded framework.

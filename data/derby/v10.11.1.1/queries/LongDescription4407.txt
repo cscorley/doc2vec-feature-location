@@ -1,0 +1,27 @@
+A query that returns no columns should perhaps raise an SQLException of some kind, I don't know, but currently it doesn't, and ij fails with a StringIndexOutOfBoundsException when it tries to display the result.
+
+After DERBY-4370 it is possible to construct queries that return no columns by having a select list like T1.* in a join where the USING clause contains all of T1's columns. To reproduce:
+
+ij> create table t(x int);
+0 rows inserted/updated/deleted
+ij> insert into t values (1),(2),(3);
+3 rows inserted/updated/deleted
+ij> select t1.* from t t1 join t t2 using ;
+JAVA ERROR: java.lang.StringIndexOutOfBoundsException: String index out of range: -1
+java.lang.StringIndexOutOfBoundsException: String index out of range: -1
+	at java.lang.AbstractStringBuilder.setLength(AbstractStringBuilder.java:143)
+	at java.lang.StringBuffer.setLength(StringBuffer.java:153)
+	at org.apache.derby.tools.JDBCDisplayUtil.indent_DisplayBanner(JDBCDisplayUtil.java:627)
+	at org.apache.derby.tools.JDBCDisplayUtil.indent_DisplayResults(JDBCDisplayUtil.java:368)
+	at org.apache.derby.tools.JDBCDisplayUtil.indent_DisplayResults(JDBCDisplayUtil.java:338)
+	at org.apache.derby.tools.JDBCDisplayUtil.indent_DisplayResults(JDBCDisplayUtil.java:241)
+	at org.apache.derby.tools.JDBCDisplayUtil.DisplayResults(JDBCDisplayUtil.java:229)
+	at org.apache.derby.impl.tools.ij.utilMain.displayResult(utilMain.java:448)
+	at org.apache.derby.impl.tools.ij.utilMain.doCatch(utilMain.java:522)
+	at org.apache.derby.impl.tools.ij.utilMain.runScriptGuts(utilMain.java:363)
+	at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:261)
+	at org.apache.derby.impl.tools.ij.Main.go(Main.java:229)
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:184)
+	at org.apache.derby.impl.tools.ij.Main.main(Main.java:75)
+	at org.apache.derby.tools.ij.main(ij.java:59)
+	at org.apache.derby.iapi.tools.run.main(run.java:53)

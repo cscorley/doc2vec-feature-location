@@ -1,0 +1,4 @@
+Temporary files created by Tika are not removed in the case the TikaInputStream has been created using a byte array or BufferedInputStream and using the ZipContainerDetector (in our case for Office 2007 documents).
+The fix for bug TIKA-654 solves part of the problem (when using file as input) but when the byte array is being used, TikaInputStream will create a temp file (when getFile() is called). This file will be removed when close() is called, but in the ZipDetector a ZipFile is instantiated which also opens a stream to the same temp file. This stream is not closed and therefor the file can not be deleted when TikaInputStream.close() is called.
+
+See attached patch for unittest and solution.

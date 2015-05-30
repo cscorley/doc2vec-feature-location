@@ -1,0 +1,38 @@
+Opening a JIRA report on Tim's behalf. 
+
+I turned the schema tool loose on a MySQL production database this
+afternoon and it failed. The essence of the problem appears that DDL was
+being generated with a type declaration of this form:
+
+int unsigned(10)
+
+In MySQL, the proper form is:
+
+int(10) unsigned
+
+viz:
+
+ALTER TABLE fubar MODIFY col1 int(10) unsigned;
+
+Checking other options indicates that similar constructs such as CREATE
+TABLE are likewise defective.
+
+I looked at the svn trunk head source code in
+org.apache.openjpa.jdbc.sql.MySQLDictionary.java and the parent class
+DBDictionary.java. The offending method appears to be:
+
+1508:     public String getTypeName(Column col)
+
+This method has no override in MySQLDictionary, but apparently needs
+one. I think it's a minor mod, but I'm not currently set up to build and
+test in the environment where the offending database exists.
+
+This is a SEVERE error. It causes generation of defective SQL for
+SQL-generating options and causes live updates to schemas to fail.
+
+I don't have a Jira login at present, so if someone could log this, it
+would be appreciated.
+
+  Thanks,
+
+   Tim Holloway

@@ -1,0 +1,7 @@
+As per SQL2003 Foundation spec, Pg 913 Section 18.6 <set schema statement> 3b) "Otherwise, the default unqualified schema name of the current SQL-session is set to V." As per this line, set schema will only impact the current context on current SQL-session's context stack. But, in Derby, set schema is impacting all the contexts in SQL-session's context stack rather than only the current context. An example of this would be 
+1)make a database connection
+2)set schema to 'schema1'
+3)call an external procedure using CALL statement and change schema to 'schema2'
+4)After the call to external procedure, check current schema
+
+Step 3 causes a new context creation and that context gets destroyed when external procedure finishes. As per SQL2003, step 3 should only change the schema for the cotext in which the procedure is running, and step 4 should see current schema as 'schema1'. This doesn't happen in Derby. Instead, the set schema statement affects all the contexts in the SQL-session's context stack. In the example above, in step 4, Derby shows current schema to be 'schema2'.

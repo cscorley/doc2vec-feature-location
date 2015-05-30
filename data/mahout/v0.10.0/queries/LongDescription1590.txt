@@ -1,0 +1,33 @@
+Running 
+   mvn clean test -Dhadoop2.version=2.4.0 
+
+has many unit test failures because guava version mismatch.   
+
+For example:
+
+======
+completeJobToyExample(org.apache.mahout.cf.taste.hadoop.als.ParallelALSFactorizationJobTest)  Time elapsed: 0.736 sec  <<< ERROR!
+java.lang.NoSuchMethodError: com.google.common.base.Stopwatch.elapsedMillis()J
+        at __randomizedtesting.SeedInfo.seed([BEBBF9ACD237F984:B570D1523391FD4E]:0)
+        at org.apache.hadoop.mapreduce.lib.input.FileInputFormat.listStatus(FileInputFormat.java:278)
+        at org.apache.hadoop.mapreduce.lib.input.FileInputFormat.getSplits(FileInputFormat.java:375)
+        at org.apache.hadoop.mapreduce.JobSubmitter.writeNewSplits(JobSubmitter.java:493)
+        at org.apache.hadoop.mapreduce.JobSubmitter.writeSplits(JobSubmitter.java:510)
+        at org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:394)
+        at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1285)
+        at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1282)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:396)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1548)
+        at org.apache.hadoop.mapreduce.Job.submit(Job.java:1282)
+        at org.apache.hadoop.mapreduce.Job.waitForCompletion(Job.java:1303)
+        at org.apache.mahout.cf.taste.hadoop.als.ParallelALSFactorizationJob.run(ParallelALSFactorizationJob.java:172)
+        at org.apache.mahout.cf.taste.hadoop.als.ParallelALSFactorizationJobTest.explicitExample(ParallelALSFactorizationJobTest.java:112)
+        at org.apache.mahout.cf.taste.hadoop.als.ParallelALSFactorizationJobTest.completeJobToyExample(ParallelALSFactorizationJobTest.java:71)
+=====
+
+hadoop mapreduce V2 is using guava v11.0.2 and mahout is using guava version 16.0
+
+After trying different versions guava version 14.0 seems to have hadoop MR V2 compatible jars and mahout needed classes. 
+
+The unit tests ran successfully after changing the dependency in mahout to v14.0

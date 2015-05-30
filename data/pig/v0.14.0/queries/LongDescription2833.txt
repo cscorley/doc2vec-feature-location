@@ -1,0 +1,19 @@
+The class org.apache.pig.pigunit.pig.PigServer does not set the default log level of its instance of PigContext so that pigunit tests that have 
+
+
+
+set debug off;
+
+
+
+in them, will cause a NullPointerException at org.apache.pig.PigServer line 291 because the default log level is not set.
+
+So I think org.apache.pig.pigunit.pig.PigServer should do something like 
+
+
+
+pigContext.setDefaultLogLevel(Level.INFO);
+
+
+
+in its contructors.

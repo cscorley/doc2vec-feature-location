@@ -1,0 +1,34 @@
+In the following case we have a 3 server ensemble.
+
+Initially all is well, zk3 is the leader.
+
+However zk3 fails, restarts, and rejoins the quorum as the new leader (was the old leader, still the leader after re-election)
+
+The existing two followers, zk1 and zk2 rejoin the new quorum again as followers of zk3.
+
+zk1 then fails, the datadirectory is deleted (so it has no state whatsoever) and restarted. However zk1 can never rejoin the quorum (even after an hour). During this time zk2 and zk3 are serving properly.
+
+Later all three servers are later restarted and properly form a functional quourm.
+
+
+Here are some interesting log snippets. Nothing else of interest was seen in the logs during this time:
+
+zk3. This is where it becomes the leader after failing initially (as the leader). Notice the "round" is ahead of zk1 and zk2:
+
+
+2012-07-18 17:19:35,423 - INFO  [QuorumPeer:/0.0.0.0:2181:FastLeaderElection@663] - New election. My id =  3, Proposed zxid = 77309411648
+2012-07-18 17:19:35,423 - INFO  [WorkerReceiver Thread:FastLeaderElection@496] - Notification: 3 (n.leader), 77309411648 (n.zxid), 832 (n.round), LOOKING (n.state), 3 (n.sid), LOOKING (my state)
+2012-07-18 17:19:35,424 - INFO  [WorkerReceiver Thread:FastLeaderElection@496] - Notification: 3 (n.leader), 73014444480 (n.zxid), 831 (n.round), FOLLOWING (n.state), 2 (n.sid), LOOKING (my state)
+2012-07-18 17:19:35,424 - INFO  [WorkerReceiver Thread:FastLeaderElection@496] - Notification: 3 (n.leader), 73014444480 (n.zxid), 831 (n.round), FOLLOWING (n.state), 1 (n.sid), LOOKING (my state)
+2012-07-18 17:19:35,424 - INFO  [QuorumPeer:/0.0.0.0:2181:QuorumPeer@655] - LEADING
+
+
+
+zk1 which won't come back. Notice that zk3 is reporting the round as 831, while zk2 thinks that the round is 832:
+
+
+2012-07-18 17:31:12,015 - INFO  [WorkerReceiver Thread:FastLeaderElection@496] - Notification: 1 (n.leader), 77309411648 (n.zxid), 1 (n.round), LOOKING (n.state), 1 (n.sid), LOOKING (my state)
+2012-07-18 17:31:12,016 - INFO  [WorkerReceiver Thread:FastLeaderElection@496] - Notification: 3 (n.leader), 73014444480 (n.zxid), 831 (n.round), LEADING (n.state), 3 (n.sid), LOOKING (my state)
+2012-07-18 17:31:12,017 - INFO  [WorkerReceiver Thread:FastLeaderElection@496] - Notification: 3 (n.leader), 77309411648 (n.zxid), 832 (n.round), FOLLOWING (n.state), 2 (n.sid), LOOKING (my state)
+2012-07-18 17:31:15,219 - INFO  [QuorumPeer:/0.0.0.0:2181:FastLeaderElection@697] - Notification time out: 6400
+

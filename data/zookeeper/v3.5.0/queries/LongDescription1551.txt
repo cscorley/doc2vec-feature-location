@@ -1,0 +1,1 @@
+In Learner.java, txns which comes after the learner has taken the snapshot (after NEWLEADER packet) are stored in packetsNotCommitted. The follower has special logic to apply these txns at the end of syncWithLeader() method. However, the observer will ignore these txns completely, causing data inconsistency. 

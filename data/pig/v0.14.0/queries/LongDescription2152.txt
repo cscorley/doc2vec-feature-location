@@ -1,0 +1,33 @@
+We have observed the following issues with code built from Pig 0.9 branch. We have not seen this with earlier versions; however, since this happens once in a while and is not reproducible at will it is not clear whether the issue is specific to 0.9 or not.
+
+Here is the stack:
+
+java.lang.NullPointerException at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.ProgressableReporter.progress(ProgressableReporter.java:37)
+at
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.processPlan(POForEach.java:399)
+at
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.getNext(POForEach.java:284)
+at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:290)
+at
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLocalRearrange.getNext(POLocalRearrange.java:256)
+at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:261) at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:256) at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:58) at
+org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144) at
+org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:764) at
+org.apache.hadoop.mapred.MapTask.run(MapTask.java:370) at org.apache.hadoop.mapred.Child$4.run(Child.java:261) at
+java.security.AccessController.doPrivileged(Native Method) at javax.security.auth.Subject.doAs(Subject.java:396) at
+org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1059) at
+org.apache.hadoop.mapred.Child.main(Child.java:255) 
+
+
+Note that the code in progress function looks as follows:
+
+public void progress() 
+{
+        if(rep!=null)
+            rep.progress();
+    }
+
+This points to some sort of synchronization issue 

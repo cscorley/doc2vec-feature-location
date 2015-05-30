@@ -1,0 +1,3 @@
+map tasks of a pig query ran out of memory because there were too many (thousands)  instances of combiner PhysicalPlan in memory. Each physical plan (except the last?) was linked to older one as shown in the yourkit snapshot that I am attaching.
+
+This problem was noticed with 0.8 because of the split combination feature, that resulted in each map having larger inputs. The query also had large physical plan because of multi-query, it had 17 MR jobs merged into one during the multi-query optimization phase.

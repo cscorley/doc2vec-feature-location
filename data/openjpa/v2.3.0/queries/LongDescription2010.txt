@@ -1,0 +1,5 @@
+I've only seen this when entities are defined in an XML mapping file, and then only in some difficult to replicate classloader environments.
+
+The same XML mapping file may be parsed more than one time, resulting in a misleading warning message about duplicate metadata. The metadata is in fact identical, and does not indicate a problem. 
+
+To detect this condition we can store the source file and line number where the meta data was defined, and only issue the warning if the metadata is defined in a different location. 

@@ -1,0 +1,11 @@
+The constructor for IndexRowToBaseRowResultSet
+takes a bitset describing the columns coming from the heap and a
+bitset describing the columns coming from the index. But in every
+IndexRowToBaseRowResultSet one also has to compute all referenced
+columns (union of heap and index bitsets), and frequently also those
+columns only coming from the heap (set difference between heap and
+index).
+
+But the value of these "set products" seem only to depend on objects
+that are fixed at compile time (in IndexToBaseRowNode), so it would be 
+cleaner (and possibly more efficient) to compute these products there.

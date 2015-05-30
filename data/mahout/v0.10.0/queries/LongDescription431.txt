@@ -1,0 +1,5 @@
+I'm trying to use the complementary Bayes classifier and store the model in HBase (using BayesParameters.set("dataSource", "hbase")).  When I run the MR jobs using CBayesDrvier, I get a NullPointerException in CBayesThetaNormalizerReducer at line 92:
+
+hBconf.set(new HBaseConfiguration(job));
+
+'hBconf' is a ThreadLocal<HBaseConfiguration> field and it looks like it has not been initialized.  I initialized it and the model built successfully.  I observed the same bug in the 0.3 release and in 0.4-SNAPSHOT.  I'll attach a patch that initializes the field.

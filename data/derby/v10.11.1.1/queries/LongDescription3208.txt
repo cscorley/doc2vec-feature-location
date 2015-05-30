@@ -1,0 +1,21 @@
+There are two callers of DaemonService.serviceNow() in the code:
+
+	Clock.rotateClock()
+	LogToFile.flush()
+
+
+
+They implicitly assume that if they are not currently waiting to be serviced by the daemon service, a call to serviceNow() is guaranteed to result in their performWork() method being invoked at some point in the future. They maintain flags (Clock.cleanerRunning and LogToFile.checkpointDaemonCalled) which tell whether serviceNow() has been called, and if they are true, serviceNow() is not called again. When performWork() is called, they reset the flag, allowing others to call serviceNow() again.
+
+However, DaemonService.serviceNow() does not guarantee that performWork() always gets called in these cases. Its javadoc says the following:
+
+	/**
+	    Service this subscription ASAP.  Does not guarantee that the daemon
+		will actually do anything about it.
+
+		@param clientNumber the number that uniquely identify the client
+	 */
+
+If one of the calls to serviceNow() does not result in a call to performWork(), the flags which prevent new calls to serviceNow() are not reset. Since both Clock and LogToFile are subscribed to the daemon service in on-demand-only mode, performWork() is only called if the subscriber calls serviceNow(). That means there is no way to reset the flags, and Clock/LogToFile are never allowed to call serviceNow() again.
+
+Although BasicDaemon's implementation of the DaemonService interface does in fact give the necessary guarantees (without explicitly stating them, though) to make this protocol work, Clock and LogToFile should be coded against the specification of the interface rather than against the undocumented behaviour of an implementation of the interface.

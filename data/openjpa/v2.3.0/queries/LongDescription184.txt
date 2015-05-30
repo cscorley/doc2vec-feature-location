@@ -1,0 +1,21 @@
+When using DB2 database and the SQLException occurs 
+if the SQLException instance supports the DB2Diagnosable interface, 
+extended error information from the SQLCA will be written to the SQL channel. 
+The message format produced by DB2Diagnosable writer is
+
+	 SQLCA OUTPUT[Errp=SQLDMISR, Errd=[-2146893819, 5, 0, 0, -957, 0]]
+Errp is the name of the DB2 module that detected the error and Errd are 6 integers of diagnostic information, SQLWARN are 6 characters 
+of warning flags..  Often this additional information can be used by an administrator in doing problem determination.
+
+This message will be appended to the persistence exception error message already created by OpenJPA
+and it will be written to SQL logging channel (if active).
+
+DB2Dictionary class is modified to use java reflection on the SQLException instance to determine 
+if it supports DB2Diagnosble methods "getErrp" and if so 
+it invokes the methods to retrieve Errp and Errd fields, formats and logs the error message.
+Reflection is used so that the DB2Dictionary does not contain any compile time or runtime 
+dependency on the DB2 jdbc driver.  If the DB2Diagnosable methods do not exist on the SQLException
+instance,  no extended error information is logged.  
+
+org.apache.openjpa.jdbc.sql.SQLException class is modified so in the event of an exception 
+if the Dictionary is DB2, to call the Dictionary routines above.

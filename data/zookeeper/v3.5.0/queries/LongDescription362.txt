@@ -1,0 +1,4 @@
+I have been able to identify two reasons that cause FLENewEpochTest to fail:
+
+1- There is a race condition that is triggered when two peers try to establish a connection to each other for leader election. Basically, if they start roughly at the same time, the server with highest id will try to open two connections. The two competing connections will lead to one notification message to be lost. This message happens to be critical for this two process scenario; 
+2- The code to shut down a peer is not working well with the unit tests. For this particular unit test, we need to be able to shut down a peer completely to check the situation the test tries to reproduce. However, it seems that in some runs timing causes the other peers to believe it is still alive, and end up electing it. This peer, however, eventually shuts down and leader election fails.

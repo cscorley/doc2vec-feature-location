@@ -1,0 +1,4 @@
+Currently the poolSize parameter in the ForkParser class just sets the number of processes that are kept in the background even if no active parsing tasks are in progress. New parsing request are always given a new process if there are none left in the pool. In the worst case this can cause lots of processes being forked during peak loads.
+
+I'd like to change the poolSize parameter to specify the maximum number of background processes that the ForkParser can
+use at any given time. Unused processes would stay in the pool up to the default five-second idle time after which they are reclaimed and the pool shrunk until new requests come in again.

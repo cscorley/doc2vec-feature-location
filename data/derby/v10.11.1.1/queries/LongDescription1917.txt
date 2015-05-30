@@ -1,0 +1,66 @@
+The method Clob.position(String searchstr, long start) fails when used on large lobs if the searchstr is bigger than 256 characters. I have seen two different errors, if the search string it bigger than 256 character it is not found and if the search string is bigger than 512 characters an exception is thrown.
+
+
+/* Repro */
+
+            // Connect
+            Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+            Connection conn = DriverManager.getConnection("jdbc:derby:ReproClob;create=true", "app", "app");
+
+            // Create table and populate
+            Statement stmt = conn.createStatement();
+            try 
+{
+                stmt.executeUpdate("DROP TABLE tmpClob");
+            }
+ catch (SQLException se) {}
+            stmt.executeUpdate("CREATE TABLE tmpClob (a int, b clob(40K))");
+
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO tmpClob VALUES (?, ?)");
+            String tmp = "abcdefghijklmnopqrstuvxyz";
+            StringBuilder sb = new StringBuilder();
+            for (int i=0; i<1500; i++) 
+{
+                sb.append(tmp);
+            }
+            ps.setInt(1, 1);
+            ps.setString(2, sb.toString());
+            ps.executeUpdate();
+            ps.close();
+
+            ResultSet rs = stmt.executeQuery("SELECT * FROM tmpClob");
+            if (rs.next()) {
+                Clob c = rs.getClob(2);
+                // Bug #1
+                String subString1 = c.getSubString(100, 513);
+                try 
+{
+                    long i1 = c.position(subString1, 90);
+                    System.out.println("Found searched string at: " + i1);
+                }
+ catch (SQLException se) {
+                    System.out.println("FAILURE REPRODUCED: Clob.position(string, int) throws an exception when the length of the search string is bigger than 512");
+                    se.printStackTrace();
+                    while (se != null) 
+{
+                        System.out.println("FAIL: " + se.getMessage());
+                        se = se.getNextException();
+                    }
+                }
+
+                // Bug #2
+                String subString2 = c.getSubString(100, 257);
+                long i2 = c.position(subString2, 90);
+                if (i2 == -1) 
+{
+                    System.out.println("FAILURE REPRODUCED: Clob.position(string, int) does not find the search string if its length is bigger than 256");
+                }
+ else 
+{
+                    System.out.println("Found searched string at: " + i2);
+                }
+            }
+            rs.close();
+            stmt.close();
+            conn.rollback();
+            conn.close();

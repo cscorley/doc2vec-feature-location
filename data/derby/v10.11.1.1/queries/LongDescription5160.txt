@@ -1,0 +1,37 @@
+When executing ALTER TABLE .. ADD COLUMN without specifying the type of the new column, I see a NullPointerException:
+
+ij> create table t(x int);
+0 rows inserted/updated/deleted
+ij> alter table t add column y;
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+java.sql.SQLException: Java exception: ': java.lang.NullPointerException'.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:95)
+	at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Util.java:142)
+	at org.apache.derby.impl.jdbc.Util.javaException(Util.java:299)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:408)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:348)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:2284)
+	at org.apache.derby.impl.jdbc.ConnectionChild.handleException(ConnectionChild.java:82)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:616)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:556)
+	at org.apache.derby.impl.tools.ij.ij.executeImmediate(ij.java:367)
+	at org.apache.derby.impl.tools.ij.utilMain.doCatch(utilMain.java:521)
+	at org.apache.derby.impl.tools.ij.utilMain.runScriptGuts(utilMain.java:363)
+	at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:261)
+	at org.apache.derby.impl.tools.ij.Main.go(Main.java:229)
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:184)
+	at org.apache.derby.impl.tools.ij.Main.main(Main.java:75)
+	at org.apache.derby.tools.ij.main(ij.java:59)
+	at org.apache.derby.iapi.tools.run.main(run.java:53)
+Caused by: java.sql.SQLException: Java exception: ': java.lang.NullPointerException'.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(SQLExceptionFactory40.java:119)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:70)
+	... 17 more
+Caused by: java.lang.NullPointerException
+	at org.apache.derby.impl.sql.compile.AlterTableNode.bindStatement(AlterTableNode.java:356)
+	at org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatement.java:324)
+	at org.apache.derby.impl.sql.GenericStatement.prepare(GenericStatement.java:90)
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(GenericLanguageConnectionContext.java:1101)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:607)
+	... 10 more

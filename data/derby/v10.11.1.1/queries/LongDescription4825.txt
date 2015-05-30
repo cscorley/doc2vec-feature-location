@@ -1,0 +1,18 @@
+I saw this failure when running suites.All on the 10.6.2.1 release candidate:
+
+1) testGetCharacterStream(org.apache.derbyTesting.functionTests.tests.jdbcapi.LargeDataLocksTest)junit.framework.AssertionFailedError: expected:<0> but was:<3>
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.LargeDataLocksTest.testGetCharacterStream(LargeDataLocksTest.java:72)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:109)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:23)
+	at junit.extensions.TestSetup.run(TestSetup.java:27)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+
+The assertion expects the lock table to have zero locks, but it finds three.
+
+The test succeeded when I later ran it 100 times outside of suites.All.
+
+The failure looks similar to DERBY-4301, but I saw this in a pure 10.6 environment, whereas DERBY-4301 happened in a mixed 10.3/10.5 environment. Also, DERBY-4301 is consistently reproducible, whereas this failure appears to be intermittent.

@@ -1,0 +1,18 @@
+SynonymAliasInfo.toString() doesn't quote identifiers correctly. Example:
+
+ij> create table """"(x int);
+0 rows inserted/updated/deleted
+ij> create synonym s1 for """";
+0 rows inserted/updated/deleted
+ij> select aliasinfo from sys.sysaliases where alias = 'S1';
+ALIASINFO      
+---------------
+"APP"."""      
+
+1 row selected
+
+The returned value should say:
+
+"APP".""""
+
+That is, there should be one more double quote character.

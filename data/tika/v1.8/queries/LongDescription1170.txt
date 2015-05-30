@@ -1,0 +1,34 @@
+I've been running Tika against a large corpus of web archives files, and I'm seeing a number of false positives for image/cgm. The Tika magic is
+
+
+      <match value="BEGMF" type="string" offset="0"/>
+      <match value="0x0020" mask="0xffe0" type="string" offset="0"/>
+
+
+The issue seems to be that the second magic matcher is not very specific, e.g. matching files that start 0x002a. To be fair, this is only c.700 false matches out of >300 million resources, but it would be nice if this could be tightened up. 
+
+Looking at the PRONOM signatures
+
+	http://www.nationalarchives.gov.uk/PRONOM/Format/proFormatSearch.aspx?status=detailReport&id=1048&strPageToDisplay=signatures
+	http://www.nationalarchives.gov.uk/PRONOM/Format/proFormatSearch.aspx?status=detailReport&id=1049&strPageToDisplay=signatures
+	http://www.nationalarchives.gov.uk/PRONOM/Format/proFormatSearch.aspx?status=detailReport&id=1050&strPageToDisplay=signatures
+	http://www.nationalarchives.gov.uk/PRONOM/Format/proFormatSearch.aspx?status=detailReport&id=1051&strPageToDisplay=signatures
+it seems we have a variable position marker that changes slightly for each version. Therefore, a more robust signature should be:
+
+
+
+
+
+      <match value="BEGMF" type="string" offset="0"/>
+      <match value="0x0020" mask="0xffe0" type="string" offset="0">
+        <match value="0x10220001" type="string" offset="2:64"/>
+        <match value="0x10220002" type="string" offset="2:64"/>
+        <match value="0x10220003" type="string" offset="2:64"/>
+        <match value="0x10220004" type="string" offset="2:64"/>
+      </match>
+
+
+
+Where I have assumed the filename part of the CGM file will be less that 64 characters long.
+
+Could this magic be considered for inclusion?

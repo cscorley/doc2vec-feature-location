@@ -1,0 +1,17 @@
+This patch adds support for unicode collation (searching and sorting).
+Unicode collation is helpful in a search engine, for many languages you want things to match or sort differently.
+You might even want to use copyfield and support different sort orders/matching schemes if you need to support multiple languages.
+
+This is simply a factory for lucene's CollationKeyFilter, which indexes binary collation keys in a special format that preserves binary sort order.
+
+I've added support for creating a Collator in two ways:
+
+	system collator from a Locale spec (language + country + variant)
+	tailored collator from custom rules in a text file
+
+
+
+in no way is there an option to use the "default" locale of the jvm, (I consider this a bit dangerous)
+in this patch, it is mandatory to define the locale explicitly for a system collator.
+
+The required lucene-collation-2.9.1.jar is only 12KB.

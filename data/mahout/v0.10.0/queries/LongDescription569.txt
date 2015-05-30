@@ -1,0 +1,18 @@
+If you try to perform classification using categories with spaces in their names then the classifier will happily train and create a model for you, but when you go to test the model you get:
+
+
+Exception in thread "main" java.lang.NullPointerException
+	at org.apache.mahout.classifier.ConfusionMatrix.getCount(ConfusionMatrix.java:102)
+	at org.apache.mahout.classifier.ConfusionMatrix.incrementCount(ConfusionMatrix.java:118)
+	at org.apache.mahout.classifier.ConfusionMatrix.incrementCount(ConfusionMatrix.java:122)
+	at org.apache.mahout.classifier.ConfusionMatrix.addInstance(ConfusionMatrix.java:90)
+	at org.apache.mahout.classifier.ResultAnalyzer.addInstance(ResultAnalyzer.java:69)
+	at org.apache.mahout.classifier.bayes.TestClassifier.classifySequential(TestClassifier.java:266)
+	at org.apache.mahout.classifier.bayes.TestClassifier.main(TestClassifier.java:186)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.apache.hadoop.util.ProgramDriver$ProgramDescription.invoke(ProgramDriver.java:68)
+	at org.apache.hadoop.util.ProgramDriver.driver(ProgramDriver.java:139)
+	at org.apache.mahout.driver.MahoutDriver.main(MahoutDriver.java:182)

@@ -1,0 +1,13 @@
+This issue is originally reported by Donald Woods in OPENJPA-957.
+
+"Looks like the existing implementation (not defined in JPA 1.0 Spec and OpenJPA specific) is using setQueryTimeout() in PessimisticLockManager, which is a client side JDBC timeout function, while lock timeouts are implemented in the DB server. See -
+DB2 - http://publib.boulder.ibm.com/infocenter/db2luw/v8/index.jsp?topic=/com.ibm.db2.udb.doc/admin/r0011874.htm
+MS SQL - http://msdn.microsoft.com/en-us/library/aa213032(SQL.80).aspx
+Derby - config property - http://db.apache.org/derby/docs/dev/devguide/cdevconcepts16400.html
+Oracle - LOCKWAIT on the connection or on the DB
+Also, the following discussion gives a good overview of the two and why apps should use both to handle unreliable network conditions -
+http://social.msdn.microsoft.com/Forums/en-US/sqldataaccess/thread/95755534-bbef-4c2c-afa4-b80ca2a2c333/"
+
+This issue caused TestException.testThrowsOptimisticException to hang when run against DB2 because the default lock timeout is -1 on DB2, which means to wait forever. This test case will be disabled until the issue is resolved and re-enabled.
+
+Albert Lee.

@@ -1,0 +1,50 @@
+I copy/paste the description I gave on the solr-user list.
+
+starting
+form the following query -
+
+http://127.0.0.1:8080/solr-urbamet/select?q=(tout:1)&rows=0&sort=TITRE+desc&facet=true&facet.query=SUJET:b*&facet.field=SUJET&facet.prefix=b&facet.limit=1&facet.missing=true&wt=json&json.nl=arrarr&indent=on
+
+
+	which produced a NullPointerException (see the stacktrace below), I
+played with the parameters and obtained the following results :
+
+
+
+##PAGINATION
+rows : starting from 0, the exception occurs until we pass a certain threshold
+=> rows implicated
+
+##SORTING
+the rows threshold afore mentionned seems to be influenced by the
+presence/absence of the sort parameter
+
+##FACETS
+facet=false => OK while facet=true => NullPointerException
+=>facets implicated
+–
+facet.field absent => OK while facet.field=whatever => NullPointerException
+=>facet.field implicated
+–
+facet.missing=false => OK while facet.missing=true => NullPointerException
+=> facet.missing implicated
+–
+facet.limit=-1 or 0 => OK while facet.limit>0  => NullPointerException
+=> facet.limit implicated
+–
+facet.query absent or facet.query = whatever => NullPointerException
+=>facet.query not implicated
+–
+facet.offset=(several values or absent) => NullPointerException
+=> facet.offset not implicated
+–
+=> facet.sort not implicated (true or false => NullPointerException)
+–
+=> facet.mincount not implicated (several values or absent =>
+NullPointerException)
+
+#ResponseWriter
+wt=standard => ok while wt=json => NullPointerException
+=> jsonwriter implicated
+json.nl=flat or map => ok
+=> jsonwriter 'arrarr' format implicated

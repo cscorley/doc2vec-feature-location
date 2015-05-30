@@ -1,0 +1,56 @@
+Say you have an EntityA which is annotated as @Embeddable and an EntityB which contains a mapping like
+
+@PersistentCollection(elementEmbedded = true, elementType = EntityA.class, fetch = FetchType.LAZY)
+private List<EntityA> list;
+
+Now if you remove an entry from the list of a persistent EntityB and commit the transaction it leads to the following exception:
+
+Caused by: <openjpa-1.1.0-runknown fatal user error> org.apache.openjpa.persistence.ArgumentException: Could not locate metadata for the class using oid "org.apache.openjpa.datacache.DataCachePCDataImpl@8c248cb" of type "class org.apache.openjpa.datacache.DataCachePCDataImpl".  
+FailedObject: org.apache.openjpa.datacache.DataCachePCDataImpl@8c248cb
+        at org.apache.openjpa.meta.MetaDataRepository.getMetaData(MetaDataRepository.java:1025)
+        at org.apache.openjpa.kernel.BrokerImpl.newStateManagerImpl(BrokerImpl.java:1176)
+        at org.apache.openjpa.kernel.BrokerImpl.findAll(BrokerImpl.java:964)
+        at org.apache.openjpa.kernel.BrokerImpl.findAll(BrokerImpl.java:913)
+        at org.apache.openjpa.kernel.AbstractPCData.toRelationFields(AbstractPCData.java:217)
+        at org.apache.openjpa.kernel.AbstractPCData.toNestedFields(AbstractPCData.java:184)
+        at org.apache.openjpa.kernel.AbstractPCData.toField(AbstractPCData.java:78)
+        at org.apache.openjpa.kernel.PCDataImpl.loadField(PCDataImpl.java:197)
+        at org.apache.openjpa.kernel.PCDataImpl.load(PCDataImpl.java:167)
+        at org.apache.openjpa.datacache.DataCacheStoreManager.load(DataCacheStoreManager.java:383)
+        at org.apache.openjpa.kernel.DelegatingStoreManager.load(DelegatingStoreManager.java:116)
+        at org.apache.openjpa.kernel.ROPStoreManager.load(ROPStoreManager.java:78)
+        at org.apache.openjpa.kernel.StateManagerImpl.loadFields(StateManagerImpl.java:2911)
+        at org.apache.openjpa.kernel.StateManagerImpl.loadField(StateManagerImpl.java:2989)
+        at org.apache.openjpa.kernel.StateManagerImpl.fetchObjectField(StateManagerImpl.java:2238)
+        at org.apache.openjpa.kernel.StateManagerImpl.fetchField(StateManagerImpl.java:775)
+        at org.apache.openjpa.kernel.StateManagerImpl.cascadeDelete(StateManagerImpl.java:2860)
+        at org.apache.openjpa.kernel.BrokerImpl.deleteDeref(BrokerImpl.java:2117)
+        at org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:1955)
+        at org.apache.openjpa.kernel.BrokerImpl.flushSafe(BrokerImpl.java:1905)
+        at org.apache.openjpa.kernel.BrokerImpl.beforeCompletion(BrokerImpl.java:1823)
+        at org.apache.openjpa.kernel.LocalManagedRuntime.commit(LocalManagedRuntime.java:81)
+        at org.apache.openjpa.kernel.BrokerImpl.commit(BrokerImpl.java:1347)
+        at org.apache.openjpa.kernel.DelegatingBroker.commit(DelegatingBroker.java:877)
+        at org.apache.openjpa.persistence.EntityManagerImpl.commit(EntityManagerImpl.java:512)
+        ... 12 more
+
+After some digging I think I found the cause in the AbstractPCData.toNestedFields method:
+
+case JavaTypes.PC:
+     if (vmd.isEmbedded())
+        for (Iterator itr = data.iterator(); itr.hasNext()
+             ret.add(toEmbeddedField(sm, vmd, itr.next(), fetch, context));
+// no break
+
+should probably be:
+
+case JavaTypes.PC:
+    if (vmd.isEmbedded()) 
+{
+         for (Iterator itr = data.iterator(); itr.hasNext();)
+              ret.add(toEmbeddedField(sm, vmd, itr.next(), fetch, context));
+         return ret;
+    }
+// no break
+
+At least it worked for me this way.

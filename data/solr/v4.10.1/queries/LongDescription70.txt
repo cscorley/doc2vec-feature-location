@@ -1,0 +1,8 @@
+while reviewing SOLR-58 i noticed that ping.jsp is extremely naive about the types of requests it can use to sanity check the index, in particular:
+
+	it treats the first query param that starts with "q" as the query string (like for example "qt")
+	it ignores all other query params
+
+
+
+...this makes it worthless to try and configure anything but the standard querest handler with no options as your ping URL.

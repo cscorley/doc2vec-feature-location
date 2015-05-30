@@ -1,0 +1,10 @@
+This is another kind of subquery that is not handled correctly in resolving table aliases, the failed JPQL:
+        "select o1.oid, c.name from Order o1, Customer c where o1.amount = " +
+            " any(select o2.amount from in(c.orders) o2)",
+
+The incorrect SQL contains  t4.name where t4  is not defined in FROM clause:
+SELECT t0.oid, t4.name FROM Order t0 JOIN Customer t1 ON (1 = 1) WHERE (t0.amount = ANY (SELECT t3.amount FROM Customer t1, Order t2, Order t3 WHERE (t2.oid = t3.oid) AND t1.countryCode = t2.CUSTOMER_COUNTRYCODE AND t1.id = t2.CUSTOMER_ID )) 
+
+The correct SQL should be:
+
+SELECT t0.oid, t1.name FROM Order t0 JOIN Customer t1 ON (1 = 1) WHERE (t0.amount = ANY (SELECT t3.amount FROM Order t2, Order t3 WHERE (t2.oid = t3.oid) AND t1.countryCode = t2.CUSTOMER_COUNTRYCODE AND t1.id = t2.CUSTOMER_ID )) 

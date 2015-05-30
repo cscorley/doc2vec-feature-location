@@ -1,0 +1,27 @@
+The LiusConfig class keeps an internal map whose keys are configuration specifications (now filespec Strings, possibly URL's in the future) and whose values are LiusConfig objects.  When an instance of a given key is requested, and that key has not yet been processed, it is parsed into an object that will be available from the map from then on.  During that parse, the content of the static List<ParserConfig> parsersConfig is overwritten.  Here is how:
+
+At the end of populateConfig(), a static method, there is a call:
+
+tc.setParsersConfigs(parsersConfigs)
+
+'tc' seems to be an instance kept around solely to accomplish this call.
+
+setParsersConfig() is defined as:
+
+    public void setParsersConfigs(List<ParserConfig> parsersConfigs) 
+{
+        this.parsersConfigs = parsersConfigs;
+    }
+
+However, the list variable itself, parsersConfigs, is defined as static:
+
+    private static List<ParserConfig> parsersConfigs;
+
+... so the result is that it is overwritten at each parse.
+
+If I understand correcty the intent, parsersConfig should be nonstatic, since different configurations could specify different parsers.  If this is the case, then it would probably make sense to make the populateConfig method nonstatic, and create a private constructor:
+
+    private LiusConfig(Document document) 
+{
+        populateConfig(document);
+    }

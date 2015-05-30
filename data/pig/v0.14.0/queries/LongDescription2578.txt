@@ -1,0 +1,17 @@
+When one runs a pig-script with multiple storers, one sees the following:
+1. When run as a script, Pig launches a single job.
+2. PigOutputCommitter::setupJob() calls the underlyingOutputCommitter::setupJob(), once for each storer. But the mapred.output.dir is the same for both calls, even though the storers write to different locations. 
+
+This was originally seen in HCATALOG-276, when HCatalog's end-to-end tests are run against Pig.
+(https://issues.apache.org/jira/browse/HCATALOG-276)
+
+Sample pig-script (near identical to HCatalog's Pig_Checkin_4 test):
+
+a = load 'keyvals' using org.apache.hcatalog.pig.HCatLoader();
+split a into b if key<200, c if key >=200;
+store b into 'keyvals_lt200' using org.apache.hcatalog.pig.HCatStorer();
+store c into 'keyvals_ge200' using org.apache.hcatalog.pig.HCatStorer();
+
+I've suggested a workaround in HCat for the time being, but I think this might be something that needs fixing in Pig.
+
+Thanks.

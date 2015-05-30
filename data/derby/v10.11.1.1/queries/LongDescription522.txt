@@ -1,0 +1,23 @@
+Comments before a  select statement Throws exception with Network Client
+For Example a statement like the one below in the attached program with throw an exception.
+
+stmt.execute("-- This is a comment \n Select c11 from TAB1");
+
+
+
+org.apache.derby.client.am.SqlException: Statement.executeUpdate() cannot be called with a statement that returns a ResultSet.
+        at org.apache.derby.client.am.Statement.completeSqlca(Statement.java:1354)
+        at org.apache.derby.client.am.Statement.completeExecuteImmediate(Statement.java:964)
+        at org.apache.derby.client.net.NetStatementReply.parseEXCSQLIMMreply(NetStatementReply.java:199)
+        at org.apache.derby.client.net.NetStatementReply.readExecuteImmediate(NetStatementReply.java:50)
+        at org.apache.derby.client.net.StatementReply.readExecuteImmediate(StatementReply.java:44)
+        at org.apache.derby.client.net.NetStatement.readExecuteImmediate_(NetStatement.java:123)
+        at org.apache.derby.client.am.Statement.readExecuteImmediate(Statement.java:960)
+        at org.apache.derby.client.am.Statement.flowExecute(Statement.java:1587)
+        at org.apache.derby.client.am.Statement.executeX(Statement.java:631)
+        at org.apache.derby.client.am.Statement.execute(Statement.java:622)
+        at CommentBeforeSelect.createAndPopulateTable(CommentBeforeSelect.java:70)
+        at CommentBeforeSelect.main(CommentBeforeSelect.java:35)
+$
+To reproduce run the attached program 
+java CommentBeforeSelect

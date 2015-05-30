@@ -1,0 +1,20 @@
+Many of derbyall fails at Japanese localed Windows when environment corresponding derbyLocale_JP.jar exists in CLASSPATH.
+Almost all of derby_all was failed because all result message was generated in 
+Japanese , and that was different from master file.
+
+I tried next configuration ...
+
+conf_0:Exclude derbyLocale_jp.jar
+conf_1:Add option "-Duser.language=en -Duser.country=US"
+conf_2:Add option "-Djvmflags=-Duser.language=en -Duser.country=US"
+conf_3:Defiine environment variable _JAVA_OPTIONS=:-Duser.language=en -Duser.locale=us
+conf_4:Defiine environment variable LC_CTYPE:en_US
+
+conf_0 works well on derbyall suite but some of derbynetclientmats/derbynetmats in derbyall suite was failed. Network module seems to have localed message in other resource.
+conf_1 works on derbynetclientsmats suite, but same configuration for derbyall suite does not work at all.
+conf_2 does not work on derbynetclientsmats suite.
+conf_3 seems to work for locale problem but  "Picked up _JAVA_OPTIONS:" message cause error in test.
+conf_4 does not works ...
+
+Now conf_0 seems to be reasonable method now.
+I think conf_3 may be reasonable direction to modify test suite. 

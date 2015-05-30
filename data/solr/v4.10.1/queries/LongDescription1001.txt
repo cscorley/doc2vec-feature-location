@@ -1,0 +1,37 @@
+As per several postings I noted that I can define variables inside an invariants list section of the DIH handler of solrconfig.xml. I can also reference these variables within data-config.xml. This works properly, the solr field "test" is nicely populated. However it is not substituted into my regex transformer? Here is my  data-config.xml which gives a hint of the use case.
+
+   <dataConfig>
+   <dataSource name="myfilereader" type="FileDataSource"/>    
+    <document>
+       <entity name="jc"
+	       processor="FileListEntityProcessor"
+	       fileName="^.*\.xml$"
+	       newerThan="'NOW-1000DAYS'"
+	       recursive="true"
+	       rootEntity="false"
+	       dataSource="null"
+	       baseDir="/Volumes/spare/ts/fords/dtd/fordsxml/data">
+	  <entity name="x"
+	          dataSource="myfilereader"
+		  processor="XPathEntityProcessor"
+		  url="$
+{jc.fileAbsolutePath}"
+		  stream="false"
+		  forEach="/record"
+		  transformer="DateFormatTransformer,TemplateTransformer,RegexTransformer,HTMLStripTransformer">
+
+   <field column="fileAbsolutePath" template="${jc.fileAbsolutePath}
+" />
+   <field column="fileWebPath"      regex="$
+{dataimporter.request.finstalldir}(.*)" replaceWith="$1" sourceColName="fileAbsolutePath"/>
+   <field column="test"             template="${dataimporter.request.finstalldir}
+" />
+   <field column="title"            xpath="/record/title" />
+   <field column="para"             xpath="/record/sect1/para" stripHTML="true" />
+   <field column="date"             xpath="/record/metadata/date[@qualifier='Date']" dateTimeFormat="yyyyMMdd"   />
+   	     </entity>
+       </entity>
+       </document>
+    </dataConfig>
+
+Shalin has pointed out that we are creating the regex Pattern without first resolving the variable. So we need to call VariableResolver.resolve on the 'regex' attribute's value before creating the Pattern object.

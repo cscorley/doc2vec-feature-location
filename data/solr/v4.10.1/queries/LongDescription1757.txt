@@ -1,0 +1,14 @@
+When the "threads" attribute is set on a root entity in the DIH's data-config.xml, the multithreading code sometimes throws a NullPointerException after the full-index command is given.
+
+I haven't yet been able to figure out exactly which reference holds the null or why, but it does happen consistently with the same backtrace.
+
+My configuration is:
+
+1. Multi-core Solr under tomcat
+2. Using JdbcDataSource and the default SqlEntityProcessor
+
+To reproduce:
+
+1. Add the attribute threads="2" to the root entity declaration in data-config.xml
+2. Send the full-import command either directly to .../core/dataimport?command=full-import or through the /admin/dataimport.jsp control panel.
+3. Wait for the NPE to show up in the logs/console

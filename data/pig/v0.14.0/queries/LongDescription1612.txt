@@ -1,0 +1,22 @@
+The error message printed to the user by pig is the message from the exception that is the 'root cause' from the chain of getCause() of exception that has been thrown. But often the 'root cause' exception does not have enough context that would make for a better error message. It should be possible for a PigException to indicate to the code that determines the error message that its getMessage() string should be used instead of that of the 'cause' exception.
+
+The following code in LogUtils.java is used to determine the exception that is the 'root cause' -
+
+
+    public static PigException getPigException(Throwable top) {
+        Throwable current = top;
+        Throwable pigException = top;
+
+        while (current != null && current.getCause() != null){
+            current = current.getCause();
+            if((current instanceof PigException) && (((PigException)current).getErrorCode() != 0)) {
+                pigException = current;
+            }
+        }
+        return (pigException instanceof PigException? (PigException)pigException : null);
+        
+    }
+
+
+
+

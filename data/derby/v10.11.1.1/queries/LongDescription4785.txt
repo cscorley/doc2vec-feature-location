@@ -1,0 +1,24 @@
+I received a request to remove JCC testing from the derby suite. The user had a very old jcc version in their classpath 2.4 and 10.5 tests were failing with:
+
+com.ibm.db2.jcc.c.SqlException: DB2 SQL error: SQLCODE: -1, SQLSTATE: XJ040, SQLERRMC: Failed to start database '/results/axxon/58712/laka10a-derby-m101-20100830-003810/derbyall/derbynetmats/DerbyNet/derbynetmats/dblook_test_net_territory//wombat', see the next exception for details.::SQLSTATE: XJ001Java exception: 'Access denied (java.util.PropertyPermission com.ibm.crypto.provider.FIPSMODE read): java.security.AccessControlException'.
+at com.ibm.db2.jcc.c.o.a(o.java:3219)
+	at com.ibm.db2.jcc.a.cb.q(cb.java:653)
+	at com.ibm.db2.jcc.a.cb.p(cb.java:541)
+	at com.ibm.db2.jcc.a.cb.l(cb.java:363)
+	at com.ibm.db2.jcc.a.cb.d(cb.java:145)
+	at com.ibm.db2.jcc.a.b.Sb(b.java:1274)
+	at com.ibm.db2.jcc.a.b.a(b.java:1166)
+	at com.ibm.db2.jcc.a.b.q(b.java:934)
+	at com.ibm.db2.jcc.a.b.a(b.java:702)
+	at com.ibm.db2.jcc.a.b.(b.java:305)
+	at com.ibm.db2.jcc.DB2Driver.connect(DB2Driver.java:162)
+	at java.sql.DriverManager.getConnection(DriverManager.java:322)
+	at java.sql.DriverManager.getConnection(DriverManager.java:273)
+	at org.apache.derby.tools.dblook.go(Unknown Source)
+	at org.apache.derby.tools.dblook.(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.tools.dblook_test.lookThree(dblook_test.java:417)
+	at org.apache.derbyTesting.functionTests.tests.tools.dblook_test.runTest(dblook_test.java:283)
+	at org.apache.derbyTesting.functionTests.tests.derbynet.dblook_test_net_territory.doTest(dblook_test_net_territory.java:65)
+	at org.apache.derbyTesting.functionTests.tests.derbynet.dblook_test_net_territory.main(dblook_test_net_territory.java:41)
+
+Now that I look at it more closely, their actual problem might be on the server side and JCC just reporting it but good to get the JCC tests out of the mix when people accidentally have it in their classpath anyway.

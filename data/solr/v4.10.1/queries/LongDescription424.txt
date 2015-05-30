@@ -1,0 +1,30 @@
+When parsing the Ruby output returned from Solr, if a numerical value has no value in the index, it causes an invalid Ruby hash to be returned.  For instance:
+
+
+ 
+ 'response'=>{'numFound'=>1,'start'=>0,'maxScore'=>4.951244,'docs'=>[
+	{
+	 'subclass_t'=>'Protocol',
+	 'pk_i'=>1,
+	 'id'=>'Protocol:1',
+	 'name_t'=>'Falcipain IC50',
+	 'group_id_i'=>,
+	 'score'=>4.951244}]
+ }}
+
+
+
+is not a valid hash because 'group_id_i' does not resolve to anything.  It should resolve to nil:
+
+
+ 
+ 'response'=>{'numFound'=>1,'start'=>0,'maxScore'=>4.951244,'docs'=>[
+	{
+	 'subclass_t'=>'Protocol',
+	 'pk_i'=>1,
+	 'id'=>'Protocol:1',
+	 'name_t'=>'Falcipain IC50',
+	 'group_id_i'=>nil,
+	 'score'=>4.951244}]
+ }}
+

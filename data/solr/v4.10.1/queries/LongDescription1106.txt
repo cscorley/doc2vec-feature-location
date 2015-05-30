@@ -1,0 +1,29 @@
+Currently there are certain default actions implemented in CoreAdminHandler ( CREATE , SWAP, RELOAD , ALIAS etc.) . 
+
+For the purpose of in-house monitoring tools that needs to interact with multiple cores at a given solr instance - we need custom handlers that has access to CoreContainer and the req, resp of the same. 
+
+So - the proposed way of injecting handlers is as follows. 
+
+In solr.xml - we add a new schema - 
+
+ <solr >
+     <cores adminPath="/cores/admin">  
+
+          <adminActionHandler action="newaction" handlerType="com.mydomain.myclass" />
+      </cores> 
+  </solr> 
+
+New abstract class -  CoreAdminActionRequestHandler added - that com.mydomain.myclass would need to inherit from. 
+
+Following action handlers registered by default - 
+
+    registerCustomAdminHandler("create", new AdminCreateActionRequestHandler());
+    registerCustomAdminHandler("rename", new AdminRenameActionRequestHandler());
+    registerCustomAdminHandler("alias", new AdminAliasActionRequestHandler());
+    registerCustomAdminHandler("unload", new AdminUnloadActionRequestHandler());
+    registerCustomAdminHandler("status", new AdminStatusActionRequestHandler());
+    registerCustomAdminHandler("persist", new AdminPersistActionRequestHandler());
+    registerCustomAdminHandler("reload", new AdminReloadActionRequestHandler());
+    registerCustomAdminHandler("swap", new AdminSwapActionRequestHandler());
+
+Trying to register a handler with one that already exists would result in an error ( Hence - the above mentioned defaults would not be overridden). 

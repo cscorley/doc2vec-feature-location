@@ -1,0 +1,78 @@
+@EmbeddedId class having only one field java.sql.Data
+
+I become the error such as follows.
+
+---------------------
+Exception in thread "main" <openjpa-2.0.1-r422266:989424 nonfatal user error> org.apache.openjpa.persistence.ArgumentException: Failed to execute query "SELECT m FROM Mzeiritsu m WHERE m.key.tekiyoKaishiYmd = (SELECT MAX(m2.key.tekiyoKaishiYmd) FROM Mzeiritsu m2 WHERE m2.key.tekiyoKaishiYmd < '2010-08-01')". Check the query syntax for correctness. See nested exception for details.
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:870)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:792)
+	at org.apache.openjpa.kernel.DelegatingQuery.execute(DelegatingQuery.java:542)
+	at org.apache.openjpa.persistence.QueryImpl.execute(QueryImpl.java:288)
+	at org.apache.openjpa.persistence.QueryImpl.getResultList(QueryImpl.java:302)
+	at itso.bank.entities.test.EntityTester.main(EntityTester.java:40)
+Caused by: java.lang.ClassCastException: [Ljava.lang.Object; incompatible with java.util.Calendar
+	at org.apache.openjpa.jdbc.sql.ResultSetResult.getObjectInternal(ResultSetResult.java:431)
+	at org.apache.openjpa.jdbc.sql.AbstractResult.getObject(AbstractResult.java:696)
+	at org.apache.openjpa.jdbc.meta.strats.HandlerFieldStrategy.getPrimaryKeyValue(HandlerFieldStrategy.java:315)
+	at org.apache.openjpa.jdbc.meta.ClassMapping.getObjectId(ClassMapping.java:187)
+	at org.apache.openjpa.jdbc.meta.ClassMapping.getObjectId(ClassMapping.java:146)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.load(JDBCStoreManager.java:1020)
+	at org.apache.openjpa.jdbc.sql.AbstractResult.load(AbstractResult.java:280)
+	at org.apache.openjpa.jdbc.sql.SelectImpl$SelectResult.load(SelectImpl.java:2344)
+	at org.apache.openjpa.jdbc.sql.AbstractResult.load(AbstractResult.java:274)
+	at org.apache.openjpa.jdbc.kernel.InstanceResultObjectProvider.getResultObject(InstanceResultObjectProvider.java:59)
+	at org.apache.openjpa.lib.rop.EagerResultList.<init>(EagerResultList.java:36)
+	at org.apache.openjpa.kernel.QueryImpl.toResult(QueryImpl.java:1246)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:1005)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:861)
+	... 5 more
+---------------------
+
+315th line of HandlerFieldStrategy class 
+field.getHandler().getResultArgument(field) 
+The return value of the method  is object array.
+
+Therefore an error occurs at a 431th line of ResultSetResult.
+
+---------------------
+[org.apache.openjpa.jdbc.meta.strats.HandlerFieldStrategy]
+    ....
+    public Object getPrimaryKeyValue(Result res, Column[] cols, ForeignKey fk,
+        JDBCStore store, Joins joins)
+        throws SQLException {
+        Column col;
+        Object val = null;
+        if (cols.length == 1) 
+{
+            col = cols[0];
+            if (fk != null)
+                col = fk.getColumn(col);
+            val = res.getObject(col, field.getHandler().
+                getResultArgument(field), joins);
+        }
+ else if (cols.length > 1) {
+            Object[] vals = new Object[cols.length];
+            Object[] args = (Object[]) field.getHandler().
+                getResultArgument(field);
+            for (int i = 0; i < vals.length; i++) 
+{
+                col = cols[i];
+                if (fk != null)
+                    col = fk.getColumn(col);
+                vals[i] = res.getObject(col, (args == null) ? null : args[i],
+                    joins);
+            }
+            val = vals;
+        }
+        return field.getHandler().toObjectValue(field, val);
+    }
+
+    ....
+---------------------
+---------------------
+[org.apache.openjpa.jdbc.sql.ResultSetResult]
+    ....
+            case JavaSQLTypes.SQL_DATE:
+                return getDateInternal(obj, (Calendar) arg, joins);
+    ....
+---------------------

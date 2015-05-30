@@ -1,0 +1,45 @@
+Here's a minimal program to reproduce the issue:
+
+        Connection c = DriverManager.getConnection(
+            "jdbc:derby://localhost:1527/test;create=true", "TEST", "TEST");
+        Statement s = c.createStatement();
+        s.executeUpdate(
+            "CREATE TABLE t(" +
+                "id INT NOT NULL, " +
+                "c CLOB" +
+            ")");
+        s.executeUpdate("INSERT INTO t VALUES (1, null)");
+        s.executeUpdate("INSERT INTO t VALUES (2, null)");
+        PreparedStatement stmt = c.prepareStatement(
+            "SELECT * FROM t ORDER BY id",
+            ResultSet.TYPE_SCROLL_INSENSITIVE,
+            ResultSet.CONCUR_UPDATABLE);
+        ResultSet rs = stmt.executeQuery();
+        rs.next();
+
+The above leads to this exception:
+
+java.sql.SQLNonTransientConnectionException: Netzwerkprotokollausnahme: DSS-Länge ist beim Beenden des Parsing-Vorgangs der ID-Kette größer als 0. Die Verbindung wurde beendet.
+	at org.apache.derby.client.am.SQLExceptionFactory40.getSQLException(Unknown Source)
+	at org.apache.derby.client.am.SqlException.getSQLException(Unknown Source)
+	at org.apache.derby.client.am.ResultSet.next(Unknown Source)
+	at org.jooq.test._.testcases.KeepResultSetTests.testKeepRSWithUpdateOnChangeLazy(KeepResultSetTests.java:330)
+	at org.jooq.test.jOOQAbstractTest.testKeepRSWithUpdateOnChangeLazy(jOOQAbstractTest.java:2240)
+        ...
+Caused by: org.apache.derby.client.am.DisconnectException: Netzwerkprotokollausnahme: DSS-Länge ist beim Beenden des Parsing-Vorgangs der ID-Kette größer als 0. Die Verbindung wurde beendet.
+	at org.apache.derby.client.net.Reply.endOfSameIdChainData(Unknown Source)
+	at org.apache.derby.client.net.NetResultSetReply.readPositioningFetch(Unknown Source)
+	at org.apache.derby.client.net.ResultSetReply.readPositioningFetch(Unknown Source)
+	at org.apache.derby.client.net.NetResultSet.readPositioningFetch_(Unknown Source)
+	at org.apache.derby.client.am.ResultSet.getRowCount(Unknown Source)
+	at org.apache.derby.client.am.ResultSet.resultSetContainsNoRows(Unknown Source)
+	at org.apache.derby.client.am.ResultSet.getNextRowset(Unknown Source)
+	at org.apache.derby.client.am.ResultSet.nextX(Unknown Source)
+	... 30 more
+
+To reproduce the above, all of the following things seem relevant:
+
+1. There is at least one BLOB or CLOB column being selected
+2. An ORDER BY clause is added
+3. ResultSet.TYPE_SCROLL_SENSITIVE or ResultSet.TYPE_SCROLL_INSENSITIVE is set
+4. ResultSet.CONCUR_UPDATABLE is set

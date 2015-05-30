@@ -1,0 +1,11 @@
+When relations with differing schemas are unioned (using UNION ONSCHEMA), schema validation can fail with this exception:
+
+org.apache.pig.impl.plan.PlanValidationException: Logical plan invalid state: invalid uid -1 in schema
+
+This worked before the fix for PIG-3492.
+
+The merged schema (from LOUnion.getSchema()) does not contain uids for columns not in the schema of the first input (uids are set to -1). This is because only the first input's schema is used for looking up "cached" uids.
+
+Normally, this isn't a problem because UnionOnSchemaSetter comes along and fixes the missing fields.
+
+However, when ImplicitSplitInsertVisitor is active, it is called before UnionOnSchemaSetter. ImplicitSplitInsertVisitor calls schemaResetter.visit(), which throws the validation exception because UnionOnSchemaSetter has not had a chance to create the missing fields (and thus uids are still -1 for these fields).

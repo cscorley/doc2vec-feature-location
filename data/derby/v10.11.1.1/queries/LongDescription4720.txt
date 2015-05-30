@@ -1,0 +1,3 @@
+When the BOOLEAN datatype was disabled, the grammar was peppered with special checks to make sure that expressions like "a > 10" did not appear in the SELECT list. Perhaps this was done to reduce the number of cases in which BOOLEAN values could be materialized as columns in queries. That is, however, an unsatisfying reason because you could always materialize BOOLEAN columns by selecting from certain system tables. In any event, the SQL grammar allows these expressions in the SELECT list and we should re-enable them as part of exposing BOOLEAN as a full-fledged Derby datatype.
+
+I intend to re-enable these expressions per the SQL spec. If anyone knows of a reason why this should not be allowed, please speak up. Thanks.

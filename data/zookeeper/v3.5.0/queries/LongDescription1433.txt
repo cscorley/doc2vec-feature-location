@@ -1,0 +1,13 @@
+In our jenkins job to run the ZooKeeper unit tests, org.apache.zookeeper.server.ZxidRolloverTest sometimes fails.
+
+E.g.,
+
+
+org.apache.zookeeper.KeeperException$ConnectionLossException: KeeperErrorCode = ConnectionLoss for /foo0
+	at org.apache.zookeeper.KeeperException.create(KeeperException.java:90)
+	at org.apache.zookeeper.KeeperException.create(KeeperException.java:42)
+	at org.apache.zookeeper.ZooKeeper.exists(ZooKeeper.java:815)
+	at org.apache.zookeeper.ZooKeeper.exists(ZooKeeper.java:843)
+	at org.apache.zookeeper.server.ZxidRolloverTest.checkNodes(ZxidRolloverTest.java:154)
+	at org.apache.zookeeper.server.ZxidRolloverTest.testRolloverThenRestart(ZxidRolloverTest.java:211)
+

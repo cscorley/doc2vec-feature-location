@@ -1,0 +1,3 @@
+If slave replication mode is started on an encrypted database, derby fails with a NPE and then hangs. The reason for the hang is that LogToFile#initializeSlaveReplicationMode needs to scan the log to find the end. For encrypted databases, this scan uses RawStoreFactory#decrypt. At this stage, LTF#rawStoreFactory variable has not been set. 
+
+A solution may be to set this variable in LTF before scanning the log.

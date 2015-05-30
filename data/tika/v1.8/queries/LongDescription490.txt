@@ -1,0 +1,9 @@
+Currently the Tika LanguageIdentifier loads language profiles thorugh a hardcoded static block in the java code.
+
+It would be better to make this configurable, so you could add your own languages without recompiling.
+
+Suggested approach:
+Remove the static code block loading all languages. Instead look for a tika.languageidentification.properties file on classpath.
+Now the user can simply make his/her own (additional) language profile files, put them on the classpath together with a properties file and off you go!
+
+Also, once you make it configurable, there might be an issue of having the profiles as static members, as you will force the same behaviour for the whole VM. A static Map of Maps could solve this.

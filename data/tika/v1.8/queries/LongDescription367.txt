@@ -1,0 +1,22 @@
+While working on TIKA-357 and TIKA-366, I noticed (and Ken did too) that XHTML detection was no longer working in his regression test within o.a.tika.parser.html.HtmlParserTest#testXhtmlParsing. The cause of this has to do with the fix for TIKA-327. Because I used namespaceless html and link tags as valid root XML for the text/html mime type, text/html was now matching for the application/html+xml example that Ken had previously included in o.a.tika.parser.html.HtmlParserTest#testXhtmlParsing. Phew. You still with me? OK, so if you are, it turns out that the reason it failed was due to the rootXML matches rules that were being employed. The code boiled down to:
+
+        boolean matches(String namespaceURI, String localName) {
+            //Compare namespaces
+            if (!isEmpty(this.namespaceURI)) {
+                if (!this.namespaceURI.equals(namespaceURI)) 
+{
+                    return false;
+                }
+            }
+
+            //Compare root element's local name
+            if (!isEmpty(this.localName)) {
+                if (!this.localName.equals(localName)) {
+                    return false;
+                }
+            }
+
+   return true
+}
+
+The issue with this block is that this version of the #matches function is too lenient. So lenient, to the point of declaring one root-XML match for a localName "html" with no namespace superseded another root-XML with a localName "html", and that included a namespace. This isn't the behavior we want. To alleviate this we should check if this.namespaceURI and this.localName are empty (e.g., put in an else block above) and make sure that if they are, the provided namespaceURI and localName are empty as well in order to return true.

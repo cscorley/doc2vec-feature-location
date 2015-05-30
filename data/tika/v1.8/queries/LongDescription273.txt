@@ -1,0 +1,13 @@
+Sometimes content encoding method is stored outside html document, for instance in mime mail with html attachment.
+The problem is for text/html documents without http-equiv section. Actually there is no way to pass this information to the parser.
+
+My fix for parse method in HtmlParser.java:
+
+
+	parser.parse(new InputSource(stream));
++        InputSource source = new InputSource(stream);
++        String encoding = metadata.get(Metadata.CONTENT_ENCODING);
++        if (encoding != null) {
++            source.setEncoding(encoding);
++        parser.parse(source);
+

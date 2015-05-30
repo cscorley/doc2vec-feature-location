@@ -1,0 +1,45 @@
+In http://www.nabble.com/Problem%3A-Communication-Link-Failure--derby.drda.timeSlice-p5966781.html , Hannes Grund reported a problem with derby.drda.timeSlice property.
+
+I tried this property in my environment on trunk (10.3) and hit several communication failure problems with the following errors below.
+
+On server
+------------
+trunk2>java -Dderby.drda.maxThreads=100 -Dderby.drda.timeSlice=10000 org.apache.derby.drda.NetworkServerControl star>
+Apache Derby Network Server - 10.3.0.0 alpha started and ready to accept connections on port 1527 at 2006-09-15 18:41:51.750 GMT
+Execution failed because of Permanent Agent Error: SVRCOD = 40; RDBNAM = testdb5;create=true; diagnostic msg = Session in invalid state:4
+org.apache.derby.impl.drda.DRDAProtocolException: Execution failed because of Permanent Agent Error: SVRCOD = 40; RDBNAM = testdb5;create=true; diagnostic msg = Session in invalid state:4
+        at org.apache.derby.impl.drda.DRDAProtocolException.newAgentError(DRDAProtocolException.java:328)
+        at org.apache.derby.impl.drda.DRDAConnThread.agentError(DRDAConnThread.java:476)
+        at org.apache.derby.impl.drda.DRDAConnThread.run(DRDAConnThread.java:278)
+Execution failed because of Permanent Agent Error: SVRCOD = 40; RDBNAM = testdb5;create=true; diagnostic msg = Session in invalid state:4
+org.apache.derby.impl.drda.DRDAProtocolException: Execution failed because of Permanent Agent Error: SVRCOD = 40; RDBNAM = testdb5;create=true; diagnostic msg = Session in invalid state:4
+        at org.apache.derby.impl.drda.DRDAProtocolException.newAgentError(DRDAProtocolException.java:328)
+        at org.apache.derby.impl.drda.DRDAConnThread.agentError(DRDAConnThread.java:476)
+        at org.apache.derby.impl.drda.DRDAConnThread.run(DRDAConnThread.java:278)
+
+
+On client:
+-----------
+trunk2>java org.apache.derby.tools.ij
+ij version 10.3
+ij> connect 'jdbc:derby://localhost:1527/testdb5;create=true;';
+ij> select * from t1;
+ERROR 42X05: Table/View 'T1' does not exist.
+ij> select * from t1;
+ERROR 42X05: DERBY SQL error: SQLCODE: -1, SQLSTATE: 42X05, SQLERRMC: T1¶42X05
+ij> select * from t1;
+ERROR 58015: The DDM object 0x1232 is not supported.  The connection has been terminated.
+ij> select * from t1;
+ERROR 08003: No current connection.
+
+
+In some cases, the client gets the 58009 communications error. 
+trunk2>java org.apache.derby.tools.ij
+ij version 10.3
+ij> connect 'jdbc:derby://localhost:1527/testdb4;create=true;user=a;password=p';
+ij> create table t1(i1 int);
+ERROR 58009: A communications error has been detected: Software caused connection abort: recv failed.
+
+I am opening this jira because it seems like the basic problem may be just in the way the timeSlice property is being handled.  As part of this jira, make sure that the timeSlice property behaves the way it is expected to and also clarify the documentation. 
+
+The documentation currently states this "Use the derby.drda.timeslice property to set the number of milliseconds that each connection will use before yielding to another connection. " and the default value is 0. Not clear what it means to have a default of 0. I think it is good to explain the behavior here. 

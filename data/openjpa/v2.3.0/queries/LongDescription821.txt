@@ -1,0 +1,17 @@
+At the bottom of DistributedStoreQuery, the UpdateExecutor class, is calling the executeDelete, instead of the executeUpdate.  Small oversight, easy to fix..  
+
+
+Index: openjpa-slice/src/main/java/org/apache/openjpa/slice/jdbc/DistributedStoreQuery.java
+===================================================================
+— openjpa-slice/src/main/java/org/apache/openjpa/slice/jdbc/DistributedStoreQuery.java        (revision 724945)
++++ openjpa-slice/src/main/java/org/apache/openjpa/slice/jdbc/DistributedStoreQuery.java        (working copy)
+@@ -269,7 +269,7 @@
+                Executor executor;
+                Object[] params;
+                public Number call() throws Exception 
+{
+-                       return executor.executeDelete(query, params);
++                       return executor.executeUpdate(query, params);
+                }
+        }
+ }

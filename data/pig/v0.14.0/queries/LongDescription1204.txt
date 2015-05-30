@@ -1,0 +1,35 @@
+The following script hangs running in local mode  when inpuf files contains many lines (e.g. 10K). The same script works when runing in MR mode.
+
+
+
+A = load 'input1' as (a0, a1, a2);
+B = stream A through `head -1` as (a0, a1, a2);
+C = load 'input2' as (a0, a1, a2);
+D = stream C through `head -1` as (a0, a1, a2);
+E = join B by a0, D by a0;
+dump E
+
+  
+
+Here is one stack trace:
+
+"Thread-13" prio=10 tid=0x09938400 nid=0x1232 in Object.wait() [0x8fffe000..0x8ffff030]
+   java.lang.Thread.State: WAITING (on object monitor)
+        at java.lang.Object.wait(Native Method)
+
+	waiting on <0x9b8e0a40> (a org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POStream)
+        at java.lang.Object.wait(Object.java:485)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POStream.getNextHelper(POStream.java:291)
+	locked <0x9b8e0a40> (a org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POStream)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POStream.getNext(POStream.java:214)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:272)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLocalRearrange.getNext(POLocalRearrange.java:256)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POUnion.getNext(POUnion.java:162)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:232)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:227)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:52)
+        at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144)
+        at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:583)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:305)
+        at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:176)
+

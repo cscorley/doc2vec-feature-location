@@ -1,0 +1,9 @@
+See:
+https://builds.apache.org/view/S-Z/view/ZooKeeper/job/ZooKeeper_branch34_solaris/1/testReport/junit/org.apache.zookeeper.server.quorum/QuorumPeerMainTest/testEarlyLeaderAbandonment/
+
+Notice that the clients attempt to connect before the servers have bound, then 30 seconds later, after seemingly no further client activity we see:
+
+2011-10-28 21:40:56,828 [myid:] - INFO  [main-SendThread(localhost:11227):ClientCnxn$SendThread@1057] - Client session timed out, have not heard from server in 30032ms for sessionid 0x0, closing socket connection and attempting reconnect
+
+
+I believe this is different from ZOOKEEPER-1270 because in the 1270 case it seems like the clients are attempting to connect but the servers are not accepting (notice the stat commands are being dropped due to no server running)

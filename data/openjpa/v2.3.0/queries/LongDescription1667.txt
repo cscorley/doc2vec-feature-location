@@ -1,0 +1,1 @@
+After the changes made in OPENJPA-740, a LOB streaming field is mapped to TINYBLOB instead of BLOB in MySQL. This is because column size is -1 and in MySQLDictionary.getColumnType we assume that only size = 0 means "size unknown". Adding a check for -1 will probably resolve the issue.

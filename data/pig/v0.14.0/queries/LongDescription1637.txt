@@ -1,0 +1,29 @@
+The following script does not use combiner after new optimization change.
+
+
+
+A = load ':INPATH:/pigmix/page_views' using org.apache.pig.test.udf.storefunc.PigPerformanceLoader()
+    as (user, action, timespent, query_term, ip_addr, timestamp, estimated_revenue, page_info, page_links);
+B = foreach A generate user, (int)timespent as timespent, (double)estimated_revenue as estimated_revenue;
+C = group B all; 
+D = foreach C generate SUM(B.timespent), AVG(B.estimated_revenue);
+store D into ':OUTPATH:';
+
+
+
+This is because after group, optimizer detect group key is not used afterward, it add a foreach statement after C. This is how it looks like after optimization:
+
+
+A = load ':INPATH:/pigmix/page_views' using org.apache.pig.test.udf.storefunc.PigPerformanceLoader()
+    as (user, action, timespent, query_term, ip_addr, timestamp, estimated_revenue, page_info, page_links);
+B = foreach A generate user, (int)timespent as timespent, (double)estimated_revenue as estimated_revenue;
+C = group B all; 
+C1 = foreach C generate B;
+D = foreach C1 generate SUM(B.timespent), AVG(B.estimated_revenue);
+store D into ':OUTPATH:';
+
+
+
+That cancel the combiner optimization for D. 
+
+The way to solve the issue is to merge the C1 we inserted and D. Currently, we do not merge these two foreach. The reason is that one output of the first foreach (B) is referred twice in D, and currently rule assume after merge, we need to calculate B twice in D. Actually, C1 is only doing projection, no calculation of B. Merging C1 and D will not result calculating B twice. So C1 and D should be merged.

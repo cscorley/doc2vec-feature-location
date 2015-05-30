@@ -1,0 +1,13 @@
+Using the following annotation:
+
+   @OneToMany(mappedBy="root", fetch=FetchType.LAZY)
+    @OrderBy("objectId ASC")
+    private List<Message> messages;
+
+I get the exception "Cannot order "net.spatula.tally_ho.model.MessageRoot.messages" on "objectId", because that field is not in the default fetch group.  You can only order on fields that will be selected when the related object is loaded."
+
+I should certainly hope that the primary key of the related object is going to be selected when the object is loaded:
+
+    @Id
+    @Column(name = "object_id")
+    private long objectId;

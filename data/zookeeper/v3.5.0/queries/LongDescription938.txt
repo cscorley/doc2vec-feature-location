@@ -1,0 +1,17 @@
+Support Kerberos authentication of clients. 
+
+The following usage would let an admin use Kerberos authentication to assign ACLs to authenticated clients.
+
+1. Admin logs into zookeeper (not necessarily through Kerberos however). 
+
+2. Admin decides that a new node called '/mynode' should be owned by the user 'zkclient' and have full permissions on this.
+
+3. Admin does: zk> create /mynode content sasl:zkclient@FOOFERS.ORG:cdrwa
+
+4. User 'zkclient' logins to kerberos using the command line utility 'kinit'.
+
+5. User connects to zookeeper server using a Kerberos-enabled version of zkClient (ZookeeperMain).
+
+6. Behind the scenes, the client and server exchange authentication information. User is now authenticated as 'zkclient'.
+
+7. User accesses /mynode with permissions 'cdrwa'.

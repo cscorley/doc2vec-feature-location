@@ -1,0 +1,7 @@
+See SOLR-554 for the original improvement.
+
+This has a bug in it.  If I submit the form using multicore, it goes to /solr/admin/logging (not the right path).
+
+I'm guessing this is because of the path trickery in SolrDispathFilter but I can't follow what the best procedure is to fix it.
+
+The simplest thing to do is to not use request.getRequestURI() because a form with no action submits to itself.

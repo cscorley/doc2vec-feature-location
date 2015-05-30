@@ -1,0 +1,13 @@
+InvalidSnapshotTest is using connection timeouts that are too short, see this false failure:
+https://builds.apache.org/job/ZooKeeper_branch33_solaris/65/testReport/junit/org.apache.zookeeper.server/InvalidSnapshotTest/testInvalidSnapshot/
+
+
+org.apache.zookeeper.KeeperException$ConnectionLossException: KeeperErrorCode = ConnectionLoss for /invalidsnap-0
+	at org.apache.zookeeper.KeeperException.create(KeeperException.java:90)
+	at org.apache.zookeeper.KeeperException.create(KeeperException.java:42)
+	at org.apache.zookeeper.ZooKeeper.create(ZooKeeper.java:643)
+	at org.apache.zookeeper.server.InvalidSnapshotTest.testInvalidSnapshot(InvalidSnapshotTest.java:71)
+
+
+
+Also in looking at the test itself it could use some cleanup (reuse features from ClientBase test utils)

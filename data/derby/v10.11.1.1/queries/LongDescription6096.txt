@@ -1,0 +1,11 @@
+In discussion on derby-dev regarding how much memory is used for hash joins, Knut noted:
+
+I haven't verified, but I think HashJoinStrategy uses
+DataTypeDescriptor.estimatedMemoryUsage() to estimate how much memory
+the hash table will consume. That method has no case for BLOB or CLOB,
+so it looks as if it will return zero for LOB columns. If that's so, it
+will definitely overestimate how many rows fits in maxMemoryPerTable
+kilobytes if the rows contain LOBs.
+
+
+DataTypeDescriptor.estimatedMemoryUsage() should be updated to include BLOB and CLOB and we should try verify if this theory is correct with a reproduction.

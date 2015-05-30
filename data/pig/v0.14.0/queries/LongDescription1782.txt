@@ -1,0 +1,14 @@
+It would be nice to load all columns in the column family by using short hand syntax like:
+
+
+CpuMetrics = load 'hbase://SystemMetrics' USING org.apache.pig.backend.hadoop.hbase.HBaseStorage('cpu:','-loadKey');
+
+
+
+Assuming there are columns cpu: sys.0, cpu:sys.1, cpu:user.0, cpu:user.1,  in cpu column family.
+
+CpuMetrics would contain something like:
+
+
+(rowKey, cpu:sys.0, cpu:sys.1, cpu:user.0, cpu:user.1)
+

@@ -1,0 +1,31 @@
+After introduction of BindParameter, I am getting the following exception:
+
+<error message="The specified parameter of type "class org.apache.openjpa.jdbc.sql.BindParameter" is not a valid query parameter." type="org.apache.openjpa.persistence.ArgumentException">
+<openjpa-2.2.0-SNAPSHOT-r422266:1226933 nonfatal user error> org.apache.openjpa.persistence.ArgumentException: The specified parameter of type "class org.apache.openjpa.jdbc.sql.BindParameter" is not a valid query parameter.
+	at org.apache.openjpa.jdbc.sql.DBDictionary.setUnknown(DBDictionary.java:1458)
+	at com.ibm.ws.persistence.pdq.meta.PDQParameterHandler.handleSQLBuffer(PDQParameterHandler.java:59)
+	at com.ibm.ws.persistence.pdq.meta.PDQBaseData.update(PDQBaseData.java:239)
+	at com.ibm.ws.persistence.pdq.kernel.PDQJDBCStoreQuery.executeUpdate(PDQJDBCStoreQuery.java:61)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreQuery.executeBulkOperation(JDBCStoreQuery.java:577)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreQuery.executeDelete(JDBCStoreQuery.java:491)
+	at org.apache.openjpa.kernel.ExpressionStoreQuery$DataStoreExecutor.executeDelete(ExpressionStoreQuery.java:789)
+	at org.apache.openjpa.kernel.QueryImpl.delete(QueryImpl.java:1025)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:865)
+	at org.apache.openjpa.kernel.QueryImpl.deleteAll(QueryImpl.java:892)
+	at org.apache.openjpa.kernel.DelegatingQuery.deleteAll(DelegatingQuery.java:574)
+	at org.apache.openjpa.persistence.QueryImpl.executeUpdate(QueryImpl.java:374)
+
+Looks like the setUnknown method needs to recognize the new BindParameter type, like Sized and Calendard:
+
+        if (val instanceof Sized) 
+{
+            sized = (Sized) val;
+            val = sized.value;
+        }
+ else if (val instanceof Calendard) 
+{
+            cald = (Calendard) val;
+            val = cald.value;
+        }
+
+and extract its actual value before call out to the setters.

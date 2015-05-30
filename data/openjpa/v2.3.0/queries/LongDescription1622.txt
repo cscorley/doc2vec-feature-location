@@ -1,0 +1,20 @@
+1. Use service discovery mechanism to invoke annotation processor for metamodel generation
+2. Provide a activation switch -Aopenjpa.generate=true such that the user must enable the switch to generate these metamodel classes besides having openjpa.jar in classpath. 
+
+
+Target usage patterns
+
+A. Using command lines
+
+  $ javac -cp /path/to/openjpa.jar -Aopenjpa.generate=true src/org/acme/Foo.java
+
+B. Using Eclipse  IDE
+     In 'Configure Annotation Processor Dialog'
+    – set  openjpa.generate to 'true'
+    – include openjpa jar in  factory path 
+
+C. Using Ant
+    <javac .....
+        <classpath refid="openjpa.jar"/>
+        <compilerarg value="-Aopenjpa.generate=true"/>
+    </javac>

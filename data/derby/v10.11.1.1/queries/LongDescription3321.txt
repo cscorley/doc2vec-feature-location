@@ -1,0 +1,35 @@
+Queries with 'not exists' followed by a nested subquery results in NPE:
+
+----------8<-------------
+connect 'jdbc:derby:testdb;create=true';
+create table a (aa int, bb int);
+– 0 rows inserted/updated/deleted
+
+create table b (bb int);
+– 0 rows inserted/updated/deleted
+
+insert into a values (1, 1), (1, 2), (2, 2);
+– 3 rows inserted/updated/deleted
+
+insert into b values (1);
+– 1 row inserted/updated/deleted
+
+select * from a 
+   where not exists 
+   (select bb from b where a.bb=b.bb);
+
+– AA         |BB
+– ----------------------
+– 1          |2
+– 2          |2
+
+select bb from (select bb from b) p;
+– BB
+– -----------
+– 1
+
+select * from a 
+   where not exists 
+   (select bb from (select bb from b) p where a.bb=p.bb);
+– ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+----------->8---------------

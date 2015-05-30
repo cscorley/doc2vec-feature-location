@@ -1,0 +1,12 @@
+On the following table:
+   create table tmp (d decimal(31,0));
+an insert of a value with a precision larger than 31:
+   insert into tmp values (+1.79769E+308);
+Should fail with:
+   ERROR 22003: The resulting value is outside the range for the data type DECIMAL/NUMERIC(31,0).
+
+However, with jdk15, it does not.
+
+The expected error is generated from org.apache.derby.iapi.types.SQLDecimal.setWidth(), which calls getWholeDigits(), which gets the length of a string based on a BigDecimal using toString, which has a different value using jdk14 vs. jdk15 since the fix for DERBY-38.
+
+Note: I verified that the fix for DERBY-38 did not per se cause this failure.

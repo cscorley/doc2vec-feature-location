@@ -1,0 +1,95 @@
+When running the test lang/closed.java it fails 5/10 times with the following diff: 
+
+------------------ Java Information ------------------
+Java Version:    1.5.0_01
+Java Vendor:     Sun Microsystems Inc.
+Java home:       /usr/jdk/instances/jdk1.5.0/jre
+Java classpath:  /home/dt136804/derby-head_sane_jars/jce1_2_2.jar:/home/dt136804
+/derby-head_sane_jars/javacc.jar:/home/dt136804/derby-head_sane_jars/geronimo-sp
+ec-jta-1.0.1B-rc4.jar:/home/dt136804/derby-head_sane_jars/empty.jar:/home/dt1368
+04/derby-head_sane_jars/jakarta-oro-2.0.8.jar:/home/dt136804/derby-head_sane_jar
+s/jdbc2_0-stdext.jar:/home/dt136804/derby-head_sane_jars/geronimo-spec-servlet-2
+.4-rc4.jar:/home/dt136804/derby-head_sane_jars/junit.jar:/home/dt136804/derby-he
+ad_sane_jars/derby.jar:/home/dt136804/derby-head_sane_jars/derbytools.jar:/home/
+dt136804/derby-head_sane_jars/derbynet.jar:/home/dt136804/derby-head_sane_jars/d
+erbyclient.jar:/home/dt136804/derby-head_sane_jars/derbyLocale_de_DE.jar:/home/d
+t136804/derby-head_sane_jars/derbyLocale_es.jar:/home/dt136804/derby-head_sane_j
+ars/derbyLocale_fr.jar:/home/dt136804/derby-head_sane_jars/derbyLocale_it.jar:/h
+ome/dt136804/derby-head_sane_jars/derbyLocale_ja_JP.jar:/home/dt136804/derby-hea
+d_sane_jars/derbyLocale_ko_KR.jar:/home/dt136804/derby-head_sane_jars/derbyLocal
+e_pt_BR.jar:/home/dt136804/derby-head_sane_jars/derbyLocale_zh_CN.jar:/home/dt13
+6804/derby-head_sane_jars/derbyLocale_zh_TW.jar:/home/dt136804/derby-head_sane_j
+ars/derbyTesting.jar:/usr/local/share/java/db2jcc/lib/db2jcc.jar:/usr/local/shar
+e/java/db2jcc/lib/db2jcc_license_c.jar
+OS name:         SunOS
+OS architecture: x86
+OS version:      5.10
+Java user name:  dt136804
+Java user home:  /home/dt136804
+Java user dir:   /private/tmp/DERBY/derby-head/closed.java_348592_20051130T16170
+3
+java.specification.name: Java Platform API Specification
+java.specification.version: 1.5
+--------- Derby Information --------
+JRE - JDBC: J2SE 5.0 - JDBC 3.0
+[/home/dt136804/derby-head_sane_jars/derby.jar] 10.2.0.0 alpha - (348592)
+[/home/dt136804/derby-head_sane_jars/derbytools.jar] 10.2.0.0 alpha - (348592)
+[/home/dt136804/derby-head_sane_jars/derbynet.jar] 10.2.0.0 alpha - (348592)
+[/home/dt136804/derby-head_sane_jars/derbyclient.jar] 10.2.0.0 alpha - (348592)
+[/usr/local/share/java/db2jcc/lib/db2jcc.jar] 2.4 - (17)
+[/usr/local/share/java/db2jcc/lib/db2jcc_license_c.jar] 2.4 - (17)
+------------------------------------------------------
+
+----------------- Locale Information -----------------
+Current Locale :  [English/United States [en_US]]
+Found support for locale: [de_DE]
+         version: 10.2.0.0 alpha - (348592)
+Found support for locale: [es]
+         version: 10.2.0.0 alpha - (348592)
+Found support for locale: [fr]
+         version: 10.2.0.0 alpha - (348592)
+Found support for locale: [it]
+         version: 10.2.0.0 alpha - (348592)
+Found support for locale: [ja_JP]
+         version: 10.2.0.0 alpha - (348592)
+Found support for locale: [ko_KR]
+         version: 10.2.0.0 alpha - (348592)
+Found support for locale: [pt_BR]
+         version: 10.2.0.0 alpha - (348592)
+Found support for locale: [zh_CN]
+         version: 10.2.0.0 alpha - (348592)
+Found support for locale: [zh_TW]
+         version: 10.2.0.0 alpha - (348592)
+------------------------------------------------------
+Framework: embedded
+
+	
+	
+		
+		
+			Start: closed jdk1.5.0_01 2005-11-30 16:17:07 ***
+18a19,24
+> CALL sleep(10000) - 38000, 38000 – InterruptedException, XJ001 – Interrupted
+Exception
+> LOCK TABLE CLOSED.LOCKME IN EXCLUSIVE MODE - 08006, 08006 – Database 'wombat'
+ shutdown.
+> ERROR XJ015: Derby system shutdown.
+> Shutdown test completed jdbc:derby:;shutdown=true
+> PASS
+> Test closed finished
+25 del
+< CALL sleep(10000) - 38000, 38000 – InterruptedException, XJ001 – Interrupted
+Exception
+< LOCK TABLE CLOSED.LOCKME IN EXCLUSIVE MODE - 08006, 08006 – Database 'wombat'
+ shutdown.
+< ERROR XJ015: Derby system shutdown.
+< Shutdown test completed jdbc:derby:;shutdown=true
+< PASS
+< Test closed finished
+Test Failed.
+			End:   closed jdk1.5.0_01 2005-11-30 16:17:17 ***
+		
+		
+	
+	
+

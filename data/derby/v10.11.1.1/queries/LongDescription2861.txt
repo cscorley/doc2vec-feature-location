@@ -1,0 +1,21 @@
+A NullPointerException occurs in org.apache.derby.iapi.sql.dictionary.TableDescriptor.getObjectName when accessing the same object on many threads (each with its own connection).  The attached test program starts N threads each creating and then dropping a separate view against the same source view, repeated M times.  I can reproduce the problem with N=100 and M=100 on my machine, but not every run.
+
+An instance member named referencedColumnMap is checked for null at the top of the getObjectName method, but later when it is dereferenced it is null, because it was set to null by another thread.  I am not sure what getObjectName is used for other than error reporting.  I have considered a fix of just saving the non-null reference as a method variable, to avoid the later NullPointerException.   But I don't know what unintended consequences this may have. 
+
+When the test program does show the exception, the stack trace looks like this:
+
+ java.lang.NullPointerException
+   at org.apache.derby.iapi.sql.dictionary.TableDescriptor.getObjectName(TableDescriptor.java:758)
+   at org.apache.derby.impl.sql.depend.BasicDependencyManager.getPersistentProviderInfos(BasicDependencyManager.java:677)
+   at org.apache.derby.impl.sql.compile.CreateViewNode.bindViewDefinition(CreateViewNode.java:287)
+   at org.apache.derby.impl.sql.compile.CreateViewNode.bind(CreateViewNode.java:183)
+   at org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatement.java:345)
+   at org.apache.derby.impl.sql.GenericStatement.prepare(GenericStatement.java:119)
+   at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(GenericLanguageConnectionContext.java:745)
+   at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:568)
+   at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:517)
+   at TestEmbeddedMultiThreading.executeStatement(TestEmbeddedMultiThreading.java:109)
+   at TestEmbeddedMultiThreading.access$100(TestEmbeddedMultiThreading.java:10)
+   at TestEmbeddedMultiThreading$ViewCreatorDropper.run(TestEmbeddedMultiThreading.java:173)
+   at java.lang.Thread.run(Thread.java:534)
+

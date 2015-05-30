@@ -1,0 +1,4 @@
+When user set query hint as shown below for db2, no "with UR" clause append to the query. The setting is ignored.
+query.setHint("openjpa.FetchPlan.Isolation", "READ_UNCOMMITTED");
+
+Uncommitted read is very risky and should be avoid if it is possible. JPA specification requires a minimum of read-committed isolation to ensure no "dirty read" and "non-repeatible read" can occur. Use of read-uncommitted isolation may cause data integrity problem.

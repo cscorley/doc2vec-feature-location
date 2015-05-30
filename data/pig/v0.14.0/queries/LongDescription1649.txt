@@ -1,0 +1,32 @@
+In FRJoin, if input path has curly braces, it fails to compute number of input files and logs the following exception in the log -
+
+10/09/27 14:31:13 WARN mapReduceLayer.MRCompiler: failed to get number of input files
+java.net.URISyntaxException: Illegal character in path at index 12: /user/tejas/
+{std*txt}
+        at java.net.URI$Parser.fail(URI.java:2809)
+        at java.net.URI$Parser.checkChars(URI.java:2982)
+        at java.net.URI$Parser.parseHierarchical(URI.java:3066)
+        at java.net.URI$Parser.parse(URI.java:3024)
+        at java.net.URI.<init>(URI.java:578)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler.hasTooManyInputFiles(MRCompiler.java:1283)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler.visitFRJoin(MRCompiler.java:1203)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POFRJoin.visit(POFRJoin.java:188)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler.compile(MRCompiler.java:475)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler.compile(MRCompiler.java:454)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler.compile(MRCompiler.java:336)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher.compile(MapReduceLauncher.java:468)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher.launchPig(MapReduceLauncher.java:116)
+        at org.apache.pig.backend.hadoop.executionengine.HExecutionEngine.execute(HExecutionEngine.java:301)
+        at org.apache.pig.PigServer.executeCompiledLogicalPlan(PigServer.java:1197)
+        at org.apache.pig.PigServer.storeEx(PigServer.java:873)
+        at org.apache.pig.PigServer.store(PigServer.java:815)
+        at org.apache.pig.PigServer.openIterator(PigServer.java:727)
+        at org.apache.pig.tools.grunt.GruntParser.processDump(GruntParser.java:612)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:301)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:165)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:141)
+        at org.apache.pig.tools.grunt.Grunt.run(Grunt.java:76)
+        at org.apache.pig.Main.run(Main.java:453)
+        at org.apache.pig.Main.main(Main.java:107)
+
+This does not cause a query to fail. But since the number of input files don't get calculated, the optimizations added in PIG-1458 to reduce load on name node will not get used.

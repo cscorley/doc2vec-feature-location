@@ -1,0 +1,23 @@
+If using the Derby Client to connect to the Derby Network Server, there are some cases where an invalid URL will cause a protocol exception instead of throwing a proper error.  The two cases I've found are as follow:
+
+1) Use of a colon to separate attributes:
+
+When connecting to the server with JCC, a colon is required to demarcate the Derby attributes from the JCC attributes. For the Derby Client, however, the colon is not a valid part of the URL, so use of it should return an error.  However, the result is a protocol exception:
+
+ij> connect 'jdbc:derby://localhost:1528/sample:user=someUsr;password=somePwd';
+agentThread[DRDAConnThread_9,5,main]
+ERROR (no SQLState): A communication error has been detected. Communication protocol being used: Reply.fill(). Communication API being used: InputStream.read(). Location where the error was detected:
+insufficient data. Communication function detecting the error: *. Protocol specific error codes(s) TCP/IP SOCKETS
+
+2) Use of double-quotes to specify a full path to a database.
+
+The use of double-quotes around a database path is required when connecting to the server with JCC, but should be optional when using the Derby Client.  However,  attempts to use the double-quotes doesn't work--on the contrary, it throws a protocol exception:
+
+ij> connect 'jdbc:derby://localhost:1528/"C:/myDBs/sample"';
+agentThread[DRDAConnThread_11,5,main]
+ERROR (no SQLState): A communication error has been detected. Communication protocol being used: Reply.fill(). Communication API being used: InputStream.read(). Location where the error was detected:
+insufficient data. Communication function detecting the error: *. Protocol specific error codes(s) TCP/IP SOCKETS
+
+Without quotes, the above example will work as expected.
+
+I'm not sure if the problem is with the Derby client or the Network Server (more investigation required).

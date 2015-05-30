@@ -1,0 +1,9 @@
+In SOLR-350, we added support for multiple cores.  To access each core, you send a request to:
+http://host:port/context/@core0/handlerpath - uses core0
+http://host:port/context/@core1/handlerpath - uses core1
+
+This is fine unless a hander is registered to the a name that starts with '@'
+
+I think we should make a rule that the 1st character has to be a letter or digit.  This will give us room to treat other leading punctuation as a key token.  
+
+Perhaps it is not fair to add this restriction after 1.2, but it is (hopefully) a rare case so not a big deal.  I guess we could add a configurable flag to not check this condition...

@@ -1,0 +1,29 @@
+If for example the test case testMinimumSelectPrivilegeRequirement runs before testGrantRevokeDDL2, the test will fail with the following error:
+
+4) testGrantRevokeDDL2(org.apache.derbyTesting.functionTests.tests.lang.GrantRevokeDDLTest)java.sql.SQLException: Schema 'USER1' already exists.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:98)
+        at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Util.java:256)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:396)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:348)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:2290)
+        at org.apache.derby.impl.jdbc.ConnectionChild.handleException(ConnectionChild.java:82)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1334)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:630)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(EmbedStatement.java:179)
+        at org.apache.derbyTesting.functionTests.tests.lang.GrantRevokeDDLTest.testGrantRevokeDDL2(GrantRevokeDDLTest.java:6540)
+
+Or, if testRevokeDropsFKWithSharedConglom runs before testGrantRevokeDDL, the test will fail like this:
+
+7) testGrantRevokeDDL(org.apache.derbyTesting.functionTests.tests.lang.GrantRevokeDDLTest)junit.framework.AssertionFailedError: Column value mismatch @ column 'SCHEMANAME', row 4:
+    Expected: >SATHEESH<
+    Found:    >MAMTA1<
+	at org.apache.derbyTesting.junit.JDBC.assertRowInResultSet(JDBC.java:1213)
+	at org.apache.derbyTesting.junit.JDBC.assertRowInResultSet(JDBC.java:1125)
+	at org.apache.derbyTesting.junit.JDBC.assertFullResultSetMinion(JDBC.java:1012)
+	at org.apache.derbyTesting.junit.JDBC.assertFullResultSet(JDBC.java:935)
+	at org.apache.derbyTesting.junit.JDBC.assertFullResultSet(JDBC.java:892)
+	at org.apache.derbyTesting.functionTests.tests.lang.GrantRevokeDDLTest.testGrantRevokeDDL(GrantRevokeDDLTest.java:397)
+
+The test should either make the order of the test cases explicit or make the test cases independent of the order in which they run.
+
+Seen in the nightly tests, for example here: http://dbtg.foundry.sun.com/derby/test/Daily/jvm1.7/testing/testlog/lin/1076682-suitesAll_diff.txt

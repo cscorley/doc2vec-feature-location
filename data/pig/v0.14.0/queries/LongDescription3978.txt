@@ -1,0 +1,3 @@
+Container reuse across PigServer does not happen in current code. We use different TezResourceManager per PigServer, and different TezResourceManager will upload LocalResource to different staging directory, so LocalResource is different for different PigServer, thus no container reuse across PigServer. This will affect Pig embedding where multiple PigServer is used for a Pig script. 
+
+The issue is partly due to PIG-3785 which we switch TezResourceManager to non-singleton. The root cause for PIG-3785 is not the singleton issue. The real issue is TezResourceManager.addTezResource is not synchronized, there is a race condition when one PigServer already upload the resource and use it in container, and the other PigServer overwrite at the same time.  

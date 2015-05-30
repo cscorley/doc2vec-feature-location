@@ -1,0 +1,9 @@
+A relatively common piece of logic in a database application is to check for a row's existence and then either update or insert depending on its existence.
+
+SQL:2003 added a MERGE statement to perform this operation.  It looks like this:
+
+    MERGE INTO table_name USING table_name ON (condition)
+    WHEN MATCHED THEN UPDATE SET column1 = value1 [, column2 = value2 ...]
+    WHEN NOT MATCHED THEN INSERT column1 [, column2 ...] VALUES (value1 [, value2 ...]) 
+
+At the moment, the only workaround for this would be to write a stored procedure to do the same operation, or to implement the logic client-side.

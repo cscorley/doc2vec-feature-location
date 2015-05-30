@@ -1,0 +1,29 @@
+The problem is that intermediate 'store' invocation "changes" the final store output. Looks like it brings some kind of side effect. We did use 'local' mode to run script
+here is the input data:
+1
+1
+Here is the script:
+
+
+a = load 'test';
+
+a_group = group a by $0;
+b = foreach a_group {
+  a_distinct = distinct a.$0;
+  generate group, a_distinct;
+}
+--store b into 'b';
+c = filter b by SIZE(a_distinct) == 1;
+store c into 'out';
+
+
+We expect output to be:
+1 1
+The output is empty file.
+
+Uncomment 
+
+--store b into 'b';
+
+ line and see the diffrence.
+Yuo would get expected output.

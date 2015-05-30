@@ -1,0 +1,3 @@
+There have been a number of mailing list posts where the net of the post is that someone doesn't want OpenJPA to detach their Entities because after the commit happens, then are all going to be gc'd. All of the detach processing ends up being a waste.  I also observed this same behavior when running some performance tests.
+
+With this JIRA I'm going to add a new openjpa.DetachState configuration option which will enable a new, super fast, minimalistic detach approach. This change is targeted at detach processing that happens due to an AutoDetach. Explicit detaches(ie: em.detach(..) ) will work as they always have before.

@@ -1,0 +1,50 @@
+See attached test case.  
+At execution/run-time a trigger that handles a row that contains a large LOB value will fail with the following error and stack trace:
+ = = =
+Testing blob of size=1024
+
+ . . Now executing update to fire the trigger
+PASSED
+Testing blob of size=16384
+
+ . . Now executing update to fire the trigger
+PASSED
+Testing blob of size=32658
+
+ . . Now executing update to fire the trigger
+PASSED
+Testing blob of size=32659
+
+ . . Now executing update to fire the trigger
+Error! java.sql.SQLException: An IOException was thrown when reading a 'BLOB' from an InputStream.
+java.sql.SQLException: An IOException was thrown when reading a 'BLOB' from an InputStream.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.Util.seeNextException(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.ConnectionChild.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(Unknown Source)
+        at blob_insert2.testBlob(blob_insert2.java:102)
+        at blob_insert2.main(blob_insert2.java:55)
+Caused by: java.sql.SQLException: Java exception: ': java.io.EOFException'.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.Util.javaException(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+        ... 9 more
+Caused by: java.io.EOFException
+        at org.apache.derby.iapi.types.SQLBinary.readBinaryLength(Unknown Source)
+        at org.apache.derby.iapi.types.SQLBinary.readExternal(Unknown Source)
+        at org.apache.derby.iapi.types.SQLBinary.getValue(Unknown Source)
+        at org.apache.derby.iapi.types.SQLBinary.loadStream(Unknown Source)
+        at org.apache.derby.impl.sql.execute.UpdateResultSet.objectifyStream(Unknown Source)
+        at org.apache.derby.impl.sql.execute.UpdateResultSet.collectAffectedRows(Unknown Source)
+        at org.apache.derby.impl.sql.execute.UpdateResultSet.open(Unknown Source)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.execute(Unknown Source)
+        ... 5 more
+
+

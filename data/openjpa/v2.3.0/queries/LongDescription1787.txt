@@ -1,0 +1,10 @@
+The bean validation is not working correctly
+
+If you try to merge a new entity.
+
+        EntityManager em = entityManagerFactory.createEntityManager();
+        Person person = new Person();
+        person.setName("Oliver");                               // Employee.name is annotated @NotNull 
+        person = em.merge(person);                            
+
+you get a ConstraintValidationException, although name is set. 

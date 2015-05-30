@@ -1,0 +1,11 @@
+Exception is thrown for a script like the following:
+
+register /homes/yinghe/owl/string.jar;
+a = load 'a.txt' as (id, url);
+b = group  a by (id, url);
+c = foreach b generate  COUNT(a), (CHARARRAY) string.URLPARSE(group.url)#'url';
+dump c;
+
+In this query, URLPARSE() is not accumulative, and it returns a map. 
+
+The accumulator optimizer failed to check UDF in this case, and tries to run the job in accumulative mode. ClassCastException is thrown when trying to cast UDF into Accumulator interface.

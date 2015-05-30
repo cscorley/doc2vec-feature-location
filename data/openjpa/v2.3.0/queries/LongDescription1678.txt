@@ -1,0 +1,4 @@
+The values for parameters used in our SQL statements may contain sensitive information (e.g. social security numbers). By default these values are printed in the exception message and in SQL trace. Having the values printed can be a great help when debugging an application - but presents a risk when used in production. 
+
+To resolve the issue I propose to disable printing the parameter values by default. The parameter values will still be tracked internally - but will not be displayed in exception messages or trace unless the following property is set :
+<property name="openjpa.ConnectionFactoryProperties" value="printParameters=true"/>

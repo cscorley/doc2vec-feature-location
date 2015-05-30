@@ -1,0 +1,3 @@
+Currently each subscriber would insert stub callback to wait newly published messages or scanning result. for waiting scan result, it was OK. the callback would be triggered and removed after scan callback arrived. but if it was wait newly published, it would be a problem. if sub/closesub/sub become frequent, closesub doesn't remove the installed callback, so the stub callbacks are accumulated, which cause the memory increased, finally OOM.
+
+it would be better to remove its installed stub callback when closesub.

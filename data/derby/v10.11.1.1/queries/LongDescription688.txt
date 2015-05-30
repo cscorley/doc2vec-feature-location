@@ -1,0 +1,11 @@
+As of DERBY-334, Derby has some very basic support for XML that consists of an XML datatype and three operators (XMLPARSE, XMLSERIALIZE, and XMLEXISTS).  I would like to enhance this existing functionality and, by doing so, help to move Derby incrementally toward a more usable and more complete XPath/XQuery solution (with emphasis on "incrementally").
+
+I have attached to this issue a document describing the particular changes that I am looking to make.  At a high level, they consist of:
+
+1) Making it easier to use the XML operators and datatype from within JDBC (ex. by implicit parsing/serialization of XML values).
+
+2) Adding a new operator, XMLQUERY, to allow a user to retrieve the results of an XPath expression (instead of just determining whether or not the expression evaluates to an empty sequence, which is what XMLEXISTS does).
+
+3) Making changes to the existing operators to line them up with the SQL/XML 2005 specification, and also to take steps toward my eventual hope of having support for XQuery (as opposed to just XPath) in Derby.
+
+If anyone has time and interest enough to look at the document and provide feedback, that'd be great...

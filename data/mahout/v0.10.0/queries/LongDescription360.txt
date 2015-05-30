@@ -1,0 +1,35 @@
+the pref score  field of output of org.apache.mahout.cf.taste.hadoop.item.RecommenderJob has been truncated if the pref score exceed six byte.
+
+in RecommendedItemsWritable.class
+
+  @Override
+  public String toString() {
+    StringBuilder result = new StringBuilder(200);
+    result.append('[');
+    boolean first = true;
+    for (RecommendedItem item : recommended) {
+      if (first) 
+{
+        first = false;
+      }
+ else 
+{
+        result.append(',');
+      }
+      result.append(item.getItemID());
+      result.append(':');
+      String valueString = String.valueOf(item.getValue());
+      // Is this rounding too crude?
+      if (valueString.indexOf('E') >= 0) 
+{
+        valueString = "0.0";
+      }
+ else if (valueString.length() > 6) 
+{    
+        valueString = valueString.substring(0, 6);   //here may cause problem,we can reserve all the bytes ,or just one byte decimal fraction
+      }
+      result.append(valueString);
+    }
+    result.append(']');
+    return result.toString();
+  }

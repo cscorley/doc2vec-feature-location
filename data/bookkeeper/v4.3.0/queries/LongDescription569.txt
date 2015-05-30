@@ -1,0 +1,5 @@
+There's a synchronization on InterleavedLedgerStorage#flush(), which kills performance when you're writing to many ledgers on a single bookie. Both #flush and #addEntry are synchronized, which blocks any adds being serviced while the sync thread is running.
+
+The sync on #addEntry has always been there, but on #flush it has only existed since BOOKKEEPER-293. The addition was obviously a mistake.
+
+Fix is simply to remove it.

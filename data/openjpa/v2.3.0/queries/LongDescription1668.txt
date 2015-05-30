@@ -1,0 +1,23 @@
+When setting/overriding the 'DBDictionary.sequenceSQL' value via a property in the persistence.xml file, as follows:
+
+	<property name="openjpa.jdbc.DBDictionary" value="db2(sequenceSQL='SELECT SCHEMA AS SEQUENCE_SCHEMA, NAME AS SEQUENCE_NAME FROM CIDB2.SYSSEQUENCES')"/>                                                        
+
+this value is not used when running DB2 on zOS.  Rather, the 'default for zOS' is used, i.e.: "SELECT SCHEMA AS SEQUENCE_SCHEMA, NAME AS SEQUENCE_NAME FROM SYSIBM.SYSSEQUENCES";.  
+
+To understand how this is happening, let me describe how 'sequenceSQL' is defined/set at runtime.  First, the ctor of DB2Dictionary is called, and the variable is set to a default:
+
+        sequenceSQL = "SELECT SEQSCHEMA AS SEQUENCE_SCHEMA, "
+            + "SEQNAME AS SEQUENCE_NAME FROM SYSCAT.SEQUENCES";
+
+After the DB2Dictionary ctor is called, openJPA assigns to 'sequenceSQL' the value defined in the system property.  So at this point things are all good and the variable is set to what is defined in the prop.  Where things go awry is when the method DB2Dictionary.connectedConfiguration is called.  In the method there is some platform specific code which is executed which overwrites the sequenceSQL value:
+
+       // platform specific settings
+        switch (db2ServerType) {
+        case  db2ZOSV8xOrLater:
+		........
+            sequenceSQL = "SELECT SCHEMA AS SEQUENCE_SCHEMA, "
+                + "NAME AS SEQUENCE_NAME FROM SYSIBM.SYSSEQUENCES";
+
+Thanks,
+
+Heath

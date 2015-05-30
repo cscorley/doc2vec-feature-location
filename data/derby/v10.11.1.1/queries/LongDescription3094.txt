@@ -1,0 +1,87 @@
+Following steps to reproduce the bug:
+
+create table xx (a double, b double);
+insert into xx values (2, 3);
+
+select a, a*(b/100.000000), count from xx  group by a, a*(b/100.000000);
+
+Starting run
+
+select a, a*(b/100.000000), count from xx 
+group by a, a*(b/100.000000)
+
+Run successful
+
+SQL State = 38000 SQL Code = 20000 SQL Message = Bei der Auswertung eines Ausdrucks wurde die Ausnahme 'java.lang.NullPointerException' ausgelöst. Exception message = java.sql.SQLException: Bei der Auswertung eines Ausdrucks wurde die Ausnahme 'java.lang.NullPointerException' ausgelöst.
+
+Work around:
+
+select a, a*(b/100.000000), count from xx group by a, b, a*(b/100.000000) 
+
+Stack trace from application:
+
+java.sql.SQLException: Bei der Auswertung eines Ausdrucks wurde die Ausnahme 'java.lang.NullPointerException' ausgelöst.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.seeNextException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.ConnectionChild.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedResultSet.closeOnTransactionError(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedResultSet.movePosition(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedResultSet.next(Unknown Source)
+	at de.arcor.billy.report.views.designer.ReportViewerView.setInput(ReportViewerView.java:255)
+	at de.arcor.billy.report.views.designer.ReportViewerView.createPartControl(ReportViewerView.java:113)
+	at org.eclipse.ui.internal.ViewReference.createPartHelper(ViewReference.java:332)
+	at org.eclipse.ui.internal.ViewReference.createPart(ViewReference.java:197)
+	at org.eclipse.ui.internal.WorkbenchPartReference.getPart(WorkbenchPartReference.java:566)
+	at org.eclipse.ui.internal.Perspective.showView(Perspective.java:1675)
+	at org.eclipse.ui.internal.WorkbenchPage.busyShowView(WorkbenchPage.java:987)
+	at org.eclipse.ui.internal.WorkbenchPage.access$13(WorkbenchPage.java:968)
+	at org.eclipse.ui.internal.WorkbenchPage$13.run(WorkbenchPage.java:3514)
+	at org.eclipse.swt.custom.BusyIndicator.showWhile(BusyIndicator.java:67)
+	at org.eclipse.ui.internal.WorkbenchPage.showView(WorkbenchPage.java:3511)
+	at de.arcor.billy.report.data.ReportDataAdvisor$2.perspectiveChanged(ReportDataAdvisor.java:268)
+	at de.arcor.billy.system.actions.AbstractOpenPerspectiveActionDelegate$1.run(AbstractOpenPerspectiveActionDelegate.java:66)
+	at org.eclipse.swt.widgets.RunnableLock.run(RunnableLock.java:35)
+	at org.eclipse.swt.widgets.Synchronizer.runAsyncMessages(Synchronizer.java:123)
+	at org.eclipse.swt.widgets.Display.runAsyncMessages(Display.java:3325)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:2971)
+	at org.eclipse.ui.internal.Workbench.runEventLoop(Workbench.java:1930)
+	at org.eclipse.ui.internal.Workbench.runUI(Workbench.java:1894)
+	at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:422)
+	at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:149)
+	at de.arcor.billy.product.Billy.run(Billy.java:15)
+	at org.eclipse.core.internal.runtime.PlatformActivator$1.run(PlatformActivator.java:78)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:92)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:68)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:400)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:177)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at org.eclipse.core.launcher.Main.invokeFramework(Main.java:336)
+	at org.eclipse.core.launcher.Main.basicRun(Main.java:280)
+	at org.eclipse.core.launcher.Main.run(Main.java:977)
+	at org.eclipse.core.launcher.Main.main(Main.java:952)
+Caused by: java.sql.SQLException: Java-Ausnahme: ': java.lang.NullPointerException'.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.javaException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+	... 42 more
+Caused by: java.lang.NullPointerException
+	at org.apache.derby.exe.ac9b638174x0115x5f93x1332x0000046fd8a01b.e10(Unknown Source)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at org.apache.derby.impl.services.reflect.ReflectMethod.invoke(Unknown Source)
+	at org.apache.derby.impl.sql.execute.ProjectRestrictResultSet.doProjection(Unknown Source)
+	at org.apache.derby.impl.sql.execute.ProjectRestrictResultSet.getNextRowCore(Unknown Source)
+	at org.apache.derby.impl.sql.execute.ScrollInsensitiveResultSet.getNextRowFromSource(Unknown Source)
+	at org.apache.derby.impl.sql.execute.ScrollInsensitiveResultSet.getNextRowCore(Unknown Source)
+	at org.apache.derby.impl.sql.execute.BasicNoPutResultSetImpl.getNextRow(Unknown Source)
+	... 37 more

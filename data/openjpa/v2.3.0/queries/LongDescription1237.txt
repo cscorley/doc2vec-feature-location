@@ -1,0 +1,14 @@
+It seems like there should be exception(s) thrown when the new writebehind cache is not configured properly. For example, this is not a valid PU configuration since there is no DataCache specified. 
+
+    <persistence-unit name="WriteBehind_JSE_INVALID_PU1">
+        <mapping-file>META-INF/orm.xml</mapping-file>
+        <properties>
+            <property name="openjpa.DataCache" value="false"/>                                
+            <property name="openjpa.WriteBehindCache" value="true"/>                         
+            <property name="openjpa.WriteBehindCallback" value="true(sleepTime=15000)"/>     
+        </properties>
+    </persistence-unit>
+
+Yet there is no error or exception thrown when this statement is executed:
+
+           emf = Persistence.createEntityManagerFactory("WriteBehind_JSE_INVALID_PU1");

@@ -1,0 +1,39 @@
+We run tika in server mode via:
+
+/usr/java/jdk/bin/java -Dlog4j.app.name=-server -Djavax.xml.soap.MessageFactory=com.sun.xml.messaging.saaj.soap.ver1_1.SOAPMessageFactory1_1Impl -Dfile.encoding=UTF-8 -Djava.net.preferIPv4Stack=true -server -Xms256M -Xmx768M -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/var/log/oom/content-extractor-8983.dump.1 -server -Xms500M -Xmx500M -jar /opt/tika/tika-app-1.1.jar --text --encoding=UTF-8 --server 8983
+
+Our client talks to this over port 8983. We pass data via the socket and get the responses back. However, sometimes, tika will get into a bad state and stop responding. 
+When this happens, we see this in the logs over and over. 
+
+2012-05-24_20:12:33.88573 Caused by: java.lang.NullPointerException
+2012-05-24_20:12:33.88576       at org.apache.tika.sax.XHTMLContentHandler.lazyEndHead(XHTMLContentHandler.java:157)
+2012-05-24_20:12:33.88580       at org.apache.tika.sax.XHTMLContentHandler.startElement(XHTMLContentHandler.java:237)
+2012-05-24_20:12:33.88584       at org.apache.tika.sax.XHTMLContentHandler.startElement(XHTMLContentHandler.java:274)
+2012-05-24_20:12:33.88589       at org.apache.tika.parser.microsoft.WordExtractor.handleParagraph(WordExtractor.java:186)
+2012-05-24_20:12:33.88593       at org.apache.tika.parser.microsoft.WordExtractor.parse(WordExtractor.java:97)
+2012-05-24_20:12:33.88597       at org.apache.tika.parser.microsoft.OfficeParser.parse(OfficeParser.java:185)
+2012-05-24_20:12:33.88602       at org.apache.tika.parser.microsoft.OfficeParser.parse(OfficeParser.java:160)
+2012-05-24_20:12:33.88606       at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+2012-05-24_20:12:33.88611       ... 4 more
+2012-05-24_20:12:49.28441 org.apache.tika.exception.TikaException: Unexpected RuntimeException from org.apache.tika.parser.microsoft.OfficeParse
+r@6906daba
+2012-05-24_20:12:49.28458       at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:244)
+2012-05-24_20:12:49.28466       at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+2012-05-24_20:12:49.28477       at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:120)
+2012-05-24_20:12:49.28489       at org.apache.tika.cli.TikaCLI$OutputType.process(TikaCLI.java:130)
+2012-05-24_20:12:49.28497       at org.apache.tika.cli.TikaCLI$TikaServer$1.run(TikaCLI.java:735)
+2012-05-24_20:12:49.28509 Caused by: java.lang.NullPointerException
+2012-05-24_20:12:49.28516       at org.apache.tika.sax.XHTMLContentHandler.lazyEndHead(XHTMLContentHandler.java:157)
+2012-05-24_20:12:49.28524       at org.apache.tika.sax.XHTMLContentHandler.startElement(XHTMLContentHandler.java:237)
+2012-05-24_20:12:49.28532       at org.apache.tika.sax.XHTMLContentHandler.startElement(XHTMLContentHandler.java:274)
+2012-05-24_20:12:49.28541       at org.apache.tika.parser.microsoft.WordExtractor.handleParagraph(WordExtractor.java:186)
+2012-05-24_20:12:49.28550       at org.apache.tika.parser.microsoft.WordExtractor.parse(WordExtractor.java:97)
+2012-05-24_20:12:49.28558       at org.apache.tika.parser.microsoft.OfficeParser.parse(OfficeParser.java:185)
+2012-05-24_20:12:49.28565       at org.apache.tika.parser.microsoft.OfficeParser.parse(OfficeParser.java:160)
+2012-05-24_20:12:49.28577       at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+2012-05-24_20:12:49.28585       ... 4 more
+
+We have tried to figure out what causes this with no success. We only know that once the server gets into this state, there is no recourse but to restart the tika service.
+
+Other instances of tika we have running in the test environment continue to work. There is some combination of content or work that causes
+tika to destabilize. Our working theory is that perhaps tika server is not thread safe and that may be causing this behavior.

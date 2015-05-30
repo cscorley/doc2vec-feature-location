@@ -1,0 +1,7 @@
+Let's say node has determined as READY and has dispatched DETERMINE_COMPLETE event, at the same time the ELECTED node got stopped or expired . Still the f/w first dispatches the READY_START event to the node and then checks whether the ELECTED node exists() or not. Here it finds there is no 'Stat' corresponding to ELECTED and will again goes to leader determination phase.
+
+Problem: 
+Unnecessarily the READY_START event is dispatching to the node and says node to be ready with the startup/init, even if there is no ELECTED node.
+
+Proposal 
+Reverse the logic, first check whether ELECTED node exists() or not and then if success f/w can dispatch the READY_START event. Otherwise go to the leader determination phase.

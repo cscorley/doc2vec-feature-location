@@ -1,0 +1,46 @@
+Filing a feature request based on a zookeeper-user discussion.
+
+Zookeeper should have a new four-letter word that returns key-value pairs appropriate for importing to a monitoring system (such as Ganglia which has a large installed base)
+
+This command should initially export the following:
+
+(a) Count of instances in the ensemble.
+(b) Count of up-to-date instances in the ensemble.
+
+But be designed such that in the future additional data can be added. For example, the output could define the statistic in a comment, then print a key "space character" value line:
+
+"""
+
+	Total number of instances in the ensemble
+zk_ensemble_instances_total 5
+	Number of instances currently participating in the quorum.
+zk_ensemble_instances_active 4
+"""
+
+
+
+From the mailing list:
+
+"""
+Date: Mon, 19 Apr 2010 12:10:44 -0700
+From: Patrick Hunt <phunt@apache.org>
+To: zookeeper-user@hadoop.apache.org
+Subject: Re: Recovery issue - how to debug?
+
+On 04/19/2010 11:55 AM, Travis Crawford wrote:
+> It would be a lot easier from the operations perspective if the leader
+> explicitly published some health stats:
+>
+> (a) Count of instances in the ensemble.
+> (b) Count of up-to-date instances in the ensemble.
+>
+> This would greatly simplify monitoring&  alerting - when an instance
+> falls behind one could configure their monitoring system to let
+> someone know and take a look at the logs.
+
+That's a great idea. Please enter a JIRA for this - a new 4 letter word 
+and JMX support. It would also be a great starter project for someone 
+interested in becoming more familiar with the server code.
+
+Patrick
+"""

@@ -1,0 +1,22 @@
+When I run this script:
+A = load 'limit_empty.input_a' as (a1:int);
+B = load 'limit_empty.input_b' as (b1:int);
+C =COGROUP A by a1, B by b1;
+C1 = foreach C 
+{ Alim = limit A 1; Blim = limit B 1; generate Alim, Blim; }
+D1 = FOREACH C1 generate Alim,Blim, (IsEmpty(Alim)? 0:1), (IsEmpty(Blim)? 0:1), COUNT(Alim), COUNT(Blim);
+dump D1;
+
+The MR job succeeds but the pig job fails with the fillowing error:
+2010-08-31 13:33:09,960 [main] INFO  org.apache.hadoop.metrics.jvm.JvmMetrics - Cannot initialize JVM Metrics with processName=JobTracker, sessionId= - already initialized
+2010-08-31 13:33:09,962 [main] INFO  org.apache.pig.impl.io.InterStorage - Pig Internal storage in use
+2010-08-31 13:33:09,963 [main] INFO  org.apache.pig.impl.io.InterStorage - Pig Internal storage in use
+2010-08-31 13:33:09,963 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - Success!
+2010-08-31 13:33:09,964 [main] INFO  org.apache.pig.impl.io.InterStorage - Pig Internal storage in use
+2010-08-31 13:33:09,965 [main] INFO  org.apache.hadoop.metrics.jvm.JvmMetrics - Cannot initialize JVM Metrics with processName=JobTracker, sessionId= - already initialized
+2010-08-31 13:33:09,969 [main] INFO  org.apache.hadoop.mapreduce.lib.input.FileInputFormat - Total input paths to process : 1
+2010-08-31 13:33:09,969 [main] INFO  org.apache.pig.backend.hadoop.executionengine.util.MapRedUtil - Total input paths to process : 1
+2010-08-31 13:33:09,973 [main] ERROR org.apache.pig.backend.hadoop.executionengine.HJob - java.lang.ClassCastException: java.lang.Integer cannot be cast to org.apache.pig.data.Tuple
+
+
+since MR job is succeeded, so the pig does not create any log file, but it should still create a log file, giving the cause of failure in the pig.

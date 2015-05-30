@@ -1,0 +1,44 @@
+Running the WikipediaDataSetCreator 
+
+ bin/hadoop jar ~/projects/lucene/mahout/mahout-clean/examples/build/ org.apache.mahout.examples.classifiers.cbayes.WikipediaDatasetCreator -i wikipediadump -o wikipediainput -c ~/projects/lucene/mahout/mahout-clean/examples/src/test/resources/country.txt 
+
+
+
+yielded:
+08/10/31 11:15:26 INFO mapred.JobClient: Task Id : attempt_200810301619_0001_m_000000_0, Status : FAILED
+java.lang.ClassCastException: org.apache.hadoop.io.LongWritable cannot be cast to org.apache.hadoop.io.Text
+        at org.apache.mahout.classifier.bayes.WikipediaDatasetCreatorMapper.map(WikipediaDatasetCreatorMapper.java:41)
+        at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:47)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:227)
+        at org.apache.hadoop.mapred.TaskTracker$Child.main(TaskTracker.java:2207)
+
+
+The fix is:
+
+Index: src/main/java/org/apache/mahout/classifier/bayes/WikipediaDatasetCreatorMapper.java
+===================================================================
+--- src/main/java/org/apache/mahout/classifier/bayes/WikipediaDatasetCreatorMapper.java (revision 709230)
++++ src/main/java/org/apache/mahout/classifier/bayes/WikipediaDatasetCreatorMapper.java (working copy)
+@@ -20,6 +20,7 @@
+ import org.apache.commons.lang.StringEscapeUtils;
+ import org.apache.hadoop.io.DefaultStringifier;
+ import org.apache.hadoop.io.Text;
++import org.apache.hadoop.io.LongWritable;
+ import org.apache.hadoop.mapred.JobConf;
+ import org.apache.hadoop.mapred.MapReduceBase;
+ import org.apache.hadoop.mapred.Mapper;
+@@ -39,11 +40,11 @@
+ import java.util.Set;
+ 
+ public class WikipediaDatasetCreatorMapper extends MapReduceBase implements
+-    Mapper<Text, Text, Text, Text> {
++    Mapper<LongWritable, Text, Text, Text> {
+ 
+   private static Set<String> countries = null;
+   
+-  public void map(Text key, Text value,
++  public void map(LongWritable key, Text value,
+       OutputCollector<Text, Text> output, Reporter reporter)
+       throws IOException {
+     String document = value.toString();
+

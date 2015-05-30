@@ -1,0 +1,11 @@
+Assertion for testLostMessage is kept inside the thread.run() method. Due to this the assertion failure will not be reflected in the main testcase. 
+I have observed the test case is still passing in case of the assert failure or misfunction. Instead, the assertion can be moved to the test case - testLostMessage.
+
+
+class LEThread extends Thread {
+          public void run(){
+                peer.setCurrentVote(v);
+                LOG.info("Finished election: " + i + ", " + v.getId());
+                Assert.assertTrue("State is not leading.", peer.getPeerState() == ServerState.LEADING);
+             } 
+

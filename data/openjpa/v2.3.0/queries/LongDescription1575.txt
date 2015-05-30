@@ -1,0 +1,3 @@
+If field value has been externalized and the query is using a parameter for that field, caching its SQL breaks because re-parametrization of the SQL can not externalize the user supplied parameter value through the field. The worse is the query is cached anyway and its parameter substituted with (wrong) non-externalized, user-supplied value – resulting in wrong result.
+Currently we will detect such usage and exclude the the query being cached.
+However, we can consider a mechanics to capture the parametrized fields in a query expression tree and appropriately pass the user values through the fields' externalizer in future. 

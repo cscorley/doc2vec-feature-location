@@ -1,0 +1,8 @@
+On a German locale I get the following test failures:
+Failed tests:
+testJPEGGeo(org.apache.tika.parser.jpeg.JpegParserTest): expected:<12[.]54321> but was:<12[,]54321>
+  testJPEGGeo2(org.apache.tika.parser.jpeg.JpegParserTest): expected:<51[.]575762> but was:<51[,]575762>
+
+I can provide a patch to make the test pass, but I wonder whether it is desired that the output depends on the locale. This makes it harder for client applications to evaluate parsing results.
+
+The cause of the problem seems to be the field GEO_DECIMAL_FORMAT in class ImageMetadataExtractor. The formatted strings produced by this object are locale-dependent.

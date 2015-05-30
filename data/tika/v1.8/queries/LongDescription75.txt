@@ -1,0 +1,3 @@
+We have a MimeUtils method that returns a MIME type based solely on the name.  It would be very helpful to also have a method that examines the header as well.  I've added a method (patch coming) that does this.  It opens a stream from the URL, reads the header, closes the stream, and then calls the existing method.
+
+This may not be usable in the course of parsing, since it violates our decision to read a stream only once.  However, it is very useful as a way to test our MIME type determination, and as a non-parse service to our users (as recently discussed on the forum).

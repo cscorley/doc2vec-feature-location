@@ -1,0 +1,11 @@
+The addition of support for autoloading of Derby drivers, DERBY-930, caused two potentially serious regresions for applications.
+
+
+1) Early load of driver can mean that  derby system properties, such as derby.system.home may not be processed by the driver because they are set after the driver is loaded.
+
+2) Early load of the driver can mean boot time operations, such as starting network server with derby.drda.startNetworkServer can happen even when Derby is never used if a connection is made to another database such as Oracle.
+
+
+The attached file autoloading_scenarios.html  shows scenarios that show these regressions plus another case that will regress if boot time operations are moved to the first Derby embedded connection.   I don't know what solution is available that would handle all three cases.
+
+

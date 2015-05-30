@@ -1,0 +1,5 @@
+SquaredEuclideanDistanceMeasure iterates over v1.plus(v2), which has the right number of nonzero elements if v1.get != -v2.get for all i indexing nonzero elements, but for example, the simple case of looking at SquaredEuclideanDisanceMeasure.distance(v, v.assign(new NegateFunction())) yeilds zero on current trunk, instead of 4*v.lengthSquared().
+
+Attached is a patch with a unit test which checks that DistanceMeasure.distance always returns nonnegative results and in particular also does not return , as well as a fix for ManhattanDistanceMeasure, SquaredEuclideanDistanceMeasure, and EuclideanDistanceMeasure.
+
+Unfortunately, the attached unit test reveals that the TanimotoDistanceMeasure is more broken than I can fix at present.  It doesn't appear to be properly using the referenced formula in wikipedia, and in fact sometimes returns negative results.  This means that with this patch applied, TestTanimotoDistanceMeasure is failing (and rightfully so).

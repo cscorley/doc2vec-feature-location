@@ -1,0 +1,43 @@
+When shutting down just a single database and not the Derby system, the log should print a message that just that database was shutdown as I believe Derby is still loaded.
+
+e.g.
+
+ij version 10.6
+ij> run 'testMessages.sql';
+ij> connect 'jdbc:derby:wombat';
+ij> connect 'jdbc:derby:wombat2';
+ij(CONNECTION1)> connect 'jdbc:derby:wombat2;shutdown=true';
+ERROR 08006: Database 'wombat2' shutdown.
+ij(CONNECTION1)> connect 'jdbc:derby:;shutdown=true';
+ERROR XJ015: Derby system shutdown.
+
+yields the following log:
+2010-03-26 15:27:16.375 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.6.0.0 alpha - (927879M): instance a816c00e-0127-9b15-988d-0000002083e0 
+on database directory C:\kmarsden\repro\DERBY-4588\wombat   with class loader sun.misc.Launcher$AppClassLoader@42c042c0
+
+
+Database Class Loader started - derby.database.classpath=''
+
+----------------------------------------------------------------
+
+2010-03-26 15:27:16.921 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.6.0.0 alpha - (927879M): instance 601a400f-0127-9b15-988d-0000002083e0 
+on database directory C:\kmarsden\repro\DERBY-4588\wombat2   with class loader sun.misc.Launcher$AppClassLoader@42c042c0
+
+
+Database Class Loader started - derby.database.classpath=''
+
+
+2010-03-26 15:27:17.171 GMT:
+Shutting down instance 601a400f-0127-9b15-988d-0000002083e0 with class loader sun.misc.Launcher$AppClassLoader@42c042c0 
+
+----------------------------------------------------------------
+
+
+2010-03-26 15:27:17.218 GMT:
+Shutting down instance a816c00e-0127-9b15-988d-0000002083e0 with class loader sun.misc.Launcher$AppClassLoader@42c042c0 
+
+----------------------------------------------------------------
+
+The first shutdown should say that just the database wombat2 was shutdown, not the entire system.

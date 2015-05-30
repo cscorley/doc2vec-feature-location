@@ -1,0 +1,1 @@
+The MimeTypes class uses a SortedSet to keep track of all magic patterns, but the Magic.compareTo() method is not strictly consistent with equals (it can return 0 for two different magic patterns). The unfortunate effect is that the SortedSet will silently ignore some magic patterns that just happen to return 0 when compared to other patterns.

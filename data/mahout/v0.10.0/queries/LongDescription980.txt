@@ -1,0 +1,7 @@
+The patch at http://www.cs.brown.edu/~matteo/PFPGrowth.java.diff (against trunk as of Wed Feb 22 00:07:35 EST 2012, revision 1292127) makes it possible to run PFPGrowth on Elastic MapReduce. 
+
+The problem was in the way the fList stored in the DistributedCache was accessed. DistributedCache.getCacheFiles(conf) should be reserved for internal use according to the Hadoop API Documentation. The suggested way to access the files in the DistributedCache is through DistributedCache.getLocalCacheFiles(conf) and then through a LocalFilesystem. This is what the patch does. Note that there is a fallback case if we are running PFPGrowth with "-method mapreduce" but locally (e.g. when HADOOP_HOME is not set or MAHOUT_LOCAL is set). In this case, we use DistributedCache.getCacheFiles() as it is done in the unpatched version.
+
+A quick grep in the source tree shows that there are other places where DistributedCache.getCacheFiles(conf) is used. It may be worth checking whether the corresponding algorithms can be made to work in Amazon MapReduce by fixing them in a similar fashion.
+
+The patch was tested also outside Amazon MapReduce and does not change any other functionality. 

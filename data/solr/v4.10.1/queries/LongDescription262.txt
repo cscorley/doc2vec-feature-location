@@ -1,0 +1,16 @@
+This is all extracted from SOLR-193.
+
+We need some way to convert between SolrDocuments and lucene Documents.  This patch:
+
+1. add to FieldType.java:
+   public Object toObject(Fieldable f) { }
+
+2. Add to DocumentBuilder:
+  public Document build( SolrInputDocument doc )
+
+3. Add to IndexSchema:
+  public boolean isCopyFieldTarget( SchemaField f )
+
+4. Add to DocumentBuilder:
+   public SolrDocument loadStoredFields( SolrDocument doc, Document luceneDoc  )
+

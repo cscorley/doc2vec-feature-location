@@ -1,0 +1,29 @@
+After SOLR-197 is applied, POSTed Japanese XML contents turn into garbled characters in the index.
+I can see the garbled characters through Luke. The issue was never seen before SOLR-197.
+The cause of this problem is that the deficit of InputStreamReader support in the anonymous class of ContentStream in SolrRequestParsers.parseParamsAndFillStreams() method.
+
+Before SOLR-197, InputStreamReader was used in XmlUpdateRequestHandler.handleRequestBody() method:
+
+    // Cycle through each stream
+    for( ContentStream stream : req.getContentStreams() ) {
+      String charset = getCharsetFromContentType( stream.getContentType() );
+      Reader reader = null;
+      if( charset == null ) 
+{
+        reader = new InputStreamReader( stream.getStream() );
+      }
+      else 
+{
+        reader = new InputStreamReader( stream.getStream(), charset );
+      }
+      rsp.add( "update", this.update( reader ) );
+
+      // Make sure its closed
+      try 
+{ reader.close(); }
+ catch( Exception ex ){}
+    }
+
+The patch will apply this effect to SolrRequestParsers.
+
+regards,

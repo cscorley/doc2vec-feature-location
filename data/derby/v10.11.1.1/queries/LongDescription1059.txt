@@ -1,0 +1,11 @@
+org.apache.derby.impl.jdbc.EmbeddedCallableStatement40 and org.apache.derby.client.am.CallableStatement40 are instantiating Preparewdstament in 
+constructor. Becasue of this call to stored procedure with out param fails.
+
+Instantiatiation of prepared was done to share the common method in prepared statement and callbale statement. But this aporach causes another issue of creating two instance of statement (one by calling super () and another by instantiating prepared statement). 
+
+
+I can think of two solution of this problem 
+1. Create another class which handles the common methods in PrepardStatement40 and CallableStatement40 classes.
+2. Duplicate the common method in both classes. 
+
+I feel 1st one is better. It will will be easier to fix any issue in the common methods and chance to miss to fix in one of the classes will be eliminated.

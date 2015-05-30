@@ -1,0 +1,13 @@
+When rejoining a global transaction, client does not report the correct isolation level with a 
+getTransactionIsolation().    The server side isolation should be ok I think.
+
+This was discovered when testing the fix for DERBY-1044.  After the fix for DERBY-1044, there is a new diff in the test, but the fix for DERBY-1044 just exposed this issue.  The output for the test was correct before by circumstance.
+
+I will put comments with this bug in checkDataSource test.
+
+// now re-join the transaction, should pick up the read-only
+// and isolation level from the transaction,
+// holdability remains that of this handle.
+xar.start(xid, XAResource.TMJOIN);
+printState("re-join X1", cs1);
+xar.end(xid, XAResource.TMSUCCESS);

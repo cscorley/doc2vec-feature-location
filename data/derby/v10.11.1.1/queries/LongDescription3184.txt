@@ -1,0 +1,3 @@
+When a database 'X' is booted in slave mode, the call to  Monitor.startPersistentService("X",...) will not complete because the call gets stuck in LogToFile#recover. This is intentional.
+
+For as long as startPersistentService is blocked, however, other threads that try to connect to 'X' (effectively calling Monitor.findService("X", ...)) will also hang. This is unacceptable, and needs to raise an error.

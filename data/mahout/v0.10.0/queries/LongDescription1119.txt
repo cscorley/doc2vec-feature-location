@@ -1,0 +1,10 @@
+in  org.apache.mahout.text.SequenceFilesFromDirectory from line 89 to 96 the code is 
+  pathFilterClass.getConstructor(Configuration.class,
+                                           String.class,
+                                           Map.class,
+                                           ChunkedWriter.class,
+                                           Charset.class,
+                                           FileSystem.class);
+        pathFilter = constructor.newInstance(conf, keyPrefix, options, writer, charset,fs);
+
+obviously,the method  "constructor.newInstance" lacks a parameter "charset",if i implements a subclass of SequenceFilesFromDirectoryFilter,there will be a runtime error.

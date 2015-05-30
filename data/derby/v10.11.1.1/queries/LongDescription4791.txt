@@ -1,0 +1,3 @@
+While queries of the form "<column> LIKE ' <string-constant>%' " are optimized into index scans, the equivalent expression using a concatenation "<column> LIKE ' <string-constant>' || '%' " would result in a table scan. 
+Queries of the form "<column> LIKE ?" are optimizable using an internally generated parameter, so it doesn't seem far-fetched to generate such a parameter for a concatenation of strings (or other string expressions) as well, once its value has been calculated. This is of course limited to cases where the result of the string expression can be calculated once, i.e. it is independent of columns in the query.
+It is sometimes possible to work around this by manually adding the " x >= '<string-constant>' AND x < '<string-constant>\uffff...'  " condition.

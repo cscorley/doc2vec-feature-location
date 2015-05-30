@@ -1,0 +1,9 @@
+The following code prints "true" with the embedded driver and "false" with the client driver:
+
+        PreparedStatement ps = c.prepareStatement("values cast(? as boolean)");
+        ps.setByte(1, (byte) 32);
+        ResultSet rs = ps.executeQuery();
+        rs.next();
+        System.out.println(rs.getBoolean(1));
+
+If setByte() is replaced with setInt(), they both print "true".

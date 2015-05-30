@@ -1,0 +1,10 @@
+Consider the following Pig script where we generate column names b and b in the FOREACH
+
+DATA = LOAD 'blah.txt' as (a:long, b:long);
+RESULT = FOREACH DATA GENERATE a, b, (b>20?b:0) as b;
+DESCRIBE RESULT;
+dump RESULT;
+
+
+
+Pig runs the script successfully and does not complain of the duplicate column names.  I do not know if the new error handling framework will handle these kinds of cases. 

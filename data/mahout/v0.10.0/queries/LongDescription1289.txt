@@ -1,0 +1,5 @@
+When computing similarities with RowSimilarityJob, downsampling highly frequent things is crucial for performance. At the moment, this is done by the data preparation code for collaborative filtering.
+
+We should move the downsampling directly into RowSimilarityJob as we've seen a lot of cases where users want to directly use it.
+
+Furthermore, it should be possible to fix the random seed for the sampling to be able to conduct repeatable experiments.

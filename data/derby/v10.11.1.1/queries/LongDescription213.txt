@@ -1,0 +1,40 @@
+Network Server closes the result set if ResultSet.next() is 
+called after the last row of the result set.  The test code 
+below throws the following exception.
+
+SQLState:   null
+Severity: -99999
+Message:  Invalid operation: result set closed
+com.ibm.db2.jcc.am.SqlException: Invalid operation: result set 
+closed
+        at 
+com.ibm.db2.jcc.am.ResultSet.checkForClosedResultSet(ResultSet.j
+ava:3419)
+        at 
+com.ibm.db2.jcc.am.ResultSet.nextX(ResultSet.java:290)
+        at 
+com.ibm.db2.jcc.am.ResultSet.next(ResultSet.java:277)
+        at AfterLast.test(AfterLast.java:75)
+        at AfterLast.main(AfterLast.java:32)
+
+
+stmt.executeUpdate("CREATE  TABLE TAB ( I INT)");
+stmt.executeUpdate("INSERT INTO TAB VALUES(1)");
+stmt.executeUpdate("INSERT INTO TAB VALUES(2)");
+String sql ="SELECT * from tab";		
+ps = conn.prepareStatement(sql);
+ResultSet rs = ps.executeQuery();
+System.out.println(sql);
+while (rs.next())
+System.out.println(rs.getInt(1));
+try 
+{
+	System.out.println("one more next");
+	rs.next();
+		}
+    catch (Exception e)
+		{
+		System.out.println("FAIL: next should return false not throw 
+exception");
+		e.printStackTrace();
+		}

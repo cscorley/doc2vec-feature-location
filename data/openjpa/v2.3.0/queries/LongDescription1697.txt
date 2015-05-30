@@ -1,0 +1,65 @@
+@Entity
+@Table(name="authority")
+@NamedQueries( 
+{
+               @NamedQuery(name = "AllIonAuthorities", query = "SELECT x FROM IonAuthority x")
+}
+)
+public class Authority {
+@Id
+       @GeneratedValue(strategy = GenerationType.AUTO)
+       @Column(name = "ID")
+       private Integer id;
+
+       @Enumerated( EnumType.STRING )
+       @Column(nullable=false, length=128, updatable=true, insertable=true)
+       @Persistent
+       @Strategy("org.apache.openjpa.jdbc.meta.strats.EnumValueHandler")
+       private AuthorityValues authorityName;
+
+
+-----------
+
+@XmlType(name = "IonAuthorityValues")
+@XmlEnum
+public enum AuthorityValues {
+
+   AUTH1,
+   AUTH2,
+
+
+Stacktrace:
+
+Caused by: <openjpa-2.1.0-SNAPSHOT-r422266:953182M nonfatal general error> org.apache.openjpa.persistence.PersistenceException: ORA-00907: missing right parenthesis
+ 
+{stmnt 13803851 CREATE TABLE authority (ID NUMBER NOT NULL, authorityName XMLType(128) NOT NULL, PRIMARY KEY (ID))}
+ [code=907, state=42000]
+       at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:556)
+       at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:456)
+       at org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.synchronizeMappings(JDBCBrokerFactory.java:155)
+       at org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.synchronizeMappings(JDBCBrokerFactory.java:159)
+       at org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.newBrokerImpl(JDBCBrokerFactory.java:117)
+       at org.apache.openjpa.kernel.AbstractBrokerFactory.newBroker(AbstractBrokerFactory.java:199)
+       at org.apache.openjpa.kernel.DelegatingBrokerFactory.newBroker(DelegatingBrokerFactory.java:156)
+       at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:213)
+       at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:151)
+       at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+       at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+       at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+       at java.lang.reflect.Method.invoke(Method.java:597)
+       at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.invokeProxyMethod(AbstractEntityManagerFactoryBean.java:423)
+       at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean$ManagedEntityManagerFactoryInvocationHandler.invoke(AbstractEntityManagerFactoryBean.java:485)
+       at $Proxy20.createEntityManager(Unknown Source)
+       at com.iontrading.ionweb.persistence.SchemaCreationHandler.start(SchemaCreationHandler.java:181)
+       at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+       at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+       at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+       at java.lang.reflect.Method.invoke(Method.java:597)
+       at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeCustomInitMethod(AbstractAutowireCapableBeanFactory.java:1536)
+       at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1477)
+       at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1409)
+       ... 27 more
+Caused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: ORA-00907: missing right parenthesis
+ 
+{stmnt 13803851 CREATE TABLE ion_authority (ID NUMBER NOT NULL, authorityName XMLType(128) NOT NULL, PRIMARY KEY (ID))}
+ [code=907, state=42000]

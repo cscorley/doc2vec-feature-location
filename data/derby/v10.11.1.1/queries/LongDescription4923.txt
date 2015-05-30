@@ -1,0 +1,33 @@
+An update of a row fails with a nospc.U exception.  If there is space on the disk then an update should never fail for a space 
+issue.  The code is meant to always reserve enough space on a page such that if an expanding update happens that does not
+fit, it should in the worst case change the row to an overflow row pointer and put the rest in a linked overflow chain.
+
+The following set of circumstances will cause this bug (not sure which are exactly needed - just what i did to
+cause the repro), I will be attaching a test case:
+The row being updated has the following characteristics:
+    o located on 4k page
+    o 2 colum row with 2nd column a blob column
+    o the row is a long row with first piece having 1st column on main page, and the 2nd piece having just blob column on overflow page.
+    o before the update there is 0 free space on the overflow page.
+    o the update causes the blob column to expand past 4k 
+
+Caused by: java.sql.SQLException: nospc.U
+    at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+    at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(SQLExceptionFactory40.java:119)
+    at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:70)
+    ... 39 more
+Caused by: ERROR nospc: nospc.U
+    at org.apache.derby.impl.store.raw.data.StoredPage.logRow(StoredPage.java:4155)
+    at org.apache.derby.impl.store.raw.data.UpdateOperation.writeOptionalDataToBuffer(UpdateOperation.java:255)
+    at org.apache.derby.impl.store.raw.data.UpdateOperation.<init>(UpdateOperation.java:106)
+    at org.apache.derby.impl.store.raw.data.LoggableActions.actionUpdate(LoggableActions.java:80)
+    at org.apache.derby.impl.store.raw.data.StoredPage.doUpdateAtSlot(StoredPage.java:8625)
+    at org.apache.derby.impl.store.raw.data.BasePage.updateAtSlot(BasePage.java:1062)
+    at org.apache.derby.impl.store.access.conglomerate.GenericConglomerateController.replace(GenericConglomerateController.java:486)
+    at org.apache.derby.impl.sql.execute.RowChangerImpl.updateRow(RowChangerImpl.java:523)
+    at org.apache.derby.impl.sql.execute.UpdateResultSet.collectAffectedRows(UpdateResultSet.java:569)
+    at org.apache.derby.impl.sql.execute.UpdateResultSet.open(UpdateResultSet.java:264)
+    at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:436)
+    at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:317)
+    at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1241)
+    ... 33 more

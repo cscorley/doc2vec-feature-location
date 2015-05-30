@@ -1,0 +1,13 @@
+I'm getting the following error when trying to create vectors from a Solr index.  I've also tried using the arff to mvc utility and I'm getting the exact same error.
+
+Exception in thread "main" java.lang.NullPointerException
+    at org.apache.hadoop.io.serializer.SerializationFactory.getSerializer(SerializationFactory.java:73)
+    at org.apache.hadoop.io.SequenceFile$Writer.init(SequenceFile.java:910)
+    at org.apache.hadoop.io.SequenceFile$RecordCompressWriter.<init>(SequenceFile.java:1074)
+    at org.apache.hadoop.io.SequenceFile.createWriter(SequenceFile.java:397)
+    at org.apache.hadoop.io.SequenceFile.createWriter(SequenceFile.java:284)
+    at org.apache.hadoop.io.SequenceFile.createWriter(SequenceFile.java:265)
+    at org.apache.mahout.utils.vectors.lucene.Driver.getSeqFileWriter(Driver.java:226)
+    at org.apache.mahout.utils.vectors.lucene.Driver.main(Driver.java:197)
+
+I'm getting this error with revision 901336 but not with revision 897299

@@ -1,0 +1,21 @@
+NetworkServerControlImpl.consoleExceptionPrintTrace() prints the stack
+trace to System.err if logWriter is null. This has occasionally caused
+errors in the regression tests. See
+http://www.multinet.no/~solberg/public/Apache/10.2.0.3_Snapshot/jvm1.5/testlog/sparc_zone3/412239-derbyall_diff.txt
+for an example.
+
+The test failure happens when NetworkServerControlImpl.shutdown() has
+sent the shutdown command and starts a loop calling ping() until it
+gets an error. Since it expects ping() to fail, it sets logWriter to
+null to avoid getting error messages printed on the console.
+
+In most cases, the network server is already stopped before the first
+call to ping(). Then ping() fails when calling setUpSocket(), and no
+message is printed. On the other hand, if the server is stopped while
+ping() is being executed, the error might occur other places. For
+instance, it might fail with a SocketException in
+fillReplyBuffer(). fillReplyBuffer() then calls clientSocketError(),
+which in turn calls consolePropertyMessage() and
+consoleExceptionPrintTrace().  consolePropertyMessage() correctly
+suppresses the error message, but consoleExceptionPrintTrace() prints
+the stack trace.

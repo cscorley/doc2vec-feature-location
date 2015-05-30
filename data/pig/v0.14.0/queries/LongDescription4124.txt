@@ -1,0 +1,12 @@
+In my cluster, multiple versions of python are installed such as python2.6, python2.7, etc. Since some modules are only available on non-default python versions, it would be nice if the python command could be configurable by the user.
+
+For eg, I have a streaming udf that imports pytz. It fails with the following error if it runs with python-
+
+
+: Caused by: org.apache.pig.impl.streaming.StreamingUDFException: LINE 4: ImportError: No module named pytz
+: File /mnt1/var/lib/hadoop/nm-local-dir/usercache/cheolsoop/appcache/application_1407968511815_0021/container_1407968511815_0021_01_001322/tmp/udfs.py, line 4, in <module>
+: import pytz
+: at org.apache.pig.impl.builtin.StreamingUDF$ProcessErrorThread.run(StreamingUDF.java:519)
+
+
+But it works if I use python2.7 as command.

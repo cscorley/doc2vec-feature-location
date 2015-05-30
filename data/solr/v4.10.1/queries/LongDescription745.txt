@@ -1,0 +1,51 @@
+using 1.3-rc1...
+
+	Start up the multicore example...
+
+cd example
+java -Dsolr.solr.home=multicore -jar start.jar
+
+
+	Hit the status URL repeatedly: http://localhost:8983/solr/admin/cores?action=STATUS
+	Note: no problems in the log
+	unload core0: http://localhost:8983/solr/admin/cores?action=UNLOAD&core=core0
+	shift-reload on the status URL: http://localhost:8983/solr/admin/cores?action=STATUS
+	Note the following exception each time...
+
+SEVERE: java.util.concurrent.RejectedExecutionException
+        at java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:1477)
+        at java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:384)
+        at java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:856)
+        at java.util.concurrent.AbstractExecutorService.submit(AbstractExecutorService.java:45)
+        at java.util.concurrent.Executors$DelegatedExecutorService.submit(Executors.java:606)
+        at org.apache.solr.core.SolrCore.getSearcher(SolrCore.java:1062)
+        at org.apache.solr.core.SolrCore.getSearcher(SolrCore.java:821)
+        at org.apache.solr.request.SolrQueryRequestBase.getSearcher(SolrQueryRequestBase.java:208)
+        at org.apache.solr.servlet.cache.HttpCacheHeaderUtil.calcLastModified(HttpCacheHeaderUtil.java:146)
+        at org.apache.solr.servlet.cache.HttpCacheHeaderUtil.doCacheHeaderValidation(HttpCacheHeaderUtil.java:220)
+        at org.apache.solr.servlet.SolrDispatchFilter.doFilter(SolrDispatchFilter.java:224)
+        at org.mortbay.jetty.servlet.ServletHandler$CachedChain.doFilter(ServletHandler.java:1089)
+        at org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:365)
+        at org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)
+        at org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:181)
+        at org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:712)
+        at org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:405)
+        at org.mortbay.jetty.handler.ContextHandlerCollection.handle(ContextHandlerCollection.java:211)
+        at org.mortbay.jetty.handler.HandlerCollection.handle(HandlerCollection.java:114)
+        at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:139)
+        at org.mortbay.jetty.Server.handle(Server.java:285)
+        at org.mortbay.jetty.HttpConnection.handleRequest(HttpConnection.java:502)
+        at org.mortbay.jetty.HttpConnection$RequestHandler.headerComplete(HttpConnection.java:821)
+        at org.mortbay.jetty.HttpParser.parseNext(HttpParser.java:513)
+        at org.mortbay.jetty.HttpParser.parseAvailable(HttpParser.java:208)
+        at org.mortbay.jetty.HttpConnection.handle(HttpConnection.java:378)
+        at org.mortbay.jetty.bio.SocketConnector$Connection.run(SocketConnector.java:226)
+        at org.mortbay.thread.BoundedThreadPool$PoolThread.run(BoundedThreadPool.java:442)
+
+
+	Note that the exception doesn't just happen the first time you reload the status URL, but everytime.
+
+
+
+
+Marking "Fix in 1.3" until someone smarter then me about CoreAdminHandler says it's no big deal.

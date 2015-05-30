@@ -1,0 +1,59 @@
+When running the D4275.java repro attached to DERBY-4275 (with the patch invalidate-during-invalidation.diff as well as the fix for DERBY-5161 to prevent the select thread from failing) in four parallel processes on the same machine, one of the processes failed with the following stack trace:
+
+java.sql.SQLException: The exception 'java.sql.SQLException: The conglomerate (4,294,967,295) requested does not exist.' was thrown while evaluating an expression.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:98)
+        at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Util.java:142)
+        at org.apache.derby.impl.jdbc.Util.seeNextException(Util.java:278)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:407)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:348)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:2290)
+        at org.apache.derby.impl.jdbc.ConnectionChild.handleException(ConnectionChild.java:82)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1334)
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeStatement(EmbedPreparedStatement.java:1686)
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement.execute(EmbedPreparedStatement.java:1341)
+        at D4275.main(D4275.java:52)
+Caused by: java.sql.SQLException: The exception 'java.sql.SQLException: The conglomerate (4,294,967,295) requested does not exist.' was thrown while evaluating an expression.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(SQLExceptionFactory40.java:122)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:71)
+        ... 10 more
+Caused by: java.sql.SQLException: The conglomerate (4,294,967,295) requested does not exist.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(SQLExceptionFactory40.java:122)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:71)
+        at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Util.java:256)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:400)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:348)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:2290)
+        at org.apache.derby.impl.jdbc.ConnectionChild.handleException(ConnectionChild.java:82)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1334)
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeStatement(EmbedPreparedStatement.java:1686)
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeUpdate(EmbedPreparedStatement.java:308)
+        at org.apache.derby.catalog.SystemProcedures.SYSCS_COMPRESS_TABLE(SystemProcedures.java:792)
+        at org.apache.derby.exe.acd381409ax0131x72b6x8e11x0000037164a81.g0(Unknown Source)
+        at sun.reflect.GeneratedMethodAccessor1.invoke(Unknown Source)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+        at java.lang.reflect.Method.invoke(Method.java:597)
+        at org.apache.derby.impl.services.reflect.ReflectMethod.invoke(ReflectMethod.java:46)
+        at org.apache.derby.impl.sql.execute.CallStatementResultSet.open(CallStatementResultSet.java:75)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:448)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:319)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1242)
+        ... 3 more
+Caused by: ERROR XSAI2: The conglomerate (4,294,967,295) requested does not exist.
+        at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:278)
+        at org.apache.derby.impl.store.access.RAMAccessManager.getFactoryFromConglomId(RAMAccessManager.java:382)
+        at org.apache.derby.impl.store.access.RAMAccessManager.conglomCacheFind(RAMAccessManager.java:482)
+        at org.apache.derby.impl.store.access.RAMTransaction.findExistingConglomerate(RAMTransaction.java:394)
+        at org.apache.derby.impl.store.access.RAMTransaction.openConglomerate(RAMTransaction.java:1308)
+        at org.apache.derby.impl.sql.execute.DDLConstantAction.lockTableForDDL(DDLConstantAction.java:252)
+        at org.apache.derby.impl.sql.execute.AlterTableConstantAction.executeConstantActionBody(AlterTableConstantAction.java:364)
+        at org.apache.derby.impl.sql.execute.AlterTableConstantAction.executeConstantAction(AlterTableConstantAction.java:275)
+        at org.apache.derby.impl.sql.execute.MiscResultSet.open(MiscResultSet.java:61)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:448)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:319)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1242)
+        ... 15 more
+Test stopped after 9342310 ms
+
+The conglomerate number 4,294,967,295 looks suspicious, as it's equal to 2^32-1. Perhaps it's hitting some internal limit on the number of conglomerates? The test case used the in-memory back-end.

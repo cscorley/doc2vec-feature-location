@@ -1,0 +1,20 @@
+while following the example on pig wiki - 
+
+a = load '/mapred/history/done' using HadoopJobHistoryLoader() as (j:map[], m:map[], r:map[]);
+b = foreach a generate (Chararray) j#'STATUS' as status, j#'PIG_SCRIPT_ID' as id, j#'USER' as user, j#'JOBNAME' as script_name, j#'JOBID' as job;
+c = filter b by status != 'SUCCESS';
+dump c;
+
+when tried to parse /mapred/history logs, it fails to parse the job conf logs because in hadoop 1 the logs are stored as 
+
+job_201310301419_0001_conf.xml
+
+rathar than as per the code says line number 203 in hadoopjobhistoryloader.java 
+
+Path parent = full.getParent();
+                String jobXml = jobDetails[0] + "" + jobDetails[1] + ""
+                        + jobDetails[2] + "" + jobDetails[3] + ""
+                        + jobDetails[4] + "_conf.xml";
+                Path p = new Path(parent, jobXml);  
+
+attaching the patch

@@ -1,0 +1,10 @@
+Motivation:
+The learner syncs up with leader by retrieving committed log from the leader. Currently, the leader only keeps 500 entries of recently committed log in memory. If the learner falls behind more than 500 updates, the leader will send the entire snapshot to the learner. 
+
+With the size of the snapshot for some of our Zookeeper deployments (~10G), it is prohibitively expensive to send the entire snapshot over network. Additionally, our Zookeeper may serve more than 4K updates per seconds. As a result, a network hiccups for less than a second will cause the learner to use snapshot transfer.
+
+Design:
+Instead of looking only at committed log in memory, the leader will also look at transaction log on disk. The amount of transaction log kept on disk is configurable and the current default is 100k. This will allow Zookeeper to tolerate longer temporal network failure before initiating the snapshot transfer.  
+
+Implementation:
+We plan to add interface to the persistence layer will can be use to retrieve proposals from on-disk transaction log. These proposals can then be used to send to the learner using existing protocol. 

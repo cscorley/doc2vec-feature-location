@@ -1,0 +1,24 @@
+The test in the Summary fails intermittently.
+This is due to using a random number generator without seeding it.
+We should avoid stochastic tests.
+Furthermore, the test itself is ill conceived.
+
+Here the failure summary:
+
+
+12/10/23 11:02:48 WARN streaming.ExecutableManager: Property set in pig.streaming.environment not found in Configuration: ⻨ꢏ切歯
+12/10/23 11:02:48 WARN streaming.ExecutableManager: Property set in pig.streaming.environment not found in Configuration: 狓偝
+12/10/23 11:02:48 WARN streaming.ExecutableManager: Property set in pig.streaming.environment not found in Configuration: 墣챟㌌̀썬鼹騷
+12/10/23 11:02:48 WARN streaming.ExecutableManager: Property set in pig.streaming.environment not found in Configuration: 훎滼
+
+
+
+
+
+Error Message:
+There should be no remaining pairs in the included map
+
+Stacktrace:
+junit.framework.AssertionFailedError: There should be no remaining pairs in the included map
+	at org.apache.pig.impl.streaming.TestExecutableManager.testAddJobConfToEnv(TestExecutableManager.java:84)
+

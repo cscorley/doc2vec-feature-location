@@ -1,0 +1,16 @@
+TIKA-437 patch allowed Tika to work with OOXML files protected with the default VelvetSweatshop password. I feel there is room for improvement.
+
+
+	The POIFSContainerDetector lies when it sees such a file. It should be able to mark it as x-tika-ooxml
+	The OOXMLParser can't work with such a file. It should:
+	
+		If it's protected with the default password - it should be decrypted and processed normally.
+		If it's protected with a non-default password - the file should be marked as protected, no weird exceptions should appear.
+	
+	
+
+
+
+Therefore I'd like to add an 'if' to POIFSContainerDetector which returns x-tika-ooxml, and some code to OOXMLParser, which would be similar to the code currently residing in OfficeParser. After this improvement both the OfficeParser and the OOXMLParser will treat such files in the same way.
+
+When I have that, I can add a hack in my application, which will say "If the type is x-tika-ooxml and the name-based detection is a specialization of ooxml, then use the name-based detection". This will be a workaround for the fact that in MimeTypes, magic always trumps the name. With that, the encrypted DOCX files will appear with the normal DOCX mimetype in my app.

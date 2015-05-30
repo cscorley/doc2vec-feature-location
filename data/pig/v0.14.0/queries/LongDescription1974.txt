@@ -1,0 +1,9 @@
+The following script does not cast correctly:
+
+
+a = load '1.txt' as (m:map[]);
+b = foreach a generate (map[chararray])m;
+dump b;
+
+
+Pig throw warning that it cannot cast (map[chararray]) because caster is null.

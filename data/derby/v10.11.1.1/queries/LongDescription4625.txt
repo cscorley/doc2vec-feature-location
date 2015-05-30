@@ -1,0 +1,12 @@
+The TIMESTAMP function fails if the string argument specifies the number of nanoseconds. It works if the argument is limited to microsecond resolution.
+
+ij> values timestamp('2010-04-21 12:00:00.123456');
+1                         
+--------------------------
+2010-04-21 12:00:00.123456
+
+1 row selected
+ij> values timestamp('2010-04-21 12:00:00.123456789');
+ERROR 22008: '2010-04-21 12:00:00.123456789' is an invalid argument to the timestamp function.
+
+Since Derby (and JDBC) supports nanosecond resolution, the TIMESTAMP function should also support it.

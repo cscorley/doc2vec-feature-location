@@ -1,0 +1,5 @@
+Running mahout lucene.vector can result in a java StackOverFlowError.
+
+I think this is probably because the current implementation of LuceneIterator.computeNext() is recursive and with appropriate data the stack becomes too large. The recursion only occurs when you hit a document that doesn't have termvectors in the specified field - so you need a lucene.index with lots of documents lacking such in order to hit this problem.
+
+I've made minimal changes to convert to a loop rather than recurse and I'll attach a patch to this ticket.

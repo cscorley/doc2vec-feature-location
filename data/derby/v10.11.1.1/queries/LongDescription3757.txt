@@ -1,0 +1,51 @@
+When trying the DERBY-1764-V2.diff patch of DERBY-1764, I got this assertion running the test. It appears to be a bug iin Derby.
+
+1) testStressMulti(org.apache.derbyTesting.functionTests.tests.multi.StressMultiTest)java.sql.SQLException: Java exception: 'ASSERT FAILED transaction table has null entry: org.apache.derby.shared.common.sanity.AssertFailure'.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+        at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Util.java:87)
+        at org.apache.derby.impl.jdbc.Util.javaException(Util.java:244)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:403)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:346)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:2183)
+        at org.apache.derby.impl.jdbc.ConnectionChild.handleException(ConnectionChild.java:81)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1325)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:625)
+        at <unknown class>.<unknown method>(Unknown Source)
+        at org.apache.derbyTesting.functionTests.tests.multi.StressMultiTest$StressMultiRunnable.run(StressMultiTest.jav
+a:317)
+        at java.lang.Thread.run(Thread.java:803)
+Caused by: org.apache.derby.shared.common.sanity.AssertFailure: ASSERT FAILED transaction table has null entry
+        at org.apache.derby.shared.common.sanity.SanityManager.ASSERT(SanityManager.java:120)
+        at org.apache.derby.impl.store.raw.xact.TransactionTable.getTransactionInfo(TransactionTable.java:968)
+        at org.apache.derby.impl.store.raw.xact.XactFactory.getTransactionInfo(XactFactory.java:991)
+        at org.apache.derby.impl.store.raw.RawStore.getTransactionInfo(RawStore.java:1153)
+        at org.apache.derby.impl.store.access.RAMAccessManager.getTransactionInfo(RAMAccessManager.java:912)
+        at org.apache.derby.impl.services.locks.Deadlock.buildException(Deadlock.java:266)
+        at org.apache.derby.impl.services.locks.ConcurrentLockSet.lockObject(ConcurrentLockSet.java:613)
+        at org.apache.derby.impl.services.locks.AbstractPool.lockObject(AbstractPool.java:117)
+        at org.apache.derby.impl.store.raw.xact.RowLocking3.lockRecordForWrite(RowLocking3.java:248)
+        at org.apache.derby.impl.store.access.heap.HeapController.lockRow(HeapController.java:504)
+        at org.apache.derby.impl.store.access.heap.HeapController.lockRow(HeapController.java:638)
+        at org.apache.derby.impl.store.access.btree.index.B2IRowLocking3.lockRowOnPage(B2IRowLocking3.java:335)
+        at org.apache.derby.impl.store.access.btree.index.B2IRowLocking3._lockScanRow(B2IRowLocking3.java:628)
+        at org.apache.derby.impl.store.access.btree.index.B2IRowLockingRR.lockScanRow(B2IRowLockingRR.java:112)
+        at org.apache.derby.impl.store.access.btree.BTreeForwardScan.fetchRows(BTreeForwardScan.java:304)
+        at org.apache.derby.impl.store.access.btree.BTreeScan.fetchNext(BTreeScan.java:1809)
+        at org.apache.derby.impl.sql.execute.TableScanResultSet.getNextRowCore(TableScanResultSet.java:680)
+        at org.apache.derby.impl.sql.execute.IndexRowToBaseRowResultSet.getNextRowCore(IndexRowToBaseRowResultSet.java:3
+73)
+        at org.apache.derby.impl.sql.execute.ProjectRestrictResultSet.getNextRowCore(ProjectRestrictResultSet.java:255)
+        at org.apache.derby.impl.sql.execute.NormalizeResultSet.getNextRowCore(NormalizeResultSet.java:186)
+        at org.apache.derby.impl.sql.execute.DMLWriteResultSet.getNextRowCore(DMLWriteResultSet.java:127)
+        at org.apache.derby.impl.sql.execute.UpdateResultSet.collectAffectedRows(UpdateResultSet.java:424)
+        at org.apache.derby.impl.sql.execute.UpdateResultSet.open(UpdateResultSet.java:246)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:384)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1235)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:625)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(EmbedStatement.java:175)
+        at org.apache.derbyTesting.functionTests.tests.multi.StressMultiTest$StressMultiRunnable.update(StressMultiTest.
+java:471)
+        ... 2 more
+
+FAILURES!!!
+Tests run: 3, Failures: 0, Errors: 1 

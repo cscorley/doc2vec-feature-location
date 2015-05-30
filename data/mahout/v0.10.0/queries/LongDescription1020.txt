@@ -1,0 +1,23 @@
+Conversation with between Pat Ferrel and Jeff Eastman on the user list
+
+Hi Pat,
+
+I don't have a good answer here. Evidently, something in CDbw has become broken and you are the first to notice. When I run TestCDbwEvaluator, the values for k-means and fuzzy-k are clearly incorrect. The values for Canopy, MeanShift and Dirichlet are not so obviously incorrect but I remain suspicious. Something must have become broken in the recent clustering refactoring.
+
+From the method CDbwEvaluator.invalidCluster comment (used to enable pruning):
+
+	Return if the cluster is valid. Valid clusters must have more than 2 representative points,
+	and at least one of them must be different than the cluster center. This is because the
+	representative points extraction will duplicate the cluster center if it is empty.
+
+
+
+Oddly enough, inspection of the test log indicates that only k-means and fuzzy-k are not pruning clusters. Clearly some more investigation is needed. I will take a look at it tomorrow. In the mean time if you develop any additional insight please do share it with us.
+
+Thanks,
+Jeff
+
+On 5/17/12 3:53 PM, Pat Ferrel wrote:
+> I built a tool that iterates through a list of values for k on the same data and spits out the CDbw and ClusterEvaluator results each time.
+>
+> When the evaluator or CDbw prunes a cluster, how do I interpret that? They seem to throw out the same clusters on a given run. Also CDbw always returns an inter-cluster density of 0?

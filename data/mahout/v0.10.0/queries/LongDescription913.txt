@@ -1,0 +1,28 @@
+Guys I've still been seeing code committed that doesn't match standard Java style or a reasonable policy I can imagine. I wanted to talk about it since I've just been silently changing it and that is not ideal.
+
+This should be easy to get right, as automated tools exist to check and fix this. I recommend IntelliJ's free Community edition. Flip on even basic inspections. A hundred things will jump out (that are already jumping out at me). Most are automatically fixable. 
+
+I think that standardized, readable code invites attention, work and care: it feels like something you want to improve, and don't want to hack up.
+
+I think it helps attract committers. Strong engineering organizations wouldn't let basic style problems in the codebase, just by using automated checks. Code reviews don't begin otherwise, and then reviews focus on real issues like design. We can make a basic effort to approach that level of quality. Otherwise, people who are used to a higher standard won't be inclined to participate in the project, and will just fork.
+
+I think it's a prerequisite to fixing real design issues, TODOs, correctness problems (cloning for instance), and refactorings. This code is not near that point, and won't get there at this rate. 
+
+Personally it makes we want to only support anything I've written, and write any "next generation" recommender system in a new and separate venture. And I'm a friendly, and maybe not the only one! So would be great to keep some focus on quality and design.
+
+Here's a patch showing all the changes I've picked up and made with the IDE – just basic style issues, and just since the last 2 weeks. The issues are, among others:
+
+	⁃	Empty javadoc
+	⁃	Redundant javadoc ("@param foo the foo")
+	⁃	Missing copyright headers
+	⁃	Copyright headers not at top of file (sometimes after imports!)
+	⁃	Very long lines (>> 120 chars)
+	⁃	"throws Exception" not on main() or test method
+	⁃	"transient" fields – should never be used for us
+	⁃	Missing @Override
+	⁃	Using new Random()
+	⁃	Redundant boolean expressions like "foo == true"
+	⁃	Unused variables and parameters
+	⁃	Unused imports
+	⁃	Loops and conditionals without braces
+	⁃	Weird literals ("1d")

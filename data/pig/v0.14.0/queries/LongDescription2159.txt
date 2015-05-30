@@ -1,0 +1,24 @@
+The below is my script;
+
+
+A = load 'input1' using PigStorage(',')  as (f1:int,f2:int,f3:int,f4:long,f5:double);
+B = load 'input2' using PigStorage(',')  as (f1:int,f2:int,f3:int,f4:long,f5:double);
+C = load 'input_Main' using PigStorage(',')  as (f1:int,f2:int,f3:int);
+U = UNION ONSCHEMA A,B;
+J = join C by (f1,f2,f3) LEFT OUTER, U by (f1,f2,f3);
+Porj = foreach J generate C::f1 as f1 ,C::f2 as f2,C::f3 as f3,U::f4 as f4,U::f5 as f5;
+G = GROUP Porj by (f1,f2,f3,f5);
+Final = foreach G generate SUM(Porj.f4) as total;
+dump Final;
+
+
+
+
+The script fails at while computing the sum with class cast exception.
+Caused by: java.lang.ClassCastException: java.lang.Long cannot be cast to java.lang.Double
+         at org.apache.pig.builtin.DoubleSum$Initial.exec(DoubleSum.java:82)
+         ... 19 more
+
+This is clearly a bug in the logical plan created in 0.9. The sum operation should have processed using org.apache.pig.builtin.LongSum, but instead 0.9 logical plan have used org.apache.pig.builtin.DoubleSum which is meant for sum of doubles. And hence the ClassCastException.
+
+The same script works fine with Pig 0.8.

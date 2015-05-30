@@ -1,0 +1,48 @@
+In some cases it is beneficial to allow empty and duplicate Tika metadata values for multi-valued XML elements like RDF bags.
+
+Consider an example where the original source metadata is structured something like:
+
+
+<Person>
+  <FirstName>John</FirstName>
+  <LastName>Smith</FirstName>
+</Person>
+<Person>
+  <FirstName>Jane</FirstName>
+  <LastName>Doe</FirstName>
+</Person>
+<Person>
+  <FirstName>Bob</FirstName>
+</Person>
+<Person>
+  <FirstName>Kate</FirstName>
+  <LastName>Smith</FirstName>
+</Person>
+
+
+
+and since Tika stores only flat metadata we transform that before invoking a parser to something like:
+
+
+ <custom:FirstName>
+  <rdf:Bag>
+   <rdf:li>John</rdf:li>
+   <rdf:li>Jane</rdf:li>
+   <rdf:li>Bob</rdf:li>
+   <rdf:li>Kate</rdf:li>
+  </rdf:Bag>
+ </custom:FirstName>
+ <custom:LastName>
+  <rdf:Bag>
+   <rdf:li>Smith</rdf:li>
+   <rdf:li>Doe</rdf:li>
+   <rdf:li></rdf:li>
+   <rdf:li>Smith</rdf:li>
+  </rdf:Bag>
+ </custom:LastName>
+
+
+
+The current behavior ignores empties and duplicates and we don't know if Bob or Kate ever had last names.  Empties or duplicates in other positions result in an incorrect mapping of data.
+
+We should allow the option to create an ElementMetadataHandler which allows empty and/or duplicate values.

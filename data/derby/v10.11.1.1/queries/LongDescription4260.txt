@@ -1,0 +1,5 @@
+The NetworkServerControlClientCommandTest has in it a check that will only run the test if the locale is set to 'en'.
+
+It is open to suggestion the how to achieve this and whether it should be done. Since the test is a pretty generic one, I think it should be ran regardless of the locale.
+
+Knut suggested we'd force the locale to 'en' on the setUp() and back to its previous value on the tearDown(). On a first analysis this seems like the ideal method to go about it. Just removing the check for the locale altogether might not be wise because of the calls to assertFailedPing() that involve some hardcoded strings.

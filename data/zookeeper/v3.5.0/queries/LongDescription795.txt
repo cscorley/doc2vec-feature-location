@@ -1,0 +1,21 @@
+Hi,
+
+I notice a problem with the eventThread located in ClientCnxn.java file.
+The eventThread isn't shutdown after a connection "session expired" event coming (i.e. never receive EventOfDeath).
+
+When a session timeout occurs and the session is marked as expired, the connexion is fully closed (socket, SendThread...) expect for the eventThread.
+As a result, if i create a new zookeeper object and connect through it, I got a zombi thread which will never be kill (as for the previous zookeeper object, the state is already close, calling close again don't do anything).
+
+So everytime I will create a new zookeeper connection after a expired session, I will have a one more zombi EventThread.
+
+How to reproduce :
+
+	Start a zookeeper client connection in debug mode
+	Pause the jvm enough time to the expired event occur
+	Watch for example with jvisualvm the list of threads, the sendThread is succesfully killed, but the EventThread go to wait state for a infinity of time
+	if you reopen a new zookeeper connection, and do again the previous steps, another EventThread will be present in infinite wait state
+
+
+
+
+

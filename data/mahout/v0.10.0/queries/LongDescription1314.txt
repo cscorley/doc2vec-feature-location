@@ -1,0 +1,22 @@
+when REDUCE_STREAMING_KMEANS option is set to true (-rskm) the reducer fails with NullPointerException.
+
+the problem is in the reduce method itself: on line 60 ( return input.getCentroid(); )
+it should be input.getCentroid().clone();
+similar to line 81.
+
+full stack trace: 
+java.lang.NullPointerException
+	at com.google.common.base.Preconditions.checkNotNull(Preconditions.java:191)
+	at org.apache.mahout.math.random.WeightedThing.<init>(WeightedThing.java:31)
+	at org.apache.mahout.math.neighborhood.BruteSearch.searchFirst(BruteSearch.java:133)
+	at org.apache.mahout.clustering.ClusteringUtils.estimateDistanceCutoff(ClusteringUtils.java:100)
+	at org.apache.mahout.clustering.streaming.mapreduce.StreamingKMeansThread.call(StreamingKMeansThread.java:64)
+	at org.apache.mahout.clustering.streaming.mapreduce.StreamingKMeansReducer.reduce(StreamingKMeansReducer.java:66)
+	at org.apache.mahout.clustering.streaming.mapreduce.StreamingKMeansReducer.reduce(StreamingKMeansReducer.java:1)
+	at org.apache.hadoop.mapreduce.Reducer.run(Reducer.java:176)
+	at org.apache.hadoop.mapred.ReduceTask.runNewReducer(ReduceTask.java:650)
+	at org.apache.hadoop.mapred.ReduceTask.run(ReduceTask.java:418)
+	at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:260)
+
+
+it happens every time the REDUCE_STREAMING_KMEANS is set to true.

@@ -1,0 +1,14 @@
+WHAT:
+This patch allows to configure in the multicore.xml the parent class loader of all core class loaders used to dynamically create instances.
+
+WHY:
+Current behavior allocates one class loader per config & thus per core.
+However, there are cases where one would like different cores to share some objects that are dynamically instantiated (ie, where the class name is used to find the class through the class loader and instantiate). In the current form; since each core possesses its own class loader, static members are indeed different objects. For instance, there is no way of implementing a singleton shared between 2 request handlers.
+
+Originally from http://www.nabble.com/Post-SOLR215-SOLR350-singleton-issue-tf4776980.html
+
+HOW:
+The sharedLib attribute is extracted from the XML (multicore.xml) configuration file and parsed in the MultiCore load method. The directory path is used to create an URL class loader that will become the parent class loader of all core class loaders; since class resolution if performed on a parent-first basis, this allows sharing instances between different cores.
+
+STATUS:
+operational in conjunction with solr-350

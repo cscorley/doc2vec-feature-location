@@ -1,0 +1,11 @@
+I was incited by some comments on twitter to make our SVD-based recommendation code work on the KDD data. Here's the results so far:
+
+The patch contains a tweaked version of ExpectationMaximizationSVDFactorizer (org.apache.mahout.cf.taste.example.kddcup.track1.svd.ParallelArraysSGDFactorizer) in the examples module, that is able to load and process the KDD dataset with a constant memory usage of approximately 7 gb (by using primitive arrays for everything). 
+
+It's still very slow unfortunately, a factorization using 40 features and 25 iterations took 10 hours on my desktop PC. As far as I understand the math behind it, the algorithm is not parallelizable but maybe someone might be able to improve my implementation or make it compute several factorizations at once.
+
+I took a wild guess on the parameters and got an RMSE of 23.35 to the validation set and and RMSE of 26.1287 to the secret test ratings (that's rank 63 by the time of this writing).
+
+Would love to see people play with this code and improve it!
+
+In order to use this, have a look at the parameters in org.apache.mahout.cf.taste.example.kddcup.track1.svd.Track1SVDRunner, change them as you see fit and run that class with the path to the kdd data directory and the path to the file you wanna have the results stored in as arguments. In my tests I used -Xms6700M -Xmx6700M to give the JVM enough memory for 40 features.

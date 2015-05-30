@@ -1,0 +1,23 @@
+The work on DERBY-64 seems to have opened up a wormhole by which you can create user tables with BOOLEAN columns. The following script shows how to do this:
+
+drop table foo;
+
+create table foo
+as select systemalias from sys.sysaliases with no data;
+rename column foo.systemalias to boolcol;
+alter table foo
+  alter column boolcol null;
+
+select c.columndatatype
+from sys.syscolumns c, sys.systables t
+where t.tableid=c.referenceid
+and t.tablename='FOO';
+
+insert into foo( boolcol )
+values
+( 0 ),
+( 1 ),
+( cast (null as int) )
+;
+
+select * from foo;

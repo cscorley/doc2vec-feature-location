@@ -1,0 +1,24 @@
+When parsing some dwg items, it is possible that the parser may cause itself to go into an infinite loop.
+
+Attached is the file causing the problem.
+
+Here is a possible patch that will at least proceed until an error is thrown.
+
+
+=== modified file 'tika-parsers/src/main/java/org/apache/tika/parser/dwg/DWGParser.java'
+--- tika-parsers/src/main/java/org/apache/tika/parser/dwg/DWGParser.java        2011-11-24 11:30:33 +0000
++++ tika-parsers/src/main/java/org/apache/tika/parser/dwg/DWGParser.java        2011-11-25 05:27:41 +0000
+@@ -274,8 +274,10 @@
+             return false;
+         }
+         while (toSkip > 0) {
+-            byte[] skip = new byte[Math.min((int) toSkip, 0x4000)];
+-            IOUtils.readFully(stream, skip);
++            byte[] skip = new byte[(int) Math.min(toSkip, 0x4000)];
++            if (IOUtils.readFully(stream, skip) == -1) {
++               return false; //invalid skip
++            }
+             toSkip -= skip.length;
+         }
+         return true;
+

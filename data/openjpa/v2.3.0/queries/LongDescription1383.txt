@@ -1,0 +1,22 @@
+A few tests fail if built on a non-US locale (using de.AT here):
+
+
+java.text.ParseException: Unparseable date: "10/01/2008 1:51 AM"
+ at java.text.DateFormat.parse(DateFormat.java:337) 
+ at org.apache.openjpa.persistence.query.results.TestJPQLMultiSelectTypedResults.populate(TestJPQLMultiSelectTypedResults.java:73)
+ at org.apache.openjpa.persistence.query.results.TestJPQLMultiSelectTypedResults.setUp(TestJPQLMultiSelectTypedResults.java:55)
+
+
+
+tests in error:
+
+  testMultipleConstructor(org.apache.openjpa.persistence.query.results.TestJPQLMultiSelectTypedResults)
+  testMultipleConstructorMixWithMultiSelect(org.apache.openjpa.persistence.query.results.TestJPQLMultiSelectTypedResults)
+  testMultiSelect(org.apache.openjpa.persistence.query.results.TestJPQLMultiSelectTypedResults)
+  testMultiSelect(org.apache.openjpa.persistence.criteria.results.TestTypedResults)
+  testTypedJPQLQuery(org.apache.openjpa.persistence.criteria.results.TestTypedResults)
+  testDateQuery(org.apache.openjpa.persistence.criteria.results.TestTypedResults)
+
+
+
+Please manually set the proper Locale in the tests

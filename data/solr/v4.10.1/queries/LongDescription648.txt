@@ -1,0 +1,8 @@
+from http://mail-archives.apache.org/mod_mbox/lucene-solr-user/200807.mbox/%3cC4AC838E.ADE7%25jonathan_lee@comcast.com%3e
+
+"I believe there is a bug in IndexBased- and FileBasedSpellChecker.java
+where the analyzer variable is only set on the build command. Therefore,
+when the index is reloaded, but not built after starting solr, issuing a
+query with the spellcheck.q parameter will cause a NullPointerException to
+be thrown (SpellCheckComponent.java:158). Moving the analyzer logic to the
+constructor seems to fix the problem."

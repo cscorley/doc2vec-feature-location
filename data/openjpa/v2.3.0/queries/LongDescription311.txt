@@ -1,0 +1,9 @@
+The root of the problem appears to be in the GeneratedClasses.getMostDerivedLoader method. 
+
+GetMostDerivedLoader takes two classes (class1 & class2) gets their respective classloaders (classloader1, & classloader2 respectively) and looks for a match. If the classloaders are not the same, and neither is null it calls getParent on classloader1 until classloader2 is found, or until there are no more parent loaders. If a match is found the mostDerivedLoader is considered to be classloader1, if no match is found we use classloader2. 
+
+The problem comes in when you have an OSGI classloader involved. The specific scenario I ran into has classloader1 calling getParent and encountering an OSGI gateway classloader, but not classloader2 (which is behind the OSGI gateway). Conceptually classloader2 is a parent of classloader1, but the OSGI gateway classloader hides it and we aren't able to find it. 
+
+I'm probably mangling the OSGI terminology a bit but I think this captures the essence of the problem. 
+
+It seems to me that the intent of the getMostDerivedLoader is to ensure that we use a classloader that has the "right" version of class2, preferring classloader1. If that's the case then would it be possible to just try to load class2 from classloader1 and compare the result to the original class? I believe this approach would work for OSGI classloaders, but I have a nagging feeling that I'm missing something. 

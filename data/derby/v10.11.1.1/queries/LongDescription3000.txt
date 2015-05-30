@@ -1,0 +1,38 @@
+The DatabaseMetaData.getTables() call below causes this error with 10.3.  10.2 is fine.
+
+import java.sql.*;
+
+public class GetTables {
+
+    public static void main(String[] args) throws Exception {
+	Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+	Connection conn = DriverManager.getConnection("jdbc:derby:wombat;create=true");
+	ResultSet tableRS = conn.getMetaData().getTables(null,
+							 null, null, new String[]
+{"TABLE", "GLOBAL TEMPORARY", "LOCAL TEMPORARY", "ALIAS", "SYNONYM"}
+);
+
+	tableRS.close();
+	conn.close();
+    }
+
+}
+
+
+[C:/kmarsden/repro/2976] java GetTables
+Exception in thread "main" java.sql.SQLException: The parameter position '8' is out of range.  The number of parameters
+for this prepared  statement is '7'.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+        at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Util.java:202)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:391)
+        at org.apache.derby.impl.jdbc.EmbedResultSet.noStateChangeException(EmbedResultSet.java:4414)
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement.setString(EmbedPreparedStatement.java:495)
+        at org.apache.derby.impl.jdbc.EmbedDatabaseMetaData.getTables(EmbedDatabaseMetaData.java:1766)
+        at GetTables.main(GetTables.java:8)
+Caused by: ERROR XCL13: The parameter position '8' is out of range.  The number of parameters for this prepared  stateme
+nt is '7'.
+        at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:301)
+        at org.apache.derby.impl.sql.GenericParameterValueSet.checkPosition(GenericParameterValueSet.java:317)
+        at org.apache.derby.impl.sql.GenericParameterValueSet.getParameterForSet(GenericParameterValueSet.java:174)
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement.setString(EmbedPreparedStatement.java:492)
+        ... 2 more

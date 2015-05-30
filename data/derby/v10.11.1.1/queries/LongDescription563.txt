@@ -1,0 +1,7 @@
+Back with DERBY-334 some experimental XML support was added to Derby, including an XML datatype and three corresponding operators (see that issue for more details).  Two tests (lang/xml_general.sql and lang/xmlBinding.java) were included in that patch but were "disabled" because current XML support requires Apache Xerces to be in classpath and I didn't want to force people to download Xerces in order to get a clean run of "derbyall".
+
+That said, I think an XML suite should be created to include the two tests mentioned above for now, and as Derby's support for XML grows in the future, that suite can hold additional tests.
+
+Also, I tried running the tests with Xerces in my classpath and they both failed--it turns out that entries for the tests are missing from the .../functionTests/tests/lang/copyfiles.ant file.  So that problem should be fixed as part of this issue, as well.
+
+NOTE: This issue involves creating a suite to run the existing tests while assuming that the person running the tests has Xerces in his/her classpath.  Another improvement, for which I will file a different Jira issue, would be to change Derby so that it can somehow find the XML parser that comes with the user's JVM (current XML support requires at least a 1.4 JVM), in which case no additional XML parser would be required.  More coming on that in a separate Jira issue...

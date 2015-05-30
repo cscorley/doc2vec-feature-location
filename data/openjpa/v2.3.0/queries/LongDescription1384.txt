@@ -1,0 +1,63 @@
+Trying to use EJB3 and Servlets, I have a custom DBDictionary that I would like to use.  If I use the default DBDictionary, everything works fine.
+
+When OpenJPA tries to load the custom DBDictionary, I get a ClassNotFound Exception
+
+[11/2/09 14:04:54:077 EST] 00000030 BusinessExcep E   CNTR0020E: EJB    
+threw an unexpected (non-declared) exception during invocation of method "preLoadCache" on bean 
+"BeanId(STA_Test#STA_Service-EJB_Test.jar#AllowableValueEjb, null)".    Exception data:  com.siemens.soarian.se.soa.exception.SoarianUnknownException: Exception 
+ID: ErrorNamespace:se.sta.unknownRuntimeInRSF DisplayErrorCode:SRN00001 ErrorMessage:Exception caught at RSF in method:  
+............        
+Caused by: <openjpa-1.2.1-SNAPSHOT+OPENJPA-679-Final-r422266:746282     
+fatal user error> org.apache.openjpa.persistence.ArgumentException:     
+com.siemens.soarian.se.persist.extensions.SoarianSQLServerJPADBDictionary                                                                       
+ at org.apache.openjpa.jdbc.sql.DBDictionaryFactory.newDBDictionary(DBDictionaryFactory.java:128)                                                   
+ at org.apache.openjpa.jdbc.sql.DBDictionaryFactory.newDBDictionary(DBDictionaryFactory.java:66)                                                    
+ at  org.apache.openjpa.jdbc.conf.JDBCConfigurationImpl.getDBDictionaryInstance(JDBCConfigurationImpl.java:538)                                      
+at   org.apache.openjpa.jdbc.meta.MappingRepository.endConfiguration(MappingRepository.java:1265)                                                    
+ at   org.apache.openjpa.lib.conf.Configurations.configureInstance(Configurations.java:505)                                                           
+ at  org.apache.openjpa.lib.conf.Configurations.configureInstance(Configurations.java:430)                                                           
+ at  org.apache.openjpa.lib.conf.PluginValue.instantiate(PluginValue.java:103
+at org.apache.openjpa.conf.MetaDataRepositoryValue.instantiate(MetaDataRepositoryValue.java:68)                                                    
+ at    org.apache.openjpa.lib.conf.ObjectValue.instantiate(ObjectValue.java:83)
+ at   org.apache.openjpa.conf.OpenJPAConfigurationImpl.newMetaDataRepositoryInstance(OpenJPAConfigurationImpl.java:863)                               
+ at  org.apache.openjpa.conf.OpenJPAConfigurationImpl.getMetaDataRepositoryInstance(OpenJPAConfigurationImpl.java:854)                               
+ at org.apache.openjpa.kernel.AbstractBrokerFactory.makeReadOnly(AbstractBrokerFactory.java:638)                                                    
+ at    org.apache.openjpa.kernel.AbstractBrokerFactory.newBroker(AbstractBrokerFactory.java:183)                                                       
+ at  org.apache.openjpa.kernel.DelegatingBrokerFactory.newBroker(DelegatingBrokerFactory.java:142)                                                   
+ at  org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityMana(EntityManagerFactoryImpl.java:192)                                     
+ at com.ibm.ws.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:63)                                           
+ at  com.ibm.ws.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:27)                                           
+ at    com.ibm.ws.jpa.management.JPAEMPool.getEntityManager(JPAEMPool.java:126)
+at com.ibm.ws.jpa.management.JPATxEntityManager.getEMInvocationInfo(JPATxEntityManager.java:226)                                                   
+ at  com.ibm.ws.jpa.management.JPAEntityManager.getDelegate(JPAEntityManager.java:367)                                                               
+ at   org.apache.openjpa.persistence.OpenJPAPersistence.cast(OpenJPAPersistence.java:63)                                                              
+ at  com.siemens.soarian.se.soa.server.EMFHelper.verifyConnectionMeetsStandards(EMFHelper.java:167)                                                  
+ at  com.siemens.soarian.se.soa.server.EMFHelper.getContainerEntityManager(EMFHelper.java:229)                                                       
+ at   com.siemens.soarian.se.soa.server.EMFHelper.getEntityManager(EMFHelper.java:109)                                                                
+at com.siemens.soarian.se.av.dao.AdaptabilityDAO.setupEM(AdaptabilityDAO.java:92)                                                                  
+ at com.siemens.soarian.se.av.dao.AdaptabilityDAO.<init>(AdaptabilityDAO.java:84)                                                                   
+ at com.siemens.soarian.se.av.applicationtask.AllowableValueCacheAT.<init>(AllowableValueCacheAT.java:37)                                           
+at  com.siemens.soarian.se.av.applicationservice.AllowableValueAS.clearCache(AllowableValueAS.java:84)                                              
+ at com.siemens.soarian.se.av.ejb.AllowableValueServiceBean$3.execute(AllowableValueServiceBean.java:277)                                           
+ at com.siemens.soarian.se.soa.server.RSFAction.go(RSFAction.java:92)   
+ ... 42 more                                                            
+Caused by: java.lang.ClassNotFoundException:                            
+com.siemens.soarian.se.persist.extensions.SoarianSQLServerJPADBDictionary                                                                       
+ at java.lang.Class.forNameImpl(Native Method)                          
+ at java.lang.Class.forName(Class.java:169)                             
+ at  org.apache.openjpa.jdbc.sql.DBDictionaryFactory.newDBDictionary(DBDictionaryFactory.java:119)                                                   
+ ... 71 more                                                            
+...                                                                     
+...                                                                     
+The root cause is what I am looking at here:                            
+.                                                                       
+.                                                                       
+Caused by: java.lang.ClassNotFoundException:                            
+com.siemens.soarian.se.persist.extensions.SoarianSQLServerJPADBDictionar
+y                                                                       
+ at java.lang.Class.forNameImpl(Native Method)                          
+ at java.lang.Class.forName(Class.java:169)                             
+ at                                                                     
+org.apache.openjpa.jdbc.sql.DBDictionaryFactory.newDBDictionary(DBDictio
+naryFactory.java:119)                                                   
+ ... 71 more                                                            

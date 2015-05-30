@@ -1,0 +1,133 @@
+Client xa prepare returns XA_OK instead of  XA_RDONLY for a read only transaction
+
+The code below checks the return value of XaResource.prepare to decide whether to commit the transaction.   The prepare return value is XA_OK ( 0)  for client when it should be XA_RDONLY(3)
+
+D>java ReadOnlyTran derbycli
+10.2.0.0 alpha
+Apache Derby
+Apache Derby Network Client JDBC Driver
+table already exists
+==>: 1
+XAResource.XA_RDONLY3
+XAResource.XA_OK0
+prp1 is: 0
+Exception in thread "main" org.apache.derby.client.am.XaException: XAER_NOTA : Error executing a XAResource.commit(), Server returned XAER_NOTA
+        at org.apache.derby.client.net.NetXAResource.throwXAException(NetXAResource.java:728)
+        at org.apache.derby.client.net.NetXAResource.commit(NetXAResource.java:216)
+        at ReadOnlyTran.main(ReadOnlyTran.java:94)
+Caused by: org.apache.derby.client.am.SqlException: Error executing a XAResource.commit(), Server returned XAER_NOTA
+        at org.apache.derby.client.net.NetXAResource.xaRetValErrorAccumSQL(NetXAResource.java:976)
+        at org.apache.derby.client.net.NetXAResource.commit(NetXAResource.java:204)
+        ... 1 more
+D>
+
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import javax.sql.XAConnection;
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+
+import com.ibm.db2.jcc.DB2Xid;
+
+class ReadOnlyTran  
+{
+
+
+    public static void main (String args [])throws Exception 
+    {
+    	//org.apache.derby.jdbc.ClientConnectionPoolDataSource ds = new org.apache.derby.jdbc.ClientConnectionPoolDataSource();
+    	org.apache.derby.jdbc.ClientXADataSource ds = new 
+		org.apache.derby.jdbc.ClientXADataSource();
+    	//org.apache.derby.jdbc.EmbeddedXADataSource ds = new 
+		//org.apache.derby.jdbc.EmbeddedXADataSource();
+    	Connection conn = null;
+    	ds.setDatabaseName("sample");
+		ds.setTraceFile("trace.out");
+    	ds.setConnectionAttributes("create=true");
+
+         conn = ds.getConnection();
+        PreparedStatement ps1 = null;
+         try
+         
+{
+             DatabaseMetaData md = conn.getMetaData() ;
+             
+System.out.println(md.getDatabaseProductVersion());
+             System.out.println(md.getDatabaseProductName());
+             ps1 = conn.prepareStatement("CREATE TABLE TAB1(COL1 INT NOT NULL)");
+             ps1.executeUpdate();
+        	 System.out.println("done creating  table");
+             conn.commit ();
+         }
+ catch (SQLException x)
+         {
+             System.out.println ("table already exists");
+         }                 
+
+        XAConnection pc1 = ds.getXAConnection();
+        XAResource xar1 = pc1.getXAResource();
+        Xid xid1 = createXid(11);
+        xar1.start(xid1, XAResource.TMNOFLAGS);
+        Connection conn1 = pc1.getConnection();             
+        doSelect(conn1, 50);
+		//doInsert(conn1);
+        conn1.close();
+        xar1.end(xid1, XAResource.TMSUCCESS);
+
+        int prp1 = xar1.prepare(xid1);
+
+        System.out.println("XAResource.XA_RDONLY" + 
+XAResource.XA_RDONLY);
+        System.out.println("XAResource.XA_OK" + 
+XAResource.XA_OK);
+        System.out.println("prp1 is: " + prp1);
+        // Commit transaction
+        if (prp1 == XAResource.XA_OK)
+           xar1.commit(xid1, false);
+
+        // Close physical connection
+        pc1.close();
+      }
+
+
+    private static void doSelect(Connection conn, int deptno) 
+throws SQLException 
+    {
+        Statement stmt = conn.createStatement();
+        ResultSet rset1 = stmt.executeQuery("select * from tab1");
+        while (rset1.next())
+        {
+        	System.out.println("==>: " + rset1.getString(1));
+        }
+
+        stmt.close();
+        stmt = null;
+    }
+
+	private static void doInsert(Connection conn) throws SQLException
+	{
+        Statement stmt = conn.createStatement();
+		stmt.executeUpdate("Insert into tab1 values(1)");
+		stmt.close();
+	}
+
+    static Xid createXid(int bids) throws XAException 
+{
+        byte[] gid = new byte[1];
+        gid[0] = (byte) 9;
+        byte[] bid = new byte[1];
+        bid[0] = (byte) bids;
+        byte[] gtrid = new byte[64];
+        byte[] bqual = new byte[64];
+        System.arraycopy(gid, 0, gtrid, 0, 1);
+        System.arraycopy(bid, 0, bqual, 0, 1);
+        Xid xid = new DB2Xid(0x1234, gtrid, bqual);
+        return xid;
+    }
+}

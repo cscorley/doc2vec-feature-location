@@ -1,0 +1,5 @@
+When the lower 32bits of a zxid "roll over" (zxid is a 64 bit number, however the upper 32 are considered the epoch number) the epoch number (upper 32 bits) are incremented and the lower 32 start at 0 again.
+
+This should work fine, however in the current 3.3 branch the followers see this as a NEWLEADER message, which it's not, and effectively stop serving clients. Attached clients seem to eventually time out given that heartbeats (or any operation) are no longer processed. The follower doesn't recover from this.
+
+I've tested this out on 3.3 branch and confirmed this problem, however I haven't tried it on 3.4/3.5. It may not happen on the newer branches due to ZOOKEEPER-335, however there is certainly an issue with updating the "acceptedEpoch" files contained in the datadir. (I'll enter a separate jira for that)

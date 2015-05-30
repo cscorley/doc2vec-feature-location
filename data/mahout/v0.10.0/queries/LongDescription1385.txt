@@ -1,0 +1,3 @@
+The Caching... line of encoders contains code of caching the hash code terms added to the vector. However, the method "hashForProbe" inside this classes is never called as the signature has String for the parameter original form (instead of byte[] like other encoders).
+
+Changing this to byte[] however would lose the java String internal caching of the Strings hash code , that is used as a key in the cache map, triggering another hash code calculation.

@@ -1,0 +1,52 @@
+As far as I know, this bug is not related to DERBY-428 bug.
+I got this bug both on 10.1.3.1 and 10.1.2.1 - an ArrayIndexOutOfBoundsException in DDMReader (in Network Server).
+
+To reproduce the bug:
+1. Compile the attached DerbyTest.java
+2. Start the Network Server (startNetworkServer.bat under Windows)
+3. Run: java DerbyTest
+
+On client side you get:
+org.apache.derby.client.am.DisconnectException: The DDM object is not supported.  Unsupported DDM object code point: 0x0
+        at org.apache.derby.client.net.NetConnectionReply.doObjnsprmSemantics(Unknown Source)
+        at org.apache.derby.client.net.NetConnectionReply.parseCommonError(Unknown Source)
+        at org.apache.derby.client.net.NetStatementReply.parseExecuteError(Unknown Source)
+        at org.apache.derby.client.net.NetStatementReply.parseEXCSQLSTTreply(Unknown Source)
+        at org.apache.derby.client.net.NetStatementReply.readExecute(Unknown Source)
+        at org.apache.derby.client.net.StatementReply.readExecute(Unknown Source)
+        at org.apache.derby.client.net.NetPreparedStatement.readExecute_(Unknown Source)
+        at org.apache.derby.client.am.PreparedStatement.readExecute(Unknown Source)
+        at org.apache.derby.client.am.PreparedStatement.flowExecute(Unknown Source)
+        at org.apache.derby.client.am.PreparedStatement.executeX(Unknown Source)
+        at org.apache.derby.client.am.PreparedStatement.execute(Unknown Source)
+        at DerbyTest.main(DerbyTest.java:479)
+
+On server side you get:
+java.lang.ArrayIndexOutOfBoundsException
+        at java.lang.System.arraycopy(Native Method)
+        at org.apache.derby.impl.drda.DDMReader.compressBLayerData(Unknown Source)
+        at org.apache.derby.impl.drda.DDMReader.ensureBLayerDataInBuffer(Unknown Source)
+        at org.apache.derby.impl.drda.DDMReader.readNetworkShort(Unknown Source)
+        at org.apache.derby.impl.drda.DDMReader.readLDStringData(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.readAndSetParams(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.parseSQLDTA_work(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.parseSQLDTA(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.parseEXCSQLSTTobjects(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.parseEXCSQLSTT(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.processCommands(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.run(Unknown Source)
+agentThread[DRDAConnThread_11,5,main]
+null
+java.lang.ArrayIndexOutOfBoundsException
+        at java.lang.System.arraycopy(Native Method)
+        at org.apache.derby.impl.drda.DDMReader.compressBLayerData(Unknown Source)
+        at org.apache.derby.impl.drda.DDMReader.ensureBLayerDataInBuffer(Unknown Source)
+        at org.apache.derby.impl.drda.DDMReader.readNetworkShort(Unknown Source)
+        at org.apache.derby.impl.drda.DDMReader.readLDStringData(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.readAndSetParams(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.parseSQLDTA_work(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.parseSQLDTA(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.parseEXCSQLSTTobjects(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.parseEXCSQLSTT(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.processCommands(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.run(Unknown Source)

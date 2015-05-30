@@ -1,0 +1,15 @@
+A derby crash at exactly wrong time during a btree split can cause a corrupt db which can not be booted.
+
+A problem in the split code and exact wrong timing of a crash can leave the database in as state 
+where undo of purge operations corrupts index pages during redo and can cause recovery boot
+to never succeed and thus the database never to be booted.  At hight level what happens is that
+a purge happens on a page and before it commits another transactions uses the space of the
+purge to do an insert and then commits, then the system crashes before the purging transactions
+gets a chance to commit.  During undo the purge expects there to be space to undo the purge
+but there is not, and it corrupts the page in various ways depending on the size and placement
+of the inserts.  The error that actually returns to user varies from sane to insane as the problem
+is actually noticed after the corruption occurs rather than during the undo.
+
+
+
+

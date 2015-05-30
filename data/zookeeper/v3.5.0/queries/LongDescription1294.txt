@@ -1,0 +1,57 @@
+In zoo.cfg i have configured as
+server.1 = XX.XX.XX.XX:65175:65173
+server.2 = XX.XX.XX.XX:65185:65183
+server.3 = XX.XX.XX.XX:65195:65193
+server.4 = XX.XX.XX.XX:65205:65203:observer
+server.5 = XX.XX.XX.XX:65215:65213:observer
+server.6 = XX.XX.XX.XX:65225:65223:observer
+
+Like above I have configured 3 PARTICIPANTS and 3 OBSERVERS
+in the cluster of 6 zookeepers
+
+Steps to reproduce the defect
+1. Start all the 3 participant zookeeper
+2. Stop all the participant zookeeper
+3. Start zookeeper 1(Participant)
+4. Start zookeeper 2(Participant)
+5. Start zookeeper 4(Observer)
+6. Create a persistent node with external client and close it
+7. Stop the zookeeper 1(Participant neo quorum is unstable)
+8. Create a new client and try to find the node created b4 using exists api (will fail since quorum not statisfied)
+9. Start the Zookeeper 1 (Participant stabilise the quorum)
+
+Now check the observer using 4 letter word (Server.4)
+linux-216:/home/amith/CI/source/install/zookeeper/zookeeper2/bin # echo stat | netcat localhost 65200
+Zookeeper version: 3.3.2-1031432, built on 11/05/2010 05:32 GMT
+Clients:
+ /127.0.0.1:46370[0](queued=0,recved=1,sent=0)
+
+Latency min/avg/max: 0/0/0
+Received: 1
+Sent: 0
+Outstanding: 0
+Zxid: 0x100000003
+Mode: observer
+Node count: 5
+
+check the participant 2 with 4 letter word
+
+Latency min/avg/max: 22/48/83
+Received: 39
+Sent: 3
+Outstanding: 35
+Zxid: 0x100000003
+Mode: leader
+Node count: 5
+linux-216:/home/amith/CI/source/install/zookeeper/zookeeper2/bin #
+
+check the participant 1 with 4 letter word
+
+linux-216:/home/amith/CI/source/install/zookeeper/zookeeper2/bin # echo stat | netcat localhost 65170
+This ZooKeeper instance is not currently serving requests
+
+We can see the participant1 logs filled with
+2011-11-08 15:49:51,360 - WARN  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:65170:NIOServerCnxn@642] - Exception causing close of session 0x0 due to java.io.IOException: ZooKeeperServer not running
+
+
+Problem here is participent1 is not responding / accepting any requests

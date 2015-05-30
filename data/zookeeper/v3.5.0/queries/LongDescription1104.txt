@@ -1,0 +1,10 @@
+Patrick Hunt writes: 
+
+"Such uses of sleep [used in testFollowersStartAfterLeader] are just asking for trouble. Take a look at the use
+of sleep in testSessionMove in the same class for a better way to do
+this. I had gone through all the tests a while back, replacing all the
+"sleep" with something like this testSessionMove pattern (retry
+with a max limit that's very long). During reviews we should look for
+anti-patterns like this and address them before commit."
+
+So, modify testFollowersStartAfterLeaders to use the same retrying approach that testSessionMove uses.

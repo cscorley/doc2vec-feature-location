@@ -1,0 +1,7 @@
+Please refer to following mail thread
+
+http://markmail.org/message/5nhkm5h3ongqlput
+
+I am testing with 2MB document size and just 500 documents. Indexing is working fine even with 128MB heap size. But on searching Solr throws OOM error. This issue is observed only when we enable highlighting. While indexing I am storing 1 MB text. While searching Solr reads all the 500 documents in the memory. It also reads the complete 1 MB stored field in the memory for all 500 documents. Due to this 500 docs * 1 MB * 2 (2 bytes per char) = 1000 MB memory is required for searching.
+
+This memory usage can be reduced by reading one document at a time.

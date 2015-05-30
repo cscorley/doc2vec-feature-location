@@ -1,0 +1,59 @@
+Given an entity class A which owns a OneToOne entity of class B, and given a cascade on that OneToOne that includes DELETE, an attempt to bulk-delete A when using the DataCache results in a stack trace like the following:
+
+java.lang.ClassCastException: org.apache.openjpa.datacache.QueryCacheStoreQuery cannot be cast to org.apache.openjpa.kernel.ExpressionStoreQuery
+    at org.apache.openjpa.kernel.ExpressionStoreQuery$DataStoreExecutor.executeQuery(ExpressionStoreQuery.java:674)
+    at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:979)
+    at org.apache.openjpa.kernel.QueryImpl.deleteInMemory(QueryImpl.java:1005)
+    ... 28 more
+
+The proximate cause for the bug is that when the JDBCStoreQuery does this:
+
+    private Table getTable(FieldMapping fm, Table table) {
+        if (fm.getCascadeDelete() != ValueMetaData.CASCADE_NONE)
+            return INVALID;
+
+it causes "isSingleTableMapping" to be considered false, which in turn permits executeBulkOperation to return null. Meanwhile, back in DataStoreExecutor:
+
+       public Number executeDelete(StoreQuery q, Object[] params) 
+{
+            Number num = ((ExpressionStoreQuery) q).executeDelete(this, _meta,
+                _metas, _subs, _facts, _exps, params);
+            if (num == null)
+                return q.getContext().deleteInMemory(this, params);   // <- now we have come here because executeDelete punted
+            return num;
+        }
+
+So deleteInMemory gets called in QueryImpl:
+
+   public Number deleteInMemory(StoreQuery.Executor executor,
+        Object[] params) {
+        try {
+            Object o = execute(executor, params);
+
+, but a DataStoreExecutor doesn't know how to execute the QueryCacheStoreQuery that it gets.
+
+Somehwere, something is too unwrapped, or not wrapped enough. Good luck!
+
+Workaround:
+
+If A owns B, then instead of cascade=CascadeType.ALL, you can
+
+@Entity
+class A {
+    B myThing;
+
+    @OneToOne(cascade = 
+{ CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH }
+)
+   B getMyThing() 
+{ return myThing; }
+}
+
+@Entity
+class B {
+    A owner;
+
+    @ForeignKey(deleteAction=ForeignKeyAction.CASCADE)
+    A getOwner() 
+{ return owner; }
+}

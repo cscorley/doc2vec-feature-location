@@ -1,0 +1,11 @@
+Current user-supplied query parameter values are checked strongly against the type they bind to. 
+For example, a query 
+Query q = "select p from Person p where p.gender=:g";
+q.setParameter("g", "MALE");
+will fail if Person.gender is of enum Gender 
+{MALE,FEMALE}
+
+The correct usage is q.setParameter("g", Gender.MALE);
+
+We are relaxing this from the standpoint of a language-neutral client that does not have access to Gender enum type.
+

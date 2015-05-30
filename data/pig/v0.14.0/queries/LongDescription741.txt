@@ -1,0 +1,40 @@
+I'd like to compute the top 10 results in each group.
+
+The natural way to express this in Pig would be:
+
+
+
+A = load '...' using PigStorage() as (
+    date: int,
+    count: int,
+    url: chararray
+);
+
+B = group A by ( date );
+
+C = foreach B {
+    D = order A by count desc;
+    E = limit D 10;
+    generate
+        FLATTEN(E);
+    };
+
+dump C;
+
+
+
+Yeah, I could write a UDF / PiggyBank function to take the top n results. But since LIMIT already exists as a statement, it seems like it should also work in the nested foreach context.
+
+Example workaround code.
+
+
+
+C = foreach B {
+    D = order A by count desc;
+    E = util.TOP(D, 10);
+    generate
+        FLATTEN(E);
+    };
+
+dump C;
+

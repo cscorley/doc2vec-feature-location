@@ -1,0 +1,9 @@
+The following code sample:
+
+      String strSch = "r1:record(f1:int, f2:int), r2:record(f5:int, r3:record(f3:float, f4))";
+      String strStorage = "[r1.f1, r2.r3.f3, r2.f5]; [r1.f2, r2.r3.f4]";
+      Partition p = new Partition(schema.toString(), strStorage, null);
+
+gives the following exception:
+
+    org.apache.hadoop.zebra.parser.ParseException: Different Split Types Set on the same field: r2.f5

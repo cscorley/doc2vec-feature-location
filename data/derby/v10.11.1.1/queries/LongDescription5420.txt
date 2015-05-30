@@ -1,0 +1,14 @@
+TableLockBasicTest failed due to unexpected locale in the runtime statistics.
+
+The execution plans are asserted in this test and I saw this diff:
+
+Expected:
+        :
+	optimizer estimated row count:            6.00
+	optimizer estimated cost:          100.40<
+Found:
+        :
+        optimizer estimated row count:            6,00
+	optimizer estimated cost:          100,40<
+
+the latter using a decimal comma whereas a decimal point is expected.

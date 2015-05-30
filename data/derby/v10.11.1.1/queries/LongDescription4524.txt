@@ -1,0 +1,14 @@
+    public void tearDown() throws Exception {
+        Statement st = createStatement();
+        super.tearDown();
+        try 
+{
+            st.executeUpdate("DROP FUNCTION PADSTRING");
+        }
+ catch (SQLException e) 
+{
+            // never mind.
+        }
+    }
+
+The DROP FUNCTION statement always fails with "No current connection" because super.tearDown(), which is called between createStatement() and executeUpdate(), closes the connection.

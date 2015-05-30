@@ -1,0 +1,122 @@
+there is a problem when using batch statements without bind parameters , with ClientDriver (derbyclient.jar):
+
+java.lang.NullPointerException
+	at org.apache.derby.client.am.PreparedStatement.executeBatchRequestX(Unknown Source)
+	at org.apache.derby.client.am.PreparedStatement.executeBatchX(Unknown Source)
+	at org.apache.derby.client.am.PreparedStatement.executeBatch(Unknown Source)
+	at teste.Teste9.main(Teste9.java:29)
+
+test process to reproduce the bug:
+
+create a database called mydbtest under $DERBY_HOME/data
+
+create and populate a new table called teste1:
+
+create table teste1 ( valor numeric );
+insert into teste1 values (1);
+insert into teste1 values (2);
+insert into teste1 values (3);
+
+start derby network server.
+
+run the following code:
+
+	public static void main(String[] args) throws SQLException {
+
+	    try 
+{
+	        Class.forName("org.apache.derby.jdbc.ClientDriver" );
+	    }
+ catch (Exception e) 
+{
+	        e.printStackTrace();
+	        return;
+	    }
+
+	    Connection c = DriverManager.getConnection("jdbc:derby://localhost:1527/d:/derby_10/data/mydbtest", "app", "app");
+
+	    PreparedStatement ps = c.prepareStatement("update teste1 set valor = 8");
+	    ps2.addBatch();
+
+	    int j[] = ps.executeBatch();
+	    System.out.println(j[0]);
+	    ps.close();
+
+	    c.close();
+	}
+
+this exception is thrown:
+
+java.lang.NullPointerException
+	at org.apache.derby.client.am.PreparedStatement.executeBatchRequestX(Unknown Source)
+	at org.apache.derby.client.am.PreparedStatement.executeBatchX(Unknown Source)
+	at org.apache.derby.client.am.PreparedStatement.executeBatch(Unknown Source)
+	at teste.Teste9.main(Teste9.java:29)
+
+------
+
+i've studied the source and got the bug on class org.apache.derby.client.am.PreparedStatement line 2043.
+
+then, i've changed that line from this:
+
+			parameterMetaData_.clientParamtertype_ = (int[]) parameterTypeList.get;
+
+to this:
+
+			if (parameterMetaData_ != null) 
+{
+				parameterMetaData_.clientParamtertype_ = (int[]) parameterTypeList.get(i);
+			}
+
+after running the build and updating the derbyclient.jar, my application worked fine, so this seems to solve the problem.
+
+i didn't run the automatic build tests to check for other impacts / collateral effects.
+
+
+follows org.apache.derby.tools.sysinfo output:
+
+------------------ Informacoes sobre Java ------------------
+Vers?o do Java:                     1.4.2_08
+Fornecedor do Java:                 Sun Microsystems Inc.
+Diret?rio base do Java:             C:\j2sdk1.4.2_08\jre
+Caminho de classes do Java:         .;.;C:\PROGRA~1\JMF21~1.1E\lib\sound.jar;C:\PROGRA~1\JMF21~1.1E\lib\jmf.jar;C:\PROGRA~1\J
+MF21~1.1E\lib;%systemroot%\java\classes;.;D:\DERBY_10/lib/derby.jar;D:\DERBY_10/lib/derbynet.jar;D:\DERBY_10/lib/derbyclient.
+jar;D:\DERBY_10/lib/derbytools.jar
+Nome do Sistema Operacional:        Windows XP
+Arquitetura do Sistema Operacional: x86
+Vers?o do Sistema Operacional:      5.1
+Nome do usußrio Java:               acd025
+Diret?rio base do usußrio Java:     D:\Profiles\acd025
+Diret?rio do usußrio Java:          D:\derby_10
+java.specification.name: Java Platform API Specification
+java.specification.version: 1.4
+---------------- Informa??es sobre o Derby -----------------
+JRE - JDBC: J2SE 1.4.2 - JDBC 3.0
+[D:\derby_10\lib\derby.jar] 10.2.1.6 - (452058)
+[D:\derby_10\lib\derbytools.jar] 10.2.1.6 - (452058)
+[D:\derby_10\lib\derbynet.jar] 10.2.1.6 - (452058)
+[D:\derby_10\lib\derbyclient.jar] 10.2.1.6 - (452058)
+------------------------------------------------------
+---------------- Informa??es sobre o Idioma ----------------
+Idioma atual :  [portugu?s/Brasil [pt_BR]]
+Encontrado suporte para o idioma: [de_DE]
+         vers?o: 10.2.1.6 - (452058)
+Encontrado suporte para o idioma: [es]
+         vers?o: 10.2.1.6 - (452058)
+Encontrado suporte para o idioma: [fr]
+         vers?o: 10.2.1.6 - (452058)
+Encontrado suporte para o idioma: [it]
+         vers?o: 10.2.1.6 - (452058)
+Encontrado suporte para o idioma: [ja_JP]
+         vers?o: 10.2.1.6 - (452058)
+Encontrado suporte para o idioma: [ko_KR]
+         vers?o: 10.2.1.6 - (452058)
+Encontrado suporte para o idioma: [pt_BR]
+         vers?o: 10.2.1.6 - (452058)
+Encontrado suporte para o idioma: [zh_CN]
+         vers?o: 10.2.1.6 - (452058)
+Encontrado suporte para o idioma: [zh_TW]
+         vers?o: 10.2.1.6 - (452058)
+------------------------------------------------------
+
+

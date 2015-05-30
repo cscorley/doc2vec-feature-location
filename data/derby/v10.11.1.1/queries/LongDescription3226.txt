@@ -1,0 +1,1 @@
+The javadoc for java.io.InputStream.read() says that the value byte is to be returned as an int in the range 0 to 255, but BlobLocatorInputStream and ClobLocatorInputStream instead return an int in the range -128 to 127. Since these streams are wrapped in BufferedInputStream objects before they are returned to the users, I don't think this will have any effect on user code.

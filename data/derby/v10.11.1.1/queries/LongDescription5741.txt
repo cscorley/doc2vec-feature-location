@@ -1,0 +1,10 @@
+Trying to set derby.authentication.provider to "NATIVE:" correctly gives an error message complaining about the syntax:
+
+"ERROR XCY05: Invalid setting of the derby.authentication.provider property. This property cannot be set to NATIVE::LOCAL unless credentials for the database owner have been stored in the database using the SYSCS_UTIL.SYSCS_CREATE_USER procedure."
+
+Trying to set it as "NATIVE" (no trailing colon) does not treat this the value as a malformed NATIVE authentication specification. This leads to it being interpreted as a used defined authentication class, so when I attempt to connect after disconnection from the database I see:
+
+ERROR XJ040: Failed to start database 'cred' with class loader sun.misc.Launcher$AppClassLoader@18d107f, see the next exception for details.
+ERROR XJ001: Java exception: 'NATIVE: java.lang.ClassNotFoundException'.
+
+Another thing is that the error message in the first place is out of date now: we never shoudl be setting "NATIVE::LOCAL" explicitly, it id does once the first user is created according to version 7.0 of the spec. See DERBY-5742.

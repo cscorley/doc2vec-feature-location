@@ -1,0 +1,36 @@
+A query like following does not raise an error even though countries.country is not part of the SELECT column list.
+SELECT country,count(country) FROM 
+COUNTRIES JOIN CITIES USING (COUNTRY) group by countries.country 
+
+This jira is related to DERBY-4631. As noted by Knut in DERBY-4631, SQL:2003 says that the join columns in a natural join or in a named columns join should be added to the select list by coalescing the column from the left table with the column from the right table. 
+
+Section 7.7, <joined table>, syntax rules: 
+
+> 1) Let TR1 be the first <table reference>, and let TR2 be the <table 
+> reference> or <table factor> that is the second operand of the 
+> <joined table>. Let RT1 and RT2 be the row types of TR1 and TR2, 
+> respectively. Let TA and TB be the range variables of TR1 and TR2, 
+> respectively. (...) 
+
+and 
+
+> 7) If NATURAL is specified or if a <join specification> immediately 
+> containing a <named columns join> is specified, then: 
+(...) 
+> d) If there is at least one corresponding join column, then let SLCC 
+> be a <select list> of <derived column>s of the form 
+> 
+> COALESCE ( TA.C, TB.C ) AS C 
+> 
+> for every column C that is a corresponding join column, taken in 
+> order of their ordinal positions in RT1. 
+
+Derby has it's on logic to retrieve the join column values. It always picks up join column's value from the left table when we are working with natural left outer join and it picks up the join column's value from the right table when we are working with natural right outer join. But this logic does not work for all cases for right outer join. The fix being worked for DERBY-4631 is to pick the join column's value based on following logic 
+1)if the left table's column value is null then pick up the right table's column's value. 
+2)If the left table's column value is non-null, then pick up that value 
+
+Although this new logic will in essence implement what adding a COALESCE function for a join colunm might have done but it still allows following query to compile and run
+SELECT country,count(country) FROM 
+COUNTRIES JOIN CITIES USING (COUNTRY) group by countries.country 
+
+I think query above succeeds because in case of an INNER JOIN or LEFT OUTER JOIN, Derby associates the join column with the left table during it's bind phase. In case of RIGHT OUTER JOIN, Derby associates the join column with right table during it's bind phase. I believe, for these reasons, a query like above will not give an error for the group by column.

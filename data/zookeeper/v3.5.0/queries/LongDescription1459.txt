@@ -1,0 +1,20 @@
+When shutdown the standalone ZK server, its only clearing the zkdatabase and not closing the transaction log streams. When tries to delete the temporary files in unit tests on windows, its failing.
+ZooKeeperServer.java
+
+        if (zkDb != null) {
+            zkDb.clear();
+        }
+
+
+
+Suggestion to close the zkDb as follows, this inturn will take care transaction logs:
+
+        if (zkDb != null) {
+            zkDb.clear();
+            try {
+                zkDb.close();
+            } catch (IOException ie) {
+                LOG.warn("Error closing logs ", ie);
+            }
+        }
+

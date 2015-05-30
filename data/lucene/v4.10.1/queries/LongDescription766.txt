@@ -1,0 +1,14 @@
+On a empty index, adding a document with two fields with the same name but with different term vector option fail. The field with TermVector.WITH_POSITIONS_OFFSETS is correctly indexed, as the offset are correclty extracted. The field with TermVector.NO is not. The TermVectorsWriter tries to add offset info given to the data of the filedinfo from the "fnm" file, but the DocumentWriter didn't prepared offset datas as it gets its info from the field itself, not from the fieldinfo.
+
+Attaching a patch with a test. The test without the fix make this stack trace :
+
+java.lang.IllegalStateException: Trying to write offsets that are null!
+	at org.apache.lucene.index.TermVectorsWriter.writeField(TermVectorsWriter.java:311)
+	at org.apache.lucene.index.TermVectorsWriter.closeField(TermVectorsWriter.java:142)
+	at org.apache.lucene.index.TermVectorsWriter.closeDocument(TermVectorsWriter.java:100)
+	at org.apache.lucene.index.TermVectorsWriter.close(TermVectorsWriter.java:240)
+	at org.apache.lucene.index.DocumentWriter.writePostings(DocumentWriter.java:365)
+	at org.apache.lucene.index.DocumentWriter.addDocument(DocumentWriter.java:114)
+	at org.apache.lucene.index.IndexWriter.addDocument(IndexWriter.java:618)
+	at org.apache.lucene.index.IndexWriter.addDocument(IndexWriter.java:601)
+	at org.apache.lucene.index.TestDocumentWriter.testTermVector(TestDocumentWriter.java:147)

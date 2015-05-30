@@ -1,0 +1,28 @@
+The following script fail:
+
+
+a = load '1.txt' as (a0:int, a1);
+b = group a by a0;
+c = foreach b generate flatten(a);
+d = cogroup c by (a0);
+e = foreach d generate c.a0 as e0;
+f = foreach e generate e0;
+describe f;
+
+
+Error message:
+Caused by: Failed to generate logical plan. Nested exception: org.apache.pig.impl.logicalLayer.FrontendException: ERROR 0: Cannot find field a0 in a::a0#17:int,a::a1#18:bytearray
+        at org.apache.pig.parser.LogicalPlanGenerator.alias_col_ref(LogicalPlanGenerator.java:12835)
+        at org.apache.pig.parser.LogicalPlanGenerator.col_ref(LogicalPlanGenerator.java:12697)
+        at org.apache.pig.parser.LogicalPlanGenerator.projectable_expr(LogicalPlanGenerator.java:7715)
+        at org.apache.pig.parser.LogicalPlanGenerator.var_expr(LogicalPlanGenerator.java:7491)
+        at org.apache.pig.parser.LogicalPlanGenerator.expr(LogicalPlanGenerator.java:6904)
+        at org.apache.pig.parser.LogicalPlanGenerator.flatten_generated_item(LogicalPlanGenerator.java:5235)
+        at org.apache.pig.parser.LogicalPlanGenerator.generate_clause(LogicalPlanGenerator.java:11022)
+        at org.apache.pig.parser.LogicalPlanGenerator.foreach_plan(LogicalPlanGenerator.java:10789)
+        at org.apache.pig.parser.LogicalPlanGenerator.foreach_clause(LogicalPlanGenerator.java:10670)
+        at org.apache.pig.parser.LogicalPlanGenerator.op_clause(LogicalPlanGenerator.java:1280)
+        at org.apache.pig.parser.LogicalPlanGenerator.general_statement(LogicalPlanGenerator.java:646)
+        at org.apache.pig.parser.LogicalPlanGenerator.statement(LogicalPlanGenerator.java:467)
+        at org.apache.pig.parser.LogicalPlanGenerator.query(LogicalPlanGenerator.java:365)
+        at org.apache.pig.parser.QueryParserDriver.parse(QueryParserDriver.java:64)

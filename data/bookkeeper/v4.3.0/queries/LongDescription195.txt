@@ -1,0 +1,25 @@
+From IRC: 
+
+21:58 <johnnagro> 2012-03-28 05:15:19,669 - ERROR [main-EventThread:AbstractZkLedgerManager$2@105] - Error polling ZK for the available ledger nodes: 
+21:58 <johnnagro> org.apache.zookeeper.KeeperException$NoNodeException: KeeperErrorCode = NoNode for /ledgers/idgen/ID-0000106522
+21:58 <johnnagro>         at org.apache.zookeeper.KeeperException.create(KeeperException.java:111)
+21:58 <johnnagro>         at org.apache.zookeeper.KeeperException.create(KeeperException.java:51)
+21:58 <johnnagro>         at org.apache.bookkeeper.meta.AbstractZkLedgerManager$2.processResult(AbstractZkLedgerManager.java:105)
+21:58 <johnnagro>         at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:594)
+21:58 <johnnagro>         at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:497)
+21:58 <johnnagro> i will look for the gc one
+21:59 <ivank> thats quite strange
+22:00 <ivank> this occurred in the server?
+22:02 <johnnagro> ah they may be related, this one has some GC stuff
+22:02 <johnnagro> 012-03-24 09:17:34,419 - WARN  [GarbageCollectorThread:HierarchicalLedgerManager@376] - Exception during garbage collecting ledgers for idgen of /ledgers
+22:02 <johnnagro> 2012-03-24 09:56:31,080 - ERROR [main-EventThread:AbstractZkLedgerManager$2@105] - Error polling ZK for the available ledger nodes: 
+22:02 <johnnagro> org.apache.zookeeper.KeeperException$NoNodeException: KeeperErrorCode = NoNode for /ledgers/idgen/ID-0000037474
+22:02 <johnnagro>         at org.apache.zookeeper.KeeperException.create(KeeperException.java:111)
+22:02 <johnnagro>         at org.apache.zookeeper.KeeperException.create(KeeperException.java:51)
+22:02 <johnnagro>         at org.apache.bookkeeper.meta.AbstractZkLedgerManager$2.processResult(AbstractZkLedgerManager.java:105)
+22:02 <johnnagro>         at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:594)
+22:02 <johnnagro>         at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:497)
+22:02 <johnnagro> this happened on the server, yes.
+
+
+Looking into the code, it seems that HierarchicalLedgerManager doesn't consider idgen to be special. This is a race, between the idgen node being created and the znodes underneath being listed. The znodes underneath should never be listed.

@@ -1,0 +1,22 @@
+The DatabaseMetaData method supportsResultSetConcurrency erroneously
+returns false on the network client for all arguments combination, cf
+the attached repro program. The embedded client returns correct
+results, viz the output:
+
+
+org.apache.derby.jdbc.ClientDriver:
+SupportsResultSetConcurrency: TYPE_FORWARD_ONLY,CONCUR_READ_ONLY: false
+SupportsResultSetConcurrency: TYPE_FORWARD_ONLY,CONCUR_UPDATABLE: false
+SupportsResultSetConcurrency: TYPE_SCROLL_INSENSITIVE,CONCUR_READ_ONLY: false
+SupportsResultSetConcurrency: TYPE_SCROLL_INSENSITIVE,CONCUR_UPDATABLE: false
+SupportsResultSetConcurrency: TYPE_SCROLL_SENSITIVE,CONCUR_READ_ONLY: false
+SupportsResultSetConcurrency: TYPE_SCROLL_SENSITIVE,CONCUR_UPDATABLE: false
+org.apache.derby.jdbc.EmbeddedDriver:
+SupportsResultSetConcurrency: TYPE_FORWARD_ONLY,CONCUR_READ_ONLY: true
+SupportsResultSetConcurrency: TYPE_FORWARD_ONLY,CONCUR_UPDATABLE: true
+SupportsResultSetConcurrency: TYPE_SCROLL_INSENSITIVE,CONCUR_READ_ONLY: true
+SupportsResultSetConcurrency: TYPE_SCROLL_INSENSITIVE,CONCUR_UPDATABLE: false
+SupportsResultSetConcurrency: TYPE_SCROLL_SENSITIVE,CONCUR_READ_ONLY: false
+SupportsResultSetConcurrency: TYPE_SCROLL_SENSITIVE,CONCUR_UPDATABLE: false
+
+Presumably, this is wrong in released versions as well.

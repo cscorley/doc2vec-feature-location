@@ -1,0 +1,27 @@
+Many variations of org.apache.openjpa.persistence.xmlmapping.query.TestXMLCustomerOrder are failing on Oracle with this exception:
+
+<openjpa-2.0.0-SNAPSHOT-rexported nonfatal general error> org.apache.openjpa.persistence.PersistenceException: Invalid column type: getCLOB not implemented for class oracle.jdbc.driver.T4CVarcharAccessor
+<snip/>
+Caused by: java.sql.SQLException: Invalid column type: getCLOB not implemented for class oracle.jdbc.driver.T4CVarcharAccessor
+at oracle.jdbc.driver.DatabaseError.throwSqlException(DatabaseError.java:112)
+at oracle.jdbc.driver.DatabaseError.throwSqlException(DatabaseError.java:146)
+at oracle.jdbc.driver.Accessor.unimpl(Accessor.java:358)
+at oracle.jdbc.driver.Accessor.getCLOB(Accessor.java:1328)
+at oracle.jdbc.driver.OracleResultSetImpl.getCLOB(OracleResultSetImpl.java:1305)
+at oracle.jdbc.driver.OracleResultSetImpl.getClob(OracleResultSetImpl.java:1471)
+at org.apache.commons.dbcp.DelegatingResultSet.getClob(DelegatingResultSet.java:515)
+at org.apache.openjpa.lib.jdbc.DelegatingResultSet.getClob(DelegatingResultSet.java:612)
+at org.apache.openjpa.jdbc.sql.DBDictionary.getClob(DBDictionary.java:690)
+at org.apache.openjpa.jdbc.sql.OracleDictionary.getClobString(OracleDictionary.java:562)
+at org.apache.openjpa.jdbc.sql.ResultSetResult.getStringInternal(ResultSetResult.java:471)
+at org.apache.openjpa.jdbc.sql.ResultSetResult.getObjectInternal(ResultSetResult.java:399)
+at org.apache.openjpa.jdbc.sql.AbstractResult.getObject(AbstractResult.java:696)
+at org.apache.openjpa.jdbc.meta.strats.HandlerStrategies.loadDataStore(HandlerStrategies.java:220)
+at org.apache.openjpa.jdbc.meta.strats.HandlerFieldStrategy.load(HandlerFieldStrategy.java:186)
+at org.apache.openjpa.jdbc.meta.FieldMapping.load(FieldMapping.java:913)
+at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.load(JDBCStoreManager.java:1021)
+at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.load(JDBCStoreManager.java:973)
+at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.initializeState(JDBCStoreManager.java:393)
+at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.initialize(JDBCStoreManager.java:292)
+<snip/>
+The Oracle driver does not allow the clob operations to operate on fields of XMLType.  OpenJPA maps fields of type XMLType to CLOB and uses CLOB getter/setters, resulting in the exception above.  The mapping should be changed such that the CLOB operations are not used for XML data.

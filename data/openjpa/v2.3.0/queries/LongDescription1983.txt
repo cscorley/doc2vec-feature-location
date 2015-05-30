@@ -1,0 +1,4 @@
+Attached is a test case that illustrates this fail (You can place it into openjpa-persistence-jdbc/src/test/java/org.apache.openjpa.persistence.merge)
+
+Problem 1: Section 3.2.7.1 (Merging Detached Entity State) of the specification says that "The persistence provider must not merge fields marked LAZY that have not been fetched: it must ignore such fields when merging.". The attached test case illustrates that OpenJPA 2.1.0 does not ignore fields marked LAZY that have not been fetched.
+Problem 2: In the same section, the specification says "If X is a managed entity, it is ignored by the merge operation...". But OpenJPA 2.1.0 doesn't seem to ignore them.

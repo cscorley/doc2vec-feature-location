@@ -1,0 +1,22 @@
+VectorWritable#toString method is currently default implementation.
+It should be implemented appropriately.
+
+For instance, after running RecommenderJob, I inspect the temporary files on HDFS.
+
+$ hadoop fs -libjars /path/to/mahout-core-0.5-job.jar -text temp/userVectors/part-r-00000
+
+
+But this command returns
+
+
+2       org.apache.mahout.math.VectorWritable@15f48262
+4       org.apache.mahout.math.VectorWritable@15f48262
+
+
+
+If the toString is not default implementation, we can see this result.
+
+
+2       {101:2.0,104:2.0,103:5.0,102:2.5}
+4       {101:5.0,106:4.0,104:4.5,103:3.0}
+

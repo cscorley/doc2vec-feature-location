@@ -1,0 +1,49 @@
+The following update fails with ERROR 42818
+ij> update testing set a = PADSTRING('aa',2024) where a = PADSTRING('a',2024);
+ERROR 42818: Comparisons between 'VARCHAR' and 'VARCHAR' are not supported.
+
+See full script below 
+onnect 'jdbc:derby:nordb;territory=no_NO;collation=TERRITORY_BASED';
+
+CREATE FUNCTION  PADSTRING (DATA VARCHAR(32000), LENGTH INTEGER) RETURNS VARCHAR(32000) EXTERNAL NAME 'org.apache.derbyTesting.functionTests.util.Formatters.padString' LANGUAGE JAVA PARAMETER STYLE JAVA;
+
+create table testing 
+	(a varchar(2024), b varchar(1024), c varchar(1024), d varchar(2048), e varchar(300)) ;
+
+– insert 9 rows into the table
+insert into testing values (PADSTRING('1',2024),  PADSTRING('2',1024), 
+       PADSTRING('3',1024), PADSTRING('4',2048),  PADSTRING('5',300));
+
+insert into testing values (PADSTRING('10',2024),  
+       PADSTRING('20',1024), PADSTRING('30',1024), 
+       PADSTRING('40',2048), PADSTRING('50',300));
+
+insert into testing values (PADSTRING('100',2024),  
+       PADSTRING('200',1024), PADSTRING('300',1024), 
+       PADSTRING('400',2048), PADSTRING('500',300));
+
+insert into testing values (PADSTRING('1000',2024),  
+       PADSTRING('2000',1024), PADSTRING('3000',1024), 
+       PADSTRING('4000',2048), PADSTRING('5000',300));
+
+insert into testing values (PADSTRING('10000',2024),  
+       PADSTRING('20000',1024),	PADSTRING('30000',1024), 
+       PADSTRING('40000',2048), PADSTRING('50000',300));
+
+insert into testing values (PADSTRING('100000',2024), 
+       PADSTRING('200000',1024), PADSTRING('300000',1024), 
+       PADSTRING('400000',2048), PADSTRING('500000',300));
+
+insert into testing values (PADSTRING('1000000',2024), 
+       PADSTRING('2000000',1024), PADSTRING('3000000',1024), 
+       PADSTRING('4000000',2048), PADSTRING('5000000',300));
+
+insert into testing values (PADSTRING('10000000',2024), 
+       PADSTRING('20000000',1024), PADSTRING('30000000',1024), 
+       PADSTRING('40000000',2048), PADSTRING('50000000',300));
+
+insert into testing values (PADSTRING('100000000',2024), 
+       PADSTRING('200000000',1024), PADSTRING('300000000',1024), 
+       PADSTRING('400000000',2048), PADSTRING('500000000',300));
+
+update testing set a = PADSTRING('aa',2024) where a = PADSTRING('a',2024);

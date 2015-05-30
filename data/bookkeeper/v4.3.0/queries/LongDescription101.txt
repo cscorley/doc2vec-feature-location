@@ -1,0 +1,6 @@
+BookKeeper is designed for use as a Write ahead log. In systems with a primary/backup architecture, the primary will write state updates to the WAL. If the primary dies the backup comes online, reads the WAL to get the latest state and starts serving requests. However, if the primary was only partitioned from the network, or stuck in a long GC, a split brain occurs. Both primary and backup can service client requests. 
+
+Fencing(http://en.wikipedia.org/wiki/Fencing_%28computing%29) ensures that this cannot happen. With fencing, the backup can close the WAL of the primary, and cause any subsequent attempt by the primary to write to the WAL to give an error. 
+
+We fence a ledger whenever it is opened by another client using BookKeeper#openLedger. BookKeeper#openLedgerNoRecovery will not fence.
+The opening client marks the ledger as fenced in zookeeper, and then sends a readEntry message to a all of bookies with the DO_FENCING flag set. Once at least 1 bookie in each possible quorum of bookies have responded, we can proceed with opening the ledger. Any subsequent attempt to write to the ledger will fail as it will not be able to write to a quorum without one of the bookie in the quorum responding with a ledger fenced error. The client will also be unable to change the quorum without seeing that the ledger has been marked as fenced in zookeeper.

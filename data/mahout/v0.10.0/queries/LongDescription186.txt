@@ -1,0 +1,23 @@
+A simple test fails 
+
+import org.apache.hadoop.util.PriorityQueue;
+PriorityQueue<ClassifierResult> queue = new ClassifierResultPriorityQueue(3);
+    queue.insert(new ClassifierResult("label1", 5));
+    queue.insert(new ClassifierResult("label2", 4));
+    queue.insert(new ClassifierResult("label3", 3));
+    queue.insert(new ClassifierResult("label4", 2));
+    queue.insert(new ClassifierResult("label5", 1));
+
+    assertEquals("Incorrect Size", 3, queue.size());
+    log.info(queue.pop().toString());
+    log.info(queue.pop().toString());
+    log.info(queue.pop().toString());
+
+09/10/07 16:58:39 INFO common.ClassifierResultPriorityQueueTest: ClassifierResult
+{category='label3', score=3.0}
+09/10/07 16:58:39 INFO common.ClassifierResultPriorityQueueTest: ClassifierResult
+{category='label4', score=2.0}
+09/10/07 16:58:39 INFO common.ClassifierResultPriorityQueueTest: ClassifierResult
+{category='label5', score=1.0}
+
+Expected label1 and label2 at the top

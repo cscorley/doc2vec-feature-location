@@ -1,0 +1,101 @@
+Philips spotted this problem on a Windows 2003 server:
+
+(mail quote):
+
+I ran derbyall on a new machine and the lang/errorStream.java test 
+fails. I've run the same test successfully on 3 other machines and the 
+only discernable difference I am able to come up with is the operating 
+system (XP vs Windows 2003 Server on the failing machine). Also the 
+error in question seems to suggest that the problem is with an empty log 
+file, I've also attached a copy of that non empty log file. At this 
+point I'm open to suggestions.
+
+Philip
+------------------ Java Information ------------------
+Java Version:    1.4.2_08
+Java Vendor:     Sun Microsystems Inc.
+Java home:       c:\j2sdk1.4.2_08\jre
+Java classpath:  .;c:\derby\derbyMain\classes;c:\derby\db2jcc.jar;c:\derby\db2jcc_license_c.jar;C:\derby\derbyMain\tools\java\jakarta-oro-2.0.8.jar;C:\derby\derbyMain\tools\java\geronimo-spec-servlet-2.4-rc4.jar;C:\j2sdk1.4.2_08\lib\tools.jar;.;C:\j2sdk1.4.2_08\lib;C:\IBM\SQLLIB\java\db2java.zip;C:\IBM\SQLLIB\java\db2jcc.jar;C:\IBM\SQLLIB\java\sqlj.zip;C:\IBM\SQLLIB\bin;C:\IBM\SQLLIB\java\common.jar
+OS name:         Windows 2003
+OS architecture: x86
+OS version:      5.2
+Java user name:  db2admin
+Java user home:  C:\Documents and Settings\db2admin
+Java user dir:   C:\Derby\derbyMain\singleTest
+java.specification.name: Java Platform API Specification
+java.specification.version: 1.4
+--------- Derby Information --------
+JRE - JDBC: J2SE 1.4.2 - JDBC 3.0
+[C:\Derby\derbyMain\classes] 10.2.0.0 alpha - (1)
+[C:\Derby\db2jcc.jar] 2.4 - (17)
+[C:\Derby\db2jcc_license_c.jar] 2.4 - (17)
+[C:\IBM\SQLLIB\java\db2jcc.jar] 2.4 - (17)
+------------------------------------------------------
+----------------- Locale Information -----------------
+Current Locale :  [English/United States [en_US]]
+Found support for locale: [de_DE]
+	 version: 10.2.0.0 alpha - (1)
+Found support for locale: [es]
+	 version: 10.2.0.0 alpha - (1)
+Found support for locale: [fr]
+	 version: 10.2.0.0 alpha - (1)
+Found support for locale: [it]
+	 version: 10.2.0.0 alpha - (1)
+Found support for locale: [ja_JP]
+	 version: 10.2.0.0 alpha - (1)
+Found support for locale: [ko_KR]
+	 version: 10.2.0.0 alpha - (1)
+Found support for locale: [pt_BR]
+	 version: 10.2.0.0 alpha - (1)
+Found support for locale: [zh_CN]
+	 version: 10.2.0.0 alpha - (1)
+Found support for locale: [zh_TW]
+	 version: 10.2.0.0 alpha - (1)
+------------------------------------------------------
+Framework: embedded
+
+	
+	
+		
+		
+			Start: errorStream jdk1.4.2_08 2005-07-13 11:24:44 ***
+4 del
+< shutdown ok: XJ015:Derby system shutdown.
+5 del
+< shutdown ok: XJ015:Derby system shutdown.
+6 del
+< shutdown ok: XJ015:Derby system shutdown.
+7 del
+< shutdown ok: XJ015:Derby system shutdown.
+8 del
+< shutdown ok: XJ015:Derby system shutdown.
+9 del
+< shutdown ok: XJ015:Derby system shutdown.
+10 del
+< shutdown ok: XJ015:Derby system shutdown.
+11 del
+< shutdown ok: XJ015:Derby system shutdown.
+12 del
+< Test errorStream finished successfully
+12 add
+> Test errorStream failed: assertNonEmpty failed:C:\Derby\derbyMain\singleTest\errorStream\VombatusUrsinusHirsutus-err-2.log
+> org.apache.derbyTesting.functionTests.tests.lang.AssertException: assertNonEmpty failed:C:\Derby\derbyMain\singleTest\errorStream\VombatusUrsinusHirsutus-err-2.log
+Test Failed.
+			End:   errorStream jdk1.4.2_08 2005-07-13 11:24:48 ***
+2005-07-13 14:24:46.671 GMT Thread[main,5,main] java.io.FileNotFoundException: C:\Derby\derbyMain\singleTest\errorStreamfoo\VombatusUrsinusHirsutus-file-2.log (The system cannot find the path specified)
+----------------------------------------------------------------
+2005-07-13 14:24:46.687 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.2.0.0 alpha - (1): instance c013800d-0105-1095-564f-00004167747a
+on database directory C:\Derby\derbyMain\singleTest\errorStream\VombatusUrsinusHirsutus-2 
+		
+		
+	
+	
+
+
+
+Database Class Loader started - derby.database.classpath=''
+
+2005-07-13 14:24:47.468 GMT:
+Shutting down instance c013800d-0105-1095-564f-00004167747a
+----------------------------------------------------------------

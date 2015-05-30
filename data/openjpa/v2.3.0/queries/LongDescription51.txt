@@ -1,0 +1,138 @@
+451 - bad sql pushdown sub select is missing from clause
+ TEST451; select e from EmpBean e where e.empid > any (select e1.empid from DeptBean d, in(d.emps) e1 where d.no = 200) 
+28344  TRACE  [main] openjpa.jdbc.SQL - <t 1094861122, conn 295440796> [0 ms] executing prepstmnt 81790176 SELECT t0.empid, t0.bonus, t2.deptno, t2.budget, t2.name, t0.execLevel, t0.hireDate, t0.hireTime, t0.hireTimestamp, t3.street, t3.city, t3.state, t3.zip, t0.isManager, t0.name, t0.salary, t4.street, t4.city, t4.state, t4.zip FROM EmpBean t0 LEFT OUTER JOIN DeptBean t2 ON t0.dept_deptno = t2.deptno LEFT OUTER JOIN AddressBean t3 ON t0.home_street = t3.street LEFT OUTER JOIN AddressBean t4 ON t0.work_street = t4.street WHERE (t0.empid = ANY((SELECT t1.deptno FROM DeptBean t1)))
+s/b
+select t1.empid  FROM DeptBean t0 INNER JOIN EmpBean t1 ON t0.deptno = t1.dept_deptno LEFT OUTER JOIN DeptBean t3 ON t1.dept_deptno = t3.deptno WHERE t1.empid > ANY((SELECT t5.empid FROM DeptBean t4 INNER JOIN EmpBean t5 ON t4.deptno = t5.dept_deptno  WHERE (CAST(t4.deptno AS BIGINT) = ?))) 
+{int 200}
+
+<0|false|0.0.0> org.apache.openjpa.persistence.PersistenceException: Syntax error: Encountered "WHERE" at line 1, column 520. 
+{SELECT t2.empid, t2.bonus, t3.deptno, t3.budget, t3.name, t2.execLevel, t2.hireDate, t2.hireTime, t2.hireTimestamp, t4.street, t4.city, t4.state, t4.zip, t2.isManager, t2.name, t2.salary, t5.street, t5.city, t5.state, t5.zip FROM DeptBean t0 INNER JOIN EmpBean t1 ON t0.deptno = t1.dept_deptno LEFT OUTER JOIN DeptBean t3 ON t2.dept_deptno = t3.deptno LEFT OUTER JOIN AddressBean t4 ON t2.home_street = t4.street LEFT OUTER JOIN AddressBean t5 ON t2.work_street = t5.street WHERE (t2.empid > ANY((SELECT t1.empid FROM  WHERE (CAST(t0.deptno AS BIGINT) = CAST(? AS BIGINT)))))} [code=30000, state=42X01]
+	at org.apache.openjpa.jdbc.sql.DBDictionary.newStoreException(DBDictionary.java:3713)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:94)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:80)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:56)
+	at org.apache.openjpa.jdbc.kernel.SelectResultObjectProvider.handleCheckedException(SelectResultObjectProvider.java:152)
+	at org.apache.openjpa.lib.rop.EagerResultList.<init>(EagerResultList.java:37)
+	at org.apache.openjpa.kernel.QueryImpl.toResult(QueryImpl.java:1161)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:936)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:746)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:716)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:712)
+	at org.apache.openjpa.kernel.DelegatingQuery.execute(DelegatingQuery.java:512)
+	at org.apache.openjpa.persistence.QueryImpl.execute(QueryImpl.java:216)
+	at org.apache.openjpa.persistence.QueryImpl.getResultList(QueryImpl.java:254)
+	at com.ibm.ws.query.utils.JFLoopQueryTestcase.createAndRunQuery(JFLoopQueryTestcase.java:187)
+	at com.ibm.ws.query.utils.JFLoopQueryTestcase.testFileQuery(JFLoopQueryTestcase.java:536)
+	at com.ibm.ws.query.utils.JFLoopQueryTestcase.testRunQueryLoopImpl(JFLoopQueryTestcase.java:591)
+	at com.ibm.ws.query.tests.JFLoopQueryTest.testRunQueryLoop(JFLoopQueryTest.java:265)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:64)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:615)
+	at junit.extensions.jfunc.TestletWrapper.runBare(TestletWrapper.java:116)
+	at junit.extensions.jfunc.TestletWrapper$1.protect(TestletWrapper.java:106)
+	at junit.framework.TestResult.runProtected(Unknown Source)
+	at junit.extensions.jfunc.TestletWrapper.run(TestletWrapper.java:109)
+	at junit.framework.TestSuite.runTest(Unknown Source)
+	at junit.framework.TestSuite.run(Unknown Source)
+	at junit.extensions.jfunc.JFuncSuite.run(JFuncSuite.java:134)
+	at junit.extensions.jfunc.textui.JFuncRunner.doRun(JFuncRunner.java:76)
+	at junit.extensions.jfunc.textui.JFuncRunner.start(JFuncRunner.java:398)
+	at junit.extensions.jfunc.textui.JFuncRunner.main(JFuncRunner.java:218)
+Caused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: Syntax error: Encountered "WHERE" at line 1, column 520. {SELECT t2.empid, t2.bonus, t3.deptno, t3.budget, t3.name, t2.execLevel, t2.hireDate, t2.hireTime, t2.hireTimestamp, t4.street, t4.city, t4.state, t4.zip, t2.isManager, t2.name, t2.salary, t5.street, t5.city, t5.state, t5.zip FROM DeptBean t0 INNER JOIN EmpBean t1 ON t0.deptno = t1.dept_deptno LEFT OUTER JOIN DeptBean t3 ON t2.dept_deptno = t3.deptno LEFT OUTER JOIN AddressBean t4 ON t2.home_street = t4.street LEFT OUTER JOIN AddressBean t5 ON t2.work_street = t5.street WHERE (t2.empid > ANY((SELECT t1.empid FROM  WHERE (CAST(t0.deptno AS BIGINT) = CAST(? AS BIGINT)))))}
+ [code=30000, state=42X01]
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.wrap(LoggingConnectionDecorator.java:193)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.access$6(LoggingConnectionDecorator.java:189)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection.prepareStatement(LoggingConnectionDecorator.java:217)
+	at org.apache.openjpa.lib.jdbc.DelegatingConnection.prepareStatement(DelegatingConnection.java:160)
+	at org.apache.openjpa.lib.jdbc.ConfiguringConnectionDecorator$ConfiguringConnection.prepareStatement(ConfiguringConnectionDecorator.java:137)
+	at org.apache.openjpa.lib.jdbc.DelegatingConnection.prepareStatement(DelegatingConnection.java:160)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager$RefCountConnection.prepareStatement(JDBCStoreManager.java:1305)
+	at org.apache.openjpa.lib.jdbc.DelegatingConnection.prepareStatement(DelegatingConnection.java:149)
+	at org.apache.openjpa.jdbc.sql.SQLBuffer.prepareStatement(SQLBuffer.java:463)
+	at org.apache.openjpa.jdbc.sql.SQLBuffer.prepareStatement(SQLBuffer.java:443)
+	at org.apache.openjpa.jdbc.sql.SelectImpl.execute(SelectImpl.java:322)
+	at org.apache.openjpa.jdbc.sql.SelectImpl.execute(SelectImpl.java:295)
+	at org.apache.openjpa.jdbc.sql.LogicalUnion$UnionSelect.execute(LogicalUnion.java:397)
+	at org.apache.openjpa.jdbc.sql.LogicalUnion.execute(LogicalUnion.java:208)
+	at org.apache.openjpa.jdbc.sql.LogicalUnion.execute(LogicalUnion.java:198)
+	at org.apache.openjpa.jdbc.kernel.SelectResultObjectProvider.open(SelectResultObjectProvider.java:91)
+	at org.apache.openjpa.lib.rop.EagerResultList.<init>(EagerResultList.java:31)
+	... 26 more
+NestedThrowables:
+ERROR 42X01: Syntax error: Encountered "WHERE" at line 1, column 520.
+	at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+	at org.apache.derby.impl.sql.compile.ParserImpl.parseStatement(Unknown Source)
+	at org.apache.derby.impl.sql.GenericStatement.prepMinion(Unknown Source)
+	at org.apache.derby.impl.sql.GenericStatement.prepare(Unknown Source)
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.<init>(Unknown Source)
+	at org.apache.derby.jdbc.Driver30.newEmbedPreparedStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.prepareStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.prepareStatement(Unknown Source)
+	at org.apache.commons.dbcp.DelegatingConnection.prepareStatement(DelegatingConnection.java:185)
+	at org.apache.commons.dbcp.PoolingDataSource$PoolGuardConnectionWrapper.prepareStatement(PoolingDataSource.java:278)
+	at org.apache.openjpa.lib.jdbc.DelegatingConnection.prepareStatement(DelegatingConnection.java:162)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection.prepareStatement(LoggingConnectionDecorator.java:214)
+	at org.apache.openjpa.lib.jdbc.DelegatingConnection.prepareStatement(DelegatingConnection.java:160)
+	at org.apache.openjpa.lib.jdbc.ConfiguringConnectionDecorator$ConfiguringConnection.prepareStatement(ConfiguringConnectionDecorator.java:137)
+	at org.apache.openjpa.lib.jdbc.DelegatingConnection.prepareStatement(DelegatingConnection.java:160)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager$RefCountConnection.prepareStatement(JDBCStoreManager.java:1305)
+	at org.apache.openjpa.lib.jdbc.DelegatingConnection.prepareStatement(DelegatingConnection.java:149)
+	at org.apache.openjpa.jdbc.sql.SQLBuffer.prepareStatement(SQLBuffer.java:463)
+	at org.apache.openjpa.jdbc.sql.SQLBuffer.prepareStatement(SQLBuffer.java:443)
+	at org.apache.openjpa.jdbc.sql.SelectImpl.execute(SelectImpl.java:322)
+	at org.apache.openjpa.jdbc.sql.SelectImpl.execute(SelectImpl.java:295)
+	at org.apache.openjpa.jdbc.sql.LogicalUnion$UnionSelect.execute(LogicalUnion.java:397)
+	at org.apache.openjpa.jdbc.sql.LogicalUnion.execute(LogicalUnion.java:208)
+	at org.apache.openjpa.jdbc.sql.LogicalUnion.execute(LogicalUnion.java:198)
+	at org.apache.openjpa.jdbc.kernel.SelectResultObjectProvider.open(SelectResultObjectProvider.java:91)
+	at org.apache.openjpa.lib.rop.EagerResultList.<init>(EagerResultList.java:31)
+	at org.apache.openjpa.kernel.QueryImpl.toResult(QueryImpl.java:1161)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:936)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:746)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:716)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:712)
+	at org.apache.openjpa.kernel.DelegatingQuery.execute(DelegatingQuery.java:512)
+	at org.apache.openjpa.persistence.QueryImpl.execute(QueryImpl.java:216)
+	at org.apache.openjpa.persistence.QueryImpl.getResultList(QueryImpl.java:254)
+	at com.ibm.ws.query.utils.JFLoopQueryTestcase.createAndRunQuery(JFLoopQueryTestcase.java:187)
+	at com.ibm.ws.query.utils.JFLoopQueryTestcase.testFileQuery(JFLoopQueryTestcase.java:536)
+	at com.ibm.ws.query.utils.JFLoopQueryTestcase.testRunQueryLoopImpl(JFLoopQueryTestcase.java:591)
+	at com.ibm.ws.query.tests.JFLoopQueryTest.testRunQueryLoop(JFLoopQueryTest.java:265)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:64)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:615)
+	at junit.extensions.jfunc.TestletWrapper.runBare(TestletWrapper.java:116)
+	at junit.extensions.jfunc.TestletWrapper$1.protect(TestletWrapper.java:106)actual  TEST451; select e from EmpBean e where e.empid > any (select e1.empid from DeptBean d, in(d.emps) e1 where d.no = 200) 
+                                                                                                                                                                                                                                                                                                                                         e                                                                                                                                                                                                                                                                                                                                           
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+Syntax error: Encountered "WHERE" at line 1, column 520. 
+{SELECT t2.empid, t2.bonus, t3.deptno, t3.budget, t3.name, t2.execLevel, t2.hireDate, t2.hireTime, t2.hireTimestamp, t4.street, t4.city, t4.state, t4.zip, t2.isManager, t2.name, t2.salary, t5.street, t5.city, t5.state, t5.zip FROM DeptBean t0 INNER JOIN EmpBean t1 ON t0.deptno = t1.dept_deptno LEFT OUTER JOIN DeptBean t3 ON t2.dept_deptno = t3.deptno LEFT OUTER JOIN AddressBean t4 ON t2.home_street = t4.street LEFT OUTER JOIN AddressBean t5 ON t2.work_street = t5.street WHERE (t2.empid > ANY((SELECT t1.empid FROM  WHERE (CAST(t0.deptno AS BIGINT) = CAST(? AS BIGINT)))))} [code=30000, state=42X01] 
+ TEST451; 1 tuple
+
+expected and actual line lengths do NOT match for line 2
+  [ FAILED 451- bucket = fvtfull, query = select e from EmpBean e where e.empid > any (select e1.empid from DeptBean d, in(d.emps) e1 where d.no = 200)  : 
+   DIFFERENCE-locations based on expected-(
+diff at line 2 position 1 EXPECTED [[]  ACTUAL [ ] 
+[( class com.dw.test.EmpBean  empid=4 name=george salary=0.0 dept=200)]
+                                                                                                                                                                                                                                                                                                                                         e                                                                                                                                                                                                                                                                                                                                           
+) 
+   EXPECTED(
+ TEST451; select e from EmpBean e where e.empid > any (select e1.empid from DeptBean d, in(d.emps) e1 where d.no = 200) 
+[( class com.dw.test.EmpBean  empid=4 name=george salary=0.0 dept=200)]
+[( class com.dw.test.EmpBean  empid=9 name=harry salary=0.0 dept=210)]
+[( class com.dw.test.EmpBean  empid=10 name=Catalina Wei salary=0.0 dept=0)]
+[( class com.dw.test.EmpBean  empid=5 name=ritika salary=0.0 dept=220)]
+[( class com.dw.test.EmpBean  empid=6 name=ahmad salary=0.0 dept=100)]
+[( class com.dw.test.EmpBean  empid=7 name=charlene salary=0.0 dept=210)]
+[( class com.dw.test.EmpBean  empid=8 name=Tom Rayburn salary=0.0 dept=100)]
+ TEST451; 7 tuples ) 
+   ACTUAL(
+ TEST451; select e from EmpBean e where e.empid > any (select e1.empid from DeptBean d, in(d.emps) e1 where d.no = 200) 
+                                                                                                                                                                                                                                                                                                                                         e                                                                                                                                                                                                                                                                                                                                           
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+Syntax error: Encountered "WHERE" at line 1, column 520. {SELECT t2.empid, t2.bonus, t3.deptno, t3.budget, t3.name, t2.execLevel, t2.hireDate, t2.hireTime, t2.hireTimestamp, t4.street, t4.city, t4.state, t4.zip, t2.isManager, t2.name, t2.salary, t5.street, t5.city, t5.state, t5.zip FROM DeptBean t0 INNER JOIN EmpBean t1 ON t0.deptno = t1.dept_deptno LEFT OUTER JOIN DeptBean t3 ON t2.dept_deptno = t3.deptno LEFT OUTER JOIN AddressBean t4 ON t2.home_street = t4.street LEFT OUTER JOIN AddressBean t5 ON t2.work_street = t5.street WHERE (t2.empid > ANY((SELECT t1.empid FROM  WHERE (CAST(t0.deptno AS BIGINT) = CAST(? AS BIGINT)))))}
+ [code=30000, state=42X01] 
+ TEST451; 1 tuple) ]

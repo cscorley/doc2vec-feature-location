@@ -1,0 +1,8 @@
+When I debug OpenJPA code, I am surprised to find that it creates an instance of AccessDictionary for a sample application which uses Derby.
+
+The sample application is copied from book "Pro EJB3". The connection URL for the persistence unit is:
+jdbc:derby://localhost:1527/fieldAccess;create=true
+
+Since it contains 'Access' in the URL value, the OpenJPA code assumes it uses Access database. 
+
+We need a better algorithm to find classname for DBDictionary in DBDictionaryFactory. For example, we can assume the database is Access only if the URL starts with 'jdbc:access'.

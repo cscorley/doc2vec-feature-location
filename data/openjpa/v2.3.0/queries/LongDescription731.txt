@@ -1,0 +1,59 @@
+This JIRA is open on behalf of Enrico:
+
+OpenJPA 1.2.0 Bug on FetchType.EAGER
+Friday, September 19, 2008 12:49 AM
+From: "egoosen" <egoosen2@metropolitan.co.za>
+Add sender to Contacts
+To: users@openjpa.apache.org
+
+I'm experiencing a strange bug in 1.2.0, on an eager loaded one to many
+relationship.
+The first time I run the code, openJPA retrieves the parent entity and eager
+fetches the CORRECT child entities.
+The second time around, it fetches the parent entity and fetches the
+INCORRECT child entities (specifically, it fetches the child entities of the
+parent entity in the previous query).
+
+Here's the SQL to illustrate:
+First run:
+SELECT t0.AMDCTL_ID, t0.VRS_NBR, t0.AMDSEQ_CDE, t0.DPLORD_NBR, t0.FND_CDE,
+t0.RSL_DTE FROM EBSTATUS.TBL_AMDCTL t0 WHERE t0.FND_CDE = ?
+[params=(String) 0000001]
+SELECT t0.AMDCTL_ID, t1.AMDDES_ID, t1.VRS_NBR, t1.AMD_DES, t1.AMDCTL_ID,
+t1.EFC_DTE FROM EBSTATUS.TBL_AMDCTL t0 INNER JOIN EBSTATUS.TBL_AMDDES t1 ON
+t0.AMDCTL_ID = t1.AMDCTL_ID WHERE t0.FND_CDE = ? ORDER BY t0.AMDCTL_ID ASC
+[params=(String) 0000001]
+
+Second run:
+SELECT t0.AMDCTL_ID, t0.VRS_NBR, t0.AMDSEQ_CDE, t0.DPLORD_NBR, t0.FND_CDE,
+t0.RSL_DTE FROM EBSTATUS.TBL_AMDCTL t0 WHERE t0.FND_CDE = ?
+[params=(String) 0001001]
+SELECT t0.AMDCTL_ID, t1.AMDDES_ID, t1.VRS_NBR, t1.AMD_DES, t1.AMDCTL_ID,
+t1.EFC_DTE FROM EBSTATUS.TBL_AMDCTL t0 INNER JOIN EBSTATUS.TBL_AMDDES t1 ON
+t0.AMDCTL_ID = t1.AMDCTL_ID WHERE t0.FND_CDE = ? ORDER BY t0.AMDCTL_ID ASC
+[params=(String) 0000001]
+
+Somehow its caching the second query, even though I've turned off the
+DataCache and QueryCache.
+
+I've had to revert back to OpenJPA 1.1.0.
+
+Here's my mappings:
+TblAmdctl.java
+@OneToMany(mappedBy="tblAmdctl",fetch = FetchType.EAGER,cascade = 
+{
+CascadeType.PERSIST,CascadeType.MERGE}
+)
+private Collection<TblAmddes> tblAmddess = new ArrayList<TblAmddes>();
+
+TblAmddes.java
+@ManyToOne(fetch = FetchType.LAZY,cascade = 
+{
+CascadeType.PERSIST,CascadeType.MERGE }
+)
+@JoinColumns(
+{@JoinColumn(name =
+"AMDCTL_ID",referencedColumnName="AMDCTL_ID")}
+)   
+@ForeignKey
+private TblAmdctl tblAmdctl; 

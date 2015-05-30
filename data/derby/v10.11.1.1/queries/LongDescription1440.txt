@@ -1,0 +1,43 @@
+When running some SQL queries through ij that fails it seems like some
+information about chained exceptions is not presented to the user when
+running with the client driver and jdk 1.6.
+
+
+One example SQL that fails (taken from the ieptests.sql):
+=========================================================
+
+ij> call SYSCS_UTIL.SYSCS_EXPORT_TABLE ('inventory', 'ORDERTABLE' ,
+'extinout/order.dat', null, null, null) ;
+
+When running this in ij the following error message is produced:
+
+
+
+Java 1.6 Embedded driver:
+=========================
+
+ERROR 38000: The exception 'java.sql.SQLSyntaxErrorException: Schema
+'inventory' does not exist' was thrown while evaluating an expression.
+ERROR 42Y07: Schema 'inventory' does not exist
+
+
+Java 1.5 Client driver:
+=======================
+
+ERROR 38000: The exception 'SQL Exception: Schema 'inventory' does not
+exist' was thrown while evaluating an expression. SQLSTATE: 42Y07:
+Schema 'inventory' does not exist
+
+
+Java 1.6 Client driver:
+=======================
+
+ERROR 38000: The exception 'java.sql.SQLSyntaxErrorException: Schema
+'inventory' does not exist' was thrown while evaluating an expression.
+
+
+The bug (or difference) here is that the client driver when running
+with jdk 1.6 does not print the chained exception and SQL state.
+It would be nice to have the same information in the output as what is
+written by the embedded driver (or client driver running with jdk
+1.5).

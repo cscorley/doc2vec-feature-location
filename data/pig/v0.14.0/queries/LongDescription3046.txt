@@ -1,0 +1,22 @@
+This issue was raised on the user mailing list. To reproduce it, please run the following command in MR mode:
+
+
+pig -Dpig.additional.jars=<jar1>::<jar2> <pig script>
+
+
+As can be seen, I put :: in the middle of -Dpig.additional.jars, and this causes the following error:
+
+
+Caused by: java.lang.IllegalArgumentException: Can not create a Path from
+an empty string at org.apache.hadoop.fs.Path.checkPathArg(Path.java:82)
+at org.apache.hadoop.fs.Path.<init>(Path.java:90)
+at org.apache.hadoop.fs.Path.<init>(Path.java:45)
+at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler.shipToHDFS(JobControlCompiler.java:1455)
+at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler.putJarOnClassPathThroughDistributedCache(JobControlCompiler.java:1432)
+at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler.getJob(JobControlCompiler.java:508)
+
+
+Although it's not too hard to see what's wrong, it's not always easy to track down where an empty file name is from. In particular if various environment variables are set in another start-up script, it's time-consuming to identify the root cause.
+
+In fact, Pig should just skip an empty file name instead attempts to convert it to a path and throws an exception like this.

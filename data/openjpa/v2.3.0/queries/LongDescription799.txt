@@ -1,0 +1,48 @@
+I got this exception while running my program, and eventually I figured out that the existing UniqueResultObjectProvider that was doing the aggregation would loop through the result sets, but would do it one per column.. (twice in my case), but it would not reset the resultsets after each loop...
+
+I will look at just writing it from scratch (calling it AggregatingResultObjectProvider, to be closer to what it actually does ).  I'll submit a patch soon.
+
+
+<openjpa-2.0.0-SNAPSHOT-r422266:721073M nonfatal user error> org.apache.openjpa.persistence.ArgumentException: Failed to execute query "select count( this ), max( this.createTime ) from com.protrade.fandom.data.entities.CheerStatus this  where this.teamFan = :p0 AND this.createTime > :p1 AND this.createTime <= :p2 AND this.points > 0". Check the query syntax for correctness. See nested exception for details. 
+        at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:857)
+        at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:779)
+        at org.apache.openjpa.kernel.DelegatingQuery.execute(DelegatingQuery.java:525)
+        at org.apache.openjpa.persistence.QueryImpl.execute(QueryImpl.java:257)
+        at org.apache.openjpa.persistence.QueryImpl.getSingleResult(QueryImpl.java:452)
+        at com.protrade.common.persistence.JPAUtil.execute(JPAUtil.java:181)
+        at com.protrade.common.persistence.JPAUtil.executeUnique(JPAUtil.java:162)
+        at com.protrade.common.persistence.JPADQuery.uniqueResult(JPADQuery.java:32)
+        at com.protrade.common.persistence.BaseRootDAOBase.runUniqueQueryNCS(BaseRootDAOBase.java:290)
+        at com.protrade.common.persistence.BaseDAOBase.runUniqueQueryNCS(BaseDAOBase.java:132)
+        at com.protrade.fandom.data.FandomCoreDAO.getCheerStatusCountLastDate(FandomCoreDAO.java:567)
+        at com.protrade.fandom.data.FandomCoreDAO.getTeamFanBasePointsCount(FandomCoreDAO.java:532)
+        at com.protrade.fanwars.base.services.FanwarsAppEventHandlerWorker.doRefreshTeamFanBasePoints(FanwarsAppEventHandlerWorker.java:794)
+        at com.protrade.fanwars.base.services.FanwarsAppEventHandler$11.run2(FanwarsAppEventHandler.java:270)
+        at com.protrade.fanwars.base.services.FanwarsAppEventHandler$FanwarsWorkerRunnable.run(FanwarsAppEventHandler.java:441)
+        at com.protrade.common.spring.OpenEMFilter$BindThreadRunnable.run(OpenEMFilter.java:129)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:417)
+        at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:269)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:123)
+        at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$301(ScheduledThreadPoolExecutor.java:65)
+        at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:168)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:650)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:675)
+        at java.lang.Thread.run(Thread.java:595)
+Caused by: java.sql.SQLException: After end of result set
+        at com.mysql.jdbc.SQLError.createSQLException(SQLError.java:1055)
+        at com.mysql.jdbc.SQLError.createSQLException(SQLError.java:956)
+        at com.mysql.jdbc.SQLError.createSQLException(SQLError.java:926)
+        at com.mysql.jdbc.ResultSetImpl.checkRowPos(ResultSetImpl.java:815)
+        at com.mysql.jdbc.ResultSetImpl.getObject(ResultSetImpl.java:4725)
+        at org.apache.openjpa.lib.jdbc.DelegatingResultSet.getObject(DelegatingResultSet.java:266)
+        at org.apache.openjpa.jdbc.sql.DBDictionary.getObject(DBDictionary.java:756)
+        at org.apache.openjpa.jdbc.sql.ResultSetResult.getObjectInternal(ResultSetResult.java:445)
+        at org.apache.openjpa.jdbc.sql.AbstractResult.getObject(AbstractResult.java:689)
+        at org.apache.openjpa.jdbc.kernel.exps.UnaryOp.load(UnaryOp.java:116)
+        at org.apache.openjpa.jdbc.kernel.ProjectionResultObjectProvider.getResultObject(ProjectionResultObjectProvider.java:78)
+        at org.apache.openjpa.slice.jdbc.UniqueResultObjectProvider.next(UniqueResultObjectProvider.java:92)
+        at org.apache.openjpa.kernel.QueryImpl.singleResult(QueryImpl.java:1292)
+        at org.apache.openjpa.kernel.QueryImpl.toResult(QueryImpl.java:1226)
+        at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:995)
+        at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:848)
+        ... 23 more

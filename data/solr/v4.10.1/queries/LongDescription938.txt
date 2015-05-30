@@ -1,0 +1,17 @@
+Adding a new feature that we need for continuation of a workflow based on a full-import procedure. When   a full-import completes , the pre-defined hook method is called at the end of the same. 
+
+Implementations that need to notified , need to implement the new interface - DataImportCloseHook and register themselves in the data config file as follows. 
+
+<dataConfig>
+
+.
+.
+.
+.
+   <closeHook type="com.myorg.fullimporter.closeHookImpl1" />
+   <closeHook type="com.myorg.fullimporter.closeHookImpl2" />
+</dataConfig>
+
+A single instance of them is created (as part of DataImporter) during instantiation and the same insance is reused across multiple invocations. 
+
+Since the dataImporter is protected by a thread-lock - there is no thred-safe guarantee for the implementations of the full-import close hook. 

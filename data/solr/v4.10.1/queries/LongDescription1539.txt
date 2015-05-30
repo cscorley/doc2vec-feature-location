@@ -1,0 +1,11 @@
+When setting stream=true on XPathEntityProcessor a separate thread is created to read whatever Reader is being used for rows while the original thread pumps a BlockingQueue.  This design allows the Reader to be read even when DIH cannot process documents as quickly as they become available in the Reader.
+
+This design has questionable value.  It adds complexity to the code with unclear benefits to the user.
+
+At any rate, the code incorrectly uses the BlockingQueue API:
+
+1.  Arbitrarily sets a 10 second timeout and fails when this timeout elapses before a row becomes available.
+2.  Fails to check the return code when calling offer() to see if the item was successfully added or if the queue is full.
+3.  Fails to stop consuming the Reader even after an import has failed or been aborted.
+
+The effect is that if a URL being processed pauses more than 10 seconds to think in between streaming rows, the XPathEntityProcessor fails.  Setting the readTimeout and connectionTimeout attributes on the dataSource does not address this bug because XPathEntityProcessor imposes its own timeout, hard-coded to 10 seconds.

@@ -1,0 +1,6 @@
+When specifying a trace file with the traceFile connection URL attribute or with the data source setter method, the handle to the trace file isn't released when the physical connection is closed.
+The problem may be specific to the implementations of ConnectionPoolDataSource and XADataSource, as using a plain data source doesn't involve reuse (i.e another mechanism may close the trace file handle).
+
+Two potential problems caused by this bug:
+ o resource leak  (i.e., too many file handles open)
+ o trace files cannot be deleted on Windows (seen for DERBY-4709)

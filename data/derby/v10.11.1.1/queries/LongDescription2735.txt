@@ -1,0 +1,23 @@
+Add procedure & function to set (and get ) a user's connection authorization to full access, read-only or not defined.
+Based upon the existing UserUtility class but only exposing a single procedure that sets the permission. This is to avoid any appearance that the procedure adds a user.
+
+SYSCS_UTIL.SYSCS_SET_USER_ACCESS(VARCHAR(128) USERNAME, VARCHAR(8) CONNECTION_PERMISSION)
+
+Valid values for  CONNECTION_PERMISSION
+
+FULL - Add the user to the list of full access users for the database, i.e. the database property derby.database.fullAccessUsers)
+READONLY - - Add the user to the list of read-only  users for the database, i.e. the database property derby.database.readOnlyAccessUsers)
+NULL - remove the user from the list of permissions, reverting it to the default permission.
+
+SYSCS_UTIL.SYSCS_GET_USER_ACCESS(VARCHAR(128) USERNAME) RETURNS VARCHAR(8)
+
+Gets the current connection access permissions for the user, factors in the default connection mode.
+
+Return either FULL, READONLY, NO or NULL.
+
+(NO means connection attempt by user will be denied by the user not having an entry in derby.database.fullAccessUsers or derby.database.readOnlyAccessUsers and derby.database.defaultConnectionMode is set to noAccess)
+
+The names of the connection permissions match the existing names in use by Derby.
+
+
+

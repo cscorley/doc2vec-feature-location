@@ -1,0 +1,17 @@
+I've found this guide [1] about using OenJPA 2.2.0 and JBoss 7.1: I had some minor issues (already reported on that page) easily solved, but then I came to this exception, thrown at every JPA query:
+
+<openjpa-2.2.0-r422266:1244990 nonfatal user error> org.apache.openjpa.persistence.ArgumentException: An error occurred while parsing the query filter "SELECT e FROM  ExternalResource e". Error message: The name "ExternalResource" is not a recognized entity or identifier. Perhaps you meant ExternalResource, which is a close match. Known entity names: [ExternalResource, AbstractSchema, RAttrUniqueValue, AbstractVirAttr, Membership, TaskExec, SyncopeConf, Report, RAttr, AbstractExec, SyncopeLogger, USchema, MAttr, PasswordPolicy, RSchema, MSchema, MAttrValue, MAttrUniqueValue, AbstractAttr, AbstractDerSchema, AbstractVirSchema, UAttr, AccountPolicy, RAttrValue, UAttrValue, ReportExec, SyncopeUser, Notification, ConnInstance, AbstractDerAttr, AbstractAttrValue, SyncopeRole, SyncPolicy, Policy, ReportletConfInstance, Task, UAttrUniqueValue, Entitlement, SchemaMapping, UserRequest]
+        at org.apache.openjpa.kernel.exps.AbstractExpressionBuilder.parseException(AbstractExpressionBuilder.java:119) [openjpa-kernel-2.2.0.jar:2.2.0]
+        at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.getClassMetaData(JPQLExpressionBuilder.java:194) [openjpa-kernel-2.2.0.jar:2.2.0]
+        at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.resolveClassMetaData(JPQLExpressionBuilder.java:167) [openjpa-kernel-2.2.0.jar:2.2.0]
+        at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.getCandidateMetaData(JPQLExpressionBuilder.java:242) [openjpa-kernel-2.2.0.jar:2.2.0]
+        at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.getCandidateMetaData(JPQLExpressionBuilder.java:212) [openjpa-kernel-2.2.0.jar:2.2.0]
+        at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.getCandidateType(JPQLExpressionBuilder.java:205) [openjpa-kernel-2.2.0.jar:2.2.0]
+        at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.access$200(JPQLExpressionBuilder.java:80) [openjpa-kernel-2.2.0.jar:2.2.0]
+        at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder$ParsedJPQL.populate(JPQLExpressionBuilder.java:2417) [openjpa-kernel-2.2.0.jar:2.2.0]
+        at org.apache.openjpa.kernel.jpql.JPQLParser.populate(JPQLParser.java:61) [openjpa-kernel-2.2.0.jar:2.2.0]
+
+
+After some deeper investigation, I've found that the problem resides in the vfs: JBoss URLs, currently not managed.
+
+[1] https://community.jboss.org/thread/201329 

@@ -1,0 +1,42 @@
+An example for this bug: 
+
+cat weird.txt
+1,a
+2,b
+3,c
+
+When running pig with the following statements:
+
+A = LOAD 'weird.txt' using PigStorage(',') AS (col1:int,col2);
+B = FILTER A BY ((col1==1) OR (col1 != 1));
+DUMP B;
+
+I expect to get the result of all three rows back, but I receive only two rows.
+
+(2,b)
+(3,c)
+
+When we start pig with optimizer turning off.
+
+pig -optimizer_off All
+
+With optimizer turning off, we get the expected results and I get three rows for the same statements.
+
+(1,a)
+(2,b)
+(3,c)
+
+--------------------------------------------------------
+
+This bug was test on: 
+
+pig-0.9.1, 
+pig-0.9.0, 
+pig-0.8.1, 
+pig-0.8.0
+
+All produced same incorrect results.
+
+--------------------------------------------------------
+
+When looked at the logical plan for this example, we found FilterlogicExpressionSimplifier optimizer produced incorrect logical plan. So we guess the bug is caused by FilterlogicExpressionSimplifier optimizer. 

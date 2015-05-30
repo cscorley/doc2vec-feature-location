@@ -1,0 +1,9 @@
+DatabaseMetaData.getColumns() returns an extra column for a view with a group by and an expression in the select list.  I will attach the reproduction. Run the script create.sql and then the program ViewTest.
+
+This is a regression in version 10.3, It ran ok on latest on the 10.1 and 10.2 branches.
+
+The ResultSetMetaData appears to return the correct number of columns  when you select from the view, but it would be nice to add a regression test for that too.
+
+See discussion on derby-dev.
+
+http://www.nabble.com/extra-column-in-DatabaseMetaData.getColumns()-with-group-by-in-view-td23545576.html

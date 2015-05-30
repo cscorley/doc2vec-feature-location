@@ -1,0 +1,36 @@
+Using the example with some of the exampledocs posted, the url: 
+
+    http://localhost:8983/solr/select/?q=*:*&sort=timestamp+desc&fsv=true 
+
+works correctly, but change "desc" to "asc" and you get:
+
+HTTP ERROR: 500
+
+null
+
+java.lang.NullPointerException
+	at org.apache.solr.handler.component.QueryComponent.getComparator(QueryComponent.java:284)
+	at org.apache.solr.handler.component.QueryComponent.process(QueryComponent.java:229)
+	at org.apache.solr.handler.component.SearchHandler.handleRequestBody(SearchHandler.java:195)
+	at com.proquest.magnolia.solr.plugins.SummonSearchHandler.handleRequestBody(SummonSearchHandler.java:19)
+	at org.apache.solr.handler.RequestHandlerBase.handleRequest(RequestHandlerBase.java:131)
+	at org.apache.solr.core.SolrCore.execute(SolrCore.java:1299)
+	at org.apache.solr.servlet.SolrDispatchFilter.execute(SolrDispatchFilter.java:338)
+	at org.apache.solr.servlet.SolrDispatchFilter.doFilter(SolrDispatchFilter.java:241)
+	at org.mortbay.jetty.servlet.ServletHandler$CachedChain.doFilter(ServletHandler.java:1089)
+	at org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:365)
+	at org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)
+	at org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:181)
+	at org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:712)
+	at org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:405)
+	at org.mortbay.jetty.handler.ContextHandlerCollection.handle(ContextHandlerCollection.java:211)
+	at org.mortbay.jetty.handler.HandlerCollection.handle(HandlerCollection.java:114)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:139)
+	at org.mortbay.jetty.Server.handle(Server.java:285)
+	at org.mortbay.jetty.HttpConnection.handleRequest(HttpConnection.java:502)
+	at org.mortbay.jetty.HttpConnection$RequestHandler.headerComplete(HttpConnection.java:821)
+	at org.mortbay.jetty.HttpParser.parseNext(HttpParser.java:513)
+	at org.mortbay.jetty.HttpParser.parseAvailable(HttpParser.java:208)
+	at org.mortbay.jetty.HttpConnection.handle(HttpConnection.java:378)
+	at org.mortbay.jetty.bio.SocketConnector$Connection.run(SocketConnector.java:226)
+	at org.mortbay.thread.BoundedThreadPool$PoolThread.run(BoundedThreadPool.java:442)

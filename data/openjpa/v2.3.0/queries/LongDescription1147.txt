@@ -1,0 +1,7 @@
+InputStreamLobTest and ReaderLobTest tests are not executed because their names end with "Test". TestAutoIncrement is Oracle-specific but is not executed even against Oracle unless you specify -Dplatform=oracle.
+
+Solution:
+1. Rename streaming LOB tests to start with "Test".
+2. Remove isTargetPlatform call from TestAutoIncrement since the test already has @DatabasePlatform("oracle.jdbc.driver.OracleDriver") annotation.
+
+BTW, a similar issue is with TestOrderColumnXML.testOrderColumnColumnDefinition. It requires to specify -Dplatform=... not to run it if the database is not Derby but I don't think our database profiles do that. Maybe it's better to just use instanceof on DBDictionary.

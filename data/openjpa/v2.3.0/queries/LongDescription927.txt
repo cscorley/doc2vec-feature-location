@@ -1,0 +1,15 @@
+This was originally reported by Pinaki in OPENJPA-849. It is being moved to this new JIRA. Here's Pinaki's original comment:
+
+
+        queryTimeout.setLoadKey("javax.persistence.query.timeout");
+        queryTimeout.setDefault("-1");
+        queryTimeout.set(-1);
+        queryTimeout.setDynamic(true);
+
+does not seem kosher for the following reason:
+
+1. loadKey is the key with which a property is loaded from configuration artifacts. At this point of execution, no property has been actually loaded, they are merely being declared to exist. Hence we should not be setting load key.
+2. configuration declares a Value. But does not assign its value. So setting its value to -1 does not look alright. Setting default value is OK.
+
+These issues gain significance in the light of the fact the configuration's hashcode is the key to a factory in JNDI. And computation of hashcode depends on the actual value of the Values.
+As an extreme example, assume two Configuration C1 and C2 nearly identical but differs only in their query.timeout value. The requirement is hash code for C1 and C2 must not be equal. And that is what Configuration.hashCode() ensures. But, because we are setting query timeout to -1 (that is not what the user's p.xml sets) and it is marked as dynamic, in both cases Configuration hashcode will treat query.timeout value to be -1 and will end up computing same hashcode for C1 and C2.

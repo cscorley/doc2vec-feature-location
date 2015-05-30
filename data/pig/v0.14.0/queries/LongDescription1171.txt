@@ -1,0 +1,17 @@
+I am not sure if this is a bug, or something more subtle, but here is the problem that I am having.
+
+When I LOAD a dataset, change it with an ORDER, LIMIT it, then CROSS it with itself, the results are not correct. I expect to see the cross of the limited, ordered dataset, but instead I see the cross of the limited dataset. Effectively, its like the LIMIT is being excluded.
+
+Example code follows:
+
+
+
+A = load 'foo' as (f1:int, f2:int, f3:int); B = load 'foo' as (f1:int, f2:int, f3:int);
+a = ORDER A BY f1 DESC;
+b = ORDER B BY f1 DESC;
+aa = LIMIT a 1;
+bb = LIMIT b 1;
+C = CROSS aa, bb;
+DUMP C;
+
+

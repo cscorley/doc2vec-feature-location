@@ -1,0 +1,27 @@
+I have a test file encoded in EBCDIC, but Tika fails to detect it.
+
+Not sure we can realistically fix this; I have no idea how (and,
+realistically, one really ought to convert out of EBCDIC on export
+from a mainframe...).
+
+Here's what Tika detects:
+
+
+Shift_JIS:      confidence=51
+Big5:           confidence=40
+GB18030:        confidence=10
+KOI8-R:         confidence=5
+windows-1252:   confidence=5
+windows-1253:   confidence=2
+IBM866:         confidence=1
+windows-1251:   confidence=1
+windows-1250:   confidence=1
+
+
+
+The test file decodes fine as cp500; eg in Python just run this:
+
+
+import codecs
+codecs.getdecoder('cp500')(open('English_EBCDIC.txt').read())
+

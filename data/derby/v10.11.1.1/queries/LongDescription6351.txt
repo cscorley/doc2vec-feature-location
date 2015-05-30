@@ -1,0 +1,17 @@
+If a reference to a transition table in a statement trigger has a correlation name, and that correlation name is equal to the name of the transition table, the CREATE TRIGGER statement fails with a syntax error.
+
+To reproduce:
+
+
+ij version 10.10
+ij> connect 'jdbc:derby:db;create=true';
+ij> create table t1(x int);
+0 rows inserted/updated/deleted
+ij> create table t2(x int);
+0 rows inserted/updated/deleted
+ij> create trigger tr1 after insert on t1 referencing new table as n insert into t2 select x from n as n;
+ERROR 42X01: Syntax error: Encountered "as" at line 1, column 89.
+Issue the 'help' command for general information on IJ command syntax.
+Any unrecognized commands are treated as potential SQL commands and executed directly.
+Consult your DBMS server reference documentation for details of the SQL syntax supported by your server.
+

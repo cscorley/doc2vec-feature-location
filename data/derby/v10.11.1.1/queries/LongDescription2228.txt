@@ -1,0 +1,7 @@
+Derby works on J2ME/CDC/Foundation 1.0 with JSR 169 and thus should also be able to run on Foundation 1.1since Foundation 1.1 is backwards compatible.
+However the additon of BigDecimal breaks an assumption made in the Foundation 1.0 implementation, see DERBY-2224 and DERBY-2210 for details.
+
+I think simple changes that ensure the CDC data factory is booted rather than the J2SE data factory should fix any issues with a Foundation 1.1 platform.
+I think currently the J2SE data factory is being booted becase BigDecimal exists, when in reality it requires BigDecimal and JDBC 2 or higher.
+
+This big is not intended to take advantage of new features in Foundation 1.1, that is handled by DERBY-2210.

@@ -1,0 +1,20 @@
+Usage of the COR function in a Pig script, results in an error. The "studenttab5" contains student, age and gpa separated by "tab".
+
+
+register /home/viraj/pig-svn/trunk/contrib/piggybank/java/piggybank.jar;
+A = LOAD '/user/viraj/studenttab5' AS (name, age:double,gpa:double);
+B = group A all;
+C = foreach B generate group, COR(A.a, A.b);
+dump C;
+
+
+
+
+2011-09-14 17:03:22,001 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to hadoop file system at: hdfs://localhost:9000
+2011-09-14 17:03:22,088 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to map-reduce job tracker at: localhost:9001
+2011-09-14 17:03:22,960 [main] INFO  org.apache.pig.tools.pigstats.ScriptState - Pig features used in the script: GROUP_BY
+2011-09-14 17:03:23,168 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler - File concatenation threshold: 100 optimistic? false
+2011-09-14 17:03:23,179 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.CombinerOptimizer - Choosing to move algebraic foreach to combiner
+2011-09-14 17:03:23,186 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 2018: Internal error. Unable to introduce the combiner for optimization.
+
+Viraj

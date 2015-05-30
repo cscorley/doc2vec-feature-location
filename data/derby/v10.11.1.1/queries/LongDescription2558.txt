@@ -1,0 +1,21 @@
+The following sql gives an ArrayIndexOutOfBoundsException with client.  With embedded we get the expected.
+ERROR XCL13: The parameter position '2' is out of range.  The number of parameters for this prepared  statement is '1'.
+
+ij> create table t (i int);
+0 rows inserted/updated/deleted
+ij> insert into t values (3), (4);
+2 rows inserted/updated/deleted
+ij> execute 'select * from t where i=?' using 'values (3,4)';
+IJ WARNING: Autocommit may close using result set
+JAVA ERROR: java.lang.ArrayIndexOutOfBoundsException: 1
+java.lang.ArrayIndexOutOfBoundsException: 1
+        at org.apache.derby.client.am.PreparedStatement.setObjectX(PreparedStatement.java:1506)
+        at org.apache.derby.client.am.PreparedStatement.setObject(PreparedStatement.java:1458)
+        at org.apache.derby.impl.tools.ij.util.DisplayMulti(util.java:696)
+        at org.apache.derby.impl.tools.ij.utilMain.displayResult(utilMain.java:474)
+        at org.apache.derby.impl.tools.ij.utilMain.runScriptGuts(utilMain.java:351)
+        at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:270)
+        at org.apache.derby.impl.tools.ij.Main.go(Main.java:215)
+        at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:181)
+        at org.apache.derby.impl.tools.ij.Main14.main(Main14.java:56)
+        at org.apache.derby.tools.ij.main(ij.java:71)

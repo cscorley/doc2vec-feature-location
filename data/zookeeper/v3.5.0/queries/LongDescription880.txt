@@ -1,0 +1,17 @@
+We're seeing an issue where one server in the ensemble has a steady growing number of QuorumCnxManager$SendWorker threads up to a point where the OS runs out of native threads, and at the same time we see a lot of exceptions in the logs.  This is on 3.2.2 and our config looks like:
+
+
+tickTime=3000
+dataDir=/somewhere_thats_not_tmp
+clientPort=2181
+initLimit=10
+syncLimit=5
+server.0=sv4borg9:2888:3888
+server.1=sv4borg10:2888:3888
+server.2=sv4borg11:2888:3888
+server.3=sv4borg12:2888:3888
+server.4=sv4borg13:2888:3888
+
+
+
+The issue is on the first server. I'm going to attach threads dumps and logs in moment.

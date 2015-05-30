@@ -1,0 +1,45 @@
+When executed against Hadoop 2.0.0 RC the tests fails like this:
+
+
+$ mahout org.apache.mahout.clustering.syntheticcontrol.fuzzykmeans.Job
+...
+Caused by: java.io.FileNotFoundException: File output/clusters-0 does not exist.
+	at org.apache.hadoop.hdfs.DistributedFileSystem.listStatus(DistributedFileSystem.java:365)
+	at org.apache.hadoop.fs.FileSystem.listStatus(FileSystem.java:1279)
+	at org.apache.hadoop.fs.FileSystem.listStatus(FileSystem.java:1319)
+	at org.apache.mahout.common.iterator.sequencefile.SequenceFileDirValueIterator.<init>(SequenceFileDirValueIterator.java:70)
+	at org.apache.mahout.common.iterator.sequencefile.SequenceFileDirValueIterable.iterator(SequenceFileDirValueIterable.java:76)
+
+
+
+
+$ mahout org.apache.mahout.clustering.syntheticcontrol.dirichlet.Job
+.....
+Caused by: java.io.FileNotFoundException: File output/clusters-0 does not exist.
+	at org.apache.hadoop.hdfs.DistributedFileSystem.listStatus(DistributedFileSystem.java:365)
+	at org.apache.hadoop.fs.FileSystem.listStatus(FileSystem.java:1279)
+	at org.apache.hadoop.fs.FileSystem.listStatus(FileSystem.java:1319)
+	at org.apache.mahout.common.iterator.sequencefile.SequenceFileDirValueIterator.<init>(SequenceFileDirValueIterator.java:70)
+	at org.apache.mahout.common.iterator.sequencefile.SequenceFileDirValueIterable.iterator(SequenceFileDirValueIterable.java:76)
+	... 17 more
+
+
+
+
+$ mahout org.apache.mahout.clustering.syntheticcontrol.canopy.Job
+....
+Caused by: java.io.FileNotFoundException: File output/clusters-0 does not exist.
+	at org.apache.hadoop.hdfs.DistributedFileSystem.listStatus(DistributedFileSystem.java:365)
+	at org.apache.hadoop.fs.FileSystem.listStatus(FileSystem.java:1279)
+	at org.apache.hadoop.fs.FileSystem.listStatus(FileSystem.java:1356)
+	at org.apache.hadoop.fs.FileSystem.globStatusInternal(FileSystem.java:1486)
+	at org.apache.hadoop.fs.FileSystem.globStatus(FileSystem.java:1441)
+	at org.apache.hadoop.fs.FileSystem.globStatus(FileSystem.java:1419)
+	at org.apache.mahout.common.iterator.sequencefile.SequenceFileDirValueIterator.<init>(SequenceFileDirValueIterator.java:68)
+	at org.apache.mahout.common.iterator.sequencefile.SequenceFileDirValueIterable.iterator(SequenceFileDirValueIterable.java:76)
+	... 17 more
+
+
+
+For more details please look at the Bigtop test failures:
+ http://bigtop01.cloudera.org:8080/view/Test/job/SmokeCluster/lastCompletedBuild/testReport/org.apache.bigtop.itest.mahout.smoke/

@@ -1,0 +1,17 @@
+If Network Client cannot connect to the database to retrieve an error message, it will print only the message tokens, the non-ascii token separators, and derby log location.  It would be good if at least the message could be formatted to present a better message to the user without the non-ascii characters.
+
+
+To reproduce try a database shutdown.  Because the database is shutdown, the client cannot retrieve the actual message from the server. It therefore just prints the tokens.
+
+Start network server
+
+java org.apache.derby.drda.NetworkServerControl start
+
+$ java org.apache.derby.tools.ij
+ij version 10.1
+ij> connect 'jdbc:derby://localhost:1527/wombat;create=true';
+ij> connect 'jdbc:derby://localhost:1527/wombat;shutdown=true';
+ERROR 08006: DERBY SQL error: SQLCODE: -1, SQLSTATE: 08006, SQLERRMC: wombat[]08006.D[]Database 'wombat' shutdown.[](server log:derby.log)
+ij>
+
+Note: The actual offending characters have been replaced in the output in this bug by []. This is because they break Jira XML retrieval!

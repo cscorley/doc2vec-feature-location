@@ -1,0 +1,14 @@
+While replaying txnlog on data tree, the server has a code to detect missing parent node. This code block was last modified as part of ZOOKEEPER-1333. In our production, we found a case where this check is return false positive.
+
+The sequence of txns is as follows:
+
+zxid 1:  create /prefix/a
+zxid 2:  create /prefix/a/b
+zxid 3:  delete /prefix/a/b
+zxid 4:  delete /prefix/a
+
+The server start capturing snapshot at zxid 1. However, by the time it traversing the data tree down to /prefix, txn 4 is already applied and /prefix have no children. 
+
+When the server restore from snapshot, it process txnlog starting from zxid 2. This txn generate missing parent error and the server refuse to start up.
+
+The same check allow me to discover bug in ZOOKEEPER-1551, but I don't know if we have any option beside removing this check to solve this issue.  

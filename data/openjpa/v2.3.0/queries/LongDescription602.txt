@@ -1,0 +1,12 @@
+The example I'll attach crashes with an NPE when running the mappingtool.
+
+Caused by: java.lang.NullPointerException
+	at org.apache.openjpa.jdbc.meta.strats.RelationToManyInverseKeyFieldStrategy.map(RelationToManyInverseKeyFieldStrategy.java:136)
+	at org.apache.openjpa.jdbc.meta.strats.RelationCollectionInverseKeyFieldStrategy.map(RelationCollectionInverseKeyFieldStrategy.java:95)
+	at org.apache.openjpa.jdbc.meta.FieldMapping.setStrategy(FieldMapping.java:120)
+	at org.apache.openjpa.jdbc.meta.RuntimeStrategyInstaller.installStrategy(RuntimeStrategyInstaller.java:80)
+	at org.apache.openjpa.jdbc.meta.FieldMapping.resolveMapping(FieldMapping.java:438)
+	at org.apache.openjpa.jdbc.meta.FieldMapping.resolve(FieldMapping.java:403)
+	at org.apache.openjpa.jdbc.meta.ClassMapping.resolveMapping(ClassMapping.java:812)
+
+The goal of this JIRA is not (neccessarily) to support the kind of mapping that would be required for this (which may be hard), but to at least print a clear error and not an NPE...

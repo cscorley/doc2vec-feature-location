@@ -1,0 +1,11 @@
+I've got an word document (docx) that was written by POI-3.7 and I'm trying to read it back in and I'm getting this NPE:
+
+Caused by: java.lang.NullPointerException
+	at org.apache.tika.parser.microsoft.ooxml.XWPFWordExtractorDecorator.extractHeaders(XWPFWordExtractorDecorator.java:234)
+	at org.apache.tika.parser.microsoft.ooxml.XWPFWordExtractorDecorator.buildXHTML(XWPFWordExtractorDecorator.java:71)
+	at org.apache.tika.parser.microsoft.ooxml.AbstractOOXMLExtractor.getXHTML(AbstractOOXMLExtractor.java:99)
+	at org.apache.tika.parser.microsoft.ooxml.OOXMLExtractorFactory.parse(OOXMLExtractorFactory.java:83)
+	at org.apache.tika.parser.microsoft.ooxml.OOXMLParser.parse(OOXMLParser.java:67)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:197)
+
+From what I can see, a document may not necessarily have a headerfooterpolicy.

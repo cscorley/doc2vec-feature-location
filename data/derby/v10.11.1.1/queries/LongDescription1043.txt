@@ -1,0 +1,159 @@
+Recently there was a question on the derby-user list about a trigger not firing correctly.
+http://article.gmane.org/gmane.comp.apache.db.derby.user/3246
+
+The correct approach was suggested since the trigger statement referenced the actual table name in the 'Triggered-SQL-Statement. But I was surprised that no exception was thrown in the first place during trigger creation.  I tried a couple of scenarios and it turns out that if the col names of the triggered column and the column being updated in the triggered SQL are the same, Derby does not throw any exception and the trigger gets created just fine, but will not fire.
+
+The solution may be to throw ERROR 42X04 exception in all the cases when actual table names are referred in the triggered SQL, but the current way is misleading hence marking this  issue a Medium.  To reproduce the issue, simply run  the attached sql script.
+
+ij version 10.2
+ij> run 'trigger_error.sql';
+ij> CONNECT 'jdbc:derby:bdb;create=true';
+ij> DROP TABLE A_TABLE;
+ERROR 42Y55: 'DROP TABLE' cannot be performed on 'A_TABLE' because it does not exist.
+ij> DROP TABLE B_TABLE;
+ERROR 42Y55: 'DROP TABLE' cannot be performed on 'B_TABLE' because it does not exist.
+ij> CREATE TABLE A_TABLE (ID SMALLINT GENERATED ALWAYS AS IDENTITY, A_COL VARCHAR(15) NOT NULL PRIMARY KEY);
+0 rows inserted/updated/deleted
+ij> CREATE TABLE B_TABLE (TYPE VARCHAR(15) NOT NULL, B_COL VARCHAR(15) NOT NULL, AMOUNT SMALLINT NOT NULL DEFAULT 0);
+0 rows inserted/updated/deleted
+–
+--CORRECT BEHAVIOUR:
+--==================
+--This trigger statement throws an exception, since actual
+--table reference cannot be made in the 'Triggered-SQL-Statement'
+–
+--Note:The Col name used in the 'Triggered-SQL-Statement' for B_TABLE is B_COL.
+–
+
+CREATE TRIGGER UPDATE_A_TABLE AFTER UPDATE OF A_COL ON A_TABLE   REFERENCING OLD
+ AS PREVIOUSROW    FOR EACH ROW MODE DB2SQL    UPDATE B_TABLE SET B_TABLE.B_COL
+= A_TABLE.A_COL    WHERE B_TABLE.B_COL = PREVIOUSROW.A_COL;
+
+ERROR 42X04: Column 'A_COL' is either not in any table in the FROM list or appea
+rs within a join specification and is outside the scope of the join specificatio
+n or appears in a HAVING clause and is not in the GROUP BY list. If this is a CR
+EATE or ALTER TABLE  statement then 'A_COL' is not a column in the target table.
+
+–
+--Drop and Re-create the B_TABLE, but with A_COL as the column name
+–
+DROP TABLE B_TABLE;
+0 rows inserted/updated/deleted
+ij> CREATE TABLE B_TABLE (TYPE VARCHAR(15) NOT NULL, A_COL VARCHAR(15) NOT NULL, AMOUNT SMALLINT NOT NULL DEFAULT 0);
+0 rows inserted/updated/deleted
+–
+--INCORRECT BEHAVIOUR:
+--====================
+--This trigger statement executes successfully, does NOT throw an exception, even
+--when actual table reference is made in the 'Triggered-SQL-Statement'
+–
+--Note: The Col name used in the 'Triggered-SQL-Statement' for B_TABLE is A_COL
+--(same name as the column in A_TABLE)
+–
+
+CREATE TRIGGER UPDATE_A_TABLE AFTER UPDATE OF A_COL ON A_TABLE   REFERENCING OLD
+ AS PREVIOUSROW    FOR EACH ROW MODE DB2SQL    UPDATE B_TABLE SET B_TABLE.A_COL
+= A_TABLE.A_COL    WHERE B_TABLE.A_COL = PREVIOUSROW.A_COL;
+0 rows inserted/updated/deleted
+–
+-- insert data
+–
+
+insert into a_table(a_col) values ('apples');
+1 row inserted/updated/deleted
+ij> insert into a_table(a_col) values ('watermelons');
+1 row inserted/updated/deleted
+ij> insert into a_table(a_col) values ('oranges');
+1 row inserted/updated/deleted
+ij> insert into b_table values('tree fruit','apples',1);
+1 row inserted/updated/deleted
+ij> insert into b_table values('citrus fruit','oranges',1);
+1 row inserted/updated/deleted
+ij> insert into b_table values('melon fruit','watermelons',1);
+1 row inserted/updated/deleted
+–
+--get contents of tables;
+–
+SELECT * FROM A_TABLE;
+ID    |A_COL
+----------------------
+1     |apples
+2     |watermelons
+3     |oranges
+
+3 rows selected
+ij> SELECT * FROM B_TABLE;
+TYPE           |A_COL          |AMOUNT
+--------------------------------------
+tree fruit     |apples         |1
+citrus fruit   |oranges        |1
+melon fruit    |watermelons    |1
+
+3 rows selected
+–
+--update a col in a_table, trigger will not fire
+–
+update a_table set a_col='cherries' where a_col='apples';
+1 row inserted/updated/deleted
+–
+--select from a_table
+–
+SELECT * FROM A_TABLE;
+ID    |A_COL
+----------------------
+1     |cherries
+2     |watermelons
+3     |oranges
+
+3 rows selected
+–
+--trigger did not fire and will see the same data. 'apples' still shown in b_table;
+–
+SELECT * FROM B_TABLE;
+TYPE           |A_COL          |AMOUNT
+--------------------------------------
+tree fruit     |apples         |1
+citrus fruit   |oranges        |1
+melon fruit    |watermelons    |1
+
+3 rows selected
+
+In any case, the correct way to create the trigger is to use 'NEW' to refer the new row value rather than using
+the actual table name.
+
+–
+-- Attempt to create using the correct trigger statement - the RIGHT WAY
+–
+DROP TRIGGER UPDATE_A_TABLE;
+0 rows inserted/updated/deleted
+ij> CREATE TRIGGER UPDATE_A_TABLE AFTER UPDATE OF A_COL ON A_TABLE   REFERENCING
+ OLD AS PREVIOUSROW NEW AS NEWROW  FOR EACH ROW MODE DB2SQL    UPDATE B_TABLE SE
+T B_TABLE.A_COL = NEWROW.A_COL    WHERE B_TABLE.A_COL = PREVIOUSROW.A_COL;
+0 rows inserted/updated/deleted
+ –
+-- update
+–
+UPDATE A_TABLE SET A_COL='limes' WHERE A_COL='oranges';
+1 row inserted/updated/deleted
+–
+--select from a_table
+–
+SELECT * FROM A_TABLE;
+ID    |A_COL
+----------------------
+1     |cherries
+2     |watermelons
+3     |limes
+
+3 rows selected
+–
+--trigger fired and reflects in the b_table data 'oranges' became 'limes'
+–
+SELECT * FROM B_TABLE;
+TYPE           |A_COL          |AMOUNT
+--------------------------------------
+tree fruit     |apples         |1
+citrus fruit   |limes          |1
+melon fruit    |watermelons    |1
+
+3 rows selected

@@ -1,0 +1,11 @@
+Suppose you wish to extract information from arbitrary file types and add it to a Metadata Object. This type of task is best handled by a... Handler. But, Handlers do not have access to the Metadata Object passed to a Parser. 
+
+So, I see a few ways we could do using existing functionality.
+
+1) Make an intermediate XML representation of the desired metadata in a handler, then convert the XML to the Metadata after parsing. 
+
+2) Create a second Parser which extracts the desired information.
+     a) Assume the Handler passed to this Parser is already filled with content. So, we could simply get whatever content from the Handler and populate the Metadata directly.
+     b) Create a new Stream in the first Parser to pass to the second, which in turn populates the Metadata.
+
+None of these options seem ideal. Is there a better way to handle this scenario? Or, can we create some sort of... wrapper for a Handler which can accept a Metadata Object to populate directly? 

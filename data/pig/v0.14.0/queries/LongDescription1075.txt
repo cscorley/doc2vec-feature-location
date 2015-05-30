@@ -1,0 +1,45 @@
+When Cogrouping 2 relations on multiple key fields, pig throws an error if the corresponding types don't match. 
+Consider the following script:-
+A = LOAD 'data' USING PigStorage() as (a:chararray, b:int, c:int);
+B = LOAD 'data' USING PigStorage() as (a:chararray, b:chararray, c:int);
+C = CoGROUP A BY (a,b,c), B BY (a,b,c);
+D = FOREACH C GENERATE FLATTEN(A), FLATTEN(B);
+describe D;
+dump D;
+
+The complete stack trace of the error thrown is
+
+Pig Stack Trace
+---------------
+ERROR 1051: Cannot cast to Unknown
+
+org.apache.pig.impl.logicalLayer.FrontendException: ERROR 1001: Unable to describe schema for alias D
+        at org.apache.pig.PigServer.dumpSchema(PigServer.java:436)
+        at org.apache.pig.tools.grunt.GruntParser.processDescribe(GruntParser.java:233)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:253)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:168)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:144)
+        at org.apache.pig.tools.grunt.Grunt.exec(Grunt.java:89)
+        at org.apache.pig.Main.main(Main.java:397)
+Caused by: org.apache.pig.impl.plan.PlanValidationException: ERROR 0: An unexpected exception caused the validation to stop
+        at org.apache.pig.impl.plan.PlanValidator.validateSkipCollectException(PlanValidator.java:104)
+        at org.apache.pig.impl.logicalLayer.validators.TypeCheckingValidator.validate(TypeCheckingValidator.java:40)
+        at org.apache.pig.impl.logicalLayer.validators.TypeCheckingValidator.validate(TypeCheckingValidator.java:30)
+        at org.apache.pig.impl.logicalLayer.validators.LogicalPlanValidationExecutor.validate(LogicalPlanValidationExecutor.java:83)
+        at org.apache.pig.PigServer.compileLp(PigServer.java:821)
+        at org.apache.pig.PigServer.dumpSchema(PigServer.java:428)
+        ... 6 more
+Caused by: org.apache.pig.impl.logicalLayer.validators.TypeCheckerException: ERROR 1060: Cannot resolve COGroup output schema
+        at org.apache.pig.impl.logicalLayer.validators.TypeCheckingVisitor.visit(TypeCheckingVisitor.java:2463)
+        at org.apache.pig.impl.logicalLayer.LOCogroup.visit(LOCogroup.java:372)
+        at org.apache.pig.impl.logicalLayer.LOCogroup.visit(LOCogroup.java:45)
+        at org.apache.pig.impl.plan.DependencyOrderWalker.walk(DependencyOrderWalker.java:69)
+        at org.apache.pig.impl.plan.PlanVisitor.visit(PlanVisitor.java:51)
+        at org.apache.pig.impl.plan.PlanValidator.validateSkipCollectException(PlanValidator.java:101)
+        ... 11 more
+Caused by: org.apache.pig.impl.logicalLayer.validators.TypeCheckerException: ERROR 1051: Cannot cast to Unknown
+        at org.apache.pig.impl.logicalLayer.validators.TypeCheckingVisitor.insertAtomicCastForCOGroupInnerPlan(TypeCheckingVisitor.java:2552)
+        at org.apache.pig.impl.logicalLayer.validators.TypeCheckingVisitor.visit(TypeCheckingVisitor.java:2451)
+        ... 16 more
+
+The error message does not help the user in identifying the issue clearly especially if the pig script is large and complex.

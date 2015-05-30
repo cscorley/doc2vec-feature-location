@@ -1,0 +1,47 @@
+intermittent nightly regression test failure in trunk, linux, ibm16
+only happened once in may on this machine environment.
+http://people.apache.org/~myrnavl/derby_test_results/main/linux/testlog/ibm16/1488444-suites.All_diff.txt
+
+There was 1 error:
+1) testDerby966(org.apache.derbyTesting.functionTests.tests.jdbcapi.XATest)java.sql.SQLFeatureNotSupportedException: The DDM object 0x2408 is not supported.  The connection has been terminated.
+	at org.apache.derby.client.am.SQLExceptionFactory.getSQLException(Unknown Source)
+	at org.apache.derby.client.am.SqlException.getSQLException(Unknown Source)
+	at org.apache.derby.client.am.LogicalConnection.close(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.XATest.testDerby966(XATest.java:1079)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:60)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:37)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:117)
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.runBareOverridable(BaseJDBCTestCase.java:439)
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.runBare(BaseJDBCTestCase.java:456)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+Caused by: org.apache.derby.client.am.DisconnectException: The DDM object 0x2408 is not supported.  The connection has been terminated.
+	at org.apache.derby.client.net.NetConnectionReply.doObjnsprmSemantics(Unknown Source)
+	at org.apache.derby.client.net.NetConnectionReply.parseSYNCCTLError(Unknown Source)
+	at org.apache.derby.client.net.NetXAConnectionReply.parseSYNCCTLreply(Unknown Source)
+	at org.apache.derby.client.net.NetXAConnectionReply.readLocalXACommit(Unknown Source)
+	at org.apache.derby.client.net.NetXAConnection.readLocalXACommit_(Unknown Source)
+	at org.apache.derby.client.net.NetXAConnection.readCommit(Unknown Source)
+	at org.apache.derby.client.net.NetConnection.readXACommit_(Unknown Source)
+	at org.apache.derby.client.am.ClientConnection.readCommit(Unknown Source)
+	at org.apache.derby.client.am.ClientConnection.readAutoCommit(Unknown Source)
+	at org.apache.derby.client.am.ClientConnection.flowClose(Unknown Source)
+	at org.apache.derby.client.am.ClientConnection.closeForReuse(Unknown Source)
+	... 49 more
+
+FAILURES!!!
+Tests run: 17341,  Failures: 0,  Errors: 1

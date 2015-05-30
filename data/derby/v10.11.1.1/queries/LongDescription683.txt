@@ -1,0 +1,7 @@
+In client, there is code in ClobOutputStream which uses this api - new String(byte[]).   Per the java api http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html#String(byte[]) ,this will construct a string by decoding the array of bytes using the platform's default character set. 
+
+org.apache.derby.client.am.ClobOutputStream is used for Clob.setAsciiStream and the write methods  use the String(byte[]) which is incorrect because it will use the default platform encoding. Per the jdbcapi , this should use ascii encoding. 
+
+In areas related to Clobs, also check for other places where  String(byte[]) is used,as it may not be the desired behavior. 
+
+Dan pointed this problem here : http://issues.apache.org/jira/browse/DERBY-463?page=comments#action_12356742

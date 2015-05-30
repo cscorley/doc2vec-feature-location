@@ -1,0 +1,12 @@
+AnnotationPersistenceMetaDataParser contains a MethodComparator which only compares the class + the method name. Too bad I have (had...) 2 methods with the same name in my EntityListener:
+
+    @PreUpdate
+    public void updateChangeLog(Object entity) { ..
+
+and also
+
+    private void updateChangeLog(BaseEntity he, ChangeLogEntry cle)
+
+which is a private helper method.
+
+Due to the bug in MethodComparator, my @PreUpdate sometimes didn't get detected.

@@ -1,0 +1,9 @@
+NetXAResource.removeXaresFromSameRMchain() does the following to remove a NetXAResource from what's logically a singly-linked list:
+
+1) Mark the NetXAResource to remove with a flag (a field called ignoreMe_)
+2) Synchronize on an object that protects the linked list
+3) Follow the chain of next pointers in the linked list and remove the first flagged object
+4) Release synchronization lock obtained in (2)
+5) Clear the flag set in (1)
+
+Now, say that two threads (T1 and T2) perform step 1 in parallel. T1 is granted the synchronization lock in (2), and T2 must wait. T1 traverses the linked list, finds the object flagged by T2 and removes it. Further T1 releases the synchronization lock and clears the flag on the object it had flagged. This is not the same object that it removed, so when T2 is granted the synchronization lock, there is no object flagged for removal. As a result, only the object T2 attempted to remove was in fact removed. The object that T1 flagged for removal is still in the linked list.

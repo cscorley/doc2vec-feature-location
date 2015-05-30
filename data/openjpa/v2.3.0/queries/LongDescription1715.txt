@@ -1,0 +1,12 @@
+For the following JPQL (According to JPA sepcification v2.0, section 4.9, it is legal to use result variables in the order by clause):
+
+select v.id r0, sum(_v0.score) r1 from Stall _v left join v.scores v0 where v.deleted = :p0 and v.market = :p1 group by v.id order by _r1 desc, _r0
+
+but OpenJPA generates a wrong SQL as following:
+
+SELECT t0.id AS c0, SUM(t1.score) AS _r1 AS c1 FROM stalls t0, scores t1 WHERE (t0.deleted = ? AND t0.market = ? AND 1 = 1) AND t0.id = t1.stall GROUP BY t0.id ORDER BY _r1 DESC, t0.id ASC
+
+The second result item in the select clause has 2 aliases specified: "SUM(t1.score) AS _r1 AS c1", which is obviously not acceptable by the underlining database.
+
+Additional question:
+How can i order NULL values, like the behavior achieved by using Oracle "ORDER BY SUM(t1.score) DESC NULLS LAST", by using JPQL?

@@ -1,0 +1,34 @@
+Entity with 1xm relationship define in orm.xml causes the following exception during emf.createEntityManager.
+
++    //Removing the XML from the orm.xml file, and using this fixes the issue:
++    //@OneToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
++    private List<XMLManyToOneEntity>  xmlManyToOneList = new ArrayList<XMLManyToOneEntity>(0);
+
+And this mapping in the orm.xml:
+
++              <one-to-many name="xmlManyToOneList" fetch="LAZY">
++            <join-column name="IDENTITY" />
++                 <cascade>
++                    <cascade-all/>
++                 </cascade>
+
+<openjpa-2.2.0-SNAPSHOT-r422266:1235624 fatal user error> org.apache.openjpa.persistence.ArgumentException: You have supplied columns for "org.apache.openjpa.persistence.arrays.model.XMLOneToManyEntity.xmlManyToOneList", but this mapping cannot have columns in this context.
+	at org.apache.openjpa.jdbc.meta.MappingInfo.assertNoSchemaComponents(MappingInfo.java:382)
+	at org.apache.openjpa.jdbc.meta.strats.RelationToManyTableFieldStrategy.map(RelationToManyTableFieldStrategy.java:97)
+	at org.apache.openjpa.jdbc.meta.strats.RelationCollectionTableFieldStrategy.map(RelationCollectionTableFieldStrategy.java:95)
+	at org.apache.openjpa.jdbc.meta.FieldMapping.setStrategy(FieldMapping.java:146)
+	at org.apache.openjpa.jdbc.meta.RuntimeStrategyInstaller.installStrategy(RuntimeStrategyInstaller.java:82)
+	at org.apache.openjpa.jdbc.meta.FieldMapping.resolveMapping(FieldMapping.java:496)
+	at org.apache.openjpa.jdbc.meta.FieldMapping.resolve(FieldMapping.java:461)
+	at org.apache.openjpa.jdbc.meta.ClassMapping.resolveMapping(ClassMapping.java:865)
+	at org.apache.openjpa.meta.ClassMetaData.resolve(ClassMetaData.java:1802)
+	at org.apache.openjpa.meta.MetaDataRepository.processBuffer(MetaDataRepository.java:821)
+	at org.apache.openjpa.meta.MetaDataRepository.resolveMapping(MetaDataRepository.java:776)
+	at org.apache.openjpa.meta.MetaDataRepository.resolve(MetaDataRepository.java:656)
+	at org.apache.openjpa.meta.MetaDataRepository.getMetaDataInternal(MetaDataRepository.java:410)
+	at org.apache.openjpa.meta.MetaDataRepository.getMetaData(MetaDataRepository.java:383)
+	at org.apache.openjpa.jdbc.meta.MappingRepository.getMapping(MappingRepository.java:352)
+	at org.apache.openjpa.jdbc.meta.MappingTool.getMapping(MappingTool.java:682)
+	at org.apache.openjpa.jdbc.meta.MappingTool.buildSchema(MappingTool.java:754)
+	at org.apache.openjpa.jdbc.meta.MappingTool.run(MappingTool.java:652)
+	at org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.synchronizeMappings(JDBCBrokerFactory.java:154)

@@ -1,0 +1,21 @@
+I looked over the R reference code and alpha_0 is used in two places, not one as in the current implementation:
+
+
+	in state initialization "beta = rbeta(K, 1, alpha_0)" [K is the number of models]
+	during state update "beta[k] = rbeta(1, 1 + counts[k], alpha_0 + N-counts[k])" [N is the cardinality of the sample vector and counts corresponds to totalCounts in the implementation]
+
+
+
+The value of beta[k] is then used in the Dirichlet distribution calculation which results in the mixture probabilities pi[i], for the iteration:
+
+   other = 1                                     # product accumulator
+   for (k in 1:K) {
+     pi[k] = beta[k] * other;                    # beta_k * prod_
+{n<k}
+ beta_n
+     other = other * (1-beta[k])
+     }
+
+Alpha_0 determines the probability a point will go into an empty cluster, mostly during the first iteration.  During the first iteration, the total counts of all prior clusters are zero. Thus the Beta calculation that drives the Dirichlet distribution that determines the mixture probabilities degenerates to beta = rBeta(1, alpha_0). Clusters that end up with points for the next iteration will overwhelm the small constants (alpha_0, 1) and subsequent new mixture probabilities will derive from beta ~=  rBeta(count, total) which is the current implementation. All empty clusters will subsequently be driven by beta ~= rBeta(1, total) as alpha_0 is insignificant and count is 0.
+
+The current implementation ends up using beta = rBeta(alpha_0/k, alpha_0) as initial values during all iterations because the counts are all initialized to alpha_0/k. Close but no cigar.

@@ -1,0 +1,22 @@
+In Pig 0.8 , the stats is showing wrong information when ever I have multiple loads and the the file names are similar .
+
+a) Problem 1
+Sample Script : 
+A = LOAD 'myfolder/tryme' AS (f1);
+B = LOAD 'myfolder/anotherfolder/tryme' AS (f2);
+C = JOIN A BY f1, B BY f2;
+DUMP C;
+
+Here I have 10 records for A and 3 records for B , but pig says 
+Successfully read 6 records from: "<nn>/myfolder/anotherfolder/tryme"
+Successfully read 6 records from: "<nn>myfolder/tryme"
+
+b) Problem 2
+A = LOAD 'myfolder/tryme' AS (f1);
+B = LOAD 'myfolder/an1111otherfolder/tryme' AS (f2);
+C = JOIN A BY f1, B BY f2;
+DUMP C;
+
+Here there is no folder named an1111otherfolder while "myfolder/tryme" exists . But pig says
+Failed to read data from "<nn>/myfolder/an1111otherfolder/tryme"
+Failed to read data from "<nn>/myfolder/tryme"

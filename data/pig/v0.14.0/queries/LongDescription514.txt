@@ -1,0 +1,54 @@
+For the following piece of sample code in FOREACH which counts the filtered student records based on record_type == 1 and scores and also on record_type == 0 does not seem to return any results.
+
+
+mydata = LOAD 'mystudentfile.txt' AS  (record_type,name,age,scores,gpa);
+--keep only what we need
+mydata_filtered = FOREACH  mydata GENERATE   record_type,  name,  age,  scores ;
+--group
+mydata_grouped = GROUP mydata_filtered BY  (record_type,age);
+
+myfinaldata = FOREACH mydata_grouped {
+     myfilter1 = FILTER mydata_filtered BY record_type == 1 AND age == scores;
+     myfilter2 = FILTER mydata_filtered BY record_type == 0;
+     GENERATE FLATTEN(group),
+-- Only this count causes the problem ??
+      COUNT(myfilter1) as col2,
+      SUM(myfilter2.scores) as col3,
+      COUNT(myfilter2) as col4;  };
+
+--these set of statements confirm that the count on the  filters returns 1
+--mycountdata = FOREACH mydata_grouped
+--{
+--      myfilter1 = FILTER mydata_filtered BY record_type == 1 AND age == scores;
+--      GENERATE
+--      COUNT(myfilter1) as colcount;
+--};
+--dump mycountdata;
+
+dump myfinaldata;
+
+
+
+But if you uncomment the  
+
+ COUNT(myfilter1) as col2, 
+
+, it seems to work with the following results..
+(0,22,45.0,2L)
+(0,24,133.0,6L)
+(0,25,22.0,1L)
+
+Also I have tried to verify if this is a issue with the 
+
+ COUNT(myfilter1) as col2, 
+
+ returning zero. It does not seem to be the case.
+If 
+
+  dump mycountdata; 
+
+ is uncommented it returns:
+(1L)
+(1L)
+
+I am attaching the tab separated 'mystudentfile.txt' file used in this Pig script. Is this an issue with 2 filters in the FOREACH followed by a COUNT on these filters??

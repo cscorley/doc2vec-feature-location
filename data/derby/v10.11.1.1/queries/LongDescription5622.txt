@@ -1,0 +1,8 @@
+There are two issues, already seen in DERBY-2687:
+
+   "the boot issue": there is a 1/2**16 chance that a wrong bootPassword will allow boot to proceed (but since its decoded key is wrong the boot will fail).
+   "the password change" issue: similarly, there is a chance that the wrong bootPassword will be accepted trying to change it via 
+    SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY('bootPassword', ...) at least for algorithms that do not check IV (initialization vector) in addition to the
+    digest, e.g. "DES/ECB/NoPadding"
+
+The latter case may lead to data corruption, cf. DERBY-2687 discussion. I think the risk is fairly low, though: One would need to have execution permission to change the property if SQL authorization is used, and in most scenarios the supplied existing password would be correct. But since the results can be bad, it would be good to reduce or eliminate the risk.

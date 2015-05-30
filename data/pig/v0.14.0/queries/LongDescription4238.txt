@@ -1,0 +1,8 @@
+If plan is fetchable, PIG-4171 sets 
+
+
+pc.getProperties().setProperty(PigImplConstants.CONVERTED_TO_FETCH, "true");
+
+
+When working in grunt this session-scoped property remains set after the result is fetched. For example, if subsequent jobs aren't fetchable or  the user disables fetch, this property will be still there.
+We'd need to remove this property from PigContext after the fetch job finishes.

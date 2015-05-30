@@ -1,0 +1,46 @@
+The thread dump is:
+
+"main" prio=6 tid=0x003f81d8 nid=0x10e4 in Object.wait() [0x0006f000..0x0006fc20]
+        at java.lang.Object.wait(Native Method)
+
+	waiting on <0x23dd0188> (a java.lang.Object)
+        at java.lang.Object.wait(Object.java:474)
+        at org.apache.solr.core.SolrCore.getSearcher(SolrCore.java:685)
+	locked <0x23dd0188> (a java.lang.Object)
+        at org.apache.solr.core.SolrCore.getSearcher(SolrCore.java:624)
+        at org.apache.solr.handler.component.QueryElevationComponent.inform(QueryElevationComponent.java:185)
+	locked <0x23e51ee0> (a java.util.WeakHashMap)
+        at org.apache.solr.core.SolrResourceLoader.inform(SolrResourceLoader.java:264)
+        at org.apache.solr.core.SolrCore.<init>(SolrCore.java:396)
+	locked <0x27b44b60> (a java.lang.Class)
+        at org.apache.solr.servlet.SolrDispatchFilter.init(SolrDispatchFilter.java:90)
+        at org.mortbay.jetty.servlet.FilterHolder.doStart(FilterHolder.java:99)
+        at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:40)
+        at org.mortbay.jetty.servlet.ServletHandler.initialize(ServletHandler.java:594)
+        at org.mortbay.jetty.servlet.Context.startContext(Context.java:139)
+        at org.mortbay.jetty.webapp.WebAppContext.startContext(WebAppContext.java:1218)
+        at org.mortbay.jetty.handler.ContextHandler.doStart(ContextHandler.java:500)
+        at org.mortbay.jetty.webapp.WebAppContext.doStart(WebAppContext.java:448)
+        at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:40)
+        at org.mortbay.jetty.handler.HandlerCollection.doStart(HandlerCollection.java:147)
+        at org.mortbay.jetty.handler.ContextHandlerCollection.doStart(ContextHandlerCollection.java:161)
+        at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:40)
+        at org.mortbay.jetty.handler.HandlerCollection.doStart(HandlerCollection.java:147)
+        at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:40)
+        at org.mortbay.jetty.handler.HandlerWrapper.doStart(HandlerWrapper.java:117)
+        at org.mortbay.jetty.Server.doStart(Server.java:210)
+        at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:40)
+        at org.mortbay.xml.XmlConfiguration.main(XmlConfiguration.java:929)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+        at java.lang.reflect.Method.invoke(Method.java:585)
+        at org.mortbay.start.Main.invokeMain(Main.java:183)
+        at org.mortbay.start.Main.start(Main.java:497)
+        at org.mortbay.start.Main.main(Main.java:115)
+
+
+
+The cause is that accessing reader during SolrCoreAware.inform(). Shalin pointed out same thing at:
+
+http://www.nabble.com/Accessing-IndexReader-during-core-initialization-hangs-init-td17259235.html#a17259235

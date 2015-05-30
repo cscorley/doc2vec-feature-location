@@ -1,0 +1,52 @@
+Create a database called "wombat" with Derby 10.10.2.0.
+
+Then, in the same directory, execute the following code using the 10.11.1.0 release candidate:
+
+
+
+        Connection c = DriverManager.getConnection("jdbc:derby:wombat");
+        c.setAutoCommit(false);
+        Statement s = c.createStatement();
+        s.execute("create table t(i int generated always as identity)");
+        s.execute("insert into t values (default)");
+        c.rollback();
+
+
+
+The INSERT statement will fail with a self-deadlock:
+
+
+Exception in thread "main" java.sql.SQLTransactionRollbackException: Self-deadlock.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.ConnectionChild.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+	at Kladd.main(Kladd.java:12)
+Caused by: ERROR 40XL2: Self-deadlock.
+	at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+	at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+	at org.apache.derby.impl.services.locks.ConcurrentLockSet.lockObject(Unknown Source)
+	at org.apache.derby.impl.services.locks.AbstractPool.lockObject(Unknown Source)
+	at org.apache.derby.impl.services.locks.ConcurrentPool.lockObject(Unknown Source)
+	at org.apache.derby.impl.store.raw.xact.RowLocking3.lockRecordForWrite(Unknown Source)
+	at org.apache.derby.impl.store.access.conglomerate.OpenConglomerate.lockPositionForWrite(Unknown Source)
+	at org.apache.derby.impl.store.access.conglomerate.GenericConglomerateController.fetch(Unknown Source)
+	at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.getSetAutoincrementValue(Unknown Source)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.getOldStyleIdentityValue(Unknown Source)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.getSetAutoincrementValue(Unknown Source)
+	at org.apache.derby.impl.sql.execute.BaseActivation.getSetAutoincrementValue(Unknown Source)
+	at org.apache.derby.exe.acaaeec04ex0147xab31x1ccax000007dedc900.e0(Unknown Source)
+	at org.apache.derby.impl.services.reflect.DirectCall.invoke(Unknown Source)
+	at org.apache.derby.impl.sql.execute.RowResultSet.getNextRowCore(Unknown Source)
+	at org.apache.derby.impl.sql.execute.DMLWriteResultSet.getNextRowCore(Unknown Source)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.getNextRowCore(Unknown Source)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.open(Unknown Source)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(Unknown Source)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(Unknown Source)
+	... 4 more
+

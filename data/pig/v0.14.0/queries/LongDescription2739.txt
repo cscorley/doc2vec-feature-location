@@ -1,0 +1,46 @@
+The following script does not work:
+
+
+register 'util.py' using jython as util;
+A = load '1.txt' as (sentence:chararray);
+B = foreach A generate flatten(util.tokenize(sentence));
+dump B;
+
+
+
+util.py
+
+
+outputSchema("words:{(word:chararray)}")
+def tokenize(sentence):
+    return sentence.split(' ')
+
+
+
+Error message:
+org.apache.pig.backend.executionengine.ExecException: ERROR 2078: Caught error from UDF: org.apache.pig.scripting.jython.JythonFunction [Error executing function]
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POUserFunc.getNext(POUserFunc.java:288)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POUserFunc.getNext(POUserFunc.java:304)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.getNext(PhysicalOperator.java:332)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.processPlan(POForEach.java:353)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.getNext(POForEach.java:294)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.runPipeline(PigGenericMapBase.java:273)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.map(PigGenericMapBase.java:268)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.map(PigGenericMapBase.java:64)
+	at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144)
+	at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:764)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:370)
+	at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:212)
+Caused by: java.io.IOException: Error executing function
+	at org.apache.pig.scripting.jython.JythonFunction.exec(JythonFunction.java:122)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POUserFunc.getNext(POUserFunc.java:262)
+	... 11 more
+Caused by: org.apache.pig.backend.executionengine.ExecException: ERROR 0: Cannot convert jython type (org.python.core.PyList) to pig datatype java.lang.ClassCastException: java.lang.String cannot be cast to org.apache.pig.data.Tuple
+	at org.apache.pig.scripting.jython.JythonUtils.pythonToPig(JythonUtils.java:113)
+	at org.apache.pig.scripting.jython.JythonFunction.exec(JythonFunction.java:117)
+	... 12 more
+Caused by: java.lang.ClassCastException: java.lang.String cannot be cast to org.apache.pig.data.Tuple
+	at org.apache.pig.scripting.jython.JythonUtils.pythonToPig(JythonUtils.java:69)
+	... 13 more
+
+The problem is Pig expects a tuple inside a list, which is unintuitive in Python.

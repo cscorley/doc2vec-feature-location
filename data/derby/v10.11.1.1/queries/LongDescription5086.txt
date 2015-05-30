@@ -1,0 +1,12 @@
+The automatic index statistics daemon will by default log what it's doing. That means messages like these ones will be written to derby.log during normal operation:
+
+Wed Mar 02 13:36:22 CET 2011 Thread[main,5,main] 
+{istat} "APP"."T": update scheduled - 23ce809c-012e-7691-6c29-000003480128 reason=[no stats, row-estimate=36167] (queueSize=1)
+Wed Mar 02 13:36:22 CET 2011 Thread[index-stat-thread,5,main] {istat}
+ "APP"."T": generating index statistics
+Wed Mar 02 13:36:23 CET 2011 Thread[index-stat-thread,5,main] 
+{istat} "APP"."T": generation complete (509 ms)
+Wed Mar 02 13:36:23 CET 2011 Thread[main,5,main] {istat}
+ stopping daemon, active=false, work/age=510/14736 [q/p/s=0/1/1,err:k/u/c=0/0/0,rej:f/d/o=0/0/0]
+
+Although these messages may be helpful in diagnosing bugs, they may also be a source of confusion since users probably only expect errors/problems to be logged by default. Also, for some workloads, large quantities of log may be produced and take up disk space. Therefore, I think we should disable the logging before the 10.8 release, and instead instruct users who experience problems to enable logging manually with the derby.storage.indexStats.log property.

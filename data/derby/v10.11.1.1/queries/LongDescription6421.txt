@@ -1,0 +1,13 @@
+ij version 10.10
+ij> connect 'jdbc:derby:memory:db;create=true';
+ij> create type typ external name 'java.util.ArrayList' language java;
+0 rows inserted/updated/deleted
+ij> create table ttt(x int, check (cast(null as typ) is null));
+0 rows inserted/updated/deleted
+ij> insert into ttt values 1,2,3;
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+
+or with debug build:
+
+ij> insert into ttt values 1,2,3;
+ERROR XJ001: Java exception: 'ASSERT FAILED no current dependent for compilation: org.apache.derby.shared.common.sanity.AssertFailure'.

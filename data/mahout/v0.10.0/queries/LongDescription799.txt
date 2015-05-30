@@ -1,0 +1,23 @@
+As described here:
+
+http://mail-archives.apache.org/mod_mbox/mahout-user/201106.mbox/%3C4DED5DCD.6050107@gmail.com%3E
+
+SequenceFilesFromCsvFilter cannot be invoked with default parameter values, because it dies like so:
+
+bin/mahout seqdirectory -i input -o output -filter 
+org.apache.mahout.text.SequenceFilesFromCsvFilter
+
+...
+Caused by: java.lang.NumberFormatException: null
+     at java.lang.Integer.parseInt(Integer.java:417)
+     at java.lang.Integer.parseInt(Integer.java:499)
+     at org.apache.mahout.text.SequenceFilesFromCsvFilter.<init>(SequenceFilesFromCsvFilter.java:56)
+
+If one adds the parameters -kcol 0 -vcol 0 (or their long-form versions), it dies like so:
+
+Unexpected -kcol while processing Job-Specific Options
+
+Commenting out SequenceFilesFromCsvFilter:56 and SequenceFilesFromCsvFilter:57, like so, allows the run to proceed
+
+//    this.keyColumn = Integer.parseInt(options.get(KEY_COLUMN_OPTION[0]));
+//    this.valueColumn = Integer.parseInt(options.get(VALUE_COLUMN_OPTION[0]));

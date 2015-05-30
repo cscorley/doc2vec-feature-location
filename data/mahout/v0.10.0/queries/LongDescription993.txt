@@ -1,0 +1,19 @@
+I ran VectorDumper from the command line like this:
+
+$MAHOUT_HOME/bin/mahout vectordump -i $
+{HDFS_VECTS}
+ --csv -p > $
+{LOCAL_VECTS}
+
+I've used this command before to dump similar vectors, but I'm now getting missing argument errors:
+
+ERROR common.AbstractJob: Missing value(s) --printKey
+
+You can add an argument after each of these flags to work around this problem for now:
+
+$MAHOUT_HOME/bin/mahout vectordump -i $
+{INPATH}
+ --csv x -p x > $
+{LOCAL_OUT}
+
+I encountered this on the trunk, but I think it's likely this problem went out in 0.6; I can check in the next fews days if nobody does it first.  

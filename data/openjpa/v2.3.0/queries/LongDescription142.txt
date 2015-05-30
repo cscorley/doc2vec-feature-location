@@ -1,0 +1,68 @@
+The XMLPersistenceMetaDataParser ignores the "name" attriburte of an "entity" element, and instead always uses the default alias. For example, with the following declaration in the orm.xml file:
+
+   <entity name="Foo" class="mypackage.Bar">
+
+the entity will be aliased to "Bar", rather than to "Foo".
+
+Original report by Dain Sundstrom on the open-jpa-dev mailing list:
+
+I'm using 0.9.6 and it appears the OpenJPA is ignoring the entity name when processing queries.  In stead it seems to always choose the class name for the schema name of the bean.  For example, I have the following bean declared in my entity mappings:
+
+    <entity name="BasicCmp2Bean" class="org.apache.openejb.test.entity.cmp.BasicCmp2Bean_BasicCmp2Bean">
+        <description>BasicCmp2Bean</description>
+        <attributes>
+            <id name="id"/>
+            <basic name="firstName"/>
+            <basic name="lastName"/>
+        </attributes>
+    </entity>
+
+
+The following query does not work:
+
+        SELECT o FROM BasicCmp2Bean o WHERE o.lastName = ?1
+
+But this one does:
+
+        SELECT o FROM BasicCmp2Bean_BasicCmp2Bean o WHERE o.lastName = ?1
+
+When the query fails, I get this message (reformatted a bit with ** added to important entries):
+
+ERROR - The bean instances business method encountered a system exception: Could not locate metadata for the class using alias "BasicCmp2Bean". Registered alias mappings: "
+{
+AllowedOperationsCmp2Bean_AOBasicCmp2Bean=
+  [class org.apache.openejb.test.entity.cmp.AllowedOperationsCmp2Bean_AOBasicCmp2Bean],
+AllowedOperationsCmpBean=
+  [class org.apache.openejb.test.entity.cmp.AllowedOperationsCmpBean],
+ContextLookupCmpBean=
+  [class org.apache.openejb.test.entity.cmp.ContextLookupCmpBean],
+Employee=
+  [class org.apache.openejb.test.entity.cmp2.Employee],
+ManyOwningSideBean_ManyOwningSideBean=
+  [class org.apache.openejb.test.entity.cmr.cmrmapping.ManyOwningSideBean_ManyOwningSideBean],
+**BasicCmp2Bean_BasicCmp2Bean=
+  [class org.apache.openejb.test.entity.cmp.BasicCmp2Bean_BasicCmp2Bean],
+EncCmpBean=
+  [class org.apache.openejb.test.entity.cmp.EncCmpBean],
+BBean_OneToOneB=
+  [class org.apache.openejb.test.entity.cmr.onetoone.BBean_OneToOneB],
+OneOwningSideBean_OneOwningSideBean=
+  [class org.apache.openejb.test.entity.cmr.cmrmapping.OneOwningSideBean_OneOwningSideBean],
+ABean_OneToOneA=
+  [class org.apache.openejb.test.entity.cmr.onetoone.ABean_OneToOneA],
+**BasicCmp2Bean=null,
+RmiIiopCmpBean=
+  [class org.apache.openejb.test.entity.cmp.RmiIiopCmpBean],
+ABean_OneToManyA=
+  [class org.apache.openejb.test.entity.cmr.onetomany.ABean_OneToManyA],
+OneInverseSideBean_OneInverseSideBean=
+  [class org.apache.openejb.test.entity.cmr.cmrmapping.OneInverseSideBean_OneInverseSideBean],
+BBean_OneToManyB=
+  [class org.apache.openejb.test.entity.cmr.onetomany.BBean_OneToManyB],
+RmiIiopCmp2Bean_Cmp2_RMI_IIOP_Bean=
+  [class org.apache.openejb.test.entity.cmp.RmiIiopCmp2Bean_Cmp2_RMI_IIOP_Bean],
+EncCmp2Bean_EncCmp2Bean=
+  [class org.apache.openejb.test.entity.cmp.EncCmp2Bean_EncCmp2Bean],
+BasicCmpBean=
+  [class org.apache.openejb.test.entity.cmp.BasicCmpBean]}
+"

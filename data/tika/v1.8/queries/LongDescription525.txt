@@ -1,0 +1,28 @@
+Due to the use of conditionals when determining whether or not to output a HTML element, the HtmlParser sometimes blocks a start element but erroneously passes the end element.
+Example: Consider the action of the element <base target="_top"/> for the methods:
+
+<pre>
+    public void startElement(
+            String uri, String local, String name, Attributes atts)
+            throws SAXException 
+{
+...
+            } else if ("BASE".equals(name) && atts.getValue("href") != null) {
+...
+                xhtml.startElement(uri, local, "base", atts);
+           }
+</pre>
+
+and
+
+<pre>
+    public void endElement(
+            String uri, String local, String name) throws SAXException {
+...
+            }
+ else if ("BASE".equals(name)) 
+{
+                xhtml.endElement("base");
+            }
+...
+</pre>

@@ -1,0 +1,41 @@
+Caused By: <openjpa-1.1.1-SNAPSHOT-r422266:930378 fatal internal error> 
+org.apache.openjpa.util.InternalException: There was an error when invoking the static getInstance method on the named factory class 
+"org.apache.openjpa.abstractstore.AbstractStoreBrokerFactory".  See the nested exception for details. 
+    at org.apache.openjpa.kernel.Bootstrap.getBrokerFactory(Bootstrap.java:95) 
+    at kodo.jdo.PersistenceManagerFactoryImpl.getPersistenceManagerFactory(PersistenceManagerFactoryImpl.java:41) 
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) 
+    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39) 
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25) 
+    at java.lang.reflect.Method.invoke(Method.java:597) 
+    at javax.jdo.JDOHelper.getPersistenceManagerFactory(JDOHelper.java:534) 
+
+caused by 
+
+java.lang.OutOfMemoryError: Java heap space 
+    at java.util.Arrays.copyOf(Arrays.java:2760) 
+    at java.util.Arrays.copyOf(Arrays.java:2734) 
+    at java.util.ArrayList.ensureCapacity(ArrayList.java:167) 
+    at java.util.ArrayList.add(ArrayList.java:351) 
+    at org.apache.openjpa.conf.CacheMarshallerImpl.setInputUrlFromResourceLocation(CacheMarshallerImpl.java:226) 
+    at org.apache.openjpa.conf.CacheMarshallerImpl.endConfiguration(CacheMarshallerImpl.java:207) 
+    at org.apache.openjpa.lib.conf.Configurations.configureInstance(Configurations.java:505) 
+    at org.apache.openjpa.lib.conf.Configurations.configureInstance(Configurations.java:430) 
+    at org.apache.openjpa.lib.conf.PluginListValue.instantiate(PluginListValue.java:93) 
+    at org.apache.openjpa.conf.CacheMarshallersValue.instantiate(CacheMarshallersValue.java:60) 
+    at org.apache.openjpa.lib.conf.ObjectValue.instantiate(ObjectValue.java:83) 
+    at org.apache.openjpa.conf.CacheMarshallersValue.initialize(CacheMarshallersValue.java:117) 
+    at org.apache.openjpa.conf.CacheMarshallersValue.getMarshallerById(CacheMarshallersValue.java:81) 
+    at org.apache.openjpa.conf.CacheMarshallersValue.getMarshallerById(CacheMarshallersValue.java:108) 
+    at org.apache.openjpa.conf.MetaDataRepositoryValue.instantiate(MetaDataRepositoryValue.java:54) 
+    at org.apache.openjpa.lib.conf.ObjectValue.instantiate(ObjectValue.java:83) 
+    at org.apache.openjpa.conf.OpenJPAConfigurationImpl.newMetaDataRepositoryInstance(OpenJPAConfigurationImpl.java:843) 
+    at org.apache.openjpa.conf.OpenJPAConfigurationImpl.getMetaDataRepositoryInstance(OpenJPAConfigurationImpl.java:834) 
+    at org.apache.openjpa.kernel.AbstractBrokerFactory.makeReadOnly(AbstractBrokerFactory.java:638) 
+    at org.apache.openjpa.kernel.AbstractBrokerFactory.pool(AbstractBrokerFactory.java:131) 
+    at org.apache.openjpa.abstractstore.AbstractStoreBrokerFactory.getInstance(AbstractStoreBrokerFactory.java:83) 
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) 
+    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39) 
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25) 
+    at java.lang.reflect.Method.invoke(Method.java:597) 
+    at org.apache.openjpa.kernel.Bootstrap.invokeFactory(Bootstrap.java:124) 
+    at org.apache.openjpa.kernel.Bootstrap.getBrokerFactory(Bootstrap.java:90) 

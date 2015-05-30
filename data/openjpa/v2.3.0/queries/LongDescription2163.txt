@@ -1,0 +1,12 @@
+A problem was uncovered in a scenario where multiple EntityManager instances created from the same EntityManagerFactory, and each instance is initialized with a new instance of a LifecycleListener instance, i.e.
+
+final EntityManager em = factory.createEntityManager();
+final EntityManager em2 = factory.createEntityManager();
+...
+MyLifecycleListener l1 = new MyLifecycleListener();
+MyLifecycleListener l2 = new MyLifecycleListener();
+...
+((OpenJPAEntityManagerSPI)em).addLifecycleListener(l1, null);
+((OpenJPAEntityManagerSPI)em2).addLifecycleListener(l2, null);
+
+When life cycle event occurs for a specific entity manager, all the listeners created under the emf are being invoked. The expected behavior is only the listener registered in the em from which the life cycle events are related should be called.

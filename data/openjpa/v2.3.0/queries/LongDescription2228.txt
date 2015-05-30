@@ -1,0 +1,24 @@
+Multiple calls of a query which has some Relationships with @EmbeddedId fields fails if QuerySQLCache is enabled.
+
+q = em.createQuery("select l from ListTest l where l.te=:test");
+does create:
+SELECT t0.id, t0.keyA, t0.keyB, t0.keyC, t1.keyA, t1.keyB, t1.keyC, t1.data1, 
+        t1.data2 
+    FROM ListTest t0 LEFT OUTER JOIN TestEntity t1 ON t0.keyA = t1.keyA AND t0.keyB 
+        = t1.keyB AND t0.keyC = t1.keyC 
+    WHERE (t0.keyA = ? AND t0.keyB = ? AND t0.keyC = ?) 
+[params=(int) 1, (int) 2, (int) 3]
+
+however a second query will create:
+q = em.createQuery("select l from ListTest l where l.te=:test");
+SELECT t0.id, t0.keyA, t0.keyB, t0.keyC, t1.keyA, t1.keyB, t1.keyC, t1.data1, 
+        t1.data2 
+    FROM ListTest t0 LEFT OUTER JOIN TestEntity t1 ON t0.keyA = t1.keyA AND t0.keyB 
+        = t1.keyB AND t0.keyC = t1.keyC 
+    WHERE (t0.keyA = ? AND t0.keyB = ? AND t0.keyC = ?) 
+[params=(int) 3, (int) 2, (int) 3]
+
+Note the wrong first param !
+(There is some Index filed calculated somewhere in the query and the index Array has [0,0,0] as values, so the 0th position does get updated three times .. the bug should be something with the index i think)
+
+See attached test-project

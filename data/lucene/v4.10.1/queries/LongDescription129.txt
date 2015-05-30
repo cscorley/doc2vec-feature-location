@@ -1,0 +1,20 @@
+The canonical form of a Java finalizer is:
+
+protected void finalize() throws Throwable()
+{
+ try
+ {
+   // ... local code to finalize this class
+ }
+ catch (Throwable t)
+ {
+ }
+ super.finalize(); // finalize base class.
+}
+
+The finalizers in IndexReader, IndexWriter, and FSDirectory don't conform. This
+is probably minor or null in effect, but the principle is important.
+
+As a matter of fact FSDirectory.finaliz() is entirely redundant and could be
+removed, as it doesn't do anything that RandomAccessFile.finalize would do
+automatically.

@@ -1,0 +1,6 @@
+Slice thread pool breaks down under heavy usage [1].
+This is due to poor choice of thread pool.
+
+Also creation of thread pool for every flush() is inefficient.
+
+Simple solution will be to use a cached thread pool – which will be upper bounded by available system's capacity for concurrent native threads. 

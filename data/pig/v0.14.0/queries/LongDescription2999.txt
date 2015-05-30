@@ -1,0 +1,24 @@
+I think I broke the build from PIG-2975.  I see couple of tests failing at BinInterSedesTupleRawComparator. 
+
+
+12/10/22 22:26:15 WARN mapred.LocalJobRunner: job_local_0022
+java.nio.BufferUnderflowException
+	at java.nio.Buffer.nextGetIndex(Buffer.java:478)
+	at java.nio.HeapByteBuffer.getLong(HeapByteBuffer.java:387)
+	at org.apache.pig.data.BinInterSedes$BinInterSedesTupleRawComparator.compareBinInterSedesDatum(BinInterSedes.java:829)
+	at org.apache.pig.data.BinInterSedes$BinInterSedesTupleRawComparator.compareBinSedesTuple(BinInterSedes.java:732)
+	at org.apache.pig.data.BinInterSedes$BinInterSedesTupleRawComparator.compare(BinInterSedes.java:695)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigSecondaryKeyComparator.compare(PigSecondaryKeyComparator.java:78)
+	at org.apache.hadoop.mapred.Merger$MergeQueue.lessThan(Merger.java:373)
+	at org.apache.hadoop.util.PriorityQueue.downHeap(PriorityQueue.java:139)
+	at org.apache.hadoop.util.PriorityQueue.adjustTop(PriorityQueue.java:103)
+	at org.apache.hadoop.mapred.Merger$MergeQueue.adjustPriorityQueue(Merger.java:335)
+	at org.apache.hadoop.mapred.Merger$MergeQueue.next(Merger.java:350)
+	at org.apache.hadoop.mapred.ReduceTask$4.next(ReduceTask.java:625)
+	at org.apache.hadoop.mapreduce.ReduceContext.nextKeyValue(ReduceContext.java:117)
+	at org.apache.hadoop.mapreduce.ReduceContext.nextKey(ReduceContext.java:92)
+	at org.apache.hadoop.mapreduce.Reducer.run(Reducer.java:175)
+	at org.apache.hadoop.mapred.ReduceTask.runNewReducer(ReduceTask.java:649)
+	at org.apache.hadoop.mapred.ReduceTask.run(ReduceTask.java:417)
+	at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:260)
+

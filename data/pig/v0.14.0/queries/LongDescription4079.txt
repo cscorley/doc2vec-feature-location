@@ -1,0 +1,18 @@
+I want to debug my custom partitioner in local mode. But it's not possible with Pig because:
+
+	MR does not invoke partitioner if # of reducers is equal to 1.
+https://issues.apache.org/jira/browse/MAPREDUCE-1287
+	Pig always forces a single reducers in local mode.
+LogicalPlanBuilder.java
+
+     void setParallel(LogicalRelationalOperator op, Integer parallel) {
+         if( parallel != null ) {
+            op.setRequestedParallelism( pigContext.getExecType() == ExecType.LOCAL ? 1 : parallel );
+         }
+     }
+
+
+
+
+
+After I change Pig to honor the parallel clause, my custom partitioner gets invoked in local mode.

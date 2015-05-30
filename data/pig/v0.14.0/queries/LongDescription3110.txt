@@ -1,0 +1,13 @@
+when trying to convert the following string into long, pig corrupts it. data:
+
+1703598819951657279 ,44081037
+
+data1 = load 'data' using CSVLoader as (a: chararray ,b: int);
+data2 = foreach data1 generate (long)a as a;
+dump data2;
+(1703598819951657216)    <--- last 2 digits are corrupted
+
+data2 = foreach data1 generate (long)TRIM(a) as a;
+dump data2;
+(1703598819951657279)    <--- correct
+

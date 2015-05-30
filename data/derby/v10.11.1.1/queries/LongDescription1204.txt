@@ -1,0 +1,37 @@
+These triggers succeed
+
+create trigger tgood after insert on x
+for each statement mode db2sql insert into x values (666), (999), (333);
+
+create trigger tgood after insert on x
+referencing new as n
+for each row mode db2sql insert into x values (n.x);
+
+create trigger tgood after insert on x
+referencing new as n
+for each row mode db2sql insert into x values (333), (999), (333)
+
+This one fails
+
+create trigger tgood after insert on x
+referencing new as n
+for each row mode db2sql insert into x values (n.x), (999), (333);
+
+Test cases will be added to triggerGeneral under this bug number.
+
+java.lang.StringIndexOutOfBoundsException: String index out of range: -3
+	at java.lang.String.substring(String.java:1444)
+	at org.apache.derby.impl.sql.compile.CreateTriggerNode.bindReferencesClause(CreateTriggerNode.java:421)
+	at org.apache.derby.impl.sql.compile.CreateTriggerNode.bind(CreateTriggerNode.java:258)
+	at org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatement.java:344)
+	at org.apache.derby.impl.sql.GenericStatement.prepare(GenericStatement.java:118)
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(GenericLanguageConnectionContext.java:713)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:560)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:507)
+	at org.apache.derby.impl.tools.ij.ij.executeImmediate(ij.java:313)
+	at org.apache.derby.impl.tools.ij.utilMain.doCatch(utilMain.java:433)
+	at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:310)
+	at org.apache.derby.impl.tools.ij.Main.go(Main.java:203)
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:169)
+	at org.apache.derby.impl.tools.ij.Main14.main(Main14.java:55)
+	at org.apache.derby.tools.ij.main(ij.java:60)

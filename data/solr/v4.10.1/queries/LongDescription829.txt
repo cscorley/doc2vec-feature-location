@@ -1,0 +1,14 @@
+From a discussion on the mailing list solr-user, it would be useful to have an option to compress the files sent between servers for replication purposes.
+
+Files sent across between indexes can be compressed by a large margin allowing for easier replication between sites.
+
+...Noted by Noble Paul 
+
+we will use a gzip on both ends of the pipe . On the slave side you can say <str name="zip">true<str> as an extra option to compress and send data from server 
+
+
+Other thoughts on issue: 
+
+Do keep in mind that compression is a CPU intensive process so it is a trade off between CPU utilization and network bandwidth.  I have see cases where compressing the data before a network transfer ended up being slower than without compression because the cost of compression and un-compression was more than the gain in network transfer.
+
+Why invent something when compression is standard in HTTP? --wunder

@@ -1,0 +1,15 @@
+The documentation will need to be updated after DERBY-1489 is committed. The reference manual will need to describe how to use the new ALTER TABLE DROP COLUMN feature to drop a column from a table.
+
+The documentation for the ALTER TABLE command is becoming somewhat unwieldy, so perhaps there is a way to restructure the page to make it easier and more approachable.
+
+In the documentation, it will be important to clearly describe the RESTRICT and CASCADE behaviors, as users may be confused by what things cause RESTRICT to refuse to drop a column. The comments in AlterTableConstantAction.java may help.
+
+Specifically, the documentation should note these possibly unexpected behaviors:
+
+	If a column is present in one or more indexes, these indexes by themselves do not cause
+   RESTRICT to refuse to drop a column. Instead, the column will simply be dropped from
+   the index, and if that was the last column in that index, the entire index will be dropped.
+	Explicitly named CHECK constraints will cause RESTRICT to refuse to drop a column, as
+   will PRIMARY KEY, FOREIGN KEY, and UNIQUE constrants. However, an unnamed simple
+   NOT NULL constraint on a column will NOT cause RESTRICT to refuse to drop it.
+

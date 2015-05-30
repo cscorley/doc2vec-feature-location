@@ -1,0 +1,17 @@
+I have the below script which provides me no output even though there are valid records in relation B which is used for the left out join.
+
+A0 = load 'input' using Maploader()  as ( map1, map2, map3 );
+A = filter A0 by ( (map2#'params'#'prop' == 464)   and (map2#'params'#'query' is not null) );
+B0 = filter A by (map1#'type' == 'c');
+B = filter B0 by ( map2#'info'#'s' matches 'aaaa|bbb|cccc');
+C =  filter A by (map1#'type' == 'p');
+D = join B by map2#'params'#'query' LEFT OUTER , C by map2#'params'#'query';
+store D into 'output';
+
+This is a bug with the newlogical plan.  From the plan i can see that  map1#'type'  and map2#'info'#'s' is not marked as RequiredKeys ,
+but where as all the fields reffered in the firts filter statement is marked as required.
+
+
+For the script to work I have to turn off the coloumn prune optimizer by -t ColumnMapKeyPrune or rearrange the script such that;
+B0 = filter A0 by ( (map2#'params'#'prop' == 464)   and (map2#'params'#'query' is not null) and (map1#'type' == 'c') );
+C =  filter A0 by ( (map2#'params'#'prop' == 464)   and (map2#'params'#'query' is not null) and (map1#'type' == 'p') );

@@ -1,0 +1,47 @@
+Defining a table generator in the XML descriptor leads to a class cast exception. The reason is a probably unintentional fall through of a switch/case block in class XMLPersistenceMetaDataSerializer line 502:
+
+...
+            switch (type) {
+                case TYPE_META:
+                    serializeClass((ClassMetaData) obj, fieldAccess
+                        && propertyAccess);
+                    break;
+                case TYPE_SEQ:
+                    if (isMappingMode())
+                        serializeSequence((SequenceMetaData) obj);
+                        // HERE SHOULD BE A break;
+                case TYPE_QUERY:
+                    serializeQuery((QueryMetaData) obj);
+                    break;
+...
+
+As a result I get the following stack:
+
+219  testPU  INFO   [main] openjpa.Runtime - Starting OpenJPA 1.2.0
+688  testPU  INFO   [main] openjpa.jdbc.JDBC - Using dictionary class "org.apache.openjpa.jdbc.sql.DerbyDictionary".
+3329  testPU  WARN   [main] openjpa.MetaData - Found duplicate generator "tableGen" in "class com.daimler.tss.lab.jpa.pojo.Slave".  Ignoring.
+3830  testPU  INFO   [main] openjpa.MetaData - Writing to file "C:\Uli\Workspaces\TSS_ganymede_2\OpenJPA Test\build\classes\META-INF\test-orm.xml".
+3986  testPU  INFO   [main] openjpa.MetaData - Writing sequence "tableGen".
+Exception in thread "main" <openjpa-1.2.0-r422266:683325 nonfatal general error> org.apache.openjpa.persistence.PersistenceException: org.apache.openjpa.jdbc.meta.SequenceMapping cannot be cast to org.apache.openjpa.meta.QueryMetaData
+	at org.apache.openjpa.kernel.AbstractBrokerFactory.newBroker(AbstractBrokerFactory.java:196)
+	at org.apache.openjpa.kernel.DelegatingBrokerFactory.newBroker(DelegatingBrokerFactory.java:142)
+	at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:192)
+	at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:145)
+	at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:56)
+	at com.daimler.tss.lab.jpa.test.RelationshipManagementTest.createMaster(RelationshipManagementTest.java:47)
+	at com.daimler.tss.lab.jpa.test.RelationshipManagementTest.main(RelationshipManagementTest.java:39)
+Caused by: java.lang.ClassCastException: org.apache.openjpa.jdbc.meta.SequenceMapping cannot be cast to org.apache.openjpa.meta.QueryMetaData
+	at org.apache.openjpa.persistence.XMLPersistenceMetaDataSerializer.serialize(XMLPersistenceMetaDataSerializer.java:504)
+	at org.apache.openjpa.lib.meta.XMLMetaDataSerializer.serialize(XMLMetaDataSerializer.java:257)
+	at org.apache.openjpa.lib.meta.XMLMetaDataSerializer.serialize(XMLMetaDataSerializer.java:121)
+	at org.apache.openjpa.lib.meta.XMLMetaDataSerializer.serialize(XMLMetaDataSerializer.java:90)
+	at org.apache.openjpa.meta.AbstractCFMetaDataFactory.serialize(AbstractCFMetaDataFactory.java:479)
+	at org.apache.openjpa.meta.AbstractCFMetaDataFactory.store(AbstractCFMetaDataFactory.java:234)
+	at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:538)
+	at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:453)
+	at org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.synchronizeMappings(JDBCBrokerFactory.java:159)
+	at org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.newBrokerImpl(JDBCBrokerFactory.java:119)
+	at org.apache.openjpa.kernel.AbstractBrokerFactory.newBroker(AbstractBrokerFactory.java:189)
+	... 6 more
+
+May I suggest to run findBugs on your source code. That would have found this section for sure. Does anyone test the XML descriptor stuff?

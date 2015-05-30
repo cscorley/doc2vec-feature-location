@@ -1,0 +1,109 @@
+The goal is to provide a simple xUnit framework that enables our Pig scripts to be easily:
+
+	unit tested
+	regression tested
+	quickly prototyped
+
+
+
+No cluster set up is required.
+
+For example:
+
+TestCase
+
+
+  @Test
+  public void testTop3Queries() {
+    String[] args = {
+        "n=3",        
+        };
+    test = new PigTest("top_queries.pig", args);
+
+    String[] input = {
+        "yahoo\t10",
+        "twitter\t7",
+        "facebook\t10",
+        "yahoo\t15",
+        "facebook\t5",
+        ....
+    };
+
+    String[] output = {
+        "(yahoo,25L)",
+        "(facebook,15L)",
+        "(twitter,7L)",
+    };
+
+    test.assertOutput("data", input, "queries_limit", output);
+  }
+
+
+
+top_queries.pig
+
+
+data =
+    LOAD '$input'
+    AS (query:CHARARRAY, count:INT);
+     
+    ... 
+    
+queries_sum = 
+    FOREACH queries_group 
+    GENERATE 
+        group AS query, 
+        SUM(queries.count) AS count;
+        
+    ...
+            
+queries_limit = LIMIT queries_ordered $n;
+
+STORE queries_limit INTO '$output';
+
+
+
+They are 3 modes:
+
+	LOCAL (if "pigunit.exectype.local" properties is present)
+	MAPREDUCE (use the cluster specified in the classpath, same as HADOOP_CONF_DIR)
+	
+		automatic mini cluster (is the default and the HADOOP_CONF_DIR to have in the class path will be: ~/pigtest/conf)
+		pointing to an existing cluster (if "pigunit.exectype.cluster" properties is present)
+	
+	
+
+
+
+For now, it would be nice to see how this idea could be integrated in Piggybank and if PigParser/PigServer could improve their interfaces in order to make PigUnit simple.
+
+Other components based on PigUnit could be built later:
+
+	standalone MiniCluster
+	notion of workspaces for each test
+	standalone utility that reads test configuration and generates a test report...
+
+
+
+It is a first prototype, open to suggestions and can definitely take advantage of feedbacks.
+
+How to test, in pig_trunk:
+
+
+Apply patch
+$pig_trunk ant compile-test
+$pig_trunk ant
+$pig_trunk/contrib/piggybank/java ant test -Dtest.timeout=999999
+
+
+
+(it takes 15 min in MAPREDUCE minicluster, tests will need to be split in the future between 'unit' and 'integration')
+
+Many examples are in:
+
+
+contrib/piggybank/java/src/test/java/org/apache/pig/piggybank/test/pigunit/TestPigTest.java
+
+
+
+When used as a standalone, do not forget commons-lang-2.4.jar and the HADOOP_CONF_DIR to your cluster in your CLASSPATH.

@@ -1,0 +1,14 @@
+I found this while trying to write unit tests. Creating a local PigServer to test my LoadFunc caused a serialization of the PhysicalOperator class, which failed due to:
+..
+Caused by: java.io.NotSerializableException: org.apache.commons.logging.impl.Log4JCategoryLog
+..
+
+
+this is easily fixed by adding the transient keyword to the definition of log.
+
+e.g.
+
+on trunk:
+    private final transient Log log = LogFactory.getLog(getClass());
+on the 0.8 tag:
+    private transient Log log = LogFactory.getLog(getClass());

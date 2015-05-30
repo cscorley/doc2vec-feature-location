@@ -1,0 +1,19 @@
+When re-executing a statement without closing the old ResultSet, some of the old ResultSet's resources are not released, and the network client will eventually get an OutOfMemoryError.
+
+Example:
+
+	Connection c = DriverManager.getConnection("jdbc:derby://localhost/mydb");
+	PreparedStatement ps = c.prepareStatement("select * from sys.systables");
+	while (true) 
+{
+		ResultSet rs = ps.executeQuery();
+	}
+
+This code will run for some time and then throw an OutOfMemoryError. Same thing happens with Statement instead of PreparedStatement. If rs.close() is added in the loop, the code works. Explicitly closing the ResultSet should not be necessary according to this quote from the JDBC 3.0 spec:
+
+  For Select statements, the statement is complete when the associated result set is closed. The result set is closed as soon as one of the following occurs:
+
+	all of the rows have been retrieved
+	the associated Statement object is re-executed
+	another Statement object is executed on the same connection
+

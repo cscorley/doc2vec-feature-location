@@ -1,0 +1,60 @@
+When revoking the owner's own privilege against the table he have created, Derby executes the revocation successfully
+but the owner is able to select from the table later as if though the REVOKE statement has no effect.  More importantly, I was expecting a SQLException with the appropriate SQLSTATE to be thrown when the owner attempts to revoke privilege from himself.  i.e.:
+
+ij> connect 'jdbc:derby:authtest' user 'yip' as conn1;
+ij> create table t1 (c1 int);
+0 rows inserted/updated/deleted
+ij> insert into t1 values 1,2,3;
+3 rows inserted/updated/deleted
+ij> revoke select on t1 from yip;
+0 rows inserted/updated/deleted
+ij> select * from t1;
+C1
+-----------
+1
+2
+3
+
+3 rows selected
+
+Here is the sysinfo:
+
+------------------ Java Information ------------------
+Java Version:    1.4.2_12
+Java Vendor:     Sun Microsystems Inc.
+Java home:       C:\jdk142\jre
+Java classpath:  derby.jar;derbytools.jar;.
+OS name:         Windows XP
+OS architecture: x86
+OS version:      5.1
+Java user name:  yip
+Java user home:  C:\Documents and Settings\Administrator
+Java user dir:   C:\derby\trunk\jars\sane
+java.specification.name: Java Platform API Specification
+java.specification.version: 1.4
+--------- Derby Information --------
+JRE - JDBC: J2SE 1.4.2 - JDBC 3.0
+[C:\derby\trunk\jars\sane\derby.jar] 10.2.0.4 alpha - (423353)
+[C:\derby\trunk\jars\sane\derbytools.jar] 10.2.0.4 alpha - (423353)
+------------------------------------------------------
+----------------- Locale Information -----------------
+Current Locale :  [English/United States [en_US]]
+Found support for locale: [de_DE]
+         version: 10.2.0.4 alpha - (423353)
+Found support for locale: [es]
+         version: 10.2.0.4 alpha - (423353)
+Found support for locale: [fr]
+         version: 10.2.0.4 alpha - (423353)
+Found support for locale: [it]
+         version: 10.2.0.4 alpha - (423353)
+Found support for locale: [ja_JP]
+         version: 10.2.0.4 alpha - (423353)
+Found support for locale: [ko_KR]
+         version: 10.2.0.4 alpha - (423353)
+Found support for locale: [pt_BR]
+         version: 10.2.0.4 alpha - (423353)
+Found support for locale: [zh_CN]
+         version: 10.2.0.4 alpha - (423353)
+Found support for locale: [zh_TW]
+         version: 10.2.0.4 alpha - (423353)
+------------------------------------------------------

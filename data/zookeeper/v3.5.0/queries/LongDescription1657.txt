@@ -1,0 +1,15 @@
+I did some profiling in one of our Java environments and found an interesting footprint in ZooKeeper. The SASL support seems to trigger a lot times on the client although it's not even in use.
+
+Is there a switch to disable SASL completely?
+
+The attached screenshot shows a 10-minute profiling session on one of our production Jetty servers. The Jetty server handles ~1k web requests per minute. The average response time per web request is a few milli seconds. The profiling was performed on a machine running for >24h. 
+
+We noticed a significant CPU increase on our servers when deploying an update from ZooKeeper 3.3.2 to ZooKeeper 3.4.5. Thus, we started investigating. The screenshot shows that only 32% CPU time are spent in Jetty. In contrast, 65% are spend in ZooKeeper. 
+
+A few notes/thoughts:
+
+	ClientCnxn$SendThread.clientTunneledAuthenticationInProgress seems to be the culprit
+	javax.security.auth.login.Configuration.getConfiguration seems to be called very often?
+	There is quite a bit reflection involved in java.security.AccessController.doPrivileged
+	No security manager is active in the JVM: I tend to place an if-check in the code before calling AccessController.doPrivileged. When no SM is installed, the runnable can be called directly which safes cycles.
+

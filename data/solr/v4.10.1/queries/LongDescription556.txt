@@ -1,0 +1,8 @@
+When highlighting multi-valued fields, the highlighter sometimes returns snippets which span multiple values, e.g. with values "foo" and "bar" and search term "ba" the highlighter will create the snippet "foo<em>ba</em>r". Furthermore it sometimes returns smaller snippets than it should, e.g. with value "foobar" and search term "oo" it will create the snippet "<em>oo</em>" regardless of hl.fragsize.
+
+I have been unable to determine the real cause for this, or indeed what actually goes on at all. To reproduce the problem, I've used the following steps:
+
+	create an index with multi-valued fields, one document should have at least 3 values for these fields (in my case strings of length between 5 and 15 Japanese characters – as far as I can tell plain old ASCII should produce the same effect though)
+	search for part of a value in such a field with highlighting enabled, the additional parameters I use are hl.fragsize=70, hl.requireFieldMatch=true, hl.mergeContiguous=true (changing the parameters does not seem to have any effect on the result though)
+	highlighted snippets should show effects described above
+

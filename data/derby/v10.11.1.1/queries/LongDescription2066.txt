@@ -1,0 +1,20 @@
+Running all within the same JVM.
+start network server using api
+connect to database using client
+close connection
+shutdown engine (not network server) using jdbc:derby:;shutdown=true
+connect to database using client - FAILS
+
+Caused by: org.apache.derby.client.am.DisconnectException: The DDM object 0x1232 is not supported.  The connection has been terminated.
+	at org.apache.derby.client.net.NetConnectionReply.doObjnsprmSemantics(Unknown Source)
+	at org.apache.derby.client.net.NetConnectionReply.parseCommonError(Unknown Source)
+	at org.apache.derby.client.net.NetConnectionReply.parseSecurityCheckError(Unknown Source)
+	at org.apache.derby.client.net.NetConnectionReply.parseSECCHKreply(Unknown Source)
+	at org.apache.derby.client.net.NetConnectionReply.readSecurityCheck(Unknown Source)
+	at org.apache.derby.client.net.NetConnection.readSecurityCheckAndAccessRdb(Unknown Source)
+	at org.apache.derby.client.net.NetConnection.flowSecurityCheckAndAccessRdb(Unknown Source)
+	at org.apache.derby.client.net.NetConnection.flowUSRIDPWDconnect(Unknown Source)
+	at org.apache.derby.client.net.NetConnection.flowConnect(Unknown Source)
+	at org.apache.derby.client.net.NetConnection.<init>(Unknown Source)
+	at org.apache.derby.client.net.ClientJDBCObjectFactoryImpl.newNetConnection(Unknown Source)
+	... 33 more

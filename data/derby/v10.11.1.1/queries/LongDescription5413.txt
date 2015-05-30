@@ -1,0 +1,22 @@
+Cf this piece of code in main
+
+catch (Exception e)
+{
+     //if there was an error, exit(1)
+     if ((e.getMessage() == null) ||
+         !e.getMessage().equals(NetworkServerControlImpl.UNEXPECTED_ERR) ||
+         printErrors
+     )
+     {
+         if (server != null)
+             server.consoleExceptionPrint(e);
+         else
+             e.printStackTrace();  // default output stream is System.out
+     }
+     // else, we've already printed a trace, so just exit.
+     System.exit(1);
+
+The call "server.consoleExceptionPrint(e)" will actually not print anything unless the debug flag "NetworkServerControlImpl#debugOutput" has ben set to true which it isn't a priori. 
+
+I think it should be replaced by a call to server.consoleExceptionPrintTrace(e), which will print unconditionally.
+

@@ -1,0 +1,77 @@
+Use attached SQL script to create two tables , execute the following SQL and throw the exception and stack trace below.  NOTE:  removing the 'always true' clause '.. ( integer (1.1) = 1) .." from the SQL and the query does not fail.  Releated??
+
+select  q1."DEPTNO" from DEPTTAB q1, EMPTAB q2 where  ( integer (1.1) = 1)  and  ( q2."DEPT_DEPTNO" =  q1."DEPTNO")  
+GROUP BY q1."DEPTNO" 
+HAVING  max( q2."SALARY") >=  ( select  q3."SALARY" from EMPTAB q3 where  ( q3."EMPID" =  q1."DEPTNO") ) 
+
+ERROR 38000: The exception 'java.lang.NullPointerException' was thrown while evaluating an expression.
+. . .derby.iapi.error.StandardException.newException
+. . .derby.iapi.error.StandardException.unexpectedUserException
+. . .derby.impl.services.reflect.DirectCall.invoke
+. . .derby.impl.sql.execute.ProjectRestrictResultSet.getNextRowCore
+. . .derby.impl.sql.execute.BasicNoPutResultSetImpl.getNextRow
+. . .derby.impl.jdbc.EmbedResultSet.movePosition
+. . .derby.impl.jdbc.EmbedResultSet.next
+. . .derby.tools.JDBCDisplayUtil.indent_DisplayResults
+. . .derby.tools.JDBCDisplayUtil.indent_DisplayResults
+. . .derby.tools.JDBCDisplayUtil.indent_DisplayResults
+. . .derby.tools.JDBCDisplayUtil.DisplayResults
+. . .derby.impl.tools.ij.utilMain.displayResult
+. . .derby.impl.tools.ij.utilMain.doCatch
+. . .derby.impl.tools.ij.utilMain.runScriptGuts
+. . .derby.impl.tools.ij.utilMain.go
+. . .derby.impl.tools.ij.Main.go
+. . .derby.impl.tools.ij.Main.mainCore
+. . .derby.impl.tools.ij.Main14.main
+. . .derby.tools.ij.main
+Caused by: java.lang.NullPointerException
+. . .derby.iapi.types.NumberDataType.compare
+. . .derby.impl.store.access.btree.ControlRow.compareIndexRowFromPageToKey
+. . .derby.impl.store.access.btree.ControlRow.searchForEntry
+. . .derby.impl.store.access.btree.LeafControlRow.search
+. . .derby.impl.store.access.btree.BTreeScan.positionAtStartForForwardScan
+. . .derby.impl.store.access.btree.BTreeForwardScan.positionAtStartPosition
+. . .derby.impl.store.access.btree.BTreeForwardScan.fetchRows
+. . .derby.impl.store.access.btree.BTreeScan.fetchNext
+. . .derby.impl.sql.execute.TableScanResultSet.getNextRowCore
+. . .derby.impl.sql.execute.IndexRowToBaseRowResultSet.getNextRowCore
+. . .derby.impl.sql.execute.ProjectRestrictResultSet.getNextRowCore
+. . .derby.impl.sql.execute.OnceResultSet.getNextRowCore
+. . .derby.exe.ac601a400fx011cx480cx5eacx00000010d8100.g0
+. . .derby.exe.ac601a400fx011cx480cx5eacx00000010d8100.e6
+	... 17 more
+============= begin nested exception, level (1) ===========
+java.lang.NullPointerException
+. . .derby.iapi.types.NumberDataType.compare
+. . .derby.impl.store.access.btree.ControlRow.compareIndexRowFromPageToKey
+. . .derby.impl.store.access.btree.ControlRow.searchForEntry
+. . .derby.impl.store.access.btree.LeafControlRow.search
+. . .derby.impl.store.access.btree.BTreeScan.positionAtStartForForwardScan
+. . .derby.impl.store.access.btree.BTreeForwardScan.positionAtStartPosition
+. . .derby.impl.store.access.btree.BTreeForwardScan.fetchRows
+. . .derby.impl.store.access.btree.BTreeScan.fetchNext
+. . .derby.impl.sql.execute.TableScanResultSet.getNextRowCore
+. . .derby.impl.sql.execute.IndexRowToBaseRowResultSet.getNextRowCore
+. . .derby.impl.sql.execute.ProjectRestrictResultSet.getNextRowCore
+. . .derby.impl.sql.execute.OnceResultSet.getNextRowCore
+. . .derby.exe.ac601a400fx011cx480cx5eacx00000010d8100.g0
+. . .derby.exe.ac601a400fx011cx480cx5eacx00000010d8100.e6
+. . .derby.impl.services.reflect.DirectCall.invoke
+. . .derby.impl.sql.execute.ProjectRestrictResultSet.getNextRowCore
+. . .derby.impl.sql.execute.BasicNoPutResultSetImpl.getNextRow
+. . .derby.impl.jdbc.EmbedResultSet.movePosition
+. . .derby.impl.jdbc.EmbedResultSet.next
+. . .derby.tools.JDBCDisplayUtil.indent_DisplayResults
+. . .derby.tools.JDBCDisplayUtil.indent_DisplayResults
+. . .derby.tools.JDBCDisplayUtil.indent_DisplayResults
+. . .derby.tools.JDBCDisplayUtil.DisplayResults
+. . .derby.impl.tools.ij.utilMain.displayResult
+. . .derby.impl.tools.ij.utilMain.doCatch
+. . .derby.impl.tools.ij.utilMain.runScriptGuts
+. . .derby.impl.tools.ij.utilMain.go
+. . .derby.impl.tools.ij.Main.go
+. . .derby.impl.tools.ij.Main.mainCore
+. . .derby.impl.tools.ij.Main14.main
+. . .derby.tools.ij.main
+============= end nested exception, level (1) ===========
+Cleanup action completed

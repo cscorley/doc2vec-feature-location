@@ -1,0 +1,57 @@
+When using the AutoDetectParser in java code, and the SourceCodeParser is selected (i.e. java files), the handler gets no text:
+
+I have this test program:
+
+
+    String data = "public class HelloWorld {}";
+    ByteArrayInputStream bais = new ByteArrayInputStream(data.getBytes());
+    Parser autoDetectParser = new AutoDetectParser();
+    BodyContentHandler bch = new BodyContentHandler(50);
+    ParseContext parseContext = new ParseContext();
+    Metadata metadata = new Metadata();
+    metadata.set(Metadata.CONTENT_TYPE, "text/x-java-source");
+    try {
+       autoDetectParser.parse(bais, bch, metadata, parseContext);
+    } catch (Exception e) {
+       e.printStackTrace();
+    }
+    System.out.println("Text extracted: "+bch.toString())
+
+
+It returns (using the SourceCodeParser): 
+    
+ > Text extracted: 
+
+
+But when I use this code:
+
+
+    String data = "public class HelloWorld {}";
+    ByteArrayInputStream bais = new ByteArrayInputStream(data.getBytes());
+    Parser autoDetectParser = new AutoDetectParser();
+    BodyContentHandler bch = new BodyContentHandler(50);
+    ParseContext parseContext = new ParseContext();
+    Metadata metadata = new Metadata();
+    metadata.set(Metadata.CONTENT_TYPE, "text/plain");
+    try {  autoDetectParser.parse(bais, bch, metadata, parseContext);  } catch (Exception e) {  e.printStackTrace();  }
+    System.out.println("Text extracted: "+bch.toString())
+
+
+
+
+
+
+
+The Text Parser is used and I get:
+
+
+ > Text extracted: public class HelloWorld {} 
+
+
+
+I have also tested this command: 
+
+
+> java -jar tika-app-1.5.jar -t D:\text.java
+  (no text)
+

@@ -1,0 +1,3 @@
+Lucene Java takes a Reader as input when including content in a search index. Tika instead generates SAX events or (with WriteOutContentHandler) writes content to a Writer, which requires extra work when integrating with Lucene and other tools that expect a Reader.
+
+To cover that case we should implement a ParsingReader class that takes an InputStream and a Tika Parser and returns the parsed text content through the Reader interface.

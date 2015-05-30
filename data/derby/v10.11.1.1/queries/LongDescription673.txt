@@ -1,0 +1,3 @@
+This piece of code once had a purpose in life. It was one of the double-joints which allowed cloudscape to ship with and without compiler support for the synchronization language. Synchronization has been removed. If we want to plug in optional language components, I think there are better ways to do this.
+
+The NodeFactory turned into a big, sprawling piece of code. At some point this code was slimmed down by telescoping all of its factory methods into a couple unwieldly, weakly-typed overloads backed by cumbersome logic in the actual node constructors. I would like to reintroduce strongly typed node constructors which the parser can call directly. This will make node generation easier to read and less brittle and it will get rid of the now useless NodeFactory class.

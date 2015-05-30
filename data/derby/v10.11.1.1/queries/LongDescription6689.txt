@@ -1,0 +1,52 @@
+sane build:
+
+ij version 10.12
+ij> connect 'jdbc:derby:memory:db;create=true';
+ij> create table t1(x int);
+0 rows inserted/updated/deleted
+ij> create table t2(x int);
+0 rows inserted/updated/deleted
+ij> merge into t1 using t2 on (t1.x=t2.x) when not matched then insert values (row_number() over ());
+ERROR XJ001: Java exception: 'ASSERT FAILED cannot get interface without operand: org.apache.derby.shared.common.sanity.AssertFailure'.
+
+
+
+insane build:
+
+ij version 10.11
+ij> connect 'jdbc:derby:memory:db;create=true';
+ij> create table t1(x int);
+0 rows inserted/updated/deleted
+ij> create table t2(x int);
+0 rows inserted/updated/deleted
+ij> merge into t1 using t2 on (t1.x=t2.x) when not matched then insert values (row_number() over ());
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+
+
+
+Full stack trace of the assert failure:
+
+org.apache.derby.shared.common.sanity.AssertFailure: ASSERT FAILED cannot get interface without operand
+	at org.apache.derby.shared.common.sanity.SanityManager.ASSERT(SanityManager.java:120)
+	at org.apache.derby.impl.sql.compile.UnaryOperatorNode.getReceiverInterfaceName(UnaryOperatorNode.java:663)
+	at org.apache.derby.impl.sql.compile.UnaryOperatorNode.generateExpression(UnaryOperatorNode.java:622)
+	at org.apache.derby.impl.sql.compile.ResultColumn.generateExpression(ResultColumn.java:1061)
+	at org.apache.derby.impl.sql.compile.ResultColumnList.generateEvaluatedRow(ResultColumnList.java:1458)
+	at org.apache.derby.impl.sql.compile.MatchingClauseNode.generateInsertUpdateRow(MatchingClauseNode.java:1342)
+	at org.apache.derby.impl.sql.compile.MatchingClauseNode.generate(MatchingClauseNode.java:1237)
+	at org.apache.derby.impl.sql.compile.MergeNode.generate(MergeNode.java:1012)
+	at org.apache.derby.impl.sql.compile.StatementNode.generate(StatementNode.java:317)
+	at org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatement.java:549)
+	at org.apache.derby.impl.sql.GenericStatement.prepare(GenericStatement.java:99)
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(GenericLanguageConnectionContext.java:1114)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:683)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:631)
+	at org.apache.derby.impl.tools.ij.ij.executeImmediate(ij.java:367)
+	at org.apache.derby.impl.tools.ij.utilMain.doCatch(utilMain.java:529)
+	at org.apache.derby.impl.tools.ij.utilMain.runScriptGuts(utilMain.java:371)
+	at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:247)
+	at org.apache.derby.impl.tools.ij.Main.go(Main.java:229)
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:184)
+	at org.apache.derby.impl.tools.ij.Main.main(Main.java:75)
+	at org.apache.derby.tools.ij.main(ij.java:59)
+

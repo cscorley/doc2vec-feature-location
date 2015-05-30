@@ -1,0 +1,42 @@
+Per javadoc for EntityManagerFactory.getCache(): 
+
+ /**
+
+
+	Access the cache that is associated with the entity manager
+
+
+
+
+	factory (the "second level cache").
+
+
+
+
+	@return instance of the Cache interface
+
+
+
+
+	@throws IllegalStateException if the entity manager factory
+
+
+
+
+	has been closed
+
+
+
+     */
+
+    public Cache getCache();
+
+Throwing a new IllegalStateException is trivial, but throwing the same exception we do for other operations on a closed factory is a bit more involved. 
+
+Short reason : 
+
+	BrokerFactory.assertOpen() is not public, and the saved exception (used when trace is enabled) is also not available outside of AbstractBrokerFactory.
+	EMFImpl.getCache() caches the cache. The same object implements the JPA cache interface and the OpenJPA StoreCache interface. Historically getting the StoreCache does not require the EMF to be open (this may be an oversight).
+
+
+

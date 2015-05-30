@@ -1,0 +1,42 @@
+I downloaded a Cloudescape Version 10 from here http://www-106.ibm.com/developerworks/db2/library/techarticle/dm-0408cline/index.html.  Not sure exactly which version of 10 this is.
+
+Would like to store up to a 10MB XML string in a CLOB.  However, I noticed it took over 3 minutes to insert a 500kb string.  I am using the PreparedStatement to get around the 37kb limitation encountered in a previous issue.  It takes less than 2 seconds to insert a 500kb string into a CLOB in mySQl.
+
+Here the snippet:
+
+      FileReader fr = new FileReader ("sample.txt");  
+      BufferedReader br = new BufferedReader(fr);
+      String record = null;
+      try {
+
+        while ( (record=br.readLine()) != null ) 
+{
+
+          bufferStr.append( record );
+
+      }
+
+      } catch (IOException e) 
+{
+      //
+      // put your error-handling code here
+      //
+         System.out.println("Error reading file");
+      }
+
+
+      System.out.println("Size of inputStr: "+bufferStr.length() );
+
+      PreparedStatement ps = mm.connection.prepareStatement("INSERT into  documents           VALUES (?,?)" );
+      ps.setInt(1, 13 );
+      StringReader reader1 = new StringReader(bufferStr.toString());
+      ps.setCharacterStream(2, reader1, bufferStr.length());
+      System.out.println("Uploading string....");
+      ps.execute();
+      System.out.println("Done uploading string...");
+      mm.connection.commit();
+
+
+Thanks for your the help,
+
+Glenn O.

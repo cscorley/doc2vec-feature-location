@@ -1,0 +1,38 @@
+When upgrading a database created with Derby 10.1 to 10.2, the SPSs in
+the SYSIBM schema are not updated. SYSIBM.METADATA was modified in
+DERBY-965, but it still has the old behaviour after the upgrade (both soft and
+hard).
+
+How to reproduce:
+
+  1. Create a database with 10.1.
+
+    soft upgrade:
+
+  2. Start 10.2 network server.
+  3. Connect to the 10.1 database with the 10.2 client driver and
+     invoke DatabaseMetaData.supportsResultSetConcurrency(
+     ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY). Return
+     value: FALSE.
+
+    hard upgrade:
+
+  4. Restart 10.2 network server.
+  5. Connect to the database with "upgrade=true" added to the
+     URL. DatabaseMetaData.supportsResultSetConcurrency(
+     Restart.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY) returns
+     FALSE.
+
+    observe correct behaviour:
+
+  6. Delete the database and recreate it with 10.2.
+  7. Start 10.2 network server.
+  8. Connect to the database with the client driver and invoke
+     DatabaseMetaData.supportsResultSetConcurrency(
+     Restart.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY). Return
+     value: TRUE.
+
+Proposed solution for hard upgrade: drop and recreate SPSs.
+
+Proposed solution for soft upgrade: read SYSIBM.METADATA from
+metadata_net.properties.

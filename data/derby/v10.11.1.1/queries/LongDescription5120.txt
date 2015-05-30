@@ -1,0 +1,33 @@
+I have an ij script below which shows that the number of rows in SYSDEPENDS go down by 1 for the following test case after an update is made to a table with update triggers defined on it. Am not sure what kind of problems the missing dependnecy might cause.
+
+
+connect 'jdbc:derby:c:/dellater/db1;create=true';
+CREATE TABLE ATDC_13_TAB1(c11 int, c12 int);
+insert into ATDC_13_TAB1 values (1,11);
+
+create table ATDC_13_TAB2(c21 int, c22 int);
+insert into ATDC_13_TAB2 values (1,11);
+
+create table ATDC_13_TAB3(c31 int, c32 int);
+insert into ATDC_13_TAB3 values (1,11);
+
+create table ATDC_13_TAB1_backup(c11 int, c12 int);
+insert into ATDC_13_TAB1_backup values (1,11);
+
+                create trigger ATDC_13_TAB1_trigger_1 after update 
+                on ATDC_13_TAB1 for each row mode db2sql 
+                INSERT INTO ATDC_13_TAB1_BACKUP(C11) 
+                SELECT C21 from ATDC_13_TAB2;
+
+                 create trigger ATDC_13_TAB1_trigger_2 after update 
+                on ATDC_13_TAB1 for each row mode db2sql 
+                INSERT INTO ATDC_13_TAB1_BACKUP 
+                 SELECT C31, C32 from ATDC_13_TAB3;
+
+– following shows 14 rows
+select * from sys.sysdepends;
+update ATDC_13_TAB1 set c12=11;
+– following shows only 13 rows
+
+I tried this on 10.2 and 10.8 and saw the same behavior on both. It seems like the dependency that gets dropped is between the stored prepared statement and a table. Have not spent enough time to find out more details but I thought it is worth pointing out the behavior
+select * from sys.sysdepends;

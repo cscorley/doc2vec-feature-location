@@ -1,0 +1,4 @@
+Query timeout and lock timeout values are stored in fetch plan/configuration. Due to semantic difference between the Query and em API, separate fetch plan/configuration objects are attached to QueryImpl and EntityManagerImpl. 
+
+When pessimistic lock is enforced by the provider to a query, if the underlying data base requires to generate multiple SQL statements, the timeout value from the QueryImpl is used to execute the data portion of the SQL statements but the timeout value from the EntityManagerImpl is used to issue the "FOR UPDATE" lock to the related table. This caused the discrepancy that the query timeout is NOT being honored. As a result, some database may wait forever and caused a "hung" scenario even the query timeout value is set. 
+

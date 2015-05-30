@@ -1,0 +1,26 @@
+org.apache.zookeeper.test.SaslAuthFailDesignatedClientTest.testAuth often fails on SUSE with the following error stack trace:
+
+
+junit.framework.AssertionFailedError: expected [0x141ccb60d870000] expected:<1> but was:<0>
+	at org.apache.zookeeper.test.JMXEnv.ensureAll(JMXEnv.java:115)
+	at org.apache.zookeeper.test.ClientBase.createClient(ClientBase.java:200)
+	at org.apache.zookeeper.test.ClientBase.createClient(ClientBase.java:174)
+	at org.apache.zookeeper.test.ClientBase.createClient(ClientBase.java:159)
+	at org.apache.zookeeper.test.ClientBase.createClient(ClientBase.java:152)
+	at org.apache.zookeeper.test.SaslAuthFailDesignatedClientTest.testAuth(SaslAuthFailDesignatedClientTest.java:87)
+	at org.apache.zookeeper.JUnit4ZKTestRunner$LoggedInvokeMethod.evaluate(JUnit4ZKTestRunner.java:52)
+
+
+
+The reason is that this is a negative test. After authentication fails, the client connection is closed at the server side so does the session right before test case calls JMXEnv.ensureAll  to verify the session. Below are the log events show the sequence and you can see the session was already closed before client JMXEnv.ensureAll.
+
+
+
+2013-10-18 10:56:25,320 [myid:] - INFO  [SyncThread:0:ZooKeeperServer@595] - Established session 0x141ccb60d870000 with negotiated timeout 30000 for client /127.0.0.1:58272
+2013-10-18 10:56:25,327 [myid:] - WARN  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:11221:ZooKeeperServer@940] - Client failed to SASL authenticate: javax.security.sasl.SaslException: DIGEST-MD5: digest response format violation. Mismatched response.
+2013-10-18 10:56:25,327 [myid:] - WARN  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:11221:ZooKeeperServer@946] - Closing client connection due to SASL authentication failure.
+2013-10-18 10:56:25,329 [myid:] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:11221:NIOServerCnxn@1001] - Closed socket connection for client /127.0.0.1:58272 which had sessionid 0x141ccb60d870000
+....
+2013-10-18 10:56:25,330 [myid:] - INFO  [main-SendThread(localhost:11221):ClientCnxn$SendThread@1089] - Unable to read additional data from server sessionid 0x141ccb60d870000, likely server has closed socket, closing socket connection and attempting reconnect
+2013-10-18 10:56:25,332 [myid:] - INFO  [main:JMXEnv@105] - expect:0x141ccb60d870000
+

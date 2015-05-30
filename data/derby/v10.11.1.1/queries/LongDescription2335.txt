@@ -1,0 +1,16 @@
+The parent task DERBY-1478 will enable users to have a different collation order for user-defined character datatypes compared to UNICODE based collation, UCS_BASIC, used by system tables. This sub-task is added to handle the case where a comparison is made between character datatypes with different collation order. 
+
+For instance 
+Let's say, a database is created to use a territory based collation for character types. And say there is a userSchema schema in that database which has a table tableInfo with column tablename defined as VARCHAR. This tableInfo.tablename will have territory based collation assoicated with it. And say this column is then compared with a VARCHAR column in SYS schema, then how will the comparison happen, since the 2 columns being compared have different collation associated with them? 
+select * from sys.systables and userSchema.tableInfo where systables.tablename = tableInfo,tablename 
+
+Thanks to Rick for taking the time out on this issue. He had following suggestion
+</Rick comment start>
+"As I read part 2 of the SQL Standard, it looks like you need a CAST in order to compare 2 strings which have different collations bound to them. Both string operands must have the same collation--that is my reading of Syntax rule 3b in section 9.13. Sections 6.12 and 6.1 explain how to cast the operands so that you can compare them. I think you need to write an expression like this: 
+
+   WHERE userStringCol = CAST ( systemStringCol AS VARCHAR COLLATE userStringColumnsCollation ) 
+
+Here's an example I googled up: http://docs.openlinksw.com/virtuoso/sqlrefDATATYPES.html. Hope this helps. 
+</Rick comment end>
+
+When this task is taken up, it would be good to explore Rick's suggestion.

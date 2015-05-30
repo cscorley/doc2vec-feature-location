@@ -1,0 +1,21 @@
+ij> create table alltypes (i int, s smallint, l bigint, c char(10), v varchar(50), lvc long varchar,d double precision,
+r real, dt date, t time, ts timestamp, b char(2) for bit data, bv varchar(8) for bit data, lbv long varchar for bit data
+, dc decimal(5,2));
+0 rows inserted/updated/deleted
+ij> select substr(c||v, 1, 4), count from alltypes group by substr(c||v, 1, 4) ;
+1   |2
+----------------
+
+0 rows selected
+ij> insert into alltypes values (0, 100, 1000000, 'duplicate', 'this is duplicated', 'also duplicated',200.0e0, 200.0e0,
+ date('1992-01-01'), time('12:30:30'), timestamp('1992-01-01 12:30:30'), X'12af', x'0000111100001111', X'1234', 111.11)
+;
+1 row inserted/updated/deleted
+ij> insert into alltypes values (0, 100, 1000000, 'duplicate', 'this is duplicated', 'also duplicated',200.0e0, 200.0e0,
+ date('1992-01-01'), time('12:30:30'), timestamp('1992-01-01 12:30:30'), X'12af', x'0000111100001111', X'1234', 111.11)
+;
+1 row inserted/updated/deleted
+ij> select substr(c||v, 1, 4), count from alltypes group by substr(c||v, 1, 4) ;
+ERROR XJ001: Java exception: 'ASSERT FAILED col1.getClass() (class org.apache.derby.iapi.types.SQLVarchar) expected to b
+e the same as col2.getClass() (class org.apache.derby.iapi.types.CollatorSQLVarchar): org.apache.derby.shared.common.san
+ity.AssertFailure'.

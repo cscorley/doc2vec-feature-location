@@ -1,0 +1,3 @@
+Section 9.1.1 of the JPA 1.0 spec says that if the @Table annotation is not defined, then it should default to the name of the entity. However, we always default to the name of the class. For example, the entity define as "@Entity(name="FOO") public class Bar" should default to be mapped to the table named "FOO", but we incorrectly default to "Bar".
+
+The workaround is to just specify the @Table name as well.

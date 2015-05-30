@@ -1,0 +1,18 @@
+I identified some unused code; a flag that is always false, and code for handling triggers in bulk insert which is unused (by inspection and corroborated by JaCoCo results for our regression tests): we disable bulk insert if there are triggers present, cf. 
+
+
+	DMLModStatementNode#getAllRelevantTriggers ->
+  adjustDeferredFlag(true)
+
+
+
+
+	InsertResultSet#bulkInsert:
+
+
+
+  bulkInsert = verifyBulkInsert()->
+      :
+      // bulk insert is disabled for deferred mode inserts
+      if (constants.deferred)
+      return false;

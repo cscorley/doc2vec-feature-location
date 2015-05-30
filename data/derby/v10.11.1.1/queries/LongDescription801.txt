@@ -1,0 +1,24 @@
+Derby currently serializes accesses to a data file.  For example, the
+implementation of RAFContainer.readPage is as follows:
+
+    synchronized (this) 
+{  // 'this' is a FileContainer, i.e. a file object
+        fileData.seek(pageOffset);  // fileData is a RandomAccessFile
+        fileData.readFully(pageData, 0, pageSize);
+    }
+
+I have experiemented with a patch where I have introduced several file
+descriptors (RandomAccessFile objects) per RAFContainer.  These are
+used for reading.  The principle is that when all readers are busy, a
+readPage request will create a new reader.  (There is a maximum number
+of readers.)  With this patch, throughput was improved by 50% on
+linux.  For more discussion on this, see
+
+http://www.nabble.com/Derby-I-O-issues-during-checkpointing-t473523.html
+
+The challenge with the suggested approach is to make a mechanism to
+limit the number of open file descpriptors.  Mike Matrigali has
+suggested to use the existing CacheManager infrastructure for this
+purpose.  For a discussion on that, see:
+
+http://www.nabble.com/new-uses-for-basic-services-cache---looking-for-advice-t756863.html

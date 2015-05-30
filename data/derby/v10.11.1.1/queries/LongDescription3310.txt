@@ -1,0 +1,10 @@
+The following code 
+
+CREATE TABLE U (SNAME VARCHAR(32000), TNAME VARCHAR(32000), C1 BIGINT);
+– This triggers an ASSERT (because 2 is INTEGER and not BIGINT)
+INSERT INTO U(SNAME, TNAME, C1) SELECT DISTINCT SCHEMANAME, TABLENAME, 2
+ FROM SYS.SYSTABLES T JOIN SYS.SYSSCHEMAS S ON T.SCHEMAID = S.SCHEMAID;
+
+gives
+
+ERROR XJ001: Java exception: 'ASSERT FAILED col1.getClass() (class org.apache.derby.iapi.types.SQLInteger) expected to be the same as col2.getClass() (class org.apache.derby.iapi.types.SQLLongint): org.apache.derby.shared.common.sanity.AssertFailure'.

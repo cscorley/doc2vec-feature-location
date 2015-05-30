@@ -1,0 +1,56 @@
+org.apache.zookeeper.server.quorum.Zab1_0Test was failed both with SUN JDK and open JDK.
+
+    [junit] Running org.apache.zookeeper.server.quorum.Zab1_0Test
+    [junit] Tests run: 8, Failures: 0, Errors: 1, Time elapsed: 18.334 sec
+    [junit] Test org.apache.zookeeper.server.quorum.Zab1_0Test FAILED 
+
+
+Zab1_0Test log:
+Zab1_0Test log:
+2012-07-11 23:17:15,579 [myid:] - INFO  [main:Leader@427] - Shutdown called
+java.lang.Exception: shutdown Leader! reason: end of test
+        at org.apache.zookeeper.server.quorum.Leader.shutdown(Leader.java:427)
+        at org.apache.zookeeper.server.quorum.Zab1_0Test.testLastAcceptedEpoch(Zab1_0Test.java:211)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:48)
+
+
+2012-07-11 23:17:15,584 [myid:] - ERROR [main:Leader@139] - Couldn't bind to port 33556
+java.net.BindException: Address already in use
+        at java.net.PlainSocketImpl.bind(PlainSocketImpl.java:402)
+        at java.net.ServerSocket.bind(ServerSocket.java:328)
+        at java.net.ServerSocket.bind(ServerSocket.java:286)
+        at org.apache.zookeeper.server.quorum.Leader.<init>(Leader.java:137)
+        at org.apache.zookeeper.server.quorum.Zab1_0Test.createLeader(Zab1_0Test.java:810)
+        at org.apache.zookeeper.server.quorum.Zab1_0Test.testLeaderInElectingFollowers(Zab1_0Test.java:224)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+
+2012-07-11 23:17:20,202 [myid:] - ERROR [LearnerHandler-bdvm039.svl.ibm.com/9.30.122.48:40153:LearnerHandler@559] - Unex
+pected exception causing shutdown while sock still open
+java.net.SocketTimeoutException: Read timed out
+        at java.net.SocketInputStream.read(SocketInputStream.java:129)
+        at java.io.BufferedInputStream.fill(BufferedInputStream.java:218)
+        at java.io.BufferedInputStream.read(BufferedInputStream.java:237)
+        at java.io.DataInputStream.readInt(DataInputStream.java:370)
+        at org.apache.jute.BinaryInputArchive.readInt(BinaryInputArchive.java:63)
+        at org.apache.zookeeper.server.quorum.QuorumPacket.deserialize(QuorumPacket.java:83)
+        at org.apache.jute.BinaryInputArchive.readRecord(BinaryInputArchive.java:108)
+        at org.apache.zookeeper.server.quorum.LearnerHandler.run(LearnerHandler.java:291)
+2012-07-11 23:17:20,203 [myid:] - WARN  [LearnerHandler-bdvm039.svl.ibm.com/9.30.122.48:40153:LearnerHandler@569] - ****
+
+	
+	
+		
+		
+			GOODBYE bdvm039.svl.ibm.com/9.30.122.48:40153 ********
+2012-07-11 23:17:20,204 [myid:] - INFO  [Thread-20:Leader@421] - Shutting down
+2012-07-11 23:17:20,204 [myid:] - INFO  [Thread-20:Leader@427] - Shutdown called
+java.lang.Exception: shutdown Leader! reason: lead ended
+		
+		
+	
+	
+
+
+
+this failure seems 33556 port is already used, but it is not in use with command check in fact. There is a hard code in unit test, we can improve it with code patch.

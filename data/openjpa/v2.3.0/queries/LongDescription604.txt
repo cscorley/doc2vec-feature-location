@@ -1,0 +1,41 @@
+When an application sets the Log property in a persistence unit (persistence.xml) or passes in through map during createEntityManager[Factory] using one locale,  this setting will fail when runs in a different locale.
+
+It is caused by the LogImpl:
+
+1) retrieve the *_STR from the localizer.properties
+
+    public static final String TRACE_STR = _loc.get("log-trace").getMessage();
+    public static final String INFO_STR = _loc.get("log-info").getMessage();
+    public static final String WARN_STR = _loc.get("log-warn").getMessage();
+    public static final String ERROR_STR = _loc.get("log-error").getMessage();
+    public static final String FATAL_STR = _loc.get("log-fatal").getMessage();
+
+2) compare only the current locale *_STR values;
+
+    public static short getLevel(String str) 
+{
+        str = str.toUpperCase().trim();
+        short val = TRACE_STR.equals(str) ? Log.TRACE :
+            INFO_STR.equals(str) ? Log.INFO :
+                WARN_STR.equals(str) ? Log.WARN :
+                    ERROR_STR.equals(str) ? Log.ERROR :
+                        FATAL_STR.equals(str) ? Log.FATAL : -1;
+
+        if (val == -1)
+            throw new IllegalArgumentException
+                (_loc.get("log-bad-constant", str).getMessage());
+
+        return val;
+    }
+
+I understand the intention is to match the Log setting using the same locale, however if the Log string is set in an application's persistence unit (persistence.xml) or business logic (createEntityManagerFactory( ...., map)), the application will fail.
+
+I see two alternatives:
+1) Since Log is part of the property and configuration framework, none of these property settings are local sensitive.  We can make Log property NOT locale sensitive, i.e. always use TRACE, INFO, WARN, ERROR and FATAL as the Log values.
+
+2) Access both English (as in alternative 1) and also whatever current locale Log values. I.e. English only Log values will work when set in persistence.xml and business logic  regardless of the current locale setting but locale specific settings ONLY work in the same current locale.
+
+Personally, the second option is more attractive and also backward compatible with existing application that uses locale specific behavior.
+
+Please comment on your preference!
+Albert Lee.

@@ -1,0 +1,3 @@
+As talked about in TIKA-1555 and TIKA-1557, it would be nice to be able to disable Parsers without pulling their dependencies out. In some cases (e.g. disable all ExternalParsers), there may not be an easy way to exclude the dependencies via Maven.
+
+So, an initial design would be to include another file like META-INF/services/org.apache.tika.parser.Parser.blacklist. We create a new method ServiceLoader#loadServiceProviderBlacklist. Then, in ServiceLoader#loadServiceProviders, we remove all elements of the list that are assignable to an element in ServiceLoader#loadServiceProviderBlacklist.

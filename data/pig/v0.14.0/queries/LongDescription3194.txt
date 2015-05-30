@@ -1,0 +1,8 @@
+The changes to ObjectSerializer.java in the following commit
+http://svn.apache.org/viewvc?view=revision&revision=1403934 break compatibility with Hadoop 0.20.2 Clusters.
+
+The reason is, that the code uses methods from Apache Commons Codec 1.4 - which are not available in Apache Commons Codec 1.3 which is shipping with Hadoop 0.20.2.
+
+The offending methods are Base64.decodeBase64(String) and Base64.encodeBase64URLSafeString(byte[])
+
+If I revert these changes, Pig 0.11.0 candidate 2 works well with our Hadoop 0.20.2 Clusters.

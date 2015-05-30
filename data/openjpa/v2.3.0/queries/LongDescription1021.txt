@@ -1,0 +1,9 @@
+I've tried to use a relation field as key for a java.util.Map, using a PersistentMap & MapKey annotation.
+
+Ideally, such a mapping should be supported of course. For an example real-world use case, see the test case I'll attach (it's the same that I posted to the list last week).
+
+According to Fay Wang on users@openjpa.apache.org, this is not possible today (v1.2.0), see http://mail-archives.apache.org/mod_mbox/openjpa-users/200904.mbox/%3C188945.43609.qm@web55901.mail.re3.yahoo.com%3E (the short email exchange which lead to the creation of this JIRA).
+
+According to Pinaki Poddar on http://n2.nabble.com/Map%3CClassA,ClassB%3E-problem-td534546.html this should work. Either way, the current error message ("Map field ...  is attempting to use a map table, but its key is mapped by another field.  Use an inverse key or join table mapping.") is unclear. 
+
+At the very least, the documentation manual should clearly say that this is explicitly not supported, or include an example if it is, and/or a clear error message should be printed by the run-time. Ideally it should be a working and documenting mapping though...

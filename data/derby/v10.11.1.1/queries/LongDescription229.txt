@@ -1,0 +1,14 @@
+Sections 14.2.3 and [14.2.3] of JDBC 3.0 spec say
+
+Column names supplied to getter [updater] methods are case insensitive. If a select list
+contains the same column more than once, the first instance of the column will be
+returned [updated].
+
+Derby returns or updates the last column in the select list, not the first. With the attached Java class I see
+
+PRE-UPDATE
+1,100
+POST-UPDATE
+1,500
+POST-UPDATE getXXX(name)
+AB:500,ab500

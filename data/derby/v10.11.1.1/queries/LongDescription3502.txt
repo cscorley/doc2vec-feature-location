@@ -1,0 +1,9 @@
+Unique Constraint now uses non unique backing indexes with new attribute UniqueWithDuplicateNulls. This index has following sharing properties
+
+1. Can use an existing unique index.
+2. Non Unique indexes (and foreign key) can use this index.
+
+While dropping a unique index a new index for unique constraint should be created.
+when a unique constraint is dropped a new index for a non unique index or foreign key should be created. 
+
+Army has found several issues in actual behavior. This problems are listed in DERBY-3456.

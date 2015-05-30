@@ -1,0 +1,18 @@
+http://www.nabble.com/highlighting-pt2%3A-returning-tokens-out-of-order-from-PhraseQuery-to16156718.html
+
+Say we search for the band "I Love You But I've Chosen Darkness"
+.../selectrows=100&q=%22I%20Love%20You%20But%20I\'ve%20Chosen%20Darkness%22&fq=type:html&hl=true&hl.fl=content&hl.fragsize=500&hl.snippets=5&hl.simple.pre=%3Cspan%3E&hl.simple.post=%3C/span%3E
+
+The highlight returns a snippet that does have the name altogether:
+
+Lights (Live) : <span>I</span> <span>Love</span> <span>You</span> But <span>I've</span> <span>Chosen</span> <span>Darkness</span> :
+
+But also returns unrelated snips from the same page:
+
+Black Francis Shop "<span>I</span> Think <span>I</span> <span>Love</span> <span>You</span>"
+
+A correct highlighter should not return snippets that do not match the phrase exactly.
+
+LUCENE-794 (not yet committed, but seems to be ready) fixes up the problem from the Lucene end. Solr should get it too.
+
+Related: SOLR-575 

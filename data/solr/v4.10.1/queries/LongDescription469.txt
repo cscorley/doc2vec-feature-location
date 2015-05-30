@@ -1,0 +1,25 @@
+We need a RequestHandler Which can import data from a DB or other dataSources into the Solr index .Think of it as an advanced form of SqlUpload Plugin (SOLR-103).
+
+The way it works is as follows.
+
+
+	Provide a configuration file (xml) to the Handler which takes in the necessary SQL queries and mappings to a solr schema
+
+
+	It also takes in a properties file for the data source configuraution
+
+
+	Given the configuration it can also generate the solr schema.xml
+	It is registered as a RequestHandler which can take two commands do-full-import, do-delta-import
+
+
+	do-full-import - dumps all the data from the Database into the index (based on the SQL query in configuration)
+	do-delta-import - dumps all the data that has changed since last import. (We assume a modified-timestamp column in tables)
+
+
+	It provides a admin page
+
+
+	where we can schedule it to be run automatically at regular intervals
+	It shows the status of the Handler (idle, full-import, delta-import)
+

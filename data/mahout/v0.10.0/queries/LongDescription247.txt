@@ -1,0 +1,61 @@
+			UserSimilarity userSimilarity = new TanimotoCoefficientSimilarity(getBooleanPrefDataModel());
+			UserNeighborhood neighborhood = new NearestNUserNeighborhood(3, userSimilarity, getBooleanPrefDataModel());
+			Recommender recommender = new GenericBooleanPrefUserBasedRecommender(getBooleanPrefDataModel(), neighborhood, userSimilarity);
+                        recommender.recommend(userwithnopreferencesdata, 10);
+
+code properly throws NoSuchUserException however one of the connections is hang on LongPrimitiveIterator backed by org.apache.mahout.cf.taste.impl.model.jdbc.AbstractJDBCDataModel$ResultSetIDIterator as Exception is thrown before TopItems.getTopUsers finishes the while loop 
+
+public static long[] getTopUsers(int howMany,
+                                   LongPrimitiveIterator allUserIDs,
+                                   Rescorer<Long> rescorer,
+                                   Estimator<Long> estimator) throws TasteException {
+    Queue<SimilarUser> topUsers = new PriorityQueue<SimilarUser>(howMany + 1, Collections.reverseOrder());
+    boolean full = false;
+    double lowestTopValue = Double.NEGATIVE_INFINITY;
+//HERE IS THE ITERATOR
+    while (allUserIDs.hasNext()) {
+      long userID = allUserIDs.next();
+      if (rescorer != null && rescorer.isFiltered(userID)) 
+{
+        continue;
+      }
+
+//EXCEPTION THROWN HERE CAUSES THE CONNECTION LEAK
+      double similarity = estimator.estimate(userID);
+      double rescoredSimilarity = rescorer == null ? similarity : rescorer.rescore(userID, similarity);
+      if (!Double.isNaN(rescoredSimilarity) && (!full || rescoredSimilarity > lowestTopValue)) {
+        topUsers.add(new SimilarUser(userID, similarity));
+        if (full) 
+{
+          topUsers.poll();
+        }
+ else if (topUsers.size() > howMany) 
+{
+          full = true;
+          topUsers.poll();
+        }
+        lowestTopValue = topUsers.peek().getSimilarity();
+      }
+    }
+    if (topUsers.isEmpty()) 
+{
+      return NO_IDS;
+    }
+    List<SimilarUser> sorted = new ArrayList<SimilarUser>(topUsers.size());
+    sorted.addAll(topUsers);
+    Collections.sort(sorted);
+    long[] result = new long[sorted.size()];
+    int i = 0;
+    for (SimilarUser similarUser : sorted) 
+{
+      result[i++] = similarUser.getUserID();
+    }
+    return result;
+  }
+
+============================================================================================================
+I currently fixed it in our application by checking first to see if user has preferences for the given dataset (user might exists and have preferences for a different dataset).
+
+However this edge case does not cause issues in some other recommenders as long as we handle the NoSuchUserException.
+
+Easy solution is to use AbstractJDBCDataModel$ResultSetIDIterator always with try/catch/finally and release the connection.

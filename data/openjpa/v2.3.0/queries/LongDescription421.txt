@@ -1,0 +1,24 @@
+When openjpa.jdbc.DBDictionary is set in persistence.xml file, OpenJPA creates a new DBDictionary instance by loading the class specified in the properties without trying to connect to database.   It leaves version related configuration unset until the first connection to the database and creates the window of referencing partial properties in the DBDictionary.  The problem happens when the first sql statement gets constructed within this window with lack of the knowledge of the version of the database.
+
+For example, with the setting that described below, BIGINT was generated in the
+SQL statement to be run on DB2 z/OS V8 and failed to execute because BIGINT was not supported on that version of z/OS DB2.
+
+1. commenting out the setting of "openjpa.jdbc.SynchronizeMappings".
+2. configure the connection properties to a z/OS database
+3. issuing a statement similar to the following to generate SQL statement with
+   "CAST(? AS BIGINT)".
+
+Here is the testcase that I use to create the problem:
+{
+    EntityManagerFactory emf1 = 
+        Persistence.createEntityManagerFactory("demo");
+    EntityManager em1 = emf1.createEntityManager();
+    em1.getTransaction().begin();
+    Order o3 = (Order) em1.createQuery(
+        "select o from Order o where o.oid = 68").getSingleResult();
+    ...
+}
+
+==>
+  SELECT t0.oid, t0.version, t0.amount, t0.delivered FROM Order t0
+    WHERE (t0.oid = CAST(? AS BIGINT)) optimize for 1 row [params=(long) 68]

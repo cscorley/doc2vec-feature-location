@@ -1,0 +1,16 @@
+We've got a few abstract extensions of EvalFunc that make life easier. If people are interested we can push said classes into Pig.
+
+There are 3 classes, each extending the next. Class naming is all TBD.
+
+
+	TypedOutputEvalFunc<OUT> - Implements public Schema outputSchema(Schema input) based on the generic type of the subclass. Provides common helper validation functions which increment counters for good and bad Tuple data passed. Useful where the input to be worked on is a tuple of size N or greater.
+	PrimitiveEvalFunc<IN, OUT> - Same as above with helper validation allowing the ability it subclass and just implement public OUT exec(IN input), where IN and OUT are primitives. Useful when the input is a single primitive in position 0 of a tuple.
+	FunctionWrapperEvalFunc - Wraps a Guava Function implementation (http://guava-libraries.googlecode.com/svn/trunk/javadoc/com/google/common/base/Function.html) and allows UDFs to be used in Pig scripts like so, where MyFunction is a class that implements Function:
+
+
+
+
+DEFINE myUdf org.apache.pig.FunctionWrapperEvalFunc('MyFunction')
+
+
+

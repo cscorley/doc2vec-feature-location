@@ -1,0 +1,9 @@
+With the almost same testcase mentioned in the BOOKKEEPER-584, Ledger metadata is getting added with extra segment during failure handling of bookies along with fencing. 
+
+Only difference in the testcase is .
+1. Before bookie failures some entries were already written
+2. And after bookies failed ( First bookie will throw LedgerFenced/Unauthorized exception, and second bookie is slow/dead bookie ), Number of entries written asynchrounously is n*ensembleSize+1
+
+Note that, Unauthorized/FencedException callback comes first, then other bookie failure callback comes.
+
+I will attach a TestCase along with patch for this shortly. Testcase is modified version of attached testcase in BOOKKEEPER-584

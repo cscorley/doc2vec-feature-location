@@ -1,0 +1,32 @@
+I'm consistently seeing a failure on my laptop when running the FLETest "testJoin" test. What seems to be happening is that the call to setLastSeenQuorumVerifier is hanging.
+
+See the following log from the test, notice 17:35:57 for the period in question. Note that I turned on debug logging and added a few log messages around the call to setLastSeenQuorumVerifier (you can see the code enter but never leave)
+
+Note: I've applied ZOOKEEPER-1324 to trunk code and then run this test but that doesn't seem to help. Also note that this test is passing consistently when run against branch-3.4.
+
+
+2013-05-07 17:35:57,859 [myid:] - INFO  [QuorumPeer[myid=0]/0:0:0:0:0:0:0:0:11221:Follower@65] - FOLLOWING - LEADER ELECTION TOOK - 16
+2013-05-07 17:35:57,859 [myid:] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:11224:Leader@436] - LEADING - LEADER ELECTION TOOK - 17
+2013-05-07 17:35:57,863 [myid:] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:11224:FileTxnSnapLog@270] - Snapshotting: 0x0 to /home/phunt/dev/zookeeper-trunk/build/test/tmp/test3690487600947307322.junit.dir/version-2/snapshot.0
+2013-05-07 17:35:57,873 [myid:] - INFO  [LearnerHandler-/127.0.0.1:34262:LearnerHandler@269] - Follower sid: 0 : info : 0.0.0.0:11222:11223:participant;0.0.0.0:11221
+2013-05-07 17:35:57,878 [myid:] - INFO  [LearnerHandler-/127.0.0.1:34262:LearnerHandler@328] - Synchronizing with Follower sid: 0 maxCommittedLog=0x0 minCommittedLog=0x0 peerLastZxid=0x0
+2013-05-07 17:35:57,878 [myid:] - DEBUG [LearnerHandler-/127.0.0.1:34262:LearnerHandler@395] - committedLog is empty but leader and follower are in sync, zxid=0x0
+2013-05-07 17:35:57,878 [myid:] - INFO  [LearnerHandler-/127.0.0.1:34262:LearnerHandler@404] - Sending DIFF
+2013-05-07 17:35:57,879 [myid:] - DEBUG [LearnerHandler-/127.0.0.1:34262:LearnerHandler@411] - Sending NEWLEADER message to 0
+2013-05-07 17:35:57,880 [myid:] - INFO  [QuorumPeer[myid=0]/0:0:0:0:0:0:0:0:11221:Learner@331] - Getting a diff from the leader 0x0
+2013-05-07 17:35:57,885 [myid:] - INFO  [QuorumPeer[myid=0]/0:0:0:0:0:0:0:0:11221:Learner@457] - Learner received NEWLEADER message
+2013-05-07 17:35:57,885 [myid:] - INFO  [QuorumPeer[myid=0]/0:0:0:0:0:0:0:0:11221:Learner@460] - NEWLEADER calling configfromstring
+2013-05-07 17:35:57,885 [myid:] - INFO  [QuorumPeer[myid=0]/0:0:0:0:0:0:0:0:11221:Learner@462] - NEWLEADER setting quorum verifier
+2013-05-07 17:35:57,886 [myid:] - WARN  [QuorumPeer[myid=0]/0:0:0:0:0:0:0:0:11221:QuorumPeer@1218] - setLastSeenQuorumVerifier called with stale config 0. Current version: 0
+2013-05-07 17:36:01,880 [myid:] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:11224:Leader@585] - Shutting down
+2013-05-07 17:36:01,881 [myid:] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:11224:Leader@591] - Shutdown called
+java.lang.Exception: shutdown Leader! reason: Waiting for a quorum of followers, only synced with sids: [ [1] ]
+	at org.apache.zookeeper.server.quorum.Leader.shutdown(Leader.java:591)
+	at org.apache.zookeeper.server.quorum.Leader.lead(Leader.java:487)
+	at org.apache.zookeeper.server.quorum.QuorumPeer.run(QuorumPeer.java:949)
+2013-05-07 17:36:01,881 [myid:] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:11224:ZooKeeperServer@398] - shutting down
+2013-05-07 17:36:01,881 [myid:] - INFO  [LearnerCnxAcceptor-0.0.0.0/0.0.0.0:11225:Leader$LearnerCnxAcceptor@398] - exception while shutting down acceptor: java.net.SocketException: Socket closed
+2013-05-07 17:36:01,882 [myid:] - WARN  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:11224:QuorumPeer@979] - PeerState set to LOOKING
+2013-05-07 17:36:01,882 [myid:] - INFO  [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:11224:QuorumPeer@863] - LOOKING
+2013-05-07 17:36:01,883 [myid:] - DEBUG [QuorumPeer[myid=1]/0:0:0:0:0:0:0:0:11224:QuorumPeer@792] - Initializing leader election protocol...
+

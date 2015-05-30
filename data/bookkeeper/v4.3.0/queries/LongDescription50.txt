@@ -1,0 +1,4 @@
+the LedgerDescriptor will be created when it is missed in LedgerCache. NullPointException will be thrown out in the following case:
+
+1. The ledger descriptor is created and cached to LedgerCache because of a readEntry operation in bookie. The ledger descriptor was created without setting master key (we don't know master key in a read request)
+2. An addEntry is sent after 1 . since the ledger descriptor has been cached, so addEntry will use it to compare master key. then NullPointException is thrown out.

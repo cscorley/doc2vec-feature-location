@@ -1,0 +1,24 @@
+This patch copies the request parameters (explicit ones only, not the defaults) to Solr's XML output.
+
+It is not configurable yet, it is enabled by default and adds a "queryParameters" list to the responseHeader:
+
+<responseHeader>
+        <status>0</status>
+        <QTime>1</QTime>
+        <lst name="queryParameters">
+                <arr name="multi">
+                        <str>red</str>
+                        <str>blue</str>
+                </arr>
+                <str name="rows">10</str>
+                <str name="start">0</str>
+                <str name="indent">on</str>
+                <str name="q">solr</str>
+                <str name="stylesheet"/>
+                <str name="version">2.1</str>
+        </lst>
+</responseHeader>
+
+The above example includes a multi-valued parameter, "multi".
+
+This might still change a bit, but if someone wants to play with it or improve it, here you go.

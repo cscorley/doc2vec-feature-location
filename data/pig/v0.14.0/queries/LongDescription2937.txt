@@ -1,0 +1,15 @@
+
+
+raw_data = load 'xyz' using Loader() as (field_a, field_b, field_c);
+records = foreach raw_data {
+  generated_field = (field_a is null ? '-' : someUDF(field_b)); 
+  GENERATE
+    field_c,
+    generated_field
+  ;
+}
+describe records;
+
+
+
+One would expect the generated_field to have a field name, similar to the field_c that is from the original relation. However, Pig currently doesn't assign the field name by default. It'd be nice if we can assign the variable name as the default field name. 

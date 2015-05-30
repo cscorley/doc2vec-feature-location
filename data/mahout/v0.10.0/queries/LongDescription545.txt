@@ -1,0 +1,6 @@
+The problem is that GSON uses JavaCC which does LL(k) parsing.  The way that the JSON grammar is expressed causes stack recursion for each element of
+a vector.
+
+This is evil for parsing large models.
+
+I will be changing ModelSerializer to fix this and will provide a reverse compatible mode for anybody who has been able to serialize/deserialize these models in the past.  My thought is to just make all the SGD models Writables.

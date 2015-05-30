@@ -1,0 +1,72 @@
+Property "aggregate.warning" is not being set by default when running PigServer, embedding Pig in Java.
+
+I was initially creating a PigServer object this way:
+
+
+  PigServer pigServer = new PigServer(ExecType.MAPREDUCE);
+
+
+
+But this generated detailed logs in the log directory. To code around this on the client-side you could do
+
+
+
+Properties properties = PropertiesUtil.loadDefaultProperties();
+properties.setProperty("aggregate.warning", "true");
+PigServer pigServer = new PigServer(ExecType.MAPREDUCE, properties);
+
+
+
+The behavior between Pig scripting and Embedded Pig should be similar. Looking at
+the main constructor of PigServer, it looks like "aggregateWarning" is set
+to false if its not loaded in to Properties object.
+
+
+
+public PigServer(PigContext context, boolean connect) throws ExecException {
+         this.pigContext = context;
+         currDAG = new Graph(false);
+
+         aggregateWarning =
+"true".equalsIgnoreCase(pigContext.getProperties().getProperty("aggregate.warning"));
+         isMultiQuery =
+"true".equalsIgnoreCase(pigContext.getProperties().getProperty("opt.multiquery","true"));
+
+         jobName = pigContext.getProperties().getProperty(
+                 PigContext.JOB_NAME,
+                 PigContext.JOB_NAME_PREFIX + ":DefaultJobName");
+
+         if (connect) {
+             pigContext.connect();
+         }
+
+         addJarsFromProperties();
+     }
+
+
+
+I suggest adding "aggregate.warning" to Properties object of PigContext so its picked up across all users of this property (MapReduceLauncher)
+
+
+public PigServer(PigContext context, boolean connect) throws ExecException {
+        this.pigContext = context;
+        currDAG = new Graph(false);
+
+        aggregateWarning = "true".equalsIgnoreCase(pigContext.getProperties().getProperty("aggregate.warning", "true"));
+        if(aggregateWarning) {
+        	pigContext.getProperties().setProperty("aggregate.warning", "true");
+        }
+        	
+        isMultiQuery = "true".equalsIgnoreCase(pigContext.getProperties().getProperty("opt.multiquery","true"));
+        
+        jobName = pigContext.getProperties().getProperty(
+                PigContext.JOB_NAME,
+                PigContext.JOB_NAME_PREFIX + ":DefaultJobName");
+
+        if (connect) {
+            pigContext.connect();
+        }
+
+        addJarsFromProperties();
+    }
+

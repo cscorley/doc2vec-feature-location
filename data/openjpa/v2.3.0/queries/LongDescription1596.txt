@@ -1,0 +1,13 @@
+When running JPA on DB2 zOS v9, the following exception is thrown:
+
+Exception in thread "main" <openjpa-2.0.0-SNAPSHOT-r422266:832587 nonfatal user error> org.apache.openjpa.persistence.ArgumentException: Index name "OPENJPA_SEQUENCE_TABLE_IDX" is 26-character long. The database allows maximum 18-character for an index name. 
+	at org.apache.openjpa.jdbc.sql.DBDictionary.checkNameLength(DBDictionary.java:5021)
+	at org.apache.openjpa.jdbc.sql.DBDictionary.getCreateIndexSQL(DBDictionary.java:3429)
+	at org.apache.openjpa.jdbc.schema.SchemaTool.createIndex(SchemaTool.java:1017)
+	at org.apache.openjpa.jdbc.schema.SchemaTool.add(SchemaTool.java:565)
+	at org.apache.openjpa.jdbc.schema.SchemaTool.add(SchemaTool.java:345)
+	at org.apache.openjpa.jdbc.schema.SchemaTool.run(SchemaTool.java:322)
+	at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:501)
+	at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:453)
+	at org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.synchronizeMappings(JDBCBrokerFactory.java:155)
+	at org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.synchronizeMappings(JDBCBrokerFactory.java:159)

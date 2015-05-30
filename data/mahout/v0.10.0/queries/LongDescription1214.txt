@@ -1,0 +1,15 @@
+The current implementation of the spectral KMeans algorithm (Andrew Ng. etc. NIPS 2002) in version 0.7 has two serious issues. These two incorrect implementations make it fail even for a very obvious trivial dataset. We have implemented a solution to resolve these two issues and hope to contribute back to the community.
+
+
+	Issue 1:
+The EigenVerificationJob in version 0.7 does not check the orthogonality of eigenvectors, which is necessary to obtain the correct clustering results for the case of K>1; We have an idea and implementation to select based on cosAngle/orthogonality;
+
+
+
+
+	Issue 2:
+The random seed initialization of KMeans algorithm is not optimal and sometimes a bad initialization will generate wrong clustering result. In this case, the selected K eigenvector actually provides a better way to initalize cluster centroids because each selected eigenvector is a relaxed indicator of the memberships of one cluster. For every selected eigenvector, we use the data point whose eigen component achieves the maximum absolute value. 
+
+
+
+We have already verified our improvement on synthetic dataset and it shows that the improved version get the optimal clustering result while the current 0.7 version obtains the wrong result.

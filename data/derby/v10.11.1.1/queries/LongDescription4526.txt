@@ -1,0 +1,22 @@
+See BugDemo.java in the attachment. Below is a code snippet. 
+
+	public BugDemo()
+	{
+		/*
+		 * BUG 1: Although Derby uses indexes, "Hash table size = 31416" (see small_derby1.log) is the suspect in case of small_db
+		 */
+		String sql = "select f.file_id, f.name, f.is_directory from Files f, FileRestorePoints p where p.file_id=f.file_id"
+					+" and p.restore_point_id=1 and f.parent_folder_id=?";
+		demo("Bug1", large_db, sql); //no problem, 96547 rows, 8312 milliseconds on my PC
+		demo("Bug1", small_db, sql); //too slow, 31416 rows, 504703 milliseconds on my PC, see small_derby1.log in the attachment
+		
+		/*
+		 * BUG 2: Derby ignores indexes on table FileRestorePoints or rpTable when selecting from view 'rpView' of small_db on tables
+		 * ('Files', 'FileRestorePoints', and 'rpTable') although indexes were created on each of the tables;
+		 * 
+		 *  but, in case of large_db, indexes are used properly (both databases were created from the same script)
+		 */
+		sql = "select file_id, name, length, is_directory from rpView where parent_folder_id=?";
+		demo("Bug2", large_db, sql); //no problem, 96547 rows, 13718 milliseconds on my PC
+		demo("Bug2", small_db, sql); //too slow, 31416 rows, 204110 milliseconds on my PC, see small_derby2.log in the attachment
+	}

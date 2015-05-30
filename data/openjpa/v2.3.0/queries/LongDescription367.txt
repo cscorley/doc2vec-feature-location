@@ -1,0 +1,63 @@
+When an entity is defined using pure XML (i.e. no annotation in the entity class), the enhancer does not recognized the meta data and no enhancing will take place: E.g.
+
+-----------------------------------------
+C:\temp\test>runPcEnhancer.bat
+
+C:\temp\test>java -cp C:\temp\test\;C:\temp\test\openjpa-1.1.0-SNAPSHOT.jar;C:\temp\test\utils.jar;C:\temp\test\geronimo-jpa_3.0_spec-1.0.jar;C:\temp\test\geronimo-jta_1.1_spec-1.1.jar org.apache.openjpa.enhance.PCEnhancer
+15  EntityUnit_JSE  TRACE  [main] openjpa.Runtime - Setting the following properties from "file:/C:/temp/test/META-INF/persistence.xml" into configuration: 
+{openjpa.Id=EntityUnit_JSE, openjpa.Log=DefaultLevel=TRACE, openjpa.MetaDataFactory=jpa(Resources=META-INF/jpamappings.xml, Types=test.XMLDatatypeSupportTestEntity)}
+31  EntityUnit_JSE  TRACE  [main] openjpa.Runtime - No cache marshaller found for id org.apache.openjpa.conf.MetaDataCacheMaintenance.
+47  EntityUnit_JSE  INFO   [main] openjpa.Tool - No targets were given.  Running on all classes in your persistent classes list, or all metadata files in classpath directories if you have not listed your persistent classes.  Use -help to display tool usage information.
+62  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Scanning resource "META-INF/jpamappings.xml" for persistent types.
+62  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Scan of "META-INF/jpamappings.xml" found persistent types [Ljava.lang.String;@3a183a18.
+62  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Mapping resource location "file:/C:/temp/test/META-INF/jpamappings.xml" to persistent types "[test.XMLDatatypeSupportTestEntity]".
+62  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Scanning resource "META-INF/orm.xml" for persistent types.
+62  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - parsePersistentTypeNames() found [test.XMLDatatypeSupportTestEntity].
+62  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Found 1 classes with metadata in 15 milliseconds.
+62  EntityUnit_JSE  TRACE  [main] openjpa.Tool - Enhancer running on type "test.XMLDatatypeSupportTestEntity".
+93  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Loading metadata for "class test.XMLDatatypeSupportTestEntity" under mode "[META]".
+125  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Parsing resource "file:/C:/temp/test/META-INF/jpamappings.xml".
+156  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Parsing class "test.XMLDatatypeSupportTestEntity".
+172  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Generating default metadata for type "test.XMLDatatypeSupportTestEntity".
+172  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Using reflection for metadata generation.
+187  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Parsing class "test.XMLDatatypeSupportTestEntity".
+187  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Parsing package "test.XMLDatatypeSupportTestEntity".
+187  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Finished parsing metadata resource "file:/C:/temp/test/META-INF/jpamappings.xml".
+187  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Parsing class "test.XMLDatatypeSupportTestEntity".
+187  EntityUnit_JSE  TRACE  [main] openjpa.Enhance - Enhancing type "class test.XMLDatatypeSupportTestEntity".
+203  EntityUnit_JSE  WARN   [main] openjpa.Enhance - Type "class test.XMLDatatypeSupportTestEntity" has no metadata; enhancing as persistence aware. If you intended for "class test.XMLDatatypeSupportTestEntity" to be persistence-capable, then this means that OpenJPA could not find any metadata for "class test.XMLDatatypeSupportTestEntity". This can happen if the directory containing your metadata is not in your CLASSPATH, or if your metadata files are not named properly. See the documentation on metadata placement for more information.
+203  EntityUnit_JSE  TRACE  [main] openjpa.Tool - The class does not have metadata - enhanced as persistence-aware.
+-----------------------------------------
+
+However if the target is specified, the enhancement will occur, E.g.
+
+-----------------------------------------
+C:\temp\test>runPcEnhancer.bat test.XMLDatatypeSupportTestEntity
+
+C:\temp\test>java -cp C:\temp\test\;C:\temp\test\openjpa-1.1.0-SNAPSHOT.jar;C:\temp\test\utils.jar;C:\temp\test\geronimo-jpa_3.0_spec-1.0.jar;C:\temp\test\geronimo-jta_1.1_spec-1.1.jar org.apache.openjpa.enhance.PCEnhancer test.XMLDatatypeSupportTestEntity
+15  EntityUnit_JSE  TRACE  [main] openjpa.Runtime - Setting the following properties from "file:/C:/temp/test/META-INF/persistence.xml" into configuration: {openjpa.Id=EntityUnit_JSE, openjpa.Log=DefaultLevel=TRACE, openjpa.MetaDataFactory=jpa(Resources=META-INF/jpamappings.xml, Types=test.XMLDatatypeSupportTestEntity)}
+47  EntityUnit_JSE  TRACE  [main] openjpa.Runtime - No cache marshaller found for id org.apache.openjpa.conf.MetaDataCacheMaintenance.
+78  EntityUnit_JSE  TRACE  [main] openjpa.Runtime - No cache marshaller found for id org.apache.openjpa.conf.MetaDataCacheMaintenance.
+94  EntityUnit_JSE  TRACE  [main] openjpa.Tool - Enhancer running on type "class test.XMLDatatypeSupportTestEntity".
+125  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Loading metadata for "class test.XMLDatatypeSupportTestEntity" under mode "[META]".
+125  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Scanning resource "META-INF/jpamappings.xml" for persistent types.
+125  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Scan of "META-INF/jpamappings.xml" found persistent types [Ljava.lang.String;@20962096.
+140  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Mapping resource location "file:/C:/temp/test/META-INF/jpamappings.xml" to persistent types "[test.XMLDatatypeSupportTestEntity]".
+140  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Scanning resource "META-INF/orm.xml" for persistent types.
+140  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - parsePersistentTypeNames() found [test.XMLDatatypeSupportTestEntity].
+140  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Found 1 classes with metadata in 15 milliseconds.
+156  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Parsing resource "file:/C:/temp/test/META-INF/jpamappings.xml".
+187  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Parsing class "test.XMLDatatypeSupportTestEntity".
+187  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Generating default metadata for type "test.XMLDatatypeSupportTestEntity".
+187  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Using reflection for metadata generation.
+203  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Parsing class "test.XMLDatatypeSupportTestEntity".
+219  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Finished parsing metadata resource "file:/C:/temp/test/META-INF/jpamappings.xml".
+219  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Set persistence-capable superclass of "test.XMLDatatypeSupportTestEntity" to "null".
+219  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Resolving metadata for "test.XMLDatatypeSupportTestEntity@1259490066".
+219  EntityUnit_JSE  TRACE  [main] openjpa.MetaData -   Resolving field "test.XMLDatatypeSupportTestEntity@1259490066.byteAttrDefault".
+219  EntityUnit_JSE  TRACE  [main] openjpa.MetaData -   Resolving field "test.XMLDatatypeSupportTestEntity@1259490066.id".
+250  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Preparing mapping for "test.XMLDatatypeSupportTestEntity".
+250  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Resolving mapping for "test.XMLDatatypeSupportTestEntity@1259490066".
+250  EntityUnit_JSE  TRACE  [main] openjpa.Enhance - Enhancing type "class test.XMLDatatypeSupportTestEntity".
+312  EntityUnit_JSE  TRACE  [main] openjpa.MetaData - Clearing metadata repository "org.apache.openjpa.meta.MetaDataRepository@518c518c".
+-----------------------------------------

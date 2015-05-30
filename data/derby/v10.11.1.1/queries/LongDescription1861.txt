@@ -1,0 +1,25 @@
+An ORDER BY clause wihch combines both column references and expressions causes the
+sort engine to throw an ASSERT failure in sane builds.
+
+Here's a repro script:
+
+-bash-2.05b$ java org.apache.derby.tools.ij
+ij version 10.3
+ij> connect 'jdbc:derby:brydb;create=true';
+ij> create table t (a int, b int, c int, d int);
+0 rows inserted/updated/deleted
+ij> insert into t values (1, 2, 3, 4);
+1 row inserted/updated/deleted
+ij> select * from t order by a, b, c+2;
+ERROR XJ001: Java exception: 'ASSERT FAILED column ordering error: org.apache.derby.shared.common.sanity.AssertFailure'.
+
+As a first theory to check, I believe that when columns in the ORDER BY clause go through "pullup" processing,
+they are generated into the select statement's ResultColumnList and then are later removed at bind time because
+they are determined to duplicate the columns implicitly selected by the "*" column list. But the expression "c+2" is not
+removed from the result list because it does not duplicate any existing column in the table. During this processing,
+I think that the field "addedColumnOffset" in class OrderByColumn is not managed correctly and ends up generating
+a bogus column position for the "c+2" column (it doesn't reflect that pulled-up columns "a" and "b" have disappeared
+from the ResultColumnList), causing the sanity assertion at execution time.
+
+I stumbled across this problem while writing regression tests for DERBY-147, but the problem occurs
+with or without the DERBY-147 fix, so I decided to log it as a separate problem.

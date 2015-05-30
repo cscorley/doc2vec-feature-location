@@ -1,0 +1,5 @@
+In looking at DERBY-438 the error:
+ERROR XCL12: An attempt was made to put a data value of type 'org.apache.derby.impl.jdbc.EmbedBlob' into a data value of type 'BLOB'.
+I think is somewhat due to some confusion in the methods that set the value of a DataValueDescriptor from an object with signature java.lang.Object, e..g. through DVD.setValue(Object) or PreparedStatement.setObject().
+PS.setObject  does not use the setValue(Object) method, but instead, based upon the object's class, calls one of the PS.setXXX methods, e.g. setLong() for a java.lang.Long object. This ensures consistent setting of the value, some of the setValue(Object) methods' behaviour does not match what would happen if the same object was passed into a setValue() method with the correct signature. 
+I think this confusion is historic wrt Cloudscape's support of Java types in SQL. This taks will clean up some of this code and ensure the roles of the set methods are clear wrt Object. (e.g. DVD.setValue(Object), DVD.setObjectForCast).

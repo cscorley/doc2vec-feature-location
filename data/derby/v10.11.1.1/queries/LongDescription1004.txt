@@ -1,0 +1,12 @@
+For a PooledConnection.getConnection() the connection gets closed.
+ Embedded automatically rolls back any activity on the connection.
+ Client requires the user to rollback and gives an SQLException  
+ java.sql.Connection.close() requested while a transaction is in progress
+
+The test jdbcapi/checkDataSource.java shows this bug.   A boolean needRoolbackBeforePCGetConnection has been added to the test and  explicit rollback has been added to the test to get it to run with client.
+
+To reproduce take out instances of the explicit rollback for client from the test e.g.
+
+if (needRollbackBeforePCGetConnection)
+			c1.rollback();
+

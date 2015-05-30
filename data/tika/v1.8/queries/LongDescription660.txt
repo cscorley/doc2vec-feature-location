@@ -1,0 +1,5 @@
+In TIKA-620 (revision 1085003) we added logging for cases where more than one parser is defined for the same media type. This is good for catching issues like classpath conflicts, but not for cases like in Jackrabbit where we use configuration [1] to explicitly override the parsers of certain media types.
+
+Because of this issue and the general preference of no logging in tika-core I'd like to remove this logging functionality. If it's needed in some use cases, we could instead create a utility tool that goes through a list of parsers and finds all the duplicates. Deployments that want to avoid duplicates could then use this tool to flag them.
+
+[1] http://svn.apache.org/repos/asf/jackrabbit/branches/2.2/jackrabbit-core/src/main/resources/org/apache/jackrabbit/core/query/lucene/tika-config.xml

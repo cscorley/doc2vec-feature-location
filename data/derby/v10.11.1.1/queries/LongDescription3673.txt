@@ -1,0 +1,15 @@
+Derby current does not have dictionary information about legal users.
+Authentication is configurable as being derby internal, LDAP based, or
+user supplied.
+
+SQL specifies that user ids and role names go in the same namespace
+(authorization ids).  Therefore, at role creation time, a new role
+name should be checked against legal users for this database, and be
+defined if there is already a user id by that name.
+
+Unfortunately, since there is currently no reliable dictionary
+information about legal users, the best we can do presently is perform
+heuristic checks that a proposed role id is not already a user id.
+
+Since the check can not not reliable, we should also add a check to
+prohibit conncting with a user id that is a known role id.

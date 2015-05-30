@@ -1,0 +1,33 @@
+A test scenario uncovers a bug in eager loading bidirectional OneToOne relation.
+
+  OneOneParent  has a bidirectional OneToOne relation with OneOneChild as annotated as following:
+
+@Entity
+public class OneOneParent {
+...
+    @OneToOne(mappedBy="parent")
+    private OneOneChild child;
+}
+
+@Entity
+public class OneOneChild {
+...
+    @OneToOne
+    private OneOneParent parent;
+}
+
+Testcase:
+
+String query = "select c FROM OneOneChild c";
+        Query q = em.createQuery(query);
+        List list = q.getResultList();
+
+        for (int i = 0; i < list.size(); i++) 
+{
+            OneOneChild c = (OneOneChild) list.get(i);
+            assertEquals(c, c.getParent().getChild());
+        }
+
+We expect c equals c.getParent().getChild(), but instead got assertion failure.
+
+It seems to be a bug introduced in performance improvement work (the related issues: OPENJPA-292 & OPENJPA-744).

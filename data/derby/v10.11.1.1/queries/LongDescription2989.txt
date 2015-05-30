@@ -1,0 +1,91 @@
+I've runned the testcase against both 10.2.2.0 (latest stable) and 10.4.0.0 alpha (trunk) and results are the same.
+
+Sysinfo output:
+
+------------------ Информация Java ------------------
+Версия Java:                 1.5.0_11
+Поставщик Java:                     Sun Microsystems Inc.
+Домашний каталог Java:              C:\java\jre-1.5.0
+Путь классов Java:                  D:\dev\workspaces\DerbyQuery\bin;
+D:\dev\src\db-derby-trunk-20070802\jars\sane\derbytools.jar;
+D:\dev\src\db-derby-trunk-20070802\jars\sane\derby.jar;
+D:\dev\src\db-derby-trunk-20070802\jars\sane\derbyclient.jar;
+D:\dev\src\db-derby-trunk-20070802\jars\sane\derbyLocale_cs.jar;
+D:\dev\src\db-derby-trunk-20070802\jars\sane\derbyLocale_de_DE.jar;
+D:\dev\src\db-derby-trunk-20070802\jars\sane\derbyLocale_es.jar;
+D:\dev\src\db-derby-trunk-20070802\jars\sane\derbyLocale_fr.jar;
+D:\dev\src\db-derby-trunk-20070802\jars\sane\derbyLocale_hu.jar;
+D:\dev\src\db-derby-trunk-20070802\jars\sane\derbyLocale_it.jar;
+D:\dev\src\db-derby-trunk-20070802\jars\sane\derbyLocale_ja_JP.jar;
+D:\dev\src\db-derby-trunk-20070802\jars\sane\derbyLocale_ko_KR.jar;
+D:\dev\src\db-derby-trunk-20070802\jars\sane\derbyLocale_pl.jar;
+D:\dev\src\db-derby-trunk-20070802\jars\sane\derbyLocale_pt_BR.jar;
+D:\dev\src\db-derby-trunk-20070802\jars\sane\derbyLocale_zh_CN.jar;
+D:\dev\src\db-derby-trunk-20070802\jars\sane\derbyLocale_zh_TW.jar;
+D:\dev\src\db-derby-trunk-20070802\jars\sane\derbynet.jar;
+D:\dev\src\db-derby-trunk-20070802\jars\sane\derbyrun.jar
+Имя ОС:                             Windows XP
+Архитектура ОС:                     x86
+Версия ОС:                          5.1
+Имя пользователя Java:              dmitrygusev
+Домашний каталог пользователя Java: C:\Documents and Settings\dmitrygusev
+Каталог пользователя Java:          D:\dev\workspaces\DerbyQuery
+java.specification.name: Java Platform API Specification
+java.specification.version: 1.5
+--------- Информация Derby --------
+JRE - JDBC: J2SE 5.0 - JDBC 3.0
+[D:\dev\src\db-derby-trunk-20070802\jars\sane\derby.jar] 10.4.0.0 alpha - (???)
+[D:\dev\src\db-derby-trunk-20070802\jars\sane\derbytools.jar] 10.4.0.0 alpha - (???)
+[D:\dev\src\db-derby-trunk-20070802\jars\sane\derbynet.jar] 10.4.0.0 alpha - (???)
+[D:\dev\src\db-derby-trunk-20070802\jars\sane\derbyclient.jar] 10.4.0.0 alpha - (???)
+------------------------------------------------------
+----------------- Информация о локали ------------------
+Текущая локаль:  [русский/Россия [ru_RU]]
+Обнаружена поддержка локали: [cs]
+	 версия: 10.4.0.0 alpha - (???)
+Обнаружена поддержка локали: [de_DE]
+	 версия: 10.4.0.0 alpha - (???)
+Обнаружена поддержка локали: [es]
+	 версия: 10.4.0.0 alpha - (???)
+Обнаружена поддержка локали: [fr]
+	 версия: 10.4.0.0 alpha - (???)
+Обнаружена поддержка локали: [hu]
+	 версия: 10.4.0.0 alpha - (???)
+Обнаружена поддержка локали: [it]
+	 версия: 10.4.0.0 alpha - (???)
+Обнаружена поддержка локали: [ja_JP]
+	 версия: 10.4.0.0 alpha - (???)
+Обнаружена поддержка локали: [ko_KR]
+	 версия: 10.4.0.0 alpha - (???)
+Обнаружена поддержка локали: [pl]
+	 версия: 10.4.0.0 alpha - (???)
+Обнаружена поддержка локали: [pt_BR]
+	 версия: 10.4.0.0 alpha - (???)
+Обнаружена поддержка локали: [ru]
+	 версия: 10.4.0.0 alpha - (???)
+Обнаружена поддержка локали: [zh_CN]
+	 версия: 10.4.0.0 alpha - (???)
+Обнаружена поддержка локали: [zh_TW]
+	 версия: 10.4.0.0 alpha - (???)
+------------------------------------------------------
+How to reproduce the bug:
+1.	Create a table with name "indicator" (or any other SQL keyword as the name, i.e. "select") and one field of any type, for instance CHAR(1), like this:
+
+CREATE TABLE \"indicator\"(c CHAR(1) DEFAULT 'N')
+
+2.	Add constraint to the field:
+
+ALTER TABLE \" indicator \" ADD CONSTRAINT \"MY_CONSTRAINT\" CHECK ((c IN ('Y','N')))
+
+3.	Try to insert any row to that table:
+
+INSERT INTO \"indicator\" VALUES ('N')
+
+The INSERT statement will throw an exception:
+java.sql.SQLException: Java exception: ': java.util.EmptyStackException'.
+
+Also, see the program (Main.java) attached to this issue and derby.log contained the exception's stacktace output.
+
+I've also created and attached the patch that may fix this issue. 
+
+Hope this help to improve Derby.

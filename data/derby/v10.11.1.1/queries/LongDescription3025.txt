@@ -1,0 +1,45 @@
+If derby.drda.securityMechanism has not been set to STRONG_PASSWORD_SUBSTITUTE_SECURITY and the database is opened with the securityMechanism=8 property set, a NPE is thrown:
+
+// Try opening the database.
+Properties props = new Properties();
+props.put("securityMechanism", "8");
+props.put("user", dbUser);
+props.put("password", dbPass);
+Connection db = null;
+try 
+{
+    StringBuilder sb = new StringBuilder("jdbc:derby:");
+    sb.append(dbName);
+    db = DriverManager.getConnection(sb.toString(), props);
+}
+    // Handle exception
+} 
+
+java.lang.NullPointerException'. [XJ001]
+Caused by: java.sql.SQLException: Java exception: ': java.lang.NullPointerException'.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.Util.javaException(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedConnection.<init>(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedConnection30.<init>(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedConnection40.<init>(Unknown Source)
+        at org.apache.derby.jdbc.Driver40.getNewEmbedConnection(Unknown Source)
+        at org.apache.derby.jdbc.InternalDriver.connect(Unknown Source)
+        at org.apache.derby.jdbc.AutoloadedDriver.connect(Unknown Source)
+        at java.sql.DriverManager.getConnection(DriverManager.java:582)
+        at java.sql.DriverManager.getConnection(DriverManager.java:154)
+        at org.opensolaris.auth.db.DBManager.openDatabase(DBManager.java:152)
+        ... 1 more
+Caused by: java.sql.SQLException: Java exception: ': java.lang.NullPointerException'.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(Unknown Source)
+        ... 16 more
+Caused by: java.lang.NullPointerException
+        at org.apache.derby.impl.jdbc.authentication.AuthenticationServiceBase.substitutePassword(Unknown Source)
+        at org.apache.derby.impl.jdbc.authentication.BasicAuthenticationServiceImpl.authenticateUser(Unknown Source)
+        at org.apache.derby.impl.jdbc.authentication.AuthenticationServiceBase.authenticate(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedConnection.checkUserCredentials(Unknown Source)
+        ... 10 more 

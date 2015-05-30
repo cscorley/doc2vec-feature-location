@@ -1,0 +1,23 @@
+The built-in functions acos, asin, degrees, radians, log, floor, etc. all fail to work when used in views. The following transcript demonstrates the problem:
+
+ij version 10.3
+ij> connect 'jdbc:derby:test;create=true';
+ij> create table simple_tab (
+  x integer
+);
+0 rows inserted/updated/deleted
+ij> insert into simple_tab values (1);
+1 row inserted/updated/deleted
+ij> select acos y from simple_tab;
+Y                     
+----------------------
+0.0                   
+
+1 row selected
+ij> create view simple_acos_view as (
+	select acos y from simple_tab
+);
+
+ERROR 42X94: OBJECT '2fb0c07e-010d-6f90-2909-00000012ff18' does not exist.
+ij> 
+quit;

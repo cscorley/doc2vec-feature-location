@@ -1,0 +1,30 @@
+I have several jobs that use the following pattern:
+
+
+b = group a by x;
+c = foreach b {
+            dist_y = DISTINCT a.y;
+            generate
+            group,
+            COUNT(dist_y) as y_cnt;
+
+};
+
+
+These job fail intermittently during  proactive spill when the data set is large:
+
+
+java.util.ConcurrentModificationException
+        at java.util.HashMap$HashIterator.nextEntry(HashMap.java:793)
+        at java.util.HashMap$KeyIterator.next(HashMap.java:828)
+        at java.util.AbstractCollection.toArray(AbstractCollection.java:171)
+        at org.apache.pig.data.SortedSpillBag.proactive_spill(SortedSpillBag.java:77)
+        at org.apache.pig.data.InternalDistinctBag.spill(InternalDistinctBag.java:464)
+        at org.apache.pig.impl.util.SpillableMemoryManager.handleNotification(SpillableMemoryManager.java:274)
+        at sun.management.NotificationEmitterSupport.sendNotification(NotificationEmitterSupport.java:138)
+        at sun.management.MemoryImpl.createNotification(MemoryImpl.java:171)
+        at sun.management.MemoryPoolImpl$PoolSensor.triggerAction(MemoryPoolImpl.java:272)
+        at sun.management.Sensor.trigger(Sensor.java:120)
+
+
+PIG-3212 fixed the same issue for InternalSortedBag by synchronizing accesses to the content of bag. But InternalDistinctBag wasn't fixed, so the issue remains for nested DISTINCT.

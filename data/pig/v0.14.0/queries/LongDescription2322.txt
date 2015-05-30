@@ -1,0 +1,34 @@
+from Stan:
+
+Hi,
+
+I have a simple python udf which takes a variable number of (string)
+arguments and returns the first non-empty one.
+I can see that the udf is invoked from pig but no arguments are being passed.
+
+Here is the script:
+=========================================================
+
+#!/usr/bin/python
+
+from org.apache.pig.scripting import *
+
+@outputSchema("s:chararray")
+def firstNonempty(*args):
+   print args
+   for v in args:
+       if len(v) != 0:
+          return v
+   return ''
+
+if _name_ == "_main_":
+  Pig.compile("""
+  data = load 'input.txt' AS (string1:chararray, string2:chararray);
+  data = foreach data generate firstNonempty(string1, string2) as id,
+string1, string2;
+  dump data;
+  """).bind().runSingle()
+
+===========================================================
+
+Thanks!

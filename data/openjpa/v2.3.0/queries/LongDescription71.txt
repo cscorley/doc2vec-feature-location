@@ -1,0 +1,3 @@
+As reported on the mailing list: http://www.nabble.com/cached-byte---consumes-excessive-memory-tf2543098.html , in org.apache.openjpa.AbstractPCData#toData() an ArrayList is used to cache all types of arrays, including arrays of primitives. This can use excessively large amounts of memory because of the wrappers required for each element in the array. In one test case, a 7MB byte[] consumed 127MB when converted to a cached ArrayList.
+
+AbstractPCData needs to be fixed to handle simple arrays.

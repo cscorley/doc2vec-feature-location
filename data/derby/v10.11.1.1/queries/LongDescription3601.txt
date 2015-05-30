@@ -1,0 +1,13 @@
+The following comments posted for DERBY-3571 should be addressed if we choose to allow multiple calls to the various getter methods on LOB columns, except for the getter methods returning streams:
+----- Knut Anders wrote:
+'ve tried out the 2a patch and it seems to work as intended. My only nits are:
+
+
+	LOBStateTracker.checkCurrentRow(): couldn't Arrays.fill() be moved inside the if block?
+	should discardState() and markAccessed() check the release flag?
+	should ResultSet.createLOBColumnTracker() use LOBStateTracker.NO_OP_TRACKER instead of allocating a new when serverSupportsLocators() returns false?
+
+
+
+
+Note that it is a requirement that we allow multiple calls to the getter methods, otherwise we need to maintain the state for non-locator LOB columns as well to track the number of accesses. Another options is to rely on a different mechanism to track accesses.

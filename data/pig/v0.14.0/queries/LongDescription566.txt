@@ -1,0 +1,16 @@
+The dump and store formats for PigStorage do not match for longs and floats.
+
+
+
+grunt> y = foreach x generate {(2985671202194220139L)};
+grunt> describe y;
+y: {{(long)}}
+
+grunt> dump y;
+({(2985671202194220139L)})
+
+grunt> store y into 'y';
+grunt> cat y
+{(2985671202194220139)}
+
+

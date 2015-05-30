@@ -1,0 +1,48 @@
+Hi,
+
+The below script treats 'a' as bytearray thus throwing class cast exception at STRSPLIT
+
+=========
+A = load 'input.txt' using PigStorage() as (a);
+A1 = filter A by NOT (a is null);
+A1 = foreach A1 generate a as a:chararray ;
+describe A1;
+B = foreach A1 generate STRSPLIT(a);
+dump B
+=========
+
+Input.txt (space separated)
+=========
+a b
+=========
+
+Here i am casting as "a as a:chararray". If you see the output of describe it gives
+
+A1: 
+{a: chararray}
+
+When its passed in STRSPLIT, it treats as a bytearray thus throwing the following exception in the task logs
+
+=======
+WARN org.apache.pig.builtin.STRSPLIT: class cast exception at org.apache.pig.builtin.STRSPLIT.exec(STRSPLIT.java:55)
+=======
+
+hence giving null output at B.
+
+If we cast 'a' using
+
+=========
+A1 = foreach A1 generate (chararray)a as a ;
+=========
+
+it gives the correct output.
+
+((a,b))
+
+In both the cases the describe gives 
+
+A1: 
+{a: chararray}
+
+Regards,
+Anitha

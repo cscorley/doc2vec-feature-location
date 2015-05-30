@@ -1,0 +1,25 @@
+After a bunch of DELETE and DROP-Commands, the following error occurs in our application:
+
+2010-03-16 12:54:23.070 GMT Thread[DRDAConnThread_4,5,derby.daemons] (XID = 15898), (SESSIONID = 1), (DATABASE = ixintrexx), (DRDAID = NF000001.PAA8-4469821361421447518
+{2}), Cleanup action starting
+2010-03-16 12:54:23.070 GMT Thread[DRDAConnThread_4,5,derby.daemons] (XID = 15898), (SESSIONID = 1), (DATABASE = ixintrexx), (DRDAID = NF000001.PAA8-4469821361421447518{2}
+), Failed Statement is: DELETE FROM LCAPPCHILDCONTROLTITLE WHERE STRCHILDCONTROLGUID IN (SELECT STRGUID FROM LCAPPCHILDCONTROL WHERE STRAPPCONTROLDRGUID IN (SELECT A.STRGUID FROM LCAPPCONTROLDR A, LCAPPFUP B WHERE A.STRAPPFUPGUID = B.STRGUID AND B.STRAPPGUID = '93A720B90BB6C25703701E67D0DA75220B7D2FFC'))
+java.lang.NullPointerException
+	at org.apache.derby.impl.sql.execute.IndexChanger.doDelete(IndexChanger.java:369)
+	at org.apache.derby.impl.sql.execute.IndexChanger.delete(IndexChanger.java:544)
+	at org.apache.derby.impl.sql.execute.IndexSetChanger.delete(IndexSetChanger.java:250)
+	at org.apache.derby.impl.sql.execute.RowChangerImpl.deleteRow(RowChangerImpl.java:476)
+	at org.apache.derby.impl.sql.execute.DeleteResultSet.collectAffectedRows(DeleteResultSet.java:405)
+	at org.apache.derby.impl.sql.execute.DeleteResultSet.open(DeleteResultSet.java:137)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:416)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:297)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1235)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:625)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(EmbedStatement.java:175)
+	at org.apache.derby.impl.drda.DRDAConnThread.parseEXCSQLIMM(DRDAConnThread.java:5022)
+	at org.apache.derby.impl.drda.DRDAConnThread.processCommands(DRDAConnThread.java:750)
+	at org.apache.derby.impl.drda.DRDAConnThread.run(DRDAConnThread.java:290)
+Cleanup action completed
+
+The database seems to be corrupt, after this exception has been thrown.
+As you can see, I already compiled Derby to get the line number where the error occurs. I must apologize for not having a sufficient test case yet, but the code leading to this issue is very complex. If one wants to reproduce this bug, I can send a download link for our product and instructions to reproduce the problem.

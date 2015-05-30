@@ -1,0 +1,16 @@
+BlobStoredProcedureTest and ClobStoredProcedureTest, introduced as part of DERBY-2257, are failing when run with weme6.1.  The traces are all similar to the following:
+
+5) testBlobGetBytesSP(org.apache.derbyTesting.functionTests.tests.jdbcapi.BlobStoredProcedureTest)ERROR 38000: The exception 'java.lang.NoClassDefFoundError: java.sql.DriverManager' was thrown while evaluating an expression.
+	at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+	at org.apache.derby.iapi.error.StandardException.unexpectedUserException(Unknown Source)
+	at org.apache.derby.impl.services.reflect.DirectCall.invoke(Unknown Source)
+	at org.apache.derby.impl.sql.execute.RowResultSet.getNextRowCore(Unknown Source)
+	at org.apache.derby.impl.sql.execute.BasicNoPutResultSetImpl.getNextRow(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedResultSet.movePosition(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedResultSet.next(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedCallableStatement.executeStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeUpdate(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.BlobStoredProcedureTest.setUp(BlobStoredProcedureTest.java:80)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:80)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)

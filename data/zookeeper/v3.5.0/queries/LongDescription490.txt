@@ -1,0 +1,12 @@
+the javadoc for ZooKeeper constructor says:
+
+
+	The client object will pick an arbitrary server and try to connect to it.
+	If failed, it will try the next one in the list, until a connection is
+	established, or all the servers have been tried.
+
+
+
+the "or all server tried" phrase is misleading, it should indicate that we retry until success, con closed, or session expired. 
+
+we also need ot mention that connection is async, that constructor returns immed and you need to look for connection event in watcher

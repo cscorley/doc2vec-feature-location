@@ -1,0 +1,23 @@
+I added the following test case to SavepointJdbc30Test and saw that it failed with the client driver:
+
+    public void testQuotes() throws SQLException 
+{
+        setAutoCommit(false);
+        Statement s = createStatement();
+        s.execute("create table test_quotes(x int)");
+        s.execute("insert into test_quotes values 1");
+
+        Savepoint sp = getConnection().setSavepoint("a \" b ' c");
+
+        s.execute("insert into test_quotes values 2");
+
+        getConnection().rollback(sp);
+
+        JDBC.assertSingleValueResultSet(
+                s.executeQuery("select * from test_quotes"),
+                "1");
+    }
+
+Embedded had no problems with the savepoint, but the client raised this error when calling setSavepoint():
+
+java.sql.SQLSyntaxErrorException: Syntax error: Encountered "b" at line 1, column 16.

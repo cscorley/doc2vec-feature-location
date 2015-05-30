@@ -1,0 +1,16 @@
+The sequence of statements below give a NullPointerException. The statements are very similar to the ones in DERBY-4419, but this is a separate bug since the stack traces are different, and this bug can be seen all the way back to 10.1.1.0, whereas DERBY-4419 was a regression in 10.3. (On 10.0.2.1, a syntax error is raised instead of the NPE.)
+
+ij> create table t1(x int);
+0 rows inserted/updated/deleted
+ij> insert into t1 values 1,2;
+2 rows inserted/updated/deleted
+ij> create table t2(x int);
+0 rows inserted/updated/deleted
+ij> insert into t2 values 2,3;
+2 rows inserted/updated/deleted
+ij> create table t3(x int, y int generated always as identity);
+0 rows inserted/updated/deleted
+ij> insert into t3 select * from t1 except select * from t2;
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+
+Same error if INTERSECT is used instead of EXCEPT.

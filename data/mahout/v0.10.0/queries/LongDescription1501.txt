@@ -1,0 +1,21 @@
+Some guy just decided to make default constructor of org.apache.mahout.clustering.topdown.postprocessor.ClusterOutputPostProcessorDriver private.
+
+This is not really bug, it's just inconsistent since all the other Drivers I found in mahout-core do not have private constructor.
+
+The private constructor inhibits me from doing this:
+
+
+
+return ToolRunner.run(new ClusterOutputPostProcessorDriver(), clusterPPArgsStrings);
+
+
+
+the very same way I am doing this:
+
+
+
+return ToolRunner.run(new KMeansDriver(), kmeansArgsStrings);
+
+
+
+Fix would be to just remove private constructor.

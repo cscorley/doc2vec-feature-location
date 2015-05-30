@@ -1,0 +1,11 @@
+I am encountering a NPE at MappingInfo.java line 1514.  I'm sorry I don't have time to prepare a test case right now.  I'm not even 100% sure what is causing the problem, but it seems to be something like this:
+
+I have classes Organization, Group, User, and AddressBook.
+
+Group has a reference (many-to-one) to Organization.
+
+I'm using field-level access and the Java 6 runtime enhancer.  (NOT the build-time enhancer or the agent.)
+
+In ManagedClassSubclasser.prepareUnenhancedClasses, the code receives a list of Class objects-the ones in persistence.xml.  They are not in the same order as they are in persistence.xml, but I don't know if that's important.  The first one is Group.  During the processing of Group, the code invokes ClassMapping.setTable to set the table name, which is "group_table."  This comes from the @Table annotation of Group.  So far, so good.  Then the code does some additional processing on the relationship mappings of Group, which include the reference to Organization.  During the processing of that relationship, the code calls MappingInfo.mergeJoinColumn.  On line 1367, the method calls rel.getTable.  The "rel" variable points to the ClassMapping for Organization.  Remember that prepareUnenhancedClasses hasn't gotten to Organization yetit's still working on Group-and so I assume that this Organization mapping was created on-demand.  However, rel.getTable returns null.  The Organization class has a @Table attribute, and I can see that the table name has been loaded in the ClassMappingInfo instance attached to the ClassMapping for Organization, however the table name has not yet been copied from ClassMappingInfo to ClassMapping.  Later, the mergeJoinColumn method attempts to dereference the null table name and generates the NPE.
+
+Bottom line:  When using the Java 6, runtime enhancer, if class A has a reference to class B, and both classes have @Table annotations (at least), and class A is processed first, then it produces a NPE.

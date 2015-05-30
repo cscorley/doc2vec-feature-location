@@ -1,0 +1,10 @@
+When hadoop framework doing the sorting, it will try to use binary version of comparator if available. The benefit of binary comparator is we do not need to instantiate the object before we compare. We see a ~30% speedup after we switch to binary comparator. Currently, Pig use binary comparator in following case:
+
+1. When semantics of order doesn't matter. For example, in distinct, we need to do a sort in order to filter out duplicate values; however, we do not care how comparator sort keys. Groupby also share this character. In this case, we rely on hadoop's default binary comparator
+2. Semantics of order matter, but the key is of simple type. In this case, we have implementation for simple types, such as integer, long, float, chararray, databytearray, string
+
+However, if the key is a tuple and the sort semantics matters, we do not have a binary comparator implementation. This especially matters when we switch to use secondary sort. In secondary sort, we convert the inner sort of nested foreach into the secondary key and rely on hadoop to sorting on both main key and secondary key. The sorting key will become a two items tuple. Since the secondary key the sorting key of the nested foreach, so the sorting semantics matters. It turns out we do not have binary comparator once we use secondary sort, and we see a significant slow down.
+
+Binary comparator for tuple should be doable once we understand the binary structure of the serialized tuple. We can focus on most common use cases first, which is "group by" followed by a nested sort. In this case, we will use secondary sort. Semantics of the first key does not matter but semantics of secondary key matters. We need to identify the boundary of main key and secondary key in the binary tuple buffer without instantiate tuple itself. Then if the first key equals, we use a binary comparator to compare secondary key. Secondary key can also be a complex data type, but for the first step, we focus on simple secondary key, which is the most common use case.
+
+We mark this issue to be a candidate project for "Google summer of code 2010" program. 

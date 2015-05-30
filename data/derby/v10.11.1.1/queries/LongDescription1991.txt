@@ -1,0 +1,21 @@
+When the embedded driver raises an SQLException, its stack trace always
+says it is created in SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA().
+This is not correct.
+
+At some point, SQLExceptionFactory40.getSQLException() set the stack trace
+of the SQLException to the stack trace of the non-SQLException that caused
+it, if there were one. This was probably done to mimic the behaviour of
+EmbedSQLException, which overrides printStackTrace() to achieve the
+same. Later, code was added to ferry arguments over DRDA. This code created
+a dummy exception which the old code interpreted as a non-SQLException
+whose stack trace should be used for the main exception. Therefore, all
+exceptions now have the same stack trace as the dummy exception created in
+wrapArgsForTransportAcrossDRDA().
+
+I think the best solution is not to set the stack trace explicitly, not
+even when the SQLException is caused by a non-SQLException.
+EmbedSQLException overrides printStackTrace() because throwables in Java
+1.3 didn't have initCause()/getCause(), so it was the only way to preserve
+the original stack trace. Since the SQLExceptions in JDBC 4.0 have
+initCause()/getCause(), there is no reason why the JDBC4 driver should
+mimic EmbedSQLException's workaround for not having these methods.

@@ -1,0 +1,10 @@
+This happens when using OpenJPA as persistence provider for the EasyBeans ObjectWeb container.
+The error is happening with "exploded" archive.
+Exploded means that there is a directory, named "entitybean.jar" with a folder META-INF which contains a file named persistence.xml, and other directories/files for the classes.
+
+It seems that when using this mode, OpenJPA is trying to parse the directory inputstream (which is failing).
+This exception is not occuring if a jar file is used instead of the "exploded" mode, but the exploded mode is the default mode for EasyBeans.
+Note also that this exception don't occur by using Hibernate Entity Manager or Oracle TopLink Essentials as persistence provider.
+
+I will attach to this issue a stack trace (with the exploded directory) which fails and at the end with a jar file (which work)
+And 4 steps used to reproduce this problem

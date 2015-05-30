@@ -1,0 +1,19 @@
+The truncate method on the transaction log in the class org.apache.zookeeper.server.persistence.FileTxnLog will reduce the file size to the required amount without either closing or re-positioning the logStream (which could also be dangerous since the truncate method is not synchronized against concurrent writes to the log).
+
+This causes the next append to that log to create a small "hole" in the file which java would interpret as binary zeroes when reading it. This then causes to the FileTxnIterator.next() implementation to detect the end of the log file too early.
+
+I'll attach a small maven project with one junit test which can be used to reproduce the issue. Due to the blackbox nature of the test it will run for roughly 50 seconds unfortunately. 
+
+Steps to reproduce:
+
+	Start an ensemble of zookeeper servers with at least 3 participants
+	Create one entry and the remove one of the servers from the ensemble temporarily (e.g. zk-2)
+	Create another entry which is hence only reflected on zk-1 and zk-3
+	Take zk-1 out of the ensemble without shutting it down (that is important, I did that by interrupting the network connection to that node) and clean zk-3
+	Bring back zk-2 and zk-3 so that they form a quorum
+	Allow zk-1 to connect again
+	zk-1 will receive a TRUNC message from zk-2 since zk-1 is now a minority knowing about that second node creation event
+	Create a third node
+	Force zk-1 to become master somehow
+	That third node will be gone
+

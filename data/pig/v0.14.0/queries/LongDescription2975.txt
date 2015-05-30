@@ -1,0 +1,38 @@
+Looked at 
+
+junit.framework.AssertionFailedError
+    at org.apache.pig.test.TestTypedMap.testOrderBy(TestTypedMap.java:352)
+
+
+
+This looks like a valid test case failing with incorrect result.
+
+
+% cat test/orderby.txt
+[key#1,key9#23]
+[key#3,key3#2]
+[key#22]
+
+% cat test/orderby.pig
+a = load 'test/orderby.txt' as (m:[]);
+b = foreach a generate m#'key' as b0;
+dump b;
+c = order b by b0;
+dump c;
+
+% java ... org.apache.pig.Main    -x local test/orderby.pig 
+[dump b]
+(1)
+(3)
+(22)
+
+...
+[dump c]
+(1)
+(1)
+(22)
+%
+
+where did the '(3)' go?
+
+

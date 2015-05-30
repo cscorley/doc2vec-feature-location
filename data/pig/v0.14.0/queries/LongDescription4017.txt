@@ -1,0 +1,11 @@
+I ran into this NPE while running e2e Native tests with release source tarball. When the file that Pig tries to ship to hdfs doesn't exist, it fails with the following error-
+
+
+Caused by: java.lang.NullPointerException
+    at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler.shipToHDFS(JobControlCompiler.java:1707)
+    at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler.putJarOnClassPathThroughDistributedCache(JobControlCompiler.java:1612)
+    at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler.getJob(JobControlCompiler.java:605)
+    ... 19 more
+
+
+The problem is that this NPE covers up the root cause.

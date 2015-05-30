@@ -1,0 +1,20 @@
+The comparison in the class ClobTransformer, method 'private String readFromClob(Clob clob)'  (I think) must be changed for '>' due to that the API of java.io.Reader indicates that the reader will return -1 when there is no more data available at current Reader.
+
+Original:
+
+ try {
+      while ((len = reader.read(buf)) != 0) 
+{
+        sb.append(buf, 0, len);
+      }
+    } catch (IOException e) {
+
+Must be:
+
+ try {
+      while ((len = reader.read(buf)) > 0) {
+        sb.append(buf, 0, len);
+      }
+    } catch (IOException e) {
+
+NOTE: Sorry for my english but i don't use it frequently....

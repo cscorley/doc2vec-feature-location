@@ -1,0 +1,36 @@
+The following test case executes query two times. 
+
+The sql generated for the first time:
+sql = SELECT t0.KEYNAME, t0.KEYVAL FROM KEYGEN t0 WHERE (t0.KEYNAME = ?)  optimize for 1 row FOR READ ONLY WITH RR USE AND KEEP UPDATE LOCKS
+
+The sql generated for the second time:
+sql = SELECT t0.KEYNAME, t0.KEYVAL FROM KEYGEN t0 WHERE (t0.KEYNAME = ?)
+
+
+   public void testKeyGen() {
+        EntityManager em = emf.createEntityManager();
+        KeyGenEntity key = null;
+        em.getTransaction().begin();
+        for (int i = 0;i < 2; i++) {
+            Query q = em.createNamedQuery("getStationKeyForUpdate");
+            q.setLockMode(LockModeType.PESSIMISTIC_WRITE);
+            q.setParameter("keyname", keyName);
+            try 
+{
+                key = (KeyGenEntity) q.getSingleResult();
+                em.refresh(key);
+            }
+            catch (NoResultException e) 
+{
+                // No keys found for this name - create a new one
+                int keyVal = 0;
+                key = new KeyGenEntity(keyName, keyVal);
+                em.persist(key);
+                em.lock(key, LockModeType.PESSIMISTIC_WRITE);
+            }
+
+            int keyVal = key.getKeyval();
+            key.setKeyval(keyVal +  1);
+        }
+        em.getTransaction().commit();
+    }

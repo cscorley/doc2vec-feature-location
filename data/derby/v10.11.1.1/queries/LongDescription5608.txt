@@ -1,0 +1,14 @@
+BaseTestCase.readProcessOutput() reads the streams from Process.getInputStream() and Process.getErrorStream() sequentially 
+InputStream is = pr.getInputStream();
+InputStream es = pr.getErrorStream();
+...
+ output += "<STDOUT> " + inputStreamToString(is) + "<END STDOUT>\n";
+ output += "<STDERR>" + inputStreamToString(es) + "<END STDERR>\n";
+
+
+I think that to be really correct the  two streams need to be read in separate threads because if the error output  is  large it could block and cause a hang  if they are read sequentially like this.
+
+I noticed during the DERBY-5601 discussion as Myrna referenced in that  the addition of draining the error stream caused a different problem (an InterruptException). I don't understand how it could cause that problem but do think a hang blocking on  reading the input would be possible if the error output was large enough both  before and after the change to add the reading of the error stream sequentially.
+
+
+

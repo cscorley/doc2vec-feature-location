@@ -1,0 +1,176 @@
+The following script shows this problem. This is a regression. It does not occur on 10.10.1.1 or 10.10.2.0:
+
+
+connect 'jdbc:derby:memory:db;create=true';
+
+create table tprim1
+(
+    keyCol  int not null,
+    constraint tprim1 primary key( keyCol )
+);
+
+create table tref
+(
+    refCol  int,
+    constraint tref foreign key( refCol ) references tprim1( keyCol )
+);
+
+create table othertable( a int );
+
+create trigger inserttrig after insert on othertable
+referencing new as new
+for each row
+  insert into tref values ( new.a );
+
+-- causes an NPE
+insert into othertable values ( 1 );
+
+
+
+Here is the stack trace:
+
+
+Mon Jul 14 12:12:34 PDT 2014 Thread[main,5,main] (XID = 197), (SESSIONID = 1), (DATABASE = memory:db), (DRDAID = null), Failed Statement is: insert into "APP"."TREF" values ( CAST (org.apache.derby.iapi.db.Factory::getTriggerExecutionContext().getNewRow().getObject(1) AS INTEGER)  )
+java.lang.NullPointerException
+	at org.apache.derby.impl.sql.execute.ForeignKeyRIChecker.doCheck(ForeignKeyRIChecker.java:111)
+	at org.apache.derby.impl.sql.execute.RISetChecker.doFKCheck(RISetChecker.java:161)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.normalInsertCore(InsertResultSet.java:1088)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.open(InsertResultSet.java:504)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:470)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeSubStatement(GenericPreparedStatement.java:336)
+	at org.apache.derby.impl.sql.execute.GenericTriggerExecutor.executeSPS(GenericTriggerExecutor.java:216)
+	at org.apache.derby.impl.sql.execute.GenericTriggerExecutor.executeWhenClauseAndAction(GenericTriggerExecutor.java:346)
+	at org.apache.derby.impl.sql.execute.RowTriggerExecutor.fireTrigger(RowTriggerExecutor.java:113)
+	at org.apache.derby.impl.sql.execute.TriggerEventActivator.notifyEvent(TriggerEventActivator.java:272)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.normalInsertCore(InsertResultSet.java:1278)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.open(InsertResultSet.java:504)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:470)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:349)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1338)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:704)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:631)
+	at org.apache.derby.impl.tools.ij.ij.executeImmediate(ij.java:367)
+	at org.apache.derby.impl.tools.ij.utilMain.doCatch(utilMain.java:529)
+	at org.apache.derby.impl.tools.ij.utilMain.runScriptGuts(utilMain.java:371)
+	at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:247)
+	at org.apache.derby.impl.tools.ij.Main.go(Main.java:229)
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:184)
+	at org.apache.derby.impl.tools.ij.Main.main(Main.java:75)
+	at org.apache.derby.tools.ij.main(ij.java:59)
+Cleanup action completed
+Mon Jul 14 12:12:34 PDT 2014 Thread[main,5,main] 
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+java.sql.SQLException: Java exception: ': java.lang.NullPointerException'.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:107)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:133)
+	at org.apache.derby.impl.jdbc.Util.seeNextException(Util.java:255)
+	at org.apache.derby.impl.jdbc.Util.javaException(Util.java:277)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:437)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:353)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:2396)
+	at org.apache.derby.impl.jdbc.ConnectionChild.handleException(ConnectionChild.java:82)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1430)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:704)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:631)
+	at org.apache.derby.impl.tools.ij.ij.executeImmediate(ij.java:367)
+	at org.apache.derby.impl.tools.ij.utilMain.doCatch(utilMain.java:529)
+	at org.apache.derby.impl.tools.ij.utilMain.runScriptGuts(utilMain.java:371)
+	at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:247)
+	at org.apache.derby.impl.tools.ij.Main.go(Main.java:229)
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:184)
+	at org.apache.derby.impl.tools.ij.Main.main(Main.java:75)
+	at org.apache.derby.tools.ij.main(ij.java:59)
+Caused by: ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:290)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.wrapArgsForTransportAcrossDRDA(SQLExceptionFactory.java:162)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:74)
+	... 18 more
+Caused by: java.lang.NullPointerException
+	at org.apache.derby.impl.sql.execute.ForeignKeyRIChecker.doCheck(ForeignKeyRIChecker.java:111)
+	at org.apache.derby.impl.sql.execute.RISetChecker.doFKCheck(RISetChecker.java:161)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.normalInsertCore(InsertResultSet.java:1088)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.open(InsertResultSet.java:504)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:470)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeSubStatement(GenericPreparedStatement.java:336)
+	at org.apache.derby.impl.sql.execute.GenericTriggerExecutor.executeSPS(GenericTriggerExecutor.java:216)
+	at org.apache.derby.impl.sql.execute.GenericTriggerExecutor.executeWhenClauseAndAction(GenericTriggerExecutor.java:346)
+	at org.apache.derby.impl.sql.execute.RowTriggerExecutor.fireTrigger(RowTriggerExecutor.java:113)
+	at org.apache.derby.impl.sql.execute.TriggerEventActivator.notifyEvent(TriggerEventActivator.java:272)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.normalInsertCore(InsertResultSet.java:1278)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.open(InsertResultSet.java:504)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:470)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:349)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1338)
+	... 10 more
+============= begin nested exception, level (1) ===========
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:290)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.wrapArgsForTransportAcrossDRDA(SQLExceptionFactory.java:162)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:74)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:133)
+	at org.apache.derby.impl.jdbc.Util.seeNextException(Util.java:255)
+	at org.apache.derby.impl.jdbc.Util.javaException(Util.java:277)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:437)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:353)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:2396)
+	at org.apache.derby.impl.jdbc.ConnectionChild.handleException(ConnectionChild.java:82)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1430)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:704)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:631)
+	at org.apache.derby.impl.tools.ij.ij.executeImmediate(ij.java:367)
+	at org.apache.derby.impl.tools.ij.utilMain.doCatch(utilMain.java:529)
+	at org.apache.derby.impl.tools.ij.utilMain.runScriptGuts(utilMain.java:371)
+	at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:247)
+	at org.apache.derby.impl.tools.ij.Main.go(Main.java:229)
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:184)
+	at org.apache.derby.impl.tools.ij.Main.main(Main.java:75)
+	at org.apache.derby.tools.ij.main(ij.java:59)
+Caused by: java.lang.NullPointerException
+	at org.apache.derby.impl.sql.execute.ForeignKeyRIChecker.doCheck(ForeignKeyRIChecker.java:111)
+	at org.apache.derby.impl.sql.execute.RISetChecker.doFKCheck(RISetChecker.java:161)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.normalInsertCore(InsertResultSet.java:1088)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.open(InsertResultSet.java:504)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:470)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeSubStatement(GenericPreparedStatement.java:336)
+	at org.apache.derby.impl.sql.execute.GenericTriggerExecutor.executeSPS(GenericTriggerExecutor.java:216)
+	at org.apache.derby.impl.sql.execute.GenericTriggerExecutor.executeWhenClauseAndAction(GenericTriggerExecutor.java:346)
+	at org.apache.derby.impl.sql.execute.RowTriggerExecutor.fireTrigger(RowTriggerExecutor.java:113)
+	at org.apache.derby.impl.sql.execute.TriggerEventActivator.notifyEvent(TriggerEventActivator.java:272)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.normalInsertCore(InsertResultSet.java:1278)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.open(InsertResultSet.java:504)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:470)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:349)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1338)
+	... 10 more
+============= end nested exception, level (1) ===========
+============= begin nested exception, level (2) ===========
+java.lang.NullPointerException
+	at org.apache.derby.impl.sql.execute.ForeignKeyRIChecker.doCheck(ForeignKeyRIChecker.java:111)
+	at org.apache.derby.impl.sql.execute.RISetChecker.doFKCheck(RISetChecker.java:161)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.normalInsertCore(InsertResultSet.java:1088)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.open(InsertResultSet.java:504)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:470)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeSubStatement(GenericPreparedStatement.java:336)
+	at org.apache.derby.impl.sql.execute.GenericTriggerExecutor.executeSPS(GenericTriggerExecutor.java:216)
+	at org.apache.derby.impl.sql.execute.GenericTriggerExecutor.executeWhenClauseAndAction(GenericTriggerExecutor.java:346)
+	at org.apache.derby.impl.sql.execute.RowTriggerExecutor.fireTrigger(RowTriggerExecutor.java:113)
+	at org.apache.derby.impl.sql.execute.TriggerEventActivator.notifyEvent(TriggerEventActivator.java:272)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.normalInsertCore(InsertResultSet.java:1278)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.open(InsertResultSet.java:504)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:470)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:349)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1338)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:704)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:631)
+	at org.apache.derby.impl.tools.ij.ij.executeImmediate(ij.java:367)
+	at org.apache.derby.impl.tools.ij.utilMain.doCatch(utilMain.java:529)
+	at org.apache.derby.impl.tools.ij.utilMain.runScriptGuts(utilMain.java:371)
+	at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:247)
+	at org.apache.derby.impl.tools.ij.Main.go(Main.java:229)
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:184)
+	at org.apache.derby.impl.tools.ij.Main.main(Main.java:75)
+	at org.apache.derby.tools.ij.main(ij.java:59)
+
+
+
+

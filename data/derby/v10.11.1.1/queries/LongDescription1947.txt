@@ -1,0 +1,99 @@
+I came across this OOM issue while running some system tests involving
+backup and restore against  Derby. The test is expected to run forever but
+using the default heap space it runs into OOM within 2 days. I earlier mentioned about this
+in my reply to the 10.2.1.6 vote - http://www.nabble.com/Re%3A--VOTE--10.2.1.6-release-p6650528.html
+
+
+Also there has been some discussions on the list on the related topic:
+http://issues.apache.org/jira/browse/DERBY-23 and
+http://www.nabble.com/question-about-shutdown-tf2300504.html
+
+
+Basic Analysis:
+--------------------
+
+Wrote a simple Java app (attached to this issue) that booted and shutdown the same 
+database multiple times. Depending on the heapsize the program ran into the
+OOM at some point, as expected. Some heap dump analysis using the IBM HeapAnalyzer 
+and revealed that the HashSet (allContexts) within org.apache.derby.iapi.services.context.ContextService 
+class seemed to be location of the leak (snapshot of the heapanalysis attached).
+
+A little bit of debugging shows that:
+
+	for every:connection two ContextManager objects (say, cm1, cm2) are added to the HashSet
+	for every shutdown a new ContextManager object (say, cm3) is added and two objects are removed
+	the object removed are cm2 and cm3 - in that sequence
+	but the object cm1 gets left behind
+
+
+
+This happens for every connect/shutdown sequence and since one of the ContextManager objects added to the 
+HashSet is not removed as a part of the cleanup, it contributes to growth in memory usage, hence
+an OOM eventually.
+
+For example:
+============
+A 64M heap could allow about 1107 iterations of connect/shutdown only before running into OOM and 
+created 1108 un-used ContextManager objects in the memory.
+
+java -Xmx64M testEmbedAndClient
+++++Debug: add() Size of allContexts HashSet obj= 1
+----Debug: remove() Size of allContexts HashSet obj= 0
+++++Debug: add() Size of allContexts HashSet obj= 1
+----Debug: remove() Size of allContexts HashSet obj= 0
+++++Debug: add() Size of allContexts HashSet obj= 1
+++++Debug: add() Size of allContexts HashSet obj= 2
+
+==== Database booted in embedded ====
+
+++++Debug: add() Size of allContexts HashSet obj= 3
+----Debug: remove() Size of allContexts HashSet obj= 2
+----Debug: remove() Size of allContexts HashSet obj= 1
+
+==== Shutdown complete in embedded ====
+
+++++Debug: add() Size of allContexts HashSet obj= 2
+++++Debug: add() Size of allContexts HashSet obj= 3
+
+==== Database booted in embedded ====
+
+++++Debug: add() Size of allContexts HashSet obj= 4
+----Debug: remove() Size of allContexts HashSet obj= 3
+----Debug: remove() Size of allContexts HashSet obj= 2
+..
+..
+..
+==== Database booted in embedded ====
+
+++++Debug: add() Size of allContexts HashSet obj= 1109
+----Debug: remove() Size of allContexts HashSet obj= 1108
+----Debug: remove() Size of allContexts HashSet obj= 1107
+
+==== Shutdown complete in embedded ====
+
+++++Debug: add() Size of allContexts HashSet obj= 1108
+++++Debug: add() Size of allContexts HashSet obj= 1109
+----Debug: remove() Size of allContexts HashSet obj= 1108
+java.sql.SQLException: Failed to start database 'testdb', see the next exception
+ for details.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+        at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Util.java:89)
+        at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Util.java:95)
+        at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Util.java:174)
+
+        at org.apache.derby.impl.jdbc.EmbedConnection.newSQLException(EmbedConnection.java:1985)
+        at org.apache.derby.impl.jdbc.EmbedConnection.bootDatabase(EmbedConnection.java:1649)
+        at org.apache.derby.impl.jdbc.EmbedConnection.<init>(EmbedConnection.java:223)
+        at org.apache.derby.impl.jdbc.EmbedConnection30.<init>(EmbedConnection30.java:73)
+        at org.apache.derby.jdbc.Driver30.getNewEmbedConnection(Driver30.java:74)
+        at org.apache.derby.jdbc.InternalDriver.connect(InternalDriver.java:210)
+
+----Debug: remove() Size of allContexts HashSet obj= 1107
+        at org.apache.derby.jdbc.AutoloadedDriver.connect(AutoloadedDriver.java:117)
+        at java.sql.DriverManager.getConnection(DriverManager.java:525)
+        at java.sql.DriverManager.getConnection(DriverManager.java:193)
+        at testEmbedAndClient.testInEmbedded(testEmbedAndClient.java:40)
+        at testEmbedAndClient.main(testEmbedAndClient.java:19)
+java.lang.OutOfMemoryError: Java heap space
+
+OOM happened after 1107 iterations

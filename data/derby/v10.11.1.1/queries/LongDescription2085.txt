@@ -1,0 +1,13 @@
+In 10.2, this query gives the following error message:
+
+ij> SELECT i FROM t GROUP BY i ORDER BY j;
+ERROR 42Y30: The SELECT list of a grouped query contains at least one invalid expression. If a SELECT list has a GROUP BY, the list may only contain valid grouping expressions and valid aggregate expressions.  
+
+This is misleading since there is no invalid expression in the SELECT
+list.  It is the ORDER BY clause that is wrong.  
+
+I have marked this as an regression since the error message in 10.1 is
+more helpful (but still not correct):
+
+ij> SELECT i FROM t GROUP BY i ORDER BY j;
+ERROR 42Y36: Column reference 'J' is invalid.  For a SELECT list with a GROUP BY, the list may only contain grouping columns and valid aggregate expressions.

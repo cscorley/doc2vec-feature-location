@@ -1,0 +1,20 @@
+Per discussion on the dev list, this patch renames:
+
+o.a.m.matrix -> o.a.m.math
+o.a.m.jet -> o.a.m.math.jet
+
+Things currently under o.a.m.matrix would retain their existing names,
+with s/matrix/math, for example:
+
+o.a.m.math.bitvector
+o.a.m.math.buffer
+o.a.m.math.function
+o.a.m.math.list
+o.a.m.math.map
+o.a.m.math.matrix
+
+The maven submodule is changed from mahout-matrix to mahout-math
+
+Apply this patch with -E to delete empty files, and then 'svn delete matrix' and 'svn add math' – I couldn't figure out how to get patch to set that up automatically.
+
+Verified that patch applies cleanly to r890796, build completes and unit tests work.

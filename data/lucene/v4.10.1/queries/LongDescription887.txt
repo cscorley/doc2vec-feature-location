@@ -1,0 +1,11 @@
+Adds the ability to IndexWriter to interrupt an ongoing merge. This might be necessary when Lucene is e. g. running as a service and has to stop indexing within a certain period of time due to a shutdown request.
+
+A solution would be to add a new method shutdown() to IndexWriter which satisfies the following two requirements:
+
+	if a merge is happening, abort it
+	flush the buffered docs but do not trigger a merge
+
+
+
+See also discussions about this feature on java-dev:
+http://www.gossamer-threads.com/lists/lucene/java-dev/49008

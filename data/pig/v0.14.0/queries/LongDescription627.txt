@@ -1,0 +1,9 @@
+Currently, if your Pig script contains multiple stores and some shared computation, Pig will execute several independent queries. For instance:
+
+A = load 'data' as (a, b, c);
+B = filter A by a > 5;
+store B into 'output1';
+C = group B by b;
+store C into 'output2';
+
+This script will result in map-only job that generated output1 followed by a map-reduce job that generated output2. As the resuld data is read, parsed and filetered twice which is unnecessary and costly. 

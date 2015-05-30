@@ -1,0 +1,10 @@
+In several places are org.python.google.* imported. I believe this is a side effect of IDE auto completion (e.g. Eclipse) rather than intentional.
+
+The problem is that this cause a runtime error depending on classpath. For eg,
+
+
+ERROR 2998: Unhandled internal error. org/python/google/common/collect/Sets
+
+java.lang.NoClassDefFoundError: org/python/google/common/collect/Sets
+        at org.apache.pig.backend.hadoop.executionengine.tez.TezPlanContainerUDFCollector.<init>(TezPlanContainerUDFCollector.java:28)
+

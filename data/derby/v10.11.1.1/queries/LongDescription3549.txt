@@ -1,0 +1,10 @@
+Trying a startSlave after an initial startSlave fails due to an authentication failure throws an error
+saying that the database has already been booted
+
+vn@vn-laptop:~/work/workspaces/freshworkspace/slave$ java org.apache.derby.tools.ij
+ij version 10.5
+ij> connect 'jdbc:derby:mydb;startSlave=true;slaveHost=localhost;slavePort=8001';
+ERROR 08004: Connection authentication failure occurred.  Reason: Invalid authentication..
+ij> connect 'jdbc:derby:mydb;startSlave=true;user=oystein;password=pass;slaveHost=localhost;slavePort=8001';
+ERROR XRE09: Cannot start replication slave mode for database 'mydb'. The database has already been booted. 
+ij>

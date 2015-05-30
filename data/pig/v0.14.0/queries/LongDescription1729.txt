@@ -1,0 +1,58 @@
+The following script fail:
+
+
+a = load '1.txt' as (a0:int, a1:int, a2:int);
+b = load '2.txt' as (b0:int, b1:int);
+c = cogroup a by a0, b by b0;
+d = foreach c generate ((COUNT(a)==0L)?null : a.a0) as d0;
+e = foreach d generate flatten(d0);
+f = group e all;
+explain f;
+
+
+
+Error message:
+ERROR 2000: Error processing rule GroupByConstParallelSetter. Try -t GroupByConstParallelSetter
+
+org.apache.pig.impl.logicalLayer.FrontendException: ERROR 1067: Unable to explain alias f
+        at org.apache.pig.PigServer.explain(PigServer.java:958)
+        at org.apache.pig.tools.grunt.GruntParser.explainCurrentBatch(GruntParser.java:353)
+        at org.apache.pig.tools.grunt.GruntParser.processExplain(GruntParser.java:285)
+        at org.apache.pig.tools.grunt.GruntParser.processExplain(GruntParser.java:248)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.Explain(PigScriptParser.java:605)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:327)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:165)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:141)
+        at org.apache.pig.tools.grunt.Grunt.exec(Grunt.java:90)
+        at org.apache.pig.Main.run(Main.java:498)
+        at org.apache.pig.Main.main(Main.java:107)
+Caused by: org.apache.pig.impl.logicalLayer.FrontendException: ERROR 2042: Error in new logical plan. Try -Dpig.usenewlogicalplan=false.
+        at org.apache.pig.backend.hadoop.executionengine.HExecutionEngine.compile(HExecutionEngine.java:309)
+        at org.apache.pig.PigServer.compilePp(PigServer.java:1354)
+        at org.apache.pig.PigServer.explain(PigServer.java:927)
+        ... 10 more
+Caused by: org.apache.pig.impl.logicalLayer.FrontendException: ERROR 2000: Error processing rule GroupByConstParallelSetter. Try -t GroupByConstParallelSetter
+        at org.apache.pig.newplan.optimizer.PlanOptimizer.optimize(PlanOptimizer.java:120)
+        at org.apache.pig.backend.hadoop.executionengine.HExecutionEngine.compile(HExecutionEngine.java:277)
+        ... 12 more
+Caused by: java.lang.NullPointerException
+        at org.apache.pig.newplan.logical.relational.LogicalSchema$LogicalFieldSchema.compatible(LogicalSchema.java:106)
+        at org.apache.pig.newplan.logical.relational.LogicalSchema$LogicalFieldSchema.mergeUid(LogicalSchema.java:116)
+        at org.apache.pig.newplan.logical.expression.ProjectExpression.getFieldSchema(ProjectExpression.java:153)
+        at org.apache.pig.newplan.logical.optimizer.FieldSchemaResetter.execute(SchemaResetter.java:175)
+        at org.apache.pig.newplan.logical.expression.AllSameExpressionVisitor.visit(AllSameExpressionVisitor.java:53)
+        at org.apache.pig.newplan.logical.expression.ProjectExpression.accept(ProjectExpression.java:75)
+        at org.apache.pig.newplan.ReverseDependencyOrderWalker.walk(ReverseDependencyOrderWalker.java:70)
+        at org.apache.pig.newplan.PlanVisitor.visit(PlanVisitor.java:50)
+        at org.apache.pig.newplan.logical.optimizer.SchemaResetter.visit(SchemaResetter.java:87)
+        at org.apache.pig.newplan.logical.relational.LOGenerate.accept(LOGenerate.java:225)
+        at org.apache.pig.newplan.DependencyOrderWalker.walk(DependencyOrderWalker.java:75)
+        at org.apache.pig.newplan.logical.optimizer.SchemaResetter.visit(SchemaResetter.java:76)
+        at org.apache.pig.newplan.logical.relational.LOForEach.accept(LOForEach.java:71)
+        at org.apache.pig.newplan.DependencyOrderWalker.walk(DependencyOrderWalker.java:75)
+        at org.apache.pig.newplan.PlanVisitor.visit(PlanVisitor.java:50)
+        at org.apache.pig.newplan.logical.optimizer.SchemaPatcher.transformed(SchemaPatcher.java:43)
+        at org.apache.pig.newplan.optimizer.PlanOptimizer.optimize(PlanOptimizer.java:112)
+        ... 13 more
+
+The reason is in MergeForEach rule, Pig does not add Dereference operator after deepCopy the expression plan of the second foreach. So either disable Column pruning (so we do not have extra foreach after cogroup), MergeForEach, GroupByConstParallelSetter (so we don't do a global schema regeneration) will suppress the error message. One minor issue is GroupByConstParallelSetter should not regenerate schema, since schema will not change after this rule.

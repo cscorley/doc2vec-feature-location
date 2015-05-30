@@ -1,0 +1,43 @@
+From the dev mailing list... 
+
+======================================= 
+We've noticed that when EntityManager.clear() is invoked, an implicit flush() is performed. Although the spec is cloudy in this area, I don't think this processing is correct. The javadoc is as follows for clear(): 
+
+/** 
+
+	Clear the persistence context, causing all managed
+	entities to become detached. Changes made to entities that
+	have not been flushed to the database will not be
+	persisted.
+*/ 
+public void clear(); 
+
+
+
+This indicates that Entities that have not been flushed will not be persisted. Thus, I would say this implies that we should not be doing an implicit flush. If the application wanted their Entities to be flushed before the clear, then they can call the flush() method before calling clear(). We shouldn't be doing this for them because then they have no choice. 
+
+The Pro EJB3 Java Persistence API book has similar wording on pages 138-139: 
+
+"..In many respects [clear] is semantically equivalent to a transaction rollback. All entity instances managed by the persistence context become detached with their state left exactly as it was when the clear() operation was invoked..." 
+
+Our current processing for clear() eventually gets to this code: 
+
+public void detachAll(OpCallbacks call) { 
+beginOperation(true); 
+try { 
+if ((_flags & FLAG_FLUSH_REQUIRED) != 0) 
+flush(); 
+detachAllInternal(call); 
+} catch (OpenJPAException ke) { 
+throw ke; 
+} catch (RuntimeException re) { 
+throw new GeneralException(re); 
+} finally { 
+endOperation(); 
+} 
+} 
+
+Basically, if we have dirtied the Persistence Context, then do a flush() followed by the detachAllInternal(). I don't think the clear() should be doing this flush() operation. Any disagreement? 
+======================================= 
+
+There was no disagreement, thus this JIRA issue.

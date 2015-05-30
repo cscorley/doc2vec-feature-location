@@ -1,0 +1,10 @@
+When calling a DatabaseMetaData method that returns a ResultSet,
+memory is leaked. A loop like this (using the embedded driver)
+
+  while (true) 
+{
+    ResultSet rs = dmd.getSchemas();
+    rs.close();
+  }
+
+will eventually cause an OutOfMemoryError.

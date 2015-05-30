@@ -1,0 +1,8 @@
+When the changes made for OpenJPA-824 were merged to trunk, additional missing property descriptors were discovered.  Until these are added to the appropriate localizer.properties file(s), the test fails with the following message.
+
+testBeanAccessors(org.apache.openjpa.persistence.conf.TestOpenJPAConfiguration)  Time elapsed: 0.078 sec  <<< ERROR!
+org.apache.openjpa.lib.util.ParseException: Errors occurred while creating property descriptors for the following properties: [RefreshFromDataCache, InitializeEagerly, jdbc.QuerySQLCache].
+	at org.apache.openjpa.lib.conf.ConfigurationImpl.getPropertyDescriptors(ConfigurationImpl.java:446)
+	at org.apache.openjpa.persistence.conf.TestOpenJPAConfiguration.testBeanAccessors(TestOpenJPAConfiguration.java:128)
+
+For this reason, the test (TestOpenJPAConfiguration) remains disabled in openjpa-persistence-jdbc/pom.xml.

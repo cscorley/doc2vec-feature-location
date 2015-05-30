@@ -1,0 +1,20 @@
+I use the following code to dynamically determine if a class is an embeddable:
+
+Class c = Class.forName(s);
+ManagedType type = metamodel.managedType(c);
+if (type.getPersistenceType() == Type.PersistenceType.EMBEDDABLE) 
+{
+     logger.debug("" + c + " is an Embeddable.");
+     // do somthing with the embeddable
+}
+else if (type.getPersistenceType() == Type.PersistenceType.ENTITY) 
+{
+     logger.debug("" + c + " is an Entity.");
+     // do somthing with the entity
+}
+
+but when I use this code for an Embeddable, I always get "xxx is an Entity" logged.
+
+After examining the source code, I found "MetamodelImpl.instantiate" method will always put embeddable to both "embeddables" and "entities" containers, but "MetamodelImpl.managedType" method will first search "entities" and then "embeddables" for a persistence class, thus, "Entity" type will be returned for a ACTUAL Embeddable class.
+
+Hope this can be fixed.

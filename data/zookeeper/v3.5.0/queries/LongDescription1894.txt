@@ -1,0 +1,1 @@
+ObserverTest.testObserver fails consistently on my box. It looks like the observer (myid:3) calls QuorumPeer.getQuorumVerifier() in a tight loop, and the leader (myid:2) is not getting enough CPU time to synchronize with the follower and the observer. The test passes if I increase ClientBase.CONNECTION_TIMEOUT from 30 seconds to 120 seconds. I'll attach a log file.

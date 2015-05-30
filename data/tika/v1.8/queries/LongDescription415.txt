@@ -1,0 +1,20 @@
+Findbugs reports that there is an incompatible type comparison between a string and an integer.
+NULL_NS_URI  is a blank, where the value it is comparing it to is an integer. 
+They will never match, making the statement useless.
+
+The value always returns false, then it is "notted" making it always true.
+
+
+public static final String NULL_NS_URI = "";  
+   if (!XMLConstants.NULL_NS_URI.equals(atts.getURI.length())
+
+
+            if (!XMLConstants.NULL_NS_URI.equals(atts.getURI.length())
+                    && !local.equals(XMLConstants.XMLNS_ATTRIBUTE)
+                    && !qname.startsWith(XMLConstants.XMLNS_ATTRIBUTE + ":")) {
+
+
+Bug: Call to equals() comparing different types
+Pattern id: EC_UNRELATED_TYPES, type: EC, category: CORRECTNESS
+
+This method calls equals(Object) on two references of different class types with no common subclasses. Therefore, the objects being compared are unlikely to be members of the same class at runtime (unless some application classes were not analyzed, or dynamic class loading can occur at runtime). According to the contract of equals(), objects of different classes should always compare as unequal; therefore, according to the contract defined by java.lang.Object.equals(Object), the result of this comparison will always be false at runtime. 

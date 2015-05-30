@@ -1,0 +1,25 @@
+I am doing this in my code:
+
+CALL SYSCS_UTIL.SYSCS_INPLACE_COMPRESS_TABLE('SPONTS','" + "journal".toUpperCase(Locale.US) + "',1,1,1)")
+
+("journal" is actually a String-variable, but I replaced it here for easier understanding)
+
+Sometime - not always - I am getting this exception:
+
+java.sql.SQLException: The exception 'java.lang.ArrayIndexOutOfBoundsException: 100' was thrown while evaluating an expression. SQLSTATE: XJ001:
+Java exception: '100: java.lang.ArrayIndexOutOfBoundsException'.
+        at org.apache.derby.client.am.SQLExceptionFactory.getSQLException(Unknown Source)
+        at org.apache.derby.client.am.SqlException.getSQLException(Unknown Source)
+        at org.apache.derby.client.am.Statement.execute(Unknown Source)
+[...]
+Caused by: org.apache.derby.client.am.SqlException: The exception 'java.lang.ArrayIndexOutOfBoundsException: 100' was thrown while evaluating an expression.
+ SQLSTATE: XJ001: Java exception: '100: java.lang.ArrayIndexOutOfBoundsException'.
+        at org.apache.derby.client.am.Statement.completeExecute(Unknown Source)
+        at org.apache.derby.client.net.NetStatementReply.parseEXCSQLSTTreply(Unknown Source)
+        at org.apache.derby.client.net.NetStatementReply.readExecuteCall(Unknown Source)
+        at org.apache.derby.client.net.StatementReply.readExecuteCall(Unknown Source)
+        at org.apache.derby.client.net.NetStatement.readExecuteCall_(Unknown Source)
+        at org.apache.derby.client.am.Statement.readExecuteCall(Unknown Source)
+        at org.apache.derby.client.am.Statement.flowExecute(Unknown Source)
+        at org.apache.derby.client.am.Statement.executeX(Unknown Source)
+        ... 12 more

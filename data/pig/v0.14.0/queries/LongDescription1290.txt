@@ -1,0 +1,3 @@
+Currently WeightedRangePartitioner checks if the input is also empty if the quantile file is empty. For this it tries to read the input (which under the covers will result in creating splits for the input etc). If the input is a directory with many files, this could result in many calls to the namenode from each task - this can be avoided.
+
+If the input is non empty and quantile file is empty, then we would error out anyway (this should be confirmed). Also while fixing this jira we should ensure that pig can still do order by on empty input.

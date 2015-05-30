@@ -1,0 +1,37 @@
+Here is a sample pig script:
+
+set default_parallel 2
+ALLDATA = load 'sample.txt' using PigStorage() as (id, spaceid, type, pcid);
+C1 = filter ALLDATA by (type == 'p' and
+                   (spaceid == '1196250013'
+                    or spaceid == '1196250024'
+                    or spaceid == '1196250011'));
+C2 = group C1 by pcid;
+C3 = foreach C2 generate flatten(group) as (pc_id), COUNT(C1) as tot;
+C4 = order C3 by tot desc;
+C5 = limit C4 3;
+C6 = join C5 by pc_id, C1 by pcid;
+dump C6;
+
+
+sample.txt:
+1       1196250013      p       1234
+2       1196250024      p       2314
+3       1196250011      t       1111
+4       1111111111      p       1231
+5       1196250013      p       1254
+6       1196250024      p       9007
+
+
+This fails with the error 
+java.io.IOException: Type mismatch in key from map: expected org.apache.pig.impl.io.NullableLongWritable, recieved
+org.apache.pig.impl.io.NullableBytesWritable
+when both pc_id and pcid are of type bytearray.
+
+The script seems to work when 
+	a) replicated join is substituted in the place of the regular join 
+	b) pcid is cast to long in the loader 
+	c) doing a dump of any statement before C6
+	d) setting default_parallel to 1 or removing it.
+
+One possible cause seems to be with the logical plan generation during the projection operation in C4 as can be observed from the describe statement. 

@@ -1,0 +1,55 @@
+Caused by: java.lang.ClassCastException: myFvt.EmbedA incompatible with myFvt.EntityA
+	at myFvt.EntityB.pcReplaceField(EntityB.java)
+	at org.apache.openjpa.kernel.StateManagerImpl.replaceField(StateManagerImpl.java:3083)
+	at org.apache.openjpa.kernel.StateManagerImpl.storeObjectField(StateManagerImpl.java:2512)
+	at org.apache.openjpa.kernel.StateManagerImpl.storeObject(StateManagerImpl.java:2502)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.setMappedBy(JDBCStoreManager.java:453)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.initializeState(JDBCStoreManager.java:384)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.initialize(JDBCStoreManager.java:289)
+	at org.apache.openjpa.kernel.DelegatingStoreManager.initialize(DelegatingStoreManager.java:111)
+	at org.apache.openjpa.kernel.ROPStoreManager.initialize(ROPStoreManager.java:57)
+	at org.apache.openjpa.kernel.BrokerImpl.initialize(BrokerImpl.java:995)
+	at org.apache.openjpa.kernel.BrokerImpl.find(BrokerImpl.java:953)
+
+This ClassCastException occurred in the following test scenario:
+
+(1) 
+@Entity
+public class EntityA implements Serializable 
+{
+    @Id
+    Integer id;
+
+   @Embedded
+    EmbedA embedA;
+
+...
+}
+
+(2) 
+@Embeddable
+public class EmbedA 
+{
+   
+    @OneToOne(mappedBy="a", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    EntityB entityB;
+    
+...
+}
+
+(3)
+@Entity
+public class EntityB 
+{
+    
+    @Id
+    protected int id;
+
+    @OneToOne
+    private EntityA a;
+...
+}
+
+(4) test case:
+        EntityManager em = emf.createEntityManager();
+        EntityA a = em.find(EntityA.class, 1);

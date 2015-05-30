@@ -1,0 +1,23 @@
+This issue introduce when fixing BOOKKEEPER-215.
+
+suppose topic T has four messages, message 1 is in ledger 1 while message 2~4
+are in ledger 2. Hub server issue scan (1, 2) and scan (3, 4).
+
+If hub server works correctly, it just tried to read entry 0 in ledger 1 and
+entry 0 in ledger 2 during scan (1,2), while reading entry 1, 2 in ledger 2
+during scan (3,4).
+
+But unfortunately, after fixing BOOKKEEPER-215, scan (1,2) would read 0 in
+ledger 1 and read 0, 1 in ledger 2. so reading entry 1 of ledger 2 would be
+issued concurrently in different scans and one reading would fail without any callback (this issue is BOOKKEEPER-49).
+
+Then the systems would be blocked there wait for the response of reading 1 of
+ledger 2 and no messages would be delivered.
+
+
+To fix this issue, two thing would be done.
+
+1) fix scan issue in hub server to avoid overlapping scanning.
+2) fix read issue in bookkeeper client.
+
+fixing 1) could resolve this issue, but it would be better to fix 2) also. it should be in jira BOOKKEEPER-49.

@@ -1,0 +1,9 @@
+Configuration: 
+
+	transactional persistence context
+	DetachState=fgs
+	JTA transactions
+
+
+
+If an error causes the transaction manager to roll back the current transaction, BrokerImpl.afterCompletion() will be invoked with Status.STATUS_ROLLEDBACK. afterCompletion() will call BrokerImpl.free(), which will attempt to load the default fetch group. If there is an instance in the Broker's context that does not exist (that was looked up via EntityManager.getReference(), for example), then the code in free() will fail with an ObjectNotFoundException.

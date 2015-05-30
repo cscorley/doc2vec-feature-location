@@ -1,0 +1,32 @@
+the query is 
+select sum(loginCount), sum(logoutCount) from AccountEntity as a where a.accountProfile.userID like 'uid:%' 
+loginCount and logoutCount are declared in a MappedSuperClass.
+the correct query is 
+select sum(a.loginCount), sum(a.logoutCount) from AccountEntity as a where a.accountProfile.userID like 'uid:%' 
+
+Rather than a syntax error, a ArgumentException was thrown.  (see below)
+
+Also the user would like to see a better error message in the case of a field name using wrong upper/lower case.
+In other words, if the query was 
+    where  a.userid = ...
+and what he intended was 
+   where a.userId = ...
+then the message should say  " userid undefined.  DId you mean userId? "
+
+Also if a state field is inherited but declared private and hence not visible, then error message should read 
+  "a.userId invalid because it is not visible" rather than "a.userId not defined".
+
+  <4|false|0.9.0-incubating-SNAPSHOT> org.apache.openjpa.persistence.ArgumentException: null
+[11/3/06 12:47:04:734 CST] 0000003c SystemOut     O <4|false|0.9.0-incubating-SNAPSHOT> org.apache.openjpa.persistence.ArgumentException: null
+[11/3/06 12:47:04:734 CST] 0000003c SystemOut     O 	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:755)
+[11/3/06 12:47:04:734 CST] 0000003c SystemOut     O 	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:716)
+[11/3/06 12:47:04:734 CST] 0000003c SystemOut     O 	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:712)
+
+[11/3/06 12:47:04:734 CST] 0000003c SystemOut     O 	at org.apache.openjpa.kernel.DelegatingQuery.execute(DelegatingQuery.java:512)
+[11/3/06 12:47:04:734 CST] 0000003c SystemOut     O 	at org.apache.openjpa.persistence.QueryImpl.execute(QueryImpl.java:216)
+[11/3/06 12:47:04:734 CST] 0000003c SystemOut     O 	at org.apache.openjpa.persistence.QueryImpl.getSingleResult(QueryImpl.java:271)
+[11/3/06 12:47:04:734 CST] 0000003c SystemOut     O 	at org.apache.geronimo.samples.daytrader.ejb3.TradeJPA.resetTrade(TradeJPA.java:1864)
+
+while running a JPA query.  The code for it looks like the following:
+	q = em.createQuery("select sum(loginCount), sum(logoutCount) from AccountEntity as a where a.accountProfile.userID like 'uid:%'");
+	Object[] rs = (Object[]) q.getSingleResult();

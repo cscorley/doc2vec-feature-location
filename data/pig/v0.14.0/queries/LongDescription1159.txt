@@ -1,0 +1,78 @@
+For example this is my script:(join_jira1.pig)
+
+register /grid/0/dev/hadoopqa/jars/zebra.jar;
+
+--a1 = load '1.txt' as (a:int, b:float,c:long,d:double,e:chararray,f:bytearray,r1(f1:chararray,f2:chararray),m1:map[]);
+--a2 = load '2.txt' as (a:int, b:float,c:long,d:double,e:chararray,f:bytearray,r1(f1:chararray,f2:chararray),m1:map[]);
+
+--sort1 = order a1 by a parallel 6;
+--sort2 = order a2 by a parallel 5;
+
+--store sort1 into 'asort1' using org.apache.hadoop.zebra.pig.TableStorer('[a,b,c,d]');
+--store sort2 into 'asort2' using org.apache.hadoop.zebra.pig.TableStorer('[a,b,c,d]');
+--store sort1 into 'asort3' using org.apache.hadoop.zebra.pig.TableStorer('[a,b,c,d]');
+--store sort2 into 'asort4' using org.apache.hadoop.zebra.pig.TableStorer('[a,b,c,d]');
+
+joinl = LOAD 'asort1,asort2' USING org.apache.hadoop.zebra.pig.TableLoader('a,b,c,d', 'sorted');
+
+joinr = LOAD 'asort3,asort4' USING org.apache.hadoop.zebra.pig.TableLoader('a,b,c,d', 'sorted');
+
+
+joina = join joinl by a, joinr by a using "merge" ;
+dump joina;
+
+
+======
+here is the log:
+Backend error message
+---------------------
+java.lang.IllegalArgumentException: Pathname /user/hadoopqa/asort3,hdfs:/gsbl90380.blue.ygrid.yahoo.com/user/hadoopqa/asort4 from hdfs://gsbl90380.blue.ygrid.yahoo.com/user/hadoopqa/asort3,hdfs:/gsbl90380.blue.ygrid.yahoo.com/user/hadoopqa/asort4 is not a valid DFS filename.
+        at org.apache.hadoop.hdfs.DistributedFileSystem.getPathName(DistributedFileSystem.java:158)
+        at org.apache.hadoop.hdfs.DistributedFileSystem.getFileStatus(DistributedFileSystem.java:453)
+        at org.apache.hadoop.fs.FileSystem.exists(FileSystem.java:648)
+        at org.apache.pig.backend.hadoop.datastorage.HDataStorage.isContainer(HDataStorage.java:203)
+        at org.apache.pig.backend.hadoop.datastorage.HDataStorage.asElement(HDataStorage.java:131)
+        at org.apache.pig.backend.hadoop.datastorage.HDataStorage.asElement(HDataStorage.java:147)
+        at org.apache.pig.impl.io.FileLocalizer.fullPath(FileLocalizer.java:534)
+        at org.apache.pig.impl.io.FileLocalizer.open(FileLocalizer.java:338)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POMergeJoin.seekInRightStream(POMergeJoin.java:398)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POMergeJoin.getNext(POMergeJoin.java:184)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:253)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:244)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapOnly$Map.map(PigMapOnly.java:65)
+        at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:50)
+        at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:358)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:307)
+        at org.apache.hadoop.mapred.Child.main(Child.java:159)
+
+Pig Stack Trace
+---------------
+ERROR 6015: During execution, encountered a Hadoop error.
+
+org.apache.pig.impl.logicalLayer.FrontendException: ERROR 1066: Unable to open iterator for alias joina
+        at org.apache.pig.PigServer.openIterator(PigServer.java:482)
+        at org.apache.pig.tools.grunt.GruntParser.processDump(GruntParser.java:539)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:241)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:168)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:144)
+        at org.apache.pig.tools.grunt.Grunt.exec(Grunt.java:89)
+        at org.apache.pig.Main.main(Main.java:386)
+Caused by: org.apache.pig.backend.executionengine.ExecException: ERROR 6015: During execution, encountered a Hadoop error.
+        at .apache.hadoop.hdfs.DistributedFileSystem.getPathName(DistributedFileSystem.java:158)
+        at .apache.hadoop.hdfs.DistributedFileSystem.getFileStatus(DistributedFileSystem.java:453)
+        at .apache.hadoop.fs.FileSystem.exists(FileSystem.java:648)        at .apache.pig.backend.hadoop.datastorage.HDataStorage.isContainer(HDataStorage.java:203)
+        at .apache.pig.backend.hadoop.datastorage.HDataStorage.asElement(HDataStorage.java:131)
+        at .apache.pig.backend.hadoop.datastorage.HDataStorage.asElement(HDataStorage.java:147)
+        at .apache.pig.impl.io.FileLocalizer.fullPath(FileLocalizer.java:534)
+        at .apache.pig.impl.io.FileLocalizer.open(FileLocalizer.java:338)
+        at .apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POMergeJoin.seekInRightStream(POMergeJoin.java:398)
+        at .apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POMergeJoin.getNext(POMergeJoin.java:184)
+        at .apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:253)
+        at .apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:244)
+        at .apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapOnly$Map.map(PigMapOnly.java:65)
+        at .apache.hadoop.mapred.MapRunner.run(MapRunner.java:50)
+        at .apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:358)
+        at .apache.hadoop.mapred.MapTask.run(MapTask.java:307)
+Caused by: java.lang.IllegalArgumentException: Pathname /user/hadoopqa/asort3,hdfs:/gsbl90380.blue.ygrid.yahoo.com/user/hadoopqa/asort4 from hdfs://gsbl90380.blue.ygrid.yahoo.com/user/hadoopqa/asort3,hdfs:/gsbl90380.blue.ygrid.yahoo.com/user/hadoopqa/asort4 is not a valid DFS filename.
+        ... 16 more
+================================================================================

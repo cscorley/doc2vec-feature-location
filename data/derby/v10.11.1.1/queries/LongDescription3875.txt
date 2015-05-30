@@ -1,0 +1,3 @@
+When Derby encounters a corrupt data file, it does not close the data file before throwing an exception to the caller.  If the user tries to replace the database with a backup in response to the corruption, Derby will first attempt to delete the contents of the corrupt database.  But since the corrupt file was never closed, it cannot be deleted, and Derby fails to start.
+
+The attached java code should reproduce the problem, and the attached patch should fix it.

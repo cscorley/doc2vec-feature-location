@@ -1,0 +1,4 @@
+While migrating from 2.4.x to 2.9-dev I found a lot of failing unittests.
+One problem is with TokenFilters that do a super(null) in the constructor.
+I fixed it by changing the constructor to super(new EmptyTokenStream())
+This will cause problems and frustration to others while migrating to 2.9.

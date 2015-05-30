@@ -1,0 +1,6 @@
+Currently the pipe mode (the parsed document is read from standard input) in the Tika CLI is triggered either by giving an explicit "-" command line argument or by giving no command line arguments. This results in the somewhat surprising behaviour of only the first of the following two otherwise equivalent invocations producing output:
+
+     cat testPDF.pdf | java -jar tika-0.3-standalone.jar
+     cat testPDF.pdf | java -jar tika-0.3-standalone.jar --xml
+
+It would be better if the pipe mode was activated whenever no explicit file (or URL) is specified as an argument (and arguments like --help or --gui are not specified).

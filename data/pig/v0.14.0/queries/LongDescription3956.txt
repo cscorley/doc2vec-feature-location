@@ -1,0 +1,39 @@
+Pig provides UDF profiling via the pig.udf.profile perperty. How it works is that it samples every 100th UDF invocation and increments a counter by 100 x elapsed time.
+
+
+private final static int TIMING_FREQ = 100;
+...
+PigStatusReporter.getInstance().incrCounter(counterGroup, TIMING_COUNTER,
+    Math.round((System.nanoTime() - startNanos) / 1000) * TIMING_FREQ);
+
+
+The problem is that this assumes every invocation takes about the same time, which doesn't hold true oftentimes.
+
+Here is an example. TIMING_FREQ = 100.
+
+
+set pig.udf.profile true;
+set opt.fetch false;
+l = LOAD 'foo' AS (value:chararray);
+f = FOREACH l GENERATE LOWER(value);
+DUMP f;
+
+
+
+This job gives me the following counters-
+
+
+org.apache.pig.builtin.LOWER - approx_invocations: 6,144,600
+org.apache.pig.builtin.LOWER - approx_microsecs: 130,913,800
+
+
+
+However, if I change TIMING_FREQ to 1, I get the followings-
+
+
+org.apache.pig.builtin.LOWER - approx_invocations: 6,144,248
+org.apache.pig.builtin.LOWER - approx_microsecs: 19,711,842
+
+
+
+As can be seen, approx_microsecs is 6x larger when sampling every 100th invocation as compared to when sampling every invocation.

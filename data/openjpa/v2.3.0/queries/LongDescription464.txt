@@ -1,0 +1,35 @@
+The current OpenJPA implementation did not provide the SQL statement batching. All SQL statements will be executed one statement at a time to the database. Consequently, the runtime performance was decreased due to lots of database flows. JDBC Specification provides the batch capability for insert, update and delete statements through the addBatch() and executeBatch() APIs. We should be able to take advantage of this capability to support SQL statement batching in OpenJPA.
+
+According to the old version of the OpenJPA manual (i.e., Kodo), statement batching was part of the initial functions. Conscious decision by BEA that this function was not contributed back to OpenJPA. We can still use this info as the implementation base with some modifications. 
+
+I have completed the work for this statement batching support and the patch has been tested by CTS against Derby and DB2, OPENJPA regression test as well as our internal FVT test bucket.  The following section describes the design and implementation info. I also attached the whole design documentation and the patch in this jira. Once the design and implementation are accepted, then I will update the OPENJPA manual to include this function. Thanks,
+
+Design and implementation:
+•	Configuration:
+o	Batch Limit value: 
+	0 - Disable batch support.
+	-1 - Unlimited number of statements for a batch.
+	Any positive number - Maximum number of statements for a batch.
+o	By default, the batch support is based on each Dictionary to define the default batch limit. Currently only DB2 and Oracle dictionaries are set the default batch limit to 100. The default batch limit for rest of the dictionaries is set to zero (disabled).
+o	To enable the batch support, user can specify the following property in the persistence.xml file:
+<property name="openjpa.jdbc.DBDictionary" value="BatchLimit=25"/>
+or
+<property name="openjpa.jdbc.DBDictionary"
+value="db2(batchLimit=25)"/>
+
+
+•	Basic design is to cache all the insert/update/delete statements during the execution of the PreparedStatementManagerImpl.flushInternal() method. There is a cache structure which uses the LinkHashMap to maintain the order of the SQL statements for execution:
+o	_cacheSql - a LinkHashMap to store the rows that associate with one PrepareStatement. Key: SQL statement string; Value: array list of rows.
+
+During the PreparedStatementManagerImpl.flush() process, it will go through the cache to prepare the SQL statement; add the statement to the batch; and execute the batch when the batch limit is reached or all the rows are processed for that statement. Validate the update count after the executeBatch() method.
+
+•	If the batch limit =0 (disabled), execute the statement as the normal process; no need to use the batching process.  Same rule applies to the statement that only has one row, execute it as the normal process. 
+•	The batch process will be disabled if the primary key generation is used the Identity strategy. When the GeneratedType=IDENTITY, we need to get the ID value right away for the in-memory entity to use. Therefore, we can't batch this kind of statement.
+•	Batch exception process: a checkUpdateCount() is used to validate the batch process after the executeBatch(). According to the javadoc, there are three cases to consider:
+o	Case of EXECUTE_FAILED: (-3): 
+	This is a failure case. If the action is UPDATE or there is FailedObject, treats it as OptimisticException. Otherwise, throws the SQLException.
+	This is the same process as current implementation.
+o	Case of  SUCCESS_NO_INFO: (-2): 
+	We treat this as successful case and log the info in the log.
+o	Case of 0: 
+	If there is a FailedObject or the action is INSERT, then throws the SQLException. Otherwise, treats it as successful case. 

@@ -1,0 +1,5 @@
+org.apache.mahout.math.Sorting looks as if the original author borrowed from the Sun JRE, based on the private internal function names and contents. That code has a restrictive license. We need to take the equivalent file (java.util.Arrays) from Apache Harmony and use it as the basis for a clean replacement.
+
+The problematic code are the quickSort and mergeSort functions, which extend 'Arrays' by supporting slices of arrays and custom sorting predicate functions. 
+
+One might also wistfully note that the more recent JDKs from Sun have deployed different (and one hopes) better sort algorithms that 1.5 and/or Harmony, so a really energetic person might build implementations in here to match. However, expediency calls for just bashing on the Harmony implementation to solve the problem at hand.

@@ -1,0 +1,30 @@
+When using lucene2seq to load data from a field that is stored but not indexed I receive the following error:
+
+
+IllegalArgumentException: Field 'body' does not exist in the index
+
+
+Field is described in schema.xml as:
+
+
+<fieldname="body"type="string" stored="true" indexed="false"/>
+
+
+BTW,  field is copied to 'content' field for searching, schema.xml snippet:
+
+
+<copyField source="body" dest="content" />
+
+
+Copy field is described in schema.xml as:
+
+
+<fieldname="content" type="text" stored="false" indexed="true" multiValued="true"/>
+
+
+If I try to load data from the copy field, lucene2seq runs with no errors but I receive empty data for each key/doc:
+
+
+Key class: class org.apache.hadoop.io.Text Value Class: class org.apache.hadoop.io.Text
+Key: 96C4C76CF9D7449C724CA77CB8F650EAFD33E31C: Value:
+Key: D6842B81B8D09733B50BEDB4767C2A5C49E43B20: Value:

@@ -1,0 +1,19 @@
+The JPA 2.0 spec requires any non-static non-transient entity field to be persistent unless explicitly mapped as transient by a @Transient annotation or the equivalent XML.
+
+OpenJPA 2.1.1 silently treats some unmapped non-primitive fields as transient instead of throwing an exception or at least logging a warning.
+
+Example:
+
+@Entity
+public class City 
+{
+
+    @Id
+    private String name;
+
+    private Integer population;
+
+    private java.util.concurrent.Executor executor;
+
+    // getters and setters
+}

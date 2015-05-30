@@ -1,0 +1,5 @@
+When blob values are returned through a java ResultSet Object they have the type byte[]. 
+As byte[] doesn't have a useful toString method we end up with a reference type value added to the solr document (i.e. [B@1f23c5). 
+The problem is easy to remedy by adding the attribute 'convertType="true"' to the dataSource tag within data-config.xml.
+However this attribute does not appear to be documented anywhere and I was only able to find it after a few hours digging through the source code. 
+A simple fix for this would be to change the default value of convertType to true within the JdbcDataSource class. 

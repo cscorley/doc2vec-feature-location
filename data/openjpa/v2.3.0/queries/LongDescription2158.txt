@@ -1,0 +1,12 @@
+OPENJPA-2014 added support for allowing proxies to stay in place after detach, but these detached proxy instances still hold a reference to a StateManager that is no longer valid.
+
+Exception data: <openjpa-2.2.1-SNAPSHOT-r422266:1244808 fatal general error> org.apache.openjpa.persistence.PersistenceException: Multiple concurrent threads attempted to access a single broker. By default brokers are not thread safe; if you require and/or intend a broker to be accessed by more than one thread, set the openjpa.Multithreaded property to true to override the default behavior.
+	at org.apache.openjpa.kernel.BrokerImpl.endOperation(BrokerImpl.java:1956)
+	at org.apache.openjpa.kernel.BrokerImpl.isActive(BrokerImpl.java:1904)
+	at org.apache.openjpa.kernel.DelegatingBroker.isActive(DelegatingBroker.java:476)
+	at org.apache.openjpa.persistence.EntityManagerImpl.isActive(EntityManagerImpl.java:677)
+	at org.apache.openjpa.persistence.PersistenceExceptions$2.translate(PersistenceExceptions.java:76)
+	at org.apache.openjpa.kernel.DelegatingQuery.translate(DelegatingQuery.java:99)
+	at org.apache.openjpa.kernel.DelegatingQuery.execute(DelegatingQuery.java:544)
+	at org.apache.openjpa.persistence.QueryImpl.execute(QueryImpl.java:286)
+	at org.apache.openjpa.persistence.QueryImpl.getResultList(QueryImpl.java:302)

@@ -1,0 +1,23 @@
+replication hangs
+mail thread : http://markmail.org/thread/xgbptpzn52xprmwo
+
+The stacktrace 
+
+
+user time=23940.0000ms at java.net.SocketInputStream.socketRead0(Native Method)
+at java.net.SocketInputStream.read(SocketInputStream.java:129) 
+at java.io.BufferedInputStream.fill(BufferedInputStream.java:218) 
+at java.io.BufferedInputStream.read1(BufferedInputStream.java:258) 
+at java.io.BufferedInputStream.read(BufferedInputStream.java:317) 
+at org.apache.commons.httpclient.ChunkedInputStream.read(ChunkedInputStream.jav a:182) 
+at java.io.FilterInputStream.read(FilterInputStream.java:116) 
+at org.apache.commons.httpclient.AutoCloseInputStream.read(AutoCloseInputStream.java:108) 
+at org.apache.solr.common.util.FastInputStream.read(FastInputStream.java:91) 
+at org.apache.solr.common.util.FastInputStream.readFully(FastInputStream.java:1 22) 
+at org.apache.solr.handler.SnapPuller$FileFetcher.fetchPackets(SnapPuller.java: 808) 
+at org.apache.solr.handler.SnapPuller$FileFetcher.fetchFile(SnapPuller.java:764 ) 
+......
+
+
+
+the httpclient is created w/o a read_timeout & connection_timeout. . So it may hang indefinitely if there is no data coming out of the server

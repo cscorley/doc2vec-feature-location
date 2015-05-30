@@ -1,0 +1,5 @@
+The network server needs SocketPermission "listen" on the port that it listens to, but this permission is not granted by the basic server policy that's installed by default. This doesn't cause any problems in most cases, since the JVM's default policy grants all code bases SocketPermission "listen" on a range of ports, and Derby's network server port is within that range.
+
+Still, the network server should not rely on this fact. It is possible to run the network server on any port, not only those ports that happen be in the range that's given carte blanche by the platform's default policy. The network server will however not be able to run on those ports with the basic policy currently, only with a custom policy or with the security manager disabled.
+
+The default policy should make this permission explicit.

@@ -1,0 +1,3 @@
+When shutting down a network server with open sessions and tracing is enabled, this can lead to file handles remaining indefinitely open (till OS process dies). When the server instance shuts down, it calls the open sessions' close method to reclaim resources. That method, unfortunately, does not shut down any open trace file.
+
+I saw this when debugging a test on Windows which tried to delete the trace files after shutting down the server.

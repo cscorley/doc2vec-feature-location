@@ -1,0 +1,28 @@
+input.txt:
+1 2 3
+4 5 6
+7 8 9
+
+script:
+a = load 'input.txt' using PigStorage(' ') as (a:int, b:int, c:int);
+SPLIT a into b if a > 0, c if a > 5;
+d = RANK b;
+dump d;
+
+job will fail with error message:
+java.lang.RuntimeException: Unable to read counter pig.counters.counter_4929375455335572575_-1
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.PORank.addRank(PORank.java:161)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.PORank.getNext(PORank.java:134)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:308)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POSplit.getNext(POSplit.java:214)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.runPipeline(PigGenericMapBase.java:283)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.map(PigGenericMapBase.java:278)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.map(PigGenericMapBase.java:64)
+	at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:157)
+	at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:673)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:324)
+	at org.apache.hadoop.mapred.Child$4.run(Child.java:275)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:396)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1340)
+	at org.apache.hadoop.mapred.Child.main(Child.java:269)

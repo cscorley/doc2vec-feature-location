@@ -1,0 +1,24 @@
+
+
+        try {
+            entryLogger.scanEntryLog(entryLogId, new CompactionScanner(entryLogMeta));
+            // after moving entries to new entry log, remove this old one
+            removeEntryLog(entryLogId);
+        } catch (IOException e) {
+            LOG.info("Premature exception when compacting " + entryLogId, e); 
+        } finally {
+            // clear compacting flag
+            compacting.set(false);
+        }
+
+
+
+currently compaction code has a bit problem: as the code described above, old entry log is removed after new entries are added to new entry log, but new entry log might not be flushed. if failures happened after removal but before flush, data would be lost.
+
+when I implemented compaction feature in BOOKKEEPER-160, I remembered that I took care of letting entry go back to normal addEntry flow to reflect journal and index. But seems that the addEntry doesn't go thru journal, just move entries between entry log files w/o any flush guarantee.
+
+there are two ideas for this solution:
+
+simple one is to let compaction going to normal addEntry flow (adding entry to ledger storage and putting it in journal). the other one is GC thread either wait for ledger storage to flush in sync thread in one flush interval or force a ledger storage flush before removing entry log files.
+
+BTW, it was hard to design a test case by simulating bookie abnormally shut down itself after entry log files are removed.

@@ -1,0 +1,13 @@
+When a PubSubServer is instantiated in non-standalone mode, it creates a ZkTopicManager which takes a Zookeeper client as an argument.
+Unfortunately, this Zookeeper client may not be connected yet (not in CONNECTED state yet), and when this is the case, creation of ZkTopicManager fails, leading to failure of the PubSubServer startup.
+
+Typical error (adapted, line numbers take into account commented patching code):
+jjava.io.IOException: org.apache.hedwig.exceptions.PubSubException$ServiceDownException: org.apache.zookeeper.KeeperException$ConnectionLossException: KeeperErrorCode = ConnectionLoss for /hedwig/standalone/hosts/x.x.x.x:4080:9876
+	at org.apache.hedwig.server.netty.PubSubServer.instantiateTopicManager(PubSubServer.java:170)
+	at org.apache.hedwig.server.netty.PubSubServer$3.run(PubSubServer.java:294)
+	at java.lang.Thread.run(Thread.java:680)
+Caused by: org.apache.hedwig.exceptions.PubSubException$ServiceDownException: org.apache.zookeeper.KeeperException$ConnectionLossException: KeeperErrorCode = ConnectionLoss for /hedwig/standalone/hosts/x.x.x.x:4080:9876
+	at org.apache.hedwig.server.topics.ZkTopicManager$4.safeProcessResult(ZkTopicManager.java:146)
+etc...
+
+This is particularly problematic for running tests that require to pass a config to the PubSubServer.

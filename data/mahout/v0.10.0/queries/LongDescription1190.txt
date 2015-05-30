@@ -1,0 +1,6 @@
+Currently when calling .assign() on a SASV with another vector and a custom function, it will iterate through it and assign every single entry while also referring it by index.
+
+This makes the process hugely expensive. (on a run of BallKMeans on the 20 newsgroups data set, profiling reveals that 92% of the runtime was spent updating assigning the vectors).
+
+Here's a prototype patch:
+https://github.com/dfilimon/mahout/commit/63998d82bb750150a6ae09052dadf6c326c62d3d

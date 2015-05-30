@@ -1,0 +1,101 @@
+Using 10.8 client and 10.5 server and testing jars lang.CursorTest fails as follows:
+Java Version:    1.6.0
+Java Vendor:     IBM Corporation
+Java home:       C:\cygwin\ibmsvn\ntsoftware\ibm16\jre
+Java classpath:  .;c:/cygwin/svn4/10.8/jars/sane/derbyclient.jar;C:/cygwin/ibmreleases/10.5.3.2.1132854/derbyTesting.jar;C:/cygwin/ibmreleases/10.5.3.
+2.1132854/derbyrun.jar;C:/cygwin/svn4/trunka/tools/java/junit.jar;C:/cygwin/svn4/trunka/tools/java/jakarta-oro-2.0.8.jar
+OS name:         Windows XP
+OS architecture: x86
+OS version:      5.1 build 2600 Service Pack 3
+Java user name:  kmarsden
+Java user home:  C:\Documents and Settings\Administrator
+Java user dir:   C:\cygwin\home\kmarsden\repro\10_8cli10_5serverClassCast
+java.specification.name: Java Platform API Specification
+java.specification.version: 1.6
+java.runtime.version: jvmwi3260sr9-20110203_74623
+java.fullversion: JRE 1.6.0 IBM J9 2.4 Windows XP x86-32 jvmwi3260sr9-20110203_74623 (JIT enabled, AOT enabled)
+J9VM - 20110203_074623
+JIT  - r9_20101028_17488ifx3
+GC   - 20101027_AA
+--------- Derby Information --------
+JRE - JDBC: Java SE 6 - JDBC 4.0
+[C:\cygwin\ibmreleases\10.5.3.2.1132854\derby.jar] 10.5.3.2 - (1171883)
+[C:\cygwin\ibmreleases\10.5.3.2.1132854\derbytools.jar] 10.5.3.2 - (1171883)
+[C:\cygwin\ibmreleases\10.5.3.2.1132854\derbynet.jar] 10.5.3.2 - (1171883)
+[C:\cygwin\svn4\10.8\jars\sane\derbyclient.jar] 10.8.2.2 - (1177062M)
+------------------------------------------------------
+----------------- Locale Information -----------------
+Current Locale :  [English/United States [en_US]]
+Found support for locale: [cs]
+         version: 10.8.2.2 - (1177062M)
+Found support for locale: [de_DE]
+         version: 10.8.2.2 - (1177062M)
+Found support for locale: [es]
+         version: 10.8.2.2 - (1177062M)
+Found support for locale: [fr]
+         version: 10.8.2.2 - (1177062M)
+Found support for locale: [hu]
+         version: 10.8.2.2 - (1177062M)
+Found support for locale: [it]
+         version: 10.8.2.2 - (1177062M)
+Found support for locale: [ja_JP]
+         version: 10.8.2.2 - (1177062M)
+Found support for locale: [ko_KR]
+         version: 10.8.2.2 - (1177062M)
+Found support for locale: [pl]
+         version: 10.8.2.2 - (1177062M)
+Found support for locale: [pt_BR]
+         version: 10.8.2.2 - (1177062M)
+Found support for locale: [ru]
+         version: 10.8.2.2 - (1177062M)
+Found support for locale: [zh_CN]
+         version: 10.8.2.2 - (1177062M)
+Found support for locale: [zh_TW]
+         version: 10.8.2.2 - (1177062M)
+------------------------------------------------------
++ java -Xmx512M -Xms512M -Dderby.tests.debug=false -Dderby.tests.trace=true '-DderbyTesting.oldReleasePath=C:\cygwin\svnreleases\jars' junit.textui.Te
+stRunner org.apache.derbyTesting.functionTests.tests.lang.CursorTest
++ tee rju.out
+.
+testCursor used 312 ms .
+testCursorParam used 156 ms .
+testGetCursorName used 204 ms .
+testCursor used 547 ms .
+testCursorParam used 625 ms E.
+testGetCursorName used 172 ms .
+derby2417testSetCursorNextExecute used 125 ms
+Time: 9.532
+There was 1 error:
+1) testCursorParam(org.apache.derbyTesting.functionTests.tests.lang.CursorTest)java.lang.ClassCastException: java.lang.Boolean incompatible with java.
+lang.Short
+        at org.apache.derby.client.net.NetStatementRequest.buildFDODTA(NetStatementRequest.java:731)
+        at org.apache.derby.client.net.NetStatementRequest.buildSQLDTAcommandData(NetStatementRequest.java:540)
+        at org.apache.derby.client.net.NetStatementRequest.writeOpenQuery(NetStatementRequest.java:191)
+        at org.apache.derby.client.net.NetPreparedStatement.writeOpenQuery_(NetPreparedStatement.java:194)
+        at org.apache.derby.client.am.PreparedStatement.writeOpenQuery(PreparedStatement.java:1819)
+        at org.apache.derby.client.am.PreparedStatement.flowExecute(PreparedStatement.java:2062)
+        at org.apache.derby.client.am.PreparedStatement.executeQueryX(PreparedStatement.java:391)
+        at org.apache.derby.client.am.PreparedStatement.executeQuery(PreparedStatement.java:376)
+        at org.apache.derbyTesting.functionTests.tests.lang.CursorTest.testCursorParam(CursorTest.java:109)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:60)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:37)
+        at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:109)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+        at junit.extensions.TestSetup.run(TestSetup.java:25)
+        at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+        at junit.extensions.TestSetup.run(TestSetup.java:25)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+        at junit.extensions.TestSetup.run(TestSetup.java:25)
+        at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+
+FAILURES!!!
+Tests run: 7,  Failures: 0,  Errors: 1
+
++ set +x
+
+There were quite a few (18?) other similar failures in the 10.8 client 10.5 server run,  see output attached.

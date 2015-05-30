@@ -1,0 +1,4 @@
+The classes org.apache.zookeeper.client.ZooKeeperSaslClient.java and 
+org.apache.zookeeper.server.quorum.flexible.QuorumHierarchical.java compare Strings and/or Longs using referential equality.
+
+Usually, this is not a problem because the Longs are cached and Strings are interned, but I myself  had problems with those kind of comparisons in the past because one production JVM didn't reused the objects.

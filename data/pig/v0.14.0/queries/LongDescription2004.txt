@@ -1,0 +1,31 @@
+The below script fails by throwing a ClassCastException from the MAX udf. The udf expects the value of the bag supplied to be databyte array, but at run time the udf gets the actual type, ie Double in this case.  This causes the script execution to fail with exception;
+
+
+
+ Caused by: java.lang.ClassCastException: java.lang.Double cannot be cast to org.apache.pig.data.DataByteArray
+
+
+
+
+
+The same script runs properly with Pig 0.8.
+
+
+
+
+
+A = LOAD 'myinput' as (f1,f2,f3);
+B = foreach A generate f1,f2+f3/1000.0 as doub;
+C = group B by f1;
+D = foreach C generate (long)(MAX(B.doub)) as f4;
+dump D;
+
+
+
+myinput
+-------
+a       1000    12345
+b       2000    23456
+c       3000    34567
+a       1500    54321
+b       2500    65432

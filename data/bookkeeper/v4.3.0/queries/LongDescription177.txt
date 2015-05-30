@@ -1,0 +1,41 @@
+we found that some index files are lost ore some index pages aren't flushed after applying BOOKKEEPER-137 patch.
+
+this issue can be reproduced by following sequence.
+
+index file missing:
+
+1) create ledger 1 without writing any entries
+2) open ledger 1 which causes a recoveryRead entry(0) sent to bookie server. then an empty page is put in pageTable by mistake as below. (we should call updatePage first to check whether bookie server has this ledger)
+
+
+                 // in ledgerCache#getEntryOffset
+                 lep = grabCleanPage(ledger, pageEntry);
+                 synchronized(this) {
+                     putIntoTable(pages, lep);
+                 }
+                 updatePage(lep);
+
+
+3) open ledger 2 to write serval entries. a meta entry and several data entries would be put in journal.
+4) SyncThread executes to flush ledger. it first flush ledger 1, although ledger 1 has an empty page which is clean, but the code still need to call #getFileInfo, which will cause an NoLedgerException fail the flush. unfortunately, the SyncThread caught this exception and just output an error message then rollLog. the result is ledger 2 is not flushed, and its journal entries would not be replayed after restarted.
+
+
+                 lastLogMark.markLog();
+ 
+                 try {
+                     ledgerCache.flushLedger(true);
+                 } catch (IOException e) {
+                     LOG.error("Exception flushing Ledger", e);
+                 }
+                 try {
+                     entryLogger.flush();
+                 } catch (IOException e) {
+                     LOG.error("Exception flushing entry logger", e);
+                 }
+ 
+                 lastLogMark.rollLog();
+
+
+
+
+similar case for some index pages are not flushed.

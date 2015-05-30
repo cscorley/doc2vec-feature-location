@@ -1,0 +1,40 @@
+The hedwig client was connected to a remote region hub that restarted resulting in the channel getting disconnected. 
+
+
+2012-08-15 17:47:42,443 - ERROR - [pool-20-thread-1:TerminateJVMExceptionHandler@28] - Uncaught exception in thread pool-20-thread-1
+java.lang.NullPointerException
+        at org.apache.hedwig.client.netty.HedwigClientImpl.getResponseHandlerFromChannel(HedwigClientImpl.java:323)
+        at org.apache.hedwig.client.handlers.MessageConsumeCallback.operationFinished(MessageConsumeCallback.java:75)
+        at org.apache.hedwig.client.handlers.MessageConsumeCallback.operationFinished(MessageConsumeCallback.java:41)
+        at org.apache.hedwig.server.regions.RegionManager$1$1$1.operationFinished(RegionManager.java:208)
+        at org.apache.hedwig.server.regions.RegionManager$1$1$1.operationFinished(RegionManager.java:202)
+        at org.apache.hedwig.server.persistence.ReadAheadCache$PersistCallback.operationFinished(ReadAheadCache.java:194)
+        at org.apache.hedwig.server.persistence.ReadAheadCache$PersistCallback.operationFinished(ReadAheadCache.java:171)
+        at org.apache.hedwig.server.persistence.BookkeeperPersistenceManager$PersistOp$1.safeAddComplete(BookkeeperPersistenceManager.java:548)
+        at org.apache.hedwig.zookeeper.SafeAsynBKCallback$AddCallback.addComplete(SafeAsynBKCallback.java:93)
+        at org.apache.bookkeeper.client.PendingAddOp.submitCallback(PendingAddOp.java:165)
+        at org.apache.bookkeeper.client.LedgerHandle.sendAddSuccessCallbacks(LedgerHandle.java:643)
+        at org.apache.bookkeeper.client.PendingAddOp.writeComplete(PendingAddOp.java:159)
+        at org.apache.bookkeeper.proto.PerChannelBookieClient.handleAddResponse(PerChannelBookieClient.java:577)
+        at org.apache.bookkeeper.proto.PerChannelBookieClient$7.safeRun(PerChannelBookieClient.java:525)
+        at org.apache.bookkeeper.util.SafeRunnable.run(SafeRunnable.java:31)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+        at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:334)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:166)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1110)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:603)
+        at java.lang.Thread.run(Thread.java:722)
+
+
+At 2012-08-15 17:47:42,443, the channel was disconnected as well. 
+
+I believe the following code in the MessageConsumeCallback is causing this problem. 
+
+ Channel topicSubscriberChannel = client.getSubscriber().getChannelForTopic(topicSubscriber);
+        HedwigClientImpl.getResponseHandlerFromChannel(topicSubscriberChannel).getSubscribeResponseHandler()
+        .messageConsumed(messageConsumeData.msg);
+
+The channel was retrieved without checking if it was closed and then getPipeline().getLast() was called which returned a null value resulting in a NPE. Moreover, we need to check if the returned Response handler is not null because there is a race here if channel.close() is called after we retrieve the channel and before we call messageConsumed(). 
+
+I guess the same applies for other instances where we use this.
+Does the above explanation seem right? 

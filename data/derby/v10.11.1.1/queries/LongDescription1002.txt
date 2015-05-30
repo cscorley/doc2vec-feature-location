@@ -1,0 +1,6 @@
+Network server re-uses DRDAStatement and DRDAResultSet objects when client sends a request with same section number. When re-using DRDAStatement, it's close() method is called which inturn calls close() method of DRDAResultSet. For re-use to work properly, we have to ensure the states of these objects are reset. This is not a bug but it is an area for possible improvements like:
+
+
+	The reset of all states are not in the close() methods. The states get re-initialized at different places in the code. Fo example, in case of DRDAResultSet, they get initialized in some other DRDAStatement methods - like addResultSet, setRsDefaultOptions, setOPNQRYOptions, setQueryOptions etc. It will be good to have all resets in one method.
+	The method name "close" is confusing since it is also called when objects get re-used. For clarity, it may be good to have a method named reset(). And then have the close method call reset.
+

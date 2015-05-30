@@ -1,0 +1,13 @@
+see attached test case: entities Library, Book, and Page. there is a one-many bidirectional relationship between Library and Book, and Book and Page. a Library's ID is simply it's name. a Book's ID is it's name, plus it's owning library's ID. A Page's ID is it's number, plus it's owning Book's ID. 
+
+this arrangement results in composite IDs for Book and Page. and moreover, Page's composite ID, PageId, contains a page number field plus a BookId. however, this arrangement results in an exception at runtime w/ the included test case ...
+
+...
+ Caused by: java.lang.ClassCastException: org.apache.openjpa.util.ObjectId
+ at com.mycompany.book.Page.pcCopyKeyFieldsToObjectId(Page.java)
+ at org.apache.openjpa.util.ApplicationIds.create(ApplicationIds.java:383)
+ at org.apache.openjpa.kernel.BrokerImpl.persist(BrokerImpl.java:2349) 
+
+note that if i remove the bookId field from PageId, the test case succeeds. 
+
+also note that this problem is also observed against a trunk field from march 3 (0.9.7 snapshot).

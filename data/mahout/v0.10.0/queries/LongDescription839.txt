@@ -1,0 +1,27 @@
+Although MAHOUT-757 moved towards standard option naming, it uses different APIs for option parsing than other jobs.
+
+On my system, it died reliably with null pointer error. Reported in mail here, but not reconfirmed by anyone else yet: http://permalink.gmane.org/gmane.comp.apache.mahout.user/9659
+
+Example: 
+
+TellyClub:bin danbri$ ./mahout rowid --help
+
+MAHOUT_LOCAL is set, so we don't add HADOOP_CONF_DIR to classpath.
+MAHOUT_LOCAL is set, running locally
+
+[skipping some hopefully unrelated SLF4J errors re same thing on classpath twice]
+
+Exception in thread "main" java.lang.NullPointerException
+	at org.apache.hadoop.fs.Path.<init>(Path.java:61)
+	at org.apache.hadoop.fs.Path.<init>(Path.java:50)
+	at org.apache.mahout.utils.vectors.RowIdJob.run(RowIdJob.java:49)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:65)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:79)
+	at org.apache.mahout.utils.vectors.RowIdJob.main(RowIdJob.java:89)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.apache.hadoop.util.ProgramDriver$ProgramDescription.invoke(ProgramDriver.java:68)
+	at org.apache.hadoop.util.ProgramDriver.driver(ProgramDriver.java:139)
+	at org.apache.mahout.driver.MahoutDriver.main(MahoutDriver.java:188)

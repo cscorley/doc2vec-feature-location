@@ -1,0 +1,10 @@
+DERBY-118 started out as a request to allow date-time functions values to be assigned to character columns. This is not standard SQL, but it turns out the Derby allows such conversions at DML time, e.g. in an INSERT statement. Investigating this we found that there a re several instances in which Derby is more restrictive in type conversion at DDL time that at DML time. These instances can be classifies as
+
+a) legacy restrictions that are DB2 specific, but would be legal SQL if lifted
+b) restrictions that are not legal SQL per the standard
+
+This subtask addresses a). The original request falls into category b) and we decided not to fix those since this would allow users to write non-standard SQL, notwithstanding that fact the Derby also extends on the standard at DML time. Ideally, we would restrict those cases to follow the standard as well, but that woudl cause compatibility concerns.
+
+Furthermore, a related issue is that type checks at DDL time, e.g. that a character literal is not too long for its column, are performed at DML time. This is not as per the standard, and we track an improvement in this area as
+
+ c) Catch type mismatch of DEFAULT values at DDL time (DERBY-5825)

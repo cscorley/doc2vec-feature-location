@@ -1,0 +1,43 @@
+import  fails   irrespective off whether the name is passed as  a quoted sttring or not:
+ij> call SYSCS_UTIL.SYSCS_IMPORT_TABLE (null, '"ORDER"' , 'order.dat' ,
+                                      null, null, null, 0) ;
+ERROR XIE0M: Table '"ORDER"' does not exist.
+ij> call SYSCS_UTIL.SYSCS_IMPORT_TABLE (null, 'ORDER' , 'order.dat' ,
+                                      null, null, null, 0) ;
+ERROR 38000: The exception 'SQL Exception: Syntax error: Encountered "ORDER" at
+line 1, column 13.' was thrown while evaluating an expression.
+ERROR 42X01: Syntax error: Encountered "ORDER" at line 1, column 13.
+
+Export works with  a quoted table name but fails if the name is not quoted :
+call SYSCS_UTIL.SYSCS_EXPORT_TABLE (null, '"ORDER"' , 'order.dat' ,
+                                 null, null, null) ;   — PASSES
+
+ij> call SYSCS_UTIL.SYSCS_EXPORT_TABLE (null, 'ORDER' , 'order.dat' ,
+                                 null, null, null) ;
+ERROR 38000: The exception 'SQL Exception: Syntax error: Encountered "ORDER" at
+line 1, column 15.' was thrown while evaluating an expression.
+ERROR 42X01: Syntax error: Encountered "ORDER" at line 1, column 15.
+
+
+
+Repro:
+connect 'jdbc:derby:wombat;create=true';
+create table "ORDER"(a int ) ;
+insert into "ORDER" values(1) ;
+insert into "ORDER" values(2) ;
+insert into "ORDER" values(3) ;
+call SYSCS_UTIL.SYSCS_EXPORT_TABLE (null, '"ORDER"' , 'order.dat' ,
+                                 null, null, null) ;
+– Perform Import
+call SYSCS_UTIL.SYSCS_IMPORT_TABLE (null, '"ORDER"' , 'order.dat' ,
+                                      null, null, null, 0) ;
+
+ERROR XIE0M: Table '"ORDER"' does not exist.
+call SYSCS_UTIL.SYSCS_IMPORT_TABLE (null, 'ORDER' , 'order.dat' ,
+                                      null, null, null, 0) ;
+ERROR 38000: The exception 'SQL Exception: Syntax error: Encountered "ORDER" at
+line 1, column 13.' was thrown while evaluating an expression.
+ERROR 42X01: Syntax error: Encountered "ORDER" at line 1, column 13.
+
+
+Note:  I think  the same problem will occur with  when  quoted schema Names and column names are passed to import/export procedures. 

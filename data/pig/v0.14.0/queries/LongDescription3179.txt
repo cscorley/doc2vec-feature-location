@@ -1,0 +1,13 @@
+When a task's PigSplit is containing more than wrappedSplit, it only logs the first fileinfo.
+
+When debugging, I saw 
+
+===== Task Information Header =====
+Command: bash ....
+Start time: Mon Feb 11 16:41:21 UTC 2013
+Input-split file: hdfs://abc.bcd.efg:8020/tmp/hij/part-r-00000.bz2
+Input-split start-offset: 0Input-split length: 11854247
+
+
+
+but the actual error was happing while reading part-r-00007.bz2.  It would have been nice if the log showed all the info that task was going to read.

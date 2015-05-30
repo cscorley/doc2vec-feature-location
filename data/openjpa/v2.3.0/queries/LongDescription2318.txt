@@ -1,0 +1,110 @@
+Entities
+@Entity
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public class DiscoveryObjectImpl {
+	@Id
+	private String id;
+	public String getId() 
+{
+		return id;
+	}
+
+	public void setId(String id) 
+{
+		this.id = id;
+	}
+
+	@ManyToOne(cascade = CascadeType.ALL)
+	private DiscoveryObjectImpl parent;
+
+
+	public DiscoveryObjectImpl getParent() 
+{		
+		return parent;
+	}
+
+	public void setParent(DiscoveryObjectImpl parent) 
+{
+		this.parent = parent;  
+
+	}
+}
+
+@Entity
+public class ColumnFormatImpl extends DiscoveryObjectImpl 
+{
+	@Basic
+	String formatName; 
+}
+
+@Entity
+public class ColumnImpl extends DiscoveryObjectImpl 
+{
+@OneToMany(mappedBy="parent")
+private List<ColumnFormatImpl> formats = new ArrayList<ColumnFormatImpl>();
+
+}
+
+@Entity
+public class VirtualTableImpl extends DiscoveryObjectImpl 
+{
+@OneToMany(mappedBy="parent")
+	private List<ColumnImpl> columns = new ArrayList<ColumnImpl>();
+}
+
+persistence.xml
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
+    version="1.0">
+ <persistence-unit name="Test" transaction-type="RESOURCE_LOCAL">
+ 	<provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
+ 	<class>com.ibm.infosphere.test.model.interfaces.impl.DiscoveryObjectImpl</class>
+ 	<class>com.ibm.infosphere.test.model.interfaces.impl.VirtualTableImpl</class>
+ 	<class>com.ibm.infosphere.test.model.interfaces.impl.ColumnImpl</class>
+ 	<class>com.ibm.infosphere.test.model.interfaces.impl.ColumnFormatImpl</class> 	
+ 	<exclude-unlisted-classes>true</exclude-unlisted-classes> 			
+	<properties>
+			<property name="openjpa.Log" value="DefaultLevel=ERROR, Runtime=ERROR, Tool=ERROR, SQL=TRACE, MetaData=ERROR"/>
+			<property name="openjpa.DynamicEnhancementAgent"  value="false"/>
+            <property name="openjpa.RuntimeUnenhancedClasses" value="supported"/>
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <property name="openjpa.InitializeEagerly" value="true"/>
+            <property name="openjpa.jdbc.DBDictionary" value="oracle"/>
+            <property name="openjpa.jdbc.DBDictionary" value="MaxTableNameLength=61"/>
+            <property name="openjpa.jdbc.DBDictionary" value="useWildCardForCount=true"/>
+            <property name="openjpa.jdbc.DBDictionary" value="JoinSyntax=sql92"/>
+ 			<property name="openjpa.ConnectionURL" value="jdbc:oracle:thin:@localhost:1521:orcl"/>
+
+    		<property name="openjpa.ConnectionDriverName" value="oracle.jdbc.driver.OracleDriver"/> 
+      		<property name="openjpa.ConnectionUserName" value="lev"/>
+      		<property name="openjpa.ConnectionPassword" value="lev"/>
+
+            <property name="openjpa.ConnectionFactoryProperties"    value="PrettyPrint=true, PrettyPrintLineLength=80, PrintParameters=true"/>
+            <property name="openjpa.DataCache"                value="true"/>        
+            <property name="openjpa.RemoteCommitProvider"     value="sjvm"/>            
+            <property name="openjpa.jdbc.QuerySQLCache"       value="true(EnableStatistics=true)"/>            
+		</properties>
+</persistence-unit>
+</persistence>
+
+Test code:
+public void test() 
+{
+        CriteriaQuery<ColumnImpl> cri = cb.createQuery(ColumnImpl.class);
+        Root<VirtualTableImpl> tbl = cri.from(VirtualTableImpl.class);
+        Join<VirtualTableImpl, ColumnImpl> col = tbl.join("columns");
+        Join<ColumnImpl, ColumnFormatImpl> format = col.join("formats", JoinType.LEFT);
+        cri.where(cb.equal(format.get("formatName"), "ABC"));
+        cri.select(col);
+        em.createQuery(cri).getResultList();
+}
+
+Generated SQL:
+SELECT t1.id, t1.PARENT_ID 
+    FROM VirtualTableImpl t0 INNER JOIN ColumnImpl t1 ON t0.id = t1.PARENT_ID INNER 
+        JOIN ColumnFormatImpl t2 ON t1.id = t2.PARENT_ID 
+    WHERE (t2.formatName = ? AND 1 = 1) 
+
+As you can see the secong JOIN is INNER instead of LEFT OUTER
+

@@ -1,0 +1,12 @@
+we found that replaying entries of deleted ledgers would exhaust ledger cache. then ledger cache would no clean page to grab, it would throw following exception.
+
+
+
+java.util.NoSuchElementException
+        at java.util.LinkedList.getFirst(LinkedList.java:109)
+        at org.apache.bookkeeper.bookie.LedgerCacheImpl.grabCleanPage(LedgerCacheImpl.java:454)
+        at org.apache.bookkeeper.bookie.LedgerCacheImpl.putEntryOffset(LedgerCacheImpl.java:165)
+
+
+
+this issue is because bookie grabs a clean page but fail to updating page due to NoLedgerException, but bookie doesn't return this clean page back to ledger cache. so the ledger cache is exhausted, when new ledger want to grab a clean page, it failed to find available page.

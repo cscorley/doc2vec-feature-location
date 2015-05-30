@@ -1,0 +1,34 @@
+Just some small comments about the Javadoc for the org.apache.derby.iapi.store.access.Qualifier interface, that made it hard for me to understand. (see http://db.apache.org/derby/javadoc/engine/)
+
+1. In examples 1a through 4 there looks to be a missing [] in the array initialization.  In example 1a, instead of:
+  qualifier = new Qualifier[3]; // 3 AND clauses
+
+I think it should be:
+  qualifier = new Qualifier[3][]; // 3 AND clauses
+
+Similar for 2 through 4.
+
+2. The formatting is messed up as the text for the examples appears as one long hyperlink in the seeAlso section.
+
+3. This pseudo-code doesn't look right.  I don't think there should be a test on qualifier.negateCompareResult() at the outer level?
+
+if (qualifier.negateCompareResult())
+  {
+
+
+      compare_result =
+      row[(qualifier.getColumnId())].compare(
+
+
+        qualifier.getOperator(),
+        qualifier.getOrderable(),
+        qualifier.getOrderedNulls(),
+        qualifier.getUnknownRV())
+
+
+    if (qualifier.negateCompareResult()) {
+
+          compare_result = !(compare_result);
+
+
+}

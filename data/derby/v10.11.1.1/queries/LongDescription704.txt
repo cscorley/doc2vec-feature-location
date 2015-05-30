@@ -1,0 +1,18 @@
+When the page cache is large the performance gets lower as the page
+cache is being filled. As soon as the page cache is filled, the
+throughput increases. In the period with low performance, the CPU
+usage is high, and when the performance increases the CPU usage is
+lower.
+
+This behaviour is caused by the algorithm for finding free slots in
+the page cache. If there are invalid pages in the page cache, it will
+be scanned to find one of those pages. However, when multiple clients
+access the database, the invalid pages are often already taken. This
+means that the entire page cache will be scanned, but no free invalid
+page is found. Since the scan of the page cache is synchronized on the
+cache manager, all other threads that want to access the page cache
+have to wait. When the page cache is large, this will kill the
+performance.
+
+When the page cache is full, this is not a problem, as there will be
+no invalid pages.

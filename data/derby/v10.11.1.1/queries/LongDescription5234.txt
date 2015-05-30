@@ -1,0 +1,93 @@
+One of the derby database table "gets corrupted"/"indicates connection not available" during processing inserts from java client application as shown in the trace and the only way to recover from this error is to rebuild the DB - by deleting the data and creating the tables again. This happens once in a while (thrice in a span of two months) and the java application (run in multiple servers), which updates the database, processes around 100 million transactions per hour (in total and each transation results in 4-5 updates to the DB) 
+
+There are eight tables in the derby database.
+
+   TABLE NAME                           ROWS COUNT (at time of corruption)
+---------------------------------------------------------------------------------
+   KPI.KPI_MERGEIN;                     362917
+   KPI.KPI_IN;                                 422508
+   KPI.KPI_DROPPED;                    53667
+   KPI.KPI_ERROR1;                       0
+   KPI.KPI_ERROR2;                       2686
+   KPI.KPI_ERRORMERGE;            0
+   KPI.KPI_MERGEOUT;                 362669
+   KPI.KPI_OUT;                             125873
+
+The derby database has been started with the following parameters 
+
+CMD="java -Dderby.system.home=$DERBY_OPTS -Dderby.locks.monitor=true -Dderby.locks.deadlockTrace=true -Dderby.locks.escalationThreshold=50000 -Dderby.locks.waitTimeout=
+-1 -Dderby.storage.pageCacheSize=100000 -Xms512M -Xmx3072M -XX:NewSize=256M -classpath $DERBY_CLASSPATH org.apache.derby.drda.NetworkServerControl start -h $KPIDERBYHOST -p $DERBY_KPI_PORT"
+
+The corrupted database tar (filesystem) in live environment was moved to a test system (Solaris system) and few checks were run on the corrupted DB as part of analysis (DB does start fine)
+
+While trying to insert a row in any table expect KPI.KPI_MERGEIN, it is successful. But when a new row is inserted into KPI.KPI_MERGEIN table using command line tool it's throwing below error message (the same message that appeared in live 
+
+ij> INSERT INTO KPI.KPI_MERGEIN (A0_TXN_ID, A1_NE_ID, A2_CHU_IP_ADDR, A3_BATCH_DATE,A5_CODE) VALUES (-1, 'BMTDE', '192.2.1.3', 231456879, 'KSD');
+ERROR 08006: A network protocol error was encountered and the connection has been terminated: the requested command encountered an unarchitected and implementation-specific condition for which there was no architected message
+
+
+and in derby.log file it shows below error stacktrace.
+
+ERROR XSDG0: Page Page(51919,Container(0, 1104)) could not be read from disk.
+        at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+        at org.apache.derby.impl.store.raw.data.CachedPage.readPage(Unknown Source)
+        at org.apache.derby.impl.store.raw.data.CachedPage.setIdentity(Unknown Source)
+        at org.apache.derby.impl.services.cache.ConcurrentCache.find(Unknown Source)
+        at org.apache.derby.impl.store.raw.data.FileContainer.initPage(Unknown Source)
+        at org.apache.derby.impl.store.raw.data.FileContainer.newPage(Unknown Source)
+        at org.apache.derby.impl.store.raw.data.BaseContainer.addPage(Unknown Source)
+        at org.apache.derby.impl.store.raw.data.BaseContainerHandle.addPage(Unknown Source)
+        at org.apache.derby.impl.store.access.heap.HeapController.doInsert(Unknown Source)
+        at org.apache.derby.impl.store.access.heap.HeapController.insertAndFetchLocation(Unknown Source)
+        at org.apache.derby.impl.sql.execute.RowChangerImpl.insertRow(Unknown Source)
+        at org.apache.derby.impl.sql.execute.InsertResultSet.normalInsertCore(Unknown Source)
+        at org.apache.derby.impl.sql.execute.InsertResultSet.open(Unknown Source)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(Unknown Source)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.execute(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.parseEXCSQLIMM(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.processCommands(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.run(Unknown Source)
+Caused by: java.io.EOFException: Reached end of file while attempting to read a whole page.
+        at org.apache.derby.impl.store.raw.data.RAFContainer4.readFull(Unknown Source)
+        at org.apache.derby.impl.store.raw.data.RAFContainer4.readPage0(Unknown Source)
+        at org.apache.derby.impl.store.raw.data.RAFContainer4.readPage(Unknown Source)
+        ... 20 more
+============= begin nested exception, level (1) ===========
+java.io.EOFException: Reached end of file while attempting to read a whole page.
+        at org.apache.derby.impl.store.raw.data.RAFContainer4.readFull(Unknown Source)
+        at org.apache.derby.impl.store.raw.data.RAFContainer4.readPage0(Unknown Source)
+        at org.apache.derby.impl.store.raw.data.RAFContainer4.readPage(Unknown Source)
+        at org.apache.derby.impl.store.raw.data.CachedPage.readPage(Unknown Source)
+        at org.apache.derby.impl.store.raw.data.CachedPage.setIdentity(Unknown Source)
+        at org.apache.derby.impl.services.cache.ConcurrentCache.find(Unknown Source)
+        at org.apache.derby.impl.store.raw.data.FileContainer.initPage(Unknown Source)
+        at org.apache.derby.impl.store.raw.data.FileContainer.newPage(Unknown Source)
+        at org.apache.derby.impl.store.raw.data.BaseContainer.addPage(Unknown Source)
+        at org.apache.derby.impl.store.raw.data.BaseContainerHandle.addPage(Unknown Source)
+        at org.apache.derby.impl.store.access.heap.HeapController.doInsert(Unknown Source)
+        at org.apache.derby.impl.store.access.heap.HeapController.insertAndFetchLocation(Unknown Source)
+        at org.apache.derby.impl.sql.execute.RowChangerImpl.insertRow(Unknown Source)
+        at org.apache.derby.impl.sql.execute.InsertResultSet.normalInsertCore(Unknown Source)
+        at org.apache.derby.impl.sql.execute.InsertResultSet.open(Unknown Source)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(Unknown Source)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.execute(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.parseEXCSQLIMM(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.processCommands(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.run(Unknown Source)
+============= end nested exception, level (1) ===========
+
+2011-05-16 10:37:21.392 GMT:
+Shutting down instance a816c00e-012f-f85f-7892-ffff874c3ff6
+----------------------------------------------------------------
+Cleanup action completed
+
+
+The problem is only with INSERT statement. When i try SELECT statement on KPI.KPI_MERGEIN table it is working well.The database file system size (in seg0) is 1.3 GB
+
+Can anyone help me out in identifying the problem that why for one table alone its throwing the above error message ? Would upgrade to a new version help ? 

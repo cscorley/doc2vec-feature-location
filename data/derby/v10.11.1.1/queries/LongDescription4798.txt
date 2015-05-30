@@ -1,0 +1,45 @@
+Using the schema from DERBY-4712 and running the original randomized query generator used to find DERBY-4712, http://code.google.com/p/h2database/source/browse/trunk/h2/src/test/org/h2/test/db/TestNestedJoins.java, I have uncovered yet another bug (NPE), which appears to be a different beast. This one is a regression in 10.5 (works in 10.4 and older). This is the failing query:
+
+SELECT t0.x0,
+       t1.x1,
+       t2.x2,
+       t3.x3,
+       t4.x4,
+       t5.x5,
+       t6.x6,
+       t7.x7
+FROM ((t0
+         LEFT OUTER JOIN ((t1
+                           LEFT OUTER JOIN (t2
+                                            LEFT OUTER JOIN t3
+                                              ON t2.x2 = t3.x3 )
+                             ON t1.x1 = t2.x2 )
+                          LEFT OUTER JOIN (t4
+                                           INNER JOIN (t5
+                                                       LEFT OUTER JOIN t6
+                                                         ON t5.x5 = t6.x6 )
+                                             ON t4.x4 = t5.x5 )
+                            ON t1.x1 = t5.x5 )
+           ON t0.x0 = t5.x5 )
+        LEFT OUTER JOIN t7
+          ON t3.x3 = t7.x7 ); 
+
+Relevant part of the stack trace (using 10.5 trunk @ svn 995846):
+
+Caused by: java.lang.NullPointerException
+	at org.apache.derby.impl.sql.execute.BaseActivation.getColumnFromRow(BaseActivation.java:1458)
+	at org.apache.derby.exe.ac4ac48095x012axfc73x9c5dx000003d485d847.e19(Unknown Source)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.apache.derby.impl.services.reflect.ReflectMethod.invoke(ReflectMethod.java:46)
+	at org.apache.derby.impl.sql.execute.GenericQualifier.getOrderable(GenericQualifier.java:96)
+	at org.apache.derby.impl.sql.execute.NoPutResultSetImpl.clearOrderableCache(NoPutResultSetImpl.java:307)
+	at org.apache.derby.impl.sql.execute.HashScanResultSet.resetProbeVariables(HashScanResultSet.java:359)
+	at org.apache.derby.impl.sql.execute.HashScanResultSet.openCore(HashScanResultSet.java:322)
+	at org.apache.derby.impl.sql.execute.JoinResultSet.openRight(JoinResultSet.java:283)
+	at org.apache.derby.impl.sql.execute.JoinResultSet.openCore(JoinResultSet.java:152)
+	at org.apache.derby.impl.sql.execute.ProjectRestrictResultSet.openCore(ProjectRestrictResultSet.java:181)
+	at org.apache.derby.impl.sql.execute.BasicNoPutResultSetImpl.open(BasicNoPutResultSetImpl.java:251)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:416)

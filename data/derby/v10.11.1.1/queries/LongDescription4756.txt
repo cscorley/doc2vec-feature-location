@@ -1,0 +1,8 @@
+Many warnings are printed when the java.sql.Date and java.sql.Time JDBC 4 stubs are compiled, because they override deprecated methods in java.util.Date. Example:
+
+    [javac] /code/derby/trunk1/java/stubs/jdbc4/java/sql/Date.java:25: warning: [deprecation] getHours() in java.util.Date has been deprecated
+    [javac]     public  int 	getHours()  
+{ return 0; }
+    [javac]                 	^
+
+We should silence these warnings to make it easier to distinguish signal from noise.

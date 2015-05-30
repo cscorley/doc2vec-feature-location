@@ -1,0 +1,17 @@
+As discussed on the dev mailing list [1]...
+
+I found that the following mapping: 
+
+@Entity
+public class AnnoTest1 
+{
+
+    @ManyToOne
+    Object o;
+...
+}
+
+This results in a warning message [2], but it is allowed. This JIRA will be used to detect this condition and fail fast. 
+
+[1] http://openjpa.markmail.org/thread/6yphicehgclyobag
+[2] 297  TestConv  WARN   [main] openjpa.MetaData - OpenJPA cannot map field "test.AnnoTest1.o" efficiently.  It is of an unsupported type. The field value will be serialized to a BLOB by default.

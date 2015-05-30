@@ -1,0 +1,22 @@
+From my mail to the Mahout mailing list.
+
+I am working on clustering a dataset which has thousands of sparse vectors. The complete dataset has few tens of thousands of feature items but each vector has only couple of hundred feature items. For this, there is an optimization in distance calculation, a link to which I found the archives of Mahout mailing list.
+
+http://lingpipe-blog.com/2009/03/12/speeding-up-k-means-clustering-algebra-sparse-vectors/
+
+I tried out this optimization.  The test setup had 2000 document  vectors with few hundred items.  I ran canopy generation with Euclidean distance and t1, t2 values as 250 and 200.
+
+Current Canopy Generation: 28 min 15 sec.
+Canopy Generation with distance optimization: 1 min 38 sec.
+
+I know by experience that using Integer, Double objects instead of primitives is computationally expensive. I changed the sparse vector  implementation to used primitive collections by Trove [
+http://trove4j.sourceforge.net/ ].
+
+Distance optimization with Trove: 59 sec
+Current canopy generation with Trove: 21 min 55 sec
+
+To sum, these two optimizations reduced cluster generation time by a 97%.
+
+Currently, I have made the changes for Euclidean Distance, Canopy and KMeans.  
+
+Licensing of Trove seems to be an issue which needs to be addressed.

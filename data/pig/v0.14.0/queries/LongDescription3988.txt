@@ -1,0 +1,3 @@
+PigStorage uses commons-cli to parse options. The CommandLineParser is stored as a static member. This can cause issues when two threads instantiate PigStorage at the same time, since CommandLineParser stores state in a non-thread-safe way.
+
+OptionBuilder, used in populateValidOptions(), is also not thread safe, as it stores its state in static members.

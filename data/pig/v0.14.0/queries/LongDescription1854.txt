@@ -1,0 +1,91 @@
+Pig returns exit code 0 for the some of the failed Pig scripts. Due to this workflow system like Oozie showing the "succeeded" status instead of "killed" status.
+
+Illustrative example
+---------------------
+
+Suppose in Pig script we have following statement:
+
+$ cat move.pig
+fs -mv /user/jerry/a.txt /user/tom/
+
+On executing the pig script, script failed with following exception
+
+[tom@abc ]$ pig move.pig 
+2011-02-14 06:48:08,354 [main] INFO  org.apache.pig.Main - Logging error messages to: /home/tom/pig_1297666088350.log
+2011-02-14 06:48:08,652 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to hadoop file system at: hdfs://abc-nn:8020
+2011-02-14 06:48:09,542 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to map-reduce job tracker at: abc-jt:50300
+mv: org.apache.hadoop.security.AccessControlException: Permission denied: user=tom, access=WRITE, inode="jobs":jerry:users:rwxr-xr-x
+[tom@abc ]$
+
+
+But when executed the similar Pig script through Oozie workflow, Pig script failed but Oozie show the "succeeded" status message instead of "killed" status as return exit code is 0.
+
+From logs of workflow launcher job:
+
+stdout logs
+-----------
+>>> Invoking Pig command line now >>>
+
+Apache Pig version 0.7.0.20.100.1.1007220309 (r966485) 
+compiled Jul 22 2010, 03:09:21
+
+807  [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine  - Connecting to hadoop file system at: hdfs://abc-nn:8020/
+853  [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine  - Connecting to map-reduce job tracker at: abc-jt:50300
+
+<<< Invocation of Pig command completed <<<
+
+ Hadoop Job IDs executed by Pig: 
+
+<<< Invocation of Main class completed <<<
+
+
+Oozie Launcher, capturing output data:
+=======================
+#
+#Mon Feb 14 06:46:00 UTC 2011
+hadoopJobs=
+
+=======================
+
+Oozie Launcher ends
+
+
+stderr logs
+-----------
+mv: org.apache.hadoop.security.AccessControlException: Permission denied: user=tom, access=WRITE, inode="jobs":jerry:users:rwxr-xr-x
+
+
+One more scenario where Pig script failed but exit code is 0 and no exception occurred for this failure.
+
+
+stdout logs
+-----------
+>>> Invoking Pig command line now >>>
+
+
+Apache Pig version 0.7.0.20.100.1.1007220309 (r966485) 
+compiled Jul 22 2010, 03:09:21
+...
+...
+48247 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher  - 100% complete
+48248 [main] ERROR org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher  - 1 map reduce job(s) failed!
+48306 [main] ERROR org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher  - Failed to produce result in: "hdfs://abc-nn/user/jerry/feature-keys"
+48307 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher  - Failed!
+
+<<< Invocation of Pig command completed <<<
+
+ Hadoop Job IDs executed by Pig: job_201102080811_28852
+
+<<< Invocation of Main class completed <<<
+
+Oozie Launcher, capturing output data:
+=======================
+#
+#Sat Feb 12 04:13:53 UTC 2011
+hadoopJobs=job_201102080811_28852
+
+=======================
+
+Oozie Launcher ends
+
+—

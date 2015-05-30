@@ -1,0 +1,47 @@
+If the default locale is not English, many subclasses of ScriptTestCase will fail. 
+
+For example, run NetIjTest (a subclass of ScriptTestcase)  in a Chinese OS, the test case will fail:
+
+D:\derby\test>java junit.textui.TestRunner org.apache.derbyTesting.functionTests
+.tests.derbynet.NetIjTest
+.F
+Time: 5.422
+There was 1 failure:
+1) testclientij(org.apache.derbyTesting.functionTests.tests.derbynet.NetIjTest)j
+unit.framework.ComparisonFailure: Output at line 34 expected:<[ERROR 42X05: Tabl
+e/View 'APP.NOTTHERE' does not exist.]> but was:<[?? 42X05????APP.NOTTHERE??
+?]>
+        at org.apache.derbyTesting.functionTests.util.CanonTestCase.compareCanon
+(CanonTestCase.java:106)
+        at org.apache.derbyTesting.functionTests.util.ScriptTestCase.runTest(Scr
+iptTestCase.java:198)
+        at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:
+109)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:23)
+        at junit.extensions.TestSetup.run(TestSetup.java:27)
+        at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57
+)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:23)
+        at junit.extensions.TestSetup.run(TestSetup.java:27)
+        at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57
+)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:23)
+        at junit.extensions.TestSetup.run(TestSetup.java:27)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:23)
+        at junit.extensions.TestSetup.run(TestSetup.java:27)
+
+FAILURES!!!
+Tests run: 1, Failures: 1, Errors: 0 
+
+While, it succeed running with a English-language lcoale.
+
+D:\derby\test>java -Duser.language=en junit.textui.TestRunner org.apache.derbyTe
+sting.functionTests.tests.derbynet.NetIjTest
+.
+Time: 6.187
+
+OK (1 test)

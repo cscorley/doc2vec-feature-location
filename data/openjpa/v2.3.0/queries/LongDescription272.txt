@@ -1,0 +1,47 @@
+The @GenerateValue annotation doesn't work correctly when applied to via the Property level access (getter method) when using the wrapper classes for the primitive types.  Something like this:
+
+    private Long id;
+
+    @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+	public Long getId() 
+{
+		return id;
+	}
+
+	public void setId(Long id) 
+{
+		this.id = id;
+	}
+
+With this type of Entity definition, we hit a problem when checking for the "default value":
+
+    public boolean isDefaultValue() 
+{
+        return dblval == 0 && longval == 0
+            && (objval == null || "".equals(objval));
+    }
+
+For this scenario, objval is not null and it's not of type String, so we fail this test and return false.  Upon returning the value of false, the calling code skips the call that would have assigned the generated value to the field (in ApplicationIds):
+
+    private static boolean assign(OpenJPAStateManager sm, StoreManager store,
+        FieldMetaData[] pks, boolean preFlush) 
+{
+        for (int i = 0; i < pks.length; i++)
+            if (pks[i].getValueStrategy() != ValueStrategies.NONE
+                && sm.isDefaultValue(pks[i].getIndex())
+                && !store.assignField(sm, pks[i].getIndex(), preFlush))
+                return false;
+        return true;
+    }
+
+I haven't figured out the exact fix yet, but there are two workarounds available:
+
+1.  Use field level annotations instead of property, or...
+2.  Don't use the primitive wrapper types (use long instead of Long).
+
+In either of these cases, objval is left as null and we are eventually allowed to call store.assignField() which gets the generated value assigned to the field in question (id in this case).
+
+I will keep digging, but if anyone knows the history of the isDefaultValue() method, it would help with getting a quick answer to this Issue.  Since we're dealing with generated values, I'm not clear why we care if values are already assigned to this field or not.  It would seem that we would want to just override what's there.  But, like I said, I need to dive into this a bit.  I just wanted to get the Issue on the books with the information I discovered thus far.
+
+Kevin

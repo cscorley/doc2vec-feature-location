@@ -1,0 +1,10 @@
+Noticed two privileged blocks in NetworkServerControlApiTest that could be simplified:
+
+
+	privInetAddressGetByName() tests whether the PrivilegedActionException wraps a SecurityException. PAE only wraps checked exceptions, and SecurityException is an unchecked exception, so that can never happen.
+
+
+
+
+	fileExists() could use the existing helper method PrivilegedFileOpsForTests.exists() and remove its privileged block.
+

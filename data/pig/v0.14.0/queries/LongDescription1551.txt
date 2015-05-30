@@ -1,0 +1,6 @@
+PIG-1354 introduced a set of UDFs that can be used to dynamically wrap simple Java methods in a UDF, so that users don't need to create trivial wrappers if they are ok sacrificing some speed.
+
+This issue is to extend the set of methods that can be wrapped this way to include methods that do not take any arguments, and methods that take arrays of 
+{int,long,float,double,string}
+ as arguments. 
+Arrays are expected to be represented by bags in Pig. Notably, this allows users to wrap statistical functions in o.a.commons.math.stat.StatUtils . 

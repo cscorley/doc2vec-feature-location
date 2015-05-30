@@ -1,0 +1,5 @@
+Currently bookie server do extracting ledger id from entry log files when creating a new entry log.
+
+When we have lots of entry logs, we have to scan all these entry log files, then bookie server will be blocked until finished extraction. 
+
+But it is not necessary. Since extraction is only for garbage collection, we can do extraction in GC thread before gc entry log files.

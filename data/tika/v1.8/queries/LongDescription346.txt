@@ -1,0 +1,18 @@
+This could be a bug in the underlying apache-commons code. When trying to parse the attached file to extract text content, an error is thrown with the following stacktrace:
+
+org.apache.tika.exception.TikaException: Unexpected RuntimeException from org.apache.tika.parser.pkg.ZipParser@1b963c4
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:122)
+	at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:101)
+	at my.code.wherever.....
+Caused by: java.lang.IllegalArgumentException: invalid compression method
+	at java.util.zip.ZipEntry.setMethod(ZipEntry.java:209)
+	at org.apache.commons.compress.archivers.zip.ZipArchiveInputStream.getNextZipEntry(ZipArchiveInputStream.java:146)
+	at org.apache.commons.compress.archivers.zip.ZipArchiveInputStream.getNextEntry(ZipArchiveInputStream.java:188)
+	at org.apache.tika.parser.pkg.PackageParser.parseArchive(PackageParser.java:66)
+	at org.apache.tika.parser.pkg.ZipParser.parse(ZipParser.java:49)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:120)
+	... 25 more
+
+I have extracted the content of the zip and ran the autodetect parser against all content files without problems, so it is definitely the zip that is the problem.
+
+The attached zip is from Project Gutenberg and hence public domain.

@@ -1,0 +1,21 @@
+The following store tests from derbyall do not shutdown cleanly so leave the db.lck file on disk.  This is OK! It is done by design to test recovery.  THE PROBLEM, when run on Linux using IBM JRE 1.3.1 sp 10 the test harness 'sees' the warnings and lists the tests as having failed.  The harness should ignore this warnings as the tests proceed and complete cleanly.
+
+Tests INCORRECLTY reported as failed:
+
+derbyall/derbynetclientmats/derbynetmats.fail:stress/stress.multi
+derbyall/derbynetmats/derbynetmats.fail:stress/stress.multi
+derbyall/storeall/storeall.fail:storetests/st_1.sql
+derbyall/storeall/storeall.fail:unit/recoveryTest.unit
+ erbyall/storeall/storeall.fail:store/LogChecksumRecovery.java
+derbyall/storeall/storeall.fail:store/LogChecksumRecovery1.java
+ erbyall/storeall/storeall.fail:store/MaxLogNumberRecovery.java
+derbyall/storeall/storeall.fail:store/oc_rec1.java
+derbyall/storeall/storeall.fail:store/oc_rec2.java
+derbyall/storeall/storeall.fail:store/oc_rec3.java
+derbyall/storeall/storeall.fail:store/oc_rec4.java
+derbyall/storeall/storeall.fail:store/dropcrash.java
+derbyall/storeall/storeall.fail:store/dropcrash2.java
+
+Example Error message:
+
+WARNING: Derby (instance xxxxFILTERED-UUIDxxxx) is attempting to boot the database csf:/local1/131TST/Store1/storeall/storerecovery/storerecovery/wombat even though Derby (instance xxxxFILTERED-UUIDxxxx) may still be active.  Only one instance of Derby should boot a database at a time. Severe and non-recoverable corruption can result and may have already occurred.

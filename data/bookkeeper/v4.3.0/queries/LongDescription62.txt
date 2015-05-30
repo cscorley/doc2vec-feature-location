@@ -1,0 +1,11 @@
+bookie tries to extract ledger ids from entry loggers during starting up. if some records corrupted, an IOException is thrown out.
+
+in extractLedgersFromEntryLogs function:
+
+line 459:
+                int rc = bc.read(buff, pos);
+                if (rc != data.length) 
+{
+                    throw new IOException("Short read for entryLog " + entryLogId + "@" + pos + "(" + rc + "!="
+                            + data.length + ")");
+                }

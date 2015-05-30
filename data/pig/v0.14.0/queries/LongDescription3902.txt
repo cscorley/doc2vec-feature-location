@@ -1,0 +1,33 @@
+Under certain conditions PigServer creates a cycle in the logical plan. Consider the following pseudocode:
+
+
+
+A = load from 'A' using F1;
+...process...
+B = store X into 'B' using F2;
+C = load from 'B' using F3;
+...process...
+D = store Y into 'A' using F1;
+
+
+
+PigServer will, in ordinary cases, notice that an output path is equal to an input path, and, if there's no path from the input to the output, make the input a dependency of the output. However, PigServer orders the loads and stores arbitrarily during that logic. Sometimes, in the code above, C is correctly wired as a dependency of B and, since that creates a path from A to D, A won't be made a dependency of D and we're good. On occasion though, the ordering being arbitrary, A is wired as a dependency of D. That's no good. To be fair, it's not actually a cycle, since when A is wired to D, there's a path between C and B so the cycle won't actually get created. But it's still a broken plan.
+
+The offending PigServer code: https://github.com/apache/pig/blob/branch-0.11/src/org/apache/pig/PigServer.java#L1678-L1693
+
+And here's some actual pig code that should reproduce the broken plan. Notice I had to use a store function that wouldn't check the output. If you're just using PigStorage this won't be reproducible since you can't write to the same location you read from in that case.
+
+
+
+A = load '$A' as (line:chararray);
+A = foreach A generate flatten(TOKENIZE(LOWER(line))) as token;
+store A into '$B';
+B = load '$B' as (token:chararray);
+B = filter B by SIZE(token) > 3;
+store B into '$A' using org.apache.pig.piggybank.storage.DBStorage('com.mysql.jdbc.Driver', 'dbc:mysql://localhost/test', 'INSERT INTO foobar (token) VALUES(?)');
+
+
+
+As far as a fix goes... I'd love some input. I've got some workarounds in mind for the specific use case that brought this up, but the general problem is more difficult. 
+
+As an aside, there's other issues with the PigServer code referenced above. For example, it should almost certainly be using the full path (after LoadFunc/StoreFunc.relativeToAbsolutePath) no? Try storing to a relative path then loading from the absolute representation of that path in the same script... Also, why isn't it checking the FuncSpec as well as the location? Just trying to open up the discussion.

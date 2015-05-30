@@ -1,0 +1,47 @@
+See the following stack:
+
+
+exceptionThrown=java.lang.StackOverflowError
+	at java.io.DataOutputStream.flush(DataOutputStream.java:123)
+	at org.apache.pig.data.InternalCachedBag.addDone(InternalCachedBag.java:121)
+	at org.apache.pig.data.InternalCachedBag.iterator(InternalCachedBag.java:158)
+	at org.apache.pig.data.DefaultAbstractBag.hashCode(DefaultAbstractBag.java:363)
+	at java.util.WeakHashMap.hash(WeakHashMap.java:365)
+	at java.util.WeakHashMap.get(WeakHashMap.java:464)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigHadoopLogger.warn(PigHadoopLogger.java:72)
+	at org.apache.pig.data.DefaultAbstractBag.incSpillCount(DefaultAbstractBag.java:446)
+	at org.apache.pig.data.InternalCachedBag.updateSpillRecCounter(InternalCachedBag.java:114)
+	at org.apache.pig.data.InternalCachedBag.addDone(InternalCachedBag.java:129)
+	at org.apache.pig.data.InternalCachedBag.iterator(InternalCachedBag.java:158)
+	at org.apache.pig.data.DefaultAbstractBag.hashCode(DefaultAbstractBag.java:363)
+	at java.util.WeakHashMap.hash(WeakHashMap.java:365)
+	at java.util.WeakHashMap.get(WeakHashMap.java:464)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigHadoopLogger.warn(PigHadoopLogger.java:72)
+	at org.apache.pig.data.DefaultAbstractBag.incSpillCount(DefaultAbstractBag.java:446)
+	at org.apache.pig.data.InternalCachedBag.updateSpillRecCounter(InternalCachedBag.java:114)
+	at org.apache.pig.data.InternalCachedBag.addDone(InternalCachedBag.java:129)
+	at org.apache.pig.data.InternalCachedBag.iterator(InternalCachedBag.java:158)
+	at org.apache.pig.data.DefaultAbstractBag.hashCode(DefaultAbstractBag.java:363)
+	at java.util.WeakHashMap.hash(WeakHashMap.java:365)
+	at java.util.WeakHashMap.get(WeakHashMap.java:464)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigHadoopLogger.warn(PigHadoopLogger.java:72)
+	at org.apache.pig.data.DefaultAbstractBag.incSpillCount(DefaultAbstractBag.java:446)
+	at org.apache.pig.data.InternalCachedBag.updateSpillRecCounter(InternalCachedBag.java:114)
+	at org.apache.pig.data.InternalCachedBag.addDone(InternalCachedBag.java:129)
+	at org.apache.pig.data.InternalCachedBag.iterator(InternalCachedBag.java:158)
+	at org.apache.pig.data.DefaultAbstractBag.hashCode(DefaultAbstractBag.java:363)
+	at java.util.WeakHashMap.hash(WeakHashMap.java:365)
+	at java.util.WeakHashMap.get(WeakHashMap.java:464)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigHadoopLogger.warn(PigHadoopLogger.java:72)
+	at org.apache.pig.data.DefaultAbstractBag.incSpillCount(DefaultAbstractBag.java:446)
+	at org.apache.pig.data.InternalCachedBag.updateSpillRecCounter(InternalCachedBag.java:114)
+	at org.apache.pig.data.InternalCachedBag.addDone(InternalCachedBag.java:129)
+	at org.apache.pig.data.InternalCachedBag.iterator(InternalCachedBag.java:158)
+	at org.apache.pig.data.DefaultAbstractBag.hashCode(DefaultAbstractBag.java:363)
+	at java.util.WeakHashMap.hash(WeakHashMap.java:365)
+	at java.util.WeakHashMap.get(WeakHashMap.java:464)
+......
+
+
+
+Pig made recursive call in InternalCachedBag.hashCode.

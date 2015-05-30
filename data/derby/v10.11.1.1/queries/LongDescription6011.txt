@@ -1,0 +1,12 @@
+The Apache ManifoldCF project supports Derby as one of its underlying databases.  Simple tests, however, demonstrate that Derby is apparently deadlocking and timing out repeatedly under multi-thread conditions.  This problem is long-standing, and is not exhibited by any other database ManifoldCF supports, and makes a simple test take between 6x and 12x as long.
+
+There is a trivial test with demonstrates the problem vs. other databases.  Please do the following (once you have java 1.6+, svn 1.7+, and ant 1.7+ available):
+
+(1) Check out https://svn.apache.org/repos/asf/manifoldcf/trunk
+(2) Run the following ant target to download the dependencies: "ant make-core-deps"
+(3) Run the Derby test: "ant run-rss-tests-derby" . Note the time required - at least 180 seconds, can be up to 360 seconds.
+(4) Run the equivalent HSQLDB test: "ant run-rss-tests-HSQLDB".  This test takes about 31 seconds to run.
+
+The output of the Derby test can be found in the directory "tests/rss/test-derby-output".  Have a look at manifoldcf.log, where all long-running queries are reported.  Derby.log is also included, which shows only that during the test's cleanup phase the database is deleted before it is shutdown, which is not pertinent to the performance issue.
+
+I am available to assist with ManifoldCF, if that seems to be required.

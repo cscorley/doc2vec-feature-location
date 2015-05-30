@@ -1,0 +1,8 @@
+Register a jython script with an absolute path fail. For Example:
+
+
+register 'D:\scriptingudf.py' using jython as myfuncs;
+a = load 'studenttab10k' using PigStorage() as (name, age:int, gpa:double);
+b = foreach a generate myfuncs.square(age);
+dump b;
+

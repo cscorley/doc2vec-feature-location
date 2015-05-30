@@ -1,0 +1,15 @@
+In 64 bit windows vista OS, if an executable is 32 bit than it is generally installed under 
+"C:\Program Files (x86)" folder. The brackets in the path cause problems while connecting
+to any database stored in that folder(in jar format) through derby JDBC.
+
+The effective connection string is :
+jdbc:derby:jar:(C:/Program Files(86)/ClassicModels.jar)ClassicModels 
+This fails because the closing brackets is not escaped. 
+
+I looked into the documentation and didn't find references to escaping the brackets in the path. 
+I think this problem should be reproducible on all platforms.
+
+
+
+
+you cannot connect to it,  

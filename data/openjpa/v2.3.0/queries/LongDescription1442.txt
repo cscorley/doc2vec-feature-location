@@ -1,0 +1,16 @@
+When using java.sql.Date, java.math.BigDecimal, or java.math.BigInteger types are derived primary keys the following error and stack trace result (in all environments: JSE,EJB,WEB):
+
+**Exception: Unexpected exception caught while running tests.
+    java.lang.VerifyError:JVMVRFY012 stack shape inconsistent; class=suite/r80/base/common/datamodel/entities/Entity0416, method=pcNewObjectIdInstance()Ljava/lang/Object;, pc=62
+	at java.lang.J9VMInternals.verifyImpl(Native Method)
+	at java.lang.J9VMInternals.verify(J9VMInternals.java:72)
+	at java.lang.J9VMInternals.initialize(J9VMInternals.java:134)
+	at java.lang.Class.forNameImpl(Native Method)
+	at java.lang.Class.forName(Class.java:169)
+	at org.apache.openjpa.meta.MetaDataRepository.classForName(MetaDataRepository.java:1461)
+	at org.apache.openjpa.meta.MetaDataRepository.loadPersistentTypes(MetaDataRepository.java:1434)
+	at org.apache.openjpa.kernel.AbstractBrokerFactory.loadPersistentTypes(AbstractBrokerFactory.java:273)
+	at org.apache.openjpa.kernel.AbstractBrokerFactory.initializeBroker(AbstractBrokerFactory.java:229)
+	at org.apache.openjpa.kernel.AbstractBrokerFactory.newBroker(AbstractBrokerFactory.java:203)
+	at org.apache.openjpa.kernel.DelegatingBrokerFactory.newBroker(DelegatingBrokerFactory.java:152)
+	at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:200)

@@ -1,0 +1,96 @@
+here are the part of the log whereby my zookeeper instance crashed, taking 3 out of 5 down, and thus ruining the quorum for all clients:
+
+2009-07-23 12:29:06,769 WARN org.apache.zookeeper.server.NIOServerCnxn: Exception causing close of session 0x52276d1d5161350 due to java.io.IOException: Read error
+2009-07-23 12:29:00,756 WARN org.apache.zookeeper.server.quorum.Follower: Exception when following the leader
+java.io.EOFException
+        at java.io.DataInputStream.readInt(DataInputStream.java:375)
+        at org.apache.jute.BinaryInputArchive.readInt(BinaryInputArchive.java:63)
+        at org.apache.zookeeper.server.quorum.QuorumPacket.deserialize(QuorumPacket.java:65)
+        at org.apache.jute.BinaryInputArchive.readRecord(BinaryInputArchive.java:108)
+        at org.apache.zookeeper.server.quorum.Follower.readPacket(Follower.java:114)
+        at org.apache.zookeeper.server.quorum.Follower.followLeader(Follower.java:243)
+        at org.apache.zookeeper.server.quorum.QuorumPeer.run(QuorumPeer.java:494)
+2009-07-23 12:29:06,770 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x52276d1d5161350 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.168:39489]
+2009-07-23 12:29:06,770 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x12276d15dfb0578 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.159:46797]
+2009-07-23 12:29:06,771 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x42276d1d3fa013e NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.153:33998]
+2009-07-23 12:29:06,771 WARN org.apache.zookeeper.server.NIOServerCnxn: Exception causing close of session 0x52276d1d5160593 due to java.io.IOException: Read error
+2009-07-23 12:29:06,808 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x32276d15d2e02bb NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.158:53758]
+2009-07-23 12:29:06,809 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x42276d1d3fa13e4 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.154:58681]
+2009-07-23 12:29:06,809 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x22276d15e691382 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.162:59967]
+2009-07-23 12:29:06,809 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x12276d15dfb1354 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.163:49957]
+2009-07-23 12:29:06,809 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x42276d1d3fa13cd NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.150:34212]
+2009-07-23 12:29:06,809 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x22276d15e691383 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.159:46813]
+2009-07-23 12:29:06,809 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x12276d15dfb0350 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.162:59956]
+2009-07-23 12:29:06,809 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x32276d15d2e139b NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.156:55138]
+2009-07-23 12:29:06,809 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x32276d15d2e1398 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.167:41257]
+2009-07-23 12:29:06,810 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x52276d1d5161355 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.153:34032]
+2009-07-23 12:29:06,810 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x52276d1d516011c NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.155:56314]
+2009-07-23 12:29:06,810 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x32276d15d2e056b NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.155:56322]
+2009-07-23 12:29:06,810 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x52276d1d516011f NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.157:49618]
+2009-07-23 12:29:06,810 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x32276d15d2e11ea NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.10.20.42:55483]
+2009-07-23 12:29:06,810 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x32276d15d2e02ba NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.157:49632]
+2009-07-23 12:29:06,810 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x12276d15dfb1355 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.169:58824]
+2009-07-23 12:29:06,810 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x22276d15e691378 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.161:40973]
+2009-07-23 12:29:06,811 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x22276d15e691380 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.162:59944]
+2009-07-23 12:29:06,811 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x32276d15d2e0311 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.160:56167]
+2009-07-23 12:29:06,811 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x22276d15e690374 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.169:58815]
+2009-07-23 12:29:06,811 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x32276d15d2e139f NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.151:51396]
+2009-07-23 12:29:06,811 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x32276d15d2e139c NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.155:56315]
+2009-07-23 12:29:06,811 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x22276d15e69137b NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.162:59859]
+2009-07-23 12:29:06,811 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x52276d1d5160594 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.151:51370]
+2009-07-23 12:29:06,811 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x22276d15e69137a NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.159:46682]
+2009-07-23 12:29:06,812 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x52276d1d5160347 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.165:35722]
+2009-07-23 12:29:06,812 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x22276d15e69137f NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.159:46754]
+2009-07-23 12:29:06,812 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x52276d1d5160121 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.155:56307]
+2009-07-23 12:29:06,812 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x12276d15dfb0126 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.154:58688]
+2009-07-23 12:29:06,812 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x42276d1d3fa05fc NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.152:45067]
+2009-07-23 12:29:06,812 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x32276d15d2e0316 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.169:58800]
+2009-07-23 12:29:06,812 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x22276d15e69137e NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.159:46737]
+2009-07-23 12:29:06,813 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x22276d15e69137d NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.159:46733]
+2009-07-23 12:29:06,813 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x42276d1d3fa13df NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.156:55137]
+2009-07-23 12:29:06,813 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x12276d15dfb134e NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.166:40443]
+2009-07-23 12:29:06,813 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x22276d15e691381 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.161:41086]
+2009-07-23 12:29:06,813 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x52276d1d5161356 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.165:35719]
+2009-07-23 12:29:06,813 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x12276d15dfb1349 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.
+20.20.158:53770]
+2009-07-23 12:29:06,813 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x12276d15dfb0352 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.165:35718]
+2009-07-23 12:29:06,813 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x22276d15e691379 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.162:59823]
+2009-07-23 12:29:06,814 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x52276d1d516000e NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.150:34216]
+2009-07-23 12:29:06,814 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x32276d15d2e1397 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.169:58829]
+2009-07-23 12:29:06,814 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x22276d15e69137c NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.162:59862]
+2009-07-23 12:29:06,814 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x42276d1d3fa0140 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.155:56271]
+2009-07-23 12:29:06,814 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x42276d1d3fa13e1 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.157:49608]
+2009-07-23 12:29:06,814 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x22276d15e691377 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.162:59789]
+2009-07-23 12:29:06,814 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x52276d1d5160593 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.165:35703]
+2009-07-23 12:29:06,814 INFO org.apache.zookeeper.server.FinalRequestProcessor: shutdown of request processor complete
+2009-07-23 12:29:06,814 INFO org.apache.zookeeper.server.quorum.FollowerRequestProcessor: FollowerRequestProcessor exited loop!
+2009-07-23 12:29:06,814 INFO org.apache.zookeeper.server.quorum.CommitProcessor: CommitProcessor exited loop!
+2009-07-23 12:29:06,815 INFO org.apache.zookeeper.server.quorum.Follower: shutdown called
+java.lang.Exception: shutdown Follower
+        at org.apache.zookeeper.server.quorum.Follower.shutdown(Follower.java:427)
+        at org.apache.zookeeper.server.quorum.QuorumPeer.run(QuorumPeer.java:498)
+2009-07-23 12:29:06,815 WARN org.apache.zookeeper.server.NIOServerCnxn: Ignoring exception
+java.nio.channels.CancelledKeyException
+        at sun.nio.ch.SelectionKeyImpl.ensureValid(SelectionKeyImpl.java:55)
+        at sun.nio.ch.SelectionKeyImpl.readyOps(SelectionKeyImpl.java:69)
+        at org.apache.zookeeper.server.NIOServerCnxn$Factory.run(NIOServerCnxn.java:201)
+2009-07-23 12:29:06,815 INFO org.apache.zookeeper.server.quorum.QuorumPeer: LOOKING
+2009-07-23 12:29:06,817 WARN org.apache.zookeeper.server.NIOServerCnxn: Exception causing close of session 0x0 due to java.io.IOException: ZooKeeperServer not running
+2009-07-23 12:29:06,817 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x0 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.156:55206]
+2009-07-23 12:29:06,818 WARN org.apache.zookeeper.server.NIOServerCnxn: Exception causing close of session 0x0 due to java.io.IOException: ZooKeeperServer not running
+2009-07-23 12:29:06,818 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x0 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.155:56331]
+[elided lots of the same]
+2009-07-23 12:29:33,008 INFO org.apache.zookeeper.server.NIOServerCnxn: closing session:0x0 NIOServerCnxn: java.nio.channels.SocketChannel[connected local=/10.20.20.151:2181 remote=/10.20.20.152:5945
+8]
+2009-07-23 12:29:33,011 FATAL org.apache.zookeeper.server.SyncRequestProcessor: Severe unrecoverable error, exiting
+java.net.SocketException: Socket closed
+        at java.net.SocketOutputStream.socketWrite(SocketOutputStream.java:99)
+        at java.net.SocketOutputStream.write(SocketOutputStream.java:136)
+        at java.io.BufferedOutputStream.flushBuffer(BufferedOutputStream.java:65)
+        at java.io.BufferedOutputStream.flush(BufferedOutputStream.java:123)
+        at org.apache.zookeeper.server.quorum.Follower.writePacket(Follower.java:100)
+        at org.apache.zookeeper.server.quorum.SendAckRequestProcessor.flush(SendAckRequestProcessor.java:52)
+        at org.apache.zookeeper.server.SyncRequestProcessor.flush(SyncRequestProcessor.java:131)
+        at org.apache.zookeeper.server.SyncRequestProcessor.run(SyncRequestProcessor.java:76)
+
+The good news is when I restarted the downed zookeepers, everything returned to normal.

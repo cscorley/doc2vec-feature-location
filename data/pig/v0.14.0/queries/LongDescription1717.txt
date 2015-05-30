@@ -1,0 +1,6 @@
+I'm writing a loader that works with hive style partitioning e.g. /logs/type1/daydate=2010-11-01
+The loader does not know the schema upfront and this is something that the user adds in the script using the AS clause.
+
+The problem is that this user defined schema is not available to the loader, so the loader cannot return any schema, the Loader does know what the partition keys are and pig needs in some way to know about these partition keys. 
+
+Currently if the schema is null pig never calls the LoadMetaData:getPartitionKeys method or the setPartitionFilter method.

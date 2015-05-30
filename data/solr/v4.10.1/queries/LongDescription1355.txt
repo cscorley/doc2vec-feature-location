@@ -1,0 +1,17 @@
+add an enable tag for master/slave so that it can be changed in the runtime with a variable 
+
+
+
+  <lst name="master">
+    <!-- instead of true keep a variable ${enable.master} and use it instead of hardcoding the value
+           absence of this tag means enable="true"-->
+    <str name="enable">true</str>
+    <str name="replicateAfter">commit</str>
+    <str name="confFiles">schema.xml,stopwords.txt</str>
+ </lst>
+ <lst name="slave">
+   <str name="enable">true</str>
+   <str name="masterUrl">http://localhost:8983/solr/replication</str>
+   <str name="pollInterval">00:00:60</str>
+ </lst>
+

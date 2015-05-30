@@ -1,0 +1,1 @@
+In current FIFODeliveryManager, once a message is filtered in ActiveSubscriberState#messageScanned(), it just call ActiveSubscriberState#sendingFinished() and wait client's acknowledgement. However, the message isn't being delivered to client side, and once the number of such filtered messages larger than the delivery window size, the user cannot receive messages anymore!

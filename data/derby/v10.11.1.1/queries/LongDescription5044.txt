@@ -1,0 +1,25 @@
+A trigger in it's trigger action.can use columns from a table other than the trigger table. When such a column is dropped, the trigger dependency does not get detected.
+
+A test case for this can be found in AlterTableTest.java
+        //Following test case involves two tables. The trigger is defined 
+        //on table 1 and it uses the column from table 2 in it's trigger  
+    	//action. This dependency of the trigger on a column from another 
+        //table is not detected by Derby.
+        st.executeUpdate("create table atdc_14_tab1 (a1 integer, b1 integer)");
+        st.executeUpdate("create table atdc_14_tab2 (a2 integer, b2 integer)");        
+        st.executeUpdate("insert into atdc_14_tab1 values(1,11)");
+        st.executeUpdate("insert into atdc_14_tab2 values(1,11)");
+        st.executeUpdate(
+                " create trigger atdc_14_trigger_1 after update " +
+                "on atdc_14_tab1 REFERENCING NEW AS newt " +
+                "for each row " +
+                "update atdc_14_tab2 set a2 = newt.a1");
+
+        // following is not the right behavior. we should have gotten an error
+        // because column being dropped is getting used in a trigger action 
+        st.executeUpdate("alter table atdc_14_tab2 drop column a2 restrict");
+        rs =
+                st.executeQuery(
+                " select triggername from sys.systriggers where " +
+                "triggername = 'ATDC_14_TRIGGER_1' ");
+        JDBC.assertFullResultSet(rs, new String[][]"ATDC_14_TRIGGER_1");

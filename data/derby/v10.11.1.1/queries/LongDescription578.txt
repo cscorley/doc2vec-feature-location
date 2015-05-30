@@ -1,0 +1,79 @@
+The last statement in the following script:
+
+autocommit off;
+
+declare global temporary table session.ztemp
+( orderID varchar( 50 ) )
+not logged;
+
+select orderID from session.ztemp group by orderID;
+
+raises the following stack trace in the trunk:
+
+java.lang.NullPointerException
+
+	at java.util.Hashtable.get(Hashtable.java:333)
+
+	at org.apache.derby.iapi.services.classfile.ClassHolder.findMatchingEntry(ClassHolder.java:656)
+
+	at org.apache.derby.iapi.services.classfile.ClassHolder.addUtf8Entry(ClassHolder.java:482)
+
+	at org.apache.derby.iapi.services.classfile.ClassHolder.addString(ClassHolder.java:506)
+
+	at org.apache.derby.iapi.services.classfile.ClassHolder.addConstant(ClassHolder.java:302)
+
+	at org.apache.derby.impl.services.bytecode.BCMethod.push(BCMethod.java:452)
+
+	at org.apache.derby.impl.sql.compile.FromBaseTable.generateDistinctScan(FromBaseTable.java:3216)
+
+	at org.apache.derby.impl.sql.compile.FromBaseTable.generateResultSet(FromBaseTable.java:3032)
+
+	at org.apache.derby.impl.sql.compile.FromBaseTable.generate(FromBaseTable.java:2978)
+
+	at org.apache.derby.impl.sql.compile.ProjectRestrictNode.generateMinion(ProjectRestrictNode.java:1196)
+
+	at org.apache.derby.impl.sql.compile.ProjectRestrictNode.generate(ProjectRestrictNode.java:1145)
+
+	at org.apache.derby.impl.sql.compile.ProjectRestrictNode.generateMinion(ProjectRestrictNode.java:1196)
+
+	at org.apache.derby.impl.sql.compile.ProjectRestrictNode.generate(ProjectRestrictNode.java:1145)
+
+	at org.apache.derby.impl.sql.compile.ProjectRestrictNode.generateMinion(ProjectRestrictNode.java:1196)
+
+	at org.apache.derby.impl.sql.compile.ProjectRestrictNode.generate(ProjectRestrictNode.java:1145)
+
+	at org.apache.derby.impl.sql.compile.ProjectRestrictNode.generateMinion(ProjectRestrictNode.java:1196)
+
+	at org.apache.derby.impl.sql.compile.ProjectRestrictNode.generate(ProjectRestrictNode.java:1145)
+
+	at org.apache.derby.impl.sql.compile.ScrollInsensitiveResultSetNode.generate(ScrollInsensitiveResultSetNode.java:109)
+
+	at org.apache.derby.impl.sql.compile.ReadCursorNode.generate(ReadCursorNode.java:118)
+
+	at org.apache.derby.impl.sql.compile.CursorNode.generate(CursorNode.java:546)
+
+	at org.apache.derby.impl.sql.compile.StatementNode.generate(StatementNode.java:232)
+
+	at org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatement.java:433)
+
+	at org.apache.derby.impl.sql.GenericStatement.prepare(GenericStatement.java:107)
+
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(GenericLanguageConnectionContext.java:704)
+
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:533)
+
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:480)
+
+	at org.apache.derby.impl.tools.ij.ij.executeImmediate(ij.java:299)
+
+	at org.apache.derby.impl.tools.ij.utilMain.doCatch(utilMain.java:433)
+
+	at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:310)
+
+	at org.apache.derby.impl.tools.ij.Main.go(Main.java:203)
+
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:169)
+
+	at org.apache.derby.impl.tools.ij.Main14.main(Main14.java:55)
+
+	at org.apache.derby.tools.ij.main(ij.java:60)

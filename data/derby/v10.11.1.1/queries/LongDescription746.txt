@@ -1,0 +1,13 @@
+When booting/creating an encrypted database, a NullPointerException is thrown if the length of the connection string attribute 'encryptionKey' is an odd number, or the encryption key contains invalid characters for hexadecimal numbers (char not in the set [0-9a-fA-F]).
+
+The reason for the exception being thrown, is that the method 'iapi.util.StringUtil.fromHexString(String, int, int)' returns null for the cases described above. The code calling the method in 'JCECipherFactory.boot(boolean, Properties)' does not check that the return value is not null.
+
+A related trivial issue is that 'fromHexString' does not allow the caller to see the distinction between a string with invalid length and a string containing invalid characters (both cases return null).
+
+[To reproduce]
+(connection string copied from test 'store/encryptionKey.sql' and then modified)
+Supply the following connection string, for instance in ij:
+connect 'jdbc:derby:encdbcbc_key;create=true;dataEncryption=true;encryptionAlgorithm=DES/CBC/NoPadding;encryptionKey=6162636465666768696162636465656';
+(deleted the last digit in the encryption key)
+'jdbc:derby:encdbcbc_key;create=true;dataEncryption=true;encryptionAlgorithm=DES/CBC/NoPadding;encryptionKey=6162636465666768696162636465656X';
+(replaced last digit with an X)

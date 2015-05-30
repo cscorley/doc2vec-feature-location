@@ -1,0 +1,22 @@
+I seem to be getting repeated errors parsing JPEG images that load perfectly well in Firefox.
+The main problem seems to be an unsupported component ID, though the actual ID number varies
+from jpg to jpg. Example image to follow.
+
+Exception in thread "main" org.apache.tika.exception.TikaException: Can't read TIFF/JPEG metadata
+        at org.apache.tika.parser.image.ImageMetadataExtractor.parse(ImageMetada
+taExtractor.java:91)
+        at org.apache.tika.parser.image.ImageMetadataExtractor.parseJpeg(ImageMetadataExtractor.java:69)
+        at org.apache.tika.parser.jpeg.JpegParser.parse(JpegParser.java:56)
+        at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:197)
+        at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:197)
+        at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:137)
+        at org.apache.tika.cli.TikaCLI.process(TikaCLI.java:213)
+        at org.apache.tika.cli.TikaCLI.main(TikaCLI.java:73)
+Caused by: com.drew.metadata.MetadataException: Unsupported component id: 152
+        at com.drew.metadata.jpeg.JpegComponent.getComponentName(Unknown Source)
+        at com.drew.metadata.jpeg.JpegDescriptor.getComponentDataDescription(Unknown Source)
+        at com.drew.metadata.jpeg.JpegDescriptor.getDescription(Unknown Source)
+        at com.drew.metadata.Directory.getDescription(Unknown Source)
+        at com.drew.metadata.Tag.getDescription(Unknown Source)
+        at org.apache.tika.parser.image.ImageMetadataExtractor.parse(ImageMetadataExtractor.java:85)
+        ... 7 more

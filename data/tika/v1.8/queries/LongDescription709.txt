@@ -1,0 +1,6 @@
+When trying to use Tika Server (java -jar tika-app-0.9.jar -t -p PORT) to parse M$Word DOC/DOCX files, tika server reads the file and then doesn't do anything more, it simply hangs, probably blocked on a socket read. This does not happend with, for example, HTML documents. I don't know the mechanics of this bug, but the following change definitely fixes the issue:
+
+Change
+type.process(socket.getInputStream(), output);
+to
+type.process(new CloseShieldInputStream(socket.getInputStream()), output);

@@ -1,0 +1,6 @@
+Currently every server has a different static configuration file. This patch distinguishes between dynamic parameters, which are now in a separate "dynamic configuration file", and static parameters which are in the usual file. The config file points to the dynamic config file by specifying "dynamicConfigFile=...". In the first stage (this patch), all cluster membership definitions are in the dynamic config file, but in the future additional parameters may be moved to the dynamic file.
+
+Backward compatibility makes sure that you can still use a single config file if you'd like. Only when the config is changed (once ZK-107 is in) a dynamic file is automatically created and the necessary parameters are moved to it. 
+
+This patch also moves all membership parsing and management into the QuorumVerifier classes, and removes QuorumPeer.quorumPeers.
+The cluster membership is contained in QuorumPeer.quorumVerifier. QuorumVerifier was expanded and now has methods such as getAllMembers(), getVotingMembers(), getObservingMembers(). 

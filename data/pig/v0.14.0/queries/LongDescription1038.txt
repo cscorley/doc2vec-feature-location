@@ -1,0 +1,26 @@
+If nested foreach plan contains sort/distinct, it is possible to use hadoop secondary sort instead of SortedDataBag and DistinctDataBag to optimize the query. 
+
+Eg1:
+A = load 'mydata';
+B = group A by $0;
+C = foreach B 
+{
+    D = order A by $1;
+    generate group, D;
+}
+store C into 'myresult';
+
+We can specify a secondary sort on A.$1, and drop "order A by $1".
+
+Eg2:
+A = load 'mydata';
+B = group A by $0;
+C = foreach B 
+{
+    D = A.$1;
+    E = distinct D;
+    generate group, E;
+}
+store C into 'myresult';
+
+We can specify a secondary sort key on A.$1, and simplify "D=A.$1; E=distinct D" to a special version of distinct, which does not do the sorting.

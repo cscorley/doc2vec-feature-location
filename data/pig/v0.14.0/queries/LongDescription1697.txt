@@ -1,0 +1,22 @@
+If I use a log4j.properties without the magical line:
+log4j.logger.org.apache.pig=WARN, MyAppender
+Pig 0.8.0 crashes on me and I get:
+Details at logfile: /home/ranjit/src/Pig/stage/pig-0.8.0-SNAPSHOT/pig_1288005234464.log
+This file contains:
+
+Error before Pig is launched
+----------------------------
+ERROR 2999: Unexpected internal error. null
+
+java.lang.NullPointerException
+	at org.apache.pig.Main.configureLog4J(Main.java:605)
+	at org.apache.pig.Main.run(Main.java:337)
+	at org.apache.pig.Main.main(Main.java:107)
+================================================================================
+
+Line #605 in Main.java is:
+backendProps.setProperty("log4j.logger.org.apache.pig.level", logLevel.toString());
+and it turns out that logLevel is NULL in this case. That in turn is because line #603 contains:
+logLevel = Logger.getLogger("org.apache.pig").getLevel();
+
+I believe we should use Logger.getEffectiveLevel() instead.

@@ -1,0 +1,24 @@
+Class.getClassLoader() is allowed to return null for the bootstrap class loader, all calls in Derby except this one in getDefaultModuleProperties cope with a null value.
+
+Found by Timothy Luksha (RIT Student)
+
+java.lang.NullPointerException:
+        at org.apache.derby.impl.services.monitor.BaseMonitor.getDefaultModuleProperties()Ljava/util/Properties;(Unknown Source)
+        at org.apache.derby.impl.services.monitor.FileMonitor.run()Ljava/lang/Object;(Unknown Source)
+        at java.security.AccessController.doPrivileged(Ljava/security/PrivilegedExceptionAction;Ljava/security/AccessControlContext;)Ljava/lang/Object;(Unknown Source)
+        at java.security.AccessController.doPrivileged(Ljava/security/PrivilegedExceptionAction;)Ljava/lang/Object;(Unknown Source)
+        at org.apache.derby.impl.services.monitor.FileMonitor.getDefaultModuleProperties()Ljava/util/Properties;(Unknown Source)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.getDefaultImplementations()Ljava/util/Vector;(Unknown Source)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.runWithState(Ljava/util/Properties;Ljava/io/PrintStream;)V(Unknown Source)
+        at org.apache.derby.impl.services.monitor.FileMonitor.<init>(Ljava/util/Properties;Ljava/io/PrintStream;)V(Unknown Source)
+        at org.apache.derby.iapi.services.monitor.Monitor.startMonitor(Ljava/util/Properties;Ljava/io/PrintStream;)V(Unknown Source)
+        at org.apache.derby.iapi.jdbc.JDBCBoot.boot(Ljava/lang/String;Ljava/io/PrintStream;)V(Unknown Source)
+        at org.apache.derby.jdbc.EmbeddedSimpleDataSource.findDriver()Lorg/apache/derby/jdbc/InternalDriver;(Unknown Source)
+        at org.apache.derby.jdbc.EmbeddedSimpleDataSource.getConnection(Ljava/lang/String;Ljava/lang/String;Z)Ljava/sql/Connection;(Unknown Source)
+        at org.apache.derby.jdbc.EmbeddedSimpleDataSource.getConnection()Ljava/sql/Connection;(Unknown Source)
+        at DatabaseFactory.getConnection()Ljava/sql/Connection;(Unknown Source)
+        at runner.go()V(Unknown Source)
+        at runner.main([Ljava/lang/String;)V(Un
+
+
+known Source)

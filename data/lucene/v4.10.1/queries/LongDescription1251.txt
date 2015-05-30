@@ -1,0 +1,14 @@
+The close method just does this:
+
+
+      if (isOpen) {
+        super.close();
+        file.close();
+        isOpen = false;
+      }
+
+
+
+But super.close = BufferedIndexOutput.close, which tries to flush its buffer.  If disk is full (or something else is wrong) then we hit an exception and don't actually close the descriptor.
+
+I will put a try/finally in so we always close, taking care to preserve the original exception. I'll commit shortly & backport to 2.3.2

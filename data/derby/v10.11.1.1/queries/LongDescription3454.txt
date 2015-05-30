@@ -1,0 +1,13 @@
+The 'java.lang.NullPointerException' exception is thrown when a database is started in a master mode and is trying to establish a connection to an slave database socket, which is not available.
+
+The exception is by the MasterController#startMaster(). First, it tries to setup connection with a slave database using a transmitter:
+    MasterController#setupConnection
+       -> transmitter = new ReplicationMessageTransmit(); 
+            transmitter.initConnection()
+              -> new InetSocketAddress() -> createSocket() -> connect()
+
+The connect() method throws a ConnectException, and so fails to create a socketConn instance. The exception is then wrapped several times an propagated back to the MasterController#startMaster() method. It's caught there and then a MasterController#teardownNetwork() method is called, which tries to send a STOP message using the aforementioned transmitter, which hasn't been able to init a connection. 
+
+A transmitter simply tries to call socketConn.writeMessage(message), which throws NPE because socketConn is null.
+
+Thanks!

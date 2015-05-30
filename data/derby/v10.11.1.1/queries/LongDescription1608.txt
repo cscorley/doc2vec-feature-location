@@ -1,0 +1,71 @@
+1. Create a database in 10.1
+2. Full upgrade to 10.2 - Booting using 10.2 jars by specifying "upgrade=true" in the connection URL.
+3. Execute a function e.g: VALUES 
+{ fn ACOS(0.0707) }. This passes as expected.
+4. Set database property derby.database.sqlAuthorization=true.
+5. Shutdown and reconnect to database for the property to take effect.
+6. Re-execute the function. This gives NPE.
+
+Repro using ij:
+
+--------------------------------------------------------------------------------
+Steps using 10.1 jar:
+--------------------------------------------------------------------------------
+ij version 10.1
+ij> connect 'jdbc:derby:old_db;create=true';
+ij> exit;
+
+--------------------------------------------------------------------------------
+Steps using 10.2 jar:
+--------------------------------------------------------------------------------
+ij version 10.2
+ij> connect 'jdbc:derby:old_db;upgrade=true';
+ij> VALUES { fn ACOS(0.0707) }
+;
+1
+----------------------
+1.5000372950430991
+
+1 row selected
+ij> call SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY('derby.database.sqlAuthorization', 'true');
+0 rows inserted/updated/deleted
+ij> connect 'jdbc:derby:old_db;shutdown=true';
+ERROR 08006: Database 'old_db' shutdown.
+ij> connect 'jdbc:derby:old_db';
+ij(CONNECTION1)> VALUES 
+{ fn ACOS(0.0707) }
+;
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+ij(CONNECTION1)>
+
+--------------------------------------------------------------------------------
+Stack trace of failure:
+--------------------------------------------------------------------------------
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+java.lang.NullPointerException
+        at org.apache.derby.iapi.sql.dictionary.RoutinePermsDescriptor.<init>(RoutinePermsDescriptor
+.java:54)
+        at org.apache.derby.iapi.sql.dictionary.RoutinePermsDescriptor.<init>(RoutinePermsDescriptor
+.java:62)
+        at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.getRoutinePermissions(DataDictionary
+Impl.java:9902)
+        at org.apache.derby.iapi.sql.dictionary.StatementRoutinePermission.check(StatementRoutinePer
+mission.java:55)
+        at org.apache.derby.impl.sql.conn.GenericAuthorizer.authorize(GenericAuthorizer.java:157)
+        at org.apache.derby.exe.ac6b91c056x010cxb687x3eb7x00000012d1c00.fillResultSet(Unknown Source
+)
+        at org.apache.derby.exe.ac6b91c056x010cxb687x3eb7x00000012d1c00.execute(Unknown Source)
+        at org.apache.derby.impl.sql.GenericActivationHolder.execute(GenericActivationHolder.java:32
+6)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:
+355)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1181)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:584)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:516)
+        at org.apache.derby.impl.tools.ij.ij.executeImmediate(ij.java:313)
+        at org.apache.derby.impl.tools.ij.utilMain.doCatch(utilMain.java:433)
+        at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:312)
+        at org.apache.derby.impl.tools.ij.Main.go(Main.java:207)
+        at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:173)
+        at org.apache.derby.impl.tools.ij.Main14.main(Main14.java:55)
+        at org.apache.derby.tools.ij.main(ij.java:60)

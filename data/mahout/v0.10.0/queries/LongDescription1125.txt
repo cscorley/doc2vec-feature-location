@@ -1,0 +1,15 @@
+In DatasetSplitter.run it looks like getOption is being called before the parseArguments. When I do this 
+
+Map<String,List<String>> parsedArgs = parseArguments(args);
+if (parsedArgs == null) 
+{
+ return -1;
+}
+
+before any call to getOption in DatasetSplitter.run it completes correctly. Not exactly sure how this is supposed to be done, it doesn't look like the options get parsed in the super class automatically.
+
+This will cause any invocation of splitDataset or DatasetSplitter to crash running the current trunk. 
+
+On Dec 5, 2012, at 1:58 PM, Pat Ferrel <pat.ferrel@gmail.com> wrote:
+
+does anyone know if mahout/examples/bin/factorize-movielens-1M.sh is still working? CLI version of splitDataset is crashing in my build (latest trunk). Even as in "mahout splitDataset" to get the params. Wouldn't be the first time I mucked up a build though.

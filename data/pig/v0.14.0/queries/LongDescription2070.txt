@@ -1,0 +1,12 @@
+For the following query:
+
+a = load '1.txt' as (a0:int, a1:int);
+b = load '2.txt' as (a0:int, a1:chararray);
+c = cogroup a by (a0,a1), b by (a0,a1);
+
+Pig gives the following message, which includes "unknown" word. 
+
+2011-05-13 11:01:18,682 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1051:
+<line 3, column 4> Cannot cast to Unknown
+
+The error message should be more meaningful.

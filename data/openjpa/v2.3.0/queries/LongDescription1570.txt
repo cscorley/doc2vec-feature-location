@@ -1,0 +1,26 @@
+An exception occurs if you add the @Strategy annotation on a field of an @Embeddable or @MappedSuperclass (not part of an @ElementCollection).
+The  patch OPENJPA-1556.patch does not fix the problem.
+
+<openjpa-2.0.0-beta2-rexportiert fatal user error> org.apache.openjpa.persistence.ArgumentException: Attempt to map "jpa.test.domain.TestEntityBase.testEnumSimple" failed: the owning entity is not mapped.
+
+To be more concrete. I try to change the default enum handling using an own EnumValueHandler. The Handler is working if you add
+the @Strategy to the @Entity. Adding @Strategy on a field in a @MappedSuperclass leads to the above exception.
+
+@javax.persistence.Entity
+@javax.persistence.Table(name = "TESTENTITY")
+public class TestEntity extends TestEntityBase 
+{
+...
+}
+
+@MappedSuperclass
+public abstract class TestEntityBase 
+{
+    @Column(name = "TESTENUMSIMPLE")
+    @Enumerated(javax.persistence.EnumType.STRING)
+    @Strategy("jpa.test.domain.EnumStrategy")
+    private TestEnumSimple testEnumSimple;
+...
+}
+
+You get the same Exception if you add the @Strategy to a @Embeddable and I also tried a own simple StringValueHandler with the same result.

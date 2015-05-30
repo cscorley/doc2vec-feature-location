@@ -1,0 +1,25 @@
+Regarding UNIONs, the Derby documentation says that if the "ALL" keyword is not specified, the default behavior is to remove duplicate rows from the result.   And for simple cases of UNIONs, that is indeed the case.  However, there are certain queries with nested UNIONs where Derby is supposed to remove duplicates from the result set, but does not.
+
+This is NOT a regression.  I have been able to reproduce the behavior in early versions of 10.1.2 and also back to 10.0.2.2, which is the oldest client I have.
+
+To show the problem:
+
+create table t1 (i int, j int);
+create table t2 (i int, j int);
+insert into t1 values (1, 2), (2, 4), (3, 6), (4, 8), (5, 10);
+insert into t2 values (1, 2), (2, -4), (3, 6), (4, -8), (5, 10);
+insert into t2 values (3, 6), (4, 8), (3, -6), (4, -8);
+
+– Following query correctly returns 13 rows; the first union
+– does not specify "ALL" and should therefore remove
+– duplicates.
+select * from t1 union select * from t2 union all select * from t1;
+
+– But if we do a join with the same query, we end up with
+– 19 rows instead of 13.  This is because the duplicate entries
+– are not correctly removed.
+select * from t1 left outer join
+  (select * from t1 union select * from t2 union all select * from t1) x2
+on t1.i = x2.i;
+
+Just for sanity, I also ran these statements against DB2 and the result was of the last query was indeed 13 rows, not 19.  So I think this is a case where Derby is returning incorrect results.

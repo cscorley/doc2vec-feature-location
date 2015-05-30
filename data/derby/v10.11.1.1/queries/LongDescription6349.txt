@@ -1,0 +1,24 @@
+Seeing this test failure because of an intentional security change in TimeZone.setDefault().  Therefore need to wrap Timezone.setDefault in a priv block in the test.
+
+1) DaylightSavingTestjava.security.AccessControlException: 
+Access denied ("java.util.PropertyPermission" "user.timezone" 
+"write")
+        at 
+java.security.AccessController.throwACE(AccessController.java:10
+0)
+        at <unknown class>.<unknown method>(Unknown 
+Source)
+        at 
+java.lang.SecurityManager.checkPermission(SecurityManager.java:5
+49)
+        at java.util.TimeZone.hasPermission(TimeZone.java:756)
+        at java.util.TimeZone.setDefault(TimeZone.java:778)
+        at 
+org.apache.derbyTesting.junit.TimeZoneTestSetup.setUp(TimeZoneTe
+stSetup.java:59)
+        at 
+junit.extensions.TestSetup$1.protect(TestSetup.java:22)
+        at junit.extensions.TestSetup.run(TestSetup.java:27)
+        at 
+org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.ja
+va:57)

@@ -1,0 +1,50 @@
+Proposal Title: EigenCuts spectral clustering implementation on map/reduce for Apache Mahout (addresses issue Mahout-328)
+
+Student Name: Shannon Quinn
+
+Student E-mail: magsol@gmail.com
+
+Organization/Project:Assigned Mentor:
+
+Proposal Abstract:
+Clustering algorithms are advantageous when the number of classes are not known a priori. However, most techniques still require an explicit K to be chosen, and most spectral algorithms' use of piecewise constant approximation of eigenvectors breaks down when the clusters are tightly coupled. EigenCuts[1] solves both these problems by choosing an eigenvector to create a new cluster boundary and iterating until no more edges are cut.
+
+Detailed Description
+
+Clustering techniques are extremely useful unsupervised methods, particularly within my field of computational biology, for situations where the number (and often the characteristics as well) of classes expressed in the data are not known a priori. K-means is a classic technique which, given some K, attempts to label data points within a cluster as a function of their distance (e.g. Euclidean) from the cluster's mean, iterating to convergence.
+
+Another approach is spectral clustering, which models the data as a weighted, undirected graph in some n-dimensional space, and creates a matrix M of transition probabilities between nodes. By computing the eigenvalues and eigenvectors of this matrix, most spectral clustering techniques take advantage of the fact that, for data with loosely coupled clusters, the K leading eigenvectors will identify the roughly piecewise constant regions in the data that correspond to clusters.
+
+However, these techniques all suffer from drawbacks, the two most significant of which are having to choose an arbitrary K a priori, and in the situation of tightly coupled clusters where the piecewise constant approximation on the eigenvectors no longer holds.
+
+The EigenCuts algorithm addresses both these issues. As a type of spectral clustering algorithm it works by constructing a Markov chain representation of the data and computing the eigenvectors and eigenvalues of the transition matrix. Eigenflows, or flow of probability by eigenvector, have an associated half life of flow decay called eigenflow. By perturbing the weights between nodes, it can be observed where bottlenecks exist in the eigenflow's halflife, allowing for the identification of boundaries between clusters. Thus, this algorithm iterates until no more cuts between clusters need to be made, eliminating the need for an a prior K, and conferring the ability to separate tightly coupled clusters.
+
+The only disadvantage of EigenCuts is the need to recompute eigenvectors and eigenvalues at each iterative step, incurring a large computational overhead. This problem can be adequately addressed within the map/reduce framework and on a Hadoop cluster by parallelizing the computation of each eigenvector and its associated eigenvalue. Apache Hama in particular, with its specializations in graph and matrix data, will be crucial in parallelizing the computations of transition matrices and their corresponding eigenvalues and eigenvectors at each iteration.
+
+Since Dr Chennubhotla is currently a member of the faculty at the University of Pittsburgh, I have been in contact with him for the past few weeks, and we both envision and eagerly anticipate continued collaboration over the course of the summer and this project's implementation. His guidance in highlighting the finer points of the underlying theory, coupled with my experience in and knowledge of software engineering, makes this is a project we are both extremely excited about implementing.
+
+Timeline
+
+At the end of each sprint, there should be a concrete, functional deliverable. It may not do much, but what it does will work and have full coverage accompanying unit tests.
+
+Sprint 0 (April 26 - May 23): Work with mentor on any pre-coding tasks - familiarization with and dev deployments of Hadoop and Mahout; reading up on documentation, fine-tuning the project plan and requirements. This part will kick into high gear after May 6 (my last final exam and final academic obligation, prior to the actual graduation ceremony), but likely nothing before April 29 (the day of my thesis defense).
+
+Sprint 1 (2 weeks; May 24 - June 6): Implement basic k-means clustering algorithm and parallelize on Mahout over Hadoop. Preliminary interface allows for dataset selection and visualization of resulting clusters.
+
+Sprint 2 (3 weeks; June 7 - 27): Modify k-means algorithm to spectral clustering. Integrate map/reduce framework via Mahout and take advantage of existing core calculation of transition matrices and associated eigenvectors and eigenvalues.
+
+Sprint 3 (3 weeks; June 28 - July 18): Augment spectral clustering to EigenCuts. Fully parallelize with Mahout. Also, mid-term evaluations.
+
+Sprint 4 (3 weeks; July 19 - August 8): Fix any remaining issues with EigenCuts. Finalize interface for running the algorithm, selecting datasets and visualizing results.
+
+Sprint 5 (1 week; August 9 - 15): Tidy up documentation, write final unit tests, fix outstanding bugs.
+
+Other Information
+
+I am finishing up my last semester as a master's student in computational biology at Carnegie Mellon, prior to beginning the PhD program in CompBio at Carnegie Mellon this coming fall. I have worked extensively with clustering techniques as a master's student, as a significant amount of my work has involved bioimage analysis within Dr Robert Murphy's lab. Previous work has involved using HMMs to detect patterns in tuberculosis genomes and use CLUSTALW to cluster those patterns according to geographic location. My master's thesis involves use of matrix completion to infer linear transformations of proteins and their associated subcellular locations across varying cell conditions (drugs, cell lines, etc). 
+
+I unfortunately have limited experience with Apache Mahout and Hadoop, but with an undergraduate computer science degree from Georgia Tech, and after an internship with IBM ExtremeBlue, I feel I am extremely adept at picking up new frameworks quickly.
+
+References
+
+[1] Chakra Chennubhotla and Allan D. Jepson. Half-Lives of EigenFlows for Spectral Clustering. NIPS 2002.

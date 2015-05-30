@@ -1,0 +1,38 @@
+We discovered that the usage of a named Sequence Generator with DB2 doesn't work as expected:
+
+@Entity
+@Table(name="ORDEREJB")
+public class OrderEntity implements Serializable {
+        @Id
+        @SequenceGenerator(name="OrderSeq", sequenceName="O_SEQ")
+        @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="OrderSeq")
+        private int orderid;
+...
+
+This results in the following error:
+
+2188  TRACE  [main] openjpa.jdbc.SQL - <t 11372121, conn 27778511> [985 ms] executing prepstmnt 3860801 SELECT NEXTVAL FOR O_SEQ
+2188  TRACE  [main] openjpa.jdbc.JDBC - <t 11372121, conn 27778511> [0 ms] commit
+2203  TRACE  [main] openjpa.jdbc.JDBC - <t 11372121, conn 27778511> [15 ms] close
+<0|false|0.9.0-incubating-SNAPSHOT> org.apache.openjpa.persistence.PersistenceException: An unexpected token "END-OF-STATEMENT" was found following "CT NEXTVAL FOR O_SEQ".  Expected tokens may include:  "<table_expr>". 
+{prepstmnt 3860801 SELECT NEXTVAL FOR O_SEQ}
+ [code=-104, state=42601]
+	at org.apache.openjpa.jdbc.sql.DBDictionary.newStoreException(DBDictionary.java:3713)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:94)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:80)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:56)
+
+We have discovered that the incorrect SQL statement is specified in the DB2Dictionary.  Instead of this:
+
+        nextSequenceQuery = "SELECT NEXT VALUE FOR
+{0}";
+
+We need this:
+
+        nextSequenceQuery = "VALUES NEXTVAL FOR {0}
+";
+
+I just wanted to document this issue instead of just fixing it so that the problem can be searchable (we've had a few people run into this when using OpenJPA with DB2).
+
+Thanks,
+Kevin

@@ -1,0 +1,3 @@
+AbstractCluster.formatVector's use of the size field of the given vector causes problems when the vector is sparse.
+
+I clustered a handful of vectors which had been initialized with a cardinality of Integer.MAX_VALUE. Running seqdump on the resulting clusteredPoints took over four minutes.  This is because formatVector() was iterating over the entire integer space for every vector.

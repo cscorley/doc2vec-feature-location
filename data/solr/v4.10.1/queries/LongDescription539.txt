@@ -1,0 +1,3 @@
+Writes are not atomic on longs unless they are volatile.   At a minimum, numRequests, numErrors, and totalTime should be marked volatile.  More correct, but higher overhead due to contention and synchronization would be to use AtomicLong.
+
+There is a minor error in the calculation of avgRequestsPerSecond.  The first operand of the denominator is cast to a float then has a long subtracted from it, in effect casting both longs to floats then performing the subtraction.  It is better to do the subtraction as longs then cast to a float.

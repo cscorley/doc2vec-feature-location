@@ -1,0 +1,27 @@
+If the isolation level is set on a connection obtained with XAConnection.getConnection()  and then another connection is obtained from the same XAConnection, then the isolation will not be the default READ_COMMITTED but will be the isolation level set on the previous connection.  
+
+See this code in checkDataSource.java
+I will add a reference to this bug
+
+               cs1 = xac.getConnection();
+		printState("new handle - local ", cs1);
+		cs1.close();
+
+		xar.start(xid, XAResource.TMJOIN);
+		cs1 = xac.getConnection();
+                cs1.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+		printState("pre-X1 commit - local", cs1);
+		xar.start(xid, XAResource.TMJOIN);
+		printState("pre-X1 commit - X1", cs1);
+		xar.end(xid, XAResource.TMSUCCESS);
+		printState("post-X1 end - local", cs1);
+		xar.commit(xid, true);
+		printState("post-X1 commit - local", cs1);
+		cs1.close();
+
+		System.out.println("Some more isolation testing using SQL and JDBC api");
+                //  The  initial isolation level for this connection is REPEATABLE_READ.  Left over from the last connection.
+               // It should be READ_COMMITTED
+		cs1 = xac.getConnection();
+		s = cs1.createStatement();
+		printState("initial local", cs1);

@@ -1,0 +1,19 @@
+I was doing some fault injection testing of 3.2.1 with ZOOKEEPER-508 patch applied and noticed that after some time the ensemble failed to re-elect a leader.
+
+See the attached log files - 5 member ensemble. typically 5 is the leader
+
+Notice that after 16:23:50,525 no quorum is formed, even after 20 minutes elapses w/no quorum
+
+environment:
+
+I was doing fault injection testing using aspectj. The faults are injected into socketchannel read/write, I throw exceptions randomly at a 1/200 ratio (rand.nextFloat() <= .005 => throw IOException
+
+You can see when a fault is injected in the log via:
+2009-08-19 16:57:09,568 - INFO  [Thread-74:ReadRequestFailsIntermittently@38] - READPACKET FORCED FAIL
+
+vs a read/write that didn't force fail:
+2009-08-19 16:57:09,568 - INFO  [Thread-74:ReadRequestFailsIntermittently@41] - READPACKET OK
+
+otw standard code/config (straight fle quorum with 5 members)
+
+also see the attached jstack trace. this is for one of the servers. Notice in particular that the number of sendworkers != the number of recv workers.

@@ -1,0 +1,5 @@
+Currently the HtmlParser will just call TagSoup to parse, without specifying a charset, if no charset is passed in via metadata.
+
+TagSoup uses the platform encoding in this case, which is often going to be wrong.
+
+The right thing to do is to first check for a charset specified by a meta tag. If that doesn't exist, then create a CharsetDetector. If there's a charset in the incoming meta-data, use that to call setDeclaredEncoding().

@@ -1,0 +1,76 @@
+I'm not sure if I'm doing something wrong here, or if ClusterDumper does
+not support my (fairly simple) use case
+
+I had a repository of 500K documents, for which I generated the input
+vectors and a dictionary using some custom code (not seq2sparse etc).
+
+I hashed the features with max size 5M (because I didn't know how many
+features were in the dataset and wanted to minimize collisions).
+
+The kmeans ran fine and generate sensible looking results, but when I tried
+to run ClusterDumper I got the following error:
+
+#bash> bin/mahout clusterdump -dt sequencefile -d
+ completed/5159bba4e4b0718d03c8cf79_/EmailContentAnalytics_dict_5159bba4e4b0718d03c8cf79/part-*
+-i test-kmeans/clusters-19 -b 10 -n 10 -sp 10 -o ~/test-kmeans-out
+Running on hadoop, using /usr/bin/hadoop and HADOOP_CONF_DIR=
+MAHOUT-JOB: /opt/mahout-distribution-0.7/mahout-examples-0.7-job.jar
+13/05/17 08:26:41 INFO common.AbstractJob: Command line arguments:
+{--dictionary=[completed/5159bba4e4b0718d03c8cf79_/EmailContentAnalytics_dict_5159bba4e4b0718d03c8cf79/part-*],
+--dictionaryType=[sequencefile],
+--distanceMeasure=[org.apache.mahout.common.distance.SquaredEuclideanDistanceMeasure],
+--endPhase=[2147483647], --input=[test-kmeans/clusters-19],
+--numWords=[10], --output=[/usr/share/tomcat6/test-kmeans-out],
+--outputFormat=[TEXT], --samplePoints=[10], --startPhase=[0],
+--substring=[10], --tempDir=[temp]}
+Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: 698948
+        at
+org.apache.mahout.clustering.AbstractCluster.formatVector(AbstractCluster.java:350)
+        at
+org.apache.mahout.clustering.AbstractCluster.asFormatString(AbstractCluster.java:306)
+        at
+org.apache.mahout.utils.clustering.ClusterDumperWriter.write(ClusterDumperWriter.java:54)
+        at
+org.apache.mahout.utils.clustering.AbstractClusterWriter.write(AbstractClusterWriter.java:169)
+        at
+org.apache.mahout.utils.clustering.AbstractClusterWriter.write(AbstractClusterWriter.java:156)
+        at
+org.apache.mahout.utils.clustering.ClusterDumper.printClusters(ClusterDumper.java:187)
+        at
+org.apache.mahout.utils.clustering.ClusterDumper.run(ClusterDumper.java:153)
+(...)
+
+The error is when it tries to access the dictionary for the feature with
+index 698948
+
+Looking at the dictionary loading code (
+http://grepcode.com/file/repo1.maven.org/maven2/org.apache.mahout/mahout-integration/0.7/org/apache/mahout/utils/vectors/VectorHelper.java#VectorHelper.loadTermDictionary%28java.io.File%29
+
+	checked 0.8 and it hasn't changed)
+
+
+
+It looks like the dictionary array is sized for the number of unique
+keywords, not the highest index:
+
+  OpenObjectIntHashMap dict = new OpenObjectIntHashMap();
+//...
+  String [] dictionary = new String[dict.size()];
+
+After I ran my custom dictionary/feature generation code I discovered I
+only had 517,327 unique features, therefore it is not surprising it would
+die on an index >= 517327 (though I don't understand why it didn't die when trying to load the dictionary file)
+
+Is there any reason why the VectorHelper code should not create a
+dictionary array that has size the highest index read from the dictionary
+sequence file (which can be easily calculated during the preceding loop)?
+
+Or am I misunderstanding something?
+
+It worked fine when I reduced the hash size to be <= than the total number
+of features, but this is not desirable in general (for me) since I don't
+know the number of features before I run the job (and if I guess too high
+then ClusterDumper crashes)
+
+Alex Piggott
+IKANOW

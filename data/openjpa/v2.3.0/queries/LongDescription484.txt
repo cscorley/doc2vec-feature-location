@@ -1,0 +1,24 @@
+From H2 Database forum http://groups.google.com/group/h2-database/browse_thread/thread/fab7dd4424445c9b
+
+H2Dictionary has 'useGetObjectForBlobs' set to true, whereas the default in DBDictionary is false. So for an entity with a property of type byte[] which is mapped as blob,  loading fails because, the 'getBytes' method uses 'rs.getObject(column);' which fails with the following exception:
+
+Caused by: java.lang.ClassCastException: java.io.ByteArrayInputStream cannot be cast to [B
+        at org.apache.openjpa.jdbc.sql.DBDictionary.getBytes(DBDictionary.java:531)
+        at org.apache.openjpa.jdbc.sql.ResultSetResult.getBytesInternal(ResultSetResult.java:278)
+        at org.apache.openjpa.jdbc.sql.ResultSetResult.getObjectInternal(ResultSetResult.java:404)
+        at org.apache.openjpa.jdbc.sql.AbstractResult.getObject(AbstractResult.java:662)
+        at org.apache.openjpa.jdbc.meta.strats.HandlerStrategies.loadDataStore(HandlerStrategies.java:205)
+        at org.apache.openjpa.jdbc.meta.strats.HandlerFieldStrategy.load(HandlerFieldStrategy.java:172)
+        at org.apache.openjpa.jdbc.meta.FieldMapping.load(FieldMapping.java:796)
+        at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.load(JDBCStoreManager.java:841)
+        at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.load(JDBCStoreManager.java:793)
+        at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.load(JDBCStoreManager.java:483)
+        at org.apache.openjpa.kernel.DelegatingStoreManager.load(DelegatingStoreManager.java:116)
+        at org.apache.openjpa.kernel.ROPStoreManager.load(ROPStoreManager.java:78)
+        at org.apache.openjpa.kernel.StateManagerImpl.loadFields(StateManagerImpl.java:2893)
+        at org.apache.openjpa.kernel.StateManagerImpl.loadField(StateManagerImpl.java:2971)
+        at org.apache.openjpa.kernel.StateManagerImpl.beforeAccessField(StateManagerImpl.java:1476)
+        at org.apache.openjpa.kernel.StateManagerImpl.accessingField(StateManagerImpl.java:1461) 
+
+I've tried setting 'useGetObjectForBlobs' to false(by just commenting it!), it is working. So please change this to false.
+Thanks,

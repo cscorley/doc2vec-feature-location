@@ -1,0 +1,55 @@
+I have very few details yet, but  user upgrading from 10.5 to 10.8.2  reports this error in one of their tests  creating a database.
+
+Caused by: java.sql.SQLException: Failed to create database 'clientdb', see the next exception for details.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(Unknown Source)
+	... 71 more
+Caused by: java.sql.SQLException: The database directory 'C:\cygwin\home\debugfat\clientdb' exists. However, it does not contain the expected 'service.properties' file. Perhaps Derby was brought down in the middle of creating this database. You may want to delete this directory and try creating the database again.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(Unknown Source)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(Unknown Source)
+	... 68 more
+Caused by: ERROR XBM0A: The database directory 'C:\cygwin\home\debugfat\clientdb' exists. However, it does not contain the expected 'service.properties' file. Perhaps Derby was brought down in the middle of creating this database. You may want to delete this directory and try creating the database again.
+	at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+	at org.apache.derby.impl.services.monitor.StorageFactoryService.vetService(Unknown Source)
+	at org.apache.derby.impl.services.monitor.StorageFactoryService.access$600(Unknown Source)
+	at org.apache.derby.impl.services.monitor.StorageFactoryService$9.run(Unknown Source)
+	at java.security.AccessController.doPrivileged(AccessController.java:254)
+	at org.apache.derby.impl.services.monitor.StorageFactoryService.createServiceRoot(Unknown Source)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.bootService(Unknown Source)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.createPersistentService(Unknown Source)
+	at org.apache.derby.iapi.services.monitor.Monitor.createPersistentService(Unknown Source)
+	... 68 more
+caused by: ERROR XBM0A: The database directory 'C:\cygwin\home\debugfat\clientdb' exists. However, it does not contain the expected 'service.properties' file. Perhaps Derby was brought down in the middle of creating this database. You may want to delete this directory and try creating the database again.
+	at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+	at org.apache.derby.impl.services.monitor.StorageFactoryService.vetService(Unknown Source)
+	at org.apache.derby.impl.services.monitor.StorageFactoryService.access$600(Unknown Source)
+	at org.apache.derby.impl.services.monitor.StorageFactoryService$9.run(Unknown Source)
+	at java.security.AccessController.doPrivileged(AccessController.java:254)
+	at org.apache.derby.impl.services.monitor.StorageFactoryService.createServiceRoot(Unknown Source)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.bootService(Unknown Source)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.createPersistentService(Unknown Source)
+	at org.apache.derby.iapi.services.monitor.Monitor.createPersistentService(Unknown Source)
+	... 68 more
+
+DERBY-4589 is where vetService was added, but I am not sure what has changed from 10.5.    I don't see any release note associated with DERBY-4589.  I will test an existing database scenario with 10.5 vs 10.8., vetService just checks that service.properties exists.
+
+
+       Verify that the service directory looks ok before objecting that the database
+       already exists.
+    */
+    private void    vetService( StorageFactory storageFactory, String serviceName ) throws StandardException
+    {
+        // check for existence of service.properties descriptor file
+        StorageFile    service_properties = storageFactory.newStorageFile( PersistentService.PROPERTIES_NAME );
+
+        if ( !service_properties.exists() )
+        {
+            throw StandardException.newException
+                ( SQLState.SERVICE_PROPERTIES_MISSING, serviceName, PersistentService.PROPERTIES_NAME );
+        }
+    }

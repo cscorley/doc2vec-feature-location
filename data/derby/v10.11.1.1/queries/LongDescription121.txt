@@ -1,0 +1,43 @@
+in DDMReader.java 
+...
+... readLengthAndCodePoint() ... { 
+...
+
+switch (numberOfExtendedLenBytes) {
+			case 8:
+				 ddmScalarLen =
+					((buffer[pos++] & 0xff) << 64) +
+					((buffer[pos++] & 0xff) << 56) +
+					((buffer[pos++] & 0xff) << 48) +
+					((buffer[pos++] & 0xff) << 40) +
+					((buffer[pos++] & 0xff) << 32) +
+					((buffer[pos++] & 0xff) << 16) +
+					((buffer[pos++] & 0xff) << 8) +
+					((buffer[pos++] & 0xff) << 0);
+				adjustSize = 12;
+				break;
+			case 6:
+				ddmScalarLen =
+					((buffer[pos++] & 0xff) << 48) +
+					((buffer[pos++] & 0xff) << 40) +
+					((buffer[pos++] & 0xff) << 32) +
+					((buffer[pos++] & 0xff) << 16) +
+					((buffer[pos++] & 0xff) << 8) +
+					((buffer[pos++] & 0xff) << 0);
+				adjustSize = 10;
+				break;
+			case 4:
+				ddmScalarLen =
+					((buffer[pos++] & 0xff) << 32) +
+					((buffer[pos++] & 0xff) << 16) +
+					((buffer[pos++] & 0xff) << 8) +
+					((buffer[pos++] & 0xff) << 0);
+				adjustSize = 8;
+				break;
+...
+The shift bits should be in order:
+0,8,16,24 
+0,8,16,24,32,40
+0,8,16,24,32,40,48,56
+
+This will only affect a lob if its length requires at least 24 bits--i.e. if the lob has a length of at least 2^24 bytes.

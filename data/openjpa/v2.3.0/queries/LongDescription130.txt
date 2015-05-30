@@ -1,0 +1,25 @@
+BLOB and CLOB fields can only be mapped in their entirety in OpenJPA. It would be nice to support fields of type java.io.InputStream (for BLOBs) and java.io.Reader (for CLOBs).
+
+The usage pattern could look like so:
+
+@Entity
+public class Employee {
+    ...
+    private InputStream photoStream;
+
+    public void setPhotoStream(InputStream in) 
+{
+        photoStream = in;
+    }
+
+    public InputStream getPhotoStream() 
+{
+        return photoStream;
+    }
+}
+
+So, when the user wants to provide a stream, she will set the InputStream field, and when the user wants to obtain a stream, she will use the field.
+
+The behavior of such an implementation would be a bit different than how other fields work, in that if the user set the stream and then consumed it within a single transaction, presumably no data would be written out to the database at commit time. But that is the nature of streams.
+
+(FTR, I think that I stole this idea from an email Craig Russell sent out years ago.)

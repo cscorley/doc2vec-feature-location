@@ -1,0 +1,27 @@
+> I have a following beans:
+>
+> @Embeddable
+> class A 
+{
+> int field1
+> }
+>
+> @Entity
+> class B 
+{
+> @Id
+> long id;
+>
+> int field2
+>
+> @Embedded
+> A field3
+> }
+>
+> When I trying to delete all instances of B entity from data storage by
+> "delete from B" I got:
+>
+> 1. Query ("select" statement) for all B instances
+> 2. For each instance from 1. delete statement
+>
+> Why this is not delete by simple "delete from B" sql statement?

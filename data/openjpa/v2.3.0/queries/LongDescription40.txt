@@ -1,0 +1,110 @@
+I have attached a test case including jar files and a build script.  src/repository-config.xml contains the Spring configuration and switching to the TopLink vendor adapter does not show any issues - the test runs fine.  Using the current OpenJPA vendor adapter (Spring sandbox source is included in src directory) causes this failure:
+
+First the version info:
+
+samoa:~/Projects/testOpenJpa trisberg$ ant openjpa-version
+Buildfile: build.xml
+
+openjpa-version:
+     [java] OpenJPA 0.9.0-incubating-SNAPSHOT
+     [java] version id: 0.9.0-incubating-SNAPSHOT-r0
+     [java] revision: 0
+
+     [java] os.name: Mac OS X
+     [java] os.version: 10.4.7
+     [java] os.arch: ppc
+
+     [java] java.version: 1.5.0_06
+     [java] java.vendor: Apple Computer, Inc.
+
+     [java] java.class.path:
+     [java]     /Users/trisberg/Projects/testOpenJpa/lib/commons-collections-3.2.jar
+     [java]     /Users/trisberg/Projects/testOpenJpa/lib/commons-lang-2.1.jar
+     [java]     /Users/trisberg/Projects/testOpenJpa/lib/commons-logging-1.0.4.jar
+     [java]     /Users/trisberg/Projects/testOpenJpa/lib/commons-pool-1.3.jar
+     [java]     /Users/trisberg/Projects/testOpenJpa/lib/geronimo-j2ee-connector_1.5_spec-1.0.1.jar
+     [java]     /Users/trisberg/Projects/testOpenJpa/lib/geronimo-jta_1.0.1B_spec-1.0.1.jar
+     [java]     /Users/trisberg/Projects/testOpenJpa/lib/hsqldb.jar
+     [java]     /Users/trisberg/Projects/testOpenJpa/lib/openjpa-jdbc-0.9.0-incubating-SNAPSHOT.jar
+     [java]     /Users/trisberg/Projects/testOpenJpa/lib/openjpa-jdbc-5-0.9.0-incubating-SNAPSHOT.jar
+     [java]     /Users/trisberg/Projects/testOpenJpa/lib/openjpa-kernel-0.9.0-incubating-SNAPSHOT.jar
+     [java]     /Users/trisberg/Projects/testOpenJpa/lib/openjpa-kernel-5-0.9.0-incubating-SNAPSHOT.jar
+     [java]     /Users/trisberg/Projects/testOpenJpa/lib/openjpa-lib-0.9.0-incubating-SNAPSHOT.jar
+     [java]     /Users/trisberg/Projects/testOpenJpa/lib/openjpa-persistence-0.9.0-incubating-SNAPSHOT.jar
+     [java]     /Users/trisberg/Projects/testOpenJpa/lib/openjpa-persistence-jdbc-0.9.0-incubating-SNAPSHOT.jar
+     [java]     /Users/trisberg/Projects/testOpenJpa/lib/openjpa-xmlstore-0.9.0-incubating-SNAPSHOT.jar
+     [java]     /Users/trisberg/Projects/testOpenJpa/lib/persistence-api-1.0.jar
+     [java]     /Users/trisberg/Projects/testOpenJpa/lib/serp-1.11.0.jar
+     [java]     /Users/trisberg/Projects/testOpenJpa/lib/spring-jpa.jar
+     [java]     /Users/trisberg/Projects/testOpenJpa/lib/spring-sandbox.jar
+     [java]     /Users/trisberg/Projects/testOpenJpa/lib/spring.jar
+     [java]     /Users/trisberg/Projects/testOpenJpa/lib/toplink-essentials.jar
+     [java]     /Users/trisberg/Projects/testOpenJpa/classes
+     [java]     /System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/.compatibility/14compatibility.jar
+
+     [java] user.dir: /Users/trisberg/Projects/testOpenJpa
+
+BUILD SUCCESSFUL
+Total time: 3 seconds
+
+
+And now the runtime error:
+
+samoa:~/Projects/testOpenJpa trisberg$ ant run-test
+Buildfile: build.xml
+
+run-test:
+     [java] TestApp!
+     [java] Sep 6, 2006 1:11:02 PM org.springframework.core.CollectionFactory <clinit>
+     [java] INFO: JDK 1.4+ collections available
+     [java] Sep 6, 2006 1:11:02 PM org.springframework.core.CollectionFactory <clinit>
+     [java] INFO: Commons Collections 3.x available
+     [java] Sep 6, 2006 1:11:02 PM org.springframework.beans.factory.xml.XmlBeanDefinitionReader loadBeanDefinitions
+     [java] INFO: Loading XML bean definitions from class path resource [repository-config.xml]
+     [java] Sep 6, 2006 1:11:03 PM org.springframework.context.support.AbstractRefreshableApplicationContext refreshBeanFactory
+     [java] INFO: Bean factory for application context [org.springframework.context.support.ClassPathXmlApplicationContext;hashCode=85537]: org.springframework.beans.factory.support.DefaultListableBeanFactory defining beans [entityManagerFactory,transactionManager,transactionTemplate,dataSource]; root of BeanFactory hierarchy
+     [java] Sep 6, 2006 1:11:03 PM org.springframework.context.support.AbstractApplicationContext refresh
+     [java] INFO: 4 beans defined in application context [org.springframework.context.support.ClassPathXmlApplicationContext;hashCode=85537]
+     [java] Sep 6, 2006 1:11:03 PM org.springframework.context.support.AbstractApplicationContext initMessageSource
+     [java] INFO: Unable to locate MessageSource with name 'messageSource': using default [org.springframework.context.support.DelegatingMessageSource@87e9bf]
+     [java] Sep 6, 2006 1:11:03 PM org.springframework.context.support.AbstractApplicationContext initApplicationEventMulticaster
+     [java] INFO: Unable to locate ApplicationEventMulticaster with name 'applicationEventMulticaster': using default [org.springframework.context.event.SimpleApplicationEventMulticaster@ad97f5]
+     [java] Sep 6, 2006 1:11:03 PM org.springframework.beans.factory.support.DefaultListableBeanFactory preInstantiateSingletons
+     [java] INFO: Pre-instantiating singletons in factory [org.springframework.beans.factory.support.DefaultListableBeanFactory defining beans [entityManagerFactory,transactionManager,transactionTemplate,dataSource]; root of BeanFactory hierarchy]
+     [java] Sep 6, 2006 1:11:04 PM org.springframework.jdbc.datasource.DriverManagerDataSource setDriverClassName
+     [java] INFO: Loaded JDBC driver: org.hsqldb.jdbcDriver
+     [java] Sep 6, 2006 1:11:04 PM org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean createNativeEntityManagerFactory
+     [java] INFO: Allowing redeployment of EntityManagerFactory with name 'main' 
+     [java] Sep 6, 2006 1:11:05 PM org.springframework.beans.factory.support.DefaultSingletonBeanRegistry destroySingletons
+     [java] INFO: Destroying singletons in 
+{org.springframework.beans.factory.support.DefaultListableBeanFactory defining beans [entityManagerFactory,transactionManager,transactionTemplate,dataSource]; root of BeanFactory hierarchy}
+     [java] Exception in thread "main" org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [repository-config.xml]: Invocation of init method failed; nested exception is <4|true|0.9.0-incubating-SNAPSHOT> org.apache.openjpa.persistence.ArgumentException: Could not invoke the static newInstance method on the named factory class "class org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory".
+     [java] Caused by: <4|true|0.9.0-incubating-SNAPSHOT> org.apache.openjpa.persistence.ArgumentException: Could not invoke the static newInstance method on the named factory class "class org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory".
+     [java]     at org.apache.openjpa.kernel.Bootstrap.newBrokerFactory(Bootstrap.java:71)
+     [java]     at org.apache.openjpa.persistence.PersistenceProviderImpl.createContainerEntityManagerFactory(PersistenceProviderImpl.java:84)
+     [java]     at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:262)
+     [java]     at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:227)
+     [java]     at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:957)
+     [java]     at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:924)
+     [java]     at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:415)
+     [java]     at org.springframework.beans.factory.support.AbstractBeanFactory$1.getObject(AbstractBeanFactory.java:242)
+     [java]     at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:141)
+     [java]     at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:239)
+     [java]     at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:155)
+     [java]     at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:297)
+     [java]     at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:346)
+     [java]     at org.springframework.context.support.ClassPathXmlApplicationContext.<init>(ClassPathXmlApplicationContext.java:92)
+     [java]     at org.springframework.context.support.ClassPathXmlApplicationContext.<init>(ClassPathXmlApplicationContext.java:77)
+     [java]     at org.springframework.context.support.ClassPathXmlApplicationContext.<init>(ClassPathXmlApplicationContext.java:68)
+     [java]     at springdeveloper.TestApp.run(TestApp.java:57)
+     [java]     at springdeveloper.TestApp.main(TestApp.java:31)
+     [java] Caused by: java.lang.NoSuchMethodException: org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.newInstance(org.apache.openjpa.lib.conf.ConfigurationProvider)
+     [java]     at java.lang.Class.getMethod(Class.java:1581)
+     [java]     at org.apache.openjpa.kernel.Bootstrap.newBrokerFactory(Bootstrap.java:62)
+     [java]     ... 17 more
+
+BUILD FAILED
+/Users/trisberg/Projects/testOpenJpa/build.xml:37: Java returned: 1
+
+Total time: 7 seconds
+

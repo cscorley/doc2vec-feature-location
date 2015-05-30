@@ -1,0 +1,123 @@
+A generated select query asks for one of it's columns returned as
+a subselect, and then asks that the results be ordered by that subselect.
+The DBMS is throwing a spurious error message, saying that in order to
+do a SELECT DISTINCT/ORDER BY, the select list has to contain the
+column to be ordered by. It's spurious because the query clearly does
+list the identical subselect in the select list and the order-by, but the DBMS
+is apparently not smart enough to equate those.
+
+Here is a slightly simplified example:
+
+      s.executeQuery("SELECT DISTINCT "
+              + "    t0.id, "
+              + "    (SELECT PMH_testPCKeyStringValue.value "
+              + "     FROM PMH_testPCKeyStringValue "
+              + "     WHERE PMH_testPCKeyStringValue.PERSISTENTMAPHOLDER_ID = t0.id "
+              + "     AND PMH_testPCKeyStringValue.testPCKeyStringValue = 1) "
+              + "FROM PMH t0 "
+              + "INNER JOIN PMH_testPCKeyStringValue t1 ON t0.id = t1.PERSISTENTMAPHOLDER_ID "
+              + "WHERE ("
+              + "    (SELECT PMH_testPCKeyStringValue.value "
+              + "     FROM PMH_testPCKeyStringValue "
+              + "     WHERE PMH_testPCKeyStringValue.PERSISTENTMAPHOLDER_ID = t0.id "
+              + "     AND PMH_testPCKeyStringValue.testPCKeyStringValue = 1) "
+              + "     IS NOT NULL) "
+              + "ORDER BY "
+              + "    (SELECT PMH_testPCKeyStringValue.value "
+              + "     FROM PMH_testPCKeyStringValue "
+              + "     WHERE PMH_testPCKeyStringValue.PERSISTENTMAPHOLDER_ID = t0.id "
+              + "     AND PMH_testPCKeyStringValue.testPCKeyStringValue = 1) "
+              + "DESC");
+
+The actual SQL generated has parameter markers for the testPCKeyStringValue
+value, and is executed with a prepared statement.
+
+  A modified query that works, which initially simply enough, involves declaring
+a column name for the subselect, and then using that column name in the order-by:
+
+      s.executeQuery("SELECT DISTINCT "
+              + "    t0.id, "
+              + "    (SELECT PMH_testPCKeyStringValue.value "
+              + "     FROM PMH_testPCKeyStringValue "
+              + "     WHERE PMH_testPCKeyStringValue.PERSISTENTMAPHOLDER_ID = t0.id "
+              + "     AND PMH_testPCKeyStringValue.testPCKeyStringValue = 1) AS MY_COL_ALIAS "
+              + "FROM PMH t0 "
+              + "INNER JOIN PMH_testPCKeyStringValue t1 ON t0.id = t1.PERSISTENTMAPHOLDER_ID "
+              + "WHERE ("
+              + "    (SELECT PMH_testPCKeyStringValue.value "
+              + "     FROM PMH_testPCKeyStringValue "
+              + "     WHERE PMH_testPCKeyStringValue.PERSISTENTMAPHOLDER_ID = t0.id "
+              + "     AND PMH_testPCKeyStringValue.testPCKeyStringValue = 1) "
+              + "     IS NOT NULL) "
+              + "ORDER BY MY_COL_ALIAS "
+              + "DESC");
+
+The fix, suggested by Abe White, and tested successfully by me (in this case/DBMS only) is:
+
+" - When we find JDOQL of the form "<map>.get(<value>)", we add the result
+of ExpressionFactory.getMapValue(...) to the expression tree. 
+
+
+	In the case we're concerned with the ExpressionFactory in question is
+the org.apache.openjpa.jdbc.kernel.exps.JDBCExpressionFactory, and the
+return value is an org.apache.openjpa.jdbc.kernel.exps.GetMapValue.
+
+
+
+
+	The GetMapValue class manually constructs the SQL subselect to
+retrieve the value for the given key.
+
+
+
+Our goal is to alias the subselect in the SELECT portion of the query,
+to keep the subselect unaliased in the WHERE portion, and to use the
+SELECT alias in place of the subselect in the ORDER BY portion.
+Luckily, I believe this can be accomplished easily with a few
+modifcations to the GetMapValue class:
+
+
+	Add a "String _alias" member to GetMapValue.  This will be a unique
+alias within the select for the subselect we'll produce.  I recommend
+generating this value with a monotonically-increasing int in
+JDBCExpressionFactory and passing it to the GetMapValue constructor.
+I.e.:
+
+
+
+class JDBCExpressionFactory {
+  private int _getMapValueAlias = 0;
+  ...
+  Value getMapValue(...) 
+{
+    return new GetMapValue(..., "gmv" + _getMapValueAlias++);
+  }
+}
+
+
+	In GetMapValue.select(...), append " AS " + the _alias member to the
+SQLBuffer returned by newSQLBuffer(...).
+
+
+
+
+	In GetMapValue.orderBy(...), just order by the _alias member, not the
+result of newSQLBuffer(...).    
+
+
+
+This should work because when we construct the select (see
+org.apache.openjpa.jdbc.exps.SelectConstructor) we automatically call
+select(...) for any ordering value, in addition to orderBy(...).  So the
+same GetMapValue instance will have a chance to create both its SELECT
+SQL and its ORDER BY SQL.  
+
+Notes:
+
+	You might only want to use subselect aliasing at all if the
+DBDictionary in use (accessible through ctx.store.getDBDictionary()) has
+its requiresAliasForSubselect field set to true.  Or maybe it would be
+best for all dictionaries.  I don't know – it would require a test run
+on all our supported databases to see what each one likes.  My hunch
+would be to do it for all dictionaries."
+

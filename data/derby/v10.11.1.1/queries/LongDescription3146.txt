@@ -1,0 +1,49 @@
+While working on roles, I notice that there is a max size of 30 on
+user ids in derby (authorization identifiers), e.g. the check being
+performed in the parser:
+
+private void checkAuthorizationLength( String authorization)
+:
+   checkIdentifierLengthLimit( authorization, Limits.DB2_MAX_USERID_LENGTH);
+:
+
+where Limits.DB2_MAX_USERID_LENGTH == 30. I have checked, and I don't
+think there are any fundamental reasons why Derby can't lift this DB2
+restriction: Then authorization identifiers would have the same max
+limit as other identifiers: 128 (Limits.MAX_IDENTIFIER_LENGTH).
+
+Currently, this limit of 30 is enforced for GRANT/REVOKE, i.e. for the
+grantees.
+
+However, in the CREATE SCHEMA statement, the clause
+
+         AUTHORIZATION <authorization identifier>
+
+which allows specifying a schema's owner, is not subject to this
+restriction. This is also reflected in the reference documentation for
+system tables:
+
+SYS.SYSCHEMAS:
+
+Column Name 	Type 	Length 	Nullability 	Contents
+-------------------------------------------------------------------
+AUTHORIZATIONID VARCHAR 128     false           the authorization
+                                                identifier of the
+                                                owner of the schema  
+
+SYS.SYSTABLEPERMS:
+
+Column Name 	Type 	Length 	Nullability 	Contents
+-------------------------------------------------------------------
+GRANTEE 	VARCHAR 30 	False 	        The authorization ID
+                                                of the user to whom
+                                                the privilege is
+                                                granted.  
+
+Furthermore, the limit is enforced in the authorizer code
+(AuthorizationServiceBase#authenticate). It is also reflected in the
+metadata: EmbedDatabaseMetaData#getMaxUserNameLength.
+
+I think it would be good to harmonize these two different limits for
+authorization identifier and change the limit to 128
+(Limits.MAX_IDENTIFIER_LENGTH).

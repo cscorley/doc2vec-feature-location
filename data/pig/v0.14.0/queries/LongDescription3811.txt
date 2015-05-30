@@ -1,0 +1,20 @@
+PigServer.registerScript throws an IOException that is wrapped on the cause of ParseException in case there were parsing errors in the script.
+
+
+
+    public void registerScript(InputStream in, Map<String,String> params,List<String> paramsFiles) throws IOException {
+        try {
+            String substituted = pigContext.doParamSubstitution(in, paramMapToList(params), paramsFiles);
+            GruntParser grunt = new GruntParser(new StringReader(substituted));
+            grunt.setInteractive(false);
+            grunt.setParams(this);
+            grunt.parseStopOnError(true);
+        } catch (org.apache.pig.tools.pigscript.parser.ParseException e) {
+            log.error(e.getLocalizedMessage());
+            throw new IOException(e.getCause());
+        }
+    }
+
+
+
+e.getCause() however would be null and the IOException returned is actually an empty exception with null contents.

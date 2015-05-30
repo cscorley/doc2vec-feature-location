@@ -1,0 +1,35 @@
+Our user reported that one of their jobs in pig 0.10 occasionally failed with 
+
+'Error: GC overhead limit exceeded' or 'Error: Java heap space', but rerunning it sometimes finishes successfully.
+
+For 1G heap reducer, heap dump showed it contained two huge DefaultDataBag with 300-400MBytes each when failing with OOM.
+
+Jstack at the time of OOM always showed that spill was running.
+
+
+"Low Memory Detector" daemon prio=10 tid=0xb9c11800 nid=0xa52 runnable [0xb9afc000]
+   java.lang.Thread.State: RUNNABLE
+	at java.io.FileOutputStream.writeBytes(Native Method)
+	at java.io.FileOutputStream.write(FileOutputStream.java:260)
+	at java.io.BufferedOutputStream.flushBuffer(BufferedOutputStream.java:65)
+	at java.io.BufferedOutputStream.write(BufferedOutputStream.java:109)
+	- locked <0xe57c6390> (a java.io.BufferedOutputStream)
+	at java.io.DataOutputStream.write(DataOutputStream.java:90)
+	- locked <0xe57c60b8> (a java.io.DataOutputStream)
+	at java.io.FilterOutputStream.write(FilterOutputStream.java:80)
+	at org.apache.pig.data.utils.SedesHelper.writeBytes(SedesHelper.java:46)
+	at org.apache.pig.data.BinInterSedes.writeDatum(BinInterSedes.java:537)
+	at org.apache.pig.data.BinInterSedes.writeDatum(BinInterSedes.java:435)
+	at org.apache.pig.data.utils.SedesHelper.writeGenericTuple(SedesHelper.java:135)
+	at org.apache.pig.data.BinInterSedes.writeTuple(BinInterSedes.java:613)
+	at org.apache.pig.data.BinInterSedes.writeDatum(BinInterSedes.java:443)
+	at org.apache.pig.data.DefaultDataBag.spill(DefaultDataBag.java:106)
+	- locked <0xceb16190> (a java.util.ArrayList)
+	at org.apache.pig.impl.util.SpillableMemoryManager.handleNotification(SpillableMemoryManager.java:243)
+	- locked <0xbeb86318> (a java.util.LinkedList)
+	at sun.management.NotificationEmitterSupport.sendNotification(NotificationEmitterSupport.java:138)
+	at sun.management.MemoryImpl.createNotification(MemoryImpl.java:171)
+	at sun.management.MemoryPoolImpl$PoolSensor.triggerAction(MemoryPoolImpl.java:272)
+	at sun.management.Sensor.trigger(Sensor.java:120)
+
+

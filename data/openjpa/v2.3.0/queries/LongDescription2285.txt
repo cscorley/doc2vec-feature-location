@@ -1,0 +1,5 @@
+I ran into a performance bug recently where we aren't caching data, but we could be. The data that we aren't caching is when lazy loading an unowned relationship .
+
+For instance, if we have the model Person <-> Address(LAZY, owner) and we find Person, that data will get stored in the cache. Since Address owns the relationship, we don't have the FK to cache(yet). Later we go to lazily load the address and we need to issue a joined query to find the Address which corresponds to our Person. Once that data has been loaded, we don't store the FK back into the cache.
+
+With this JIRA I'm going to introduce a change that will make our runtime re-cache the Person data when additional data is loaded.

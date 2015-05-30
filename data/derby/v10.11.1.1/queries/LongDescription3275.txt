@@ -1,0 +1,16 @@
+The javadoc for org.apache.derby.iapi.services.cache.CacheFactory.newCacheManager() describes the initialSize parameter like this:
+
+		@param initialSize	The number of initial holder objects that will be created
+
+And org.apache.derby.impl.services.cache.Clock's constructor says the following:
+
+		@param initialSize the initial number of cachable object this cache
+		holds.
+		@param maximumSize the maximum size of the cache.  The cache may grow
+		from initialSize to maximumSize if the cache policy notices that there
+		is not enough free buffers availiable.  Once the cache hits maximumSize
+		it will not grow.  If the cache is full, an exception will be thrown
+
+However, when Clock is created, it does not populate the cache with "holder objects" or "cacheable [objects]". It only uses the initialSize to specify the initial capacity of the HashMap and the ArrayList that are created.
+
+Either the code should be changed so that it's in line with the comments, or the comments should be changed to match the code. I don't see any compelling reason for changing the code, so I think I would prefer changing the comments.

@@ -1,0 +1,5 @@
+I committed shortly ago LUCENE-1713, that renamed RangeQuery to TermRangeQuery (and also RangeFilter -> TermRangeFilter). The API of the old deprecated RangeQuery and RangeFilter classes was reverted to the state of Lucene 2.4, only the new classes contain the improvements of 2.9. So Solr will not compile anymore, because the new ctors of RangeQuery and setConstantScoreRewrite are no longer available, but were already included into Solr.
+
+This can be solved by simply replacing RangeQuery to TermRangeQuery in the source.
+
+There were some minor cleanups with the API, because there must not be any strange methods anmes because of BW compatibility in the new class. Also all ctors using Term are only available in the deprecated classes.

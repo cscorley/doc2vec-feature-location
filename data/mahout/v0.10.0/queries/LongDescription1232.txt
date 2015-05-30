@@ -1,0 +1,45 @@
+Vectordump throws a NullPointerException when sort is specified and the number of NonZero elements in the input vector is less than the specified vector size (-vs).
+
+
+
+
+
+
+mahout vectordump -i reuters-vectors/tfidf-vectors -dt sequencefile -d reuters-vectors/dictionary.file-* -vs 15 -ni 30 -o vectordump -p true -sort reuters-vectors/tfidf-vectors
+
+INFO: Sort? true
+Exception in thread "main" java.lang.NullPointerException
+	at org.apache.mahout.utils.vectors.VectorHelper.topEntries(VectorHelper.java:89)
+	at org.apache.mahout.utils.vectors.VectorHelper.vectorToJson(VectorHelper.java:135)
+	at org.apache.mahout.utils.vectors.VectorDumper.run(VectorDumper.java:242)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:65)
+	at org.apache.mahout.utils.vectors.VectorDumper.main(VectorDumper.java:262)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:601)
+	at org.apache.hadoop.util.ProgramDriver$ProgramDescription.invoke(ProgramDriver.java:68)
+	at org.apache.hadoop.util.ProgramDriver.driver(ProgramDriver.java:139)
+	at org.apache.mahout.driver.MahoutDriver.main(MahoutDriver.java:195)
+
+
+
+
+The issue is in the following block of code that is invoked when sort=true in VectorHelper.java 
+
+
+
+
+    for (Element e : vector.nonZeroes()) {
+      queue.insertWithOverflow(Pair.of(e.index(), e.get()));
+    }
+    List<Pair<Integer, Double>> entries = Lists.newArrayList();
+    Pair<Integer, Double> pair;
+    while ((pair = queue.pop()) != null) {
+      if (pair.getFirst() > -1) {
+        entries.add(pair);
+      }
+    }
+
+
+

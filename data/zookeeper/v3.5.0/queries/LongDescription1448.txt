@@ -1,0 +1,17 @@
+Hi,
+
+I've found a bug in zookeeper related to quota creation which can shutdown zookeeper leader on startup.
+
+Steps to reproduce:
+1. create /quota_bug
+2. setquota -n 10000 /quota_bug
+3. stop the whole ensemble (the previous operations should be in the transaction log)
+4. start all the servers
+5. the elected leader will shutdown with an exception (Missing stat node for count /zookeeper/quota/quota_bug/zookeeper_
+stats)
+
+I've debugged a bit what happening and I found the following problem:
+On startup each server loads the last snapshot and replays the last transaction log. While doing this it fills up the pTrie variable of the DataTree with the path of the nodes which have quota.
+After the leader is elected the leader servers loads the snapshot and last transaction log but it doesn't clean up the pTrie variable. This means it still contains the "/quota_bug" path. Now when the "create /quota_bug" is processed from the transaction log the DataTree already thinks that the quota nodes ("/zookeeper/quota/quota_bug/zookeeper_limits" and "/zookeeper/quota/quota_bug/zookeeper_stats") are created but those node creation actually comes later in the transaction log. This leads to the missing stat node exception.
+
+I think clearing the pTrie should solve this problem.

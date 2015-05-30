@@ -1,0 +1,7 @@
+The Derby build breaks on OS X, apparently trying to use JDK 1.5/1.6  compile classpath for JDK 1.4.
+
+A quick look indicates that PropertySetter is only using defaults when configuring the classpaths, and this fails when OS X  creates symlinks 1.4 -> 1.6 and 1.5 -> 1.6.
+We should  investigate whether the current JAR inspection logic works on OS X with Apple JDKs as well (it is currently used for Sun and IBM JDKs, as well as for other / unknown JDKs).
+
+Issue was reported on derby-dev (see http://db.markmail.org/thread/wqe73b27rknuezm7 ).
+See also this thread for a related issue that may affect OS X: http://markmail.org/thread/7w24qwmvgxfctndi

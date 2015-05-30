@@ -1,0 +1,39 @@
+The user should have the ability to run the Perceptron from the command line.
+
+There are two programs to execute MLP, the training and labeling. The first one takes the data as input and outputs the model, the second one takes the model and unlabeled data as input and outputs the results.
+
+The parameters for training are as follows:
+------------------------------------------------
+--input -i (input data)
+--skipHeader -sk // whether to skip the first row, this parameter is optional
+--labels -labels // the labels of the instances, separated by whitespace. Take the iris dataset for example, the labels are 'setosa versicolor virginica'.
+--model -mo  // in training mode, this is the location to store the model (if the specified location has an existing model, it will update the model through incremental learning), in labeling mode, this is the location to store the result
+--update -u // whether to incremental update the model, if this parameter is not given, train the model from scratch
+--output -o           // this is only useful in labeling mode
+--layersize -ls (no. of units per hidden layer) // use whitespace separated number to indicate the number of neurons in each layer (including input layer and output layer), e.g. '5 3 2'.
+--squashingFunction -sf // currently only supports Sigmoid
+--momentum -m 
+--learningrate -l
+--regularizationweight -r
+--costfunction -cf   // the type of cost function,
+------------------------------------------------
+For example, train a 3-layer (including input, hidden, and output) MLP with 0.1 learning rate, 0.1 momentum rate, and 0.01 regularization weight, the parameter would be:
+
+mlp -i /tmp/training-data.csv -labels setosa versicolor virginica -o /tmp/model.model -ls 5,3,1 -l 0.1 -m 0.1 -r 0.01
+
+This command would read the training data from /tmp/training-data.csv and write the trained model to /tmp/model.model.
+
+
+The parameters for labeling is as follows:
+-------------------------------------------------------------
+--input -i // input file path
+--columnRange -cr // the range of column used for feature, start from 0 and separated by whitespace, e.g. 0 5
+--format -f // the format of input file, currently only supports csv
+--model -mo // the file path of the model
+--output -o // the output path for the results
+-------------------------------------------------------------
+
+If a user need to use an existing model, it will use the following command:
+mlp -i /tmp/unlabel-data.csv -m /tmp/model.model -o /tmp/label-result
+
+Moreover, we should be providing default values if the user does not specify any. 

@@ -1,0 +1,19 @@
+Background:
+
+
+	Sun 1.4 jvms bundle the Crimson XML parser, but do not have Xerces.
+	IBM jvms bundle the Xerces XML parser, but do not have Crimson.
+	As of J2SE 1.5, Sun JVMs bundle Xerces instead of Crimson (according to http://java.sun.com/j2se/1.5.0/compatibility.html, #10 (JAXP))
+	I don't know anything about what other JVMs use for XML parsing...
+
+
+
+Issue:
+
+As of DERBY-334 Derby has a very basic level of support for an XML datatype that uses the Apache Xerces 2 parser.  The parser name is hard-coded into Derby and thus anyone wishing to use Derby XML must include Xerces in his/her classpath.
+
+Up to now, the basic XML functionality used by Derby is available in both the Crimson and the Xerces parsers.  Thus, it'd be nice if we could improve Derby to support both of these parsers (and perhaps others) dynamically, thereby allowing XML to work regardless of whether the JVM is Sun or IBM or something else (assuming the JVM is 1.4 or later).
+
+For example, it'd be useful if we could perhaps have Derby choose a parser based on the JVM in use and/or a user-specified database property.  Making this change would allow people to use XML in Derby within environments of their own choosing, instead of forcing them to download a specific parser that they don't otherwise want/need.  Someone using a Sun 1.4 JVM could use XML in Derby without having to download Xerces; someone using an IBM JVM could use XML in Derby without having to download Crimson; and someone using a Sun 1.4 JVM could, if desired, download Xerces and then use that parser with the Sun 1.4 JVM; etc.  Basically, we'd just be increasing the flexibility of Derby XML and thus making it more valuable to users.
+
+I haven't yet looked in detail at how to best make this improvement, but I do think it's worth filing for (near-)future development...

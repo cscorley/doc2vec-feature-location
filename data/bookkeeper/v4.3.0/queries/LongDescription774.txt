@@ -1,0 +1,29 @@
+it failed at https://builds.apache.org/job/bookkeeper-trunk/716 .
+
+It seems that an addEntry hit a ClosedChannelException on file io after the bookie turned to writable from readonly.
+
+
+
+2014-07-26 07:03:14,584 - ERROR - [BookieWriteThread-15006-0:WriteEntryProcessorV3@103] - Error writing entry:0 to ledger:4
+java.nio.channels.ClosedChannelException
+	at sun.nio.ch.FileChannelImpl.ensureOpen(FileChannelImpl.java:88)
+	at sun.nio.ch.FileChannelImpl.write(FileChannelImpl.java:184)
+	at org.apache.bookkeeper.bookie.BufferedChannel.flushInternal(BufferedChannel.java:126)
+	at org.apache.bookkeeper.bookie.BufferedChannel.flush(BufferedChannel.java:111)
+	at org.apache.bookkeeper.bookie.EntryLogger.createNewLog(EntryLogger.java:371)
+	at org.apache.bookkeeper.bookie.EntryLogger.addEntry(EntryLogger.java:623)
+	at org.apache.bookkeeper.bookie.InterleavedLedgerStorage.processEntry(InterleavedLedgerStorage.java:296)
+	at org.apache.bookkeeper.bookie.InterleavedLedgerStorage.processEntry(InterleavedLedgerStorage.java:283)
+	at org.apache.bookkeeper.bookie.InterleavedLedgerStorage.addEntry(InterleavedLedgerStorage.java:196)
+	at org.apache.bookkeeper.bookie.LedgerDescriptorImpl.addEntry(LedgerDescriptorImpl.java:80)
+	at org.apache.bookkeeper.bookie.Bookie.addEntryInternal(Bookie.java:1046)
+	at org.apache.bookkeeper.bookie.Bookie.addEntry(Bookie.java:1085)
+	at org.apache.bookkeeper.proto.WriteEntryProcessorV3.getAddResponse(WriteEntryProcessorV3.java:99)
+	at org.apache.bookkeeper.proto.WriteEntryProcessorV3.run(WriteEntryProcessorV3.java:132)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:439)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:895)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:918)
+	at java.lang.Thread.run(Thread.java:662)
+

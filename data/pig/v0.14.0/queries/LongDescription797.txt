@@ -1,0 +1,21 @@
+Query:
+
+A = load 'studenttab10k' as (name, age, gpa);
+B = group A by name;
+C = foreach B generate group, SUM(A.gpa) as rev;
+D = order C by rev;
+E = limit D 10;
+dump E;
+
+Output:
+
+(alice king,31.7)
+(alice laertes,26.450000000000003)
+(alice thompson,25.869999999999997)
+(alice van buren,23.59)
+(bob allen,19.900000000000002)
+(bob ichabod,29.0)
+(bob king,28.459999999999994)
+(bob miller,10.28)
+(bob underhill,28.139999999999997)
+(bob van buren,25.990000000000002)

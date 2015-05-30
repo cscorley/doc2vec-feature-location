@@ -1,0 +1,9 @@
+The MonitoredUDF feature doesn't work.  When a UDF is annotated with it, job setup fails with an internal error.  The stack is long, but the salient line appears to be:
+
+
+
+Caused by: java.io.IOException: Serialization error: org.apache.pig.backend.hadoop.executionengine.physicalLayer.util.MonitoredUDFExecutor
+
+
+
+I think making this class implement Serializable would solve the issue.

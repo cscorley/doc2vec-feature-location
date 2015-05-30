@@ -1,0 +1,1 @@
+Windows paths use : after the drive letter, so pig currently fails to properly parse pig.additional.jars because it reads C:\file.txt as the list of jars: ["C", "\file.txt"] on Windows.  ":" is the right separator for Linux, as it aligns with env variable separators in PATH very well.  However, on Windows, it should be something that aligns similarly well.

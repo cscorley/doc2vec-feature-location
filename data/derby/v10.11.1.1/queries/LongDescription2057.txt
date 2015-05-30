@@ -1,0 +1,23 @@
+There seems to be an error on the SYSCS_UTIL.SYSCS_INPLACE_COMPRESS_TABLE documentation or the implementation itself when passing the following arguments:
+
+PURGE_ROWS
+    If PURGE_ROWS is set to a non-zero value, then a single pass is made through the table which will purge committed deleted rows from the table.
+<snip>
+
+DEFRAGMENT_ROWS
+    If DEFRAGMENT_ROWS is set to a non-zero value, then a single defragment pass is made which will move existing rows from the end of the table towards the front of the table.
+<snip>
+
+TRUNCATE_END
+    If TRUNCATE_END is set to a non-zero value, then all contiguous pages at the end of the table will be returned to the operating system.
+<snip>
+
+The implementation only checks if the above arguments are 1s.
+
+org.apache.derby.iapi.db.OnlineCompress.compressTable(
+            schema, 
+            tablename, 
+            (purgeRows == 1),
+            (defragementRows == 1),
+            (truncateEnd == 1));
+...

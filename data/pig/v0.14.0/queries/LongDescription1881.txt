@@ -1,0 +1,3 @@
+The proposed Penny tool needs access to Pig's new logical plan in order to inject code into the the dataflow.  Once it has modified the plan it needs to then be able to hand back that modified plan and have Pig execute it.
+
+As we don't want to open this functionality up to general users, the proposal is to do this by subclasses PigServer with a new class that is marked as LimitedPrivate for Penny only.  This class will provide calls to parse a Pig Latin script and return a logical plan, and one to take a logical plan and execute it.

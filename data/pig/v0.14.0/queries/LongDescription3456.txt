@@ -1,0 +1,4 @@
+Noticed few things while browsing code
+
+1) DefaultTuple has a protected boolean isNull = false; which is never used. Removing this gives ~3-5% improvement for big jobs
+2) Config checking with ThreadLocal conf is repeatedly done for each record. For eg: createDataBag in POCombinerPackage. But initialized only for first time in other places like POPackage, POJoinPackage, etc.

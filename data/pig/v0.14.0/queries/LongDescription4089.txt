@@ -1,0 +1,19 @@
+The job fails with the following error in Hadoop 1 local mode-
+
+
+2014-07-31 05:55:06,630 [Thread-75] WARN  org.apache.hadoop.mapred.LocalJobRunner  - job_local_0021
+java.io.IOException: Illegal partition for Null: false index: 0 5 (1)
+	at org.apache.hadoop.mapred.MapTask$MapOutputBuffer.collect(MapTask.java:1073)
+	at org.apache.hadoop.mapred.MapTask$NewOutputCollector.write(MapTask.java:691)
+	at org.apache.hadoop.mapreduce.TaskInputOutputContext.write(TaskInputOutputContext.java:80)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapReduce$Map.collect(PigGenericMapReduce.java:121)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.runPipeline(PigGenericMapBase.java:284)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.map(PigGenericMapBase.java:277)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.map(PigGenericMapBase.java:64)
+	at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144)
+	at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:764)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:370)
+	at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:212)
+
+
+This is because Hadoop 1 doesn't support multiple reducers in local mode.

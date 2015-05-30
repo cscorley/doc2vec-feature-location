@@ -1,0 +1,14 @@
+The major reason to make everythign use the SolrDispatchFilter is that we would have consistent error handling.  Currently, 
+
+SolrServlet spits back errors using:
+ PrintWriter writer = response.getWriter();
+ writer.write(msg);
+
+and the SolrDispatchFilter spits them back using:
+ res.sendError( code, ex.getMessage() );
+
+Using "sendError" lets the servlet container format the code so it shows up ok in a browser.  Without it, you may have to view source to see the error.
+
+Aditionaly, SolrDispatchFilter is more decerning about including stack trace.  It only includes a stack trace of 500 or an unknown response code.
+
+Eventually, the error should probably be formatted in the requested format - SOLR-141.

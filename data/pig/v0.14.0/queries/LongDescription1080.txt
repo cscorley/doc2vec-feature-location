@@ -1,0 +1,4 @@
+When a file is assigned to multiple mappers (one block per mapper), the blocks may not end at the exact record boundary. Special care is taken to ensure that all records are loaded by mappers (and exactly once), even for records that cross the block boundary. 
+
+The PigStorage, however, doesn't correctly handle the case where a block ends at exactly record boundary and results in missing records.
+

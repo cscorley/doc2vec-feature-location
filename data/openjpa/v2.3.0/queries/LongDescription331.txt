@@ -1,0 +1,17 @@
+Section 2.1.4 of the JPA spec outlines the requirements for a primary key (@Id):
+
+Section 2.1.4:  A simple ( i.e., non-composite) primary key must correspond to a single persistent field or property of
+the entity class. The Id annotation is used to denote a simple primary key. See section 9.1.8.
+
+Also from Section 2.1.4 :  The primary key (or field or property of a composite primary key) should be one of the following types:
+any Java primitive type; any primitive wrapper type; java.lang.String; java.util.Date;
+java.sql.Date. In general, however, approximate numeric types (e.g., floating point types) should
+never be used in primary keys. Entities whose primary keys use types other than these will not be portable.
+If generated primary keys are used, only integral types will be portable. If java.util.Date is
+used as a primary key field or property, the temporal type should be specified as DATE.
+
+Right now, we are treating the "should be" statement above as "must be" and only allowing the specified types as primary keys.  But, the sentence in the middle of this paragraph ("Entities whose primary keys use types other than these will not be portable.") indicates that other types can also be allowed, but may not be portable.
+
+It seems that Glassfish allows these additional Basic types as primary keys.  We should probably allow the same thing to keep up with the Jones'.
+
+This was discussed on dev mailing list.  http://www.nabble.com/BigInteger-as-%40Id-tf4318071.html

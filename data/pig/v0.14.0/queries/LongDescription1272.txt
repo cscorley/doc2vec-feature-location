@@ -1,0 +1,46 @@
+For a simple script the column pruner optimization removes certain columns from the original relation, which results in wrong results.
+
+Input file "kv" contains the following columns (tab separated)
+
+
+a       1
+a       2
+a       3
+b       4
+c       5
+c       6
+b       7
+d       8
+
+
+
+Now running this script in Pig 0.6 produces
+
+
+
+kv = load 'kv' as (k,v);
+keys= foreach kv generate k;
+keys = distinct keys; 
+keys = limit keys 2;
+rejoin = join keys by k, kv by k;
+dump rejoin;
+
+
+
+(a,a)
+(a,a)
+(a,a)
+(b,b)
+(b,b)
+
+
+Running this in Pig 0.5 version without column pruner results in:
+(a,a,1)
+(a,a,2)
+(a,a,3)
+(b,b,4)
+(b,b,7)
+
+When we disable the "ColumnPruner" optimization it gives right results.
+
+Viraj

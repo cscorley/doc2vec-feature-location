@@ -1,0 +1,5 @@
+In solving DERBY-4491, InputStreamUtil.java and DynamicByteArrayOutputStream.java classes which are present in org.apache.derby.iapi.services.io package was needed for the network client also. So now there are duplicate copies of those classes in org.apache.derby.client.net package. 
+
+But the client uses only a small part of the functionality those classes provide. In a discussion in dev list (http://mail-archives.apache.org/mod_mbox/db-derby-dev/201205.mbox/%3Cwjo8r4ucgtfv.fsf%40oracle.com%3E) it was decided to use EncodedInputStream.PublicBufferOutputStream which is already in the client.net package instead of the duplicated classes. In order to do this PublicBufferOutputStream will first be made into a stand-alone class.
+
+Doing this would help to reduce the code size and increase code coverage, as the duplicate classes currently have no code coverage.

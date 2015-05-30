@@ -1,0 +1,13 @@
+Running the split program in mapreduce mode, e.g. "mahout split -xm mapreduce ..." results in a ClassNotFound exception because the job jar is not set.  The following patch fixes the problem for me.
+
+diff -ur mahout-distribution-0.7.orig/integration/src/main/java/org/apache/mahout/utils/SplitInputJob.java mahout-distribution-0.7/integration/src/main/java/org/apache/mahout/utils/SplitInputJob.java
+— mahout-distribution-0.7.orig/integration/src/main/java/org/apache/mahout/utils/SplitInputJob.java	2012-06-12 03:30:39.000000000 -0500
++++ mahout-distribution-0.7/integration/src/main/java/org/apache/mahout/utils/SplitInputJob.java	2012-08-20 17:28:18.000000000 -0500
+@@ -114,6 +114,6 @@
+
+     // Setup job with new API
+     Job job = new Job(oldApiJob);
++    job.setJarByClass(SplitInputJob.class);
+     FileInputFormat.addInputPath(job, inputPath);
+     FileOutputFormat.setOutputPath(job, outputPath);
+     job.setNumReduceTasks(1);

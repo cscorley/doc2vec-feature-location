@@ -1,0 +1,26 @@
+Testing on DB2 version 9.7 discovered 2 test case problems:
+
+TestSpec10_1_27 does a query with an order by of Company. It then checks the first return for a specific Division. The problem is that each Company has 2 Divisions. The expected return order is as follows:
+
+   Div    Company
+     1         1
+     2         1
+     3         2
+     4         2
+
+But, the first 2 could just as easily be (correctly according to the query):
+
+   Div    Company
+     2         1
+     1         1
+
+And, this actually happens often on DB2 9.7. So, changes need to be made to accept either.
+
+-------------------------------------------------------------------------------------------------------------
+
+The second  test case problem occurs with TestDetachRemove. When running the full test bucket, the following error occurred:
+
+Table "DB2ADMIN.EntityA" has a foreign key to table "ENTITYB" that has not been generated. You must run the schema generator on all inter-related 
+tables at once.
+
+But, there's no reference to EntityB in this EntityA. So, I assume it's a table with the name EntityA already existing for another test case. The EntityA in this test case needs to have a unique name associated with it using the @Table statement.

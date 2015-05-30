@@ -1,0 +1,23 @@
+org.apache.openjpa.jdbc.schema.SchemaGenerator.java
+=============================================
+...
+...
+public void generateTables(DBIdentifier schemaName, DBIdentifier tableName,
+        Connection conn, DatabaseMetaData meta) {
+   ...
+ Table table;
+ DBIdentifier tableSchema = DBIdentifier.NULL;
+ for (int i = 0; cols != null && i < cols.length; i++) {
+        if (DBIdentifier.isNull(tableName) || tableName.equals("%")) 
+{ <---  bug code line
+                tableName = cols[i].getTableIdentifier(); <---  bug code line
+        }
+...
+...
+ }
+}
+
+
+if parameter  tableName is null, than tableName is always been set the first column table Identifier 
+  --> "cols[0].getTableIdentifier() "
+this cause only generate first table class file with wrong columns.

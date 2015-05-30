@@ -1,0 +1,70 @@
+Typical bank example, Account with Transactions. It is a legacy db so Transaction has compound key - represented by TransactionId class.
+
+The problem is that the order by in the generated SQL is for columns mapped in the transaction entity NOT the TransacionId as expected.
+
+So the Account class has the following fragment....
+
+	@OneToMany(fetch = FetchType.LAZY, cascade = 
+{CascadeType.PERSIST}
+)
+	@ElementJoinColumn(name="maccno", referencedColumnName="maccno")
+	@OrderBy(value = "_id._processDate ASC, _id._tranSequenceNumber ASC")
+	private LinkedList<Transaction> _transactions;
+
+
+_processDate and _tranSequenceNumber are defined in the TransactionId class.
+
+Transaction has the following fragment....
+
+	@EmbeddedId
+	private TransactionId _id;
+
+	@Column(name = "mtrancde")
+	private int _transactionCode;
+
+	@Column(name = "mamount")
+	private BigDecimal _amount;
+
+	@Column(name = "mdesc")
+	private String _description;
+
+
+	@Column(name = "mactdate")
+	private Date _actualDate;
+
+	@Column(name = "mbranch")
+	private int _branch;
+
+
+And TransactionId defines the primary key columns....
+
+@Embeddable
+public class TransactionId {
+
+	@Column(name = "maccno")
+	private String _accountNumber;
+
+	@Column(name = "mprocdate")
+	private Date _processDate;
+
+	@Column(name = "mtranseqno")
+	private int _tranSequenceNumber;
+
+
+
+However the generated SQL is doing order by on columns mapped in Transaction:
+
+executing prepstmnt 23188098 SELECT t0.maccno, t0.mprocdate, t0.mtranseqno, t0.mactdate, t0.mamount, t0.mbranch, t0.mchqcash, t0.mdesc,
+ t0.mtmnlno, t0.mtrancde, t0.mtrnfeed 
+FROM transaction t0 
+WHERE t0.maccno = ? 
+ORDER BY t0.mamount ASC, t0.mbranch ASC [params=(String) 000734123]
+
+(no idea why it chose mamount, mbranch)
+The last line should be:
+
+ORDER BY t0.mprocdate ASC, t0.mtranseqno ASC [params=(String) 000734123]
+
+Thanks
+
+Michael

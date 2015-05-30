@@ -1,0 +1,11 @@
+In certain situations, it can be helpful to require every document in your index has a value for a given field.  While ideally the indexing client(s) should be responsible enough to add all necessary fields, this patch allows it to be enforced in the Solr schema, by adding a required property to a field entry.  For example, with this in the schema:
+
+   <field name="name" type="nametext" indexed="true" stored="true" required="true"/>
+
+A request to index a document without a name field will result in this response:
+
+<result status="1">org.apache.solr.core.SolrException: missing required fields: name 
+(and then, of course, the stack trace)
+</result>
+
+The meat of this patch is that DocumentBuilder.getDoc() throws a SolrException if not all required fields have values; this may not work well as is with SOLR-139, Support updateable/modifiable documents, and may have to be changed depending on that issue's final disposition.

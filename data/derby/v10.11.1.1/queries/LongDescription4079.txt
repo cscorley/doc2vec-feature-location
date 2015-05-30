@@ -1,0 +1,29 @@
+SQL 2008 has added new syntax to support a direct way to limit the
+returned set of rows in a result set.  This allows an application to
+retrieve only some rows of an otherwise larger result set, similar to
+the popular LIMIT clauses use in some databases.
+
+Up till now, in Derby (and SQL) we have had to use the ROW_NUMBER()
+function in a nested subquery to achieve the effect of the <fetch
+first clause>, cf. DERBY-2998, a method which is rather more indirect
+and still not efficient (DERBY-3505), and primarily intended for OLAP
+functionality, perhaps.
+
+There has been no direct way to achieve the effect of the <result
+offset clause> via SQL.
+
+Syntax (cf. SQL 2008, section 7.13):
+       <result offset clause> ::= OFFSET <n> 
+{ROW | ROWS}
+       <fetch first clause> ::=      FETCH {FIRST | NEXT} [<n>] {ROW | ROWS}
+ ONLY
+
+where <n> is an integer. The two clauses syntactically follow the ORDER BY
+clause in the grammar.
+
+Note that both ORDER BY and the new clauses above are allowed also in
+subqueries in the new version of the SQL standard (section 7.13). I
+only propose to include this at the top level in DERBY for now. (ORDER
+BY is presently also not allowed in subqueries in Derby since SQL
+didn't allow for this until SQL 2008 either).
+

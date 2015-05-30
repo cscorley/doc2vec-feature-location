@@ -1,0 +1,3 @@
+Currently when client wants to publish messages to a specific topic (client doesn't know which hub owns this topic), it needs to ask default server which hub owns it. Client needs to connect to default server each time, even the channel to default server has been established. So too many unused connections will be opened and closed, when it publishes to different topics concurrently.
+
+Reuses existed channel to default server to avoid the above issue.

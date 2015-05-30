@@ -1,0 +1,3 @@
+The check for reserved words in FK column names happens before we append the _ID suffixes. As a result if a reserved word is found  we end up appending a number to the reserved word and then appending _ID. 
+
+Whats worse is that the check for uniqueness also occurs before we append the _ID, which could lead to other problems down the road.

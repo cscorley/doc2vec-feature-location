@@ -1,0 +1,25 @@
+We currently load many plugins with a Map or NamedList – since SOLR-215, the current core is not available through SolrCore.getSolrCore() and may need to be used for initialization.
+
+Ideally, we could change the init() methods from:
+
+void init( final Map<String,String> args );
+
+to
+
+void init( final SolrCore core, final Map<String,String> args );
+
+
+Without breaking existing APIs, this change is difficult (some ugly options exist).  This patch offers a solution to keep existing 1.2 APIs, and allow access to the SolrConfig and SolrCore though ThreadLocal.  This should be removed in a future release.
+
+
+  DeprecatedPluginUtils.getCurrentCore();
+  DeprecatedPluginUtils.getCurrentConfig();
+
+
+
+This patch removes the SolrConfig.Initalizable that was introduced in SOLR-215.
+
+For background, see:
+http://www.nabble.com/Initializing---break-init%28%29-API-compatibility--tf4808463.html
+
+See also: SOLR-260, SOLR-215,  SOLR-399

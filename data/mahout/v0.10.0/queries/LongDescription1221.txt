@@ -1,0 +1,17 @@
+The implementation returns a new vector if it already does not exist. But it does not add the new vector to the matrix. So, the later changes will not be reflected in the matrix.
+
+
+if (res == null) {
+res = newRandomAccessSparceVector(columnSize());
+//now the row must be added by assignRow(row, res);
+}
+return res;
+
+
+An example in which this bug manifests is the following:
+QRDecomposition.java
+
+x.viewRow(k).assign(y.viewRow(k), Functions.plusMult(1 / r.get(k, k)));
+
+
+where Matrix x is not updated if it is an instance of SparseMatrix.

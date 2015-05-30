@@ -1,0 +1,64 @@
+When parsing any OGV file (e.g., gizmo.ogv), log will output something like the following:
+
+
+
+Warning - invalid checksum on page 2 of stream 3f1 (1009)
+Warning - invalid checksum on page 3 of stream 3f1 (1009)
+Warning - invalid checksum on page 4 of stream 3f1 (1009)
+Warning - invalid checksum on page 5 of stream 3f1 (1009)
+Warning - invalid checksum on page 6 of stream 3f1 (1009)
+Warning - invalid checksum on page 7 of stream 3f1 (1009)
+Warning - invalid checksum on page 22 of stream 3f1 (1009)
+Warning - invalid checksum on page 33 of stream 3f1 (1009)
+Warning - invalid checksum on page 34 of stream 3f1 (1009)
+Warning - invalid checksum on page 35 of stream 3f1 (1009)
+Warning - invalid checksum on page 36 of stream 3f1 (1009)
+Warning - invalid checksum on page 37 of stream 3f1 (1009)
+Warning - invalid checksum on page 38 of stream 3f1 (1009)
+Warning - invalid checksum on page 52 of stream 3f1 (1009)
+Warning - invalid checksum on page 65 of stream 3f1 (1009)
+Warning - invalid checksum on page 69 of stream 3f1 (1009)
+Warning - invalid checksum on page 75 of stream 3f1 (1009)
+Warning - invalid checksum on page 76 of stream 3f1 (1009)
+Warning - invalid checksum on page 77 of stream 3f1 (1009)
+Warning - invalid checksum on page 78 of stream 3f1 (1009)
+Warning - invalid checksum on page 79 of stream 3f1 (1009)
+Warning - invalid checksum on page 80 of stream 3f1 (1009)
+Exception in thread "main" org.apache.tika.exception.TikaException: Unexpected RuntimeException from org.gagravarr.tika.VorbisParser@7c29e357
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:244)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+	at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:120)
+	at com.test.OGVTest.main(OGVTest.java:31)
+Caused by: java.lang.ClassCastException: org.gagravarr.vorbis.VorbisAudioData cannot be cast to org.gagravarr.vorbis.VorbisInfo
+	at org.gagravarr.vorbis.VorbisFile.<init>(VorbisFile.java:78)
+	at org.gagravarr.vorbis.VorbisFile.<init>(VorbisFile.java:55)
+	at org.gagravarr.tika.VorbisParser.parse(VorbisParser.java:58)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+	... 3 more
+
+
+
+Testcode is the following:
+
+OGVTest.java
+
+
+	void parse(String fileName) throws Exception {
+		InputStream inputStream = new FileInputStream(fileName);
+		
+		Metadata metadata = new Metadata();
+		
+		Parser parser = new AutoDetectParser();
+		
+		ParseContext parserContext = new ParseContext();
+
+		parserContext.set(Parser.class, parser);
+
+		ContentHandler contentHandler = new WriteOutContentHandler(
+			new DummyWriter());
+
+		parser.parse(inputStream, contentHandler, metadata, parserContext);
+		
+		System.out.println(metadata);
+	}
+

@@ -1,0 +1,19 @@
+If you have specified ExternalValues for a field in an entity the transaction will be rolledback, but the root exception doesn't provide any information on what went wrong. 
+
+Here's an example : 
+
+<openjpa-1.1.0-SNAPSHOT-r420667:587896M fatal store error> org.apache.openjpa.persistence.RollbackException: null
+	at org.apache.openjpa.persistence.EntityManagerImpl.commit(EntityManagerImpl.java:469)
+	at mdd.tests.TestExternalValues.testUnrecognizedExternalValue(TestExternalValues.java:40)
+<snip>
+Caused by: <openjpa-1.1.0-SNAPSHOT-r420667:587896M nonfatal general error> org.apache.openjpa.persistence.PersistenceException: null
+	at org.apache.openjpa.kernel.BrokerImpl.beforeCompletion(BrokerImpl.java:1778)
+<snip>
+	... 19 more
+Caused by: java.lang.NullPointerException
+	at org.apache.openjpa.kernel.StateManagerImpl.fetchInt(StateManagerImpl.java:2168)
+	at org.apache.openjpa.jdbc.meta.strats.PrimitiveFieldStrategy.update(PrimitiveFieldStrategy.java:157)
+<snip>
+	... 23 more
+
+The exception should be made more meaningful. 

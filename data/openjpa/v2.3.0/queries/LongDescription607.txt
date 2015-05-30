@@ -1,0 +1,7 @@
+In testing various back-end database systems such as Sybase, Informix. there are cases where the extra pair of () resulted in SQL Syntax error:
+For example,
+1. in generating ALL, ANY subquery, there is extraneous pair of "(  )"  that are tolerated by most systems such as DB2, Oracle but not Sybase.
+WHERE (t0.DEPT_DEPTNO = ANY ((SELECT t1.deptno FROM DeptBean t1 WHERE (t1.deptno = ? )))
+
+2.In the case of DISTINCT function, Informix reports syntax error when argument/s of the DISTINCT is/are parenthesized:
+SELECT COUNT(DISTINCT (t1.name)) FROM EmpBean t1

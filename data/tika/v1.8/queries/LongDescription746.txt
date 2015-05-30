@@ -1,0 +1,5 @@
+As discussed over the summer <http://lucene.472066.n3.nabble.com/Appending-Mime-Types-td3266434.html> there are legitimate cases for wanting to load in extra, custom mimetypes (and their matching rules) to Tika
+
+Discussions seem to conclude that the built in tika-mimetypes file should be used for common and public mimetypes, and people wanting to support additional public formats should open an issue to have them in the main file. People who want only a very restricted set of mimetypes can use a custom tika config with a limited, smaller mimetypes file
+
+For people who want to load one or two extra, likely custom mimetypes, we should provide a service loading system to pull in the extra mimetypes. This allows for the regular mimetypes file to be used for most files, and the extra custom ones merged in as needed. It also allows for a custom parser to provide the mimetype detection for the specific custom formats it handles

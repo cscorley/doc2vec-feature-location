@@ -1,0 +1,1 @@
+When the ZooKeeper java client  makes a connection it queues a SetWatches  request. The problem is that it puts the request at the end of the outgoing requests. This means that watches for requests that were queued before the connection is made and after the disconnect may improperly get their watches triggered.

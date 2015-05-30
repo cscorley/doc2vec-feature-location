@@ -1,0 +1,197 @@
+Using the org.apache.derby.jdbc.ClientDriver driver to access the
+Derby database through network, the driver is writting all the file into memory (RAM) before sending
+it to the database.
+
+Writting small files (smaller than 5Mo) into the database works fine,
+but it is impossible to write big files (40Mo for example, or more), without getting the
+exception java.lang.OutOfMemoryError.
+
+The org.apache.derby.jdbc.EmbeddedDriver doesn't have this problem.
+
+Here follows some code that creates a database, a table, and trys to write a BLOB. 2 parameters are to be changed for the code to work for you : DERBY_DBMS_PATH and FILE
+
+
+import NetNoLedge.Configuration.Configs;
+import org.apache.derby.drda.NetworkServerControl;
+import java.net.InetAddress;
+import java.io.*;
+import java.sql.*;
+
+/**
+ *
+
+	@author  greg
+ */
+public class DerbyServer_JDBC_BLOB_test {
+
+
+
+    // The unique instance of DerbyServer in the application.
+    private static DerbyServer_JDBC_BLOB_test derbyServer;
+
+    private NetworkServerControl server;
+
+    private static final String DERBY_JDBC_DRIVER = "org.apache.derby.jdbc.ClientDriver";
+    private static final String DERBY_DATABASE_NAME = "Test";
+
+    // ###############################################################
+    // ############### SET HERE THE EXISTING PATH YOU WANT ################
+    // ###############################################################
+    private static final String DERBY_DBMS_PATH =  "/home/greg/DatabaseTest";
+    // ###############################################################
+    // ###############################################################
+
+
+    private static int derbyPort = 9157;
+    private static String userName = "user";
+    private static String userPassword = "password";
+
+    // ###################################################################################
+    // ############# DEFINE HERE THE PATH TO THE FILE YOU WANT TO WRITE INTO THE DATABASE ###########
+    // ############# TRY A 100kb-3Mb FILE, AND AFTER A 40Mb OR BIGGER FILE #########################
+    // ###################################################################################
+    private static final File FILE = new File("/home/greg/01.jpg");
+    // ###################################################################################
+    // ###################################################################################
+
+    /**
+
+	<p>Used to test the server.
+     */
+    public static void main(String args[]) {
+        try {
+            DerbyServer_JDBC_BLOB_test.launchServer();
+            DerbyServer_JDBC_BLOB_test server = getUniqueInstance();
+            server.start();
+            System.out.println("Server started");
+
+
+
+            // After the server has been started, launch a first connection to the database to
+            // 1) Create the database if it doesn't exist already,
+            // 2) Create the tables if they don't exist already.            
+            Class.forName(DERBY_JDBC_DRIVER).newInstance();
+            Connection connection = DriverManager.getConnection ("jdbc:derby://localhost:"derbyPort"/"DERBY_DATABASE_NAME";create=true", userName, userPassword);
+            System.out.println("Network JDBC connection to Derby succeded. Database created if not created already.");
+
+            Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            Statement statement2;
+
+            // Create the table "file" if it doesn't already exist.
+            String [] tableNames=
+{"file"}
+;
+            boolean exist;
+            String currentTable;
+            ResultSet result = statement.executeQuery("SELECT TABLENAME FROM SYS.SYSTABLES");
+            for (int i=0;i<tableNames.length;i++) {
+                exist=false;
+                while (result.next())
+{
+                    if (tableNames[i].equalsIgnoreCase(result.getString(1)))
+                        exist=true;
+                }
+
+                if (!exist) 
+{
+                    statement2 = connection.createStatement();
+                    statement2.execute("CREATE TABLE file (" +
+                    "file BLOB(2G) NOT NULL)");
+                    connection.commit();
+                }
+                result.beforeFirst();
+            }
+            System.out.println("Table file created if not created already");
+
+            System.out.println("File insertion into BLOB");
+            FileInputStream inputStream = new FileInputStream(FILE);
+            PreparedStatement   preparedStatement = connection.prepareStatement("INSERT INTO file(file) VALUES ");
+            preparedStatement.setBinaryStream(1,inputStream,(int) FILE.length());
+            preparedStatement .execute();
+            connection.commit();
+            System.out.println("File inserted into BLOB");
+        }
+        catch (Exception e) 
+{
+            e.printStackTrace();
+        }
+    }
+
+    /** Creates a new instance of MckoiServer
+
+	Password is used at the database creation. It will be the database password once created.
+     */    
+    private DerbyServer_JDBC_BLOB_test() throws Exception {
+        System.setProperty("derby.system.home", DERBY_DBMS_PATH);
+
+
+
+        // Set the server to request an authentification.
+        System.setProperty("derby.authentication.provider", "BUILTIN");
+        System.setProperty("derby.connection.requireAuthentication", "true");
+
+        // Create a user that can connect to Derby.
+        System.setProperty("derby.user."+userName, userPassword);
+
+        // Set Derby to grant full access to the created user (to all the databases).
+        System.setProperty("derby.database.fullAccessUsers", userName);
+
+        //System.setProperty("derby.system.bootAll", "true");
+
+        // See if the 9157 port is already taken.
+        // Change it if necessary.
+        boolean isPortFree = false;
+        while ( !isPortFree ) {
+            try 
+{
+                java.net.ServerSocket serverTest = new java.net.ServerSocket(derbyPort);
+                serverTest.close();
+                serverTest = null;
+                
+                isPortFree = true;
+            }
+            catch (Exception e) 
+{
+                System.out.println("Port already in use : "+derbyPort);
+                derbyPort++;
+                System.out.println("Try with port "+derbyPort);
+            }
+        }     
+
+        server = new NetworkServerControl(InetAddress.getByName("localhost"),derbyPort);
+    }
+
+    public static void launchServer() throws Exception 
+{
+        derbyServer = new DerbyServer_JDBC_BLOB_test();
+    }
+
+    public static DerbyServer_JDBC_BLOB_test getUniqueInstance() 
+{
+        return derbyServer;
+    }
+
+    /**
+
+	<p>Start the server.
+     */
+    public void start() 
+Unknown macro: {        try {
+            server.start(null);
+        }        catch (Exception e) {
+            e.printStackTrace(System.err);
+        }
+    }
+    
+    /**
+     * <p>Stop the server.
+     */
+    public void stop() {
+        try {
+            server.shutdown();
+        }
+        catch (Exception e) {            e.printStackTrace(System.err);        }    } 
+
+
+
+}

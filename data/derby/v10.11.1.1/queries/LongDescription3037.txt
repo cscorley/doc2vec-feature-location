@@ -1,0 +1,7 @@
+DERBY-827 (correctly) changed the lifetime of the language ResultSet tree to be the lifetime of the activation, but did not fix up the correct calls to ResultSet.close() and ResultSet.finish().
+
+A language ResultSet's lifetime should be driven by the activation, so activation.close() should call finish() on its ResultSet.
+
+EmbedResultSet should call close on its language ResultSet (theResults field) when the JDBC ResultSet is closed, it should not be calling finish() on its ResultSet.
+
+See comments in DERBY-827 for some more details and issues.

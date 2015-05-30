@@ -1,0 +1,20 @@
+It is not possible to run suites.All on phoneME advanced, junit will just exit with an InvocationTargetException when trying to invoke the suites.All.suite() method. Unwrapping the exception shows that the underlying reason is a NoClassDefFoundError from the invoke() call in AllPackages.addSuiteByReflection() when trying to load the new management testsuite.
+
+Now, this suite is compiled into 1.5 classfiles, so the Class.forName() call before the invoke() is expected to fail with UnsupportedClassVersionError on Java ME and Java SE 1.4. It does fail as expected when running with jdk 1.4, but on phoneME advanced it does not, possibly a bug in phoneME advanced.
+
+A fix/workaround in the testinfrastructure may be to catch InvocationTargetException from the try block below, unwrap it and see if it is an instance of LinkageError and if so skip the testsuite. This would make it possible to run the tests on phoneME advanced.
+
+private static Test addSuiteByReflection(String className) throws Exception
+   {
+       try 
+{
+           Class clz = Class.forName(className);
+                      Method sm = clz.getMethod("suite", null);
+                            return (Test) sm.invoke(null, null);
+       }
+ catch (LinkageError  e) 
+{
+           return new TestSuite("SKIPPED: " + className + " - " +
+                   e.getMessage());
+       }
+   } 

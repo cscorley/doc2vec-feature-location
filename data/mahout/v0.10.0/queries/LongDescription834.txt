@@ -1,0 +1,21 @@
+If I do this:
+
+mahout rowsimilarity --input matrixified/matrix --output sims/ --numberOfColumns 27684 --similarityClassname SIMILARITY_LOGLIKELIHOOD --excludeSelfSimilarity
+
+then clean my output and rerun,
+
+rm -rf sims/ # (though this step doesn't even seem needed)
+
+then try again:
+
+mahout rowsimilarity --input matrixified/matrix --output sims/ --numberOfColumns 27684 --similarityClassname SIMILARITY_LOGLIKELIHOOD --excludeSelfSimilarity
+
+The temp files left from the first run make a re-run impossible - we get: "Exception in thread "main" org.apache.hadoop.mapred.FileAlreadyExistsException: Output directory temp/weights already exists".
+
+Manually deleting the temp directory fixes this.
+
+I get same behaviour if I explicitly pass in a --tempdir path, e.g.:
+
+mahout rowsimilarity --input matrixified/matrix --output sims/ --numberOfColumns 27684 --similarityClassname SIMILARITY_LOGLIKELIHOOD --excludeSelfSimilarity --tempDir tmp2/
+
+Presumably something like HadoopUtil.delete(getConf(),tempDirPath) is needed somewhere?  (and maybe --overwrite too ?)

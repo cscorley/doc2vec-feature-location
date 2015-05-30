@@ -1,0 +1,14 @@
+        OpenJPAEntityManager oem = OpenJPAPersistence.cast(em);
+        OpenJPAQuery query = oem.createQuery("openjpa.MethodQL", "de.logentis.openjpa.LogentisMethodQL.blabla");
+        query.setResultClass(DP_PLZ_DA.class);
+        query.setParameter(1, "Fred").setParameter(2, "Lucas");
+
+This results of an empty parameter Map in the LogentisMethodQL.blabla() method. 
+
+Even worse, when doing parameter passing as stated in the docs Chapter 9 / 5:
+
+query.setParameter("first", "Fred").setParameter("last", "Lucas");
+
+There is an exception thrown.
+
+In fact MethodQL is completely broken when it comes to parameters at this point.

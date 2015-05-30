@@ -1,0 +1,40 @@
+The JMS provider implementation conforming to the 1.1 spec.
+The limitations as of now are :
+
+
+
+1) No support for Queue's : Hedwig currently does not have a notion of JMS queue's for us to leverage.
+
+2) No support for noLocal : Hedwig DOES NOT conform to JMS model of connection > session > publisher/subscriber. Each session has a hedwig connection.
+
+Currently I am simulating noLocal, but this IS fragile and works for the duration of connection - ONLY until the message id is still in a LRUCache. As mentioned before, this is a kludge, and not a good solution.
+
+3) Note that everything is durable in hedwig - so we do not support NON_PERSISTENT delivery mode.
+
+4) Calling unsubscribe on a durable subscription will fail if it was NOT created in the current session.
+In hedwig, to unsubscribe, we need the subscription id and the topic ... 
+
+To simulate unsubscribe(), we store the subscriberId to topicName mapping when a create* api is invoked. Hence, if create* was NOT called, then we have no way to infer which topic the subscription-id refers to from hedwig, and so cant unsubscribe.
+
+The workaround is - simply create a durable subsriber just as a workaround of this limitation - the topicName will be known to the user/client anyway.
+
+
+5) Explicit session recovery is not supported.
+Reconnection of hedwig session (either explicitly or implicitly by underlying client implementation) will automatically trigger redelivery of un-acknowledged messages.
+
+
+6) Because of the above, setting the JMSRedelivered flag is almost impossible in a consistent way.
+
+Currently, we simulate it for redelivery due to provider side events : rollback of txn, exception in message listener (primarily).
+At best we can simulate it with a kludge - at risk of potentially running out of resources ... this is being investigated : but unlikely to have a clean fix.
+
+7) Hedwig only supports marking all messages until seq-id as received : while JMS indicates ability to acknowledge individual messages.
+
+This distinction is currently unsupported.
+
+8) JMS spec requires
+    "A connection's delivery of incoming messages can be temporarily stopped
+using its stop() method. It can be restarted using its start() method. When the connection is stopped, delivery to all the connection’s MessageConsumers is inhibited: synchronous receives block, and messages are not delivered to MessageListeners."
+
+  We honor this for undelivered messages from server - but if stop is called while there are pending messages yet to be delivered to a listener (or buffered in subscriber for receive), then they will be delivered irrespective of stop().
+

@@ -1,0 +1,8 @@
+The javadoc for PreparedStatement.setNull(int, int) says:
+http://download.java.net/jdk6/docs/api/java/sql/PreparedStatement.html#setNull(int,%20int)
+
+Throws:
+ ...
+    SQLFeatureNotSupportedException - if sqlType is a ARRAY, BLOB, CLOB, DATALINK, JAVA_OBJECT, NCHAR, NCLOB, NVARCHAR, LONGNVARCHAR, REF, ROWID, SQLXML or STRUCT data type and the JDBC driver does not support this data type
+
+Since Derby doesn't support ARRAY, DATALINK, NCHAR, NCLOB, NVARCHAR, LONGNVARCHAR, REF, ROWID, SQLXML or STRUCT the method should throw SQLFeatureNotSupportedException if used with any of these types. Currently, a general type conversion exception is thrown. With the client driver, no exception is thrown when using this method with the unsupported types.

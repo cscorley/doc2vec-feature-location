@@ -1,0 +1,4 @@
+In updateXXX, where XXX is one of Float or Double, embedded throws value out of range when the argument is Float.NaN or Double.NaN, the client does not catch it.
+
+The server will balk when the row is updated, though, in ResultSet#updateRow. It will be more regular if this is caught in updateXXX also on the client as other range errors are.  The SQL state seen is 22003, which is what embedded throws on updateXXX. See also DERBY-5533.
+

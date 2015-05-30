@@ -1,0 +1,5 @@
+The pcgetField() and pcsetField() methods are created as Private instead of Protected. 
+
+This becomes a problem if you use Property access in an entity hierarchy and use a DetachStateField. In this scenario the PCEnhancer will generate writeExternal and readExternal methods on the Entity classes. Those methods expect to be able to call pcgetField() and pcsetField() respectively. A child entity won't have access to those methods and will throw an exception when it is serialized, or deserialized. 
+
+To resolve the problem I've modified the PCEnhancer so that the generated methods are protected (fix forthcoming). 

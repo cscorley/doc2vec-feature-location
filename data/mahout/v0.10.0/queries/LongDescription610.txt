@@ -1,0 +1,8 @@
+While doing some tests with the RecommenderJob, and more specifically the RowSimilarityJob, I noticed that in some cases not all cooccurences are used in the similarity calculations ( done in the SimilarityReducer class ).
+A RowPair object with (RowA=1,RowB=2) isn't considered the same as (RowA=2,RowB=1). This causes problems as CoocurencesMapper sometimes emits rowpairs in the first form and sometimes in the second form thus separating the cooccurences. If I'm right, this is due to the fact that ordering of the WeightedCoocurrenceArray for one column isn't guaranteed to be the same as for another column.
+The solution is very simple, either you can change the compare method of the RowPair class or you can adapt the CooccurencesMapper to enforce that RowA < RowB.
+
+Hope I've not missed something obvious, and that this is intended behavior. If this is the case, please enlighten me 
+
+Also, slightly off topic. While doing these tests, I've noticed that the predictions are all remarkably high and the RMSE on the movielens 100k dataset lies around 1,6.
+A bit to high if you ask me. Are these normal values or am I doing something wrong?

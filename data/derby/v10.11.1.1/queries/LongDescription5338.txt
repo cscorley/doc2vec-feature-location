@@ -1,0 +1,21 @@
+In converting LobLimits test DERBY-1903, I see that attempting to insert a 4GB stream with client gives the error XN015
+Caused by: org.apache.derby.client.am.SqlException: Network protocol error: the specified size of the InputStream, parameter #4, is less than the actual InputStream length.
+	at org.apache.derby.client.net.Request.writePlainScalarStream(Request.java:359)
+	at org.apache.derby.client.net.Request.writeScalarStream(Request.java:247)
+	at org.apache.derby.client.net.NetStatementRequest.buildEXTDTA(NetStatementRequest.java:963)
+	at org.apache.derby.client.net.NetStatementRequest.writeExecute(NetStatementRequest.java:151)
+	at org.apache.derby.client.net.NetPreparedStatement.writeExecute_(NetPreparedStatement.java:174)
+	at org.apache.derby.client.am.PreparedStatement.writeExecute(PreparedStatement.java:1800)
+	at org.apache.derby.client.am.PreparedStatement.flowExecute(PreparedStatement.java:2030)
+	at org.apache.derby.client.am.PreparedStatement.executeUpdateX(PreparedStatement.java:417)
+	at org.apache.derby.client.am.PreparedStatement.executeUpdate(PreparedStatement.java:403)
+	... 38 more
+
+vs's embedded's 22003, the length exceeds the maximum length for the data type.
+
+I am not sure if the connection is lost or not. It typically is with protocol errors.
+
+Look for this bug number in largedata.LobLimits.java for test case.
+You can remove the exclusion for usingDerbyNetClient and run org.apache.derbyTesting.functionTests.tests.largedata.LobLimitsLiteTest 
+
+to reproduce the problem.  I will check the test case in soon as part of DERBY-1903

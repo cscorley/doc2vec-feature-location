@@ -1,0 +1,17 @@
+I have figured out some simplification for our SSVD algorithms.  This eliminates the QR decomposition and makes life easier.
+
+I will produce a patch that contains the following:
+
+
+	a CholeskyDecomposition implementation that does pivoting (and thus rank-revealing) or not.  This should actually be useful for solution of large out-of-core least squares problems.
+
+
+
+
+	an in-memory SSVD implementation that should work for matrices up to about 1/3 of available memory.
+
+
+
+
+	an out-of-core SSVD threaded implementation that should work for very large matrices.  It should take time about equal to the cost of reading the input matrix 4 times and will require working disk roughly equal to the size of the input.
+

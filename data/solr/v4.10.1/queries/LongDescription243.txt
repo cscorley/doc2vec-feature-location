@@ -1,0 +1,18 @@
+I have a customized IndexReader and I want to write a Solr plugin to use my derived IndexReader implementation. Currently IndexReader instantiation is hard coded to be: 
+IndexReader.open(path)
+
+It would be really useful if this is done thru a plugable factory that can be configured, e.g. IndexReaderFactory
+
+interface IndexReaderFactory{
+     IndexReader newReader(String name,String path);
+}
+
+the default implementation would just return: IndexReader.open(path)
+
+And in the newSearcher and getSearcher methods in SolrCore class can call the current factory implementation to get the IndexReader instance and then build the SolrIndexSearcher by passing in the reader.
+
+It would be really nice to add this improvement soon (This seems to be a trivial addition) as our project really depends on this.
+
+Thanks
+
+-John

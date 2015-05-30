@@ -1,0 +1,5 @@
+Currently, Pig read the first ever pig.properties in CLASSPATH. Pig has a default pig.properties and if user have a different pig.properties, there will be a conflict since we can only read one. There are couple of ways to solve it:
+
+1. Give a command line option for user to pass an additional property file
+2. Change the name for default pig.properties to pig-default.properties, and user can give a pig.properties to override
+3. Further, can we consider to use pig-default.xml/pig-site.xml, which seems to be more natural for hadoop community. If so, we shall provide backward compatibility to also read pig.properties, pig-cluster-hadoop-site.xml. 

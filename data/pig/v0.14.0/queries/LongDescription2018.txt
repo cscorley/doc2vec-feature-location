@@ -1,0 +1,37 @@
+
+
+l1 = load 'x' using PigStorage(':') as (a : (i : int),b,c);
+l2 = load 'x' as (a,b,c);
+cg = cogroup l1 by a, l2 by a;
+explain cg;
+
+Gives -
+ERROR 1067: Unable to explain alias cg
+
+org.apache.pig.impl.logicalLayer.FrontendException: ERROR 1067: Unable to explain alias cg
+        at org.apache.pig.PigServer.explain(PigServer.java:1075)
+        at org.apache.pig.tools.grunt.GruntParser.explainCurrentBatch(GruntParser.java:381)
+        at org.apache.pig.tools.grunt.GruntParser.processExplain(GruntParser.java:313)
+        at org.apache.pig.tools.grunt.GruntParser.processExplain(GruntParser.java:276)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.Explain(PigScriptParser.java:665)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:325)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:176)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:152)
+        at org.apache.pig.tools.grunt.Grunt.exec(Grunt.java:90)
+        at org.apache.pig.Main.run(Main.java:554)
+        at org.apache.pig.Main.main(Main.java:109)
+Caused by: java.lang.NullPointerException
+        at org.apache.pig.newplan.logical.visitor.LineageFindRelVisitor.mapMatchLoadFuncToUid(LineageFindRelVisitor.java:528)
+        at org.apache.pig.newplan.logical.visitor.LineageFindRelVisitor.visit(LineageFindRelVisitor.java:287)
+        at org.apache.pig.newplan.logical.relational.LOCogroup.accept(LOCogroup.java:235)
+        at org.apache.pig.newplan.DependencyOrderWalker.walk(DependencyOrderWalker.java:75)
+        at org.apache.pig.newplan.PlanVisitor.visit(PlanVisitor.java:50)
+        at org.apache.pig.newplan.logical.visitor.CastLineageSetter.<init>(CastLineageSetter.java:57)
+        at org.apache.pig.PigServer$Graph.compile(PigServer.java:1683)
+        at org.apache.pig.PigServer$Graph.compile(PigServer.java:1659)
+        at org.apache.pig.PigServer$Graph.access$200(PigServer.java:1389)
+        at org.apache.pig.PigServer.buildStorePlan(PigServer.java:1277)
+        at org.apache.pig.PigServer.explain(PigServer.java:1038)
+        ... 10 more
+
+

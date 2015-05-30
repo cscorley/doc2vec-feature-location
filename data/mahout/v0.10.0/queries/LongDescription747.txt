@@ -1,0 +1,26 @@
+Hi again,
+
+because I got much to work with entropy and information gain ratio, I want to implement the following distributed algorithms:
+
+	Entropy (https://secure.wikimedia.org/wikipedia/en/wiki/Entropy_%28information_theory%29)
+	Conditional Entropy (https://secure.wikimedia.org/wikipedia/en/wiki/Conditional_entropy)
+	Information Gain
+	Information Gain Ratio (https://secure.wikimedia.org/wikipedia/en/wiki/Information_gain_ratio)
+
+
+
+This issue is at first only for entropy.
+
+Some questions:
+
+	In which package do the classes belong. I put them first at 'org.apache.mahout.math.stats', don't know if this is right, because they are components of information retrieval.
+	Entropy only reads a set of elements. As input i took a sequence file with keys of type Text and values anyone, because I only work with the keys. Is this the best practise?
+	Is there a generic solution, so that the type of keys can be anything inherited from Writable?
+
+
+
+In Hadoop is a TokenCounterMapper, which emits each value with an IntWritable(1). I added a KeyCounterMapper into 'org.apache.mahout.common.mapreduce' which does the same with the keys.
+
+Will append my patch soon.
+
+Regards, Christoph.

@@ -1,0 +1,11 @@
+A statement created or prepared in a local transaction using the default holdability settting can not be used in a global transaction.
+
+This is because the default holdability is HOLD_CURSORS_OVER_COMMIT and Derby does not support held cursors in global transactions.
+
+The change would be to allow those statements to be used in global transactions, returning ResultSets that are CLOSE_CURSORS_AT_COMMIT .
+This would allow such statements to be cached by application servers.
+
+JDBC 3.0 section 12.6 does allow holdability to be handled in an implementation specific way for global transactions.
+
+I believe this change is forward compatible if Derby ever does start supporting held cursors in global transactions (pretty unlikely) since
+the functionality displayed is a ub-set of the holdable functionality. 

@@ -1,0 +1,1 @@
+UniqueConstraintSetNullTest calls super.tearDown() first in its tearDown() method. After that, it opens a new connection and does some more cleanup. This connection is not closed or nulled out. If super.tearDown() had been called last, it would have been cleaned up correctly.

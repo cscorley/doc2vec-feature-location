@@ -1,0 +1,9 @@
+<from email to dev list>
+I'm having an issue with the LedgerHandle#addEntry api.
+
+[1] best illustrates it. I'm buffering namenode transactions in the stream and only transmitting when either flush is called or I have enough data to pass my threshold. This means I have a byte buffer in my class which I fill up as new transactions come in. When I transmit, I set this buffer as an entry to bookkeeper. I.e. N whole namenode transactions will be contained in 1 single bk entry. 
+
+The problem is this byte buffer (DataOutputBuffer in this case). I reuse the same buffer over and over. But this buffer has a fixed size. If I transmit before it is full, the whole buffer size will be transmitted anyhow. If the buffer is being reused, this will retransmit old transactions out of order. For example, in the first use, the buffer fills with, [a,b,c,d,e] and adds this as an entry and resets the byte buffer. Then transaction f is  added and flushed, in this case [f,b,c,d,e] is not transmitted. 
+
+What I need is the ability to set offset and length in the byte[] passed to addEntry. Is there a reason this wasn't added in the initial implementation? If not, and if you agree this is a valid usecase, ill open a JIRA and add this functionality. Im getting around this now by doing an extra Array.copyOf which is less than ideal.
+</from email>

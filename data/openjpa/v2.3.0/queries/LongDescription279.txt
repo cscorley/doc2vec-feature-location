@@ -1,0 +1,5 @@
+This looks similar to the problem reported in OPENJPA-144, but since that has been resolved I'm opening a new sub-task.
+
+When JDBCConfigurationImpl obtains a second connection (often used to get sequence values) it only checks the Connection2 properties. It doesn't lookup a non-jta-data-source if one is specified in persistence.xml. 
+
+The lookup is done for jta-datasources but not for their non-jta counterparts. 

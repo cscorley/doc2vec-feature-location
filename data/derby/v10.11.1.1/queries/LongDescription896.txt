@@ -1,0 +1,18 @@
+Cast date  to timestamp results in "ERROR 42846: Cannot convert types 'DATE' to 'TIMESTAMP'.",
+e.g. in ij:
+select cast(cast ('2006-01-01' as date) as timestamp) from sys.sysschemas;
+or
+select cast (current_date as timestamp) from bradi_dat.lpaip01;
+
+The similar issue exists for time ("ERROR 42846: Cannot convert types 'TIME' to 'TIMESTAMP'.",
+
+Documentation clearly states that these conversions are allowed, see table 1 in a description of CAST function in the Derby Reference Manual and comment about "Conversion of date/time values" below that table (see below as well).
+
+Conversions of date/time values
+A date/time value can always be converted to and from a TIMESTAMP. If a DATE is
+converted to a TIMESTAMP, the TIME component of the resulting TIMESTAMP is always
+00:00:00. If a TIME data value is converted to a TIMESTAMP, the DATE component is
+set to the value of CURRENT_DATE at the time the CAST is executed. If a TIMESTAMP
+is converted to a DATE, the TIME component is silently truncated. If a TIMESTAMP is
+converted to a TIME, the DATE component is silently truncated.
+

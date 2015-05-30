@@ -1,0 +1,14 @@
+Java on Linux/Solaris can be set up to use the native (via C library)
+GSS implementation. This is configured by setting the system property
+   sun.security.jgss.native=true
+When using this feature, ZooKeeper Sasl/JGSS authentication doesn't work.
+The reason is explained in
+http://docs.oracle.com/javase/6/docs/technotes/guides/security/jgss/jgss-features.html
+
+"""
+[when using native GSS...]
+In addition, when performing operations as a particular Subject, e.g. 
+Subject.doAs(...) or Subject.doAsPrivileged(...), the to-be-used 
+GSSCredential should be added to Subject's private credential set. 
+Otherwise, the GSS operations will fail since no credential is found.
+"""

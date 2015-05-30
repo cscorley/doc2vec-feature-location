@@ -1,0 +1,24 @@
+I was reading ByteBufferInputStream.java; here is the skip method:
+
+    public long skip(long n) throws IOException {
+        long newPos = bb.position() + n;
+        if (newPos > bb.remaining()) 
+{
+            n = bb.remaining();
+        }
+        bb.position(bb.position() + (int) n);
+        return n;
+    }
+
+The first two lines look wrong; we compare a "point" (position) to a "distance" (remaining).  I think the test should be if (newPos >= bb.limit()).
+
+Or more simply:
+    public long skip(long n) throws IOException {
+        int remaining = buffer.remaining();
+        if (n > remaining) 
+{
+            n = remaining;
+        }
+        buffer.position(buffer.position() + (int) n);
+        return n;
+    }

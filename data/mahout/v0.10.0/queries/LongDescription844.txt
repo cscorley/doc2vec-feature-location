@@ -1,0 +1,27 @@
+If you omit the "-s" flag for running "mahout itemsimilarity ...." the following error occurs after a bit:
+
+
+Exception in thread "main" java.lang.NullPointerException
+	at java.lang.String.<init>(String.java:147)
+	at org.apache.commons.cli2.commandline.Parser.parse(Parser.java:66)
+	at org.apache.mahout.common.AbstractJob.parseArguments(AbstractJob.java:263)
+	at org.apache.mahout.math.hadoop.similarity.RowSimilarityJob.run(RowSimilarityJob.java:103)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:65)
+	at org.apache.mahout.cf.taste.hadoop.similarity.item.ItemSimilarityJob.run(ItemSimilarityJob.java:199)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:65)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:79)
+	at org.apache.mahout.cf.taste.hadoop.similarity.item.ItemSimilarityJob.main(ItemSimilarityJob.java:93)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.apache.hadoop.util.ProgramDriver$ProgramDescription.invoke(ProgramDriver.java:68)
+	at org.apache.hadoop.util.ProgramDriver.driver(ProgramDriver.java:139)
+	at org.apache.mahout.driver.MahoutDriver.main(MahoutDriver.java:187)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:186)
+
+Adding back in the "-s" flag allows the job to complete. 

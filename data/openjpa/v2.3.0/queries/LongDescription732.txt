@@ -1,0 +1,10 @@
+http://n2.nabble.com/Updates-to-entities-via-Lifecycle-callback-methods-td1110631.html
+
+In a nutshell, if we are to allow the updating of the entities passed into the Lifecycle callback methods, then we have a couple of problems (given the scenario of updating the entity passed into the @PreUpdate method):
+
+o  The designated @Version field is getting updated more often than desired causing the transaction to rollback.
+o  The @PostUpdate method is getting invoked more than once.
+
+I will post a testcase shortly.  If and when we decide to fix this, this simple testcase will need to be expanded to include the updating of entities in other scenarios as well.
+
+I am also getting verification from the JPA Expert Group as to whether these entities are supposed to be updatable or not.  As one of the dev postings indicated, our OpenJPA documentation indicates that they are updatable.  But, the JPA spec itself is not clear on this capability.  Other vendors, such as Hibernate, allow for this.

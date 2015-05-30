@@ -1,0 +1,17 @@
+PigServer constructor throws NPE because filter is not initialized at the right place in PIG-3765.
+
+java.lang.NullPointerException
+ at org.apache.pig.PigServer.registerJar(PigServer.java:540)
+ at org.apache.pig.PigServer.addJarsFromProperties(PigServer.java:261)
+ at org.apache.pig.PigServer.<init>(PigServer.java:237)
+ at org.apache.pig.PigServer.<init>(PigServer.java:219)
+ at org.apache.pig.tools.grunt.Grunt.<init>(Grunt.java:46)
+ at org.apache.pig.Main.run(Main.java:600)
+ at org.apache.pig.Main.main(Main.java:156)
+ at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+ at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+ at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+ at java.lang.reflect.Method.invoke(Method.java:597)
+ at org.apache.hadoop.util.RunJar.main(RunJar.java:197)
+=========================================================
+

@@ -1,0 +1,14 @@
+SET default_parallel 199;
+......
+by_size = ...
+uniq_vals = .....
+grpd = group uniq_vals all;
+all_vals = FOREACH grpd GENERATE uniq_vals;
+cross_result = CROSS by_size, all_vals;
+store cross_result into '/tmp/roh/cross/out/recipient_asns';
+
+Job1: grpd, all_vals, cross_result (The plan does GFCross function here for
+all_vals assuming cross parallelism to be 1 taking that of the current job even
+though it should consider default parallelism 199 of Job 2. Parallelism of Job1
+is 1 because of group all)
+Job2: cross_result (Actual CROSS of by_size and all_vals)

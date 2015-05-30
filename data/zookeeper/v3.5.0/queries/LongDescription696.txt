@@ -1,0 +1,10 @@
+seeing the following on the console for http://hudson.zones.apache.org/hudson/view/ZooKeeper/job/ZooKeeper-trunk/729/
+
+looks like the cnxn is closed twice? (the second time 'sock' is null). perhaps it's due to client closing and sending session term, then closing socket, server sees the read return -1, so closes cnxn, then sees the session close request (which was queued)?
+
+    [junit] 2010-03-10 03:15:53,205 - INFO  [main:NIOServerCnxn@1232] - Closed socket connection for client /127.0.0.1:41285 which had sessionid 0x127461233fc0000
+    [junit] 2010-03-10 03:15:53,206 - WARN  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:11221:NIOServerCnxn$Factory@269] - Ignoring unexpected runtime exception
+    [junit] java.lang.NullPointerException
+    [junit] 	at org.apache.zookeeper.server.NIOServerCnxn.close(NIOServerCnxn.java:1232)
+    [junit] 	at org.apache.zookeeper.server.NIOServerCnxn.doIO(NIOServerCnxn.java:594)
+    [junit] 	at org.apache.zookeeper.server.NIOServerCnxn$Factory.run(NIOServerCnxn.java:259)

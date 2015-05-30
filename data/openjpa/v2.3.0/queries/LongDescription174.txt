@@ -1,0 +1,19 @@
+class B extends A
+A is abstract
+B is concrete
+
+i have persisted an instance of B. now i try:
+
+A a = em.find(A.class, anId);
+
+openjpa fails with:
+
+... Cannot create new application identity instance for abstract   class "class A"
+
+if i change the find to:
+
+A a = em.find(B.class, anId);
+
+openjpa works okay.
+
+note that i have two test cases. one is my real model, and one is the simple A and B class example above. my real model fails, where the simple A, B class example works as expected. so, it's is either a side affect of some other issue, or there is something wrong in my model and the error message is misleading or lacking information.

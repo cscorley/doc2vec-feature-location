@@ -1,0 +1,3 @@
+tools/derbyrunjartest.java has occasionally failed in the nightlies, for instance http://www.multinet.no/~solberg/public/Apache/DerbyJvm1.4/testlog/Linux-2.6.14-1.1644_FC4_i686-i686/416774-derbyall_diff.txt and http://www.multinet.no/~solberg/public/Apache/Derby/testlog/SunOS-5.10_i86pc-i386/416051-derbyall_diff.txt.
+
+The symptom is either that the output is mixed or that parts of it is missing. This is most likely caused by the writing of output from the forked java processes happening in separate threads. The runtool() method only waits for the forked processes to finish, not for the output processing. The problem would probably go away if BackgroundStreamSaver.finish() were called from runtool().

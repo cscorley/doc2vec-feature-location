@@ -1,0 +1,34 @@
+The below script results in incorrect output for Pig 0.10 but runs fine with Pig 0.8,
+
+
+
+input.txt
+1	4
+1	3
+2	3
+2	4
+
+
+
+
+
+a = load 'input.txt' as (v1:int, v2:int);
+b = group a by v1;
+c = foreach b { x = a; x = order x by v2 asc; generate flatten(x); }
+store c into 'c1';
+
+
+
+
+Output from Pig 0.10
+--------------------
+1       4
+1       3
+2       3
+2       4
+
+Looking at the explain, it seems like the sorting is entirely missed out. 
+The script produces correct results if I change the alias name ie;
+
+c = foreach b 
+{ x = a; x1 = order x by v2 asc; generate flatten(x1); }

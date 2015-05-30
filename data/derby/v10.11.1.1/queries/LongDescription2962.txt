@@ -1,0 +1,5 @@
+Many of the tests use system table queries which fail when run against a database with TERRITORY_BASED collation with exceptions like:
+Caused by: org.apache.derby.client.am.SqlException: Comparisons between 'VARCHAR' and 'CHAR' are not supported.
+and can be seen when running lang/FullCollationTests.java
+
+It would be good to change the tests to use casts so that the queries succeed and the tests can complete.

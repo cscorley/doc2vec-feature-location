@@ -1,0 +1,12 @@
+If  DataCache is enabled, and the default statement batching is active, there are cases that we fail to report OptimisticException. 
+Because of that, the cached objects were not get removed from the cache.
+
+We have testcases running with different backend and returns different updateCount value from batchExecute when update failed:
+1. DB2/NT,  update count of 0 was returned 
+2. Oracle 10g,  update count of -2 was returned.
+
+The code in questioin is  in BatchingPreparedStatementManagerImpl.checkUpdateCount() method.
+
+We think the returned update count of  0 and -2 should report OptimisticException for UPDATE/DELETE SQL requests.
+Current implemented code reports OptimisticException if update count of -3 is returned.
+We don't know if any JDBC driver would return -3 for update/delete that did not qualify due to version value mismatch (in the case that the cache is out of sync with the database).

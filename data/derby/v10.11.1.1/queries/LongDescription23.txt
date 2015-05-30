@@ -1,0 +1,19 @@
+Reporting for Daniel John Debrunner.
+
+Doing simple boot and shutdown of the driver in a loop
+seem to grow the heap forever:
+new org.apache.derby.jdbc.EmbeddedDriver(); //boot the driver
+DriverManager.getConnection("jdbc:derby:;shutdown=true"); 
+//shutdown the cloudscape instance completely
+
+after booting and shutting down 1516 times, memory used is  
+~~41931056 bytes.
+Sample GC Output:
+1931.93: [Full GC 43484K->43243K(65088K), 0.1779751 secs]
+1933.13: [Full GC 43511K->43270K(65088K), 0.1914383 secs]
+1934.47: [Full GC 43538K->43297K(65088K), 0.1808878 secs]
+1935.68: [Full GC 43564K->43324K(65088K), 0.4461623 secs]
+1937.43: [Full GC 43591K->43350K(65088K), 0.1842980 secs]
+1938.63: [Full GC 43617K->43377K(65088K), 0.1873431 secs]
+1939.85: [Full GC 43644K->43404K(65088K), 0.1948505 secs]
+1941.07: [Full GC 43671K->43430K(65088K), 0.1790895 secs]

@@ -1,0 +1,40 @@
+ compatibility/serverVM-1.3_server10.1.2.0_clientVM-1.3_clientTrunk:
+
+VM Version = 1.3
+Could not find com.ibm.db2.jcc.DB2Driver
+Could not find org.apache.derby.jdbc.EmbeddedDriver
+Driver org.apache.derby.jdbc.ClientDriver Version = 10.2
+java.sql.SQLException: A network protocol error was encountered and the connection has been terminated: A PROTOCOL Data Stream Syntax Error was detected.  Reason: 0x8,544.
+	at org.apache.derby.client.am.SQLExceptionFactory.getSQLException(Unknown Source)
+	at org.apache.derby.client.am.SqlException.getSQLException(Unknown Source)
+	at org.apache.derby.jdbc.ClientDriver.connect(Unknown Source)
+	at java.sql.DriverManager.getConnection(DriverManager.java:512)
+	at java.sql.DriverManager.getConnection(DriverManager.java:141)
+	at org.apache.derbyTesting.functionTests.util.DerbyJUnitTest.getConnection(Unknown Source)
+	at org.apache.derbyTesting.functionTests.util.DerbyJUnitTest.getConnection(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.junitTests.compatibility.CompatibilitySuite.findServer(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.junitTests.compatibility.CompatibilitySuite.main(Unknown Source)
+Exception in thread "main" java.lang.Exception: Error lookup up server info: A network protocol error was encountered and the connection has been terminated: A PROTOCOL Data Stream Syntax Error was detected.  Reason: 0x8,544.
+	at org.apache.derbyTesting.functionTests.tests.junitTests.compatibility.CompatibilitySuite.findServer(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.junitTests.compatibility.CompatibilitySuite.main(Unknown Source)
+
+
+
+The compatibility test aborts on failure, so lots of combinations were not tested.
+
+The following combinations succeeded:
+compatibility/embedded_VM-1.3
+compatibility/embedded_VM-1.4
+compatibility/embedded_VM-1.5
+compatibility/serverVM-1.3_serverTrunk_clientVM-1.3_clientTrunk
+compatibility/serverVM-1.3_serverTrunk_clientVM-1.3_clientDerby10.1.2.0
+compatibility/serverVM-1.3_serverTrunk_clientVM-1.3_clientDerby10.1.1.0
+compatibility/serverVM-1.3_serverTrunk_clientVM-1.3_clientDB2JCC
+compatibility/serverVM-1.3_serverTrunk_clientVM-1.4_clientTrunk
+compatibility/serverVM-1.3_serverTrunk_clientVM-1.4_clientDerby10.1.2.0
+compatibility/serverVM-1.3_serverTrunk_clientVM-1.4_clientDerby10.1.1.0
+compatibility/serverVM-1.3_serverTrunk_clientVM-1.4_clientDB2JCC
+compatibility/serverVM-1.3_serverTrunk_clientVM-1.5_clientTrunk
+compatibility/serverVM-1.3_serverTrunk_clientVM-1.5_clientDerby10.1.2.0
+compatibility/serverVM-1.3_serverTrunk_clientVM-1.5_clientDerby10.1.1.0
+compatibility/serverVM-1.3_serverTrunk_clientVM-1.5_clientDB2JCC

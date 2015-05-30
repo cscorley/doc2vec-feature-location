@@ -1,0 +1,8 @@
+in BookKeeper.createLedger() following code is masking the error with ZKException. Should throw the original exception to client.
+
+
+        if (counter.getLh() == null) {
+            LOG.error("ZooKeeper error: " + counter.getrc());
+            throw BKException.create(Code.ZKException);
+        }
+

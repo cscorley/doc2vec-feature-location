@@ -1,0 +1,30 @@
+When deprecated config options are passed to a Pig job, it can unpredictably ignore them and override them with values provided in the defaults due to a "race condition"-like issue.
+
+This problem was first noticed as part of MAPREDUCE-3665, which was re-filed as HADOOP-7993 so as for it to fall in the right component bucket of the code being fixed. This JIRA fixed the bug on the Hadoop side of the code that caused older deprecated config options to be ignored when they were also specified in the defaults xml file with the newer config name or vice versa.
+
+However, the problem seemed to persist with Pig jobs and HADOOP-8021 was filed to address the issue. 
+
+A careful step-by-step execution of the code in a debugger reveals an second overlapping bug because of the way PIG is dealing with the configs.
+
+Not sure how / why this was not seen earlier, but the code in HExecutionEngine.java#recomputeProperties currently mashes together the default Hadoop configs and the user-specified properties into a Properties object. Given that it uses a HashTable to store the properties, if we have a config called "old.config.name" which is now deprecated and replaced by "new.config.name" and if one type is specified in the defaults and another by the user, we get a strange condition in which the repopulated Properties object has [in an unpredictable ordering] the following:
+
+
+
+config1.name=config1.value
+config2.name=config2.value
+...
+old.config.name=old.config.value
+...
+new.config.name=new.config.value
+...
+configx.name=configx.value
+
+
+
+When this Properties object gets converted into a Configuration object by the ConfigurationUtil#toConfiguration() routine, the deprecation kicks in and tries to resolve all old configs. Because the ordering is not guaranteed (and because in the case of compress, the hash function consistently gives the new config loaded from the defaults after the old one), the user-specified config is ignored in favor of the default config (which from the point of view of the Hadoop Configuration object is expected standard behavior to replace an earlier specification of a config value with a later one).
+
+The fix for this is probably straightforward, but will require a re-write of the a chunk of code in HExecutionEngine.java. Instead of mashing together a JobConf object and a Properties object into a Configuration object that is finally re-converted into a JobConf object, the code simply needs to consistently and correctly populate a JobConf / Configuration object that can handle deprecation instead of a "dumb" Java Properties object.
+
+We recently saw another potential occurrence of this bug where Pig seems to honor only mapreduce.job.queuename parameter for specifying queue name and ignores the parameter mapred.job.queue.name.
+
+Since this can break a lot of existing jobs that run fine on 0.20, marking this as a blocker.

@@ -1,0 +1,30 @@
+The HarnessJavaTest fails to me all the time with the following error:
+statementJdbc20(org.apache.derbyTesting.functionTests.tests.jdbcapi.JDBCHarnessJavaTest)junit.framework.ComparisonFailure: Output at line 3 expected:<... parameter value '-1[,]000' for Statement.s...> but was:<... parameter value '-1[��]000' for Statement.s...>
+        at org.apache.derbyTesting.functionTests.util.CanonTestCase.compareCanon(CanonTestCase.java:100)
+        at org.apache.derbyTesting.functionTests.util.HarnessJavaTest.runTest(HarnessJavaTest.java:91)
+        at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:76)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+        at junit.extensions.TestSetup.run(TestSetup.java:25)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+        at junit.extensions.TestSetup.run(TestSetup.java:25)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+        at junit.extensions.TestSetup.run(TestSetup.java:25)
+
+There is only a difference in encoding a comma in statementJdbc20.out file on 3 lines.
+
+I have the following locale setup:
+LANG=en_US.UTF-8
+LC_CTYPE=sk_SK.UTF-8
+LC_NUMERIC="en_US.UTF-8"
+LC_TIME="en_US.UTF-8"
+LC_COLLATE="en_US.UTF-8"
+LC_MONETARY="en_US.UTF-8"
+LC_MESSAGES=en_US.UTF-8
+LC_ALL=
+
+I think It has something to do with my locale setup but I have not checked this yet.
+
+On my output, instead of comma, there are 2 bytes - C2 A0

@@ -1,0 +1,15 @@
+I was just reading the FSDirectory java code, then I found this :
+
+  /** This cache of directories ensures that there is a unique Directory
+
+	instance per path, so that synchronization on the Directory can be used to
+	synchronize access between readers and writers.
+   *
+	This should be a WeakHashMap, so that entries can be GC'd, but that would
+	require Java 1.2.  Instead we use refcounts...
+   */
+  private static final Hashtable DIRECTORIES = new Hashtable();
+
+
+
+Since Lucene is now requiring at least 1.2 (for ThreadLocal for instance, which is using BTW some WeakHashMap), maybe it is time to change ?

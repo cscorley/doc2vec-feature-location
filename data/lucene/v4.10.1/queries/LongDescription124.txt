@@ -1,0 +1,95 @@
+According to the website's "Query Syntax" page, fuzzy searches are given a
+boost of 0.2. I've found this not to be the case, and have seen situations where
+exact matches have lower relevance scores than fuzzy matches.
+
+Rather than getting a boost of 0.2, it appears that all variations on the term
+are first found in the model, where dist* > 0.5.
+
+
+	dist = levenshteinDistance / length of min(termlength, variantlength)
+
+
+
+This then leads to a boolean OR search of all the variant terms, each of whose
+boost is set to (dist - 0.5)*2 for that variant.
+
+The upshot of all of this is that there are many cases where a fuzzy match will
+get a higher relevance score than an exact match.
+
+See this email for a test case to reproduce this anomalous behaviour.
+http://www.mail-archive.com/lucene-dev@jakarta.apache.org/msg02819.html
+
+Here is a candidate patch to address the issue -
+
+
+	
+	
+		
+		
+			lucene-1.2\src\java\org\apache\lucene\search\FuzzyTermEnum.java	Sun Jun 09
+13:47:54 2002
+		
+		
+			lucene-1.2-modified\src\java\org\apache\lucene\search\FuzzyTermEnum.java	Fri
+Mar 14 11:37:20 2003
+***************
+		
+		
+			99,105 ****
+      }
+		
+		
+	
+	
+
+
+
+      final protected float difference() 
+{
+!         return (float)((distance - FUZZY_THRESHOLD) * SCALE_FACTOR);
+      }
+
+      final public boolean endEnum() 
+{
+--- 99,109 ----
+      }
+
+      final protected float difference() {
+! 		if (distance == 1.0) 
+{
+! 			return 1.0f;
+! 		}
+! 		else
+! 			return (float)((distance - FUZZY_THRESHOLD) * SCALE_FACTOR);
+      }
+
+      final public boolean endEnum() {
+***************
+
+	
+	
+		
+		
+			111,117 ****
+       ******************************/
+		
+		
+	
+	
+
+
+
+      public static final double FUZZY_THRESHOLD = 0.5;
+!     public static final double SCALE_FACTOR = 1.0f / (1.0f - FUZZY_THRESHOLD);
+
+      /**
+       Finds and returns the smallest of three integers 
+— 115,121 ----
+       ******************************/
+
+      public static final double FUZZY_THRESHOLD = 0.5;
+!     public static final double SCALE_FACTOR = 0.2f * (1.0f / (1.0f -
+FUZZY_THRESHOLD));
+
+      /**
+       Finds and returns the smallest of three integers

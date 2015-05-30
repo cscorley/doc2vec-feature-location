@@ -1,0 +1,26 @@
+Exception reporting is different depending on the value of batchLimit.  To describe and demonstration this problem, lets take the following Entitiy:
+
+@Entity
+public class Ent1 
+{
+    @Id
+    private int pk;    
+    private String name;
+.....
+}
+
+As a test, lets assume that we have an Ent1 with pk=200 already defined in the DB and our test will attempt to create and persist another Ent1 with pk=200 (i.e. a duplicate key).  In so doing we get the following exception as indicated by the batchLimit settings:
+
+batchLimit=0 or batchLimit=1
+Caused by: <openjpa-1.2.2-SNAPSHOT-r422266:889769M nonfatal store error> org.apache.openjpa.persistence.EntityExistsException: The statement was aborted because it would have caused a duplicate key value in a unique or primary key constraint or unique index identified by 'SQL100301111328870' defined on 'ENT1'. 
+{prepstmnt 33038075 INSERT INTO Ent1 (pk, name) VALUES (?, ?) [params=(int) 200, (String) twohundred]}
+ [code=20000, state=23505]
+FailedObject: siemens75007.Ent1@19d0e0b
+
+
+when batchLimit=-1 or >1
+Caused by: <openjpa-1.2.2-SNAPSHOT-r422266:889769M nonfatal store error> org.apache.openjpa.persistence.EntityExistsException: The statement was aborted because it would have caused a duplicate key value in a unique or primary key constraint or unique index identified by 'SQL100301111328870' defined on 'ENT1'.
+FailedObject: prepstmnt 33038075 INSERT INTO Ent1 (pk, name) VALUES (?, ?) [org.apache.openjpa.jdbc.kernel.JDBCStoreManager$CancelPreparedStatement]
+
+
+Notice that when batchLimit=[0,1], the exception lists the prepared statement used along with the params which caused the failure, as well as the 'FailedObject'.  Furthermore, calling 'getFailedObject' on the resultant exception will give the caller the entity which caused the failure.  In contrast, when batchLimit=-1 or a value greater than 1, we can see that the exception message is missing the prepared statement info, however, it is presented in the 'FailedObject'.  The params are also missing from the prepared statement.  A call to 'getFailedObject' on the resultant exception will NOT give the caller the entity which caused the exception.

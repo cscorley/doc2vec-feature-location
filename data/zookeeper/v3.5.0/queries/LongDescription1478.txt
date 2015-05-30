@@ -1,0 +1,19 @@
+The following code appears in QuorumTest.testFollowersStartAfterLeader( ):
+
+for (int i = 0; i < 30; i++) {
+    try 
+{
+       zk.create("/test", "test".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE,
+                 CreateMode.PERSISTENT);
+       break;
+     }
+ catch(KeeperException.ConnectionLossException e) 
+{
+       Thread.sleep(1000);
+     }
+    // test fails if we still can't connect to the quorum after 30 seconds.
+    Assert.fail("client could not connect to reestablished quorum: giving up after 30+ seconds.");
+}
+
+From the comment it looks like the intention was to try to reconnect 30 times and only then trigger the Assert, but that's not what this does.
+After we fail to connect once and Thread.sleep is executed, Assert.fail will be executed without retrying create. 

@@ -1,0 +1,36 @@
+Secondary sort doing nested desc sort order incorrectly if the following conditions meet:
+
+1. We have sort and UDF in nested plan
+2. This UDF will use the same input tuples more than once
+3. The input tuples are sorted in desc order
+
+Here is a test case:
+
+
+register sequence.jar;
+A = load 'input' as (a0:int);
+B = group A ALL;
+C = foreach B {
+    D = order A by a0 desc;
+    generate sequence.CUMULATIVE(D,D);
+};
+dump C;
+
+
+
+input file:
+
+
+3
+4
+
+
+
+The input for the UDF is:
+
+
+({(4),(3)},{(3),(4)})
+
+
+
+The first bag is sorted desc, but the second is not.

@@ -1,0 +1,21 @@
+SpellCheckComponent builds the spell check index inside the current working directory instead of inside the dataDir specified in solrconfig.xml
+
+It should use the same behavior as the SpellCheckerRequestHandler which is to build the spellcheckIndexDir inside of dataDir.
+
+To reproduce this behavior use the following config:
+
+ <lst name="spellchecker">
+      <str name="classname">org.apache.solr.spelling.FileBasedSpellChecker</str>
+      <str name="name">external</str>
+      <str name="sourceLocation">spellings.txt</str>
+      <str name="characterEncoding">UTF-8</str>
+      <str name="spellcheckIndexDir">spellchecker2</str>
+    </lst>
+
+
+
+The index is created in the CWD/spellchecker2 whereas it should build it inside $
+{solr.data.dir}
+/spellchecker2
+
+First reported at http://www.nabble.com/SpellCheckComponent%3A-No-file-based-suggestions-%2B-Location-issue-p18048785.html

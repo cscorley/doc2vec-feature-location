@@ -1,0 +1,63 @@
+In embedded pig in python, if I have a sys.exit (0) the script always fails and returns exit code as 6.
+While it is agreeable that Pig will reinterpret the exit code from Python, sys.exit(0) should be considered as a normal termination.
+
+A sample code;
+
+
+#!/usr/bin/python
+from org.apache.pig.scripting import Pig
+import sys
+if 1 == 2:
+        sys.exit(1)
+else:
+        sys.exit(0)
+
+
+
+Exception from Pig
+
+
+org.apache.pig.backend.executionengine.ExecException: ERROR 1121: Python Error. Traceback (most recent call last):
+  File "a.py", line 9, in <module>
+    sys.exit(0)
+SystemExit: 0
+
+	at org.apache.pig.scripting.jython.JythonScriptEngine$Interpreter.execfile(JythonScriptEngine.java:107)
+	at org.apache.pig.scripting.jython.JythonScriptEngine.load(JythonScriptEngine.java:210)
+	at org.apache.pig.scripting.jython.JythonScriptEngine.main(JythonScriptEngine.java:202)
+	at org.apache.pig.scripting.ScriptEngine.run(ScriptEngine.java:275)
+	at org.apache.pig.Main.runEmbeddedScript(Main.java:925)
+	at org.apache.pig.Main.run(Main.java:516)
+	at org.apache.pig.Main.main(Main.java:111)
+Caused by: Traceback (most recent call last):
+  File "a.py", line 9, in <module>
+    sys.exit(0)
+SystemExit: 0
+
+	at org.python.core.PyException.fillInStackTrace(PyException.java:70)
+	at java.lang.Throwable.<init>(Throwable.java:181)
+	at java.lang.Exception.<init>(Exception.java:29)
+	at java.lang.RuntimeException.<init>(RuntimeException.java:32)
+	at org.python.core.PyException.<init>(PyException.java:46)
+	at org.python.core.PyException.<init>(PyException.java:43)
+	at org.python.core.PySystemState.exit(PySystemState.java:1206)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.python.core.PyReflectedFunction.__call__(PyReflectedFunction.java:175)
+	at org.python.core.PyObject.__call__(PyObject.java:355)
+	at org.python.core.PyMethod.__call__(PyMethod.java:215)
+	at org.python.core.PyMethod.instancemethod___call__(PyMethod.java:221)
+	at org.python.core.PyMethod.__call__(PyMethod.java:206)
+	at org.python.core.PyObject.__call__(PyObject.java:397)
+	at org.python.core.PyObject.__call__(PyObject.java:401)
+	at org.python.pycode._pyx0.f$0(a.py:9)
+	at org.python.pycode._pyx0.call_function(a.py)
+	at org.python.core.PyTableCode.call(PyTableCode.java:165)
+	at org.python.core.PyCode.call(PyCode.java:18)
+	at org.python.core.Py.runCode(Py.java:1197)
+	at org.python.util.PythonInterpreter.execfile(PythonInterpreter.java:166)
+	at org.apache.pig.scripting.jython.JythonScriptEngine$Interpreter.execfile(JythonScriptEngine.java:104)
+	... 6 more
+

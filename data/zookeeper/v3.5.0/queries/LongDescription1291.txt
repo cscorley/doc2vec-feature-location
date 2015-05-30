@@ -1,0 +1,7 @@
+It is possible that a leader proposes an epoch e and a follower adopts it by setting acceptedEpoch to e but the leader itself hasn't yet done so. 
+
+While I'm not sure this contradicts Zab (there is no description of where the leader actually sets its acceptedEpoch), it is very counter intuitive.
+
+The fix is to set acceptedEpoch in getEpochToPropose, i.e., before anyone LearnerHandler passes the getEpochToPropose barrier.
+
+The fix is done as part of ZK-1264

@@ -1,0 +1,14 @@
+The client system property -Dderby.client.traceDirectory does not work with ClientXADataSource. No trace files are created if this property is set when making XA Connections.
+
+I am sure it works fine with DriverManager connections and also checked tracing works fine using connection attributes and XA with.  ds.setConnectionAttributes("traceDirectory=./traceDir");
+
+I have not checked  ClientDataSource or ClientConnectionPoolDataSource.
+
+Attached is a reproduction for this issue.
+mkdir ./traceDir
+
+javac -g XATemplate.java  utilXid.java
+java -Dderby.client.traceDirectory="./traceDir" XATemplate
+
+You will see that traceDir is empty.
+This came up when debugging DERBY-5552

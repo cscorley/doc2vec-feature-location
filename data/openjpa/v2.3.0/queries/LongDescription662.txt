@@ -1,0 +1,31 @@
+With this entity:
+
+An entity has a version field, with AUTO strategy.
+
+@Entity
+public class Department 
+{
+    @Id 
+    private int id;
+    
+    @Version
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    private int myVersion;
+    
+    private String name;
+}
+
+A record is inserted... 
+
+		Department d = new Department();
+		d.setName("SALES");
+		em.getTransaction().begin();
+		em.persist(d);
+		em.getTransaction().commit();
+		em.close();
+
+...and queried. 
+
+If the select is over the entity, "SELECT d from Department d", the version field is set up  correctly in the returned entity.
+
+But if the version field is explicitly projected, "SELECT d.id, d.myVersion, d.name from Department d", the id and the name values are returned fine, but the myVersion value is null.

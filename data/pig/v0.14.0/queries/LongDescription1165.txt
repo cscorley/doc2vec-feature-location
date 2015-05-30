@@ -1,0 +1,38 @@
+In pig, we need to set signature for each LoadFunc. Currently, we use alias of the LOAD statement in Pig script of the signature of the LoadFunc. One use case we have is in LoadFunc, we use signature to retrieve pruned columns of each specific loader. However, in "order by" statement, we do not set signature for the loader correctly. In this case, we do not prune the loader correctly. 
+
+For example, the following script produce wrong result:
+
+
+
+a = load '1.txt' as (a0, a1);
+b = order a by a1;
+c = order b by a1;
+d = foreach c generate a1;
+dump d;
+
+
+
+1.txt:
+
+
+1       a
+2       b
+3       c
+6       d
+5       e
+
+
+
+expected result:
+a
+b
+c
+d
+e
+
+current result:
+1
+2
+3
+5
+6

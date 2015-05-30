@@ -1,0 +1,114 @@
+I have a small demonstration script (actually, a directory with one main script and several other scripts that it calls) where the output (STOREd to a file) is not consistent between runs.  I will paste the files below this message, and I can also email the tarball to anybody who would like it; I wanted to just upload the tarball but I don't see a way to do that.
+
+The problem appears to be that when a dataset X gets LOADed twice, with things other than LOADs occurring between the loads (like a FOREACH GENERATE), a FOREACH GENERATE that is later performed on X doesn't always choose the correct columns.  The correctness of the output was highly variable on my computer, for one of my co-workers it almost always failed, and for two other of my co-workers they didn't see any failures, so it's likely to be a race condition or something like that.
+
+
+– FILES FOR REPLICATING THE PROBLEM
+– I will paste the name of the file as a comment, with the content of the file beneath it.
+– I will put the contents of the following files:
+– 1) The Pig scripts (main.pig, calc_x_W.pig, calc_x_Y.pig, and load_raw_data.pig)
+– 2) The input data file (data.csv)
+– 3) The correct output file (correct_output.csv)
+– 4) The shell script that runs the pig files and compares their output to what it should be
+– 5) README
+
+
+– main.pig
+RUN calc_x_W.pig;
+RUN calc_x_Y.pig;
+STORE x_W INTO 'output/W' USING PigStorage(',');
+STORE x_Y INTO 'output/Y' USING PigStorage(',');  – this is wrong sometimes
+
+– calc_x_W.pig
+RUN load_raw_data.pig;
+x_W = FOREACH raw_data GENERATE x, w;
+
+– calc_x_Y.pig
+RUN load_raw_data.pig;
+x_Y = FOREACH raw_data GENERATE x, y;
+
+– load_raw_data.pig
+raw_data = LOAD 'data.csv' USING PigStorage(',')
+AS (
+  x,
+  y,
+  w
+);
+
+– data.csv
+x1,CORRECT  ANSWER,21148.59
+x2,CORRECT  OUTPUT,27219.98
+x3,RIGHT    ANSWER,10818.15
+
+– correct_output.csv
+x1,CORRECT  ANSWER
+x2,CORRECT  OUTPUT
+x3,RIGHT    ANSWER
+
+– testmany.sh
+typeset -a results
+i=0
+while (( i < 10 )); do
+  rm -rf output/*
+  pig -x local -d WARN -e "set debug off;run main.pig" || break
+  diff correct_output.csv output/Y/part-m-00000 && echo good
+  results[$i]=$?
+  i=$((i+1))
+done;
+echo $
+{results[*]}
+
+– README
+
+This directory is intended to show a non-deterministic bug in pig.
+Non-deterministic in the sense that the output of the script is not
+the same between different times it is run on the same input; usually
+the input is right, but sometimes it's wrong for no apparent reason.
+
+The scripts and dataset included in this directory demonstrate the
+issue.  The scripts load the file data.csv and write to the output
+directory, but the file output/Y/part-m-00000 is sometimes different
+between consecutive runs.  In particular, this file SHOULD just be
+the first and third columns of data.csv, but it sometimes uses the
+second column in place of the third.
+
+The root of the problem appears to be that there is an intermediate
+LOAD of data.csv, after some relations have already been defined.
+The following things will make the error stop:
+
+	commenting out "STORE x_W INTO 'output/W' USING PigStorage(',');" in main.pig
+	making a copy of data.csv called data2.csv, and a file load_daw_data2.pig
+  that loads data2.csv and having having calc_x_W.pig use that instead.
+
+
+
+It's possible that this isn't a bug and I'm just mis-using Pig;
+if that is the case I would greatly appreciate hearing about it.
+I believe this issue was also discussed here:
+http://mail-archives.apache.org/mod_mbox/pig-user/201102.mbox/%3CAANLkTi=2ZtkVGJevKLYSSzSH--KCcX38+Xaw2d2STNiS@mail.gmail.com%3E
+
+I have a shell script testmany.sh which runs my script multiple times
+and reports for which runs the output agrreed with the file correct_output.csv.
+
+IMPORTANT NOTE: We have run this code on 4 different laptops, all running
+pig 0.8.0.  On one laptop (the one I'm using) the output of this script
+was highly non-deterministic, generally giving both the wrong and the right
+output several times each during 10 runs.  Another laptop consistently got
+the wrong output up until the 28th run, when it finally gave the right output.
+The other two computer never actually observed the wrong output.  We suspect
+this is likely a race condition.
+
+
+Thanks!
+
+USAGE
+$ cd pigbug
+$ bash testmany.sh
+$ # the last line of output will be a sequence of 0s and 1s, with 1
+$ # meaning that there was disagreement between the output and
+$ # correct_output.csv
+
+Field Cady
+field.cady@gmail.com
+fcady@operasolutions.com
+(360)621-4810

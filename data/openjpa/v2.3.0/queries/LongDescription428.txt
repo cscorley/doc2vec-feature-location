@@ -1,0 +1,35 @@
+Hi all, this bug is to report a confusing and misplaced error message. Problem is described below. Feel free to request more info from me.
+
+When running my project with OpenJPA, I get the following error message:
+
+140  INFO   [http-0.0.0.0-8080-Processor23] openjpa.Runtime - Starting OpenJPA 1.0.0
+380  INFO   [http-0.0.0.0-8080-Processor23] openjpa.jdbc.JDBC - Using dictionary class "org.apache.openjpa.jdbc.sql.DB2Dictionary".
+20  WARN   [http-0.0.0.0-8080-Processor25] openjpa.Runtime - The property named "openjpa.Id" was not recognized and will be ignored, although the name closely matches a valid property called "openjpa.Id".
+100  INFO   [http-0.0.0.0-8080-Processor25] openjpa.Runtime - Starting OpenJPA 1.0.0
+300  INFO   [http-0.0.0.0-8080-Processor25] openjpa.jdbc.JDBC - Using dictionary class "org.apache.openjpa.jdbc.sql.DB2Dictionary".
+
+As you can see, the two property names printed are the same, not different or similar. I retyped all my @Id annotations to make sure there was no special character in one of them coming from copy&paste.
+Furthermore, I was able to identify that the error message was being printed only when I removed the @Id annotation from one of my classes (all the other classes still have @Id).
+
+Here is a sample of my class without @Id annotation:
+@Entity
+@Table(name="TAX", schema="JPA_SC")
+public class Tax  {
+
+	// Class variables  
+	protected double taxamount;
+
+	public Tax(){
+
+	}
+
+	public Tax(double taxamount)
+{
+		this.taxamount = taxamount;
+	}
+//plus getter and setter for taxamount
+
+}
+
+Regards,
+Vitor Rodrigues

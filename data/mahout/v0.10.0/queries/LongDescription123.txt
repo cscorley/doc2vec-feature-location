@@ -1,0 +1,73 @@
+(For GSoC)
+
+Abstract:
+
+Latent Dirichlet Allocation (Blei et al, 2003) is a powerful learning
+algorithm for automatically and jointly clustering words into "topics"
+and documents into mixtures of topics, and it has been successfully
+applied to model change in scientific fields over time (Griffiths and
+Steyver, 2004; Hall, et al. 2008). In this project, I propose to
+implement a distributed variant of Latent Dirichlet Allocation using
+MapReduce, and, time permitting, to investigate extensions of LDA and
+possibly more efficient algorithms for distributed inference.
+
+Detailed Description:
+
+A topic model is, roughly, a hierarchical Bayesian model that
+associates with each document a probability distribution over
+"topics", which are in turn distributions over words. For instance, a
+topic in a collection of newswire might include words about "sports",
+such as "baseball", "home run", "player", and a document about steroid
+use in baseball might include "sports", "drugs", and "politics". Note
+that the labels "sports", "drugs", and "politics", are post-hoc labels
+assigned by a human, and that the algorithm itself only assigns
+associate words with probabilities. The task of parameter estimation
+in these models is to learn both what these topics are, and which
+documents employ them in what proportions.
+
+One of the promises of unsupervised learning algorithms like Latent
+Dirichlet Allocation (LDA; Blei et al, 2003) is the ability to take a
+massive collections of documents and condense them down into a
+collection of easily understandable topics. However, all available
+open source implementations of LDA and related topics models are not
+distributed, which hampers their utility. This project seeks to
+correct this shortcoming.
+
+In the literature, there have been several proposals for paralellzing
+LDA. Newman, et al (2007) proposed to create an "approximate" LDA in
+which each processors gets its own subset of the documents to run
+Gibbs sampling over. However, Gibbs sampling is slow and stochastic by
+its very nature, which is not advantageous for repeated runs. Instead,
+I propose to follow Nallapati, et al. (2007) and use a variational
+approximation that is fast and non-random.
+
+
+References:
+
+David M. Blei, J McAuliffe. Supervised Topic Models. NIPS, 2007.
+
+David M. Blei , Andrew Y. Ng , Michael I. Jordan, Latent dirichlet
+allocation, The Journal of Machine Learning Research, 3, p.993-1022,
+3/1/2003
+
+T. L. Griffiths and M. Steyvers. Finding scientiﬁc topics. Proc Natl
+Acad Sci U S A, 101 Suppl 1: 5228-5235, April 2004.
+
+David LW Hall, Daniel Jurafsky, and Christopher D. Manning. Studying
+the History of Ideas Using Topic Models. EMNLP, Honolulu, 2008.
+
+Ramesh Nallapati, William Cohen, John Lafferty, Parallelized
+variational EM for Latent Dirichlet Allocation: An experimental
+evaluation of speed and scalability, ICDM workshop on high performance
+data mining, 2007.
+
+Newman, D., Asuncion, A., Smyth, P., & Welling, M. Distributed
+Inference for Latent Dirichlet Allocation. NIPS, 2007.
+
+
+Xuerui Wang , Andrew McCallum, Topics over time: a non-Markov
+continuous-time model of topical trends. KDD, 2006
+
+
+Wolfe, J., Haghighi, A, and Klein, D. Fully distributed EM for very
+large datasets. ICML, 2008.

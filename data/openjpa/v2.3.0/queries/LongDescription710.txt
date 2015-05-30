@@ -1,0 +1,8 @@
+An ORDER BY clause is added while selecting even for collection-valued fields that do not require ordering. 
+
+For example, consider a typical Parent-Child model with bi-directional relationship where Parent.children is declared and/or initialized as a Set rather than a List will result in the following SQL
+       "SELECT t0.id, t0.name, t1.id FROM PARENT t0 LEFT OUTER JOIN CHILD t1 ON t0.id = t1.PARENT_ID ORDER BY t1.PARENT_ID"
+corresponding to JPQL "select p from Parent p left join fetch p.children".
+
+Is ORDER BY clause necessary in this context? I
+t also adds an extra performance overhead on the SQL query execution for a fairly frequent usage pattern.

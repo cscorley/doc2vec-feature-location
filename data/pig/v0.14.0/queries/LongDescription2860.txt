@@ -1,0 +1,25 @@
+I found that TestAvroStorageUtils.testGetConcretePathFromGlob fails on some versions of hadoop (not ones that upstream Pig is currently using) with the following error:
+
+
+
+Call From localhost.localdomain/127.0.0.1 to localhost.localdomain:55883 failed on connection exception: java.net.ConnectException: Connection refused; For more details see:  http://wiki.apache.org/hadoop/ConnectionRefused
+java.net.ConnectException: Call From localhost.localdomain/127.0.0.1 to localhost.localdomain:55883 failed on connection exception: java.net.ConnectException: Connection refused; For more details see:  http://wiki.apache.org/hadoop/ConnectionRefused
+    at org.apache.hadoop.net.NetUtils.wrapException(NetUtils.java:722)
+    at org.apache.hadoop.ipc.Client.call(Client.java:1164)
+    at org.apache.hadoop.ipc.ProtobufRpcEngine$Invoker.invoke(ProtobufRpcEngine.java:195)
+    at $Proxy12.getFileInfo(Unknown Source)
+    at org.apache.hadoop.io.retry.RetryInvocationHandler.invokeMethod(RetryInvocationHandler.java:164)
+    at org.apache.hadoop.io.retry.RetryInvocationHandler.invoke(RetryInvocationHandler.java:83)
+    at $Proxy12.getFileInfo(Unknown Source)
+    at org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolTranslatorPB.getFileInfo(ClientNamenodeProtocolTranslatorPB.java:613)
+    at org.apache.hadoop.hdfs.DFSClient.getFileInfo(DFSClient.java:1399)
+    at org.apache.hadoop.hdfs.DistributedFileSystem.getFileStatus(DistributedFileSystem.java:740)
+    at org.apache.hadoop.fs.FileSystem.getFileStatus(FileSystem.java:2083)
+    at org.apache.hadoop.fs.FileSystem.globStatusInternal(FileSystem.java:1547)
+    at org.apache.hadoop.fs.FileSystem.globStatus(FileSystem.java:1488)
+    at org.apache.pig.piggybank.storage.avro.AvroStorageUtils.getConcretePathFromGlob(AvroStorageUtils.java:146)
+    at org.apache.pig.piggybank.test.storage.avro.TestAvroStorageUtils.testGetConcretePathFromGlob(TestAvroStorageUtils.java:142)
+
+
+
+The fix is to explicitly add the URI scheme "file://" to the path that is used in the test.

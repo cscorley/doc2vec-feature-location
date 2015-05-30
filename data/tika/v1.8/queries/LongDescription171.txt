@@ -1,0 +1,12 @@
+One problem with mapping document content to plain text is incorrect whitespace handling:
+The normal way to parse documents to plain text is to instantiate a parser and pass the SAX events from the parser to a BodyContentHandler(TextContentHandler(Writer)). This appends all output to a writer (see example on web site).
+
+This works good for thumb parsers that just create a single <p>> tag in XHTML output whith all content of the document in it (including newlines).
+
+As soon, as a more inteligent parser is used (e.g. HTML Parser) that creates multiple nodes and a feature-rich XHTML document, the problems begin. The TextContentHandler just strips all tags away and only characters() events are forwarded to the Writer. When the original document (e.g. a HTML document) does not contain additional whitespace and linefeeds (e.g. it is correct and possible to create a XHTML document with all content in one text line, but consisting of several paragraphs. In this case </p><p> events between paragraphs are stripped and there is no whitespace anymore between the two paragraphs.
+
+My patch contains a new XHTMLToTextContentHandler, that checks the elements and inserts whitespace to the output depending on the XHTML tag type. HTML block tags like <p/> get a newline at the end, but HTML inline tags do not add whitespace. This mapping is done by a simple Set<String> of tag names extracted from the XHTML 1.0 spec. To make it even better, tables are printed out with white space and tabs between cells.
+
+With this patch, I am able to correctly index a lot of document with Lucene.
+
+The patch also changes some tests to correctly check for the '\n' at the end of plain text streams (which are included because of the single <p>-paragraph around plain text).

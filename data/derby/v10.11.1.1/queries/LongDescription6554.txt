@@ -1,0 +1,22 @@
+
+ij version 10.11
+ij> connect 'jdbc:derby:memory:db;create=true' as c1;
+ij> autocommit off;
+ij> create sequence seq;
+0 rows inserted/updated/deleted
+ij> values next value for seq;
+1          
+-----------
+ERROR X0Y84: Too much contention on sequence SEQ. This is probably caused by an uncommitted scan of the SYS.SYSSEQUENCES catalog. Do not query this catalog directly. Instead, use the SYSCS_UTIL.SYSCS_PEEK_AT_SEQUENCE function to view the current value of a query generator.
+ij> rollback;
+ERROR 08003: No current connection.
+ij> connect 'jdbc:derby:memory:db' as c2;
+ij(C2)> autocommit off;
+ij(C2)> create sequence seq;
+0 rows inserted/updated/deleted
+ij(C2)> values next value for seq;
+1          
+-----------
+ERROR 38000: The exception 'org.apache.derby.shared.common.sanity.AssertFailure: ASSERT FAILED Identity being changed on a live cacheable. Old uuidString = 0ddd00a9-0145-98ba-79df-000007d88b08' was thrown while evaluating an expression.
+ERROR XJ001: Java exception: 'ASSERT FAILED Identity being changed on a live cacheable. Old uuidString = 0ddd00a9-0145-98ba-79df-000007d88b08: org.apache.derby.shared.common.sanity.AssertFailure'.
+

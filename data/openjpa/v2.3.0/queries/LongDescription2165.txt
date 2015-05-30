@@ -1,0 +1,5 @@
+When adding or removing elements from a non-database-ordered (no order by or order column - which require strict order to be maintained) lazy proxied collection which is a relationship to other entities, OpenJPA loads the collection before performing the operation.  This can be very expensive if an operation is only adding or removing items from the collection.  I created a feature that, when switched on, allows non-indexed add and remove operations to be performed on a collection without triggering a load.  The collection will get loaded (and reconciled, if necessary) when an operation is performed that requires a load, such as iteration, size, isEmpty, etc.  Currently, the feature can be enabled for the using this new attribute on the ProxyManager.
+
+<property name="openjpa.ProxyManager" value="delayCollectionLoading=true"/>
+
+The basics have been added to field mappings/metadata such that this could be enabled on a per-field basis in the future.

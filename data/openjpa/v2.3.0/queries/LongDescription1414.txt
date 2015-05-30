@@ -1,0 +1,9 @@
+In performance runs, a lot of the time is spent on detach processing. This is partially because a detach all is always done after an EntityManager clear() or close(). Therefore, we nee to make the detach processing as efficient as possible. There are 2 areas that we've found where this can be done:
+
+1 -  DetachManager always attempts to load fields when detaching all. This does not appear to be necessary when the default DetachState option of "loaded" is used.
+
+2 - Detach goes through a bunch of processing to "detach version", which essentially copies the version to the entity that is to be returned. But, when detach all internal is, no copy is being made of the original entity. And, it appears that the original entity always has the version. So, this processing is not necessary in this scenario.
+
+To be cautious, a new Compatibility property option is being created - reloadOnDetach - to control both of these behavior. In 1.2.x, it will be true by default, so behavior will not be changed for current users. The user will have to set this property to false in order to get the performance benefit.
+
+If all goes well, the property will be set to false by default in 2.0.

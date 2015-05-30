@@ -1,0 +1,4 @@
+When opening a large number of databases in parallel, many threads get stuck for a long time in FileMonitor, as reported in this thread on derby-user:
+http://mail-archives.apache.org/mod_mbox/db-derby-user/201202.mbox/%3CCAEQ8c00vx0yFrwWyjm%3Dt_Yd%2BuuKGOL%3DSgpYfQuYghOOPgdN8-w%40mail.gmail.com%3E
+
+The synchronization in FileMonitor is only needed because the monitor instance is also used as a shared PrivilegedExceptionAction instance. Since all databases share one FileMonitor instance, threads that access any of these methods are serialized. If each method created its own PrivilegedAction or PrivilegedExceptionAction instance instead of using the monitor's run() method, these methods wouldn't need synchronization.

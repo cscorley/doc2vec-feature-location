@@ -1,0 +1,46 @@
+The following script fail:
+
+
+
+a = load '1.txt' as (a0:int, a1, a2:bag{t:(i1:int, i2:int)});
+b = load '2.txt' as (b0:int, b1);
+c = foreach a generate a0, flatten(a2) as (q1, q2);
+d = join c by a0, b by b0;
+explain d;
+
+
+
+Error message:
+org.apache.pig.impl.logicalLayer.FrontendException: ERROR 1067: Unable to explain alias d
+        at org.apache.pig.PigServer.explain(PigServer.java:958)
+        at org.apache.pig.tools.grunt.GruntParser.explainCurrentBatch(GruntParser.java:353)
+        at org.apache.pig.tools.grunt.GruntParser.processExplain(GruntParser.java:285)
+        at org.apache.pig.tools.grunt.GruntParser.processExplain(GruntParser.java:248)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.Explain(PigScriptParser.java:605)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:327)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:165)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:141)
+        at org.apache.pig.tools.grunt.Grunt.exec(Grunt.java:90)
+        at org.apache.pig.Main.run(Main.java:498)
+        at org.apache.pig.Main.main(Main.java:107)
+Caused by: org.apache.pig.impl.logicalLayer.FrontendException: ERROR 2042: Error in new logical plan. Try -Dpig.usenewlogicalplan=false.
+        at org.apache.pig.backend.hadoop.executionengine.HExecutionEngine.compile(HExecutionEngine.java:308)
+        at org.apache.pig.PigServer.compilePp(PigServer.java:1354)
+        at org.apache.pig.PigServer.explain(PigServer.java:927)
+        ... 10 more
+Caused by: org.apache.pig.impl.logicalLayer.FrontendException: ERROR 2000: Error processing rule PushDownForEachFlatten. Try -t PushDownForEachFlatten
+        at org.apache.pig.newplan.optimizer.PlanOptimizer.optimize(PlanOptimizer.java:120)
+        at org.apache.pig.backend.hadoop.executionengine.HExecutionEngine.compile(HExecutionEngine.java:276)
+        ... 12 more
+Caused by: java.lang.NullPointerException
+        at org.apache.pig.newplan.logical.relational.LOGenerate.getSchema(LOGenerate.java:145)
+        at org.apache.pig.newplan.logical.optimizer.SchemaResetter.visit(SchemaResetter.java:89)
+        at org.apache.pig.newplan.logical.relational.LOGenerate.accept(LOGenerate.java:225)
+        at org.apache.pig.newplan.DependencyOrderWalker.walk(DependencyOrderWalker.java:75)
+        at org.apache.pig.newplan.logical.optimizer.SchemaResetter.visit(SchemaResetter.java:76)
+        at org.apache.pig.newplan.logical.relational.LOForEach.accept(LOForEach.java:71)
+        at org.apache.pig.newplan.DependencyOrderWalker.walk(DependencyOrderWalker.java:75)
+        at org.apache.pig.newplan.PlanVisitor.visit(PlanVisitor.java:50)
+        at org.apache.pig.newplan.logical.optimizer.SchemaPatcher.transformed(SchemaPatcher.java:43)
+        at org.apache.pig.newplan.optimizer.PlanOptimizer.optimize(PlanOptimizer.java:112)
+        ... 13 more

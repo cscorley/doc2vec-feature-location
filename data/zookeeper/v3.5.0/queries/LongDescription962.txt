@@ -1,0 +1,54 @@
+From mailing list:
+It seems like we rely on the LearnerHandler thread startup to capture all of the missing committed
+transactions in the SNAP or DIFF, but I don't see anything (especially in the DIFF case) that
+is preventing us for committing more transactions before we actually start forwarding updates
+to the new follower.
+
+Let me explain using my example from ZOOKEEPER-919. Assume we have quorum already, so the
+leader can be processing transactions while my follower is starting up.
+
+I'm a follower at zxid N-5, the leader is at N. I send my FOLLOWERINFO packet to the leader
+with that information. The leader gets the proposals from its committed log (time T1), then
+syncs on the proposal list (LearnerHandler line 267. Why? It's a copy of the underlying proposal
+list... this might be part of our problem). I check to see if the peerLastZxid is within my
+max and min committed log and it is, so I'm going to send a diff. I set the zxidToSend to
+be the maxCommittedLog at time T3 (we already know this is sketchy), and forward the proposals
+from my copied proposal list starting at the peerLastZxid+1 up to the last proposal transaction
+(as seen at time T1).
+
+After I have queued up all those diffs to send, I tell the leader to startFowarding updates
+to this follower (line 308). 
+
+So, let's say that at time T2 I actually swap out the leader to the thread that is handling
+the various request processors, and see that I got enough votes to commit zxid N+1. I commit
+N+1 and so my maxCommittedLog at T3 is N+1, but this proposal is not in the list of proposals
+that I got back at time T1, so I don't forward this diff to the client. Additionally, I processed
+the commit and removed it from my leader's toBeApplied list. So when I call startForwarding
+for this new follower, I don't see this transaction as a transaction to be forwarded. 
+
+There's one problem. Let's also imagine, however, that I commit N+1 at time T4. The maxCommittedLog
+value is consistent with the max of the diff packets I am going to send the follower. But,
+I still committed N+1 and removed it from the toBeApplied list before calling startFowarding
+with this follower. How does the follower get this transaction? Does it?
+
+To put it another way, here is the thread interaction, hopefully formatted so you can read
+it...
+
+		LearnerHandlerThread					RequestProcessorThread
+T1(LH):	get list of proposals (COPY)
+T2(RPT):								commit N+1, remove from toBeApplied
+T3(LH):	get maxCommittedLog
+T4(LH):	send diffs from view at T1
+T5(LH):	startForwarding
+
+
+Or
+T1(LH):	get list of proposals (COPY)
+T2(LH):	get maxCommittedLog
+T3(RPT):								commit N+1, remove from toBeApplied
+T4(LH):	send diffs from view at T1
+T5(LH):	startFowarding
+
+
+I'm trying to figure out what, if anything, keeps the requests from being committed, removed,
+and never seen by the follower before it fully starts up. 

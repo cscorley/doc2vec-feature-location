@@ -1,0 +1,5 @@
+The current bookkeeper server is single threaded. The same thread handles reads and writes. When reads are slow (possibly because of excessive seeks), add entry operations suffer in terms of latencies. Providing separate read and write threads helps in reducing add entry latencies and increasing throughput even when we're facing slow reads. Having a single read thread also results in low disk utilization because seeks can't be ordered efficiently by the OS. Multiple read threads would help in improving the read throughput. 
+
+Discussion on this can be found at http://mail-archives.apache.org/mod_mbox/zookeeper-bookkeeper-dev/201209.mbox/%3cCAOLhyDQpzn-v10zyNFwUd_h0qzRxtmJgTTx7a9eoFoHYytyJbA@mail.gmail.com%3e
+
+Reviewboard : https://reviews.apache.org/r/7560/

@@ -1,0 +1,12 @@
+this patch would add support to StandardRequestHandler and DisMaxRequestHandler for specifying "appends" and "invariants" SolrParams in the solrconfig.xml, from the example config...
+
+         In addition to defaults, "appends" params can be specified
+         to identify values which whould be appended to the list of
+         multi-valu params from the query (or the existing "defaults").
+...
+         "invariants" are a way of letting the Solr maintainer lock down
+         the options available to Solr clients.  Any params values
+         specified here are used regardless of what values may be specified
+         in either the query, the "defaults", or the "appends" params.
+
+...functionality is largely reusable by any handler, via SolrPluginUtils.setDefaults.

@@ -1,0 +1,17 @@
+In Leader.java, getEpochToPropose() and waitForEpochAck() have the following code:
+
+if (readyToStart && verifier.containsQuorum(electingFollowers)) 
+{
+     electionFinished = true;
+     electingFollowers.notifyAll();
+}
+ else {
+     electingFollowers.wait(self.getInitLimit()*self.getTickTime());
+     if (waitingForNewEpoch) 
+{
+	throw new InterruptedException("Out of time to propose an epoch");
+     }
+}	
+
+In Java, the wait statement can wake up without being notified, interrupted, or timing out, a so-called spurious wakeup. So it should be guarded by a while loop with the condition we're waiting for.
+

@@ -1,0 +1,162 @@
+If you run this application:
+
+-------- 8< -------
+import java.sql.*;
+import java.util.*;
+
+public class DerbyBug4 {
+    private static String x;
+    private static Random random = new Random(0);
+    private static final int DB_SIZE = 10000;
+
+    public static void main(String[] args) throws Exception {
+        final StringBuilder sbX = new StringBuilder();
+        for (int i = 0; i < 65535; i++) 
+{
+            sbX.append('X');
+        }
+        x = sbX.toString();
+        Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+        final Connection con =
+            DriverManager.getConnection("jdbc:derby:bug;create=true");
+        createAndFillDatabase(con);
+        updateDatabase(con);
+        con.close();
+    }
+
+    private static void updateDatabase(final Connection con) throws SQLException {
+        final Statement stm = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_UPDATABLE);
+        final ResultSet rs = stm.executeQuery("SELECT * FROM journal FOR UPDATE");
+        for (int row = 1; rs.next(); row++) {
+            update(rs, "ip");
+            update(rs, "sender");
+            update(rs, "recipient");
+            update(rs, "mailsender");
+            update(rs, "mailfrom");
+            update(rs, "mailto");
+            update(rs, "cc");
+            update(rs, "bcc");
+            update(rs, "replyto");
+            update(rs, "subject");
+            update(rs, "attachments");
+            update(rs, "status");
+            update(rs, "reason");
+            rs.updateInt("totallength", 0);
+            rs.updateDouble("spamscore", 0);
+            rs.updateRow();
+            if (row % 500 == 0) 
+{
+                System.out.println("update: " + row);
+            }
+        }
+        rs.close();
+        stm.close();
+    }
+
+    private static void createAndFillDatabase(Connection con)
+    throws SQLException {
+        final Statement stm = con.createStatement();
+        stm.executeUpdate("CREATE TABLE journal("
+                + "ID VARCHAR(20) PRIMARY KEY default '' NOT NULL,"
+                + "IP VARCHAR(45) default '' NOT NULL,"
+                + "SENDER VARCHAR(32000) default '' NOT NULL,"
+                + "RECIPIENT VARCHAR(32000) default '' NOT NULL,"
+                + "MAILSENDER VARCHAR(32000) default '' NOT NULL,"
+                + "MAILFROM VARCHAR(32000) default '' NOT NULL,"
+                + "MAILTO VARCHAR(32000) default '' NOT NULL,"
+                + "CC VARCHAR(32000) default '' NOT NULL,"
+                + "BCC VARCHAR(32000) default '' NOT NULL,"
+                + "REPLYTO VARCHAR(32000) default '' NOT NULL,"
+                + "MAILDATE TIMESTAMP default '0001-01-01 00:00:00',"
+                + "RECEIVEDDATE TIMESTAMP default '0001-01-01 00:00:00' NOT NULL,"
+                + "SUBJECT VARCHAR(32000) default '' NOT NULL,"
+                + "TOTALLENGTH BIGINT default 0 NOT NULL,"
+                + "ATTACHMENTS VARCHAR(32000) default '' NOT NULL,"
+                + "SPAMSCORE DOUBLE NOT NULL,"
+                + "STATUS VARCHAR(11) default 'aborted' NOT NULL,"
+                + "REASON VARCHAR(32000) NOT NULL)");
+        con.commit();
+        stm.close();
+
+        final PreparedStatement pstm = con.prepareStatement(
+                "INSERT INTO journal VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        for (int i = 0; i < DB_SIZE; i++) {
+            int col = 1;
+            pstm.setString(col++, Integer.toHexString);
+            doRandom(pstm, col++, 45);
+            doRandom(pstm, col++, 10);
+            doRandom(pstm, col++, 10);
+            doRandom(pstm, col++, 5);
+            doRandom(pstm, col++, 20);
+            doRandom(pstm, col++, 20);
+            doRandom(pstm, col++, 40);
+            doRandom(pstm, col++, 5);
+            doRandom(pstm, col++, 20);
+            pstm.setTimestamp(col++, random.nextBoolean()
+                                     ? new Timestamp(System.currentTimeMillis())
+                                     : null);
+            pstm.setTimestamp(col++, new Timestamp(System.currentTimeMillis()));
+            doRandom(pstm, col++, 80);
+            pstm.setInt(col++, random.nextInt(10000000));
+            doRandom(pstm, col++, 500);
+            pstm.setDouble(col++, random.nextDouble() * 10);
+            doRandom(pstm, col++, 11);
+            doRandom(pstm, col++, 100);
+
+            pstm.executeUpdate();
+            if (i % 500 == 0) 
+{
+                con.commit();
+                System.out.println("insert: " + i);
+            }
+        }
+        con.commit();
+        pstm.close();
+    }
+
+    private static void doRandom(PreparedStatement pstm, int pos, int length)
+    throws SQLException 
+{
+        pstm.setString(pos, x.substring(0, random.nextInt(length)));
+    }
+
+    private static void update(final ResultSet rs, final String field)
+    throws SQLException 
+{
+        rs.updateString(field, x.substring(0, rs.getString(field).length()));
+    }
+}
+-------- 8< -------
+
+you will get this exception:
+
+Exception in thread "main" java.lang.OutOfMemoryError: Java heap space
+	at org.apache.derby.iapi.services.io.DynamicByteArrayOutputStream.<init>(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.StoredPage.storeRecordForUpdate(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.StoredPage.storeRecord(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.UpdateOperation.doMe(Unknown Source)
+	at org.apache.derby.impl.store.raw.log.FileLogger.logAndDo(Unknown Source)
+	at org.apache.derby.impl.store.raw.xact.Xact.logAndDo(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.LoggableActions.doAction(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.LoggableActions.actionUpdate(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.StoredPage.doUpdateAtSlot(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.BasePage.updateAtSlot(Unknown Source)
+	at org.apache.derby.impl.store.access.conglomerate.GenericConglomerateController.replace(Unknown Source)
+	at org.apache.derby.impl.sql.execute.RowChangerImpl.updateRow(Unknown Source)
+	at org.apache.derby.impl.sql.execute.UpdateResultSet.collectAffectedRows(Unknown Source)
+	at org.apache.derby.impl.sql.execute.UpdateResultSet.open(Unknown Source)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedResultSet.updateRow(Unknown Source)
+	at DerbyBug4.updateDatabase(DerbyBug4.java:43)
+	at DerbyBug4.main(DerbyBug4.java:19)
+
+
+If you enable sanity checks, then this exception occurs:
+
+Exception in thread "main" org.apache.derby.shared.common.sanity.AssertFailure: ASSERT FAILED statementContext is not expected to equal statementContexts[0]
+	at org.apache.derby.shared.common.sanity.SanityManager.ASSERT(SanityManager.java:120)
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.popStatementContext(GenericLanguageConnectionContext.java:2095)
+	at org.apache.derby.impl.jdbc.EmbedResultSet.updateRow(EmbedResultSet.java:3773)
+	at DerbyBug4.updateDatabase(DerbyBug4.java:43)
+	at DerbyBug4.main(DerbyBug4.java:19)

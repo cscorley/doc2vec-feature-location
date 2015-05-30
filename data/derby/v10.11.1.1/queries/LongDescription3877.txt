@@ -1,0 +1,8 @@
+dblook does have support for grant/revoke although I am unsure of its quality, cf, my questions
+in DERBY-3868. Nevertheless, I choose to build support for roles for dblook.
+Since role creation and the granting of roles is only allowed for the data base owner in the first basic
+roles implementation, expanding the existing dblook tests to just dump the roles and roles grants should be easy.
+
+In general though, the dblook output file, in order to receate a database, must potentially use several connection, so the objects will be owned by the original owner. [The model for running the presently generated script run seems to be within one connection.] Setting roles properly to be able to recreate a view with the correct owner, for example, would be part of such a more advanced script which would be object owner aware.
+
+My intention with this issue is just to add support for dumping roles and role grants.

@@ -1,0 +1,24 @@
+I have started the ZK cluster and when tries to create a BookKeeper client from my application, it is throwing following ZooKeeper ConnectionLossException and is exitting.
+
+
+
+12/06/01 11:44:31 WARN client.ZooKeeperSaslClient: SecurityException: java.lang.SecurityException: Unable to locate a login configuration occurred when trying to find JAAS configuration.
+12/06/01 11:44:31 INFO client.ZooKeeperSaslClient: Client will not SASL-authenticate because the default JAAS configuration section 'Client' could not be found. If you are not using SASL, you may ignore this. On the other hand, if you expected SASL to work, please fix your JAAS configuration.
+12/06/01 11:44:31 INFO zookeeper.ClientCnxn: Client session timed out, have not heard from server in 4540ms for sessionid 0x0, closing socket connection and attempting reconnect
+12/06/01 11:44:32 INFO zookeeper.ClientCnxn: Opening socket connection to server /10.18.40.91:2182
+Exception in thread "main" org.apache.zookeeper.KeeperException$ConnectionLossException: KeeperErrorCode = ConnectionLoss
+       at org.apache.zookeeper.KeeperException.create(KeeperException.java:99)
+       at org.apache.bookkeeper.client.BookieWatcher.readBookiesBlocking(BookieWatcher.java:151)
+       at org.apache.bookkeeper.client.BookKeeper.<init>(BookKeeper.java:139)
+       at BKClient1.main(BKClient1.java:40)
+12/06/01 11:44:36 WARN client.ZooKeeperSaslClient: SecurityException: java.lang.SecurityException: Unable to locate a login configuration occurred when trying to find JAAS configuration.
+
+
+
+When analyzed more, the root cause is:
+
+BookKeeper.java:
+--------------------
+In the constructor of BookKeeper, immediately after creating the ZK client , it is going to bookieWatcher.readBookiesBlocking() for available bookies from ZK server before reaching SyncConnected event.
+
+I think, we would properly use the existing countdown latch and wait till ZooKeeper client connection establishment before continue reading Bookies.

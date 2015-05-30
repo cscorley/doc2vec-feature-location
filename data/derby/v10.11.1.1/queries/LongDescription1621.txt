@@ -1,0 +1,49 @@
+A trigger action statement, such as an INSERT statement is not recompiled when there is some DDL change on the underlying table, such as a CREATE INDEX.
+
+In the example below a unique index is added to the table (t2) inserted into by the trigger's action statement. When the tirgger fires it does not raise any error (should raise a unique constraint violated error) and does not insert the value into the index. A select from t2 does not show the additional rows in t2 as it is performing an index scan, once the index is dropped the rows appear to the select.
+
+ij version 10.2
+ij> connect 'jdbc:derby:cs;create=true';
+ij> create table t (i int);
+0 rows inserted/updated/deleted
+ij> create table t2 (i int);
+0 rows inserted/updated/deleted
+ij> create trigger tt after insert on t for each statement mode db2sql
+insert into t2 values 1;
+0 rows inserted/updated/deleted
+ij> insert into t values 1;
+1 row inserted/updated/deleted
+ij> select * from t2;
+I
+-----------
+1
+
+1 row selected
+ij> create unique index tu on t2;
+0 rows inserted/updated/deleted
+ij> insert into t values 1;
+1 row inserted/updated/deleted
+ij> select * from t2;
+I
+-----------
+1
+
+1 row selected
+ij> insert into t values 1;
+1 row inserted/updated/deleted
+ij> select * from t2;
+I
+-----------
+1
+
+1 row selected
+ij> drop index tu;
+0 rows inserted/updated/deleted
+ij> select * from t2;
+I
+-----------
+1
+1
+1
+
+3 rows selected

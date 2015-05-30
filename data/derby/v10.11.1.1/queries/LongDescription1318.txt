@@ -1,0 +1,15 @@
+Currently, our DataSources are serializable in order to play well with JNDI. However, we have no upgrade test verifying that DataSource serialization works across release boundaries. We should add this case to our upgrade tests.
+
+Further recommendations by Dan:
+
+"I do think though that upgrade testing recently brought into the mainline by Deepa should be enhanced to test:
+
+	serializing Derby''s data source implementations in 10.1 and seeing it unserializes with 10.2
+      (maybe into a BLOB column)
+
+
+
+
+	making a Reference object out of Derby''s data source implementations in 10.1 and making it into
+     an object with 10.2. (if this type of tetsing makes sense for References')"
+

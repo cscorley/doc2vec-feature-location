@@ -1,0 +1,54 @@
+The reason for doing this is to avoid a rather
+substantial performance hit observed when the client driver is used
+together with an appserver that uses connection pooling. There are two
+problems:
+
+1) The connection pool will compare the isolation level it has
+stored for the connection with the value returned from
+Connection.getTransactionIsolation() each and every time someone
+requests a new connection from the pool.
+
+2) The users of the connection pool (ab)use it to avoid having to keep
+track of their current connection. So each time a query needs to be
+executed a call to the connection pool's getConnection() method is
+made. Getting a connection from the connection pool like this also
+means that a new PreparedStatement must be prepared each time.
+
+The net result is that each query results in the following sequence:
+
+getConnection()
+getTransactionIsolation() --> roundtrip + lookup in server's statement cache
+
+prepareStatment()         --> roundtrip + lookup in server's statement cache
+
+executeQuery()            --> roundtrip
+
+Arguably this is a "user error" but when suggesting this I'm kindly
+informed that this works "just fine" with other datbases (such as
+PostgreSQL and ORACLE). 
+
+The reason why it works is that these databases do statement caching
+in the driver. I've tried to implement a very (too) simple statement
+cache in Derby's client driver and to re-enable caching of the
+isolation level (see
+https://issues.apache.org/jira/browse/DERBY-1148). With these changes
+I observe a marked performance improvement when running with appserver
+load. 
+
+A proper statment cache cannot be implemented without knowing what the
+current schema is. If the current schema has changed since the
+statement was prepared, it is no longer valid and must be evicted from
+the cache.
+
+The problem with caching both the isolation level and the current schema in
+the driver is that both can change on the server without the client
+detecting it (through SQL and XA and possibly stored procedures).
+
+I think this problem can be overcome if we piggy-back the information we would 
+like to cache on messages going back to the client. This can be done by
+utilizing the EXCSQLSET DRDA command. According to the DRDA spec (v4, volume 3, 
+page 359-360) it is possible to add one or more SQLSTT objects after SQLCARD in the reply,
+
+I think it would be possible to cache additional session information when this becomes relevant.  It
+would also be possible to use EXCSQLSET to batch session state changes
+going from the client to the server.

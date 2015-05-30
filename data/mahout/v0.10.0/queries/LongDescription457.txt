@@ -1,0 +1,9 @@
+I'm currently evaluating ItemSimilarityJob and RecommenderJob on ElasticMapReduce, it seems we have some small problems with S3, mostly due to the fact that we need to use Filesystem.get(path.toUri(), conf) instead of Filesystem.get(conf) in the code. I will create a patch for that the next days.
+
+I'm writing this mail because I encountered another problem I currently can't solve. RecommenderJob is emulating MultipleInputs (which is currently missing in Hadoop 0.20 AFAIK) by reading data from a combined path that is built like that:
+
+    new Path(prePartialMultiplyPath1 + "," + prePartialMultiplyPath2)
+
+My Job always fails with this exception here:
+
+    java.lang.IllegalArgumentException: Invalid hostname in URI s3:/testingbucket-12345/tmp/prePartialMultiply2

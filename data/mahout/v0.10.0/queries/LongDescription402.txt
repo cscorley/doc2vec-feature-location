@@ -1,0 +1,38 @@
+When dumping a sequence file of Writable,NamedVector using vectordumper in either JSON or standard format, it is not apparent in the output that the vectors are indeed named vectors.
+
+For example, after applying MAHOUT-401 to produce NamedVectors from seq2sparse, I run:
+
+
+
+./bin/mahout vectordump -j -p -s ~/mahout/reuters-out-seqdir-sparse/tf-vectors/part-00000
+
+
+
+And get: 
+
+
+
+Input Path: /home/drew/mahout/reuters-out-seqdir-sparse/tf-vectors/part-00000
+/reut2-000.sgm-0.txt    {"class":"org.apache.mahout.math.RandomAccessSparseVector","vector" [...]
+
+
+
+or when removing the -j argument:
+
+
+
+/reut2-000.sgm-0.txt    elts: {1026:3.0, 16150:1.0, 3338:3.0, 16147:1.0, 3339:1.0, 12240:1.0, [...]
+
+
+
+The first case, when dumping JSON, is due to the fact that NamedVector simply calls its delegate's asFormatString method. Granted the naive approach of implementing asFormatString in named vector also produces some nasty output:
+
+
+
+/reut2-001.sgm-468.txt	{"class":"org.apache.mahout.math.NamedVector","vector":"{\"delegate\":{\"class\":\"org.apache.mahout.math.RandomAccessSparseVector\" [...]
+
+
+
+So a little more thought needs to be given to that approach.
+
+For the non-json format, VectorHelper.vectorToString(..) is the culprit. Would it be ok to do an instanceof NamedVector here and emit the name?

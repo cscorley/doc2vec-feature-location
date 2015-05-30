@@ -1,0 +1,12 @@
+FLATTEN inside a foreach statement produces wrong results, if the input contains an empty bag.
+
+
+A = load 'flatten.txt' as (a0:int, a1:bag{(t:chararray)});
+B = group A by a0;
+C = foreach B {
+  c1 = foreach A generate FLATTEN(a1);
+  generate COUNT(c1);
+};
+
+
+The easy workaround is to filter out empty bags.

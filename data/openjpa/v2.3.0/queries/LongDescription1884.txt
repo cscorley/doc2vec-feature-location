@@ -1,0 +1,3 @@
+Specifying the "javax.persistence.cache.storeMode" property with value CacheStoreMode.REFRESH does not refresh the contents of the L2 cache when used with the em.refresh(entity, props) operation.
+
+OPENJPA-1578 corrected this a similar issue for the em.find() operation, but not em.refresh().  A simple port of the changes from 1578 (which simply configure the store mode in the fetch plan) to the refresh operation did not correct the problem.  It appears that more work needs to be done in the underlying refresh logic to produce a cache refresh.

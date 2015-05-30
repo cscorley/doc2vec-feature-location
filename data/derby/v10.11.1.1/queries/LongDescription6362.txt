@@ -1,0 +1,34 @@
+DERBY-3944 fixed the problem with CHECK constraints invoking different routines depending on who performed the triggering INSERT or UPDATE statement.
+
+The discussion leading up to DERBY-3944 can be found here: http://mail-archives.apache.org/mod_mbox/db-derby-dev/200811.mbox/%3C4919CD4A.5010408@sun.com%3E
+
+Three alternatives are discussed in the thread:
+
+A) The schema that holds the CHECK constraint?
+B) The schema that holds the table?
+C) The current schema when the CREATE TABLE statement was issued?
+
+The conclusion in the thread was that option C was the correct one. However, what was implemented, was option B.
+
+I cannot find any information in DERBY-3944 about why option B ended up being chosen, so I assume that it was unintended.
+
+Here's an ij script that shows how the CHECK constraint tries to invoke the TO_HEX function in the schema of the target table (S2) instead of the schema that was the current schema at the time of CREATE TABLE:
+
+ij version 10.10
+ij> connect 'jdbc:derby:memory:db;create=true';
+ij> create schema s1;
+0 rows inserted/updated/deleted
+ij> create schema s2;
+0 rows inserted/updated/deleted
+ij> create function s1.to_hex(i int) returns char(4) language java parameter style java external name 'java.lang.Integer.toHexString' no sql;
+0 rows inserted/updated/deleted
+ij> set schema s1;
+0 rows inserted/updated/deleted
+ij> create table s2.t(x int, constraint cc check(to_hex <> '80'));
+0 rows inserted/updated/deleted
+ij> insert into s2.t values 1;
+ERROR 42Y03: 'TO_HEX' is not recognized as a function or procedure. (errorCode = 30000)
+ij> create function s2.to_hex(i int) returns char(4) language java parameter style java external name 'java.lang.Integer.toHexString' no sql;
+0 rows inserted/updated/deleted
+ij> insert into s2.t values 1;
+1 row inserted/updated/deleted

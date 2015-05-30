@@ -1,0 +1,8 @@
+The LukeRequestHandler currently just shows info for fields it finds in the index.  It could also show info for fields in the schema.  This patch adds:
+
+  http://localhost:8983/solr/admin/luke?show=schema
+
+showing a list of all fields defined by the schema followed by the types and what fields use the types (if any)
+
+This is helpful for client apps to know what fields are available and is also a good sanity check to see what fields solr knows about after parsing the schema.xml.  Chasing down xml parsing can be difficult:
+http://www.nabble.com/Keep-having-error-on-%22unknown-field%22-tf3923356.html#a11125764

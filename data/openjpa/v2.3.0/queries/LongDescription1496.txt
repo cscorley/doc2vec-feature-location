@@ -1,0 +1,55 @@
+For an entity:
+
+@Entity
+public class TimeEntity 
+{
+	@Id
+	@GeneratedValue
+	private long id;
+	
+       String name;
+    
+       int value;
+    
+       @Temporal(TemporalType.TIMESTAMP)
+       private java.util.Calendar cal2Timestamp;
+
+...}
+
+
+an attempt to set parameter as below fails with IllegalArgumentException:
+        String jpql = "SELECT  COUNT(a) FROM TimeEntity a WHERE a.cal2Timestamp BETWEEN ?1 AND ?2";
+        Calendar endTime = Calendar.getInstance();
+        Calendar startTime = (Calendar)endTime.clone();
+        startTime.add(14, -4);
+        List results = em.createQuery(jpql).
+            setParameter(1, startTime, TemporalType.TIMESTAMP).
+            setParameter(2, endTime, TemporalType.TIMESTAMP).
+            getResultList();
+
+java.lang.IllegalArgumentException: Parameter "Parameter<Calendar>(2)" declared in "SELECT  COUNT(a) FROM TimeEntity a WHERE a.value = ?1 AND a.cal2Timestamp BETWEEN ?2 AND ?3" is set to value of "2/4/10 9:55 PM" of type "java.sql.Timestamp", but this parameter is bound to a field of type "java.util.Calendar".
+	at org.apache.openjpa.persistence.QueryImpl.assertValueAssignable(QueryImpl.java:1079)
+	at org.apache.openjpa.persistence.QueryImpl.bindValue(QueryImpl.java:1036)
+	at org.apache.openjpa.persistence.QueryImpl.setParameter(QueryImpl.java:640)
+	at org.apache.openjpa.persistence.QueryImpl.setParameter(QueryImpl.java:653)
+	at org.apache.openjpa.persistence.QueryImpl.setParameter(QueryImpl.java:1)
+	at d637638.Test637638.testTemporalType(Test637638.java:36)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at junit.framework.TestCase.runTest(Unknown Source)
+	at junit.framework.TestCase.runBare(Unknown Source)
+	at junit.framework.TestResult$1.protect(Unknown Source)
+	at junit.framework.TestResult.runProtected(Unknown Source)
+	at junit.framework.TestResult.run(Unknown Source)
+	at junit.framework.TestCase.run(Unknown Source)
+	at junit.framework.TestSuite.runTest(Unknown Source)
+	at junit.framework.TestSuite.run(Unknown Source)
+	at org.junit.internal.runners.OldTestClassRunner.run(OldTestClassRunner.java:35)
+	at org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:45)
+	at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:460)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:673)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:386)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:196)

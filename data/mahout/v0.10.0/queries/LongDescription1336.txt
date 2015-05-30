@@ -1,0 +1,20 @@
+Apparently ToolRunner does not allow the --mapred option. The validation is not very foolproof, so there is a resulting silent failure in HighDFWordsPrunerTest.
+
+Error message:
+
+
+org.apache.commons.cli2.OptionException: Unexpected --mapred while processing Options
+	at org.apache.commons.cli2.commandline.Parser.parse(Parser.java:99)
+	at org.apache.mahout.vectorizer.SparseVectorsFromSequenceFiles.run(SparseVectorsFromSequenceFiles.java:154)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:65)
+	at org.apache.mahout.vectorizer.HighDFWordsPrunerTest.runTest(HighDFWordsPrunerTest.java:111)
+	at org.apache.mahout.vectorizer.HighDFWordsPrunerTest.testHighDFWordsPruning(HighDFWordsPrunerTest.java:85)
+...
+Usage:                                                                          
+ [--minSupport <minSupport> --analyzerName <analyzerName> --chunkSize           
+<chunkSize> --output <output> --input <input> --minDF <minDF> --maxDFSigma      
+<maxDFSigma> --maxDFPercent <maxDFPercent> --weight <weight> --norm <norm>      
+--minLLR <minLLR> --numReducers <numReducers> --maxNGramSize <ngramSize>        
+--overwrite --help --sequentialAccessVector --namedVector --logNormalize]       
+O
+

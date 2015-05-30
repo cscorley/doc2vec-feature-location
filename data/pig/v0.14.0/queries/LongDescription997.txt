@@ -1,0 +1,17 @@
+This new feature is for Zebra to support sorted data in storage. As a storage library, Zebra will not sort the data by itself. But it will support creation and use of sorted data either through PIG  or through map/reduce tasks that use Zebra as storage format.
+
+The sorted table keeps the data in a "totally sorted" manner across all TFiles created by potentially all mappers or reducers.
+
+For sorted data creation through PIG's STORE operator ,  if the input data is sorted through "ORDER BY", the new Zebra table will be marked as sorted on the sorted columns;
+
+For sorted data creation though Map/Reduce tasks,  three new static methods of the BasicTableOutput class will be provided to allow or help the user to achieve the goal. "setSortInfo" allows the user to specify the sorted columns of the input tuple to be stored; "getSortKeyGenerator" and "getSortKey" help the user to generate the key acceptable by Zebra as a sorted key based upon the schema, sorted columns and the input tuple.
+
+For sorted data read through PIG's LOAD operator, pass string "sorted" as an extra argument to the TableLoader constructor to ask for sorted table to be loaded;
+
+For sorted data read through Map/Reduce tasks, a new static method of TableInputFormat class, requireSortedTable, can be called to ask for a sorted table to be read. Additionally, an overloaded version of the new method can be called to ask for a sorted table on specified sort columns and comparator.
+
+For this release, sorted table only supported sorting in ascending order, not in descending order. In addition, the sort keys must be of simple types not complex types such as RECORD, COLLECTION and MAP. 
+
+Multiple-key sorting is supported. But the ordering of the multiple sort keys is significant with the first sort column being the primary sort key, the second being the secondary sort key, etc.
+
+In this release, the sort keys are stored along with the sort columns where the keys were originally created from, resulting in some data storage redundancy.

@@ -1,0 +1,5 @@
+Looking at TIKA-103 I realized that some file formats can contain data whose text rendering depends on the active Locale which might not be explicitly specified in the file format or the specific document being parsed.
+
+It should be possible for a parser client to explicitly specify which Locale should be used as the default when extracting text from a document. Setting the global default with Locale.setLocale() is not an option in many cases.
+
+I think the best way to pass Locale information to a parser is as a part of the Metadata object.

@@ -1,0 +1,160 @@
+Abe's response to my committed changes for OPENJPA-138.  I will be working with Abe and my performance team to work through these issues...
+
+> ======================================================================
+> ========
+> — incubator/openjpa/trunk/openjpa-kernel/src/main/java/org/apache/
+> openjpa/ee/JNDIManagedRuntime.java (original)
+> +++ incubator/openjpa/trunk/openjpa-kernel/src/main/java/org/apache/
+> openjpa/ee/JNDIManagedRuntime.java Sun Feb 11 18:33:05 2007
+> @@ -29,6 +29,7 @@
+>      implements ManagedRuntime {
+>
+>      private String _tmLoc = "java:/TransactionManager";
+> +    private static TransactionManager _tm;
+
+Whoa, I didn't think you meant caching the TM statically.  That has
+to be backed out.  You can cache it in an instance variable, but not
+statically.  Nothing should prevent someone having two different
+BrokerFactories accessing two different TMs at two different JNDI
+locations.
+
+BrokerImpl:
+> +     * Cache from/to assignments to avoid Class.isAssignableFrom
+> overhead
+> +     * @param from the target Class
+> +     * @param to the Class to test
+> +     * @return true if the "to" class could be assigned to "from"
+> class
+> +     */
+> +    private boolean isAssignable(Class from, Class to) {
+> +      boolean isAssignable;
+> +      ConcurrentReferenceHashMap assignableTo =
+> +          (ConcurrentReferenceHashMap) _assignableTypes.get(from);
+> +
+> +      if (assignableTo != null) { // "to" cache exists...
+> +          isAssignable = (assignableTo.get(to) != null);
+> +          if (!isAssignable) { // not in the map yet...
+> +              isAssignable = from.isAssignableFrom(to);
+> +              if (isAssignable) 
+{
+> +                  assignableTo.put(to, new Object());
+> +              }
+> +          }
+> +      } else { // no "to" cache yet...
+> +          isAssignable = from.isAssignableFrom(to);
+> +          if (isAssignable) 
+{
+> +              assignableTo = new ConcurrentReferenceHashMap(
+> +                      ReferenceMap.HARD, ReferenceMap.WEAK);
+> +              _assignableTypes.put(from, assignableTo);
+> +              assignableTo.put(to, new Object());
+> +          }
+> +      }
+> +      return isAssignable;
+> +    }
+
+This code could be simplified a lot.  Also, I don't understand what
+you're trying to do from a memory management perspective.  For the
+_assignableTypes member you've got the Class keys using hard refs and
+the Map values using weak refs.  No outside code references the Map
+values, so all entries should be eligible for GC pretty much
+immediately.  The way reference hash maps work prevents them from
+expunging stale entries except on mutators, but still... every time a
+new entry is added, all the old entries should be getting GC'd and
+removed.  Same for the individual Map values, which again map a hard
+class ref to an unreferenced object value with a weak ref.  Basically
+the whole map-of-maps system should never contain more than one entry
+total after a GC run and a mutation.
+
+I'd really like to see you run your tests under a different JVM,
+because it seems to me like (a) this shouldn't be necessary in the
+first place, and (b) if this is working, it's again only because of
+some JVM particulars or GC timing particulars or testing particulars
+(I've seen profilers skew results in random ways like this) or even a
+bug in ConcurrentReferenceHashMap.
+
+The same goes for all the repeat logic in FetchConfigurationImpl.
+And if we keep this code or some variant of it, I strongly suggest
+moving it to a common place like ImplHelper.
+
+> +    /**
+> +     * Generate the hashcode for this Id.  Cache the type's
+> generated hashcode
+> +     * so that it doesn't have to be generated each time.
+> +     */
+>      public int hashCode() {
+>          if (_typeHash == 0) {
+> -            Class base = type;
+> -            while (base.getSuperclass() != null
+> -                && base.getSuperclass() != Object.class)
+> -                base = base.getSuperclass();
+> -            _typeHash = base.hashCode();
+> +            Integer typeHashInt = (Integer) _typeCache.get(type);
+> +            if (typeHashInt == null) {
+> +                Class base = type;
+> +                Class superclass = base.getSuperclass();
+> +                while (superclass != null && superclass !=
+> Object.class) 
+{
+> +                    base = base.getSuperclass();
+> +                    superclass = base.getSuperclass();
+> +                }
+> +                _typeHash = base.hashCode();
+> +                _typeCache.put(type, new Integer(_typeHash));
+> +            } else 
+{
+> +                _typeHash = typeHashInt.intValue();
+> +            }
+>          }
+>          return _typeHash ^ idHash();
+>      }
+
+Once again, you're mapping a hard Class ref to a value with no
+outside references held in a weak ref.  Once again that means the
+entry should be immediately eligible for GC, and therefore should be
+removed on the next mutation of the cache, subject to GC timing.  And
+again I'd like to know what your JVM is doing to make Class.hashCode
+take an appreciable amount of time.  Aren't Class instances supposed
+to be singletons?  What if we just used System.identityHashCode(cls)?
+
+> Modified: incubator/openjpa/trunk/openjpa-lib/src/main/java/org/
+> apache/openjpa/lib/conf/ObjectValue.java
+> URL: http://svn.apache.org/viewvc/incubator/openjpa/trunk/openjpa-
+> lib/src/main/java/org/apache/openjpa/lib/conf/ObjectValue.java?
+> view=diff&rev=506230&r1=506229&r2=506230
+> ======================================================================
+> ========
+> — incubator/openjpa/trunk/openjpa-lib/src/main/java/org/apache/
+> openjpa/lib/conf/ObjectValue.java (original)
+> +++ incubator/openjpa/trunk/openjpa-lib/src/main/java/org/apache/
+> openjpa/lib/conf/ObjectValue.java Sun Feb 11 18:33:05 2007
+> @@ -17,6 +17,8 @@
+>
+>  import org.apache.commons.lang.ObjectUtils;
+>  import org.apache.openjpa.lib.util.Localizer;
+> +import org.apache.openjpa.lib.util.ReferenceMap;
+> +import
+> org.apache.openjpa.lib.util.concurrent.ConcurrentReferenceHashMap;
+>
+>  /**
+>   * An object 
+{@link Value}
+.
+> @@ -28,6 +30,10 @@
+>      private static final Localizer _loc = Localizer.forPackage
+>          (ObjectValue.class);
+>
+> +    // cache the types' classloader
+> +    private static ConcurrentReferenceHashMap _classloaderCache =
+> +        new ConcurrentReferenceHashMap(ReferenceMap.HARD,
+> ReferenceMap.WEAK);
+
+This maps a hard Class ref to a weak ClassLoader ref.  Given that a
+Class references its ClassLoader (or is supposed to – again I wonder
+what the hell the JVM you're using is doing where
+Class.getClassLoader is taking a long time), no entries will ever
+expire from this map.
+
+Have you tried running your benchmarks without all the caching of
+assignables and classloaders and hashcodes (all Class methods, btw)
+and just the other improvements?  Or with any other JVM?

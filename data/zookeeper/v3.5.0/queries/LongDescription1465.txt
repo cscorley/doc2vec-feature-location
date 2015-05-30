@@ -1,0 +1,31 @@
+When re-electing a new leader of a cluster, it takes a long time for the cluster to become available if the dataset is large
+
+Test Data
+----------
+650mb snapshot size
+20k nodes of varied size 
+3 member cluster 
+
+On 3.4.x branch (http://svn.apache.org/repos/asf/zookeeper/branches/branch-3.4?r=1244779)
+------------------------------------------------------------------------------------------
+
+Takes 3-4 minutes to bring up a cluster from cold 
+Takes 40-50 secs to recover from a leader failure 
+Takes 10 secs for a new follower to join the cluster 
+
+Using the 3.3.5 release on the same hardware with the same dataset
+-----------------------------------------------------------------
+
+Takes 10-20 secs to bring up a cluster from cold 
+Takes 10 secs to recover from a leader failure 
+Takes 10 secs for a new follower to join the cluster 
+
+I can see from the logs in 3.4.x that once a new leader is elected, it pushes a new snapshot to each of the followers who need to save it before they ack the leader who can then mark the cluster as available. 
+
+The kit being used is a low spec vm so the times taken are not relevant per se - more the fact that a snapshot is always sent even through there is no difference between the persisted state on each peer.
+No data is being added to the cluster while the peers are being restarted.
+
+
+
+
+

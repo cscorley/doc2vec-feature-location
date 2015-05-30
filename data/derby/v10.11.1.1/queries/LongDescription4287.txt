@@ -1,0 +1,7 @@
+I noticed in org.apache.derby.impl.services.bytecode.BCClass.java we have this code:
+
+			String systemHome = System.getProperty(Property.SYSTEM_HOME_PROPERTY,".");
+				writeClassFile(systemHome,false,null);
+
+
+which will fail when run under security manager because we have no privilege block.

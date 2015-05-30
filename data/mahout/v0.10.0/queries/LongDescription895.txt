@@ -1,0 +1,5 @@
+The WikipediaDatasetCreator uses 2 mechanisms to scrape out the text of articles; first an XmlInputFormat is used with the "text" tags as start/end markers (which demarcate the article content), then the content inside the text tags is pattern matched out in the Mapper.
+
+This means a newcomer must discover both pruning steps before modifying this program to create a dataset including other fields from the article.
+
+I am attaching a patch which mods the Driver to split on entire articles and changes the mapper to accommodate the extra input without allowing spurious new category matches outside the text element.

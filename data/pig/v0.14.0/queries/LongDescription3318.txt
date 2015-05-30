@@ -1,0 +1,85 @@
+Piggybank - AvroStorage. When merging multiple schemas where default values have been specified in the avro schema; 
+The AvroStorage puts nulls in the merged data set. 
+
+==> Employee3.avro <==
+{
+"type" : "record",
+"name" : "employee",
+"fields":[
+        
+{"name" : "name", "type" : "string", "default" : "NU"}
+,
+        
+{"name" : "age", "type" : "int", "default" : 0 }
+,
+        
+{"name" : "dept", "type": "string", "default" : "DU"}
+ ] }
+
+==> Employee4.avro <==
+{
+"type" : "record",
+"name" : "employee",
+"fields":[
+        
+{"name" : "name", "type" : "string", "default" : "NU"}
+,
+        
+{"name" : "age", "type" : "int", "default" : 0}
+,
+        
+{"name" : "dept", "type": "string", "default" : "DU"}
+,
+        
+{"name" : "office", "type": "string", "default" : "OU"}
+ ] }
+
+==> Employee6.avro <==
+{
+"type" : "record",
+"name" : "employee",
+"fields":[
+        
+{"name" : "name", "type" : "string", "default" : "NU"}
+,
+        
+{"name" : "lastname", "type": "string", "default" : "LNU"}
+,
+        
+{"name" : "age", "type" : "int","default" : 0}
+,
+        
+{"name" : "salary", "type": "int", "default" : 0}
+,
+        
+{"name" : "dept", "type": "string","default" : "DU"}
+,
+        
+{"name" : "office", "type": "string","default" : "OU"}
+ ] }
+
+The pig script:
+employee = load 'employee
+{3,4,6}
+.ser' using org.apache.pig.piggybank.storage.avro.AvroStorage('multiple_schemas');
+describe employee;
+dump employee;
+
+Output Schema:
+employee: 
+{name: chararray,age: int,dept: chararray,lastname: chararray,salary: int,office: chararray}
+
+(Milo,30,DH,,,)
+(Asmya,34,PQ,,,)
+(Baljit,23,RS,,,)
+(Pune,60,Astrophysics,Warriors,5466,UTA)
+(Rajsathan,20,Biochemistry,Royals,1378,Stanford)
+(Chennai,50,Microbiology,Superkings,7338,Hopkins)
+(Mumbai,20,Applied Math,Indians,4468,UAH)
+(Praj,54,RMX,,,Champaign)
+(Buba,767,HD,,,Sunnyvale)
+(Manku,375,MS,,,New York)
+
+
+Regards
+Viraj

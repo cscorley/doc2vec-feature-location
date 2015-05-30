@@ -1,0 +1,11 @@
+in org.apache.tika.utils.Utils the getUTF8Reader method assigns a language determination without checking the confidence rating from ICU's CharsetDetector.
+
+Please add a configurable level (0-100);
+
+if (language != null && match.getConfidence() > THRESHOLD) 
+{
+  metadata.set(Metadata.CONTENT_LANGUAGE, match.getLanguage());
+  metadata.set(Metadata.LANGUAGE, match.getLanguage());
+}
+
+Obviously using charset to imply language is generally weak but it would be sufficient if the confidence threshold was controlled. Today, the text "hello" is tagged as French, for example. 

@@ -1,0 +1,8 @@
+ In  OpenJPA implementation, it looks that MappingDefaultsImpl.populateColumns can accept multiple columns 
+ because it has Column[] signature.
+ If column name is longer than DBDictionary restriction (it's very short in some databases. 
+ For example, oracle max name length is 32), names are truncated. 
+
+ Because name conflict is detected based on actual Table info,given Column[] data does not get checked. 
+ So, if given Column[] have very long name and truncated name of these Column[] is conflicted, 
+ it could not be detected.

@@ -1,0 +1,24 @@
+When embedded entity is mapped to a secondary table, the primary key of the secondary table that refers to the owner table is named wrongly and different from the primaryKeyJoinColumn value specified in the @SecondaryTable annotation.
+
+Originally reported in OpenJPA User forum [1] as the following example
+
+@Entity
+@Table(name = "CUSTOMER")
+@SecondaryTable(name = "CUSTOMER_EXT", 
+                                  pkJoinColumns = @PrimaryKeyJoinColumn(name = "CUST_ID", referencedColumnName = "CUST_ID"))
+
+public class Customer {
+   @Embedded
+   @AttributeOverrides( 
+{
+   @AttributeOverride(name = "from", column = @Column(name = "FROM_DT", table = "CUSTOMER_EXT")),
+   @AttributeOverride(name = "to", column = @Column(name = "TO_DT", table = "CUSTOMER_EXT"))}
+ )
+    private DateRange dr; 
+
+The mapping should generate CUSTOMER_EXT table with 3 columns: CUST_ID, FROM_DT, TO_DT.
+
+However, it generates a column named DATERANGE_CUST_ID instead of CUST_ID as specified in  @SecondaryTable annotation.
+
+
+[1] http://n2.nabble.com/Embed-on-Secondary-Table-tc782286.html

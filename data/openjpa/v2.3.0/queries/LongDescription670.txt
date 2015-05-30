@@ -1,0 +1,27 @@
+According to the EJB 3.0 JPA spec (pp. 191, section 9.1.29):
+
+"If the Inheritance annotation is not specified or if no inheritance type is specified for an entity class
+hierarchy, the SINGLE_TABLE mapping strategy is used."
+
+I've found that if an entity inheritance hierarchy is specified without an explicit DiscriminatorColumn or Inheritance annotation, a single table will be used for mapping, but there will be no discriminator column in the table.  
+
+pp. 191 - 192, section 9.1.30 of the spec reads:
+
+"For the SINGLE_TABLE mapping strategy, and typically also for the JOINED strategy, the persistence
+provider will use a type discriminator column."
+
+and
+
+"If the DiscriminatorColumn annotation is missing, and a discriminator column is required, the
+name of the discriminator column defaults to "DTYPE" and the discriminator type to STRING."
+
+Without a discriminator column a scenario such as:
+
+entity B extends entity A
+entity C extends entity A
+
+"select c from C"  will return entities of type A, B, and C (which is a data integrity issue) because there is no way to distinguish between the entity types.
+
+The simple workaround is to specify an @Inheritance or @DiscriminatorColumn annotation on the root class, but OpenJPA should exhibit default behavior defined by the spec when these annotations are not specified.
+
+I have a patch and jUnits in the works and will post them shortly.

@@ -1,0 +1,8 @@
+In the class -  org.apache.solr.handler.SnapPuller - there seems to be an expensive Pattern object created locally in the method 
+
+  static Integer readInterval(String interval) ; 
+
+Pattern instances are better created as static objects and reused.
+
+The same is true for HttpClient instances. These are one per core right now. We can make that static too.
+

@@ -1,0 +1,30 @@
+The following script results in 1 M/R job as a result of diamond query optimization but the script fails.
+
+set1 = LOAD 'set1' USING PigStorage as (a:chararray, b:chararray, c:chararray);
+set2 = LOAD 'set2' USING PigStorage as (a: chararray, b:chararray, c:bag{});
+
+set2_1 = FOREACH set2 GENERATE a as f1, b as f2, (chararray) 0 as f3;
+set2_2 = FOREACH set2 GENERATE a as f1, FLATTEN((IsEmpty(c) ? null : c)) as f2, (chararray) 1 as f3;
+
+all_set2 = UNION set2_1, set2_2;
+
+joined_sets = JOIN set1 BY (a,b), all_set2 BY (f2,f3);
+dump joined_sets;
+
+And here is the error
+
+org.apache.pig.backend.executionengine.ExecException: ERROR 1071: Cannot convert a bag to a String
+	at org.apache.pig.data.DataType.toString(DataType.java:739)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POCast.getNext(POCast.java:625)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.processPlan(POForEach.java:364)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.getNext(POForEach.java:288)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:260)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLocalRearrange.getNext(POLocalRearrange.java:256)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POUnion.getNext(POUnion.java:162)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:247)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:238)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapReduce$Map.map(PigMapReduce.java:93)
+	at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:50)
+	at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:358)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:307)
+	at org.apache.hadoop.mapred.Child.main(Child.java:159)

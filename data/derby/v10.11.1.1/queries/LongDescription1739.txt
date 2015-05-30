@@ -1,0 +1,29 @@
+The initInfo method of CatalogRowFactory takes a set of index column positions and index names. I was going to remove the passing of column names and instead get the names from the SystemColumn array returned by buildColumnList.
+Prior to that I added some code to check the existing index names passed in matched the names in the SystemColumn array and found there were mismatches, e.g.
+
+checking SYSCONGLOMERATES
+MISMATCH SYSCONGLOMERATES
+  CONGLOMERATEID
+  CONGLOMERATE_ID
+MISMATCH SYSCONGLOMERATES
+  CONGLOMERATENAME
+  CONGLOMERATE_NAME
+checking SYSSCHEMAS
+checking SYSCONSTRAINTS
+checking SYSKEYS
+checking SYSDEPENDS
+checking SYSALIASES
+checking SYSVIEWS
+checking SYSCHECKS
+checking SYSFOREIGNKEYS
+checking SYSSTATEMENTS
+MISMATCH SYSSTATEMENTS
+  STMTID
+  STATEMENTID
+checking SYSFILES
+checking SYSTRIGGERS
+MISMATCH SYSTRIGGERS
+  TABLEID
+  CREATIONTIMESTAMP
+
+Looking further to see why these mismatches did not cause problems or what hdden problems they  might be causing I found they are stored in an IndexInfoImpl class but never used.

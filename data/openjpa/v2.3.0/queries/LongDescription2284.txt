@@ -1,0 +1,51 @@
+Take this entity:
+
+public class Simple {
+
+  private int id;
+  private String name;
+
+
+Take this orm.xml entry:
+
+  <persistence-unit-metadata>
+    <persistence-unit-defaults>
+       <schema>MySchema</schema>
+       <delimited-identifiers/>
+          <!-- The cascade-persist entry causes an issue:      -->
+        <cascade-persist/>
+    </persistence-unit-defaults>
+  </persistence-unit-metadata>
+
+  <entity class="hat.entities.Simple" access="FIELD">
+    <attributes>
+      <id name="id" />
+      <basic name="name" />
+    </attributes>
+  </entity>
+
+
+With this, the following exception will occur:
+
+Caused by: org.xml.sax.SAXException: file:/E:/jpa/openJPAcode/PMR93141/target/test-classes/META-INF/orm.xml [Location: Line: 16, C: 23]: An error was encountered while parsing element "id".  Make sure the metadata file is correctly formatted. [java.lang.NullPointerException]
+	at org.apache.openjpa.lib.meta.XMLMetaDataParser.getException(XMLMetaDataParser.java:739)
+	at org.apache.openjpa.lib.meta.CFMetaDataParser.endElement(CFMetaDataParser.java:147)
+	at org.apache.openjpa.lib.meta.XMLMetaDataParser.endElement(XMLMetaDataParser.java:499)
+	at org.apache.xerces.parsers.AbstractSAXParser.endElement(AbstractSAXParser.java:579)
+	at org.apache.xerces.parsers.AbstractXMLDocumentParser.emptyElement(AbstractXMLDocumentParser.java:218)
+	at org.apache.xerces.impl.XMLNamespaceBinder.handleStartElement(XMLNamespaceBinder.java:873)
+	at org.apache.xerces.impl.XMLNamespaceBinder.emptyElement(XMLNamespaceBinder.java:590)
+	at org.apache.xerces.impl.dtd.XMLDTDValidator.emptyElement(XMLDTDValidator.java:777)
+	at org.apache.xerces.impl.XMLDocumentFragmentScannerImpl.scanStartElement(XMLDocumentFragmentScannerImpl.java:748)
+	at org.apache.xerces.impl.XMLDocumentFragmentScannerImpl$FragmentContentDispatcher.dispatch(XMLDocumentFragmentScannerImpl.java:1453)
+	at org.apache.xerces.impl.XMLDocumentFragmentScannerImpl.scanDocument(XMLDocumentFragmentScannerImpl.java:333)
+	at org.apache.xerces.parsers.DTDConfiguration.parse(DTDConfiguration.java:524)
+	at org.apache.xerces.parsers.DTDConfiguration.parse(DTDConfiguration.java:580)
+	at org.apache.xerces.parsers.XMLParser.parse(XMLParser.java:152)
+	at org.apache.xerces.parsers.AbstractSAXParser.parse(AbstractSAXParser.java:1169)
+	at javax.xml.parsers.SAXParser.parse(SAXParser.java:395)
+	at org.apache.openjpa.lib.meta.XMLMetaDataParser.parseNewResource(XMLMetaDataParser.java:421)
+	... 60 more
+
+
+If I comment out the '<cascade-persist/>' entry, all works fine.  Note that in the above XML I've added the </schema> and <delimited-identifiers/> entries as well.  Neither of these have an effect on the outcome (they could simply be removed).  I was thinking that if the issue occurred for the cascade stanza that it might also occur for the <delimited-identifiers/> entry since the two are similar in their XML definition (XSD).  However, this issue seems isolated to just the cascade stanza.

@@ -1,0 +1,8 @@
+bookkeeper client treats NoSuchLedgerException as valid response when reading last confirmed. If NoSuchLedgerException is caused due to an empty directory in following cases, it is an incorrect response. 
+
+1) A disk is replaced or ledger index is removed by a sloppy admin.
+2) A disk is not mounted when a bookie machine is restarted.
+
+We need a mechanism to prevent such incorrect responses.
+
+Ivan suggested to generate a instance key for each bookie and write it into the ledger directories. If a directory doesn't have the key, and other directories do, then it shouldn't start. This would also resolve the issue that someone starting a new bookie with the same IP as a bookie which has previously died.

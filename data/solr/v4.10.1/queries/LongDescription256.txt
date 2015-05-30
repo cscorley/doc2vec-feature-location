@@ -1,0 +1,6 @@
+This patch adds JMX capability to get statistics from all the SolrInfoMBean.
+
+The implementation is done such a way to minimize code changes. 
+In SolrInfoRegistry, I have overloaded Map's  put and remove methods to register and unregister SolrInfoMBean in MBeanServer. 
+
+Later on, I am planning to use register and unregister methods in SolrInfoRegistry and removing getRegistry() method (Hiding the map instance to other classes)

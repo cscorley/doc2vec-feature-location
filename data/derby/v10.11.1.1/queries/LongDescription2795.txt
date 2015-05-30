@@ -1,0 +1,16 @@
+I was able to bring up the server with basic SSL support (-ssl basic). The server came up and printed this diagnostic:
+
+  Apache Derby Network Server - 10.3.0.0 alpha - (545529M) started and ready to accept SSL connections on port 8246 at 2007-06-08 19:11:51.449 GMT
+
+However, when I brought up the server with SSL peer authentication (-ssl authenticate), the server came up without printing out an SSL diagnostic. I was able to connect to the server from a client which did not request ssl on the connection URL. I was able to shutdown the server without specifying an ssl option on the shutdown command line. Here is the command I used to bring up the network server with SSL peer authentication:
+
+java \
+  -Dderby.connection.requireAuthentication=true \
+  -Dderby.authentication.provider=BUILTIN \
+  -Dderby.user.\"rick\"=rickspassword \
+  -Dderby.database.sqlAuthorization=true \
+  -Djavax.net.ssl.keyStore=/export/home/rh161140/derby/keystores/serverKeyStore.key \
+  -Djavax.net.ssl.keyStorePassword=serverKeystorePassword \
+  -Djavax.net.ssl.trustStore=/export/home/rh161140/derby/keystores/serverKeyStore.key \
+  -Djavax.net.ssl.trustStorePassword=serverKeystorePassword \
+  org.apache.derby.drda.NetworkServerControl start -p 8246 -ssl peerAuthenticate

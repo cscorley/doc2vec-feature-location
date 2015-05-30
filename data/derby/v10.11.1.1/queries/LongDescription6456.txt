@@ -1,0 +1,4 @@
+When size of reply in NetworkServerControlImpl  equals to 32k (max size for short) ensureDataInBuffer is in infinite loop. clientIs.read(..., replyBuffer.length - replyBufferCount) return 0 because 'replyBuffer.length - replyBufferCount' is 0 (bytes to read).
+
+Steps to reproduce:
+Open many connections (for me 34) with at least 1 SELECT query. and call getRuntimeInfo(). Runtime info string.length > 32kB. Leading to infinite loop.

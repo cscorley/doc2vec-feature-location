@@ -1,0 +1,48 @@
+I have written down a short app to try to reproduce one problematic case reported on the user list. The app does the following:
+
+
+	It creates initially a number of ledgers, say 2000;
+	Once it reaches 2000, for each new ledger it creates, it deletes the one at the head of the list;
+	Before closing the ledger, it adds 5 entries of 1k, just to generate some traffic for any given ledger.
+
+
+
+What I tried to achieve is to have thousands of active ledgers and delete new ledgers as I create new ones. I'll post a link to my test code later. 
+
+At some point, one bookie stops responding. The bookie seems to be up, but it is not responsive. Looking at the logs, this is what I see:
+
+
+2012-04-06 12:22:05,765 - INFO  [SyncThread:LedgerCacheImpl@682] - Ledger 1726 is evicted from file info cache.
+2012-04-06 12:22:05,769 - INFO  [NIOServerFactory-3181:LedgerCacheImpl@682] - Ledger 1727 is evicted from file info cache.
+2012-04-06 12:22:05,772 - INFO  [SyncThread:LedgerCacheImpl@682] - Ledger 1728 is evicted from file info cache.
+2012-04-06 12:22:05,780 - INFO  [NIOServerFactory-3181:LedgerCacheImpl@682] - Ledger 1729 is evicted from file info cache.
+2012-04-06 12:22:05,787 - INFO  [NIOServerFactory-3181:LedgerCacheImpl@682] - Ledger 1730 is evicted from file info cache.
+2012-04-06 12:22:05,794 - INFO  [NIOServerFactory-3181:LedgerCacheImpl@682] - Ledger 1731 is evicted from file info cache.
+2012-04-06 12:22:05,801 - INFO  [NIOServerFactory-3181:LedgerCacheImpl@682] - Ledger 1732 is evicted from file info cache.
+2012-04-06 12:22:05,807 - INFO  [NIOServerFactory-3181:LedgerCacheImpl@682] - Ledger 1733 is evicted from file info cache.
+2012-04-06 12:22:05,822 - INFO  [NIOServerFactory-3181:LedgerCacheImpl@682] - Ledger 1734 is evicted from file info cache.
+2012-04-06 12:22:05,828 - INFO  [NIOServerFactory-3181:LedgerCacheImpl@682] - Ledger 1735 is evicted from file info cache.
+2012-04-06 12:22:05,842 - INFO  [NIOServerFactory-3181:LedgerCacheImpl@682] - Ledger 1736 is evicted from file info cache.
+2012-04-06 12:22:05,851 - INFO  [NIOServerFactory-3181:LedgerCacheImpl@682] - Ledger 1737 is evicted from file info cache.
+2012-04-06 12:22:05,856 - INFO  [NIOServerFactory-3181:LedgerCacheImpl@682] - Ledger 1738 is evicted from file info cache.
+2012-04-06 12:22:05,864 - INFO  [NIOServerFactory-3181:LedgerCacheImpl@682] - Ledger 1739 is evicted from file info cache.
+2012-04-06 12:22:05,874 - INFO  [NIOServerFactory-3181:LedgerCacheImpl@682] - Ledger 1740 is evicted from file info cache.
+2012-04-06 12:22:05,885 - INFO  [NIOServerFactory-3181:LedgerCacheImpl@682] - Ledger 1741 is evicted from file info cache.
+2012-04-06 12:22:05,894 - INFO  [NIOServerFactory-3181:LedgerCacheImpl@682] - Ledger 1742 is evicted from file info cache.
+2012-04-06 12:22:05,902 - INFO  [NIOServerFactory-3181:LedgerCacheImpl@682] - Ledger 1743 is evicted from file info cache.
+2012-04-06 12:22:05,987 - INFO  [GarbageCollectorThread:LedgerCacheImpl@682] - Ledger 1744 is evicted from file info cache.
+2012-04-06 12:22:05,987 - ERROR [GarbageCollectorThread:GarbageCollectorThread$1@244] - Exception when deleting the ledger index file on the Bookie: 
+java.io.IOException: /home/fpj/bk/current/1/b/10b.idx not found
+        at org.apache.bookkeeper.bookie.FileInfo.checkOpen(FileInfo.java:118)
+        at org.apache.bookkeeper.bookie.FileInfo.close(FileInfo.java:194) 
+        at org.apache.bookkeeper.bookie.LedgerCacheImpl.deleteLedger(LedgerCacheImpl.java:619) 
+        at org.apache.bookkeeper.bookie.GarbageCollectorThread$1.gc(GarbageCollectorThread.java:242)
+        at org.apache.bookkeeper.meta.AbstractZkLedgerManager.doGc(AbstractZkLedgerManager.java:274)
+        at org.apache.bookkeeper.meta.FlatLedgerManager.garbageCollectLedgers(FlatLedgerManager.java:168)
+        at org.apache.bookkeeper.bookie.GarbageCollectorThread.doGcLedgers(GarbageCollectorThread.java:237)
+        at org.apache.bookkeeper.bookie.GarbageCollectorThread.run(GarbageCollectorThread.java:206) 
+2012-04-06 12:22:05,987 - INFO  [GarbageCollectorThread:LedgerCacheImpl@682] - Ledger 1745 is evicted from file info cache.
+
+
+
+There are lots of exceptions like that, but otherwise I don't see anything that could make the bookie unresponsive. I'll upload the logs as well.   

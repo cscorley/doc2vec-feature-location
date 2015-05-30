@@ -1,0 +1,22 @@
+Persistence of semi-structured data has attracted lot of attention lately – especially for web centric applications where flexibility/malleability of data structure trumps the benefits of strongly-typed, schema-oriented relational database.
+
+OpenJPA as a leading object persistence solution must have a comprehensive story (or may be epic in Agile nomenclature is more appropriate for this issue) for persistence of semi-structured data.
+
+This umbrella issue will explore two major aspects of this broad technical problem
+
+a) Mapping semi-structured data to Relational database 
+b) Mapping semi-structured data to non-Relational database
+
+
+Mapping semi-structured data to Relational database:
+    OpenJPA has traditionally offered various degree of type support for persistent data – starting from the decalred persistent type such as @Entity to the weakest namely a serialized blob. The capability of interest in this regard is the support of the intermediate form between these extremes where a persistent state/relation can be declared merely as persistce capable instead of its exact type. This support is also relevant for generic types where the exact type is only known at run-time instance at design time. 
+
+   OpenJPA documentation and examples of this feature had been thin – and hence less exeercised. Moreover, I believe that this support has regressed while introducing numerous new feature for JPA 2.0. So one aspect of this issue will explore the extent of support for persistence capable types and document them appropriately.
+
+   A simple and commonly used way to model a dynamic data structure is name-value pair. However, this simple Java modeling technique has several alternatives to be mapped into a relation database. One component of this issue will explore 
+OpenJPA's support for persisting and querying name-value pairs and document them for future usage as many forum users have raised technical question or expressed interest in name-value pairs. 
+
+
+Mapping semi-structured data to non-Relational database
+  The current surge of interest in this area also has revived an ancient discussion – what is the applicability/advantage of non-relational data store? Several interesting non-relational databases such as BigTable, Cassandra, HBase, MongoDB, neo4j had proven their merits and been widely investigated. OpenJPA is uniquely capable to integrate JPA application model on top of these non-relational databases. Because OpenJPA architecture cleanly distinguished between object life cycle management and data store interaction and query expressions (in its early days – OpenJPA developed an interface to a object database). The second aspect of this issue will explore this option by developing a connector to one (or more, if time permits) non-relational database(s).  
+

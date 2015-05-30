@@ -1,0 +1,19 @@
+Deprecating some recommenders for the following reasons:
+
+org.apache.mahout.cf.taste.impl.recommender.svd.FunkSVDFactorizer
+
+RatingSGDFactorizer should be learning faster and has a nicer model as
+it includes user/item biases
+
+
+org.apache.mahout.cf.taste.impl.recommender.svd.ImplicitLinearRegressionFactorizer
+
+Seems to be using the same model as ALSWRFactorizer, however there are
+no tests and ALSWR can handle more explicit and implicit feedback
+
+
+org.apache.mahout.cf.taste.impl.recommender.TreeClusteringRecommender
+org.apache.mahout.cf.taste.impl.recommender.TreeClusteringRecommender2
+org.apache.mahout.cf.taste.impl.recommender.knn
+
+I don't recall anybody using those or asking about them the last years.

@@ -1,0 +1,4 @@
+As per the wiki page http://wiki.apache.org/db-derby/BuiltInLanguageBasedOrderingDERBY-1478, assign correct collation type for esult character string types from CURRENT ISOLATION, CURRENT_USER, SESSION_USER, SYSTEM_USER, CURRENT SCHEMA and CURRENT SQLID. The rule as copied from the wiki page is as follows
+9)For CURRENT_USER, SESSION_USER, SYSTEM_USER, SQL spec Section 6.4 Syntax Rule 4 says that their collation type is the collation of character set SQL_IDENTIFIER. In Derby's case, that will mean, the collation of these functions will be UCS_BASIC. The collation derivation will be implicit. 
+
+10)CURRENT ISOLATION, CURRENT SCHEMA and CURRENT SQLID seem to be Derby specific functions, I didn't find them in the SQL spec. But in order to match their behavior with the other functions covered in 9) above, their return character string type's collation will be the collation of character set SQL_IDENTIFIER. The collation derivation will be implicit. 

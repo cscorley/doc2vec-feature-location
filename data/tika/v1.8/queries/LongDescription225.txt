@@ -1,0 +1,14 @@
+Here's a patch that solves the following issues:
+
+	text/plain's priority is too high. The BOMs are also used by XML so it must be ensured that text/plain is not found too soon.
+	*.xsl, *.xslt and *.xsd are not text/plain but they are actually XML files. XSLT has its own MIME type.
+	Consolidated the two XHTML entries.
+	Fixed a bug in the existing XML magics which cause plain XML files to be detected as text/plain.
+	Added magics for UTF-16 encoding. (Some magics are still missing: http://www.w3.org/TR/xml/#sec-guessing)
+	Added entry for XSLT
+	XML namespace detection didn't work if namespace prefixes are used (Examples: XSLT Stylesheets or SVG graphics). Corrected this by adding an additional detection step that fires up an XML parser to determine the root element. Of course, this could probably be done without an XML parser but I had limited time available.
+	Added a test case for some files (test files in separate ZIP, to be placed under tika-core\src\test\resources\org\apache\tika\mime)
+
+
+
+HTH

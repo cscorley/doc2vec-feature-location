@@ -1,0 +1,14 @@
+The documentation for 10.1 
+(http://db.apache.org/derby/docs/10.1/adminguide/cadminappsclientdiffs.html)
+states:
+
+  "Scrollable cursors (ResultSet.TYPE_SCROLL_SENSITIVE or
+  ResultSet.TYPE_SCROLL_INSENSITIVE) are not supported using the
+  network client if the result set contains LOB
+  data. TYPE_FORWARD_ONLY must be specified for result sets containing
+  LOB data."
+
+Unfortunately, this is not signalled when one tries to use it, it just fails silently,
+cf. repro program.  Either this should be implemented, or we should throw a
+not implemented exception.  For JDBC4 compliancy, it needs to be fixed, I
+think.

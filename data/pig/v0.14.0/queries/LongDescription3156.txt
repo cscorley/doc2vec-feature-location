@@ -1,0 +1,20 @@
+To reproduce the issue, do:
+
+
+ant clean test -Dtestcase=TestSchemaTuple
+
+
+All 3 test cases fail with the following error:
+
+
+Caused by: java.lang.RuntimeException: Unable to compile
+    at org.apache.pig.impl.util.JavaCompilerHelper.compile(JavaCompilerHelper.java:83)
+    at org.apache.pig.data.SchemaTupleClassGenerator.compileCodeString(SchemaTupleClassGenerator.java:233)
+    at org.apache.pig.data.SchemaTupleClassGenerator.generateSchemaTuple(SchemaTupleClassGenerator.java:186)
+    at org.apache.pig.data.SchemaTupleFrontend$SchemaTupleFrontendGenHelper.generateAll(SchemaTupleFrontend.java:203)
+    at org.apache.pig.data.SchemaTupleFrontend$SchemaTupleFrontendGenHelper.access$100(SchemaTupleFrontend.java:91)
+    at org.apache.pig.data.SchemaTupleFrontend.copyAllGeneratedToDistributedCache(SchemaTupleFrontend.java:278)
+    at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler.getJob(JobControlCompiler.java:656)
+
+
+I found that this was introduced by PIG-2764.

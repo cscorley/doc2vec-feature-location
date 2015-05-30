@@ -1,0 +1,17 @@
+We introduce column group name to Zebra and make it a first-class citizen in Zebra. This can ease management of column groups.
+We plan to introduce an "as" clause for column group name in Zebra's syntax.
+
+Functional Specifications:
+1) Column group names are optional. For column groups which do not have a user-provided name, Zebra will assign some default column group names internally that is unique for that table - CG0, CG1, CG2 ... Note: If CGx is used by user, then it can not be used for internal names.
+
+2) We introduce an "AS" clause in Zebra's syntax for column group names. If it occurs, it has to immediately follow [ ]. For example, "[a1, a2] as PI secure by user:joe group:secure perm:640; [a3, a4] as General compress by lzo". Note that keyword "AS" is case insensitive.
+
+3) Column group names are unique within one table and are case sensitive, i.e., c1 and C1 are different.
+
+4) Column group names will be used as the physical column group directory path names.
+
+5) Zebra V2 will support dropColumnGroup by column group names (will integrate with Raghu's A29 drop column work).
+
+6) Zebra V2 can support backward compatibility (If there are Zebra V1 created tables in production when V2 is released). More specifically, this means that Zebra V2 can load from V1-created tables and do dropColumnGroup on it.
+
+7) Does NOT support renaming.

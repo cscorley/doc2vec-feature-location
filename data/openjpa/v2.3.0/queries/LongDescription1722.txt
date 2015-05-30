@@ -1,0 +1,7 @@
+A client application that worked earlier is now failing in 2.10, relating to the serialization of the DistinctResultList. It does a distinct query followed by a getResultList(). A DistinctResultList is returned from the query, where a DelegatingResultList used to be returned. The EntityManager is closed before the serialization occurs. It fails with the exception: org.apache.openjpa.persistence.InvalidStateException: The context has been closed.
+
+Here's what is happening: The DistinctResultList contains a RuntimeExceptionTranslator object which contains the closed EntityManager. The writeObject() in the enclosed BrokerImpl does an assertOpen(), which issues the exception.
+
+The DelegatingResultList also contains the RuntimeExceptionTranslator. But, it contains a writeResult() method which is called during serialization. This only attempts to write the ResultList object, not the RuntimeExceptionTranslator object.
+
+So, I will add the writeResult() method to the DistinctResultList class. In this case, it will write an ArrayList instead of a ResultList object. This should be ok since the method signature is for a List.

@@ -1,0 +1,79 @@
+in some case there has no preference value in the input data ,the preference value is set to zero,then 
+
+RecommenderMapper.class
+
+ @Override
+  public void map(LongWritable userID,
+                  VectorWritable vectorWritable,
+                  OutputCollector<LongWritable,RecommendedItemsWritable> output,
+                  Reporter reporter) throws IOException {
+
+    if ((usersToRecommendFor != null) && !usersToRecommendFor.contains(userID.get())) 
+{
+      return;
+    }
+    Vector userVector = vectorWritable.get();
+    Iterator<Vector.Element> userVectorIterator = userVector.iterateNonZero();
+    Vector recommendationVector = new RandomAccessSparseVector(Integer.MAX_VALUE, 1000);
+    while (userVectorIterator.hasNext()) {
+      Vector.Element element = userVectorIterator.next();
+      int index = element.index();
+      double value = element.get();     //here will get 0.0 for Boolean recommendation 
+      Vector columnVector;
+      try 
+{
+        columnVector = cooccurrenceColumnCache.get(new IntWritable(index));
+      }
+ catch (TasteException te) {
+        if (te.getCause() instanceof IOException) 
+{
+          throw (IOException) te.getCause();
+        }
+ else 
+{
+          throw new IOException(te.getCause());
+        }
+      }
+      if (columnVector != null) 
+{
+        columnVector.times(value).addTo(recommendationVector); //here will set all score value to zero for Boolean recommendation
+      }
+    }
+
+    Queue<RecommendedItem> topItems = new PriorityQueue<RecommendedItem>(recommendationsPerUser + 1,
+        Collections.reverseOrder());
+
+    Iterator<Vector.Element> recommendationVectorIterator = recommendationVector.iterateNonZero();
+    LongWritable itemID = new LongWritable();
+    while (recommendationVectorIterator.hasNext()) {
+      Vector.Element element = recommendationVectorIterator.next();
+      int index = element.index();
+      if (userVector.get(index) == 0.0) {
+        if (topItems.size() < recommendationsPerUser) 
+{
+          indexItemIDMap.get(new IntWritable(index), itemID);
+          topItems.add(new GenericRecommendedItem(itemID.get(), (float) element.get()));
+        }
+ else if (element.get() > topItems.peek().getValue()) 
+{
+          indexItemIDMap.get(new IntWritable(index), itemID);
+          topItems.add(new GenericRecommendedItem(itemID.get(), (float) element.get()));
+          topItems.poll();
+        }
+      }
+    }
+
+    List<RecommendedItem> recommendations = new ArrayList<RecommendedItem>(topItems.size());
+    recommendations.addAll(topItems);
+    Collections.sort(recommendations);
+    output.collect(userID, new RecommendedItemsWritable(recommendations));
+  }
+
+so maybe we need a option to distinguish boolean recommendation and slope one recommendation.
+
+in ToUserVectorReducer.class
+
+here no need findTopNPrefsCutoff,maybe take all item.
+
+it's just my thinking ,maybe item is used for slope one only .
+

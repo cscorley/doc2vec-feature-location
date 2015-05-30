@@ -1,0 +1,16 @@
+When something goes wrong in solr configuration, I want solr to stop working and loudly say "something went wrong"  This patch adds a collection of severe errors to SolrConfig.  If abortOnConfigurationError=true and there are errors, the SolrDispatchFilter prints out a nice message saying "hey something went wrong!"
+
+The specific things that were hidden in error files that will now give dramatic error are:
+
+	unknown class for RequestHandler/ResponseWriter
+	any exception throw during handler/writer init()
+
+
+
+If you want to disable this behavior (perhaps for a production environment) you need to add:
+  <abortOnConfigurationError>false</abortOnConfigurationError>
+to solrconfig.xml
+
+
+for more discussion, see:
+http://www.nabble.com/merely-a-suggestion%3A-schema.xml-validator-or-better-schema-validation-logging-tf3331929.html

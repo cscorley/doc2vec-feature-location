@@ -1,0 +1,25 @@
+Occasionally I see this error in ReplicationRun_Local_3_p3:
+
+1) testReplication_Local_3_p3_StateNegativeTests(org.apache.derbyTesting.functionTests.tests.replicationTests.ReplicationRun_Local_3_p3)junit.framework.AssertionFailedError: Expected SQLState'08004', but got connection!
+	at org.apache.derbyTesting.functionTests.tests.replicationTests.ReplicationRun.waitForSQLState(ReplicationRun.java:332)
+	at org.apache.derbyTesting.functionTests.tests.replicationTests.ReplicationRun_Local_3_p3.testReplication_Local_3_p3_StateNegativeTests(ReplicationRun_Local_3_p3.java:170)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:105)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+
+In the code, after a stopMaster is given to the master (should lead to fail-over),
+the tests expects to see CANNOT_CONNECT_TO_DB_IN_SLAVE_MODE (08004.C.7), which will only succeed if
+the tests gets to try to connect before the failover has started. This seems wrong. If the failover has completed, it should expect a successful
+connect (which boots the database, btw, since its shut down after auccessful failover).
+
+Quote from code:
+
+waitForSQLState("08004", 100L, 20, // 08004.C.7 - CANNOT_CONNECT_TO_DB_IN_SLAVE_MODE
+                slaveDatabasePath + FS + slaveDbSubPath + FS + replicatedDb,
+                slaveServerHost, slaveServerPort); // _failOver above fails...
+
+There is a race between the failover on the slave and the test here I think.

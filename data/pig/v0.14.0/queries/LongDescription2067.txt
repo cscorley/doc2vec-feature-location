@@ -1,0 +1,64 @@
+The following script produce wrong result:
+
+
+A = load 'a.dat' as (cookie);
+B = load 'b.dat' as (cookie);
+C = cogroup A by cookie, B by cookie;
+E = filter C by COUNT(B)>0 AND COUNT(A)>0;
+explain E;
+
+
+
+a.dat:
+1       1
+2       2
+3       3
+4       4
+5       5
+6       6
+7       7
+
+b.dat:
+3       3
+4       4
+5       5
+6       6
+7       7
+8       8
+
+Expected output:
+(3,
+{(3)},{(3)}
+)
+(4,
+{(4)},{(4)}
+)
+(5,
+{(5)},{(5)}
+)
+(6,
+{(6)},{(6)}
+)
+(7,
+{(7)},{(7)}
+)
+
+We get:
+(3,
+{(3)},{(3)}
+)
+(4,
+{(4)},{(4)}
+)
+(5,
+{(5)},{(5)}
+)
+(6,
+{(6)},{(6)}
+)
+(7,
+{(7)},{(7)}
+)
+(8,{},
+{(8)}
+)

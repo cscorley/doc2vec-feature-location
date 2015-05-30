@@ -1,0 +1,18 @@
+
+
+        try {
+            method.invoke(object, args);
+            output.write(DONE);
+        } catch (InvocationTargetException e) {
+            output.write(ERROR);
+            // warning if an exception isn't really serializable, this can fail.
+            /**
+            File tempFile = File.createTempFile("tika", ".trace");
+            PrintWriter pw = new PrintWriter(tempFile);
+            e.printStackTrace(pw);
+            pw.close();
+            e = new Exception(tempFile.getAbsolutePath());
+            */
+            ForkObjectInputStream.sendObject(e, output);
+        }
+

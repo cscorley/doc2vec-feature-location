@@ -1,0 +1,21 @@
+creating an after insert trigger with trigger action involving  xml datatype throws following error :
+ij> create trigger trigxml after insert on t1 for each statement mode db2sql
+insert into t2 values (1,
+xmlparse(document '<name> ram </name>' preserve whitespace));
+ERROR XSDAJ: Exception during write of a serializable or SQLData object
+ERROR XJ001: Java exception: 'org.apache.derby.iapi.types.SqlXmlUtil: java.io.No
+ton'.SerializableExcepti
+ij>
+
+
+repro:
+connect 'jdbc:derby:wombat;create=true';
+create table t1 (i int, x xml);
+create table t2 (i int, x xml);
+
+insert into t2 values (1, 
+xmlparse(document '<name> suresh </name>' preserve whitespace));
+— following trigger creation is failing ,. 
+create trigger trigxml after insert on t1 for each statement mode db2sql 
+insert into t2 values (1, 
+xmlparse(document '<name> ram </name>' preserve whitespace));

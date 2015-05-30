@@ -1,0 +1,15 @@
+The following call:
+
+	district = em.find(DistrictJPA.class, key, LockModeType.PESSIMISTIC_WRITE);
+
+	generates SELECT ... FOR UPDATE .
+
+	However, in the default isolation level (read committed). Informix does not lock the row, causing a lot of duplicate key errors. The work around is for the application to explicitly set the property below in the persistence.xml:
+
+	<property name="openjpa.jdbc.TransactionIsolation" value="repeatable-read" />
+
+	According to the spec 3.4.4, footnote:
+
+	For example, a persistence provider may use an underlying database platform's SELECT FOR UPDATE statements to implement pessimistic locking if that construct provides appropriate semantics, or the provider may use an isolation level of repeatable read.
+
+	It appears that the persistence provider must implements PESSIMISTIC_WRITE semantics transparently to the application. 

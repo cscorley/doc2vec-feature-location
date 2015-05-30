@@ -1,0 +1,79 @@
+I get following error while merging a persisted entity A after adding new child entities to it.  The following relation exists between entities:  A -> (many to many) B -> (one to many) C. If I add "cascade= 
+{CascadeType.MERGE, CascadeType.PERSIST}
+" to ChainEntityC.chainEntityB field It works.
+
+My opinion is the cascade type on entity C should not be necessary because C is the last entity in the chain and should be cascaded from A to B to C. Cascade from C to B does not sound logical. The information is already given using foreignkey and cascase annotation. 
+
+The test code is attached and works if you copy it to openjpa-persistence-jdbc test module. 
+
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 3.62 sec <<< FAILURE!
+testChainEntities(org.apache.openjpa.persistence.relations.TestChainEntities)  Time elapsed: 3.561 sec  <<< ERROR!
+<openjpa-1.1.0-r422266:659716 nonfatal user error> org.apache.openjpa.persistence.InvalidStateException: Encountered unmanaged object in persistent field "org.apache.openjpa.persistence.relations.ChainEntityC.chainEntityB" during flush.  However, this field does not allow cascade persist. Set the cascade attribute for this field to CascadeType.PERSIST or CascadeType.ALL (JPA annotations) or "persist" or "all" (JPA orm.xml), or enable cascade-persist globally, or manually persist the related field value prior to flushing. You cannot flush unmanaged objects or graphs that have persistent associations to unmanaged objects.
+FailedObject: org.apache.openjpa.persistence.relations.ChainEntityB@42a818
+        at org.apache.openjpa.kernel.SingleFieldManager.preFlushPC(SingleFieldManager.java:753)
+        at org.apache.openjpa.kernel.SingleFieldManager.preFlush(SingleFieldManager.java:594)
+        at org.apache.openjpa.kernel.SingleFieldManager.preFlush(SingleFieldManager.java:562)
+        at org.apache.openjpa.kernel.SingleFieldManager.preFlush(SingleFieldManager.java:478)
+        at org.apache.openjpa.kernel.StateManagerImpl.preFlush(StateManagerImpl.java:2819)
+        at org.apache.openjpa.kernel.PNewProvisionalState.nonprovisional(PNewProvisionalState.java:44)
+        at org.apache.openjpa.kernel.StateManagerImpl.nonprovisional(StateManagerImpl.java:1130)
+        at org.apache.openjpa.kernel.SingleFieldManager.preFlushPC(SingleFieldManager.java:772)
+        at org.apache.openjpa.kernel.SingleFieldManager.preFlushPCs(SingleFieldManager.java:735)
+        at org.apache.openjpa.kernel.SingleFieldManager.preFlush(SingleFieldManager.java:637)
+        at org.apache.openjpa.kernel.SingleFieldManager.preFlush(SingleFieldManager.java:562)
+        at org.apache.openjpa.kernel.SingleFieldManager.preFlush(SingleFieldManager.java:478)
+        at org.apache.openjpa.kernel.StateManagerImpl.preFlush(StateManagerImpl.java:2819)
+        at org.apache.openjpa.kernel.PNewProvisionalState.nonprovisional(PNewProvisionalState.java:44)
+        at org.apache.openjpa.kernel.StateManagerImpl.nonprovisional(StateManagerImpl.java:1130)
+        at org.apache.openjpa.kernel.SingleFieldManager.preFlushPC(SingleFieldManager.java:772)
+        at org.apache.openjpa.kernel.SingleFieldManager.preFlushPCs(SingleFieldManager.java:735)
+        at org.apache.openjpa.kernel.SingleFieldManager.preFlush(SingleFieldManager.java:637)
+        at org.apache.openjpa.kernel.SingleFieldManager.preFlush(SingleFieldManager.java:562)
+        at org.apache.openjpa.kernel.SingleFieldManager.preFlush(SingleFieldManager.java:478)
+        at org.apache.openjpa.kernel.StateManagerImpl.preFlush(StateManagerImpl.java:2819)
+        at org.apache.openjpa.kernel.PDirtyState.beforeFlush(PDirtyState.java:37)
+        at org.apache.openjpa.kernel.StateManagerImpl.beforeFlush(StateManagerImpl.java:957)
+        at org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:1945)
+        at org.apache.openjpa.kernel.BrokerImpl.flushSafe(BrokerImpl.java:1905)
+        at org.apache.openjpa.kernel.BrokerImpl.beforeCompletion(BrokerImpl.java:1823)
+        at org.apache.openjpa.kernel.LocalManagedRuntime.commit(LocalManagedRuntime.java:81)
+        at org.apache.openjpa.kernel.BrokerImpl.commit(BrokerImpl.java:1347)
+        at org.apache.openjpa.kernel.DelegatingBroker.commit(DelegatingBroker.java:877)
+        at org.apache.openjpa.persistence.EntityManagerImpl.commit(EntityManagerImpl.java:512)
+        at org.apache.openjpa.persistence.relations.TestChainEntities.chainUpdate(TestChainEntities.java:59)
+        at org.apache.openjpa.persistence.relations.TestChainEntities.testChainEntities(TestChainEntities.java:27)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+        at java.lang.reflect.Method.invoke(Method.java:585)
+        at junit.framework.TestCase.runTest(TestCase.java:154)
+        at junit.framework.TestCase.runBare(TestCase.java:127)
+        at junit.framework.TestResult$1.protect(TestResult.java:106)
+        at junit.framework.TestResult.runProtected(TestResult.java:124)
+        at junit.framework.TestResult.run(TestResult.java:109)
+        at junit.framework.TestCase.run(TestCase.java:118)
+        at org.apache.openjpa.persistence.test.PersistenceTestCase.run(PersistenceTestCase.java:122)
+        at junit.framework.TestSuite.runTest(TestSuite.java:208)
+        at junit.framework.TestSuite.run(TestSuite.java:203)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+        at java.lang.reflect.Method.invoke(Method.java:585)
+        at org.apache.maven.surefire.junit.JUnitTestSet.execute(JUnitTestSet.java:213)
+        at org.apache.maven.surefire.suite.AbstractDirectoryTestSuite.executeTestSet(AbstractDirectoryTestSuite.java:140)
+        at org.apache.maven.surefire.suite.AbstractDirectoryTestSuite.execute(AbstractDirectoryTestSuite.java:127)
+        at org.apache.maven.surefire.Surefire.run(Surefire.java:177)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+        at java.lang.reflect.Method.invoke(Method.java:585)
+        at org.apache.maven.surefire.booter.SurefireBooter.runSuitesInProcess(SurefireBooter.java:334)
+        at org.apache.maven.surefire.booter.SurefireBooter.main(SurefireBooter.java:980)
+
+
+Results :
+
+Tests in error:
+  testChainEntities(org.apache.openjpa.persistence.relations.TestChainEntities)
+
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0

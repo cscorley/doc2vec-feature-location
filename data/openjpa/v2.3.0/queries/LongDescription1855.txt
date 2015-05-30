@@ -1,0 +1,13 @@
+While I was working on a unit test I had the following property set and it was being silently ignored by the runtime. After digging around a bunch, I figured out that it is actually an invalid configuration. I can specify this property on em.setProperty(...)[3.7.2], but I can't set a 'default' value at the provider(emf) level.
+
+<property name="javax.persistence.cache.storeMode" value="BYPASS"/>
+
+[3.7.2] -
+Cache retrieve mode and cache store mode properties may be specified at the level of the persistence
+context by means of the EntityManager setProperty method. These properties may be specified for
+the EntityManager find and refresh methods and the Query and TypedQuery setHint methods.
+Cache retrieve mode and/or cache store mode properties specified for the find, refresh, and
+Query and TypedQuery setHint methods override those specified for the persistence context for
+the specified find and refresh invocations, and for the execution of the specified queries respectively.
+
+With this JIRA I want to detect some of the invalid configurations and log a .... [INFO,WARN,TRACE]? message. Per the spec (8.2.1.9) "If a persistence provider does not recognize a property (other than a property defined by this specification), the provider must ignore it." I believe this gives us the leeway to do something about the condition that I ran into.

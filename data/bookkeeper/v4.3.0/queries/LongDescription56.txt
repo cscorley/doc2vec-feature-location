@@ -1,0 +1,56 @@
+There's a race condition in the connection recovery logic in Hedwig client. The message handler user set might be overwritten incorrectly. 
+
+When handling channelDisconnected event, we try to reconnect to Hedwig server. After the connection is created and subscribed, we'll call StartDelivery() to recover the message handler to the original one of the disconnected connection. But if during this process, user calls StartDelivery() to set a new message handler, it will get overwritten to the original one.
+
+The process can be demonstrated as below:
+
+
+
+ main thread 
+ netty worker thread 
+
+
+ StartDelivery(messageHandlerA) 
+ 
+
+
+ (connection Broken here, and recovered later...) 
+
+
+ 
+ ResponseHandler::channelDisconnected()   (connection disconnected event received) 
+
+
+ 
+ new SubscribeReconnectCallback(subHandler.getMessageHandler()) (store messageHandlerA in SubscribeReconnectCallback to recover later) 
+
+
+ 
+ client.doConnect() (try reconnect)  
+
+
+ 
+ doSubUnsub() (resubscribe) 
+
+
+ 
+ SubscriberResponseHandler::handleSubscribeResponse()  (subscription succeeds) 
+
+
+ StartDelivery(messageHandlderB)             
+ 
+
+
+ 
+ SubscribeReconnectCallback::operationFinished()                               
+
+
+ 
+ StartDelvery(messageHandlerA)   (messageHandler get overwritten)              
+
+
+
+
+I can stably reproduce this by simulating this race condition by put some sleep in ResponseHandler.
+
+I think essentially speaking we should not store messageHandler in ResponseHandler, since the message handler is supposed to be bound to connection. Instead, no matter which connection is in use, we should use the same messageHandler, the one user set last time. So I think we should change to store messageHandler in the HedwigSubscriber, in this way we don't need to recover the handler in connection recovery and thus won't face this race condition.

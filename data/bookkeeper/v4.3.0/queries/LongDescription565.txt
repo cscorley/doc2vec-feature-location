@@ -1,0 +1,5 @@
+Currently, the add operation will go throughput ledger storage first and journal later. the latency of an add operation would be affected by two parts, one is ledger disk and the other one is journal disk. And flushing ledger index files might cause random i/o, which would affect adding entries to ledger storage in a higher workload.
+
+there are several ideas to resolve this problem, one is aggregate the per-file index into several files to make flushing more sequential.
+
+this jira is a simple solution to separate the disks to avoid disk contention. it is a straightforward way w/ less risk, but not a perfect way which might waste an extra disk and bandwidth. 

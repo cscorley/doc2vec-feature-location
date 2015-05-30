@@ -1,0 +1,56 @@
+The test testSwedishCaseInsensitiveCollation failed with IBM's weme 6.2 (this was during a test run with patch for DERBY-4602) and during a legacy run with IBM 1.4.2.
+
+with weme6.2:
+1) testSwedishCaseInsensitiveCollation(org.apache.derbyTesting.functionTests.tests.lang.CollationTest)junit.framework.AssertionFailedError: Column value mismatch @ column 'ID', row 1:
+    Expected: >6<
+    Found:    >4<
+	at java.lang.Throwable.<init>(Throwable.java:67)
+	at junit.framework.AssertionFailedError.<init>(AssertionFailedError.java:11)
+	at org.apache.derbyTesting.junit.JDBC.assertRowInResultSet(JDBC.java:1129)
+	at org.apache.derbyTesting.junit.JDBC.assertRowInResultSet(JDBC.java:1041)
+	at org.apache.derbyTesting.junit.JDBC.assertFullResultSet(JDBC.java:929)
+	at org.apache.derbyTesting.junit.JDBC.assertFullResultSet(JDBC.java:867)
+	at org.apache.derbyTesting.junit.JDBC.assertFullResultSet(JDBC.java:825)
+	at org.apache.derbyTesting.functionTests.tests.lang.CollationTest.checkLangBasedQuery(CollationTest.java:1324)
+	at org.apache.derbyTesting.functionTests.tests.lang.CollationTest.testSwedishCaseInsensitiveCollation(CollationTest.java:561)
+	at java.lang.reflect.AccessibleObject.invokeV(AccessibleObject.java:195)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:109)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+
+And - do we still support 1.4.2 jvms  - this also failed with IBMs 1.4.2:
+1) testSwedishCaseInsensitiveCollation(org.apache.derbyTesting.functionTests.tests.lang.CollationTest)junit.framework.AssertionFailedError: Column value mismatch @ column 'ID', row 1:
+    Expected: >6<
+    Found:    >4<
+	at org.apache.derbyTesting.junit.JDBC.assertRowInResultSet(JDBC.java(Compiled Code))
+	at org.apache.derbyTesting.junit.JDBC.assertRowInResultSet(JDBC.java(Inlined Compiled Code))
+	at org.apache.derbyTesting.junit.JDBC.assertFullResultSet(JDBC.java(Compiled Code))
+	at org.apache.derbyTesting.junit.JDBC.assertFullResultSet(JDBC.java(Inlined Compiled Code))
+	at org.apache.derbyTesting.junit.JDBC.assertFullResultSet(JDBC.java(Compiled Code))
+	at org.apache.derbyTesting.functionTests.tests.lang.CollationTest.checkLangBasedQuery(CollationTest.java:1324)
+	at org.apache.derbyTesting.functionTests.tests.lang.CollationTest.testSwedishCaseInsensitiveCollation(CollationTest.java:561)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java(Compiled Code))
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java(Compiled Code))
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java(Compiled Code))
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:109)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)

@@ -1,0 +1,8 @@
+I don't believe that derby.system.jmx provides any benefit and is counter to the concept of using JMX for management.
+
+The one use case for it from DERBY-1387 is:
+Making the Derby JMX automatically available in the MBean server will make it impossible for the user to make some application with an embedded Derby db manageable thorugh JMX without also making Derby manageable thorugh JMX. I would think that this "all or nothing" granularity could be a problem for some applications. So we would need an explicit derby.system.jmx property for enabling the management service anyway.
+
+The functional spec contains no information as to why this is a useful feature.
+
+I wanted to separate out the discussion from the wider issues in DERBY-1387

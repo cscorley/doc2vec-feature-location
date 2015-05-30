@@ -1,0 +1,21 @@
+Got the following NPE from ResultPacker process.
+
+Failed to execute query "SELECT name FROM root.JPADeptBean WHERE deptno >= ?". Check the query syntax for correctness. See nested exception for details.
+
+<openjpa-2.2.0-SNAPSHOT-r422266:1198001 nonfatal user error> org.apache.openjpa.persistence.ArgumentException: Failed to execute query "SELECT name FROM root.JPADeptBean WHERE deptno >= ?". Check the query syntax for correctness. See nested exception for details.
+at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:872)
+at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:794)
+at org.apache.openjpa.kernel.DelegatingQuery.execute(DelegatingQuery.java:542)
+at org.apache.openjpa.persistence.QueryImpl.execute(QueryImpl.java:315)
+at org.apache.openjpa.persistence.QueryImpl.getResultList(QueryImpl.java:331)
+at com.ibm.ws.query.tests.ano.JUNativeQueryTest.testSelectName(JUNativeQueryTest.java:271)
+Caused by: java.lang.NullPointerException
+at org.apache.openjpa.kernel.ResultPacker.isInterface(ResultPacker.java:176)
+at org.apache.openjpa.kernel.ResultPacker.<init>(ResultPacker.java:122)
+at org.apache.openjpa.kernel.ResultPacker.<init>(ResultPacker.java:114)
+at org.apache.openjpa.jdbc.kernel.SQLProjectionResultObjectProvider.<init>(SQLProjectionResultObjectProvider.java:67)
+at org.apache.openjpa.jdbc.kernel.SQLStoreQuery$SQLExecutor.executeQuery(SQLStoreQuery.java:232)
+at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:1005)
+at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:863)
+
+I believe it is related to additional interface check from OPENJPA-2065

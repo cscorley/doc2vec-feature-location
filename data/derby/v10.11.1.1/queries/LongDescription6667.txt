@@ -1,0 +1,26 @@
+There is an extra "referencing" in the error message when committing a violated deferred foreign key.
+
+
+ij version 10.11
+ij> connect 'jdbc:derby:memory:db;create=true';
+ij> create table tprim
+(
+  a int primary key
+);
+0 rows inserted/updated/deleted
+ij> create table tref
+(
+  a int,
+  constraint tref foreign key( a ) references tprim( a ) initially deferred
+);
+0 rows inserted/updated/deleted
+ij> insert into tprim values ( 1 );
+1 row inserted/updated/deleted
+ij> autocommit off;
+ij> insert into tref values ( 1 );
+1 row inserted/updated/deleted
+ij> delete from tprim;
+1 row inserted/updated/deleted
+ij> commit;
+ERROR 23516: The transaction was aborted because of a deferred constraint violation: Foreign key 'TREF' defined on "APP"."TPRIM" referencing referencing constraint 'SQL140716063201410' defined on "APP"."TPRIM", key '(1)'.
+

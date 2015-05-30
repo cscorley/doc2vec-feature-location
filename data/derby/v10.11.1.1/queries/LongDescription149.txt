@@ -1,0 +1,40 @@
+When running against Derby Network Server with the JCC driver, attempts to bind an invalid date/time string to a date/time/timestamp parameter lead to a hang in either the JCC client or in the Network Server (not sure which).
+
+The problem does NOT occur if the same thing is run against a DB2 server, which suggests the bug is in Network Server, not in the JCC driver.  That said, though, the problem also does NOT happen if one uses an ODBC client to connect to Network Server, instead of a JDBC client--so perhaps it's a problem with JCC, after all...hard to say one way or the other...
+
+Here's a simple program to reproduce the problem:
+
+import java.sql.*;
+
+public class go {
+
+	public static void main (String[] args) throws Exception {
+
+		Class.forName("com.ibm.db2.jcc.DB2Driver");
+		Connection c = DriverManager.getConnection(
+			"jdbc:derby:net://localhost:1527/ugh;create=true", "bah", "humbug");
+
+		Statement s = c.createStatement();
+		try 
+{
+			s.execute("drop table dt");
+		}
+ catch (SQLException se) {}
+
+		s.execute("create table dt (d date)");
+		PreparedStatement pSt = c.prepareStatement("insert into dt values ");
+
+		try 
+{
+			pSt.setString(1, "oops"); // invalid date value.
+			pSt.execute();
+		}
+ catch (SQLException se) 
+{
+			System.out.println("Got " + se.getSQLState() + ": " + se.getMessage());
+		}
+	}
+
+}
+
+Of course, in order for the program to run, one must start the Network Server on port 1527 first.

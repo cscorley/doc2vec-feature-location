@@ -1,0 +1,7 @@
+It was noted recently that there should be a way to set a static seed for the the initial clusters of Kmeans. In the interests of reproducibility and benchmarking, this patch adds an option to set the seed in the RNG used in the RandomSeedGenerator.buildRandom() method called from the KmeansDriver and FuzzyKMeansDriver.  
+
+I've added in a CLI option -setRandomSeed that when set to the same value (with the -k option set) will produce reproducible results from kmeans and fkmeans.
+
+This patch allows the user to set a value.  It may make more sense to just have an option to set a flag to use the STANDARD_SEED from RandomWrapper.
+
+I am still feeling my way around the codebase so if this will be useful and there need to be any changes let me know.

@@ -1,0 +1,32 @@
+Cf the enclosed derby.log:
+
+While executing this statement: "select * from mtTab where i=?", we see this stacktrace:
+
+org.apache.derby.shared.common.sanity.AssertFailure: ASSERT FAILED Internal Error-- statistics not found in selectivityForConglomerate.
+ cd = ConglomerateDescriptor: conglomerateNumber = 1249 name = SQL110325154339720 uuid = f04340b7-012e-ed78-50c3-00005e21fe7a indexable = true
+numKeys = 1
+	at org.apache.derby.shared.common.sanity.SanityManager.THROWASSERT(SanityManager.java:162)
+	at org.apache.derby.shared.common.sanity.SanityManager.THROWASSERT(SanityManager.java:147)
+	at org.apache.derby.iapi.sql.dictionary.TableDescriptor.selectivityForConglomerate(TableDescriptor.java:1443)
+	at org.apache.derby.impl.sql.compile.PredicateList.selectivity(PredicateList.java:3903)
+	at org.apache.derby.impl.sql.compile.FromBaseTable.estimateCost(FromBaseTable.java:1295)
+	at org.apache.derby.impl.sql.compile.OptimizerImpl.estimateTotalCost(OptimizerImpl.java:2626)
+	at org.apache.derby.impl.sql.compile.OptimizerImpl.costBasedCostOptimizable(OptimizerImpl.java:2172)
+	at org.apache.derby.impl.sql.compile.OptimizerImpl.costOptimizable(OptimizerImpl.java:1985)
+	at org.apache.derby.impl.sql.compile.FromBaseTable.optimizeIt(FromBaseTable.java:526)
+	at org.apache.derby.impl.sql.compile.ProjectRestrictNode.optimizeIt(ProjectRestrictNode.java:316)
+	at org.apache.derby.impl.sql.compile.OptimizerImpl.costPermutation(OptimizerImpl.java:1939)
+	at org.apache.derby.impl.sql.compile.SelectNode.optimize(SelectNode.java:1916)
+	at org.apache.derby.impl.sql.compile.DMLStatementNode.optimizeStatement(DMLStatementNode.java:315)
+	at org.apache.derby.impl.sql.compile.CursorNode.optimizeStatement(CursorNode.java:587)
+	at org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatement.java:384)
+	at org.apache.derby.impl.sql.GenericStatement.prepare(GenericStatement.java:85)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.rePrepare(GenericPreparedStatement.java:229)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:409)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:317)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1242)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeStatement(EmbedPreparedStatement.java:1686)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeQuery(EmbedPreparedStatement.java:284)
+	at org.apache.derbyTesting.functionTests.tests.store.InterruptResilienceTest$WorkerThread.run(InterruptResilienceTest.java:414)
+
+I saw this twice with the enclosed patch to InterruptResilienceTest (adds a test case in preparation for DERBY-5152) - but the error occurs before we execute that fixture, so I think the patch is irrelevant (a third and fourth execution failed to show the issue). I am posting it here in case somebody can guess what could be wrong, I'll run more experiments to see if I can reproduce it. Could it be related to our new index statistics daemon?

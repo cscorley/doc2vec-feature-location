@@ -1,0 +1,23 @@
+ The socket is closed and the variable "sock" is set to null for normal reasons, but the toString method is called before "sock" can be set again, producing a NullPointerException.
+
+Stack trace: 
+
+2013-08-29 01:49:19,991 6277 [CommitProcWorkThread-3] WARN org.apache.zookeeper.server.WorkerService  - Unexpected exception
+java.lang.NullPointerException
+    at org.apach.zookeeper.server.NIOServerCnxn.toString(NIOServerCnxn.java:961)
+    at java.lang.String.valueOf(String.java:2854)
+    at java.lang.StringBuilder.append(StringBuilder.java:128)
+    at org.apache.zookeeper.server.NIOServerCnxn.process(NIOServerCnxn.java:1104)
+    at org.apache.zookeeper.server.WatchManager.triggerWatch(WatchManager.java:120)
+    at org.apache.zookeeper.server.WatchManager.triggerWatch(WatchManager.java:92)
+    at org.apache.zookeeper.server.DataTree.createNode(DataTree.java:544)
+    at org.apache.zookeeper.server.DataTree.processTxn(DataTree.java:805)
+    at org.apache.zookeeper.server.ZKDatabase.processTxn(ZKDatabase.java:319)
+    at org.apache.zookeeper.server.ZooKeeperServer.processTxn(ZooKeeperServer.java:967)
+    at org.apache.zookeeper.server.FinalRequestProcessor.processRequest(FinalRequestProcessor.java:115)
+    at org.apache.zookeeper.server.quorum.Leader$ToBeAppliedRequestProcessor.processRequest(Leader.java:859)
+    at org.apache.zookeeper.server.quorum.CommitProcessor$CommitWorkRequest.doWork(CommitProcessor.java:271)
+    at org.apache.zookeeper.server.WorkerService$ScheduledWorkRequest.run(WorkerService.java:152)
+    at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+    at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+    at java.lang.Thread.run(Thread.java:722)

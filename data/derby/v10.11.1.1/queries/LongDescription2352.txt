@@ -1,0 +1,26 @@
+Assertion failure with order by expression:
+
+ij> select substr('abc', 1) from t1 order by substr('abc', 1);
+ERROR XJ001: Java exception: 'ASSERT FAILED col1.getClass() (class org.apache.derby.iapi.types.SQLVarchar) expected to be the same as col2.getClass() (class org.apache.derby.iapi.types.SQLChar): org.apache.derby.shared.common.sanity.AssertFailure'.
+
+Stacktrace:
+org.apache.derby.shared.common.sanity.AssertFailure: ASSERT FAILED col1.getClass() (class org.apache.derby.iapi.types.SQLVarchar) expected to be the same as col2.getClass() (class org.apache.derby.iapi.types.SQLChar)
+	at org.apache.derby.shared.common.sanity.SanityManager.THROWASSERT(SanityManager.java:149)
+	at org.apache.derby.impl.store.access.sort.MergeSort.checkColumnTypes(MergeSort.java:472)
+	at org.apache.derby.impl.store.access.sort.MergeInserter.insert(MergeInserter.java:106)
+	at org.apache.derby.impl.sql.execute.SortResultSet.loadSorter(SortResultSet.java:318)
+	at org.apache.derby.impl.sql.execute.SortResultSet.openCore(SortResultSet.java:269)
+	at org.apache.derby.impl.sql.execute.ProjectRestrictResultSet.openCore(ProjectRestrictResultSet.java:169)
+	at org.apache.derby.impl.sql.execute.BasicNoPutResultSetImpl.open(BasicNoPutResultSetImpl.java:260)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:358)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1182)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:585)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:517)
+	at org.apache.derby.impl.tools.ij.ij.executeImmediate(ij.java:321)
+	at org.apache.derby.impl.tools.ij.utilMain.doCatch(utilMain.java:517)
+	at org.apache.derby.impl.tools.ij.utilMain.runScriptGuts(utilMain.java:370)
+	at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:268)
+	at org.apache.derby.impl.tools.ij.Main.go(Main.java:204)
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:170)
+	at org.apache.derby.impl.tools.ij.Main14.main(Main14.java:56)
+	at org.apache.derby.tools.ij.main(ij.java:71)

@@ -1,0 +1,11 @@
+For simple ResultSet usage like:
+ResultSet rs = ps.executeQuery();
+      while (rs.next()) 
+{
+              rs.getInt(1);
+              rs.getInt(2);
+              rs.getInt(3);
+       }
+rs.close();
+
+it would be interesting to see how much overhead could be removed with simple changes, or possibly removed if there was a simple ResultSet implementation for forward only, read-only ResultSet, and the more complete implementation for all other ResultSet types such as updateable and/or scrollable. Has introducing updateable ResultSets, for example, degraded the performance of read-only ResultSets? Could code be changed so that a typical read-only Resultset is not affected by the code required for richer ResultSets?

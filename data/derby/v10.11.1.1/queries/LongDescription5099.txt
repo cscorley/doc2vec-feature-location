@@ -1,0 +1,7 @@
+PrepareStatementTest contains two test cases for DERBY-614: testSplitQRYDTABlock and testServerStatementCleanUp.
+
+testServerStatementCleanUp uses a table created by testSplitQRYDTABlock, so if testServerStatementCleanUp runs before testSplitQRYDTABlock, the test will fail with the following error message:
+
+java.sql.SQLSyntaxErrorException: Table/View 'JIRA614' does not exist.
+
+Seen a couple of times in the nightly tests. For example here: http://dbtg.foundry.sun.com/derby/test/Daily/jvm1.7/testing/testlog/vista-64/1076682-suitesAll_diff.txt

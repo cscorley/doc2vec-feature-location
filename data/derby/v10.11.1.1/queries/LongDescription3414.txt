@@ -1,0 +1,3 @@
+Inside network server framework, if there is java procedure will rollback inside it, the rollback does not close the resultsets that were created before the call to java procedure was made. This happens in trunk, 10.3 and 10.2 codelines. I haven't tried earlier versions of Derby. In embedded mode, the resultsets (created before the call to java procedure) get closed when the rollback is done inside the java procedure.
+
+I will soon attach a standalone test case for this behavior.

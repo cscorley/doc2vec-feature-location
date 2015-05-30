@@ -1,0 +1,27 @@
+I am crawling a site with Nutch and creating an index using SOLR.
+
+After happy crawling for a couple of hours, my Nutch Parse phase hangs. A thread dump shows:
+
+"Thread-12" prio=10 tid=0xb4974000 nid=0x1b1b runnable [0xb4a50000]
+   java.lang.Thread.State: RUNNABLE
+        at java.io.FilterInputStream.skip(FilterInputStream.java:125)
+        at org.apache.tika.parser.video.FLVParser.parse(FLVParser.java:246)
+        at org.apache.nutch.parse.tika.TikaParser.getParse(TikaParser.java:95)
+        at org.apache.nutch.parse.ParseUtil.parse(ParseUtil.java:82)
+        at org.apache.nutch.parse.ParseSegment.map(ParseSegment.java:85)
+        at org.apache.nutch.parse.ParseSegment.map(ParseSegment.java:41)
+        at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:50)
+        at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:358)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:307)
+        at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:177)
+
+The only reason I see why the code might be stuck there is when skip(datalen - skiplen) returns 0 for whatever reason in org.apache.tika.parser.video.FLVParser.parse around line 246:
+
+                // Tag was not metadata, skip over data we cannot handle
+                for (int skiplen = 0; skiplen < datalen 
+{
+                    long currentSkipLen = datainput.skip(datalen - skiplen);
+                    skiplen += currentSkipLen;
+                }
+
+As I don't know which FLV was downloaded that caused the problem I cannot easily create a testcase.

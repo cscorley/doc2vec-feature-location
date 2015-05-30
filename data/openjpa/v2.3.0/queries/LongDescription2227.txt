@@ -1,0 +1,21 @@
+I'm trying to use a custom SequenceGenerator within an enterprise application using openJPA (providing by WebSphere).
+
+When defining a custom Sequence a ClassNotFoundException (for the Sequence class) will be thrown when trying to insert data into the database.
+
+ExampleConfiguration:
+
+
+@Entity
+@SequenceGenerator(name="MySequence", sequenceName="org.apache.openjpa.generator.UIDGenerator()")
+public class Customer implements Serializable {
+    @Id
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="MySequence")
+    private long id;
+
+
+
+The example will produce the stacktrace attached.
+
+It seems that the wrong class loader is used to instantiate the custom sequence class. A very similar issue seems to be: OPENJPA-758. With JavaSE (JUnit) all is working fine, but after deploying into WAS the Exception will occur.
+
+I think within the method SequenceMetaData.instantiate(Classloader envLoader) the JavaTypes.classForName() -method with parameter mustExist=false should be used instead of the pure Class.forName() call. But I'm not sure about the Metadata-parameter needed for this method call.

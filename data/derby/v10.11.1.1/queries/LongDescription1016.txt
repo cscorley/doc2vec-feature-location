@@ -1,0 +1,47 @@
+javax.transaction.xa.forget (Xid) raises XAER_NOTA exception instead of XA_PROTO on a prepared transaction
+
+I posted a question to derby-dev about this and heard no response so am assuming it is indeed a bug.
+
+ in  the  XA+ 
+specification, it seems like xa_forget should  only be valid for a
+heuristically completed transaction, so should  be  XAER_PROTO
+and not XAER_NOTA.
+
+
+In xaStateTran.sql we have this case:
+
+– get back into prepared state
+xa_start xa_noflags 50;
+insert into xastate values(2);
+xa_end xa_success 50;
+xa_prepare 50;
+
+select * from global_xactTable where gxid is not null order by gxid;
+
+– the following should error XAER_NOTA
+xa_forget 50;
+
+
+
+The user  code I am looking at handles forget like this. They expect 
+XAER_PROTO in this case.
+
+try 
+{
+             xaRes.forget(xidList[i]);
+              System.out.print("XA-Transaction [" + (i+1) + "]
+Forgotten. \n" );
+}
+ catch (XAException XAeForget) {
+                        if ( XAeForget.errorCode ==
+XAException.XAER_PROTO ) 
+{
+                            System.out.print("XA-Transaction [" + (i+1)
++ "] not heuristically completed yet - Rolling Back instead. \n" );
+                            xaRes.rollback(xidList[i]);
+                            System.out.print("XA-Transaction [" + (i+1)
++ "] Rolled Back. \n" );
+                        }
+                        if ( XAeForget.getMessage() != null ) {
+                            System.out.println("XAException " +
+XAeForget.getMessage() );

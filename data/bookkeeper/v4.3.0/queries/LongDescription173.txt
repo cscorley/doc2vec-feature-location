@@ -1,0 +1,18 @@
+I am not sure if it is a but or not.
+
+Say, I do have pc with 256 cores, and there is following code in bookkeeper:
+BookKeeper.java
+
+OrderedSafeExecutor callbackWorker = new OrderedSafeExecutor(Runtime.getRuntime().availableProcessors());
+OrderedSafeExecutor mainWorkerPool = new OrderedSafeExecutor(Runtime .getRuntime().availableProcessors());
+
+
+As I understand, callbackWorker is not used at all, so it could be removed.
+Also could be required to get more control over mainWorkerPool (say, extract interface + pass instance through contructor).
+
+Myabe there are other places in library where some thread pools are created without ability to reuse existing thread pools in application.
+
+
+
+
+

@@ -1,0 +1,5 @@
+It would be nice to be able to root ZooKeeper handles at specific points in the namespace, so that applications that use ZooKeeper can work in their own rooted subtree.
+
+For example, if ops decides that application X can use the subtree /apps/X and application Y can use the subtree /apps/Y, X can to a chroot to /apps/X and then all its path references can be rooted at /apps/X. Thus when X creates the path "/myid", it will actually be creating the path "/apps/X/myid".
+
+There are two ways we can expose this mechanism: 1) We can simply add a chroot(String path) API, or 2) we can integrate into a service identifier scheme for example zk://server1:2181,server2:2181/my/root. I like the second form personally.

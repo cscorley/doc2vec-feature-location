@@ -1,0 +1,11 @@
+Currently Tika doesn't use the charset info that's optionally present in HTML documents, via the <meta http-equiv="Content-type" content="text/html; charset=xxx"> tag.
+
+If the mime-type is detected as being one that's handled by the HtmlParser, then the first 4-8K of text should be converted from bytes to us-ascii, and then scanned using a regex something like:
+
+    private static final Pattern HTTP_EQUIV_CHARSET_PATTERN = Pattern.compile("<meta\\s+http-equiv\\s*=\\s*['\"]\\s*Content-Type['\"]\\s+content\\s*=\\s*['\"][^;];\\s*charset\\s*=\\s*([^'\"])\"");
+
+If a charset is detected, this should take precedence over a charset in the HTTP response headers, and (obviously) used to convert the bytes to text before the actual parsing of the document begins.
+
+In a test I did of 100 random HTML pages, roughly 15% contained charset info in the meta tag that wound up being different from the detected or HTTP response header charset, so this is a pretty important improvement to make. Without it, Tika isn't that useful for processing HTML pages.
+
+Though the other problem is that the HtmlParser code doesn't use the CharsetDetector, which is another reason for lots of incorrect text. I'll file a separate issue about that.

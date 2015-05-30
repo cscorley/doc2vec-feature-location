@@ -1,0 +1,141 @@
+Our setup is :
+
+
+	about 34M lucene documents of bibliographic and full text content
+	index currently 115GB, will at least double over next 6 months
+	moving to support real-time-ish updates (maybe 5 min delay)
+
+
+
+We facet on 8 fields, 6 of which are "normal" with small numbers of
+distinct values.  But 2 faceted fields, creator and subject, are huge,
+with 18M and 9M terms respectively.  
+
+On a server with 2xquad core AMD 2382 processors and 64GB memory, java
+1.6.0_13-b03, 64 bit run with "-Xmx15192M -Xms6000M -verbose:gc", with
+the index on Intel X25M SSD, on start-up the elapsed time to create
+the 8 facets is 306 seconds (best time).  Following an index reopen,
+the time to recreate them in 318 seconds (best time).
+
+[We have made an independent experimental change to create the facets
+with 3 async threads, that is, in parallel, and also to decouple them
+from the underlying index, so our facets lag the index changes by the
+time to recreate the facets.  With our setup, the 3 threads reduced
+facet creation elapsed time from about 450 secs to around 320 secs,
+but this will depend a lot on IO capabilities of the device containing
+the index, amount of file system caching, load, etc]
+
+Anyway, we noticed that huge amounts of garbage were being collected
+during facet generation of the creator and subject fields, and tracked
+it down to this decision in UnInvertedField univert():
+
+     if (termNum >= maxTermCounts.length) 
+{
+       // resize, but conserve memory by not doubling
+       // resize at end??? we waste a maximum of 16K (average of 8K)
+       int[] newMaxTermCounts = new int[maxTermCounts.length+4096];
+       System.arraycopy(maxTermCounts, 0, newMaxTermCounts, 0, termNum);
+       maxTermCounts = newMaxTermCounts;
+     }
+
+So, we tried the obvious thing:
+
+
+	allocate 10K terms initially, rather than 1K
+	extend by doubling the current size, rather than adding a fixed 4K
+	free unused space at the end (but only if unused space is
+"significant") by reallocating the array to the exact required size
+
+
+
+And also:
+
+
+	created a static HashMap lookup keyed on field name which remembers
+the previous allocated size for maxTermCounts for that field, and
+initially allocates that size + 1000 entries
+
+
+
+The second change is a minor optimisation, but the first change, by
+eliminating thousands of array reallocations and copies, greatly
+improved load times, down from 306 to 124 seconds on the initial load
+and from 318 to 134 seconds on reloads after index updates.  About
+60-70 secs is still spend in GC, but it is a significant improvement.
+
+Unless you have very large numbers of facet values, this change won't
+have any positive benefit.
+
+The core part of our change is reflected by this diff against revision 785058:
+
+***************
+
+	
+	
+		
+		
+			222,232 ****
+		
+		
+	
+	
+
+
+
+        int termNum = te.getTermNumber();
+
+        if (termNum >= maxTermCounts.length) 
+{
+!         // resize, but conserve memory by not doubling
+!         // resize at end??? we waste a maximum of 16K (average of 8K)
+!         int[] newMaxTermCounts = new int[maxTermCounts.length+4096];
+          System.arraycopy(maxTermCounts, 0, newMaxTermCounts, 0, termNum);
+          maxTermCounts = newMaxTermCounts;
+        }
+
+— 222,232 ----
+
+        int termNum = te.getTermNumber();
+
+        if (termNum >= maxTermCounts.length) 
+{
+!         // resize by doubling - for very large number of unique terms, expanding
+!         // by 4K and resultant GC will dominate uninvert times.  Resize at end if material
+!         int[] newMaxTermCounts = new int[maxTermCounts.length*2];
+          System.arraycopy(maxTermCounts, 0, newMaxTermCounts, 0, termNum);
+          maxTermCounts = newMaxTermCounts;
+        }
+
+***************
+
+	
+	
+		
+		
+			331,338 ****
+		
+		
+			331,346 ----
+		
+		
+	
+	
+
+
+
+      numTermsInField = te.getTermNumber();
+      te.close();
+
++     // free space if outrageously wasteful (tradeoff memory/cpu)
++
++     if ((maxTermCounts.length - numTermsInField) > 1024) 
+{ // too much waste!
++       int[] newMaxTermCounts = new int[numTermsInField];
++       System.arraycopy(maxTermCounts, 0, newMaxTermCounts, 0, numTermsInField);
++       maxTermCounts = newMaxTermCounts;
++    }
++
+      long midPoint = System.currentTimeMillis();
+
+      if (termInstances == 0) {
+        // we didn't invert anything

@@ -1,0 +1,6 @@
+ij> create table t (c1 int generated always as identity, c2 generated always as (c1));
+0 rows inserted/updated/deleted
+ij> insert into t values (default, default);
+ERROR 23502: Column 'C2'  cannot accept a NULL value.
+
+Preferably, this should work. Alternatively, if it is not supposed to work, it should fail when the table is created and the error message should state that a generated column is not allowed to reference an identity column.

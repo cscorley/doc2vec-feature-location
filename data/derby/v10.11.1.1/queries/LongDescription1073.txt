@@ -1,0 +1,30 @@
+I wanted to file this as subtask to DERBY-805, but since DERBY-805 is itself a subtask to DERBY-649, I was not able to do so.  So I'm creating this issue as a(nother) subtaks for DERBY-649.
+
+[ Based on derby-dev thread found here: http://article.gmane.org/gmane.comp.apache.db.derby.devel/16007 ]
+
+If we have a query such as:
+
+select <...> from
+   (select t1.i, t2.j from t1, t2 where <...>) X1,
+    T3
+where <...>
+
+then we would have one "outer" query and one "subquery".  The outer query would be "select <...> from X1, T3", the subquery would be "select t1.i, t2.j from t1, t2".
+
+In this case the Derby optimizer will create two instances of OptimizerImpl: one for the outer query (call it OI_OQ) and one for the subquery (call it OI_SQ).  Each OptimizerImpl has its own timeout "clock" that it initializes at creation time--but never resets.  If timeout occurs, the OptimizerImpl will stop searching for "the" best plan and will just take the best plan found so far.
+
+That said, for every permutation of the outer query a call will be made to optimize the subquery.  To simplify things, let's assume there are only two permutations of the outer query: one with join order 
+{X1, T3} and another with join order {T3, X1}.
+
+Now let's say we're looking at the first permutation {X1, T3}
+.  OI_OQ will make a call to optimize the subquery represented by OI_SQ.  Let's further say that the subquery tries some permutation 
+{T1, T2} and then times out.  It then returns the plan information for {T1, T2}
+ to the outer query.  The outer query, which has not yet timed out, then decides to try its second permutation 
+{T3, X1}
+.  So it again makes a call to optimize the subquery.  In this case, the subquery-which has already timed out-will immediately return without trying to optimize anything.  The outer query will then make a decision about its second permutation based on the un-optimized subquery's plan results.
+
+This hasn't really been an issue to date because the "best plan" chosen by the subquery is typically independent of the outer query's current permutation--with the exception of "outerCost", which is passed in from the outer query and is factored into the subquery's cost estimates.  Because of this relative independence, the plan chosen by the subquery would rarely (if ever?) change with different permutations of the outer query, so if the subquery timed out once there was no point in trying to re-optimize it again later.
+
+With DERBY-805, though, Derby has acquired the ability to push predicates from outer queries down into subqueries--which means that the outer join order can have a very significant impact on the plan chosen by the subquery.  But because the timeout mechanism is never reset, we could end up skipping the second optimization phase of the subquery, which means we never get a chance to see how much the outer predicates can help, and thus we could end up skipping over some plans that have the potential to give us significant performance improvement.
+
+So resolution of this issue would involve resetting the timeout state for subqueries to allow the Derby optimizer to consider plans that rely on pushed predicates.

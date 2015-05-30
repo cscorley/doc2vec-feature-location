@@ -1,0 +1,45 @@
+Create a table with a column privilege like this in ij:
+
+connect 'jdbc:derby:db;create=true';
+call syscs_util.syscs_set_database_property('derby.database.sqlAuthorization', 'true');
+create table """" (x int);
+disconnect;
+connect 'jdbc:derby:db;shutdown=true';
+connect 'jdbc:derby:db';
+grant select  on """" to someone;
+exit;
+
+If you then run dblook -d jdbc:derby:db, you'll see this:
+
+– ----------------------------------------------
+– GRANT statements for columns
+– ----------------------------------------------
+
+– Note: At least one unexpected error/warning message was
+– encountered during DDL generation.  See dblook.log
+– to review the message(s).
+
+And in dblook.log you'll find this:
+
+java.sql.SQLException: Invalid cursor state - no current row.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.newSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.ConnectionChild.newSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedResultSet.checkOnRow(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedResultSet.getColumn(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedResultSet.getString(Unknown Source)
+	at org.apache.derby.impl.tools.dblook.DB_GrantRevoke.mapColumnsToNames(Unknown Source)
+	at org.apache.derby.impl.tools.dblook.DB_GrantRevoke.columnPrivStatement(Unknown Source)
+	at org.apache.derby.impl.tools.dblook.DB_GrantRevoke.generateColumnPrivs(Unknown Source)
+	at org.apache.derby.impl.tools.dblook.DB_GrantRevoke.doAuthorizations(Unknown Source)
+	at org.apache.derby.tools.dblook.go(Unknown Source)
+	at org.apache.derby.tools.dblook.<init>(Unknown Source)
+	at org.apache.derby.tools.dblook.main(Unknown Source)
+Caused by: java.sql.SQLException: Invalid cursor state - no current row.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(Unknown Source)
+	... 16 more
+– **--> DEBUG: Invalid cursor state - no current row.

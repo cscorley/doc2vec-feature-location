@@ -1,0 +1,18 @@
+Let's say we have 100 clients (group A) already connected to three-node ZK ensemble with session timeout of 15 second.  And we have 1000 clients (group B) already connected to the same ZK ensemble, all watching several nodes (with 15 second session timeout)
+
+Consider a case in which All clients in group B suddenly hung or deadlocked (JVM OOME) all at the same time. 15 seconds later, all sessions in group B gets expired, creating session closing stampede. Depending on the number of this clients in group B, all request/response ZK ensemble should process get delayed up to 8 seconds (1000 clients we have tested).
+
+This delay causes some clients in group A their sessions expired due to delay in getting heartbeat response. This causes normal servers to drop out of clusters. This is a serious problem in our installation, since some of our services running batch servers or CI servers creating the same scenario as above almost everyday.
+
+I am attaching a graph showing ping response time delay.
+
+I think ordering of creating/closing sessions and ping exchange isn't important (quorum state machine). at least ping request / response should be handle independently (different queue and different thread) to keep realtime-ness of ping.
+
+As a workaround, we are raising session timeout to 50 seconds.
+But this causes max. failover of cluster to significantly increased, thus initial QoS we promised cannot be met.
+
+
+
+
+
+

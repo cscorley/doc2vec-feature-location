@@ -1,0 +1,27 @@
+Encounter the following access denial exception when Java 2 security is enabled in application server environment.
+
+File.toURL() is not documented which requires security check, however indirectly, the File.isDirectory() is invoked, which required security permission.
+
+Exception = java.security.AccessControlException
+Source = com.ibm.ws.security.core.SecurityManager
+probeid = 180
+Stack Dump = java.security.AccessControlException: Access denied (java.io.FilePermission C:\WAS3\profiles\AppSrv01\installedApps\javajoeNode01Cell\EJB3JPACallbackBeanApp.ear\EJB3JPACallbackWebApp.war\WEB-INF\classes\suite\r70\base\jpaspec\callback\entities\AbstractCallbackEntity.class read)
+        at java.security.AccessController.checkPermission(AccessController.java:104)
+        at java.lang.SecurityManager.checkPermission(SecurityManager.java:547)
+        at com.ibm.ws.security.core.SecurityManager.checkPermission(SecurityManager.java:189)
+        at java.lang.SecurityManager.checkRead(SecurityManager.java:886)
+        at java.io.File.isDirectory(File.java:747)
+        at java.io.File.toURL(File.java:620)
+        at org.apache.openjpa.lib.meta.FileMetaDataIterator.next(FileMetaDataIterator.java:114)
+        at org.apache.openjpa.lib.meta.ClassArgParser.mapTypeNames(ClassArgParser.java:283)
+        at org.apache.openjpa.meta.AbstractCFMetaDataFactory.scan(AbstractCFMetaDataFactory.java:778)
+        at org.apache.openjpa.meta.AbstractCFMetaDataFactory.parsePersistentTypeNames(AbstractCFMetaDataFactory.java:637)
+        at org.apache.openjpa.meta.AbstractCFMetaDataFactory.getPersistentTypeNames(AbstractCFMetaDataFactory.java:605)
+        at org.apache.openjpa.meta.MetaDataRepository.getPersistentTypeNames(MetaDataRepository.java:1214)
+        at org.apache.openjpa.meta.MetaDataRepository.loadPersistentTypes(MetaDataRepository.java:1231)
+        at org.apache.openjpa.kernel.AbstractBrokerFactory.loadPersistentTypes(AbstractBrokerFactory.java:245)
+        at org.apache.openjpa.kernel.AbstractBrokerFactory.newBroker(AbstractBrokerFactory.java:197)
+        at org.apache.openjpa.kernel.DelegatingBrokerFactory.newBroker(DelegatingBrokerFactory.java:142)
+        at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:190)
+        at com.ibm.ws.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:37)
+        at com.ibm.ws.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:28)

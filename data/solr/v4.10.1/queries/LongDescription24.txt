@@ -1,0 +1,20 @@
+This patch adds highlighting functionality to solr request handlers it also refactors StandardRequestHandler to use the common functionality provided in SolrPluginUtils.  I'd have preferred to do two separate patches, but creating two mutually-dependent patches on a repo without being able to commit a revision was daunting.
+
+-----------------------------------
+Refactoring StandardRequestHandler:
+
+1. Moved solr.util.CommonParams to its own class.  Removed DisMax-specific parameters, and placed in a subclass.
+2. StandardRequestHandler uses CommonParams to store config-time parameter values (new feature)
+3. StandardRequestHandler uses SolrPluginUtils methods for duplicate functionality
+4. Some of said SPU methods have grown a "params" parameter to enable them to use default values.  (Note: instead of passing this around, something like a RequestHelper class which carries the SolrRequest and Param values would be useful.  This class could house the utility methods that require Request parameters).
+5. SolrPluginUtils.getParam() only uses the default parameter if it is null, not blank.
+
+--------------------------------------
+Highlighting:
+
+1. Highlighting is controlled by three request parameters:
+   highlight: list of fields to highlight, or highlight the default field if at all present
+  maxSnippets: maximum number of snippets to return for each field
+   highlightFormatterClass: 'solr.<classname>' or full package path of highlight.Formatter subclass to use in highlighting.
+2. Default formatter is to use <em> tags.  There are issues with this approach, but are mitigated with the ability to specify a custom Formatter.  Definately should consider alternatives (a custom xml approach to denote highlit regions will require some Highlighter package hackery).
+3. Document summaries are returned as a separate element under <response> format is still up for discussion.

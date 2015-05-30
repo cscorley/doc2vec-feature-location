@@ -1,0 +1,22 @@
+If you have a data-import configuration that nests an entity that includes an XPath with an XPathEntityProcessor - like so :- 
+
+<entity name="a" ...etc
+  datasource="
+  <field column="xpath_value"/>
+
+  <entity name="b" 
+        dataSource="filereader"
+        processor="XPathEntityProcessor"
+        ... etc />
+
+      <field column="my_field" xpath="$
+{a.xpath_value}" />
+  </entity>
+
+</entity>
+
+This will fail with an error like so
+
+Caused by: java.lang.RuntimeException: xpath must start with '/' : ${a.xpath_value}
+
+We should allow the xpath to be replaced with the token from entity a

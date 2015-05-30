@@ -1,0 +1,17 @@
+When extracting from the zip files which are zipped at Windows OS(Japanese), the file name extracted from zip is garbled.
+
+ZipArchiveInputStream has three constructors. Modifying like the below, the file name was not garbled. I specified the encoding - SJIS.
+
+PackageExtractor
+
+public void parse(InputStream stream)
+ :
+ //unpack(new ZipArchiveInputStream(stream), xhtml);  
+ unpack(new ZipArchiveInputStream(stream,"SJIS",true), xhtml); 
+ :
+
+
+
+In first constructor the platform's default encoding UTF-8 is used.  In my case the encoding of my computer is UTF-8, the encoding of zip file is SJIS, so the file name was garbled. We will get garbled file name if there is a difference of  encoding between platform this constructor and zip file.
+
+I want Tika to parse zip by giving some kind of encoding parameter per file, Where should I give the encoding, somewhere in Metadata or ParseContext? Please support this. I am using Tika via Solr(SolrCell), so when posting zip file to Solr I want to add encoding parameter to the request.

@@ -1,0 +1,9 @@
+When a column is annotated as a BLOB of using @Persistent to use streaming blobs, and the underlying database is MySQL, OpenJPA will create a column of type BLOB. Unfortunately, in MySQL a BLOB column can hold a (vary) limited amount of data, while (especially when using streaming blobs) the user would probably expect it to hold a large amount of data.
+
+Also adding the @Column annotation and specifying a size bigger than what a BLOB column in MySQL can hold, OpenJPA still creates only a BLOB column.
+
+I think OpenJPA should be able to create the proper column type depending on the @Column annotation if present, or otherwise default at least to a MEDIUMBLOB to preserve cross-database compatibility as expected.
+
+The simplest patch i can think of is setting blobTypeName="MEDIUMBLOB" in the MySQLDictionary constructor.
+
+Otherwise, overriding the getTypeName to properly parse the length and return the correct BLOB/TEXT type for mysql.

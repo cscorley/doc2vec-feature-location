@@ -1,0 +1,36 @@
+I found this when working on DERBY-1047.   Exceptions thrown  using 
+org.apache.derby.impl.jdbc.Util.generateCsSQLException()
+do not print to derby.log even when derby.stream.error.logSeverityLevel=0
+
+For example the attached repro  generates an expected exception but does not  print the error to the log.
+
+java -Dderby.stream.error.logSeverityLevel=0 Derby1047
+
+
+This causes an expected exception to be thrown but it does not print to the derby.log
+
+10.2.0.0 alpha
+Apache Derby
+Apache Derby Embedded JDBC Driver
+done creating  table
+COL1
+-----------
+1
+2
+PASS: Expected Exception can'tholdable cusror in global xact:Cannot set holdability ResultSet.HOLD_CURSORS_OVER_COMMIT for a global transaction.
+COL1
+-----------
+1
+2
+3
+
+
+The code generating the exception is in org.apache.derby.iapi.jdbc.BrokeredStatement
+
+  final void checkHoldability() throws SQLException 
+{
+        int holdability = controlCheck().checkHoldCursors(resultSetHoldability);
+        if (holdability != resultSetHoldability)
+            throw Util.generateCsSQLException(SQLState.CANNOT_HOLD_CURSOR_XA);
+
+    }

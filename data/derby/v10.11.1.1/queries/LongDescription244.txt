@@ -1,0 +1,12 @@
+The tests
+   i18n/messageLocale.sql
+   i18n/urlLocale.sql
+   i18n/iepnegativetests_ES.sql
+
+will fail on Linux if $LANG and as a result, console.encoding is not set in the same way as when the test master was created. The behavior is that some characters are not seen as outside the ANSI range and are displayed as a ?.
+Result is as master when $LANG is en_US.UTF-8
+
+But then ieptest.sql will fail which will with ibm142 which pass if $LANG is en_US.
+
+This needs some further analysis, so this description may need to be updated later.
+Whatever the solution is, will need to work for all situations.

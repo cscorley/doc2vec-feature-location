@@ -1,0 +1,51 @@
+When using a sequence table that isn't initialized yet, the following exception[2] can occur if running with multiple EMFs across multiple threads. This problem was reported on the users mailing list[1].
+
+[1]
+[2]
+<openjpa-2.3.0-SNAPSHOT-r422266:1388137M fatal store error> org.apache.openjpa.persistence.RollbackException: Duplicate entry 'ID2' for key 'PRIMARY' 
+{prepstmnt 1162102084 INSERT INTO ID_Gen (GEN_NAME, GEN_VAL) VALUES (?, ?) [params=(String) ID2, (int) 20]} [code=1062, state=23000]
+	at org.apache.openjpa.persistence.EntityManagerImpl.commit(EntityManagerImpl.java:594)
+	at org.apache.openjpa.persistence.generationtype.TestTableGeneratorMultithreadedInitialization$Worker.run(TestTableGeneratorMultithreadedInitialization.java:107)
+Caused by: <openjpa-2.3.0-SNAPSHOT-r422266:1388137M fatal store error> org.apache.openjpa.persistence.EntityExistsException: Duplicate entry 'ID2' for key 'PRIMARY' {prepstmnt 1162102084 INSERT INTO ID_Gen (GEN_NAME, GEN_VAL) VALUES (?, ?) [params=(String) ID2, (int) 20]}
+ [code=1062, state=23000]
+	at org.apache.openjpa.jdbc.sql.DBDictionary.narrow(DBDictionary.java:4931)
+	at org.apache.openjpa.jdbc.sql.DBDictionary.newStoreException(DBDictionary.java:4906)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:137)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:110)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:62)
+	at org.apache.openjpa.jdbc.kernel.AbstractJDBCSeq.next(AbstractJDBCSeq.java:66)
+	at org.apache.openjpa.util.ImplHelper.generateValue(ImplHelper.java:161)
+	at org.apache.openjpa.util.ImplHelper.generateFieldValue(ImplHelper.java:144)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.assignField(JDBCStoreManager.java:778)
+	at org.apache.openjpa.util.ApplicationIds.assign(ApplicationIds.java:493)
+	at org.apache.openjpa.util.ApplicationIds.assign(ApplicationIds.java:469)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.assignObjectId(JDBCStoreManager.java:762)
+	at org.apache.openjpa.kernel.DelegatingStoreManager.assignObjectId(DelegatingStoreManager.java:135)
+	at org.apache.openjpa.kernel.StateManagerImpl.assignObjectId(StateManagerImpl.java:601)
+	at org.apache.openjpa.kernel.StateManagerImpl.preFlush(StateManagerImpl.java:3024)
+	at org.apache.openjpa.kernel.PNewState.beforeFlush(PNewState.java:44)
+	at org.apache.openjpa.kernel.StateManagerImpl.beforeFlush(StateManagerImpl.java:1043)
+	at org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:2114)
+	at org.apache.openjpa.kernel.BrokerImpl.flushSafe(BrokerImpl.java:2074)
+	at org.apache.openjpa.kernel.BrokerImpl.beforeCompletion(BrokerImpl.java:1992)
+	at org.apache.openjpa.kernel.LocalManagedRuntime.commit(LocalManagedRuntime.java:81)
+	at org.apache.openjpa.kernel.BrokerImpl.commit(BrokerImpl.java:1516)
+	at org.apache.openjpa.kernel.DelegatingBroker.commit(DelegatingBroker.java:933)
+	at org.apache.openjpa.persistence.EntityManagerImpl.commit(EntityManagerImpl.java:570)
+	... 1 more
+Caused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: Duplicate entry 'ID2' for key 'PRIMARY' 
+{prepstmnt 1162102084 INSERT INTO ID_Gen (GEN_NAME, GEN_VAL) VALUES (?, ?) [params=(String) ID2, (int) 20]}
+ [code=1062, state=23000]
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.wrap(LoggingConnectionDecorator.java:219)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.wrap(LoggingConnectionDecorator.java:195)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.access$4(LoggingConnectionDecorator.java:194)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection$LoggingPreparedStatement.executeUpdate(LoggingConnectionDecorator.java:1134)
+	at org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement.executeUpdate(DelegatingPreparedStatement.java:272)
+	at org.apache.openjpa.jdbc.kernel.TableJDBCSeq.executeUpdate(TableJDBCSeq.java:818)
+	at org.apache.openjpa.jdbc.kernel.TableJDBCSeq.insertSequence(TableJDBCSeq.java:503)
+	at org.apache.openjpa.jdbc.kernel.TableJDBCSeq.access$1(TableJDBCSeq.java:475)
+	at org.apache.openjpa.jdbc.kernel.TableJDBCSeq$AllocateSequenceRunnable.run(TableJDBCSeq.java:903)
+	at org.apache.openjpa.jdbc.kernel.TableJDBCSeq.allocateSequence(TableJDBCSeq.java:455)
+	at org.apache.openjpa.jdbc.kernel.TableJDBCSeq.nextInternal(TableJDBCSeq.java:300)
+	at org.apache.openjpa.jdbc.kernel.AbstractJDBCSeq.next(AbstractJDBCSeq.java:60)
+	... 19 more

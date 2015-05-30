@@ -1,0 +1,52 @@
+When an order by clause involves a CASE-expression as seen below, a NullPointerException is thrown. The error only occurs when two select statements are combined in a union (or union all).
+
+select t1.id, CASE WHEN t2.value IS NOT NULL THEN t2.value ELSE t1.value END
+from A1 t1
+left outer join B1 t2 ON t2.id = t1.ref
+
+union all
+
+select t1.id, CASE WHEN t2.value IS NOT NULL THEN t2.value ELSE t1.value END
+from A2 t1
+left outer join B2 t2 ON t2.id = t1.ref
+
+order by CASE WHEN t2.value IS NOT NULL THEN t2.value ELSE t1.value END
+
+
+--Use the following statement to reproduce the problem:
+
+create table A1
+(
+   id char(1)
+  ,value int
+  ,ref char(1)
+);
+
+create table A2
+(
+   id char(1)
+  ,value int
+  ,ref char(1)
+);
+
+create table B1
+(
+   id char(1)
+  ,value int
+);
+
+create table B2
+(
+   id char(1)
+  ,value int
+);
+
+
+insert into A1 (id, value, ref) values ('a', 12, 'e');
+insert into A1 (id, value, ref) values ('b', 1, null);
+insert into A2 (id, value, ref) values ('c', 3, 'g');
+insert into A2 (id, value, ref) values ('d', 8, null);
+
+insert into B1 (id, value) values ('e', 4);
+insert into B1 (id, value) values ('f', 2);
+insert into B2 (id, value) values ('g', 5);

@@ -1,0 +1,4 @@
+When calling StreamingKMeans in the reducer (to collapse the number of clusters to they can fit into memory), the clustering is done on the Hadoop reducer iterable.
+
+Currently, the first Centroid is added directly as a special case and then is skipped when iterating through the main loop.
+However, Hadoop reducer iterables cannot be rewound therefore causing SKM to skip one point.

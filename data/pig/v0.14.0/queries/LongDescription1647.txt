@@ -1,0 +1,6 @@
+A query like:
+
+A = load 'd.txt' as (a:chararray, b:long, c:map[], d:chararray, e:chararray);
+B = filter A by a == 'v' and b == 117L and c#'p1' == 'h' and c#'p2' == 'to' and ((d is not null and d != '') or (e is not null and e != ''));
+
+will cause the logical expression simplifier to throw a NPE.

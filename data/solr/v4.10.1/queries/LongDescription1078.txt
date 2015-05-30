@@ -1,0 +1,22 @@
+With any configuration of schema.xml
+
+<filter class="solr.WordDelimiterFilterFactory" />
+
+
+will do wrong word breaking with Thai characters.
+
+Example: "ผู้ ใหญ่ บ้าน"
+
+Wrong result: 0 => "ผ", 1 => "ใหญ", 2 => "บ", 3 => "าน"
+
+Expect result: 0 => "ผู้", 1 => "ใหญ่", 2 => "บ้าน"
+
+Example2: "ผู้ใหญ่บ้าน" (no space)
+
+Wrong result: 0 => "ผ", 1 => "ใหญ", 2 => "บ", 3 => "าน" (same result)
+
+Expect result: 0 => "ผู้ใหญ่บ้าน"
+
+
+
+There's a similar problem with Drupal (http://drupal.org/node/335928)

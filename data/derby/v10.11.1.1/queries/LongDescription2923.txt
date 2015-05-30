@@ -1,0 +1,3 @@
+Select operations with client/server and soft upgrade mode will not see first byte of the Blob/Clob if the LOB column is nullable.
+
+The reason seems to be that during soft upgrade, the network server does not prepend the LOB data with the byte indicating whether the column is null or not.  Hence, the first data byte will be interpreted by the client as the null byte, and the reading of the LOB will start at the second byte.

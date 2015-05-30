@@ -1,0 +1,5 @@
+I have a simple program that connects to a database using the Derby Client, executes a simple query, then connects to a different database using a different Connection object and executes another simple query on that second connection.  The queries both execute without error, so it appears that the connections are correct--i.e. each query will only work on one of the databases, and both queries work, therefore each must be getting executed against the correct database.
+
+But in looking at the client and server traces, I noticed that for the query on the second database, the client is actually sending the name of the first database as RDBNAM, which (I think?) is wrong--it should be sending the name of the second database, since the query is being executed on the second Connection object.
+
+This behavior does not appear to occur for JCC.

@@ -1,0 +1,15 @@
+If the test case testInterruptBatch runs before the other test cases in InterruptResilienceTest, the subsequent test cases will fail with errors like the following one:
+
+6) testRAFReadWriteMultipleThreads(org.apache.derbyTesting.functionTests.tests.store.InterruptResilienceTest)java.sql.SQLException: Table/View 'T1' already exists in Schema 'APP'.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:98)
+        at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Util.java:256)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:396)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:348)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:2290)
+        at org.apache.derby.impl.jdbc.ConnectionChild.handleException(ConnectionChild.java:82)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1334)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:630)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(EmbedStatement.java:179)
+        at org.apache.derbyTesting.functionTests.tests.store.InterruptResilienceTest.setUp(InterruptResilienceTest.java:127)
+
+The problem appears to be that testInterruptBatch turns auto-commit off, so that BaseTestCase.tearDown() will roll back the dropping of test tables in InterruptResilienceTest.tearDown().

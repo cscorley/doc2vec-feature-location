@@ -1,0 +1,11 @@
+When the wrong keyword is used in a grant execute privilege statement, the error message
+leads one the believe the identifier is neither a procedure or a function, when in deed it is one of the two.
+
+> create function bc(i int) returns int language java parameter style java external name 'java.lang.Integer.bitCount' no sql;
+> grant execute on procedure bc to foo;
+ERROR 42Y03: 'BC' is not recognized as a function or procedure.
+
+> grant execute on function bc to foo;
+(works)
+
+The reason is that the error message is generic. It would be better to have an error message for each case.

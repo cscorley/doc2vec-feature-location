@@ -1,0 +1,12 @@
+org.apache.derby.client.am.Clob.getSubString(pos, length) and org.apache.derby.client.am.Blob.getBytes(pos, length) check the length for less than zero. 
+
+            if ((pos <= 0) || (length < 0)) {
+                throw new SqlException(agent_.logWriter_, "Invalid position " + pos + " or length " + length);
+
+But org.apache.derby.impl.jdbc.EmbedClob(pos, length) and org.apache.derby.impl.jdbc.EmbedBlob(pos, length) check the length for less than or equal to zero.
+
+       if (length <= 0)
+            throw Util.generateCsSQLException(
+                SQLState.BLOB_NONPOSITIVE_LENGTH, new Integer(length));
+
+The specification does not disallow length of zero, so zero length should be allowed. I believe that the implementation in org.apache.derby.client.am is correct, and the implementation in org.apache.derby.impl.jdbc is incorrect. 

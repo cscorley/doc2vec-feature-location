@@ -1,0 +1,30 @@
+register myudf.jar;
+A = load 'input' MyZippedStorage('\u0001') as ($inputSchema);
+B = foreach A generate id , value  ;
+C = foreach B generate id , org.myudf.ExplodeHashList( (chararray)value, '\u0002', '\u0004', '\u0003') as value;
+D = FILTER C by value is not null;
+E = foreach D generate id , flatten(org.myudf.GETFIRST(value)) as hop;
+F = foreach E generate id , hop#'rmli' as rmli:bytearray ;
+store F into 'output.bz2' using PigStorage();
+
+The above script fails when run with Pig 0.8 but runs fine with Pig 0.7 or if pig.usenewlogicalplan=false.
+The below is the exception thrown in 0.8 :
+
+org.apache.pig.backend.executionengine.ExecException: ERROR 1075: Received a bytearray from the UDF. Cannot determine how to convert the bytearray to map.
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POCast.getNext(POCast.java:952)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POMapLookUp.processInput(POMapLookUp.java:87)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POMapLookUp.getNext(POMapLookUp.java:98)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POMapLookUp.getNext(POMapLookUp.java:117)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.processPlan(POForEach.java:346)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.getNext(POForEach.java:291)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:236)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:231)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:53)
+	at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144)
+	at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:638)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:314)
+	at org.apache.hadoop.mapred.Child$4.run(Child.java:217)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:396)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1062)
+	at org.apache.hadoop.mapred.Child.main(Child.java:211)

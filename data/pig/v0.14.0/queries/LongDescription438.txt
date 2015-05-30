@@ -1,0 +1,21 @@
+We do not handle re-aliasing of an existing alias - this should be handled correctly.
+
+The following script should work:
+
+
+
+a = load 'studenttab10k';
+b = filter a by $1 > '25';
+c = b;
+
+-- use b
+d = cogroup b by $0, a by $0;
+e = foreach d generate flatten(b), flatten(a);
+dump e
+
+-- use c
+f = cogroup c by $0, a by $0;
+g = foreach f generate flatten(c), flatten(a);
+dump g;
+
+

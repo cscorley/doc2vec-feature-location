@@ -1,0 +1,10 @@
+Spinoff from user thread "Closing streams (Was: Tika leaves files open)" started by Jukka on 8/30/2011 (http://markmail.org/message/6iq4tapiwzpmanhw).
+
+ImageMetadatExtractor is (indirectly) using a retired Java API, resulting in compilation error under Java 7:
+
+tika-parsers/src/main/java/org/apache/tika/parser/image/ImageMetadataExtractor.java:[89,34] error: cannot access JPEGDecodeParam
+[ERROR]   class file for com.sun.image.codec.jpeg.JPEGDecodeParam not found
+
+
+
+It's possible upgrading to the latest metadata-extractor might fix this... (we use 2.4.0-beta-1 but there's now a 2.5.0-RC2: http://code.google.com/p/metadata-extractor).

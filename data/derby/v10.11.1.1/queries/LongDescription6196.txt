@@ -1,0 +1,22 @@
+I got this failure when running suites.All on a patch for DERBY-6169 (although the part of the test that fails does not involve Derby, so I think it's not caused by the patch):
+
+java.lang.ArrayIndexOutOfBoundsException: -3
+	at java.util.ArrayList.elementData(ArrayList.java:371)
+	at java.util.ArrayList.set(ArrayList.java:399)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.SURQueryMixTest.createRandomSample(SURQueryMixTest.java:211)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.SURQueryMixTest.updateRandomSampleOfNRecords(SURQueryMixTest.java:268)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.SURQueryMixTest.runTest(SURQueryMixTest.java:119)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:117)
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.runBareOverridable(BaseJDBCTestCase.java:442)
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.runBare(BaseJDBCTestCase.java:459)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:23)
+	at junit.extensions.TestSetup.run(TestSetup.java:27)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:23)
+	at junit.extensions.TestSetup.run(TestSetup.java:27)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:23)
+	at junit.extensions.TestSetup.run(TestSetup.java:27)

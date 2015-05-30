@@ -1,0 +1,10 @@
+ASyncHammerTest is failing intermittently on hudson trunk. There is no clear reason why this is happening, but
+it seems from the logs that a session connection to a follower is failing during session establishment - the
+failure seems to be a problem either on the follower or leader. The server gets the session create request, but
+it stalls in the request processor pipeline. (we see it go in, but we do not see it com eout)
+
+unfortunately all efforts to reproduce this on non-hudson trunk have failed. Even trying to reproduce by
+running on hudson host itself (manually) has failed.
+
+We need to instrument the client session creation code in the test to dump the thread stack if the
+session creation fails.

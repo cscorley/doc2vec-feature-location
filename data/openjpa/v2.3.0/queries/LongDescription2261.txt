@@ -1,0 +1,3 @@
+The Query SQL Cache matches previously executed SQL for a given JPQL by using the JPQL string itself for the key.  As long as none of the predicate parameters are NULL, this is fine, as the prepared statement's SQL remains unchanged.  Since SQL requires "column IS NULL" statements and not "column = NULL", the approach used by OpenJPA's Query SQL Cache breaks and results with bad getResultList() returns.
+
+In the future (say, trunk), the Query SQL Cache needs more intelligence to handle this situation, but for service releases the best way to handle this issue is to disqualify queries with NULL parameters from the query cache.     

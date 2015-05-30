@@ -1,0 +1,9 @@
+Long stress run in the app server/container environment caused a OutOfMemoery exception with a heap dump that showed the following:
+
+ FetchConfigurationImpl$ConfigurationState
+ + WsJpaFetchConfigurationImpl
+    + Array of Object
+       + IdentityHashMap
+          + EntityManagerImpl
+
+What happened is the container pooled the entity manager and clear the context when a transaction is completed. However the IdentityHashMap in EntityManagerImpl, which maps the fetch configuration to fetch plan, is not being flush/clear. This caused the growth of the IdentityHashMap and eventually the OOM in a long run.

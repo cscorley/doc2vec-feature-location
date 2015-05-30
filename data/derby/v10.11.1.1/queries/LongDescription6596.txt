@@ -1,0 +1,7 @@
+When the LUCENESUPPORT routines are called with argument value NULL where a NULL is not allowed, they fail with NullPointerExceptions. Example:
+
+ij> call lucenesupport.createindex('app', 't', null, null);
+ERROR 38000: The exception 'java.lang.NullPointerException' was thrown while evaluating an expression.
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+
+Here, the third argument (the column name) cannot be NULL. It would be nicer if it raised an error that said that the argument couldn't be NULL, since a NullPointerException looks more like an internal error.

@@ -1,0 +1,32 @@
+Reading data via PigStorage and writing it via AvroStorage fails with an exception like this
+
+java.lang.ClassCastException: org.apache.pig.data.BinSedesTuple cannot be cast to org.apache.avro.generic.IndexedRecord
+
+The Pig script in this section of the documentation shows an example like this that fails:
+
+http://linkedin.jira.com/wiki/display/HTOOLS/AvroStorage+-+Pig+support+for+Avro+data#AvroStorage-PigsupportforAvrodata-A.Howtostoredataindifferentways.
+
+A workaround currently exists to produce avro from TSVs like this:
+
+
+avro = LOAD 'inputPath/' AS (foo);
+STORE avro INTO 'outputPath/' USING oap.piggybank.storage.avro.AvroStorage(
+  '{"data":"data_file.avro",
+    "same":"data_file.avro", "field0":"def:bar"}');
+
+
+
+This is redundant though and data and same seem to indicate the same thing. This approach also requires an existing avro data file to exist. This patch will make the following alternate constructor syntax's work as well.
+
+
+	Read schema from an existing data file:
+
+  '{"data":"data_file.avro", "field0":"def:bar"}');
+
+
+	Read schema from an existing schema file:
+
+  '{"schema_file":"data_file.avsc", "field0":"def:bar"}');
+
+
+

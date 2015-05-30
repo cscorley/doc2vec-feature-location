@@ -1,0 +1,21 @@
+OPENJPA-1400 introduced a bug that can be encountered when reading a streamed object under the following circumstances:
+
+	Using a serializable DetachedStateManager  (<property name="openjpa.DetachState" value="fetch-groups(DetachedStateField=true)"/>)
+	The Entity needs to have a version field AND either:
+	If no inheritance, a 'proxyable' (ie: java.sql.Date, java.util.List) field with a name that is lexicographically after the version field.
+	If using inheritance, a 'proxyable' (ie: java.sql.Date, java.util.List) field in a child class.
+
+
+
+The bug could manifest itself in a number of ways. Below is the one I was able to reproduce.
+java.lang.IllegalArgumentException
+	at org.apache.openjpa.persistence.inheritance.serializable.A.pcProvideField(A.java)
+	at org.apache.openjpa.kernel.DetachedStateManager.proxyDetachedDeserialized(DetachedStateManager.java:438)
+	at org.apache.openjpa.persistence.inheritance.serializable.A.readExternal(A.java)
+	at java.io.ObjectInputStream.readExternalData(ObjectInputStream.java:1792)
+	at java.io.ObjectInputStream.readOrdinaryObject(ObjectInputStream.java:1751)
+	at java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1329)
+	at java.io.ObjectInputStream.readObject(ObjectInputStream.java:351)
+	at org.apache.openjpa.persistence.inheritance.serializable.TestSerialization.serializeObject(TestSerialization.java:105)
+	at org.apache.openjpa.persistence.inheritance.serializable.TestSerialization.testRoundTrip(TestSerialization.java:48)
+	...

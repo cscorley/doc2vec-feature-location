@@ -1,0 +1,26 @@
+Something to look into....
+
+tests that use JettySolrRunner frequently fail with stack traces like this...
+
+java.net.BindException: Address already in use
+	at java.net.PlainSocketImpl.socketBind(Native Method)
+	at java.net.PlainSocketImpl.bind(PlainSocketImpl.java:359)
+	at java.net.ServerSocket.bind(ServerSocket.java:319)
+	at java.net.ServerSocket.<init>(ServerSocket.java:185)
+	at java.net.ServerSocket.<init>(ServerSocket.java:141)
+	at org.mortbay.jetty.bio.SocketConnector.newServerSocket(SocketConnector.java:78)
+	at org.mortbay.jetty.bio.SocketConnector.open(SocketConnector.java:72)
+	at org.mortbay.jetty.AbstractConnector.doStart(AbstractConnector.java:252)
+	at org.mortbay.jetty.bio.SocketConnector.doStart(SocketConnector.java:145)
+	at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:40)
+	at org.mortbay.jetty.Server.doStart(Server.java:221)
+	at org.mortbay.component.AbstractLifeCycle.start(AbstractLifeCycle.java:40)
+	at org.apache.solr.client.solrj.embedded.JettySolrRunner.start(JettySolrRunner.java:89)
+
+
+
+...because they have a hardcoded port number in them.  it occurred to me tonight that java.net.ServerSocket will pick a port for you automaticly if you specify a port of "0", the real port can then be accessed by getLocalPort().
+
+we should see if passing 0 to Jetty's "Server" class works, and if in doing so we can then add a method to JettySolrRunner to introspect the actual port after starting the server (from the Jetty javadocs this seems possible by calling jettyServer.getConnectors()[0].getLocalPort() ... with some error checking of course).
+
+then we could change all the relevant tests so that instead of a hardcoded port number, setUp assigns a value to port after the Jetty Server is started.

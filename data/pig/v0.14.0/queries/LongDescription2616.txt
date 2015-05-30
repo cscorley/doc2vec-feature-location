@@ -1,0 +1,10 @@
+PIG-2573 made it possible for JobControlCompiler to get input size from LoadFuncs, but in some cases (i.e. InterStorage), getStatistics throws an exception:
+
+
+Caused by: java.lang.UnsupportedOperationException
+        at org.apache.pig.impl.io.InterStorage.getStatistics(InterStorage.java:189)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler.getInputSizeFromLoader(JobControlCompiler.java:839)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler.getInputSize(JobControlCompiler.java:799)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler.estimateNumberOfReducers(JobControlCompiler.java:777)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler.getJob(JobControlCompiler.java:599)
+

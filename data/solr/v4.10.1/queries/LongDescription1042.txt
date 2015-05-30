@@ -1,0 +1,38 @@
+If delta-import is executed many times, the heap utilization grows up and finally OutOfMemoryError occurs.
+
+When delta-import is executed with SqlEntityProcessor, the instances of TemplateString cached in VariableResolverImpl#TEMPLATE_STRING#cache.
+If the deltaQuery contains variable like `last_index_time', the cached values never used increases.
+Similarly, I guess that the cache increases when fetching each modified row with primary key.
+I think these queries should not be cached. 
+
+I came up with two solutions:
+
+ 1) Not to cache queries to get modified rows.
+ 2) Make VariableResolverImpl#TEMPLATE_STRING non-static. Or clear cache on finishing delta-import.
+
+I think that #1 is better for performance than #2, but #2 is easier to solve the problem.
+
+I made a patch in #2 way, and then tested two solr applications with `-XX:+PrintClassHistgram' option.
+The result after importing several million rows from a MySQL database is as follows:
+
+
+	original solr-1.3:
+ num     #instances         #bytes  class name
+----------------------------------------------
+...
+  6:       2983024      119320960  org.apache.solr.handler.dataimport.TemplateString
+...
+
+
+
+
+	patched solr-1.3:
+ num     #instances         #bytes  class name
+----------------------------------------------
+...
+ 748:             3            120  org.apache.solr.handler.dataimport.TemplateString
+...
+
+
+
+Though it is version 1.3 that I tested, perhaps current nightly version has same problem.

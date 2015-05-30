@@ -1,0 +1,20 @@
+When looking at DERBY-128 it became clear that the wrong overload of StandardException::newException() was used when reporting
+SQLState.SERVICE_DIRECTORY_CREATE_ERROR. The message string only takes one parameter so only one additional parameter (other than Throwable) should be used:
+
+PersistentServiceImpl.java:676
+                            throw StandardException.newException(SQLState.SERVICE_DIRECTORY_CREATE_ERROR,
+                                                                 serviceDirectory, null);
+// Calls StandardException.newException(String, Object, Object)
+// Should call StandardException.newException(String, Object)? Or StandardException.newException(String, Throwable, Object)? With the IOException as  
+// Throwable?
+
+PersistentServiceImpl.java:692
+        throw StandardException.newException(SQLState.SERVICE_DIRECTORY_CREATE_ERROR, name, t);
+// Calls StandardException.newException(String, Object, Object)
+// Should call StandardException.newException(String, Throwable, Object)?
+
+BaseDataFileFactory.java:279
+                throw StandardException.newException( SQLState.SERVICE_DIRECTORY_CREATE_ERROR, dataDirectory, ioe);
+
+// Calls StandardException.newException(String, Object, Object)
+// Should call StandardException.newException(String, Throwable, Object)?

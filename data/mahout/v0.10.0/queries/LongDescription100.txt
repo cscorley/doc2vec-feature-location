@@ -1,0 +1,50 @@
+The constructor of MySQLJDBCDiffStorage should use the appropriate values from the corresponding DataModel, instead of the defaults from AbstractJDBCDataModel.
+
+Proposed fix:
+
+in MySQLJDBCDataModel.java (line numbers may be off):
+
+80a82,86
+>   private String preferenceTable;
+>   private String userIDColumn;
+>   private String itemIDColumn;
+>   private String preferenceColumn;
+> 
+163a170,189
+>     this.preferenceTable = preferenceTable;
+>     this.userIDColumn = userIDColumn;
+>     this.itemIDColumn = itemIDColumn;
+>     this.preferenceColumn = preferenceColumn;
+>   }
+> 
+>   public String getPreferenceTable() 
+{
+>     return preferenceTable;
+>   }
+> 
+>   public String getUserIDColumn() 
+{
+>     return userIDColumn;
+>   }
+> 
+>   public String getItemIDColumn() 
+{
+>     return itemIDColumn;
+>   }
+> 
+>   public String getPreferenceColumn() {
+>     return preferenceColumn;
+
+
+in MySQLJDBCDiffStorage.java:
+
+61,64c61,64
+<          AbstractJDBCDataModel.DEFAULT_PREFERENCE_TABLE,
+<          AbstractJDBCDataModel.DEFAULT_USER_ID_COLUMN,
+<          AbstractJDBCDataModel.DEFAULT_ITEM_ID_COLUMN,
+<          AbstractJDBCDataModel.DEFAULT_PREFERENCE_COLUMN,
+—
+>          dataModel.getPreferenceTable(),
+>          dataModel.getUserIDColumn(),
+>          dataModel.getItemIDColumn(),
+>          dataModel.getPreferenceColumn(),

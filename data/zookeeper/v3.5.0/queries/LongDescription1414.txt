@@ -1,0 +1,20 @@
+The QuorumPeerMainTest.testQuorum, testBadPackets testcases are failing intermittently due to the wrong ZKClient usage pattern.
+
+Saw the following ConnectionLoss on 3.4 version:
+
+KeeperErrorCode = ConnectionLoss for /foo_q1
+org.apache.zookeeper.KeeperException$ConnectionLossException: KeeperErrorCode = ConnectionLoss for /foo_q1
+at org.apache.zookeeper.KeeperException.create(KeeperException.java:90)
+at org.apache.zookeeper.KeeperException.create(KeeperException.java:42)
+at org.apache.zookeeper.ZooKeeper.create(ZooKeeper.java:657)
+at org.apache.zookeeper.server.quorum.QuorumPeerMainTest.testBadPackets(QuorumPeerMainTest.java:212)
+
+
+
+Since the ZooKeeper connection is happening in async way through ClientCnxn, the client should wait for the 'KeeperState.SyncConnected' event before start using. But these test cases are not waiting for the connection like:
+
+ZooKeeper zk = new ZooKeeper("127.0.0.1:" + CLIENT_PORT_QP1,
+      ClientBase.CONNECTION_TIMEOUT, this);
+zk.create("/foo_q1", "foobar1".getBytes(), Ids.OPEN_ACL_UNSAFE,
+      CreateMode.PERSISTENT);
+

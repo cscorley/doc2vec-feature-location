@@ -1,0 +1,19 @@
+NetworkServerControlImpl has some constructs like this one:
+
+    if (logWriter != null)
+    {
+        synchronized(logWriter) 
+{
+            logWriter.println(msg);
+        }
+    }
+
+Since logWriter might be set to null after the test for logWriter!=null and before synchronized(logWriter), one might get a NullPointerException. It would be safer to write this instead:
+
+    PrintWriter lw = logWriter;
+    if (lw != null) {
+        synchronized (lw) 
+{
+            lw.println(msg);
+        }
+    }

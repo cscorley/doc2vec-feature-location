@@ -1,0 +1,23 @@
+I sometimes see the deadlockMode test fail with this error:
+
+There was 1 failure:
+1) deadlockMode(org.apache.derbyTesting.functionTests.tests.lang.LangHarnessJavaTest)junit.framework.ComparisonFailure: Output at line 18 expected:<[Starting t]hread> but was:<[Done T]hread>
+        at org.apache.derbyTesting.functionTests.util.CanonTestCase.compareCanon(CanonTestCase.java:100)
+        at org.apache.derbyTesting.functionTests.util.HarnessJavaTest.runTest(HarnessJavaTest.java:91)
+        at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:88)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+        at junit.extensions.TestSetup.run(TestSetup.java:25)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+        at junit.extensions.TestSetup.run(TestSetup.java:25)
+        at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+        at junit.extensions.TestSetup.run(TestSetup.java:25)
+        at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+        at org.apache.derbyTesting.functionTests.tests.lang.LangHarnessJavaTest.main(LangHarnessJavaTest.java:102)
+
+Similar failures have also been seen in the nightly testing, for instance <URL:http://dbtg.thresher.com/derby/test/trunk15/jvm1.5/testing/testlog/Linux-2.6.17-1.2174_FC5_i686-i686/484695-derbyall_diff.txt>.
+
+It looks like a timing issue between the threads in the test. The test starts 20 threads, and each thread prints "Starting thread" when it starts and "Done Thread" when it ends. If a thread finishes before all threads have started, the lines in the output are mixed, and the test fails.

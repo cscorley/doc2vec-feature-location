@@ -1,0 +1,30 @@
+Oystein says (as part of comments in Derby-3205)
+
+After executing a failover, I am told that the database is shut down, but I still able to use the connection to access the database:
+
+ij version 10.4
+ij> connect 'jdbc:derby:masterDB;user=oystein;password=pass';
+ij> call syscs_util.syscs_freeze_database();
+0 rows inserted/updated/deleted
+ij> connect 'jdbc:derby:masterDB;user=oystein;password=pass;startMaster=true;slaveHost=localhost';
+ij(CONNECTION1)> call syscs_util.syscs_unfreeze_database();
+0 rows inserted/updated/deleted
+ij(CONNECTION1)> connect 'jdbc:derby:masterDB;user=oystein;password=pass;failover=true';
+ERROR XRE20: Failover performed successfully for database 'null', the database has been shutdown.
+ij(CONNECTION1)> select * from t;
+I
+-----------
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+10
+
+11 rows selected
+ij(CONNECTION1)>

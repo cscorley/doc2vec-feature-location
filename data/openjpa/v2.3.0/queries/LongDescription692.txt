@@ -1,0 +1,31 @@
+Originally reported in user group message [1] by Frank Schwarz 
+
+If
+a) Entities A and B that are related in a one-to-many and many-to-one bi-directional relation (typical Parent-Child pattern)
+b) mapped using a JoinTable instead of conventional mappedBy 
+
+then
+update/delete operation fails with OptimisticException (which itself is a catch-all and sometimes misleading). 
+
+
+Typical mapping that encounters this error:
+
+public class Person {
+	@Id
+	private long ssn;
+
+	@OneToMany(cascade=CascadeType.ALL)
+	@JoinTable(name="J_PERSON_ADDRESSES",
+			joinColumns               = @JoinColumn(name="PERSON_SSN",    referencedColumnName="SSN"),
+			inverseJoinColumns = @JoinColumn(name="ADDRESS_PHONE", referencedColumnName="PHONE"))
+    private Set<Address> addresses = new HashSet<Address>();
+
+public class Address {
+   @Id
+   private String phone;
+
+    @ManyToOne
+    @JoinColumn(table="J_PERSON_ADDRESSES", referencedColumnName="SSN")
+    private Person person;
+
+[1] http://n2.nabble.com/bidirectional-one-to-many-relationship-with-join-table-tc678479.html

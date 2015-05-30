@@ -1,0 +1,37 @@
+When compiling a CHECK constraint on behalf of an INSERT/UPDATE statement, Derby uses the current schema in order to resolve unqualified function names which appear in the CHECK constraint. This means that the CHECK constraint may evaluate true for some users, false for others, and for others the CHECK constraint may raise an error saying that Derby can't resolve the function reference. This behavior violates the "retrospective determinacy" of CHECK constraints as specified by part 2 of the ANSI/ISO standard:
+
+1) section 11.9 (<check constraint definition>), syntax rule 5
+2) same section, general rule 1
+3) section 11.6 (<table constraint definition>), general rule 3
+4) section 4.16 (Determinism)
+
+For more discussion, please see this email thread: http://www.nabble.com/Problem-with-CHECK-constraints-td20445344.html#a20445344
+
+The following script demonstrates this problem:
+
+connect 'jdbc:derby:derbyauth;create=true;user=test_dbo;password=test_dbopassword' as test_dbo_conn;
+
+drop table t_bp_2;
+drop function f_fp_minus;
+
+create function f_fp_minus
+(
+    a int
+)
+returns int
+language java
+deterministic
+parameter style java
+no sql
+external name 'org.apache.derbyTesting.functionTests.tests.lang.GeneratedColumnsTest.minus'
+;
+
+create table t_bp_2( a int, constraint t_bp_2_check check ( f_fp_minus( a ) < 0 ) );
+
+grant insert on t_bp_2 to public;
+
+insert into test_dbo.t_bp_2( a ) values ( 100 );
+
+connect 'jdbc:derby:derbyauth;create=true;user=janet;password=janetpassword' as janet_conn;
+
+insert into test_dbo.t_bp_2( a ) values ( 100 );

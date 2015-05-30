@@ -1,0 +1,5 @@
+Getting "java.lang.ClassNotFoundException" when loading datacache plug-in which is a class outside of OpenJPA package.
+
+This happens when loading the class as DatCache plug-in but it can potentially happen to any plug-in classes that reside outside of OpenJPA package.  In order to load these classes, the fix is to get the class loader (by calling findDerivedLoader with no interface loader, loader = null) to load it again when the current class loading fails and the target class is not part of OpenJPA package.  The same exception is still thrown if the second attempt fail or the target class is actually part of OpenJPA.
+
+Please see the patch for detail changes.

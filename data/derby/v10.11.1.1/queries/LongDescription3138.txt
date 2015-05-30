@@ -1,0 +1,16 @@
+The following query works fine in 10.3, but raises an optimizer error in the mainline:
+
+select s.schemaname, t.tableName
+from sys.sysschemas s, sys.systables t
+where t.schemaid=s.schemaid
+and exists
+(
+  select vti.*
+  from table( syscs_diag.space_table( s.schemaname, t.tableName ) ) as vti
+  where vti.numfreepages > -1
+)
+;
+
+In the mainline, it raises the following error:
+
+ERROR 42Y69: No valid execution plan was found for this statement. This may have one of two causes: either you specified a hash join strategy when hash join is not allowed (no optimizable equijoin) or you are attempting to join two external virtual tables, each of which references the other, and so the statement cannot be evaluated.  

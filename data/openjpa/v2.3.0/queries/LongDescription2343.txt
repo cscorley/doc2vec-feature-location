@@ -1,0 +1,66 @@
+With these entities: 
+
+@Entity
+public class Foo {
+    private int id;
+    private int version;
+    @Id
+	public int getId() 
+{
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public void setVersion(int version) {
+		this.version = version;
+	}	
+	@Version
+	public int getVersion() {
+		return this.version;
+	}
+}
+
+@Entity
+public class Bar{
+	private int id;
+	private Foo foo;
+    @Id
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) 
+{
+		this.id = id;
+	}
+    public void setFoo(Foo foo) 
+{
+        this.foo = foo;
+    }
+    @ManyToOne
+    public Foo getFoo() 
+{
+        return foo;
+    }
+}
+Insert a record for each associating foo with bar.
+
+Foo foo = new Foo();
+em.getTransaction().begin(); 
+em.persist(foo); 
+Bar bar = new Bar();
+bar.setFoo(foo);
+em.persist(bar);
+em.getTransaction().commit(); 
+em.close(); 
+
+queries 
+
+select bar.id as id, foo as foo from Bar bar join bar.foo foo
+The version field is available via foo.getVersion()
+
+select bar.id as id, foo.version as version from Bar bar join bar.foo foo
+version is always null.
+
+By enabling the jdbc debug I can see that the actual SQL being run is correct but the value is just not hydrated.

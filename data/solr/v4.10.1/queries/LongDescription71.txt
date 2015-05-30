@@ -1,0 +1,20 @@
+New utility class and changes to DateField to support syntax like the following...
+
+          startDate:[* TO NOW]
+          startDate:[* TO NOW/DAY+1DAY]
+          expirationDate:[NOW/DAY TO *]
+          reviewDate:[NOW/DAY-1YEAR TO NOW/DAY]
+          validDate:[NOW/MONTH TO NOW/MONTH+1MONTH-1MILLISECOND]
+
+...where + and - mean what you think, and "/UNIT" rounds down to the nearest UNIT.  The motivation for this being that date range queries like these are usefull for filters, but being date sensitve can't currently be "baked in" to a config as default params.
+
+a nice side effect of the implimentation, is that "timestamp" fields can be done with a document is added by using...
+
+   <field name="myTimestampField">NOW</field>
+
+...and Solr will compute the value when adding the document ... if we add default values to the schema.xml even that won't be neccessary.
+
+
+Comments?  
+
+(I'd be particularly gratefull if smarter people then I would sanity check my use of ThreadLocal for managing the DateFormat in DateField ... i've never used ThreadLocal before.  Any general comments on the syntax would also be appreciated: This left-to-right syntax seemed more intuative to write (and easier to parse) then some of the other syntaxes I'd considered)

@@ -1,0 +1,8 @@
+When streaming data to Derby, the application stream will be wrapped in a Derby-specific stream to convert the data to the correct representation. At a minimum, this consists of getting the data to the on-disk format used by Derby.
+
+The wrapping stream can be extended to provide the following features at an earlier stage:
+ a) Data cut-off when the maximum allowed size is exceeded
+ b) Truncation of trailing blanks where allowed
+
+Both features can reduce the amount of data needed to be kept in memory on insertion.
+Implementing this will require additional column/data type information in the streaming class(es). The implementation must be able to handle streams for which the length is specified and also streams with unknown/unspecified length.

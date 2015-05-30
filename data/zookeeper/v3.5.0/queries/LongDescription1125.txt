@@ -1,0 +1,232 @@
+Some of the tests are consistently failing for me and intermittently on hudson.
+
+Posting discussion from mailing list below.
+
+Vishal,
+ Can you please open a jira for this and mark it as a blocker for 3.4
+release? Looks like its transient:
+
+https://builds.apache.org/job/ZooKeeper-trunk/
+
+The latest build is passing.
+
+thanks
+mahadev
+
+	Hide quoted text -
+
+
+
+On Mon, Jul 11, 2011 at 12:49 PM, Vishal Kher <vishalmlst@gmail.com> wrote:
+> Hi,
+>
+> ant test-core-java is consistently failing for me.
+>
+> The error seems to be either:
+>
+> Testcase: testFollowersStartAfterLeader took 35.577 sec
+>    Caused an ERROR
+> Did not connect
+> java.util.concurrent.TimeoutException: Did not connect
+>    at
+> org.apache.zookeeper.test.ClientBase$CountdownWatcher.waitForConnected(ClientBase.java:124)
+>    at
+> org.apache.zookeeper.test.QuorumTest.testFollowersStartAfterLeader(QuorumTest.java:308)
+>    at
+> org.apache.zookeeper.JUnit4ZKTestRunner$LoggedInvokeMethod.evaluate(JUnit4ZKTestRunner.java:52)
+>
+> or
+>
+> Testcase: testNoLogBeforeLeaderEstablishment took 8.831 sec
+>    Caused an ERROR
+> KeeperErrorCode = ConnectionLoss for /blah
+> org.apache.zookeeper.KeeperException$ConnectionLossException:
+> KeeperErrorCode = ConnectionLoss for /blah
+>    at org.apache.zookeeper.KeeperException.create(KeeperException.java:99)
+>    at org.apache.zookeeper.KeeperException.create(KeeperException.java:51)
+>    at org.apache.zookeeper.ZooKeeper.create(ZooKeeper.java:761)
+>    at
+> org.apache.zookeeper.test.QuorumTest.testNoLogBeforeLeaderEstablishment(QuorumTest.java:385)
+>    at
+> org.apache.zookeeper.JUnit4ZKTestRunner$LoggedInvokeMethod.evaluate(JUnit4ZKTestRunner.java:52)
+>
+> Looks like the reason why the tests are failing for me is similar to why the
+> tests failed on hudson:
+>
+> 2011-07-11 14:47:26,219 [myid:] - INFO  [QuorumPeer[myid=2]/0.0.0.0:11379
+> :Leader@425] - Shutdown called
+> java.lang.Exception: shutdown Leader! reason: Only 0 followers, need 1
+>    at org.apache.zookeeper.server.quorum.Leader.shutdown(Leader.java:425)
+>    at org.apache.zookeeper.server.quorum.Leader.lead(Leader.java:400)
+>    at
+> org.apache.zookeeper.server.quorum.QuorumPeer.run(QuorumPeer.java:729)
+> 2011-07-11 14:47:26,220 [myid:] - INFO  [QuorumPeer[myid=2]/0.0.0.0:11379
+> :ZooKeeperServer@416] - shutting down
+>
+> The leader is not able to ping the followers. Has anyone seen this before?
+>
+> Thanks.
+> -Vishal
+>
+> On Sun, Jul 10, 2011 at 6:52 AM, Apache Jenkins Server <
+> jenkins@builds.apache.org> wrote:
+>
+>> See https://builds.apache.org/job/ZooKeeper-trunk/1239/
+>>
+>>
+>> ###################################################################################
+>> ########################## LAST 60 LINES OF THE CONSOLE
+>> ###########################
+>> [...truncated 242795 lines...]
+>>    [junit] 2011-07-10 10:57:16,673 [myid:] - INFO
+>>  [main:SessionTrackerImpl@206] - Shutting down
+>>    [junit] 2011-07-10 10:57:16,673 [myid:] - INFO
+>>  [main:PrepRequestProcessor@702] - Shutting down
+>>    [junit] 2011-07-10 10:57:16,674 [myid:] - INFO
+>>  [main:SyncRequestProcessor@170] - Shutting down
+>>    [junit] 2011-07-10 10:57:16,674 [myid:] - INFO
+>>  [SyncThread:0:SyncRequestProcessor@152] - SyncRequestProcessor exited!
+>>    [junit] 2011-07-10 10:57:16,675 [myid:] - INFO
+>>  [main:FinalRequestProcessor@423] - shutdown of request processor complete
+>>    [junit] 2011-07-10 10:57:16,674 [myid:] - INFO  [ProcessThread(sid:0
+>> cport:-1)::PrepRequestProcessor@133] - PrepRequestProcessor exited loop!
+>>    [junit] 2011-07-10 10:57:16,676 [myid:] - INFO  [main:ClientBase@227] -
+>> connecting to 127.0.0.1 11221
+>>    [junit] ensureOnly:[]
+>>    [junit] 2011-07-10 10:57:16,677 [myid:] - INFO  [main:ClientBase@428] -
+>> STARTING server
+>>    [junit] 2011-07-10 10:57:16,678 [myid:] - INFO
+>>  [main:ZooKeeperServer@164] - Created server with tickTime 3000
+>> minSessionTimeout 6000 maxSessionTimeout 60000 datadir
+>> /grid/0/hudson/hudson-slave/workspace/ZooKeeper-trunk/trunk/build/test/tmp/test1139867753736175617.junit.dir/version-2
+>> snapdir
+>> /grid/0/hudson/hudson-slave/workspace/ZooKeeper-trunk/trunk/build/test/tmp/test1139867753736175617.junit.dir/version-2
+>>    [junit] 2011-07-10 10:57:16,679 [myid:] - INFO
+>>  [main:NIOServerCnxnFactory@94] - binding to port 0.0.0.0/0.0.0.0:11221
+>>    [junit] 2011-07-10 10:57:16,680 [myid:] - INFO  [main:FileSnap@83] -
+>> Reading snapshot
+>> /grid/0/hudson/hudson-slave/workspace/ZooKeeper-trunk/trunk/build/test/tmp/test1139867753736175617.junit.dir/version-2/snapshot.b
+>>    [junit] 2011-07-10 10:57:16,683 [myid:] - INFO  [main:FileTxnSnapLog@256]
+>> - Snapshotting: b
+>>    [junit] 2011-07-10 10:57:16,684 [myid:] - INFO  [main:ClientBase@227] -
+>> connecting to 127.0.0.1 11221
+>>    [junit] 2011-07-10 10:57:16,685 [myid:] - INFO  [NIOServerCxn.Factory:
+>> 0.0.0.0/0.0.0.0:11221:NIOServerCnxnFactory@197] - Accepted socket
+>> connection from /127.0.0.1:45122
+>>    [junit] 2011-07-10 10:57:16,686 [myid:] - INFO  [NIOServerCxn.Factory:
+>> 0.0.0.0/0.0.0.0:11221:NIOServerCnxn@815] - Processing stat command from /
+>> 127.0.0.1:45122
+>>    [junit] 2011-07-10 10:57:16,686 [myid:] - INFO
+>>  [Thread-5:NIOServerCnxn$StatCommand@652] - Stat command output
+>>    [junit] 2011-07-10 10:57:16,688 [myid:] - INFO
+>>  [Thread-5:NIOServerCnxn@995] - Closed socket connection for client /
+>> 127.0.0.1:45122 (no session established for client)
+>>    [junit] ensureOnly:[InMemoryDataTree, StandaloneServer_port]
+>>    [junit] expect:InMemoryDataTree
+>>    [junit] found:InMemoryDataTree
+>> org.apache.ZooKeeperService:name0=StandaloneServer_port-1,name1=InMemoryDataTree
+>>    [junit] expect:StandaloneServer_port
+>>    [junit] found:StandaloneServer_port
+>> org.apache.ZooKeeperService:name0=StandaloneServer_port-1
+>>    [junit] 2011-07-10 10:57:16,690 [myid:] - INFO
+>>  [main:JUnit4ZKTestRunner$LoggedInvokeMethod@57] - FINISHED TEST METHOD
+>> testQuota
+>>    [junit] 2011-07-10 10:57:16,690 [myid:] - INFO  [main:ClientBase@465] -
+>> tearDown starting
+>>    [junit] 2011-07-10 10:57:16,754 [myid:] - INFO  [main:ZooKeeper@662] -
+>> Session: 0x13113b1aca50000 closed
+>>    [junit] 2011-07-10 10:57:16,754 [myid:] - INFO
+>>  [main-EventThread:ClientCnxn$EventThread@495] - EventThread shut down
+>>    [junit] 2011-07-10 10:57:16,754 [myid:] - INFO  [main:ClientBase@435] -
+>> STOPPING server
+>>    [junit] 2011-07-10 10:57:16,755 [myid:] - INFO  [NIOServerCxn.Factory:
+>> 0.0.0.0/0.0.0.0:11221:NIOServerCnxnFactory@224] - NIOServerCnxn factory
+>> exited run method
+>>    [junit] 2011-07-10 10:57:16,755 [myid:] - INFO
+>>  [main:ZooKeeperServer@416] - shutting down
+>>    [junit] 2011-07-10 10:57:16,756 [myid:] - INFO
+>>  [main:SessionTrackerImpl@206] - Shutting down
+>>    [junit] 2011-07-10 10:57:16,756 [myid:] - INFO
+>>  [main:PrepRequestProcessor@702] - Shutting down
+>>    [junit] 2011-07-10 10:57:16,757 [myid:] - INFO
+>>  [main:SyncRequestProcessor@170] - Shutting down
+>>    [junit] 2011-07-10 10:57:16,760 [myid:] - INFO  [ProcessThread(sid:0
+>> cport:-1)::PrepRequestProcessor@133] - PrepRequestProcessor exited loop!
+>>    [junit] 2011-07-10 10:57:16,762 [myid:] - INFO
+>>  [SyncThread:0:SyncRequestProcessor@152] - SyncRequestProcessor exited!
+>>    [junit] 2011-07-10 10:57:16,762 [myid:] - INFO
+>>  [main:FinalRequestProcessor@423] - shutdown of request processor complete
+>>    [junit] 2011-07-10 10:57:16,763 [myid:] - INFO  [main:ClientBase@227] -
+>> connecting to 127.0.0.1 11221
+>>    [junit] ensureOnly:[]
+>>    [junit] 2011-07-10 10:57:16,767 [myid:] - INFO  [main:ClientBase@493] -
+>> fdcount after test is: 35 at start it was 24
+>>    [junit] 2011-07-10 10:57:16,767 [myid:] - INFO  [main:ClientBase@495] -
+>> sleeping for 20 secs
+>>    [junit] 2011-07-10 10:57:16,768 [myid:] - INFO  [main:ZKTestCase$1@60]
+>> - SUCCEEDED testQuota
+>>    [junit] 2011-07-10 10:57:16,768 [myid:] - INFO  [main:ZKTestCase$1@55]
+>> - FINISHED testQuota
+>>    [junit] Tests run: 1, Failures: 0, Errors: 0, Time elapsed: 0.691 sec
+>>
+>> BUILD FAILED
+>> /grid/0/hudson/hudson-slave/workspace/ZooKeeper-trunk/trunk/build.xml:959:
+>> The following error occurred while executing this line:
+>> /grid/0/hudson/hudson-slave/workspace/ZooKeeper-trunk/trunk/build.xml:870:
+>> Tests failed!
+>>
+>> Total time: 19 minutes 0 seconds
+>> [FINDBUGS] Skipping publisher since build result is FAILURE
+>> [WARNINGS] Skipping publisher since build result is FAILURE
+>> Recording fingerprints
+>> Archiving artifacts
+>> Recording test results
+>> Publishing Javadoc
+>> Publishing Clover coverage report...
+>> No Clover report will be published due to a Build Failure
+>> Email was triggered for: Failure
+>> Sending email for trigger: Failure
+>>
+>>
+>>
+>>
+>> ###################################################################################
+>> ############################## FAILED TESTS (if any)
+>> ##############################
+>> 2 tests failed.
+>> REGRESSION:  org.apache.zookeeper.test.ObserverTest.testObserver
+>>
+>> Error Message:
+>> KeeperErrorCode = ConnectionLoss for /obstest
+>>
+>> Stack Trace:
+>> org.apache.zookeeper.KeeperException$ConnectionLossException:
+>> KeeperErrorCode = ConnectionLoss for /obstest
+>>        at
+>> org.apache.zookeeper.KeeperException.create(KeeperException.java:99)
+>>        at
+>> org.apache.zookeeper.KeeperException.create(KeeperException.java:51)
+>>        at org.apache.zookeeper.ZooKeeper.create(ZooKeeper.java:761)
+>>        at
+>> org.apache.zookeeper.test.ObserverTest.testObserver(ObserverTest.java:101)
+>>        at
+>> org.apache.zookeeper.JUnit4ZKTestRunner$LoggedInvokeMethod.evaluate(JUnit4ZKTestRunner.java:52)
+>>
+>>
+>> REGRESSION:  org.apache.zookeeper.test.ReadOnlyModeTest.testSeekForRwServer
+>>
+>> Error Message:
+>> KeeperErrorCode = ConnectionLoss for /test
+>>
+>> Stack Trace:
+>> org.apache.zookeeper.KeeperException$ConnectionLossException:
+>> KeeperErrorCode = ConnectionLoss for /test
+>>        at
+>> org.apache.zookeeper.KeeperException.create(KeeperException.java:99)
+>>        at
+>> org.apache.zookeeper.KeeperException.create(KeeperException.java:51)
+>>        at org.apache.zookeeper.ZooKeeper.create(ZooKeeper.java:761)
+>>        at
+>> org.apache.zookeeper.test.ReadOnlyModeTest.testSeekForRwServer(ReadOnlyModeTest.java:213)
+>>        at
+>> org.apache.zookeeper.JUnit4ZKTestRunner$LoggedInvokeMethod.evaluate(JUnit4ZKTestRunner.java:52)

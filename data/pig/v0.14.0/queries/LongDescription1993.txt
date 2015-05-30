@@ -1,0 +1,22 @@
+The following script fail:
+
+
+a = load '1.txt' as (a0:int, a1:int, a2:int);
+store a into 'temp' using org.apache.pig.piggybank.storage.PigStorageSchema();
+exec
+a = LOAD 'temp' using org.apache.pig.piggybank.storage.PigStorageSchema();
+b = FOREACH a GENERATE a1;
+dump b;
+
+
+
+Error message:
+java.lang.ArrayIndexOutOfBoundsException: 2
+        at org.apache.pig.piggybank.storage.PigStorageSchema.getNext(PigStorageSchema.java:94)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigRecordReader.nextKeyValue(PigRecordReader.java:187)
+        at org.apache.hadoop.mapred.MapTask$NewTrackingRecordReader.nextKeyValue(MapTask.java:423)
+        at org.apache.hadoop.mapreduce.MapContext.nextKeyValue(MapContext.java:67)
+        at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:143)
+        at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:621)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:305)
+        at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:177)

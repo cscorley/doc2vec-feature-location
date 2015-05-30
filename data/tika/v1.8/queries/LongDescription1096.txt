@@ -1,0 +1,5 @@
+COMPRESS-220 added support for CompressorStreamFactory to return an InputStream with decompressConcatenated set to true.  Today, Tika uses the CompressorStreamFactory without this option, which caused me some problems parsing some gzipped files that required this option.
+
+Today I have to do some pre-processing on the InputStreams before I send them to Tika; it would be great if Tika could handle this for me.
+
+I wrote up a quick patch that adds this option; I'll attach it soon.

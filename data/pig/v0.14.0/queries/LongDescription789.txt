@@ -1,0 +1,16 @@
+Many user's pig script do something like this:
+
+a = load '/user/pig/tests/data/singlefile/studenttab10k' as (name, age, gpa);
+c = filter a by age > 500;
+e = group c by (name, age);
+f = foreach e generate group, COUNT($1);
+store f into 'bla';
+f1 = load 'bla';
+g = order f1 by $1;
+dump g;
+
+With the inclusion of the multi-query phase2 patch this appears to no longer work.  You get an error:
+
+2009-04-28 18:24:50,776 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 2100: hdfs://wilbur11.labs.corp.sp1.yahoo.com/user/gates/bla does not exist.
+
+We shouldn't be checking for bla's existence here because it will be created eventually by the script.

@@ -1,0 +1,70 @@
+When a Map field is defined in an entity, the push-down SQL contains  Derby reserved word "key", causing the execution to fail. For example:
+
+// Map Type
+@ManyToMany
+@JoinTable(name="MMCTEA_GMT")
+private Map<Integer, MMContainerTypeEntityB> genericizedMapType;
+
+The following SQL will be generated:
+
+CREATE TABLE MMCTEA_GMT (MMCONTAINERTYPEENTITYA_ID INTEGER, key INTEGER, VALUE0_id INTEGER)
+
+Its execution fails with exception stack trace below:
+
+<openjpa-0.0.0-rnull nonfatal general error> org.apache.openjpa.persistence.PersistenceException: Syntax error: Encountered "key" at line 1, column 61.
+	at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:553)
+	at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:453)
+	at org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.synchronizeMappings(JDBCBrokerFactory.java:159)
+	at org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.newBrokerImpl(JDBCBrokerFactory.java:119)
+	at org.apache.openjpa.kernel.AbstractBrokerFactory.newBroker(AbstractBrokerFactory.java:187)
+	at org.apache.openjpa.kernel.DelegatingBrokerFactory.newBroker(DelegatingBrokerFactory.java:142)
+	at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:192)
+	at com.ibm.ws.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:42)
+	at com.ibm.ws.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:1)
+	at suite.r70.base.jpaspec.relationships.manyXmany.service.impl.jse.JSEManyXManyEntityService.initializeService(JSEManyXManyEntityService.java:51)
+	at suite.r70.base.jpaspec.relationships.manyXmany.service.impl.jse.JSEManyXManyEntityService.<init>(JSEManyXManyEntityService.java:40)
+	at suite.r70.base.jpaspec.relationships.manyXmany.tests.jse.JUnitManyXManyContainerTest.setUpTestCase(JUnitManyXManyContainerTest.java:60)
+	at suite.r70.base.jpaspec.relationships.manyXmany.tests.jse.JUnitManyXManyContainerTest.setUp(JUnitManyXManyContainerTest.java:45)
+	at junit.framework.TestCase.runBare(TestCase.java:125)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.junit.internal.runners.OldTestClassRunner.run(OldTestClassRunner.java:35)
+	at org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:38)
+	at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:460)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:673)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:386)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:196)
+Caused by: java.sql.SQLException: Syntax error: Encountered "key" at line 1, column 61.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.ConnectionChild.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(Unknown Source)
+	at org.apache.commons.dbcp.DelegatingStatement.executeUpdate(DelegatingStatement.java:225)
+	at org.apache.openjpa.lib.jdbc.DelegatingStatement.executeUpdate(DelegatingStatement.java:114)
+	at org.apache.openjpa.jdbc.schema.SchemaTool.executeSQL(SchemaTool.java:1185)
+	at org.apache.openjpa.jdbc.schema.SchemaTool.createTable(SchemaTool.java:949)
+	at org.apache.openjpa.jdbc.schema.SchemaTool.add(SchemaTool.java:526)
+	at org.apache.openjpa.jdbc.schema.SchemaTool.add(SchemaTool.java:344)
+	at org.apache.openjpa.jdbc.schema.SchemaTool.run(SchemaTool.java:321)
+	at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:501)
+	... 26 more
+
+This is because in HandlerRelationMapTableFieldStrategy.map method, the following method
+is called with "key" hardcoded to be the column name:
+
+       _kcols = HandlerStrategies.map(key, "key", _kio, adapt);
+
+The proposed change is to concatenate field name (in this case, "genericizedMapType")
+with "_key" to make the resulting column name a non-reserved word in any
+database:
+
+       _kcols = HandlerStrategies.map(key, field.getName + "_key", _kio, adapt);

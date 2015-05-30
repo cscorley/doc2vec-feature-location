@@ -1,0 +1,2 @@
+The excel extractor consumes lots and lots of memory when given an excel file containing a lot of numeric cells. I tested using a simple sheet containing 254 columns and 5511 rows resulting in an 8MB big file, this blowed with an OOME when given 512MB.
+The memory issue is caused by the java NumberFormat that is instantiated for every numeric cell. A solution would be to cache the NumberFormat instance in the TikaHSSFListener class. Since NumberFormat is not thread-safe, it might be necessary to pool it.

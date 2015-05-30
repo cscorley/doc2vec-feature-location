@@ -1,0 +1,23 @@
+I have a simple Pig script which loads integer data and does a Bincond, where it compares, (col1 eq ''). There is an error message that is generated in this case, but it does not specify the line number in the script. 
+
+
+MYDATA = load '/user/viraj/myerrordata.txt' using PigStorage() as (col1:int, col2:int);
+
+MYDATA_PROJECT = FOREACH MYDATA GENERATE ((col1 eq '') ? 1 : 0) as newcol1,
+                                         ((col1 neq '') ? col1 - col2 : 160000)
+                                                        as time_diff;
+
+dump MYDATA_PROJECT;
+
+
+
+======================================
+2009-04-29 02:33:07,182 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to hadoop file system at: hdfs://localhost:9000
+2009-04-29 02:33:08,584 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to map-reduce job tracker at: localhost:9001
+2009-04-29 02:33:08,836 [main] INFO  org.apache.pig.PigServer - Create a new graph.
+2009-04-29 02:33:10,040 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1039: Incompatible types in EqualTo Operator left hand side:int right hand side:chararray
+Details at logfile: /home/viraj/pig-svn/trunk/pig_1240972386081.log
+==========================
+It would be good if the error message has a line number and a copy of the line in the script which is causing the problem.
+
+Attaching data, script and log file. 

@@ -1,0 +1,17 @@
+Derby fails on an NPE if you try to create the following view when authorization is turned on:
+
+  create view v2( a ) as select tablename from sys.systables;
+
+The NPE occurs when the dependency manager trips across a dummy permission constructed on-the-fly. The dummy permission is created by PermissionsCacheable and is supposed to represent the implicit grant to PUBLIC of SELECT privilege on the system table. PermissionsCacheable doesn't bother to give the dummy permission a corresponding dummy UUID. The dependency manager falls down when trying to deference the null UUID of the dummy permission.
+
+The following script shows this problem:
+
+connect 'jdbc:derby:memory:dummy;create=true;user=test_dbo;password=test_dbopassword' as test_dbo_conn;
+
+connect 'jdbc:derby:memory:dummy;user=ruth;password=ruthpassword' as ruth_conn;
+
+create table t( b int );
+
+
+create view v1( a ) as select b from t;
+create view v2( a ) as select tablename from sys.systables;

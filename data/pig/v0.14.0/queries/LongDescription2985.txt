@@ -1,0 +1,21 @@
+To reproduce the error, please run:
+
+
+ant clean test -Dhadoopversion=23 -Dtestcase=TestRank1
+
+
+
+This fails with the following error:
+
+
+Caused by: java.lang.RuntimeException: Error to read counters into Rank operation counterSize 0
+    at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler.saveCounters(JobControlCompiler.java:386)
+    at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler.updateMROpPlan(JobControlCompiler.java:330)
+    at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher.launchPig(MapReduceLauncher.java:370)
+    at org.apache.pig.PigServer.launchPlan(PigServer.java:1264)
+Caused by: java.lang.NullPointerException
+    at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler.saveCounters(JobControlCompiler.java:359)
+
+
+
+I see the failures with hadoop-2.0.x only.

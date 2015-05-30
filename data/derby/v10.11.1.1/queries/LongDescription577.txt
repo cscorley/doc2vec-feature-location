@@ -1,0 +1,14 @@
+If  the  user.dir property is changed ,  you wil  find IO calls are working on different directory than what is returned  by 
+File.getAbsolutePath()   if the file handle is created with a relative path  because of JVM issue: 4117557 http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4117557
+
+I think  it  is  not good  idea for test harness to change  the user.dir property.    It makes hard to debug tests ,  because 
+files  are not created  at  diferent location than  what is returned by getAbsolutePath().    Atleast,   I had  fun time figuring out this 
+
+user.dir  is being  changed at the following code segment :
+org.apache.derbyTesting.functionTests.harness. RunTest.java 
+ testJvmProps.addElement("user.dir="+userDirName);
+
+
+
+
+

@@ -1,0 +1,112 @@
+In Derby SQL authorization mode, invoking Java stored procedure that contains GRANT or REVOKE statement with CONTAINS SQL from a  trigger should fail but in the following test, it successfully executed the trigger action.  
+Attaching repro patch for trunk.
+
+i.e.:
+
+ij> connect 'triggerProcSQLAuth;create=true' user 'APP' as app;
+WARNING 01J14: SQL authorization is being used without first enabling authentication.
+ij> — setup the environment
+— table used in the procedures
+create table t1 (i int primary key, b char(15));
+0 rows inserted/updated/deleted
+ij> insert into t1 values (1, 'XYZ');
+1 row inserted/updated/deleted
+ij> insert into t1 values (2, 'XYZ');
+1 row inserted/updated/deleted
+ij> — table used in this test
+create table t2 (x integer, y integer);
+0 rows inserted/updated/deleted
+ij> create procedure grant_select_proc() 
+       parameter style java
+       dynamic result sets 0 language java 
+       contains sql
+       external name 'org.apache.derbyTesting.functionTests.util.ProcedureTest.grantSelect';
+0 rows inserted/updated/deleted
+ij> create procedure revoke_select_proc() 
+       parameter style java
+       dynamic result sets 0 language java 
+       contains sql
+       external name 'org.apache.derbyTesting.functionTests.util.ProcedureTest.revokeSelect';
+0 rows inserted/updated/deleted
+ij> — tests
+create trigger grant_select_trig AFTER delete on t1 
+	for each STATEMENT mode db2sql call grant_select_proc();
+0 rows inserted/updated/deleted
+ij> — should fail
+delete from t1 where i = 1;
+1 row inserted/updated/deleted
+ij> — check delete failed
+select * from t1;
+I          |B              
+---------------------------
+2          |XYZ            
+1 row selected
+ij> — check if there are rows in sys.systableperms, should be 0
+select count from SYS.SYSTABLEPERMS;
+1          
+-----------
+1          
+1 row selected
+ij> drop trigger grant_select_trig;
+0 rows inserted/updated/deleted
+ij> create trigger revoke_select_trig AFTER delete on t1 
+	for each STATEMENT mode db2sql call revoke_select_proc();
+0 rows inserted/updated/deleted
+ij> — should fail
+delete from t1 where i = 2;
+1 row inserted/updated/deleted
+ij> — check delete failed
+select * from t1;
+I          |B              
+---------------------------
+0 rows selected
+ij> — check if there are rows in sys.systableperms, should be 0
+select count from SYS.SYSTABLEPERMS;
+1          
+-----------
+0          
+1 row selected
+ij> drop trigger revoke_select_trig;
+0 rows inserted/updated/deleted
+ij> 
+
+
+------------------ Java Information ------------------
+Java Version:    1.4.2_12
+Java Vendor:     Sun Microsystems Inc.
+Java home:       C:\Program Files\Java\j2re1.4.2_12
+Java classpath:  derby.jar;derbytools.jar
+OS name:         Windows XP
+OS architecture: x86
+OS version:      5.1
+Java user name:  Yip
+Java user home:  C:\Documents and Settings\Yip
+Java user dir:   C:\work3\derby\trunk\jars\sane
+java.specification.name: Java Platform API Specification
+java.specification.version: 1.4
+--------- Derby Information --------
+JRE - JDBC: J2SE 1.4.2 - JDBC 3.0
+[C:\work3\derby\trunk\jars\sane\derby.jar] 10.3.0.0 alpha - (432670M)
+[C:\work3\derby\trunk\jars\sane\derbytools.jar] 10.3.0.0 alpha - (432670M)
+------------------------------------------------------
+----------------- Locale Information -----------------
+Current Locale :  [English/United States [en_US]]
+Found support for locale: [de_DE]
+         version: 10.3.0.0 alpha - (432670M)
+Found support for locale: [es]
+         version: 10.3.0.0 alpha - (432670M)
+Found support for locale: [fr]
+         version: 10.3.0.0 alpha - (432670M)
+Found support for locale: [it]
+         version: 10.3.0.0 alpha - (432670M)
+Found support for locale: [ja_JP]
+         version: 10.3.0.0 alpha - (432670M)
+Found support for locale: [ko_KR]
+         version: 10.3.0.0 alpha - (432670M)
+Found support for locale: [pt_BR]
+         version: 10.3.0.0 alpha - (432670M)
+Found support for locale: [zh_CN]
+         version: 10.3.0.0 alpha - (432670M)
+Found support for locale: [zh_TW]
+         version: 10.3.0.0 alpha - (432670M)
+------------------------------------------------------

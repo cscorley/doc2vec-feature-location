@@ -1,0 +1,69 @@
+Under heavy load during stress test, the following exception is observed:
+
+<openjpa-1.0.0-SNAPSHOT-r420667:570288M fatal general error> org.apache.openjpa.persistence.PersistenceException: null
+        at org.apache.openjpa.kernel.BrokerImpl.endOperation(BrokerImpl.java:1728)
+        at org.apache.openjpa.kernel.BrokerImpl.isActive(BrokerImpl.java:1676)
+        at org.apache.openjpa.kernel.DelegatingBroker.isActive(DelegatingBroker.java:420)
+        at org.apache.openjpa.persistence.EntityManagerImpl.isActive(EntityManagerImpl.java:502)
+        at org.apache.openjpa.persistence.PersistenceExceptions$2.translate(PersistenceExceptions.java:66)
+        at org.apache.openjpa.kernel.DelegatingBroker.translate(DelegatingBroker.java:110)
+        at org.apache.openjpa.kernel.DelegatingBroker.newObjectId(DelegatingBroker.java:262)
+        at org.apache.openjpa.persistence.EntityManagerImpl.find(EntityManagerImpl.java:347)
+        at com.ibm.svt.shoppingcartModule.stationstore.StationStoreSessionBean.getListOrders(StationStoreSessionBean.java:603)
+        at com.ibm.svt.shoppingcartModule.stationstore.EJSRemoteStatelessStationStoreSession_5a5c538c.getListOrders(Unknown Source)
+        at com.ibm.svt.shoppingcartModule.stationstore._EJSRemoteStatelessStationStoreSession_5a5c538c_Tie.getListOrders(_EJSRemoteStatelessStationStoreSession_5a5c538c_Tie.java:244)
+        at com.ibm.svt.shoppingcartModule.stationstore._EJSRemoteStatelessStationStoreSession_5a5c538c_Tie._invoke(_EJSRemoteStatelessStationStoreSession_5a5c538c_Tie.java:100)
+        at com.ibm.CORBA.iiop.ServerDelegate.dispatchInvokeHandler(ServerDelegate.java:613)
+        at com.ibm.CORBA.iiop.ServerDelegate.dispatch(ServerDelegate.java:466)
+        at com.ibm.rmi.iiop.ORB.process(ORB.java:503)
+        at com.ibm.CORBA.iiop.ORB.process(ORB.java:1553)
+        at com.ibm.rmi.iiop.Connection.respondTo(Connection.java:2680)
+        at com.ibm.rmi.iiop.Connection.doWork(Connection.java:2554)
+        at com.ibm.rmi.iiop.WorkUnitImpl.doWork(WorkUnitImpl.java:62)
+        at com.ibm.ejs.oa.pool.PooledThread.run(ThreadPool.java:118)
+        at com.ibm.ws.util.ThreadPool$Worker.run(ThreadPool.java:1469)
+
+[8/31/07 22:45:26:265 EDT] 000000c1 SystemOut     O   MDD Translating exception: <openjpa-0.0.0-r420667:570288 fatal internal error> org.apache.openjpa.util.InternalException: null
+[8/31/07 22:45:26:265 EDT] 000000c1 SystemErr     R   <openjpa-0.0.0-r420667:570288 fatal internal error> org.apache.openjpa.util.InternalException: null
+[8/31/07 22:45:26:265 EDT] 000000c1 SystemErr     R   	at org.apache.openjpa.kernel.BrokerImpl.endOperation(BrokerImpl.java:1728)
+
+After some investigation, it was determined that the internal exception is caused by
+             if (_operationCount < 1)
+                throw new InternalException();
+in BrokerImpl.endOperation();
+
+We believe the cause of the problem is a lock() method call is missing in the endOperation()
+
+    public boolean endOperation() {
+        lock();   <<<<<  This is the missing lock() call since BrokerImpl.java was created
+        try {
+            if (_operationCount == 1 && (_autoDetach & DETACH_NONTXREAD) != 0
+                && (_flags & FLAG_ACTIVE) == 0) 
+{
+                detachAllInternal(null);
+            }
+            if (_operationCount < 1)
+                throw new InternalException();
+            return _operationCount == 1;
+        } catch (OpenJPAException ke) 
+{
+            throw ke;
+        }
+ catch (RuntimeException re) 
+{
+            throw new GeneralException(re);
+        }
+ finally 
+{
+            _operationCount--;
+            if (_operationCount == 0)
+                _operating.clear();
+            unlock();
+        }
+    }
+
+Once we have done more tests and verify the fix, I'll submit a patch for this problem.
+
+If anyone doesn't think this is the solution. please response.
+
+Albert Lee.

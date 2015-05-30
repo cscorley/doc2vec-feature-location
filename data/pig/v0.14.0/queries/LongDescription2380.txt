@@ -1,0 +1,42 @@
+Currently, there is no clean way to get version information (short of trying to instantiate a class that only exists in the version you want and catching an exception, or something like that). This patch exposes major, minor, patch, svn revision, and build time (basically, all of the pieces of the current version).
+
+Example:
+
+
+import org.apache.pig.Main;
+
+public class Thing {
+  public static void main(String[] args) {
+    System.out.println(Main.getMajorVersion());
+    System.out.println(Main.getMinorVersion());
+    System.out.println(Main.getPatchVersion());
+    System.out.println(Main.getSvnRevision());
+    System.out.println(Main.getBuildTime());
+  }
+}
+
+
+
+will return
+
+
+
+0
+11
+0
+1202387
+Nov 15 2011, 15:37:14
+0
+
+
+
+which comprises
+
+
+
+Apache Pig version 0.11.0-SNAPSHOT (r1202387) 
+compiled Nov 15 2011, 15:37:14
+
+
+
+I've run ant test-commit, but not ant test. This can easily be ported to old version, but I only tested it against trunk.

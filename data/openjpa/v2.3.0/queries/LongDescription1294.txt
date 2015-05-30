@@ -1,0 +1,6 @@
+Some use cases require a new database connection to perform operation because the current connection is busy/open.
+Typical use case is asking for size of the result set (obtained by a SELECT COUNT query) while the original result set is still being open.
+
+Some databases (e.g. MySQL as per observation) do not allow the new COUNT query on the same connection because the original result set is still open.
+
+A JDBCStore.getNewConnection() is added – but use it with caution, remember to close it and use it only when required.

@@ -1,0 +1,23 @@
+While investigating the failures for OPENJPA-1469 I found that when the DataCache is enabled we behave differently when finding an Entity that has an empty/null embeddable. Take the following domain model:
+
+@Entity
+class A
+{
+  @Id
+  int id;
+  @Embeddable
+  Emb emb;
+...
+}
+
+@Embeddable
+class Emb
+{
+....
+}
+
+The scenario where this is observed is when the datacache is not enabled and I persist Entity [A] with a null Emb. In a new persistence context I search for that same Entity, Emb is now an empty embeddable. In that same case when the datacache is enabled the find operation returns an Entity with a null embeddable. This is because the DataCache knows that Emb is null, when the data is retrieved from the database we don't know if it should be null or empty.
+
+The datacache behavior is probably more correct, but it is inconsistent with the non-datacache behavior. Since the datacache is supposed to be transparent to the application I am going to make this two cases operate in the same manner. I asked posted this observation to the dev mailing list[1] but didn't receive any responses.
+
+[1] http://openjpa.markmail.org/thread/xyytunrvcciv5ura

@@ -1,0 +1,13 @@
+after invoking LRS processing in a client by calling an @LRS annotated relationship, the next em.clear()/em.close() gets org.apache.openjpa.persistence.InvalidStateException: You cannot transfer large result set fields from one object or field to another
+
+<4|false|0.9.7-incubating-SNAPSHOT> org.apache.openjpa.persistence.InvalidStateException: You cannot transfer large result set fields from one object or field to another.
+	at org.apache.openjpa.util.AbstractLRSProxyCollection.setOwner(AbstractLRSProxyCollection.java:77)
+	at org.apache.openjpa.kernel.DetachManager$DetachFieldManager.reproxy(DetachManager.java:523)
+	at org.apache.openjpa.kernel.DetachManager.detachInternal(DetachManager.java:431)
+	at org.apache.openjpa.kernel.DetachManager.detachAll(DetachManager.java:299)
+	at org.apache.openjpa.kernel.BrokerImpl.detachAllInternal(BrokerImpl.java:3150)
+	at org.apache.openjpa.kernel.BrokerImpl.detachAll(BrokerImpl.java:3123)
+	at org.apache.openjpa.kernel.DelegatingBroker.detachAll(DelegatingBroker.java:1136)
+	at org.apache.openjpa.persistence.EntityManagerImpl.clear(EntityManagerImpl.java:868)
+	at com.ibm.websphere.ejb3sample.winetour.bug.BugWineryTest.testLargeResultSetAnnotation(BugWineryTest.java:902)
+	at com.ibm.websphere.ejb3sample.winetour.bug.BugWineryTest.main(BugWineryTest.java:146)

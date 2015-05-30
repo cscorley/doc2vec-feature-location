@@ -1,0 +1,9 @@
+If you want rows 10-19 of some query, the sequence
+
+  q.setFirstResult(10).setMaxResults(10);
+
+behaves as expected. On the other hand
+
+  q.setMaxResults(10).setFirstResult(10);
+
+returns the empty list. QueryImpl.setFirstResult should reset the range endpoint. maxResults is a count, not an index.

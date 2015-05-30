@@ -1,0 +1,13 @@
+I receive the following exception if I have an Entity with a One(Many)ToMany relationship with another Entity. 
+
+<openjpa-2.0.0-SNAPSHOT-r422266:805588 fatal user error> org.apache.openjpa.persistence.ArgumentException: You have supplied columns for "....Entity", but this mapping cannot have columns in this context.
+
+To recreate the failure, add a @JoinColumn annotation to one of the *ToMany relationships in org.apache.openjpa.persistence.jdbc.annotations.AnnoTest1. 
+example:
+    @MapKey(name = "basic")
+    @OneToMany(mappedBy = "oneManyOwner")
+    @JoinColumn(name = "asdf")
+    protected Map<String, AnnoTest2> inverseOwnerMapKey = new HashMap();
+
+Then run:
+trunk\openjpa-parent\openjpa-persistence-jdbc>mvn test -Dtest=org.apache.openjpa.persistence.jdbc.annotations.TestOneToMany

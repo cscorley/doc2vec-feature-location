@@ -1,0 +1,16 @@
+Currently there are two versions of OpenBitSet and BitUtil in Solr and Lucene.
+
+We should only have one version of these classes in Lucene, that Solr should use.
+
+Tasks here:
+
+	Merge different versions into Lucene
+	Make Solr classes use/extend the classes in Lucene (we need to keep the Solr ones for backwards-compatibility)
+	Deprecate the classes in Solr
+	Change all references in Solr to use the classes in Lucene
+
+
+
+One difficulty here is Solr's BitSetIterator vs. Lucene's OpenBitSetIterator. Both have a next() method, however one returns an int (BitSetIterator), the other one returns a boolean and offers a doc() method to get the doc id. So I can't make BitSetIterator extend OpenBitSetIterator. There are not many places in Solr's core that use BitSetIterator, so we could simply change e.g. search/BitDocSet.java to use OpenBitSetIterator. This would however require to change the call to next() into two calls to next() and doc(). I wonder if this would be a noticeable performance hit?
+
+We could of course also leave both iterators and only merge OpenBitSet and BitUtil, but I'd prefer to only have one iterator, because they basically do exactly the same.

@@ -1,0 +1,5 @@
+EmbedSQLException used to be the top-level exception raised on error in the JDBC 3 version of the embedded driver. The primary purpose of the EmbedSQLException class is gone now that JDBC 4.0 is the minimum JDBC level, and all top-level exceptions are vanilla java.sql.SQLExceptions or one of its specialized subtypes.
+
+The top-level SQLException still links to an EmbedSQLException in order to provide some extra information (such as the message id) that the network server needs when encoding the exception for transport over the wire. I think it should be possible for the network server to get this information from the StandardException which is typically also in the exception chain.
+
+When embedded Derby raises an exception currently, it is typically a java.sql.SQLException (or subclass) that's linked to an EmbedSQLException that's linked to a StandardException. If we could find a way to eliminate the EmbedSQLException from the exception chain, the stack traces would be easier to read, and the structure of the exception chains would be more consistent with the client exceptions.

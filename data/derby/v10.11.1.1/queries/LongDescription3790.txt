@@ -1,0 +1,29 @@
+DERBY-269 provided a manual way to update the statisitcs. There was some discussion in that jira entry for possibly optimizing the cases where there is no need to update the statistics. I will enter the related comments from that jira entry here for reference.
+
+**************************
+Knut Anders Hatlen - 18/Jul/08 12:39 AM 
+If I have understood correctly, unique indexes always have up to date cardinality statistics because cardinality == row count. If that's the case, one possible optimization is to skip the unique indexes when SYSCS_UPDATE_STATISTICS is called. 
+**************************
+
+
+**************************
+Mike Matrigali - 18/Jul/08 09:48 AM 
+is the cardinality of a unique index 1 or is it row count? 
+
+It is also more complicated than just skipping unique indexes, it depends on the number of columns in the index because 
+in a multi-column index, multiple cardinalities are calculated. So for instance on an index on columns A,B,C there are 
+actually 3 cardinalities calculated: 
+A 
+A,B 
+A,B,C 
+
+I agree that the calculation of cardinality of A,B,C could/should be short circuited for a unique index. 
+**************************
+
+
+
+**************************
+Knut Anders Hatlen - 18/Jul/08 03:25 PM 
+Mike, 
+It looks to me as if the cardinality is the number of unique values, so I think the cardinality of a unique index is equal to its row count (for the full key, that is). You're right that we can't short circuit it if we have a multi-column index. I don't know if it's worth the extra complexity to short circuit the A,B,C case, since we'd have to scan the entire index anyway. For a single-column unique index it sounds like a good idea, though. 
+**************************

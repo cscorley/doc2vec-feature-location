@@ -1,0 +1,18 @@
+While in the middle of processing an afterCompletion invocation in BrokerImpl, an unexpected RuntimeException (IndexOutOfBoundsException) occurred within some underlying WebSphere code.  While we (OpenJPA) were attempting to clean up after that exception, we attempted to call setRollbackOnly on the current transaction.  But, since we were in the process of completing the current transaction, it is invalid to be calling setRollbackOnly and we ended up getting an IllegalStateException from the WebSphere Transaction Manager.  Due this second exception, we ended up losing track of the original exception and this became a difficult problem to diagnose.
+
+This issue will be used to correct a couple of issues (at least):
+
+1)  We should ensure that the transaction is active before calling
+setRollbackOnly().  When an exception happens during afterCompletion 
+processing, the Transaction can no longer accept setRollbackOnly 
+invocations.
+
+2)  When an unexpected exception happens like this, we should log the
+exception before attempting to process the exception.  In this particular
+case, we lost the original exception when we ran into the IllegalStateException
+from the Transaction service.  This forced us to re-run the scenario just to
+get a trace of the exception.
+
+3)  Or, if we don't want to log the exception immediately, we need to determine why we lost the first exception in the first place and ensure that doesn't happen again.
+
+Kevin

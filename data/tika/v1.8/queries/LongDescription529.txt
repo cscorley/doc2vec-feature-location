@@ -1,0 +1,5 @@
+Two IBM420 charset detectors (rtl and ltr) run isLamAlef() for each byte of detection buffer.
+
+The code is allocating and filling a bytes array every time it runs, which makes it responsible for approximately 70% of all object allocations in my current test case (many text files).
+
+Since array is identical every time, and the entire thing can be achieved without any array, this is wasteful.

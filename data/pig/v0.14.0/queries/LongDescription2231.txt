@@ -1,0 +1,24 @@
+From user mailing list: http://mail-archives.apache.org/mod_mbox/pig-user/201108.mbox/%3CCAPad=8E032ksPjy2bOynQezo1x+=0jXBh4t+MstS7G_fvj_EhQ@mail.gmail.com%3E, Sungho reported the following script produce wrong result as expected:
+
+data = LOAD '1.txt' AS (k, v);
+grouped = GROUP data BY k;
+selected = LIMIT grouped 2;
+flattened = FOREACH selected GENERATE FLATTEN (data);
+dump flattened;
+
+1.txt:
+1       A
+1       B
+2       C
+3       D
+3       E
+3       F
+
+Expected result:
+(1, A)
+(1, B)
+(2, C)
+
+We get:
+(1, A)
+(1, B)

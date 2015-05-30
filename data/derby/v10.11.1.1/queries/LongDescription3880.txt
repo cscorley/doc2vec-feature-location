@@ -1,0 +1,26 @@
+A simple query involving a join and having clause causes a NPE. Any subsequent executions cause severe errors. It almost looks like the underlying connection was closed out.
+
+====
+
+C:\apps\derby\db-derby-10.4.2.0-bin\db-derby-10.4.2.0-bin\bin>ij
+ij version 10.4
+ij> connect 'jdbc:derby://speed:1527/ClassicModels;user=sa;password=sa
+';
+ij> create table t1(i int, c varchar(20));
+0 rows inserted/updated/deleted
+ij> create table t2(i int, c2 varchar(20), i2 int);
+0 rows inserted/updated/deleted
+ij> insert into t1 values(1, 'abc');
+1 row inserted/updated/deleted
+ij> insert into t1 values(2, 'abc');
+1 row inserted/updated/deleted
+ij> insert into t2 values(1, 'xyz', 10);
+1 row inserted/updated/deleted
+ij> insert into t2 values(1, 'aaa', 20);
+1 row inserted/updated/deleted
+ij> insert into t2 values(2, 'xxx', 30);
+1 row inserted/updated/deleted
+ij> select t1.i, avg(t2.i2) from t1 inner join t2 on (t1.i = t2.i) group by t1.i
+ having avg(t2.i2) > 0;
+ERROR XJ001: DERBY SQL error: SQLCODE: -1, SQLSTATE: XJ001, SQLERRMC: java.lang.
+NullPointerException¶¶XJ001.U

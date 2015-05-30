@@ -1,0 +1,10 @@
+If you log on to a database (other than the credentials db) and your password is about to expire, you'll be advised to change your password using the SYSCS_UTIL.SYSCS_MODIFY_PASSWORD procedure. However, the warning message does not say you need to log on to the credentials db to change your password. This may lead the user to modify the password in the current database instead of the credentials database, thinking everything is well.
+
+ij(CONNECTION1)> connect 'jdbc:derby:otherdb;user=test;password=abc';
+WARNING 01J15: Your password will expire in 0 day(s). Please use the SYSCS_UTIL.SYSCS_MODIFY_PASSWORD  procedure to change your password.
+ij(CONNECTION2)> CALL SYSCS_UTIL.SYSCS_MODIFY_PASSWORD('new-password');
+0 rows inserted/updated/deleted
+ij(CONNECTION2)> connect 'jdbc:derby:otherdb;user=test;password=new-password';
+ERROR 08004: Connection authentication failure occurred.  Reason: Invalid authentication..
+
+Even though SYSCS_MODIFY_PASSWORD succeeds, the password has not been updated in the credentials db.

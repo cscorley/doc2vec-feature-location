@@ -1,0 +1,8 @@
+if a single watcher (A) is registered on a single node for both a getdata and exists watch the second watch event may be lost:
+
+1) getdata("node", A)
+2) setdata("node"...)
+3) exists("node", A)
+4) delete("node"...)
+
+if watch events for 2 is processed on the client (zookeeper.java, zkwatcher) after 3 completes then the zkwatcher process event method will clear the watch and the subsequent operation's (4) event will be ignored

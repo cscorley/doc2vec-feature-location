@@ -1,0 +1,15 @@
+If a map is read in its serialized form, eg: key#value, then the consumeMap() method of Utf8StorageConverter fails for the following maps:
+
+
+
+[a#)]
+[a#}]
+[a#"take a look at my lovely curly brace, }"]
+[a#'oh look, a closed parenthesis! )']
+
+
+
+There are a couple of options:
+
+1. Define an escape sequence (ie. quotes or a backslash)
+2. Call it a bad record, go get a beer, and move on.

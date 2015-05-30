@@ -1,0 +1,63 @@
+According to the SQL:2003 spec, section 6.11 <case expression> Syntax Rule 3.  At least one <result> in a 
+<case specification> shall specify a <result expression>.  Derby currently is violating this rule.  e.g.:
+
+ij> values case when 1=2 then NULL when 1=3 then NULL else NULL end;
+1
+
+NULL
+
+1 row selected
+
+6.11 <case expression> Format section defines <result> as the following:
+
+<result> ::= 
+    <result expression>
+
+
+ NULL
+
+
+
+
+The above statement should have thrown a SQLException instead of returning a result.
+
+sysinfo:
+
+------------------ Java Information ------------------
+Java Version:    1.4.2_12
+Java Vendor:     Sun Microsystems Inc.
+Java home:       C:\jdk142\jre
+Java classpath:  classes;.
+OS name:         Windows XP
+OS architecture: x86
+OS version:      5.1
+Java user name:  yip
+Java user home:  C:\Documents and Settings\Administrator
+Java user dir:   C:\derby\trunk
+java.specification.name: Java Platform API Specification
+java.specification.version: 1.4
+--------- Derby Information --------
+JRE - JDBC: J2SE 1.4.2 - JDBC 3.0
+[C:\derby\trunk\classes] 10.3.0.0 alpha - (1)
+------------------------------------------------------
+----------------- Locale Information -----------------
+Current Locale :  [English/United States [en_US]]
+Found support for locale: [de_DE]
+         version: 10.3.0.0 alpha - (1)
+Found support for locale: [es]
+         version: 10.3.0.0 alpha - (1)
+Found support for locale: [fr]
+         version: 10.3.0.0 alpha - (1)
+Found support for locale: [it]
+         version: 10.3.0.0 alpha - (1)
+Found support for locale: [ja_JP]
+         version: 10.3.0.0 alpha - (1)
+Found support for locale: [ko_KR]
+         version: 10.3.0.0 alpha - (1)
+Found support for locale: [pt_BR]
+         version: 10.3.0.0 alpha - (1)
+Found support for locale: [zh_CN]
+         version: 10.3.0.0 alpha - (1)
+Found support for locale: [zh_TW]
+         version: 10.3.0.0 alpha - (1)
+------------------------------------------------------

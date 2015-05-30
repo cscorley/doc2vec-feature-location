@@ -1,0 +1,16 @@
+DERBY-269 provided a manual way of updating the statistics using the new system stored procedure SYSCS_UTIL.SYSCS_UPDATE_STATISTICS. It will be good for Derby to provide an automatic way of updating the statistics without requiring to run the stored procedure manually. There was some discussion on DERBY-269 about providing the 0-admin way. I have copied it here for reference.
+
+*********************
+Kathey Marsden - 22/May/05 03:53 PM 
+Some sort of zero admin solution for updating statistics would be prefferable to the manual 'update statistics' 
+*********************
+
+
+*********************
+Mike Matrigali - 11/Jun/08 12:37 PM 
+I have not seen any other suggestions, how about the following zero admin solution? It is not perfect - suggestions welcome. 
+
+Along with the statistics storing, save how many rows were in the table when exact statistics were calculated. This number is 0 if none have been calculated because index creation happened on an empty table. At query compile time when we look up statistics we automatically recalculate the statistics at certain threshholds - say something like row count growing past next threshhold : 10, 100, 1000, 100000 - with upper limit being somewhere around how many rows we can process in some small amount of time - like 1 second on a modern laptop. If we are worried about response time, maybe we background queue the stat gathering rather than waiting with maybe some quick load if no stat has ever been gathered. The background gathering could be optimized to not interfere with locks by using read uncommitted. 
+
+I think it would be useful to also have the manual call just to make it easy to support customers and debug issues in the field. There is proably always some dynamic data distribution change that in some case won't be picked up by the automatic algorithm. Also just very useful for those who have complete control of the create ddl, load data, run stats, deliver application process. 
+*********************

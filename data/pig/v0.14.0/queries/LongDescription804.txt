@@ -1,0 +1,8 @@
+v1       = load     'data' as (s,m,l);
+v2       = foreach  v1  GENERATE
+                        s#'src_spaceid' AS vspaceid ;
+v3       = foreach  v2  GENERATE
+                        (chararray)vspaceid#'foo';
+explain v3;
+
+The last cast does not have a loader associated with it and as the result the script fails on the backend with the following error: "Received a bytearray from the UDF. Cannot determine how to convert the bytearray to string."

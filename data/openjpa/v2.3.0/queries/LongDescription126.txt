@@ -1,0 +1,7 @@
+EntityManagers are not serializable or externalizable. This makes passivation of an EntityManager a difficult task. We should investigate how to externalize an EntityManager in a meaningful way. This could mean just writing out a stub that contains configuration information (potentially even just the persistence unit name, or the Configuration's ID), or it could mean actually serializing some or all of the local transactional cache to disk. The implications for the functionality available after deserialization would differ depending on the approach taken.
+
+I would like to see an implementation that efficiently wrote all the unflushed, dirty objects to disk. This would probably be best implemented via a writeReplace() strategy, to avoid handling all the transient fields in a Broker. Deserialization would then turn into a factory lookup plus some sort of in-place reattachment of the deserialized unflushed instances.
+
+Of course, if the entity instances themselves were not serializable, it would be difficult to write them to disk. Theoretically, we could just write out the corresponding StateManagers, and track the changed fields ourselves. I do not think that this is a good approach, however, since it would cause the deserialized objects to lose any non-persistent state after deserialization. I think that it is fair to require that instances be declared Serializable in order to use this feature.
+
+(We could optimize this a tad by detecting if an instance has only persistent fields, and if so, do our own serialization work.)

@@ -1,0 +1,30 @@
+The findbugs complains about incrementing a volatile variable in AuthFastLeaderElection and FastLeaderElection:
+
+
+volatile long logicalclock; /* Election instance */
+...
+logicalclock++;
+
+
+
+Actually this is a bug. It should use AtomicLong here instead of volatile.
+
+Leader.java and QuorumPeer.java and LearnerHandler.java:
+
+
+volatile int tick;
+
+
+
+I don't think it needs volatile here. The tick is incremented only in Leader.java:
+
+
+  synchronized (this) {
+          ...
+                    if (!tickSkip) {
+                        self.tick++;
+                    }
+  }
+
+
+and it's protected by the synchronized statement. I just remove volatile keyword.

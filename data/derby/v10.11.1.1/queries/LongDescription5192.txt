@@ -1,0 +1,44 @@
+I've seen on three occurrences with the 10.8.1.0 and 10.8.1.1 release candidates that suites.All has been stuck when setting up the network server decorator for the management test suite. Here's what I see at the end of the console output (running with derby.tests.trace=true):
+
+    [junit] test_jdbc4_1 used 0 ms 
+    [junit] test_jdbc4_1 used 0 ms 
+    [junit] test_notBooted used 1623 ms java.net.SocketException: Connection reset
+    [junit] 	at java.net.SocketInputStream.read(SocketInputStream.java:189)
+    [junit] 	at java.net.SocketInputStream.read(SocketInputStream.java:121)
+    [junit] 	at java.net.SocketInputStream.read(SocketInputStream.java:107)
+    [junit] 	at org.apache.derby.impl.drda.NetworkServerControlImpl.fillReplyBuffer(Unknown Source)
+    [junit] 	at org.apache.derby.impl.drda.NetworkServerControlImpl.readResult(Unknown Source)
+    [junit] 	at org.apache.derby.impl.drda.NetworkServerControlImpl.pingWithNoOpen(Unknown Source)
+    [junit] 	at org.apache.derby.impl.drda.NetworkServerControlImpl.ping(Unknown Source)
+    [junit] 	at org.apache.derby.drda.NetworkServerControl.ping(Unknown Source)
+    [junit] 	at org.apache.derbyTesting.junit.NetworkServerTestSetup.pingForServerUp(NetworkServerTestSetup.java:567)
+    [junit] 	at org.apache.derbyTesting.junit.NetworkServerTestSetup.pingForServerStart(NetworkServerTestSetup.java:636)
+    [junit] 	at org.apache.derbyTesting.junit.NetworkServerTestSetup.setUp(NetworkServerTestSetup.java:196)
+    [junit] 	at junit.extensions.TestSetup$1.protect(TestSetup.java:20)
+    [junit] 	at junit.framework.TestResult.runProtected(TestResult.java:124)
+    [junit] 	at junit.extensions.TestSetup.run(TestSetup.java:25)
+    [junit] 	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+    [junit] 	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+    [junit] 	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+    [junit] 	at junit.framework.TestResult.runProtected(TestResult.java:124)
+    [junit] 	at junit.extensions.TestSetup.run(TestSetup.java:25)
+    [junit] 	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+    [junit] 	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+    [junit] 	at junit.framework.TestResult.runProtected(TestResult.java:124)
+    [junit] 	at junit.extensions.TestSetup.run(TestSetup.java:25)
+    [junit] 	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+    [junit] 	at junit.framework.TestSuite.runTest(TestSuite.java:230)
+    [junit] 	at junit.framework.TestSuite.run(TestSuite.java:225)
+    [junit] 	at junit.framework.TestSuite.runTest(TestSuite.java:230)
+    [junit] 	at junit.framework.TestSuite.run(TestSuite.java:225)
+    [junit] 	at junit.framework.TestSuite.runTest(TestSuite.java:230)
+    [junit] 	at junit.framework.TestSuite.run(TestSuite.java:225)
+    [junit] 	at junit.framework.TestSuite.runTest(TestSuite.java:230)
+    [junit] 	at junit.framework.TestSuite.run(TestSuite.java:225)
+    [junit] 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:518)
+    [junit] 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1052)
+    [junit] 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:906)
+
+The exception trace is just printed to the console, but it doesn't make any test fail. (The exception printed on FreeBSD was different, it said "DRDA_InvalidReplyTooShort.S:Invalid reply from network server: Insufficient data." The other two looked like the one above.)
+
+All the hangs have happened on VirtualBox instances, though with different guest operating systems and JVMs. Probably the timing is different from what we have on physical machines.

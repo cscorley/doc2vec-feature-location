@@ -1,0 +1,73 @@
+
+	
+	
+		
+		
+			
+			
+				
+				
+					
+					
+						
+						
+							
+							
+								
+								
+									Diff file derbyall/derbylang/procedureInTrigger.diff
+								
+								
+							
+							
+						
+						
+					
+					
+				
+				
+			
+			
+			Start: procedureInTrigger jdk1.6.0-rc derbyall:derbylang 2006-07-19 13:52:20 ***
+714a715,730
+> ERROR X0X95: Operation 'CREATE TRIGGER' cannot be performed on object 'T1' because there is an open ResultSet dependent on that object.
+> ij> — delete a row. check that trigger is fired - procedure should be called once
+> delete from t1 where i=10;
+> 1 row inserted/updated/deleted
+> ij> — check delete is successful
+> select * from t1;
+> I          |B              
+> ---------------------------
+> 5          |two            
+> 6          |four           
+> 8          |eight          
+> ij> drop trigger select_from_trig_table;
+> ERROR 42X94: TRIGGER 'SELECT_FROM_TRIG_TABLE' does not exist.
+> ij> — use procedures which alter/drop trigger table and some other table
+> create trigger alter_table_trig AFTER delete on t1 
+> 	for each STATEMENT mode db2sql call alter_table_proc();
+716,732d731
+< ij> — delete a row. check that trigger is fired - procedure should be called once
+< delete from t1 where i=10;
+< selectRows - 1 arg - 1 rs
+< 1 row inserted/updated/deleted
+< ij> — check delete is successful
+< select * from t1;
+< I          |B              
+< ---------------------------
+< 5          |two            
+< 6          |four           
+< 8          |eight          
+< ij> drop trigger select_from_trig_table;
+< 0 rows inserted/updated/deleted
+< ij> — use procedures which alter/drop trigger table and some other table
+< create trigger alter_table_trig AFTER delete on t1 
+< 	for each STATEMENT mode db2sql call alter_table_proc();
+< 0 rows inserted/updated/deleted
+Test Failed.
+			End:   procedureInTrigger jdk1.6.0-rc derbyall:derbylang 2006-07-19 13:52:34 ***
+		
+		
+	
+	
+

@@ -1,0 +1,12 @@
+When running suites.All with sane jars, I've seen derby.log grow very big (over 4GB) during StressMultiTest. I don't see this when StressMultiTest is run separately, only when it runs as part of suites.All.
+
+What takes the most space in derby.log is debug output like this
+
+DEBUG DaemonTrace OUTPUT: Next urgent assignment : org.apache.derby.impl.services.daemon.ServiceRecord@d1294d
+DEBUG DaemonTrace OUTPUT: servicing org.apache.derby.impl.services.daemon.ServiceRecord@d1294d
+DEBUG DaemonTrace OUTPUT: done org.apache.derby.impl.services.daemon.ServiceRecord@d1294d
+DEBUG DaemonTrace OUTPUT: come back from yield
+
+repeated over and over.
+
+I suspect there's a test that sets the DaemonTrace debug flag, and that the flag for some reason doesn't get reset. I've only found one test that sets it: ClobReclamationTest. It uses a SystemPropertyTestSetup ensure the derby.debug.true property is reset and the engine rebooted, but I'm not sure rebooting the engine will reset the state of the SanityManager.

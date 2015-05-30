@@ -1,0 +1,8 @@
+Writing an EntityProcessor is deceptively complex. There are so many gotchas.
+
+I propose the following:
+
+	Extract out the Transformer application logic from EntityProcessor and add it to DocBuilder. Then EntityProcessor do not need to call applyTransformer or know about rowIterator and getFromRowCache() methods.
+	Change the meaning of EntityProcessor#destroy to be called on end of parent's row – Right now init is called once per parent row but destroy actually means the end of import. In fact, there is no correct way for an entity processor to do clean up right now. Most do clean up when returning null (end of data) but with the introduction of $skipDoc, a transformer can return $skipDoc and the entity processor will never get a chance to clean up for the current init.
+	EntityProcessor will use the EventListener API to listen for import end. This should be used by EntityProcessor to do a final cleanup.
+

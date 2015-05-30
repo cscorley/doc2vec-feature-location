@@ -1,0 +1,10 @@
+Forward-only result sets that are exhausted should be implicitly
+closed on the server. This way, ResultSet.close() does not have to
+send an explicit close message generating unnecessary network traffic.
+
+The DRDA protocol supports this. From the description of OPNQRY (open
+query):
+
+  The qryclsimp parameter controls whether the target server
+  implicitly closes a non-scrollable query upon end of data (SQLSTATE
+  02000) in association with the cursor type.

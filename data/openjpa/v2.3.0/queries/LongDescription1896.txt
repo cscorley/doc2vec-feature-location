@@ -1,0 +1,16 @@
+If a POJO is created using a java constructor, merge() cannot store the newly constructed object's data if this means updating a pre-existing record with a matching identity.
+
+This is a major bug since it means applications where the objects have a natural key cannot use OpenJPA. In my case the example was a filesystem; each crawl of the filesystem generates its own data objects with file path as the natural key. These objects then need to be stored into the database. Previous crawls may have encountered the same files, and the merge operation should cause the latest data from the POJO to be stored in the pre-existing record.
+
+Instead, any attempt to execute either merge() or persist() on an independently constructed object with a matching record identity in the database triggers the same error in the database layer, since OpenJPA attempts to execute an insert for a pre-existing primary key, throwing...
+org.apache.openjpa.lib.jdbc.ReportingSQLException: ERROR: duplicate key value violates unique constraint "file_pkey" 
+{prepstmnt 32879825 INSERT INTO file (locationString, location, version, folder) VALUES (?, ?, ?, ?)  [params=?, ?, ?, ?]}
+ [code=0, state=23505]
+
+From discussion with Rick Curtis on the users@openjpa.apache.org list, this is because the version field on a POJO which is unmanaged is not yet set. 
+
+An ASSUMPTION seems to be made that no such record exists in the database already since it wasn't loaded from the database in the first place, so a persist is attempted. Instead, I recommend the database is QUERIED TO FIND OUT if such a record already exists, and the version field is set correspondingly before attempting the merge() 
+
+Here is the corresponding thread containing Ricks comments and links to an example in Github which can recreate the problem.
+
+http://bit.ly/hfPjTI

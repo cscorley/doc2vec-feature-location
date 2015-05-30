@@ -1,0 +1,16 @@
+Though Mahout requires JDK6, mahout-math's pom.xml contains plugin configuration which direct compile for Java5 as following:
+
+
+     <plugin>
+       <groupId>org.apache.maven.plugins</groupId>
+       <artifactId>maven-compiler-plugin</artifactId>
+       <configuration>
+         <source>1.5</source>
+         <target>1.5</target>
+       </configuration>
+     </plugin>
+
+
+
+Furthermore RandomWrapper and DistributionChecks uses String#getBytes(Charset) and Arrays#copyOf() method.
+These methods are not supported in JDK5.

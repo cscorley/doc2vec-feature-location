@@ -1,0 +1,3 @@
+org.apache.derby.impl.store.raw.data.PageBasicOperation and its subclasses are public. They are however never used outside of the package in which they live, so package access should be sufficient for most of their methods. Reducing the visibility of the classes and/or their methods silences many warnings in my IDE (NetBeans). Typically, the warnings are about public methods that have parameters of non-public types.
+
+Note: These classes implement Formatable, which requires that the classes are public and have public no-arg constructors. We can still reduce the visibility of the abstract classes in the hierarchy, as well as the specialized constructors that take arguments, since they are not used by the serialization logic.

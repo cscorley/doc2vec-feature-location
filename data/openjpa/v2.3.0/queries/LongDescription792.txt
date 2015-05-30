@@ -1,0 +1,293 @@
+When @MappedSuperClass annotation is specified and if we try to persist the same key of the subclasses which are entities of the Mappedsuperclass , Persist fails which is not the expected behavior.
+
+import java.util.Date;
+
+
+import javax.persistence.Id;
+import javax.persistence.Column;
+
+@javax.persistence.MappedSuperclass
+public class Party {
+
+
+    protected Long PartyId;
+    protected String Status;
+    protected String ArchiveStatus;
+    protected Date CreateDate;
+
+    @Id
+    public Long getPartyId() 
+{
+        return this.PartyId;
+    }
+
+    public void setPartyId(Long id)
+{
+        this.PartyId = id;
+    }
+
+    public void setArchiveStatus(String s)
+{
+        this.ArchiveStatus = s;
+        
+    }
+
+    public void setStatus(String s) 
+{
+        this.Status = s;
+    }
+
+    @Column
+    public String getStatus() 
+{
+        return this.Status;
+    }
+
+    @Column
+    public String getArchiveStatus() 
+{
+        return this.ArchiveStatus;
+    }
+
+    public void setCreateDate(Date d) 
+{
+        this.CreateDate = d;
+    }
+
+    @Column
+    public Date getCreateDate() 
+{
+        return this.CreateDate;
+    }
+}
+
+
+import java.util.List;
+
+
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.Inheritance;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.FetchType;
+import javax.persistence.CascadeType;
+import javax.persistence.InheritanceType;
+
+import org.apache.openjpa.persistence.jdbc.DiscriminatorStrategy;
+
+
+@Entity
+@Table(name = "Site")
+ public class Site  extends Party implements java.io.Serializable {
+
+       private static final long serialVersionUID = 1L;
+
+       private String SiteName;
+       private String SiteDescription;
+     /*  private List<Store> stores;
+
+       @OneToMany(mappedBy="site",  cascade=CascadeType.ALL, fetch=FetchType.LAZY, 
+         targetEntity=Store.class)
+       public List<Store> getStores() 
+{
+             return stores;
+       }
+
+      public void setStores(List<Store> storeList)
+{
+          this.stores = storeList;
+      }
+*/
+     public void setSiteName(String s) 
+{
+         this.SiteName = s;
+     }
+
+     public String getSiteName()
+{
+         return this.SiteName;
+     }
+
+     public void setSiteDescription(String s) 
+{
+         this.SiteDescription = s;
+     }
+
+     public String getSiteDescription() 
+{
+         return this.SiteDescription;
+     }
+ }
+
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "Store")
+ public class Store extends Party implements java.io.Serializable {
+
+       private static final long serialVersionUID = 1L;
+       private String StoreName;
+       private String StoreDescription;
+
+       private Site site;
+       private Long SiteId;
+
+       @ManyToOne( fetch = FetchType.LAZY,  cascade = CascadeType.ALL, 
+               targetEntity=Site.class)
+       @JoinColumn(name = "Store.SiteId",
+       referencedColumnName="site.PartyId", nullable = false, insertable = true,
+       updatable = true)
+
+       public Site getSite() 
+{
+             return site;
+       }
+
+       public void setSite(Site s) 
+{
+           this.site = s;
+           
+       }
+
+       public void setStoreName(String s) 
+{
+           this.StoreName = s;
+       }
+
+       public String getStoreName() 
+{
+           return this.StoreName;
+       }
+
+       public void setStoreDescription(String s)
+{
+           this.StoreDescription = s;
+       }
+
+       public String getStoreDescription()
+{
+           return this.StoreDescription;
+       }
+ 
+
+
+       public void setSiteId(Long id) 
+{
+           this.SiteId = id;
+       }
+
+       public Long getSiteId() 
+{
+           return this.SiteId;
+       }
+
+ }
+
+TestCase follows:
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+import lazy_fetch.bean.Site;
+import lazy_fetch.bean.Store;
+
+public class TestLazyFetch {
+
+    public static EntityManagerFactory emf = null;
+    public static Long pkey = new Long (1502);
+
+    public static void main(String[] args) 
+{
+        
+        emf = Persistence.createEntityManagerFactory("LazyFetch");
+       
+        createSite();
+        System.out.println("Done creating Site");
+        createStore();
+        System.out.println("Done creating Store");
+       // getStoreWithSite();
+        
+    }
+
+    public static void getStoreWithSite() 
+{
+        EntityManager em = emf.createEntityManager();
+        Store store = em.find(Store.class, pkey);
+        System.out.println("store =" + store);
+       // Site site = store.getSite();
+      //  System.out.println("site =" + site);
+   }
+
+    public static void createSite() 
+{
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+        
+        Site s = new Site();
+        s.setPartyId(pkey);
+        s.setSiteName("San Jose");
+        s.setSiteDescription("San Jose site");
+        s.setStatus("2");
+        s.setArchiveStatus("2");
+        s.setCreateDate(new Date());
+        
+        em.persist(s);
+        em.getTransaction().commit();
+        em.close();
+    }
+
+    public static void createStore() 
+{
+        
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+         
+         Site site = em.find(Site.class, pkey);
+         
+          Store store = new Store();
+          store.setPartyId(pkey);
+          store.setStoreDescription("storeDescription");
+          store.setStoreName("storeName");
+          store.setStatus("1");
+          store.setArchiveStatus("1");
+          store.setCreateDate(new Date());
+          store.setSiteId(site.getPartyId());
+          store.setSite(site);
+          
+       //  List<Store> stores = new ArrayList<Store>();
+        //  stores.add(store);
+       //   site.setStores(stores);
+
+          em.persist(store);
+          em.getTransaction().commit();
+    }
+
+
+}
+
+47  LazyFetch  INFO   [main] openjpa.Runtime - Starting OpenJPA 2.0.0-SNAPSHOT
+125  LazyFetch  INFO   [main] openjpa.jdbc.JDBC - Using dictionary class "org.apache.openjpa.jdbc.sql.DB2Dictionary".
+Exception in thread "main" <openjpa-2.0.0-SNAPSHOT-runknown nonfatal store error> org.apache.openjpa.persistence.EntityExistsException: An object of type "lazy_fetch.bean.Store" with oid "lazy_fetch.bean.Party-1502" already exists in this context; another cannot be persisted.
+FailedObject: lazy_fetch.bean.Store@9c609c6
+	at org.apache.openjpa.kernel.BrokerImpl.checkForDuplicateId(BrokerImpl.java:4756)
+	at org.apache.openjpa.kernel.BrokerImpl.persist(BrokerImpl.java:2445)
+	at org.apache.openjpa.kernel.BrokerImpl.persist(BrokerImpl.java:2281)
+	at org.apache.openjpa.kernel.DelegatingBroker.persist(DelegatingBroker.java:1021)
+	at org.apache.openjpa.persistence.EntityManagerImpl.persist(EntityManagerImpl.java:645)
+	at lazy_fetch.tests.TestLazyFetch.createStore(TestLazyFetch.java:77)
+	at lazy_fetch.tests.TestLazyFetch.main(TestLazyFetch.java:25)
+

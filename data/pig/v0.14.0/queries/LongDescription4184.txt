@@ -1,0 +1,64 @@
+This is the same issue we discussed in PIG-3739 and PIG-3679. However, our previous fix does not solve the issue, in fact, it make things worse and it is totally my fault.
+
+Consider the following UDF and script:
+
+
+    public class IntToBool extends EvalFunc<Boolean> {
+        @Override
+        public Boolean exec(Tuple input) throws IOException {
+            if (input == null || input.size() == 0)
+                return null;
+            Integer val = (Integer)input.get(0);
+            return (val == null || val == 0) ? false : true;
+        }
+    }
+
+
+
+
+a = load '1.txt' as (i0:int, i1:int);
+b = foreach a generate IntToBool(i0);
+store b into 'output';
+
+
+1.txt
+
+
+1
+2   3
+
+
+With Pig 0.12, we get:
+
+
+(false)
+(true)
+
+
+With Pig 0.13/0.14, we get:
+
+
+()
+(true)
+
+
+The reason is in 0.12, Pig pass first row as a tuple with a null item to IntToBool, with 0.13/0.14, Pig swallow the first row, which is not right. And this wrong behavior is brought by PIG-3739 and PIG-3679.
+
+Before that (but after POStatus.STATUS_NULL refactory PIG-3568), we do have a behavior change which makes e2e test StreamingPythonUDFs_10 fail with NPE. However, I think this is an inconsistent behavior of 0.12. Consider the following scripts:
+
+
+a = load '1.txt' as (name:chararray, age:int, gpa:double);
+b = foreach a generate ROUND((gpa>3.0?gpa+1:gpa));
+store b into 'output';
+
+
+
+
+a = load '1.txt' as (name:chararray, age:int, gpa:double);
+b = foreach a generate ROUND(gpa);
+store b into 'output';
+
+
+If gpa field is null, script 1 skip the row and script 2 fail with NPE, which does not make sense. So my thinking is:
+1. Pig 0.12 is wrong and POStatus.STATUS_NULL refactory fix this behavior (we don't need related fix in PIG-3739/PIG-3679)
+2. ROUND (and some other UDF) is wrong anyway, we shall fix it

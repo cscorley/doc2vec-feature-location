@@ -1,0 +1,44 @@
+I'm getting a NullPointerException from ILLUSTRATE on a simple script using the webcrawl data from the "Programming Pig" book: https://github.com/alanfgates/programmingpig/blob/master/data/webcrawl
+
+The script is:
+
+
+
+A = load 'webcrawl' USING PigStorage('\t') AS ( url: chararray, pagerank: float, links:{ link: ( url: chararray ) } );
+B = filter A by url is not null;
+C = store B into 'output';
+
+
+
+The stack trace I'm getting is:
+
+
+
+java.lang.NullPointerException
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POFilter.illustratorMarkup(POFilter.java:200)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POFilter.getNext(POFilter.java:155)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:290)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POStore.getNext(POStore.java:138)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:261)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:256)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:58)
+	at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144)
+	at org.apache.pig.pen.LocalMapReduceSimulator.launchPig(LocalMapReduceSimulator.java:194)
+	at org.apache.pig.pen.ExampleGenerator.getData(ExampleGenerator.java:257)
+	at org.apache.pig.pen.ExampleGenerator.getData(ExampleGenerator.java:238)
+	at org.apache.pig.pen.LineageTrimmingVisitor.init(LineageTrimmingVisitor.java:103)
+	at org.apache.pig.pen.LineageTrimmingVisitor.<init>(LineageTrimmingVisitor.java:98)
+	at org.apache.pig.pen.ExampleGenerator.getExamples(ExampleGenerator.java:166)
+	at org.apache.pig.PigServer.getExamples(PigServer.java:1258)
+	at org.apache.pig.tools.grunt.GruntParser.processIllustrate(GruntParser.java:698)
+	at org.apache.pig.tools.pigscript.parser.PigScriptParser.Illustrate(PigScriptParser.java:591)
+	at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:306)
+	at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:188)
+	at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:164)
+	at org.apache.pig.tools.grunt.Grunt.exec(Grunt.java:81)
+	at org.apache.pig.Main.run(Main.java:456)
+	at org.apache.pig.Main.main(Main.java:108)
+
+
+
+I'm running this in local mode, though I don't know if it makes a difference.

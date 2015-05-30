@@ -1,0 +1,12 @@
+Inserting into a global temporary table (GTT) while selecting data from a VTI fails with a NullPointerException:
+
+Caused by: java.lang.NullPointerException
+        at org.apache.derby.impl.sql.execute.WriteCursorConstantAction.getEmptyHeapRow(WriteCursorConstantAction.java:324)
+        at org.apache.derby.impl.sql.execute.InsertResultSet.bulkInsertCore(InsertResultSet.java:1209)
+        at org.apache.derby.impl.sql.execute.InsertResultSet.open(InsertResultSet.java:466)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:443)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:324)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1242)
+        ... 6 more
+
+Investigation exposed the fact that bulk insert doesn't support a GTT as the target, and further that Derby enables bulk insert when the source is a VTI.

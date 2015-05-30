@@ -1,0 +1,33 @@
+Currently, the number of fields in the input tuple is determined by the data. When we have schema, we should generate input data according to the schema, and padding nulls if necessary. Here is one example:
+
+Pig script:
+
+
+a = load '1.txt' as (a0, a1);
+dump a;
+
+
+Input file:
+
+
+1       2
+1       2       3
+1
+
+
+Current result:
+
+
+(1,2)
+(1,2,3)
+(1)
+
+
+
+Desired result:
+
+
+(1,2)
+(1,2)
+(1, null)
+

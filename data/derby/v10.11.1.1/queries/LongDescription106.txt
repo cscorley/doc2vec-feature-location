@@ -1,0 +1,18 @@
+My application is running out of memory: I encounterd a java.lang.OutOfMemoryError. I used -Xmx256M. Unfortunatley, I cannot spend an arbitrary amount of JVM memory. 
+
+Then, I commented out the line in class OptimizerFactoryImpl which was adding the HashJoinStrategy to the set of Join strategies:
+
+		if (joinStrategySet == null)
+		{
+//			JoinStrategy[] jss = new JoinStrategy[2];
+			JoinStrategy[] jss = new JoinStrategy[1];
+			jss[0] = new NestedLoopJoinStrategy();
+//			jss[1] = new HashJoinStrategy();
+			joinStrategySet = jss;
+		}
+
+And with these changes the OutOfMemoryError has gone away! And it works even with -Xmx128M!!!
+
+So I guess that there is a major memory issue with this HashJoin strategy implementation.
+
+If it turns out to be too complicated to make the memory consumption more predicatble or even bounded to some configurable limit, then I need at least as a workaround a way to turn off the HashJoin strategy completely: I did it by patching and building my own derby.jar, but if there would be an official solution with some kind of switch like a system property, it would be great!

@@ -1,0 +1,21 @@
+If pig.script is decoded with base64, it loses line numbers because the buffered reader that adds the lines, removes '\n's.
+
+
+
+ScriptState.java#setScript
+protected void setScript(BufferedReader reader) {
+        StringBuilder sb = new StringBuilder();
+        try {
+            String line = reader.readLine();
+            while (line != null) {
+                if (line.length() > 0) {
+                    sb.append(line).append("\n");
+                }
+                line = reader.readLine();
+            }
+        } catch (IOException e) {
+            LOG.warn("unable to parse the script", e);
+        }
+        setScript(sb.toString());
+    }
+

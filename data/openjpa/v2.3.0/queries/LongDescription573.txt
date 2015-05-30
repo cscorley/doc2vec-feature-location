@@ -1,0 +1,45 @@
+If i use constants like this :
+
+SELECT object FROM MyObject object WHERE object.path LIKE '%|_%' ESCAPE '|'
+
+all is ok, but if I want to use parameters - exception is thrown.
+
+Example:
+
+@Entity
+@Table(name="simple_object")
+public class MySimpleObject {
+
+	@Id
+	String Id ;
+
+	@Basic
+	@Column(name="value", nullable=false, length=36)
+	String value  ;
+.....................
+.......................
+
+EntityManager em = emf.createEntityManager() ;
+Query q = em.createQuery("SELECT x FROM MySimpleObject x WHERE x.value LIKE ?1 ESCAPE '|'") ;
+q.setParameter(1, "%|_%") ;
+List<MySimpleObject> res = q.getResultList() ;
+
+Exception in thread "main" <openjpa-1.1.0-SNAPSHOT-r422266:648359 nonfatal user error> org.apache.openjpa.persistence.ArgumentException: Encountered "ESCAPE" at character 54, but expected: ["AND", "GROUP", "HAVING", "OR", "ORDER", <EOF>].
+	at org.apache.openjpa.kernel.jpql.JPQL.generateParseException(JPQL.java:9499)
+	at org.apache.openjpa.kernel.jpql.JPQL.jj_consume_token(JPQL.java:9376)
+	at org.apache.openjpa.kernel.jpql.JPQL.parseQuery(JPQL.java:75)
+	at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder$ParsedJPQL.parse(JPQLExpressionBuilder.java:1733)
+	at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder$ParsedJPQL.<init>(JPQLExpressionBuilder.java:1720)
+	at org.apache.openjpa.kernel.jpql.JPQLParser.parse(JPQLParser.java:48)
+	at org.apache.openjpa.kernel.ExpressionStoreQuery.newCompilation(ExpressionStoreQuery.java:149)
+	at org.apache.openjpa.datacache.QueryCacheStoreQuery.newCompilation(QueryCacheStoreQuery.java:239)
+	at org.apache.openjpa.kernel.QueryImpl.newCompilation(QueryImpl.java:656)
+	at org.apache.openjpa.kernel.QueryImpl.compilationFromCache(QueryImpl.java:638)
+	at org.apache.openjpa.kernel.QueryImpl.compileForCompilation(QueryImpl.java:604)
+	at org.apache.openjpa.kernel.QueryImpl.compileForExecutor(QueryImpl.java:666)
+	at org.apache.openjpa.kernel.QueryImpl.getOperation(QueryImpl.java:1486)
+	at org.apache.openjpa.kernel.DelegatingQuery.getOperation(DelegatingQuery.java:123)
+	at org.apache.openjpa.persistence.QueryImpl.execute(QueryImpl.java:227)
+	at org.apache.openjpa.persistence.QueryImpl.getResultList(QueryImpl.java:277)
+	at Tester.testEscape(Tester.java:75)
+	at Tester.main(Tester.java:93)

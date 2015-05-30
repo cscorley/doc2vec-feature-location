@@ -1,0 +1,6 @@
+Hello,
+
+The Pigmix benchmark has 17 queries comparing Pig to MapReduce Java. Some of these queries are not outputting the same results in Pig and MapReduce. Looking into the outputs, it seems the errors reside in the MapReduce  code. For example, L6 has no output because the output of the map function sends the wrong key to the reducer: "query_term" (field 3) instead of "timespent" (field 2). Hence an exception is thrown, and there is no output to the query in MapReduce. I am planning to submit a patch once I fixed all the queries in MapReduce 
+
+Thanks,
+Keren  

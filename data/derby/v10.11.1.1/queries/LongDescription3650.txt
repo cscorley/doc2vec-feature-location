@@ -1,0 +1,18 @@
+Derby + Hibernate JPA 3.2.1 problem on entity with Blob/Clob
+
+Hi,
+
+I'm using Derby in Client - Server mode with Hibernate JPA EJB 3.0.
+When a query on an entity containing a Clob and some joins on other entites is executed, an exception with the following message is thrown:
+  XJ073: The data in this BLOB or CLOB is no longer available.  The BLOB/CLOB's transaction may be committed, or its connection is closed.
+
+This problem occurs when the property "hibernate.max_fetch_depth" is greater than 0.
+When hibernate.max_fetch_depth=0, the query works.
+
+If Derby is configured in embedded mode, the query works independently of the value of hibernate.max_fetch_depth.
+
+On the Hibernate's documentation, the advised value of hibernate.max_fetch_depth is 3.
+Could you explain me if I made something wrong ?
+
+Thank you.
+Stephane

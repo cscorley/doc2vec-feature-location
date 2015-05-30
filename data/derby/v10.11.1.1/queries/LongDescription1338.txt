@@ -1,0 +1,27 @@
+When run from Sun JDK 1.4.2 and Sun JDK 1.5, these two tests fail when run from the
+classes directory. They work, though, when run from jars.
+
+Running NSinSameVM in my sandbox:
+
+bash-3.00$ java   -Dframework=DerbyNetClient org.apache.derbyTesting.functionTests.harness.RunTest derbynet/NSinSameJVM.java
+
+	
+	
+		
+		
+			Start: NSinSameJVM jdk1.4.2_05 DerbyNetClient 2006-05-22 14:49:05 ***
+Initialize for framework: DerbyNetClient
+startServer = false. Bypass server startup
+6 add
+> java.lang.NoClassDefFoundError: org/apache/derby/impl/drda/DRDAProtocolExceptionInfo
+Test Failed.
+			End:   NSinSameJVM jdk1.4.2_05 DerbyNetClient 2006-05-22 14:49:27 ***
+		
+		
+	
+	
+
+
+
+I get similar behavior for DerbyNetNewServer.  I ran this on a Solaris 10/i86x box. Davis has seen it too, see 
+initial discusson on this thread: http://www.nabble.com/forum/ViewPost.jtp?post=4477600&framed=y

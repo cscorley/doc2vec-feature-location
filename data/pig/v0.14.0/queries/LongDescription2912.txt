@@ -1,0 +1,7 @@
+There is change in the semantics of
+JobContext::JobContext(Configuration, JobID). While in .20, the Config was
+cloned, in .23 the Config is adopted (if it's a JobConf). This causes the same
+Configuration instance to be written-to for different tables in the same job.
+
+It would affect multi store commands in pig on Hadoop 23/2.0. The
+cloning in HadoopShims was part of PIG-2578 but was reverted to other issues.

@@ -1,0 +1,43 @@
+Hi,
+
+For the below script,
+
+
+
+A = load '/user/anithar/ip' as (a);
+B = load '/user/anithar/ip1' as (a);
+C = union  A , B ;
+D = foreach C generate (chararray)a;
+dump D;
+
+
+
+it gives casting error at runtime
+
+
+
+org.apache.pig.backend.executionengine.ExecException: ERROR 1075: Received a bytearray from the UDF. Cannot determine how to convert the bytearray to string.
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POCast.getNext(POCast.java:660)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.getNext(PhysicalOperator.java:322)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.processPlan(POForEach.java:332)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.getNext(POForEach.java:284)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.runPipeline(PigGenericMapBase.java:267)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.map(PigGenericMapBase.java:262)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.map(PigGenericMapBase.java:64)
+        at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144)
+        at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:764)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:370)
+        at org.apache.hadoop.mapred.Child$4.run(Child.java:255)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:396)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1082)
+        at org.apache.hadoop.mapred.Child.main(Child.java:249)
+
+
+
+It looks like in POCast.java the value of "funcSpec" is not getting any value(stays null when there is a UNION involved), causing "caster" to get null and thus the exception.
+
+The same works in 0.8 without any issue.
+
+Regards,
+Anitha

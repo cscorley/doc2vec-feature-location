@@ -1,0 +1,17 @@
+Derby pushes query conditions down into subqueries with FETCH limits, thus creating wrong results. Take the following snippet:
+
+    CREATE TABLE COFFEES (COF_NAME VARCHAR(254),PRICE INTEGER);
+
+    INSERT INTO COFFEES (COF_NAME,PRICE) VALUES ('Colombian',       5);
+    INSERT INTO COFFEES (COF_NAME,PRICE) VALUES ('French_Roast',    5);
+    INSERT INTO COFFEES (COF_NAME,PRICE) VALUES ('Colombian_Decaf', 20);
+
+    select COF_NAME, PRICE from COFFEES order by COF_NAME fetch next 2 rows only;
+
+    select * from (
+      select COF_NAME, PRICE from COFFEES order by COF_NAME fetch next 2 rows only
+    ) t where t.PRICE < 10;
+
+The first query correctly returns the rows (Colombian,5), (Colombian_Decaf,20).
+
+The second query (which filters the result of the first one) returns (Colombian,5), (French_Roast,5). The row (French_Roast,5) should not be there since it is not a result of the first query. It shows up because (supposedly) the filter condition has been evaluated before the fetch limit.

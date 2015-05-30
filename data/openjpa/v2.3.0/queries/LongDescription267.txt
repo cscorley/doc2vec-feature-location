@@ -1,0 +1,21 @@
+OpenJPA should be able to infer the parameters from the signature when there is no method overloading, and in the case where there is method overloading, it'd be nice if OpenJPA would allow the args specification to happen inline in the method declaration.
+
+More context:
+
+On 6/26/07, e33238 <e33238@hotmail.com> wrote:
+> 
+> I'm tracing through the code to find out what the problem was, and it seems
+> that it'll work if I do this:
+> 
+> OpenJPAQuery q =
+> oem.createQuery("openjpa.MethodQL","com.xyz.Finder.getByName");
+> q.setResultClass(Person.class);
+> q.setParameter("firstName", "Fred").setParameter("lastName", "Lucas");
+> ((QueryImpl)q).getDelegate().declareParameters("String firstName, String
+> lastName"); //<== additional line
+> List results = q.getResultList();
+> 
+> Now getByName() will be called correctly, with "firstName" and "lastName" in
+> the "params" map. I'm sure this is not the correct way, but I couldn't
+> figure out how else I can call declareParameters(). Without calling
+> declareParameters(), I'll get the ArgumentException.

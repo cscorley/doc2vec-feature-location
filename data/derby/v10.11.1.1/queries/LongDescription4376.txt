@@ -1,0 +1,9 @@
+On Derby 10.3.1.4 and later, I see that evaluating the statements below in ij apparently makes Derby go into an infinite loop. The select statement ran for two hours until I aborted it. I do not see this problem on Derby 10.2.2.0 or earlier.
+
+ij> create table t(x int primary key);
+0 rows inserted/updated/deleted
+ij> prepare ps as 'select * from t where x=? or x=?';
+ij> execute ps using 'values (cast(null as int), 0)';
+IJ WARNING: Autocommit may close using result set
+X          
+-----------

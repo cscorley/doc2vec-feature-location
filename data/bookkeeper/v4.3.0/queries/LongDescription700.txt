@@ -1,0 +1,12 @@
+After completing compaction, GarbageCollectorThread will do flush any outstanding offsets. When there is no offset present, its throwing following exception and exiting.
+
+
+
+2013-10-30 11:37:20,944 - ERROR - [GarbageCollectorThread:NIOServerCnxnFactory$1@49] - Thread Thread[GarbageCollectorThread,5,main] died
+java.lang.ArrayIndexOutOfBoundsException: -1
+	at java.util.ArrayList.get(ArrayList.java:324)
+	at org.apache.bookkeeper.bookie.GarbageCollectorThread$CompactionScannerFactory.waitEntrylogFlushed(GarbageCollectorThread.java:151)
+	at org.apache.bookkeeper.bookie.GarbageCollectorThread$CompactionScannerFactory.flush(GarbageCollectorThread.java:175)
+	at org.apache.bookkeeper.bookie.GarbageCollectorThread.doCompactEntryLogs(GarbageCollectorThread.java:400)
+	at org.apache.bookkeeper.bookie.GarbageCollectorThread.run(GarbageCollectorThread.java:309)
+

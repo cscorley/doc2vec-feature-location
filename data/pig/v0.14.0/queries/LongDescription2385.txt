@@ -1,0 +1,22 @@
+The actual script in which we got this issue is pretty big and complex. The script has total 4 STORE statements and one of the STORE statement is not getting executed.
+The script executes 3 sets of jobs (excluding one STORE which is not getting executed) consisting of 10, 11 and 19 jobs.
+
+The below script could be used to illustrate the issue but with Multiquery turned off;
+
+
+
+A = LOAD 'input1' as (f1:chararray,f2:chararray,f3:chararray);
+Z = group A all;
+Z1 = foreach Z generate COUNT(A) as count;
+B = foreach A generate f1,f2,f3,(100-Z1.count) as diff;
+C = order B by diff;
+STORE C INTO 'output/C_out';
+
+D = DISTINCT C ;
+store D into 'output/F_out';
+
+
+
+For this script, if run with Multiquery turned off, the Store command for D is not getting executed.
+I can see that the statements are getting parsed and LOStore created for D , but still, it is not getting executed.
+The above script works fine with Pig 0.8.(This issue still exists in Trunk as well)

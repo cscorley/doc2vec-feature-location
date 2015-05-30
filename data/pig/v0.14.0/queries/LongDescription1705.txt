@@ -1,0 +1,28 @@
+The following script fail: 
+
+
+
+A = load '1.txt' AS (a0:int, a1:int, a2:int);
+B = foreach A generate a0, a1;
+C = join A by a0, B by a0;
+D = filter C by A::a1>=B::a1;
+dump D;
+
+
+
+Error message:
+org.apache.pig.backend.executionengine.ExecException: ERROR 2067: GTOrEqualToExpr does not know how to handle type: tuple
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.GTOrEqualToExpr.getNext(GTOrEqualToExpr.java:132)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POFilter.getNext(POFilter.java:148)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:276)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.getNext(POForEach.java:240)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:276)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLocalRearrange.getNext(POLocalRearrange.java:256)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POUnion.getNext(POUnion.java:163)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:236)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:231)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:53)
+	at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144)
+	at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:621)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:305)
+	at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:177)

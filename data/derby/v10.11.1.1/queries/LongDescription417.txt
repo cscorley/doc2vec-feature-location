@@ -1,0 +1,5 @@
+Beetle6038.java test in the storemore suite fails on Mac OS X because the test attempts to set the encryption provider for the test based on the value of the system property java.vm.vendor. It assumes that if java.vm.vendor does not start with "Sun" that the IBM JCE encryption provider should be used. See org.apache.derbyTesting.functionTests.tests.store.Beetle6038, lines 42-49. 
+
+Since, in most cases, Derby can choose the correct encryption provider, I think the best solution to this particular issue is to not specify a particular implementation of the JCE provider, regardless of the JVM vendor. i.e. lines 42-49 can probably be wholly replaced by:
+
+dburl="jdbc:derby:Beetle6038Db;create=true;dataEncryption=true;bootPassword=Thursday;encryptionAlgorithm=DES/CBC/NoPadding";

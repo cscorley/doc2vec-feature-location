@@ -1,0 +1,31 @@
+
+
+          int currentSize = chosenTexts.size();
+          if (currentSize < k) {
+            chosenTexts.add(newText);
+            chosenClusters.add(newCluster);
+          } else if (random.nextInt(currentSize + 1) == 0) { // with chance 1/(currentSize+1) pick new element
+            int indexToRemove = random.nextInt(currentSize); // evict one chosen randomly
+            chosenTexts.remove(indexToRemove);
+            chosenClusters.remove(indexToRemove);
+            chosenTexts.add(newText);
+            chosenClusters.add(newCluster);
+          }
+
+
+
+The second "if" condition ought to be "!= 0", right? Only if it is 0 do we skip the body, which removes an existing element, since the new element itself is evicted.
+
+Second, this code:
+
+
+
+        for (int i = 0; i < k; i++) {
+          writer.append(chosenTexts.get(i), chosenClusters.get(i));
+        }
+
+
+
+... assumes that at least k elements existed in the input, and fails otherwise. Probably need to cap this.
+
+Patch attached.

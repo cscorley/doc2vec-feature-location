@@ -1,0 +1,66 @@
+I get the following error when I try to insert new row to a table that has a "generated always Identity" Column.
+
+
+Exception in thread "main" <openjpa-2.0.1-r422266:989424 fatal store error> org.apache.openjpa.persistence.RollbackException: An error occurred attempting to invoke JDBC 3 method.  Your driver or database may not support JDBC 3 features.
+	at org.apache.openjpa.persistence.EntityManagerImpl.commit(EntityManagerImpl.java:584)
+	at de.meyerwerft.qs.laborpruef.laborprobe.dbaccess.LaborprobeBean.crtTest(LaborprobeBean.java:38)
+	at de.meyerwerft.test.JSE_Client.jlm_run(JSE_Client.java:35)
+	at de.meyerwerft.test.JSE_Client.<init>(JSE_Client.java:10)
+	at de.meyerwerft.test.JSE_Client.main(JSE_Client.java:17)
+Caused by: <openjpa-2.0.1-r422266:989424 nonfatal general error> org.apache.openjpa.persistence.PersistenceException: An error occurred attempting to invoke JDBC 3 method.  Your driver or database may not support JDBC 3 features.
+	at org.apache.openjpa.kernel.BrokerImpl.beforeCompletion(BrokerImpl.java:1963)
+	at org.apache.openjpa.kernel.LocalManagedRuntime.commit(LocalManagedRuntime.java:81)
+	at org.apache.openjpa.kernel.BrokerImpl.commit(BrokerImpl.java:1479)
+	at org.apache.openjpa.kernel.DelegatingBroker.commit(DelegatingBroker.java:925)
+	at org.apache.openjpa.persistence.EntityManagerImpl.commit(EntityManagerImpl.java:560)
+	... 4 more
+Caused by: org.apache.commons.lang.exception.NestableRuntimeException: An error occurred attempting to invoke JDBC 3 method.  Your driver or database may not support JDBC 3 features.
+	at org.apache.openjpa.lib.jdbc.DelegatingConnection.invokeJDBC3(DelegatingConnection.java:597)
+	at org.apache.openjpa.lib.jdbc.DelegatingConnection.prepareStatement(DelegatingConnection.java:577)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection.prepareStatement(LoggingConnectionDecorator.java:571)
+	at org.apache.openjpa.lib.jdbc.DelegatingConnection.prepareStatement(DelegatingConnection.java:571)
+	at org.apache.openjpa.lib.jdbc.DelegatingConnection.prepareStatement(DelegatingConnection.java:571)
+	at org.apache.openjpa.lib.jdbc.DelegatingConnection.prepareStatement(DelegatingConnection.java:563)
+	at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.prepareStatement(PreparedStatementManagerImpl.java:287)
+	at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flushAndUpdate(PreparedStatementManagerImpl.java:112)
+	at org.apache.openjpa.jdbc.kernel.BatchingPreparedStatementManagerImpl.flushAndUpdate(BatchingPreparedStatementManagerImpl.java:81)
+	at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flushInternal(PreparedStatementManagerImpl.java:99)
+	at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flush(PreparedStatementManagerImpl.java:87)
+	at org.apache.openjpa.jdbc.kernel.ConstraintUpdateManager.flush(ConstraintUpdateManager.java:550)
+	at org.apache.openjpa.jdbc.kernel.ConstraintUpdateManager.flush(ConstraintUpdateManager.java:106)
+	at org.apache.openjpa.jdbc.kernel.BatchingConstraintUpdateManager.flush(BatchingConstraintUpdateManager.java:59)
+	at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.flush(AbstractUpdateManager.java:103)
+	at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.flush(AbstractUpdateManager.java:76)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.flush(JDBCStoreManager.java:731)
+	at org.apache.openjpa.kernel.DelegatingStoreManager.flush(DelegatingStoreManager.java:131)
+	at org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:2139)
+	at org.apache.openjpa.kernel.BrokerImpl.flushSafe(BrokerImpl.java:2037)
+	at org.apache.openjpa.kernel.BrokerImpl.beforeCompletion(BrokerImpl.java:1955)
+	... 8 more
+Caused by: java.lang.reflect.InvocationTargetException
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.apache.openjpa.lib.jdbc.DelegatingConnection.invokeJDBC3(DelegatingConnection.java:593)
+	... 28 more
+Caused by: java.sql.SQLException: The driver does not support this function.
+	at com.ibm.as400.access.JDError.throwSQLException(JDError.java:415)
+	at com.ibm.as400.access.AS400JDBCConnection.prepareStatement(AS400JDBCConnection.java:2210)
+	... 33 more
+
+
+
+I have the following in persistence.xml
+...
+<property name="openjpa.jdbc.DBDictionary" value="db2"/> 
+<property name="openjpa.ConnectionDriverName" value="com.ibm.as400.access.AS400JDBCDriver"/>
+<property name="openjpa.ConnectionURL" value="jdbc:as400://myserver/myschema"/>
+...
+
+
+In Version 1.2.3 this function works fine.
+
+
+Thank you,
+Andreas Tomik

@@ -1,0 +1,3 @@
+The hash values returned by RecordId.hashCode() are constructed by performing bitwise xor on the 32 least significant bits of the record number, the page number, the container id and the segment id. Since all of these values tend to be relatively small positive integers, the hash values also tend to be clustered in a very small range. This leads to a higher frequency of hash collisions in the lock table, which makes the hash tables work less efficiently and thereby reduces the performance.
+
+As an example, the simple join load in the test client attached to DERBY-1961 uses two tables, TENKTUP and ONEKTUP, with 10000 rows and 1000 rows, respectively. The RecordIds for these 11000 rows map to less than 900 distinct hash codes.

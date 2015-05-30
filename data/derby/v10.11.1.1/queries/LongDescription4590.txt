@@ -1,0 +1,37 @@
+With both the embedded and network client drivers, it is possible to create a file-system database and drop it, if you put it in a directory named "memory". 
+
+I found this out by accident when I accidentally typed "memory/mydb" instead of "memory:mydb" to create an in-memory database.
+
+If you call the directory something other than "memory", you can't drop the db:
+
+ij> connect 'jdbc:derby://localhost:1527/subdir/mycdb;create=true';
+ij> create table t(c int);
+0 rows inserted/updated/deleted
+ij> connect 'jdbc:derby://localhost:1527/subdir/mycdb;drop=true';
+ERROR XBM0I: DERBY SQL error: SQLCODE: -1, SQLSTATE: XBM0I, SQLERRMC: Directory subdir/mycdb cannot be removed.
+
+But if you do exactly the same thing specifying "memory", the drop succeeds:
+
+ij> connect 'jdbc:derby://localhost:1527/memory/mycdb;create=true';
+ij> create table t(c int);
+0 rows inserted/updated/deleted
+ij> connect 'jdbc:derby://localhost:1527/memory/mycdb;drop=true';
+ERROR 08006: DERBY SQL error: SQLCODE: -1, SQLSTATE: 08006, SQLERRMC: Database 'memory/mycdb' dropped.
+
+When you do this, the "memory" directory continues to exist, but the database directory under it is removed.
+
+Here are similar examples using the embedded driver:
+
+ij>  connect 'jdbc:derby:subdir/mydb;create=true';
+ij> create table t(c int);
+0 rows inserted/updated/deleted
+ij> connect 'jdbc:derby:subdir/mydb;drop=true';
+ERROR XBM0I: Directory subdir/mydb cannot be removed.
+
+ij> connect 'jdbc:derby:memory/mydb;create=true';
+ij> create table t(c int);
+0 rows inserted/updated/deleted
+ij> connect 'jdbc:derby:memory/mydb;drop=true';
+ERROR 08006: Database 'memory/mydb' dropped.
+
+Some part of Derby seems to think you actually created an in-memory database, although you did not.

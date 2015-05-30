@@ -1,0 +1,34 @@
+1)
+startSlave and startMaster done.
+2)
+Insert on master:
+ insert into t values (200,'200'),(201,'201'),(202,'202'),(203,'203'),(204,'204');
+
+Slave derby.log get:
+--------  BEGIN REPLICATION ERROR MESSAGE ---------
+Replication slave got a fatal error for database 'test'. Replication will be stopped.
+ERROR XRE05: The log received from the master is not in synch with the local log for replicated database 'test'. The received log instant is 4,295,058,963, whereas the local instant is 4,294,986,347. This is FATAL for replication - replication will be stopped.
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:341)
+	at org.apache.derby.impl.services.replication.slave.SlaveController$SlaveLogReceiverThread.handleLogChunk(SlaveController.java:532)
+	at org.apache.derby.impl.services.replication.slave.SlaveController$SlaveLogReceiverThread.run(SlaveController.java:464)
+
+---------  END REPLICATION ERROR MESSAGE ----------
+
+Master derby.log: no change.
+
+3)
+stopMaster:
+Master derby.log:
+Replication master role stopped for database 'null'.
+
+
+Slave derby.log: no change.
+I.e. slave has not got "stopSlave" from master.
+
+4)
+Thus: Slave:
+CONNECT 'jdbc:derby://atum11:9999/test';
+ERROR 08004: DERBY SQL error: SQLCODE: -1, SQLSTATE: 08004, SQLERRMC: Connection refused to database 'test' because it is in replication slave mode.
+
+
+Looks like after 2) master-slave communication is lost. But according to 4) slave still thinks it has connection to master?

@@ -1,0 +1,37 @@
+MappingTool got NullPointerException in DB2Dictionary.isDB2ZOSV8xOrLater()
+As reported by Amy :
+java.lang.NullPointerException
+    at
+org.apache.openjpa.jdbc.sql.DB2Dictionary.isDB2ZOSV8xOrLater(DB2Dictionary.java:392)
+
+    at
+org.apache.openjpa.jdbc.sql.DB2Dictionary.createIndexIfNecessary(DB2Dictionary.java:784)
+
+    at
+org.apache.openjpa.jdbc.kernel.TableJDBCSeq.addSchema(TableJDBCSeq.java:244)
+
+    at
+org.apache.openjpa.jdbc.meta.MappingTool.addSequenceComponents(MappingTool.java:609)
+
+    at
+org.apache.openjpa.jdbc.meta.MappingTool.addSequenceComponents(MappingTool.java:591)
+
+    at
+org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:477)
+    at org.apache.openjpa.jdbc.meta.MappingTool.run(MappingTool.java:1075)
+    at
+org.apache.openjpa.jdbc.ant.MappingToolTask.executeOn(MappingToolTask.java:197)
+
+    at
+org.apache.openjpa.lib.ant.AbstractTask.execute(AbstractTask.java:172)
+    at org.apache.tools.ant.UnknownElement.execute(UnknownElement.java:275)
+
+    at org.apache.tools.ant.Task.perform(Task.java:364)
+    at org.apache.tools.ant.taskdefs.Sequential.execute(Sequential.java:64)
+
+    at org.apache.tools.ant.UnknownElement.execute(UnknownElement.java:275)
+
+    at org.apache.tools.ant.Task.perform(Task.java:364)
+
+The scenario is using the ant task of MappingTool to build schema
+for some JDO classes.

@@ -1,0 +1,14 @@
+General requirement is to extend the Table Functions java interface (through RestrictedVTI or another interface) and pass more context information from Derby to Table Functions - esp in query execution phase.
+
+Greater urgency is required for the first 2 items below, especially the ability to access the original SQL which was available with VTIs. This is critical to the GaianDB project - we extract HINTs from the query (where we pass meta data like user credentials), and also extract full original complex predicate expressions (involving functions etc - which cannot be expressed with a Restriction) - to push on in our query prorogation...
+
+In order of importance + simplicity:
+--------------------------------------------------
+1 - Original SQL (this used to be available with VTIs through VTIEnvironment for both compilation and execution phases)
+2 - Name of function that was called
+
+3 - User Info (ID, etc) - (this can currently be passed in the SQL hint)
+4 - Richer predicate expressions (incl functions, etc)
+5 - Context within Join query (e.g. inner or outer table, join type)
+6 - Other Query Plan information
+7 - Anything else...?

@@ -1,0 +1,8 @@
+While waiting for a Java module system (aka project Jigsaw), it has been decided to define a few subsets of the Java SE Platform Specification, cf JEP 161 ( http://openjdk.java.net/jeps/161).
+
+A quote from the JEP: "More broadly, this feature is intended to enable the migration of applications currently built on top of the Java ME Connected Device Configuration (CDC) to appropriate Profiles of the Java SE Platform, part of the long-term effort to converge CDC with Java SE."
+
+It would be good if we make Derby to run on such limited profiles. The current proposal places JDBC in Compact Profile 2 (cf. link above), while other libraries used by Derby, e.g. javax.naming (JNDI) are in Profile 3 (larger).
+
+It would be good if Derby could run on the smallest posible platform, i.e. Profile 2, but that will probably involve some changes to make Derby gracefully limit functionality when some libraries are missing.
+

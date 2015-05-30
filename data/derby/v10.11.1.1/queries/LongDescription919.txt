@@ -1,0 +1,20 @@
+The current junit tests cannot be run directly from the java.ui.textrunner by i.e using:
+java junit.textui.TestRunner org.apache.derbyTesting.functionTests.tests.junitTests.lang.BooleanTest
+.E
+Time: 0.008
+There was 1 error:
+1) testBoolean(org.apache.derbyTesting.functionTests.tests.junitTests.lang.BooleanTest)java.lang.NullPointerException
+        at org.apache.derbyTesting.functionTests.util.DerbyJUnitTest.faultInDriver(DerbyJUnitTest.java:317)
+        at org.apache.derbyTesting.functionTests.util.DerbyJUnitTest.getConnection(DerbyJUnitTest.java:345)
+        at org.apache.derbyTesting.functionTests.util.DerbyJUnitTest.getConnection(DerbyJUnitTest.java:335)
+        at org.apache.derbyTesting.functionTests.tests.junitTests.lang.BooleanTest.testBoolean(BooleanTest.java:136)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+
+FAILURES!!!
+Tests run: 1,  Failures: 0,  Errors: 1
+
+The reason is that the tests needs to have some fixture being set up before the test can run, and that this is currently supported by calling a bunch of static methods in the correct order to initialize some static members of DerbyJUnitTest.
+
+The proposed alternative is that the added fixture is set up in the suite() method, which is used by JUnit to get the Test object to be run.

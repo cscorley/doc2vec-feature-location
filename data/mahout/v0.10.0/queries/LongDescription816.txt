@@ -1,0 +1,34 @@
+Not sure it this is related, but sounds similar. I can't run more than one power iteration, ie q=2 produces
+
+11/09/21 11:25:46 INFO mapred.LocalJobRunner: reduce > reduce
+11/09/21 11:25:46 INFO mapred.Task: Task 'attempt_local_0004_r_000000_0' done.
+11/09/21 11:25:50 INFO mapred.JobClient: Cleaning up the staging area file:/tmp/hadoop-nathanhalko/mapred/staging/nathanhalko-200181280/.staging/job_local_0005
+Exception in thread "main" org.apache.hadoop.mapred.FileAlreadyExistsException: Output directory temp/ABt-job-1 already exists
+at org.apache.hadoop.mapreduce.lib.output.FileOutputFormat.checkOutputSpecs(FileOutputFormat.java:134)
+at org.apache.hadoop.mapred.JobClient$2.run(JobClient.java:830)
+at org.apache.hadoop.mapred.JobClient$2.run(JobClient.java:791)
+at java.security.AccessController.doPrivileged(Native Method)
+at javax.security.auth.Subject.doAs(Subject.java:396)
+at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1059)
+at org.apache.hadoop.mapred.JobClient.submitJobInternal(JobClient.java:791)
+at org.apache.hadoop.mapreduce.Job.submit(Job.java:465)
+at org.apache.mahout.math.hadoop.stochasticsvd.ABtJob.run(ABtJob.java:454)
+at org.apache.mahout.math.hadoop.stochasticsvd.SSVDSolver.run(SSVDSolver.java:312)
+at org.apache.mahout.math.hadoop.stochasticsvd.SSVDCli.run(SSVDCli.java:118)
+at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:65)
+at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:79)
+at org.apache.mahout.math.hadoop.stochasticsvd.SSVDCli.main(SSVDCli.java:163)
+at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+at java.lang.reflect.Method.invoke(Method.java:597)
+at org.apache.hadoop.util.ProgramDriver$ProgramDescription.invoke(ProgramDriver.java:68)
+at org.apache.hadoop.util.ProgramDriver.driver(ProgramDriver.java:139)
+at org.apache.mahout.driver.MahoutDriver.main(MahoutDriver.java:188)
+at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+at java.lang.reflect.Method.invoke(Method.java:597)
+at org.apache.hadoop.util.RunJar.main(RunJar.java:156)
+
+for q=0,1 everything works fine. I am running with --overwrite and I rm -rf the temp dir before running.

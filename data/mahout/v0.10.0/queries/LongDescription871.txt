@@ -1,0 +1,42 @@
+The bin/mahout "lda" job throw an exception. It seems to be reading the _SUCCESS file in from the seq2sparse output, but of course _SUCCESS files are empty.
+
+------------------------------
+
+11/11/03 15:09:01 INFO common.HadoopUtil: Deleting /tmp/mahout-work-lancenorskog/reuters-out-seqdir-sparse-lda/partial-vectors-0
+11/11/03 15:09:01 INFO driver.MahoutDriver: Program took 60008 ms (Minutes: 1.0001333333333333)
++ ../../bin/mahout lda -i /tmp/mahout-work-lancenorskog/reuters-out-seqdir-sparse-lda/tf-vectors -o /tmp/mahout-work-lancenorskog/reuters-lda -k 20 -ow -x 20
+MAHOUT_LOCAL is not set; adding HADOOP_CONF_DIR to classpath.
+no HADOOP_HOME set, running locally
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/Users/lancenorskog/svn/training/lucid/mahout/labs/tools/mahout/examples/target/mahout-examples-0.6-SNAPSHOT-job.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/Users/lancenorskog/svn/training/lucid/mahout/labs/tools/mahout/examples/target/dependency/slf4j-jcl-1.6.1.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/Users/lancenorskog/svn/training/lucid/mahout/labs/tools/mahout/examples/target/dependency/slf4j-log4j12-1.6.1.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+11/11/03 15:09:04 INFO common.AbstractJob: Command line arguments: {--endPhase=2147483647, --input=/tmp/mahout-work-lancenorskog/reuters-out-seqdir-sparse-lda/tf-vectors, --maxIter=20, --numTopics=20, --output=/tmp/mahout-work-lancenorskog/reuters-lda, --overwrite=null, --startPhase=0, --tempDir=temp, --topicSmoothing=-1.0}
+Exception in thread "main" java.lang.IllegalStateException: file:/tmp/mahout-work-lancenorskog/reuters-out-seqdir-sparse-lda/tf-vectors/_SUCCESS
+       at org.apache.mahout.common.iterator.sequencefile.SequenceFileDirValueIterator$1.apply(SequenceFileDirValueIterator.java:82)
+       at org.apache.mahout.common.iterator.sequencefile.SequenceFileDirValueIterator$1.apply(SequenceFileDirValueIterator.java:73)
+       at com.google.common.collect.Iterators$8.next(Iterators.java:765)
+       at com.google.common.collect.Iterators$5.hasNext(Iterators.java:526)
+       at com.google.common.collect.ForwardingIterator.hasNext(ForwardingIterator.java:43)
+       at org.apache.mahout.clustering.lda.LDADriver.determineNumberOfWordsFromFirstVector(LDADriver.java:204)
+       at org.apache.mahout.clustering.lda.LDADriver.run(LDADriver.java:164)
+       at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:65)
+       at org.apache.mahout.clustering.lda.LDADriver.main(LDADriver.java:90)
+       at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+       at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+       at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+       at java.lang.reflect.Method.invoke(Method.java:597)
+       at org.apache.hadoop.util.ProgramDriver$ProgramDescription.invoke(ProgramDriver.java:68)
+       at org.apache.hadoop.util.ProgramDriver.driver(ProgramDriver.java:139)
+       at org.apache.mahout.driver.MahoutDriver.main(MahoutDriver.java:188)
+Caused by: java.io.EOFException
+       at java.io.DataInputStream.readFully(DataInputStream.java:180)
+       at java.io.DataInputStream.readFully(DataInputStream.java:152)
+       at org.apache.hadoop.io.SequenceFile$Reader.init(SequenceFile.java:1450)
+       at org.apache.hadoop.io.SequenceFile$Reader.<init>(SequenceFile.java:1428)
+       at org.apache.hadoop.io.SequenceFile$Reader.<init>(SequenceFile.java:1417)
+       at org.apache.hadoop.io.SequenceFile$Reader.<init>(SequenceFile.java:1412)
+       at org.apache.mahout.common.iterator.sequencefile.SequenceFileValueIterator.<init>(SequenceFileValueIterator.java:51)
+       at org.apache.mahout.common.iterator.sequencefile.SequenceFileDirValueIterator$1.apply(SequenceFileDirValueIterator.java:77)
+       ... 15 more

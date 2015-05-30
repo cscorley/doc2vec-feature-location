@@ -1,0 +1,5 @@
+FileDataSource should make openStream method protected so we can extend FileDataSource for other File types such as GZip, by controlling the underlying InputStreamReader implementation being returned.
+
+FileListEntityProcessor needs to aggregate a list of files that were processed and expose that list in an accessible way so that further processing on that file list can be done in the close method.  For example, deletion or archiving.
+
+Another improvement would be that in the event of an indexing rollback event, processing of the close method either does not occur, or the close method is allowed access to that event, to prevent processing within the close method if necessary.

@@ -1,0 +1,5 @@
+While working on a test case, i realized that due to method evolution, TestHarness.LocalRequestFactory.makeRequest has some really odd behavior that results in the "defaults" the factory was configured with being ignored when the method is called with multiple varargs.
+
+I spent some time attempting to "fix" this by adding the defaults to the end of the params, but then discovered that this breaks existing tests because the LRF defaults take precedence over defaults that may be hardcoded into the solrconfig.xml.  The internal test might be changed to work arround this, but i didn't want to risk breaking tests for users who might be using TestHarness directly.
+
+So this bug is just to track improving the documentation of what exactly LRF.makeRequest does with it's input

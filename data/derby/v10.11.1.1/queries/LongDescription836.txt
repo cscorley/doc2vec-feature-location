@@ -1,0 +1,24 @@
+DECIMAL(10,0)
+max display width value:   -1234567890  length 11
+embedded : 11 correct
+client: 12 WRONG
+
+DECIMAL(10,10)
+max display width value:   -0.1234567890  length 13
+embedded : 13 correct
+client: 12 WRONG
+
+DECIMAL(10,2)
+max display width value:   -12345678.90  length 12
+embedded : 13 WRONG
+client: 12 correct
+
+I've added output early on in jdbcapi/metadata_test.java (and hence the tests metadata.jar and odbc_metadata.java) to show this issue:
+E.g. for embedded
+DECIMAL(10,0) – precision: 10 scale: 0 display size: 12 type name: DECIMAL
+DECIMAL(10,10) – precision: 10 scale: 10 display size: 12 type name: DECIMAL
+DECIMAL(10,2) – precision: 10 scale: 2 display size: 12 type name: DECIMAL
+
+I will add this test output once DERBY-829 is fixed so as not to cause conflicts.
+
+

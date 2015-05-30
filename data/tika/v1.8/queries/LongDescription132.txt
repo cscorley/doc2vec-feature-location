@@ -1,0 +1,7 @@
+In the excel record stream, hyperlink records come at the end of the sheet, after the cell value records. This is a problem for the current streaming implementation of the excel parser since it means the hyperlink cannot be output when a cell is being processed.
+
+Jukka suggested the following on the mailing list:
+
+"How about if the streaming Excel parser maintained a sparse in-memory table of the contents of the sheet that is currently being parsed and would only generate the respective SAX events once the sheet has been parsed? Since we can focus on only the information that's relevant to Tika clients, the memory requirements sould be moderate even for huge sheets (i.e. much less than the file size even for a single-sheet file). This should satisfy the low memory footprint requirements reasonably well while allowing us to generate more accurate output."
+
+See here: http://tika.markmail.org/message/ac3kgujkcrgqyb4i

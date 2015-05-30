@@ -1,0 +1,23 @@
+I know that parsing a ms access file (*.mdb) is not supported since there is not parser for it, but I think it should not throw an exception. 
+Currently when parsing a mdb file it is being recognized as a true font file. The TrueTypeParser throws an parser specific error when encountering a mdb file.
+
+Stacktrace:
+Exception in thread "main" org.apache.tika.exception.TikaException: TIKA-198: Illegal IOException from org.apache.tika.parser.font.TrueTypeParser@6906daba
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:203)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:197)
+	at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:135)
+	at org.apache.tika.cli.TikaCLI$OutputType.process(TikaCLI.java:94)
+	at org.apache.tika.cli.TikaCLI.process(TikaCLI.java:273)
+	at org.apache.tika.cli.TikaCLI.main(TikaCLI.java:80)
+Caused by: java.io.IOException: Unexpected end of TTF stream reached
+	at org.apache.fontbox.ttf.TTFDataStream.read(TTFDataStream.java:217)
+	at org.apache.fontbox.ttf.TTFDataStream.readString(TTFDataStream.java:69)
+	at org.apache.fontbox.ttf.TTFDataStream.readString(TTFDataStream.java:57)
+	at org.apache.fontbox.ttf.AbstractTTFParser.readTableDirectory(AbstractTTFParser.java:214)
+	at org.apache.fontbox.ttf.AbstractTTFParser.parseTTF(AbstractTTFParser.java:85)
+	at org.apache.fontbox.ttf.TTFParser.parseTTF(TTFParser.java:26)
+	at org.apache.fontbox.ttf.AbstractTTFParser.parseTTF(AbstractTTFParser.java:66)
+	at org.apache.fontbox.ttf.TTFParser.parseTTF(TTFParser.java:26)
+	at org.apache.tika.parser.font.TrueTypeParser.parse(TrueTypeParser.java:63)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:197)
+	... 5 more

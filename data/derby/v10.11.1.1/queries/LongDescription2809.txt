@@ -1,0 +1,11 @@
+Some unary operator nodes with a parameter can be assigned incorrect types during bind time, for example SQRT can become a BOOLEAN expression.
+
+This statement compiles successfully when it should be rejected as SQRT() is not a boolean function.
+
+ij> values case when sqrt then 3 else 4 end;
+ERROR 07000: At least one parameter to the current statement is uninitialized.
+
+When a constant is used the correct binding happens.
+
+ij> values case when sqrt(9.0) then 3 else 4 end;
+ERROR 42X88: A conditional has a non-Boolean operand. The operand of a conditional must evaluate to TRUE, FALSE, or UNKNOWN.

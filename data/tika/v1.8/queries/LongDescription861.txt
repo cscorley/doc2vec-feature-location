@@ -1,0 +1,23 @@
+Currently the XHTML doesn't contain links, although PDFBox parses them. I'm new to Tika and haven't done java for 6 years, but someone more experienced could probably do this in a few hours. 
+
+The PDF2XHTML method loops through the annotations. 
+
+See: 
+
+
+136: for(Object o : page.getAnnotations()) {
+
+
+
+ I found some code for dealing with links in annotations:
+http://stackoverflow.com/questions/7174709/pdfbox-not-recognizing-a-link
+
+It involves checking the class. 
+
+
+if( annotation instanceof PDAnnotationLink ) {
+                PDAnnotationLink link = (PDAnnotationLink)annotation;
+
+
+
+I hope this helps someone.

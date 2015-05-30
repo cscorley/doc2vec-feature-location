@@ -1,0 +1,5 @@
+While processing a persistence-unit definition in persistence.xml requested by an invocation of PersistenceProvider.createEntityManagerFactory(), validation of elements such as <jar-file> take place during the execution of the SAXParser.  If an entry named by the element does not exist, a GeneralException originating from the SAXException fails the createEMF() operation – the expected and correct behavior in such a situation.
+
+However, this validation occurs before OpenJPA checks to see if it is the JPA Provider requested by the Application.  This means that OpenJPA throws this Exception regardless to the fact that the PU may have defined a <persistence> element requesting a JPA provider other then OpenJPA – instead of returning the expected null value as expected by the contract.
+
+Thus, there needs to be a change where the first item validated is the requested provider, immediately returning null as per JPA Spec contract if OpenJPA is not the requested provider.  This would cause the error in the scenario described above to be reported by the requested JPA provider, instead of short-circuiting the process as can happen currently.

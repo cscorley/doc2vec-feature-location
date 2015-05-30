@@ -1,0 +1,3 @@
+When deployed in an OSGi container, calling new Tika() will dynamically load all available Parser and Detector services. This works fine for the typical use case where the facade instance is only used for a single specific task (parsing a single document, etc.).
+
+However, if a client instead uses a singe, long-lived Tika instance, the list of referenced services never gets updated even if the set of services in the container changes over time. To address this problem we should make Tika reload the set of available services each time they're needed. The performance overhead of doing this should be minimal compared to the typical parsing or type detection tasks.

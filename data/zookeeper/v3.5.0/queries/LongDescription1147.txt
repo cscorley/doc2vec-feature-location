@@ -1,0 +1,20 @@
+This improvement is in the bucket of making ZooKeeper work at a large scale. We are planning on having about a 1 million clients connect to a ZooKeeper ensemble through a set of 50-100 observers. Majority of these clients are read only - ie they do not do any updates or create ephemeral nodes.
+
+In ZooKeeper today, the client creates a session and the session creation is handled like any other update. In the above use case, the session create/drop workload can easily overwhelm an ensemble. The following is a proposal for a "local session", to support a larger number of connections.
+
+1.       The idea is to introduce a new type of session - "local" session. A "local" session doesn't have a full functionality of a normal session.
+2.       Local sessions cannot create ephemeral nodes.
+3.       Once a local session is lost, you cannot re-establish it using the session-id/password. The session and its watches are gone for good.
+4.       When a local session connects, the session info is only maintained on the zookeeper server (in this case, an observer) that it is connected to. The leader is not aware of the creation of such a session and there is no state written to disk.
+5.       The pings and expiration is handled by the server that the session is connected to.
+
+With the above changes, we can make ZooKeeper scale to a much larger number of clients without making the core ensemble a bottleneck.
+
+In terms of API, there are two options that are being considered
+1. Let the client specify at the connect time which kind of session do they want.
+2. All sessions connect as local sessions and automatically get promoted to global sessions when they do an operation that requires a global session (e.g. creating an ephemeral node)
+
+Chubby took the approach of lazily promoting all sessions to global, but I don't think that would work in our case, where we want to keep sessions which never create ephemeral nodes as always local. Option 2 would make it more broadly usable but option 1 would be easier to implement.
+
+We are thinking of implementing option 1 as the first cut. There would be a client flag, IsLocalSession (much like the current readOnly flag) that would be used to determine whether to create a local session or a global session.
+

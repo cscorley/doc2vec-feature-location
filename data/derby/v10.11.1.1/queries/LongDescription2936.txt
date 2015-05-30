@@ -1,0 +1,9 @@
+org.apache.derby.impl.drda.DDMWriter uses a byte array as a buffer. Wrapping the array in a java.nio.ByteBuffer has some advantages, for instance:
+
+
+	utility methods for encoding primitive types into the byte array could be used instead of manually encoding the values
+	it allows us to encode strings directly into the buffer (using a CharsetEncoder) without doing an expensive String.getBytes(String encoding) in an intermediate step
+
+
+
+By using a utility class, the code becomes easier to maintain. Also, ByteBuffer allows us to access the backing byte array without going through the ByteBuffer interface, so we still have the possibility to modify the byte array directly in cases where that's more convenient.

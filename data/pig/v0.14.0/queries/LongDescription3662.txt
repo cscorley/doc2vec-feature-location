@@ -1,0 +1,34 @@
+I came a cross this issue when testing PIG-3642. Consider the following two testcases from TestEvalPipeline2 executed in local mode:
+testBinStorageByteCast:
+
+
+A = load 'table_testBinStorageByteCast' as (a0, a1, a2);
+store A into 'table_testBinStorageByteCast.temp' using BinStorage();
+A = load 'table_testBinStorageByteCast.temp' using BinStorage() as (a0, a1, a2);
+B = foreach A generate (long)a0;
+dump B;
+
+
+
+testBinStorageByteArrayCastsSimple:
+
+
+A = load 'table_bs_ac';
+store A into 'TestEvalPipeline2_BinStorageByteArrayCasts' using
+  org.apache.pig.builtin.BinStorage();
+B = load 'TestEvalPipeline2_BinStorageByteArrayCasts'  using 
+  BinStorage('Utf8StorageConverter') as (name: int, age: int, gpa: float, 
+lage: long, dgpa: double); 
+dump B;
+
+
+
+The first testcase should fail (same example at: http://pig.apache.org/docs/r0.12.0/func.html#binstorage) while the second one should pass.
+When I run only testBinStorageByteArrayCastsSimple there's no problem, but when it runs after testBinStorageByteCast, it fails with the same exception as testBinStorageByteArrayCastsSimple :
+java.lang.Exception: org.apache.pig.backend.executionengine.ExecException: ERROR 1118: Cannot cast bytes loaded from BinStorage. Please provide a custom converter.
+
+Reason:
+When 'table_testBinStorageByteCast.temp' is loaded, BinStorage#getLoadCaster() sets UnImplementedLoadCaster since casterString is not defined. This causes the exception when BinStorage#bytesToLong() is called during the cast of a0 which is correct. Now move on to the next testcase where 'TestEvalPipeline2_BinStorageByteArrayCasts' is loaded. We expect BinStorage to use Utf8StorageConverter as a loadcaster but it will use UnImplementedLoadCaster instead, which results in an exception. It's because caster and casterString are static variables in BinStorage, however these are set and accessed like instance variables. Therefore, when BinStorage('Utf8StorageConverter') gets instantiated, it will contain the already initialized caster from the previous run. BinStorage#getLoadCaster() will just return this instead of instantiating Utf8StorageConverter from the provided constructor parameter.
+
+Are caster and casterString just by accident static? If so, I'd address this issue with the patch attached.
+

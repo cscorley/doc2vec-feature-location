@@ -1,0 +1,31 @@
+WorkerThread failed with this exception:
+
+ERROR 40XD1: Container was opened in read-only mode.
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:276)
+	at org.apache.derby.impl.store.raw.data.BaseContainer.use(BaseContainer.java:562)
+	at org.apache.derby.impl.store.raw.data.BaseContainerHandle.useContainer(BaseContainerHandle.java:834)
+	at org.apache.derby.impl.store.raw.data.BaseDataFileFactory.openContainer(BaseDataFileFactory.java:773)
+	at org.apache.derby.impl.store.raw.data.BaseDataFileFactory.openContainer(BaseDataFileFactory.java:589)
+	at org.apache.derby.impl.store.raw.xact.Xact.openContainer(Xact.java:1316)
+	at org.apache.derby.impl.store.access.btree.OpenBTree.init(OpenBTree.java:382)
+	at org.apache.derby.impl.store.access.btree.BTreeController.init(BTreeController.java:1225)
+	at org.apache.derby.impl.store.access.btree.index.B2IController.init(B2IController.java:140)
+	at org.apache.derby.impl.store.access.btree.index.B2I.open(B2I.java:824)
+	at org.apache.derby.impl.store.access.RAMTransaction.openConglomerate(RAMTransaction.java:476)
+	at org.apache.derby.impl.store.access.RAMTransaction.openCompiledConglomerate(RAMTransaction.java:1293)
+	at org.apache.derby.impl.sql.execute.IndexChanger.openIndexCC(IndexChanger.java:507)
+	at org.apache.derby.impl.sql.execute.IndexChanger.insertAndCheckDups(IndexChanger.java:438)
+	at org.apache.derby.impl.sql.execute.IndexChanger.doInsert(IndexChanger.java:383)
+	at org.apache.derby.impl.sql.execute.IndexChanger.insert(IndexChanger.java:590)
+	at org.apache.derby.impl.sql.execute.IndexSetChanger.insert(IndexSetChanger.java:268)
+	at org.apache.derby.impl.sql.execute.RowChangerImpl.insertRow(RowChangerImpl.java:453)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.normalInsertCore(InsertResultSet.java:999)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.open(InsertResultSet.java:519)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:436)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:317)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1242)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeStatement(EmbedPreparedStatement.java:1686)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeUpdate(EmbedPreparedStatement.java:308)
+	at org.apache.derbyTesting.functionTests.tests.store.InterruptResilienceTest$WorkerThread.run(InterruptResilienceTest.java:449)
+
+I was testing a patch for DERBY-4620 (estimate-sizes.diff), but I think the failure isn't related to those changes.

@@ -1,0 +1,12 @@
+ClientBase#createNewServerInstance() - Say the startup of the server fails, this will not initialize 'serverFactory' and will be null. When the flow comes to teardown/shutdown, it will bypass stopping of this server instance due to the following check. This will affect other test case verifications like, jmx check 'JMXEnv#ensureOnly'.  
+
+ClientBase#shutdownServerInstance
+
+
+    static void shutdownServerInstance(ServerCnxnFactory factory,
+            String hostPort)
+    {
+        if (factory != null) {
+           //...shutdown logic
+        }
+

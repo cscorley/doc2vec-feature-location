@@ -1,0 +1,7 @@
+DERBY-1245-collateraldamage-v1.patch fixes a little bug in o.a.d.client.am.ClobWriter.java's write(int c) method.
+In it's original implementation the int parameter was passed directly to the StringBuffer.append() method, resulting 
+in the int being converted to it's string representation and then appended. (i.e. passing the char 'a' to write(int c) 
+would append the string "97" to the StringBuffer and thus the Clob. 97 is the ASCII code for the character 'a'.) 
+
+Please note that the patch is attached to DERBY-1245, as that was the Jira issue I was working on when I discovered
+ this. This issue is a placeholder of sorts. =)

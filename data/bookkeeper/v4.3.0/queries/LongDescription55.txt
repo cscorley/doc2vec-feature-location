@@ -1,0 +1,3 @@
+For channelDisconnected envent, we try to automatically recover the connection and subscription. But when users call HedwigSubscriber.subscribe() at the same time, it might succeed before the auto recovery. Then the auto recovery can never succeed as the server will report topic busy failure. Then the SubscribeReconnectRetryTask will retry again and again endlessly. We found this in our auto test.
+
+Fix is easy, we just need to firstly check if the channel for this topic and subscribe id is null, if not it means some subscription is already created before, we don't need to bother recover.

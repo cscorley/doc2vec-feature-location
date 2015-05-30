@@ -1,0 +1,3 @@
+Currently when PCEnhancer is called to enhance an Entity that was previous enhanced it will simply noop and move on. It could be smarter and use the PersistenceCapable.pcGetEnhancementContractVersion to detect and when an Entity has been enhanced with an older version of the enhancer and log a warning message. A similar change would also need to be made to PCClassFileTransformer.needsEnhance to perform the same sort of logic at runtime.
+
+This would be particularly helpful in the case where an application was compiled/enhanced/packaged and a bug was fixed in the enhancer but the pre-packaged app still has the bad bytecode.

@@ -1,0 +1,14 @@
+The api  JobStats.getHadoopCounters() always returns null since the instance variable returned from the method ("counters") is never set.
+
+
+PigStats stats = PigRunner.run(args, null);
+PigStats.JobGraph jobGraph = stats.getJobGraph();
+		
+for (JobStats jobStats :  jobGraph) {
+   Counters counters = jobStats.getHadoopCounters();
+   System.out.println(counters);// prints null
+}
+
+
+But of course I can get individual counter information through the other APIs (getHdfsBytesWritten(),getMapInputRecords() etc).
+I guess the change came in as part of PIG-1389 (the instance variable got replaced with method local variable in JobStats.addCounters).

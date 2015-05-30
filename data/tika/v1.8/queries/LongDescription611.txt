@@ -1,0 +1,10 @@
+As reported on the dev list by  Michael Schmitz :
+
+I don't think the current snapshot is parsing articles (pdfs with columns/beads) correctly.  The text is not in the write order as it intermixes text from different beads.  Try it on an academic paper. http://turing.cs.washington.edu/papers/acl08.pdf
+
+This can be fixed by changing the value of setSortByPosition to false, which is the default value in PDFTextStripper. This line (PDF2XHTML:82) had been added as part of the commit rev 1029510, see https://issues.apache.org/jira/browse/TIKA-446?focusedCommentId=12926787&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-12926787
+
+Ideally we could specify what value to set for these parameters via the Context object, but for the time being wouldn't it make sense to set setSortByPosition to the default value of false? I think that this would be the best option for most cases where docs have columns.
+
+
+

@@ -1,0 +1,25 @@
+This new feature would add a new overloaded assign function to (Dense)Vector/(Dense)Matrix, that allows to assign the content of another (Dense)Vector / (Dense)Matrix by overwriting the content of the internal double array. Compared to using .clone(), this feature would reduce the number of memory allocations. 
+
+For example in case of an iterative algorithm, that needs to check for convergence;
+Convergence check using .clone()
+
+Densematrix newMatrix = oldMatrix.clone();
+while(!converged)
+{
+    // perform iteration computation on newMatrix
+    converged=checkConvergence(newMatrix,oldMatrix);
+    oldMatrix = newMatrix.clone(); // results in memory allocation
+}
+
+
+
+Convergence check using .assign(Matrix)
+
+Densematrix newMatrix = oldMatrix.clone();
+while(!converged)
+{
+    // perform iteration computation on newMatrix
+    converged=checkConvergence(newMatrix,oldMatrix);
+    oldMatrix.assign(newMatrix); // no memory allocation
+}
+

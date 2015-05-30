@@ -1,0 +1,16 @@
+The junit tests will occasionally fail on hudson due to a few problems:
+
+1) socket in use - sometimes the code/testcode will fail to close a socket, either that or tcp wait
+ kicks in and the kernel holds onto the socket, either way subsequent tests that use this same
+port will fail
+
+2) sometimes the tests fail to close clients, this results in clients attempting to re-connect to
+the server started as part of a subsequent test (the timeout is very long). this causes a few
+problems, typically extra load on the server or more likely unusual changes to the server that the
+next test(s) don't expect. also causes problems when trying to debug the test as the old clients
+spew messages into the log.
+
+we see this on hudson, occasionally failures. We also saw this when working on ZOOKEEPER-397, the testng
+port. testng does not support "fork mode" for running the tests. as a result all the tests (all) run in a single
+vm instance, start to finish. so this problem is exacerbated significantly in that case. this patch only
+fixes the problem in junit btw, it does not move to testng

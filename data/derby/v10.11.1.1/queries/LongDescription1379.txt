@@ -1,0 +1,8 @@
+When running derbyall on jdk16 the Nist tests fails with the following exception:
+
+  java.security.AccessControlException: access denied
+  (java.util.PropertyPermission user.dir read)
+
+The tests started to fail after autoloading of JDBC drivers was added to the embedded driver (see DERBY-930). 
+
+To reproduce the problem you need (a) to run from jar files (not class files) and (b) have the DB2 driver in the class path.

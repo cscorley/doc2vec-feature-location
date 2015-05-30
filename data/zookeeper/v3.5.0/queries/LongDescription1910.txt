@@ -1,0 +1,5 @@
+Consider a case where zkclient has added 2 data watchers(say 'w1' and 'w2') on '/node1'.
+
+Now user has removed w1, but this is deleting the 'CnxnWatcher' in ZK server against the "/node1" path. This will affect other data watchers(if any) of same client on same path. In our case 'w2' would not be notified.
+
+Note: please see the attached test case to understand more.

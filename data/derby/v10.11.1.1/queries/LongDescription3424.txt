@@ -1,0 +1,13 @@
+JMX in Derby was originally proposed as a mechanism to configure Derby replacing or enhancing the system properties which tend to be static in nature. Thus it is somewhat ironic that jmx is enabled with a static system property derby.system.jmx.
+
+I propose to add a public mbean that allows the state Derby's JMX management to be changed. This bean is not automatically registered by Derby if derby.system.jmx is false, but instead can be registered by an application. I believe this could occur at any time so that JMX could be enabled on a running application, possibly by a remote client.
+
+This standard Mbean (o.a.d.mbeans.Management & ManagementMBean) would have these operations & attribute:
+
+    public boolean isManagementActive();
+    public void startManagement(); 
+    public void stopManagement();
+
+If Derby is not booted within the jvm then the operations would be no-ops.
+
+If derby.system.jmx is true then Derby will itself register an mbean that implements ManagementMBean to allow dynamic control of the visibility of Derby's mbeans.

@@ -1,0 +1,4 @@
+Query 1: select p from Person p ORDER BY p.name
+Query 2: select p, p.name from Person p ORDER BY p.name
+
+Query 1 fails, Query 2 succeeds. The in-memory ordering required for Query 1 in terms needed to extract the ordering value p.name from a Person p. That logic is broken for PCPath (i.e. p.name). Inheritance hierarchy of PCPath was changed (with certain reservation as it went against the norm) to extend kernel.exps.CandidatePath so that in-memory value evaluation logic can be reused. However, the logic for CandidatePath does not work for PCPath because the internal representation of the path vary (Traversal vs. Action) and are unrelated. The result is a class cast exception (thanks to Fernando who tracked the error down).       

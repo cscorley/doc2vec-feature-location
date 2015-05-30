@@ -1,0 +1,14 @@
+Under concurrent access, new Broker construction fails with NPE.
+The observed scenario (when many threads are asking for new Brokers) shows the following:
+
+ Caused by: <openjpa-0.0.0-rnull nonfatal general error> org.apache.openjpa.persistence.PersistenceException: null
+	at org.apache.openjpa.kernel.AbstractBrokerFactory.newBroker(AbstractBrokerFactory.java:206)
+	at org.apache.openjpa.kernel.DelegatingBrokerFactory.newBroker(DelegatingBrokerFactory.java:142)
+	at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:192)
+	at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:145)
+	at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:1)
+Caused by: java.lang.NullPointerException
+	at org.apache.openjpa.kernel.AbstractBrokerFactory.loadPersistentTypes(AbstractBrokerFactory.java:263)
+	at org.apache.openjpa.kernel.AbstractBrokerFactory.newBroker(AbstractBrokerFactory.java:198)
+
+The cause is an uninitialzed instance variable _pcClassLoaders in AbstractBrokerFactory. It is conditionally initialized within loadPersistentTypes() which is invoked during broker creation. Safer option is to intialize this variable on class constructor. 

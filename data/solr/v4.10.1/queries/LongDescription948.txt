@@ -1,0 +1,44 @@
+We should add an easy (reusable) way for a search component to augment/modify the SolrDocuments before they are returned.
+
+This patch adds two functions to SolrPluginUtils:
+
+
+  public static SolrDocumentList docListToSolrDocumentList( 
+      DocList docs, 
+      SolrIndexSearcher searcher, 
+      Set<String> fields, 
+      Map<SolrDocument, Integer> ids ) throws IOException
+  {
+
+
+
+and
+
+
+  public static void addOrReplaceResults(SolrQueryResponse rsp, SolrDocumentList docs) 
+
+
+
+Typical usage may look like this:
+
+
+  public void process(ResponseBuilder builder) throws IOException 
+  {
+    if( you want to ) {
+
+      SolrDocumentList docs = SolrPluginUtils.docListToSolrDocumentList(
+          builder.getResults().docList, 
+          builder.req.getSearcher(), 
+          builder.rsp.getReturnFields(),
+          null );
+
+      for( SolrDocument doc : docs ) {
+        doc.setField( "field", "your field value..."   );
+      }
+      
+      SolrPluginUtils.addOrReplaceResults( builder.rsp, docs );
+    }
+  }
+
+
+

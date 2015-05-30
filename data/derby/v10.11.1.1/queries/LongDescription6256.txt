@@ -1,0 +1,9 @@
+The XmlVTI under derbyDemo has been useful to me for many years. It has become even more useful now that Derby supports varargs. That is because varargs make it very easy to declare an XmlVTI. At this point, I think it is worth re-phrasing the XmlVTI in terms of varargs and moving it into the product so that we can use it for internal table functions. There is no rush to expose XmlVTI as part of Derby's public api, but we could consider doing that if other people find this table function to be useful.
+
+The XmlVTI is a table function which turns an xml file into a tabular data set which you can query via sql. When you declare an XmlVTI, you state the following arguments:
+
+1) The url of an xml file.
+
+2) The name of the element in the xml file which you want to treat as a record or row.
+
+3) The names of the attributes and subelements of that record which you want to treat as columns. Now that we have varargs, it is possible to represent this trailing argument as a variable length argument list.

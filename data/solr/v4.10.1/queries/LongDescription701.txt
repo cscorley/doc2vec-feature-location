@@ -1,0 +1,5 @@
+The ISO8601CanonicalDateFormat class which is defined inside the DateField class doesn't specify the US locale when creating the formatter used for milliseconds. Because of that the following unit tests fail when run with another locale than english:
+org.apache.solr.schema.LegacyDateFieldTest
+org.apache.solr.schema.DateFieldTest
+
+The attached patch resolves this issue.

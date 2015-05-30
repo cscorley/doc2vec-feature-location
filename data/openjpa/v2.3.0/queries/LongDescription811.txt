@@ -1,0 +1,8 @@
+An entity has a field defined as follows:
+
+@Column(nullable=false)
+private Object  nonNullableObject;
+
+Using Oracle, it is possible to set the value of this column to null. OpenJPA will not complain, but will instead store whatever is returned by oracle.sql.BLOB.empty_lob().
+
+An exception should be thrown instead, because the field has been defined as non-nullable.

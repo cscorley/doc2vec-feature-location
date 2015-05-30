@@ -1,0 +1,8 @@
+There is following code in line 101:
+
+              } else if (random.nextInt(currentSize + 1) != 0) { // with chance 1/(currentSize+1) pick new element
+
+but it actually means pick new element with chance currentSize/(currentSize+1)
+so generator takes initial centers from the end of source data file.
+
+It seems that chance of replace vector in output set should decrease with number of processed input vectors

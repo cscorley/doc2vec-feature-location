@@ -1,0 +1,12 @@
+If an application does the following:
+
+rs.updateInt(1, newValueCol1);
+rs.updateRow();
+rs.updateInt(2, newValueCol2);
+rs.cancelRowUpdates();
+
+Then, when calling rs.getInt(1), it will return the old value. Instead it should return the new value.
+
+Workaround: after calling rs.updateRow(), the application could call rs.relative(0).
+
+This problem does not affect forward only resultsets, since after an updateRow() they get positoned before the next row, leaving it impossible to do anything with the current row.

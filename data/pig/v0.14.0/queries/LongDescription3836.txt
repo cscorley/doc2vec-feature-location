@@ -1,0 +1,9 @@
+We currently use Hashing.goodFastHash(32) to generate signatures for the logical plan. Under the hood, this is a murmur32 hash.
+
+Guava 11, which pig directly depends on, always seeds the hash with 0.
+
+http://docs.guava-libraries.googlecode.com/git-history/v11.0/javadoc/src-html/com/google/common/hash/Hashing.html#line.85
+
+In future versions of Guava, it is seeded by current time: http://docs.guava-libraries.googlecode.com/git-history/v14.0/javadoc/src-html/com/google/common/hash/Hashing.html#line.47
+
+So when future versions of guava is pulled into the classpath (which if often), we no longer get the same signature for the same logical plan between each executions of pig. This introduces unnecessary complexity for managing the classpath.

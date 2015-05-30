@@ -1,0 +1,54 @@
+Hi,
+
+When empty param is passed in the command line, it prints usage error. Even if the value of the param is a space " " it shows the usage error.
+
+---------------
+$ pig -useversion 0.9 -param test=" " test.pig
+USING: /grid/0/gs/pig/0.9
+2011-08-22 05:06:08,538 [main] INFO  org.apache.pig.Main - Logging error messages to: /homes/anithar/pig_1313989568534.log
+
+Apache Pig version 0.9.0.1105251322 (r1127671)
+compiled May 25 2011, 20:22:22
+
+USAGE: Pig [options] [-] : Run interactively in grunt shell.
+       Pig [options] -e[xecute] cmd [cmd ...] : Run cmd(s).
+       Pig [options] [-f[ile]] file : Run cmds found in file.
+  options include:
+    -4, -log4jconf - Log4j configuration file, overrides log conf
+    -b, -brief - Brief logging (no timestamps)
+    -c, -check - Syntax check
+    -d, -debug - Debug level, INFO is default
+    -e, -execute - Commands to execute (within quotes)
+    -f, -file - Path to the script to execute
+    -g, -embedded - ScriptEngine classname or keyword for the ScriptEngine
+    -h, -help - Display this message. You can specify topic to get help for that topic.
+        properties is the only topic currently supported: -h properties.
+    -i, -version - Display version information
+    -l, -logfile - Path to client side log file; default is current working directory.
+    -m, -param_file - Path to the parameter file
+    -p, -param - Key value pair of the form param=val
+    -r, -dryrun - Produces script with substituted parameters. Script is not executed.
+    -t, -optimizer_off - Turn optimizations off. The following values are supported:
+            SplitFilter - Split filter conditions
+            MergeFilter - Merge filter conditions
+            PushUpFilter - Filter as early as possible
+            PushDownForeachFlatten - Join or explode as late as possible
+            ColumnMapKeyPrune - Remove unused data
+            LimitOptimizer - Limit as early as possible
+            AddForEach - Add ForEach to remove unneeded columns
+            MergeForEach - Merge adjacent ForEach
+            LogicalExpressionSimplifier - Combine multiple expressions
+            All - Disable all optimizations
+        All optimizations are enabled by default. Optimization values are case insensitive.
+    -v, -verbose - Print all error messages to screen
+    -w, -warning - Turn warning logging on; also turns warning aggregation off
+    -x, -exectype - Set execution mode: local|mapreduce, default is mapreduce.
+    -F, -stop_on_failure - Aborts execution on the first failed job; default is off
+    -M, -no_multiquery - Turn multiquery optimization off; default is on
+    -P, -propertyFile - Path to property file
+-------------------
+
+Instead of printing the usage error, can you show which param is empty.
+
+Regards,
+Anitha

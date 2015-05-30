@@ -1,0 +1,5 @@
+Currently IdentityHtmlMapper.mapSafeElement(String name) just returns name as-is. This makes the XHTMLContentHandler think that it hasn't received a <body> tag, since it assumes input is lower-cased. So you get output that looks like:
+
+<body><BODY/></body></html>
+
+The solution is a trivial change to lower-case the incoming name, the same as what the mapSafeAttribute() method is already doing.

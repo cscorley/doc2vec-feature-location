@@ -1,0 +1,6 @@
+A SecurityManager is not always installed (early enough) when running JUnit tests/suites.
+For instance, when running 'jdbcapi.BlobClob4Blob' a SecurityManager was installed during database boot and revealed problems with the policy file, but when the same test was run as part of 'suites.All', no errors were seen.
+BTW: There is nothing wrong with BlobClob4Blob.
+
+It seems that 'BaseTestCase.runBare', which installs a SecurityManager, is bypassed when running code in decorators (most importantly setUp).
+Since a SecurityManager is installed as soon as a test method is run, this bug is not that severe.

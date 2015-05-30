@@ -1,0 +1,30 @@
+CommitProcessor has a single thread that both pulls requests off its queues and runs all downstream processors. This is noticeably inefficient for read-intensive workloads, which could be run concurrently. The trick is handling write transactions. I propose multi-threading this code according to the following two constraints
+
+
+	each session must see its requests responded to in order
+	all committed transactions must be handled in zxid order, across all sessions
+
+
+
+I believe these cover the only constraints we need to honor. In particular, I believe we can relax the following:
+
+
+	it does not matter if the read request in one session happens before or after the write request in another session
+
+
+
+With these constraints, I propose the following threads
+
+
+	1    primary queue servicing/work dispatching thread
+	0-N  assignable worker threads, where a given session is always assigned to the same worker thread
+
+
+
+By assigning sessions always to the same worker thread (using a simple sessionId mod number of worker threads), we guarantee the first constraint-- requests we push onto the thread queue are processed in order. The way we guarantee the second constraint is we only allow a single commit transaction to be in flight at a time--the queue servicing thread blocks while a commit transaction is in flight, and when the transaction completes it clears the flag.
+
+On a 32 core machine running Linux 2.6.38, achieved best performance with 32 worker threads for a 56% +/- 5% improvement in throughput (this improvement was measured on top of that for ZOOKEEPER-1504, not in isolation).
+
+New classes introduced in this patch are:
+
+    WorkerService (also in ZOOKEEPER-1504): ExecutorService wrapper that makes worker threads daemon threads and names then in an easily debuggable manner. Supports assignable threads (as used here) and non-assignable threads (as used by NIOServerCnxnFactory).

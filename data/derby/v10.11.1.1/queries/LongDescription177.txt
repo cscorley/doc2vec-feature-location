@@ -1,0 +1,69 @@
+When setting up a new schema (creating tables, constraints and indexes), using a JDO implementation's autocreate feature (JPOX JDO), the application hangs for 20 seconds in a call to EmbedDatabaseMetaData.getIndexInfo(). The stacktrace is:
+
+Thread [main] (Suspended)
+	Object.wait(long) line: not available [native method]
+	ActiveLock.waitForGrant(int) line: not available
+	LockSet.lockObject(Object, Lockable, Object, int, Latch) line: not available
+	SinglePool.zeroDurationlockObject(Object, Lockable, Object, int) line: not available
+	RowLockingRR(RowLocking3).zeroDurationLockRecordForWrite(Transaction, RecordHandle, boolean, boolean) line: not available
+	HeapController.lockRow(RecordHandle, int, boolean, int) line: not available
+	HeapController.lockRow(RowLocation, int, boolean, int) line: not available
+	B2IRowLocking3.lockRowOnPage(BTree, LeafControlRow, LeafControlRow, int, boolean, FetchDescriptor, DataValueDescriptor[], RowLocation, int, int) line: not available
+	B2IRowLocking3.lockNonScanPreviousRow(BTree, LeafControlRow, int, FetchDescriptor, DataValueDescriptor[], RowLocation, OpenBTree, int, int) line: not available
+	B2IController(BTreeController).doIns(DataValueDescriptor[]) line: not available
+	B2IController(BTreeController).insert(DataValueDescriptor[]) line: not available
+	B2IController.insert(DataValueDescriptor[]) line: not available
+	TabInfoImpl.insertRowListImpl(RowList, TransactionController, RowLocation[], boolean) line: not available
+	TabInfoImpl.insertRow(ExecRow, TransactionController, boolean) line: not available
+	DataDictionaryImpl.addDescriptorNow(TupleDescriptor, TupleDescriptor, int, boolean, TransactionController, boolean) line: not available
+	DataDictionaryImpl.addSPSParams(SPSDescriptor, TransactionController, boolean) line: not available
+	DataDictionaryImpl.updateSPS(SPSDescriptor, TransactionController, boolean, boolean, boolean, boolean) line: not available
+	SPSDescriptor.updateSYSSTATEMENTS(LanguageConnectionContext, int, TransactionController) line: not available
+	SPSDescriptor.getPreparedStatement(boolean) line: not available
+	SPSDescriptor.getPreparedStatement() line: not available
+	ExecSPSNode.generate(ByteArray) line: not available
+	GenericStatement.prepMinion(LanguageConnectionContext, boolean, Object[], SchemaDescriptor, boolean) line: not available
+	GenericStatement.prepare(LanguageConnectionContext) line: not available
+	GenericLanguageConnectionContext.prepareInternalStatement(String) line: not available
+	EmbedPreparedStatement30(EmbedPreparedStatement).<init>(EmbedConnection, String, boolean, int, int, int, int, int[], String[]) line: not available
+	EmbedPreparedStatement30(EmbedPreparedStatement20).<init>(EmbedConnection, String, boolean, int, int, int, int, int[], String[]) line: not available
+	EmbedPreparedStatement30.<init>(EmbedConnection, String, boolean, int, int, int, int, int[], String[]) line: not available
+	Driver30.newEmbedPreparedStatement(EmbedConnection, String, boolean, int, int, int, int, int[], String[]) line: not available
+	EmbedConnection30(EmbedConnection).prepareMetaDataStatement(String) line: not available
+	EmbedDatabaseMetaData.prepareSPS(String, String) line: not available
+	EmbedDatabaseMetaData.getPreparedQuery(String) line: not available
+	EmbedDatabaseMetaData.getIndexInfo(String, String, String, boolean, boolean) line: not available
+##### entry into Derby code ##########
+	CloudscapeAdapter(DatabaseAdapter).getExistingIndexes(Connection, DatabaseMetaData, String, String, String) line: 1257
+	ClassTable(TableImpl).getExistingCandidateKeys(Connection) line: 839
+	ClassTable(TableImpl).validateCandidateKeys(Connection, boolean) line: 463
+	ClassTable(TableImpl).validateConstraints(Connection, boolean) line: 293
+	RDBMSManager$ClassAdder.addClassTablesAndValidate(String[], ClassLoaderResolver) line: 2546
+	RDBMSManager$ClassAdder.execute(Connection, ClassLoaderResolver) line: 2108
+	RDBMSManager$ClassAdder(RDBMSManager$MgmtTransaction).execute(ClassLoaderResolver) line: 1977
+	RDBMSManager.addClasses(String[]) line: 469
+	RDBMSManager.addClass(String) line: 481
+	RDBMSManager(StoreManager).initialiseAutoStart() line: 333
+	RDBMSManager.initialiseSchema(String, String, String, Connection) line: 379
+	RDBMSManager.<init>(ClassLoaderResolver, AbstractPersistenceManagerFactory, String, String) line: 243
+	RDBMSManagerFactory.getStoreManager(ClassLoaderResolver, AbstractPersistenceManagerFactory, String, String) line: 59
+	PersistenceManagerImpl(AbstractPersistenceManager).<init>(AbstractPersistenceManagerFactory, String, String) line: 179
+	PersistenceManagerImpl.<init>(AbstractPersistenceManagerFactory, String, String) line: 34
+	PersistenceManagerFactoryImpl.getPersistenceManager(String, String) line: 606
+	PersistenceManagerFactoryImpl.getPersistenceManager() line: 582
+	ManagedObjectManager.getJdoPm() line: 536
+	DefaultLeihnehmerTypManager(ManagedObjectManager).queryAll() line: 425
+	DefaultLeihnehmerTypManager(ManagedObjectManager).getAll() line: 402
+	PictitImporter.importContents(EList) line: 91
+	PictitImporter.run(Object) line: 651
+	PlatformActivator$1.run(Object) line: 228
+	EclipseStarter.run(Object) line: 333
+	EclipseStarter.run(String[], Runnable) line: 150
+	NativeMethodAccessorImpl.invoke0(Method, Object, Object[]) line: not available [native method]
+	NativeMethodAccessorImpl.invoke(Object, Object[]) line: 39
+	DelegatingMethodAccessorImpl.invoke(Object, Object[]) line: 25
+	Method.invoke(Object, Object[]) line: 324
+	Main.invokeFramework(String[], URL[]) line: 268
+	Main.basicRun(String[]) line: 260
+	Main.run(String[]) line: 887
+	Main.main(String[]) line: 871

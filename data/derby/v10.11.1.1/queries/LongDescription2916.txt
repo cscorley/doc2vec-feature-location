@@ -1,0 +1,28 @@
+SYSCS_UTIL.SYSCS_GET_RUNTIMESTATISTICS() on
+
+
+'Statement Text: 
+	select * from TENKTUP1
+		left outer join TENKTUP2 on
+		(
+			TENKTUP1.unique1 = TENKTUP2.unique1
+		)
+		left outer join ONEKTUP on
+		(
+			TENKTUP2.unique2 = ONEKTUP.unique2
+		)
+		left outer join BPRIME on
+		(
+			ONEKTUP.onePercent = BPRIME.onePercent
+		)
+'
+
+now returns extra "0" in
+
+'	Ordered null semantics on the following columns: 
+0 
+					stop position: 
+	> on first 1 column(s).
+	Ordered null semantics on the following columns: 
+0 
+'

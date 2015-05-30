@@ -1,0 +1,12 @@
+I discovered that since svn r633968 - 2008-03-05 19:45:52 CET, .suites.All has failed with
+'Failed to invoke suite():java.lang.ClassNotFoundException: org.apache.derbyTesting.functionTests.tests.jdbc4._Suite' in my test runs
+where I have built with JDK 1.5, i.e. have 'j15lib=/usr/local/java/jdk1.5/jre/lib' in ~/ant.properties.
+
+I think this is related to svn r633658 which removed the test for 'JDBC.vmSupportsJDBC4()' when doing
+'suite.addTest(addSuiteByReflection("org.apache.derbyTesting.functionTests.tests.jdbc4._Suite"));'.
+
+I added the 'if (JDBC.vmSupportsJDBC4())
+{....}
+' again and am now runnning .suites.All on one of my 1.5 test platforms.
+
+An alternative might be to catch  'ClassNotFoundException' in 'addSuiteByReflection()'?

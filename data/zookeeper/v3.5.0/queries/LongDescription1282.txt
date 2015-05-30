@@ -1,0 +1,26 @@
+according to https://cwiki.apache.org/confluence/display/ZOOKEEPER/Zab1.0
+phase 2 part 2, "Once it receives NEWLEADER(e) it atomically applies
+the new state and sets f.currentEpoch =e. "
+
+
+In Learner.java self.setCurrentEpoch(newEpoch) is done after receiving
+UPTODATE and not before acking the NEWLEADER message as should be.
+
+                case Leader.UPTODATE:
+                    if (!snapshotTaken) 
+{
+                        zk.takeSnapshot();
+                    }
+                    self.cnxnFactory.setZooKeeperServer(zk);
+                    break outerLoop;
+                case Leader.NEWLEADER: // it will be NEWLEADER in v1.0
+                    zk.takeSnapshot();
+                    snapshotTaken = true;
+                    writePacket(new QuorumPacket(Leader.ACK,
+newLeaderZxid, null, null), true);
+                    break;
+                }
+            }
+        }
+        long newEpoch = ZxidUtils.getEpochFromZxid(newLeaderZxid);
+        self.setCurrentEpoch(newEpoch);

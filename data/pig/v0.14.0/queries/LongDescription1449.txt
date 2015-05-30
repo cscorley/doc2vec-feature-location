@@ -1,0 +1,24 @@
+In the 0.7.0 changes to RegExLoader there was a bug introduced where the code will stay in the while loop if the line isn't matched.  Before 0.7.0 these lines would be skipped if they didn't match the regular expression.  The result is the mapper will not respond and will time out with "Task attempt_X failed to report status for 600 seconds. Killing!".
+
+Here are the steps to recreate the bug:
+
+Create a text file in HDFS with the following lines:
+
+test1
+testA
+test2
+
+Run the following pig script:
+
+REGISTER /usr/local/pig/contrib/piggybank/java/piggybank.jar;
+test = LOAD '/path/to/test.txt' using org.apache.pig.piggybank.storage.MyRegExLoader('(testd)') AS (line);
+dump test;
+
+Expected result:
+
+(test1)
+(test3)
+
+Actual result:
+
+Job fails to complete after 600 second timeout waiting on the mapper to complete.  The mapper hangs at 33% since it can process the first line but gets stuck into the while loop on the second line.

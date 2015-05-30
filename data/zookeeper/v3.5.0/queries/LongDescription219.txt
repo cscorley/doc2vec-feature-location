@@ -1,0 +1,7 @@
+in watchertest there are some event.poll calls that have 1milli timeouts
+
+        e = localWatcher.events.poll(1, TimeUnit.MILLISECONDS);
+
+this is showing falure in some cases under hudson (I assume when it's under load from other tests running for other proj)
+
+We should review the poll calls and verify adequate timeouts.

@@ -1,0 +1,5 @@
+OpenJPAId class uses the hashCode value "based on the least-derived non-object class so that user-given ids with non-exact types match ids with exact types".  I.e. least-derived-non-object-superClass.class.hashCode()
+
+The hashCode of a .class object is not deterministic since it is implemented in native code. It may change from run to run, jdk or platforms. This scheme works well and is dependable only within the same jvm invocation, however if the OpenJPAId class is used as a hash key in distributed application environment, the hashCode may evaluates to different value between the client and server invocation.
+
+In a typical distributed caching scheme, the cache key is used as a discriminator to determine the partition where the cached key/value is located. If the client and server compute the key to different value, the distributed caching mechanism will fail.

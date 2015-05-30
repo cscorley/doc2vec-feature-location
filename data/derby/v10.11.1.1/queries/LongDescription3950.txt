@@ -1,0 +1,23 @@
+On DERBY-481 Dag points out the following bug:
+
+drop table t1;
+drop table t2;
+
+create table t1( a int, b int generated always as ( -a ) );
+create table t2( a int, b int );
+
+insert into t2( a, b ) values ( 1, 100 );
+
+– should fail to compile. instead, it compiles but at run time the generation clause
+– overrides the value coming from the select
+insert into t1 select * from t2;
+
+– should fail to compile. instead, it compiles but at run time the generation clause
+– overrides the value coming from the select
+insert into t1 select a, 0 from t2;
+
+– should also fail to compile. instead, it compiles but at run time the generation clause
+– overrides the value coming from the list of literals
+insert into t1 values( 2, 200 );
+
+select * from t1;

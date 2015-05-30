@@ -1,0 +1,5 @@
+I tried to configure Ehcache using the instructions documented on their website [1] and found that using the 'ehcache' alias (for openjpa.QueryCache and openjpa.DataCacheManager) does not work in WAS. It does work when running in a JSE environment.
+
+After digging around for awhile I found that when I added ehcache as an application shared library, those classes were not available to the static initializer in org.apache.openjpa.lib.conf.ProductDerivations. Since the ehcache product derivation wasn't found, the 'ehcache' alias wasn't registered.
+
+[1] http://ehcache.org/documentation/openjpa_provider.html

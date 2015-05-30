@@ -1,0 +1,20 @@
+I found a ClassCastException when using the COUNT function, the criteria API, and the QueryCache is  enabled. I'll post a simple unit test shortly.
+
+<openjpa-2.1.0-SNAPSHOT-r422266:984243 nonfatal user error> org.apache.openjpa.persistence.ArgumentException: Failed to execute query "null". Check the query syntax for correctness. See nested exception for details.
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:870)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:792)
+	at org.apache.openjpa.kernel.DelegatingQuery.execute(DelegatingQuery.java:542)
+	at org.apache.openjpa.persistence.QueryImpl.execute(QueryImpl.java:288)
+	at org.apache.openjpa.persistence.QueryImpl.getResultList(QueryImpl.java:302)
+	at org.apache.openjpa.persistence.QueryImpl.getSingleResult(QueryImpl.java:326)
+	at org.apache.openjpa.persistence.criteria.TestCriteria.testCount(TestCriteria.java:267)
+....
+Caused by: java.lang.ClassCastException: org.apache.openjpa.util.IntId incompatible with [Ljava.lang.Object;
+	at org.apache.openjpa.datacache.QueryCacheStoreQuery$CachedList.get(QueryCacheStoreQuery.java:509)
+	at org.apache.openjpa.lib.rop.ListResultObjectProvider.getResultObject(ListResultObjectProvider.java:55)
+	at org.apache.openjpa.kernel.QueryImpl$PackingResultObjectProvider.getResultObject(QueryImpl.java:2073)
+	at org.apache.openjpa.kernel.QueryImpl.singleResult(QueryImpl.java:1325)
+	at org.apache.openjpa.kernel.QueryImpl.toResult(QueryImpl.java:1237)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:1005)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:861)
+	... 28 more

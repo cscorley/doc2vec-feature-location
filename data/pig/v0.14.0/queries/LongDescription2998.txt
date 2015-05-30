@@ -1,0 +1,5 @@
+This is a regression from PIG-2931.
+
+I made changes so that $ signs in a replacement string get escaped by PreprocessorContext. But they shouldn't be escaped if they're already escaped.
+
+In particular, TestScriptLanguage#bindLocalVariableTest2 is failing in trunk because $ signs are escaped by Pig#bind() and then escaped again by PreprocessorContext.

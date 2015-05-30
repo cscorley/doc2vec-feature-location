@@ -1,0 +1,20 @@
+failed to register jmx beans for hedwig running test cases.
+
+the exception is as below:
+
+
+
+2012-07-16 22:13:54,849 - WARN  - [Thread-134:ReadAheadCache@729] - Failed to register readahead cache with JMX
+javax.management.InstanceAlreadyExistsException: org.apache.HedwigServer:name0=ReadAheadCache
+        at com.sun.jmx.mbeanserver.Repository.addMBean(Repository.java:453)
+        at com.sun.jmx.interceptor.DefaultMBeanServerInterceptor.internal_addObject(DefaultMBeanServerInterceptor.java:1484)
+        at com.sun.jmx.interceptor.DefaultMBeanServerInterceptor.registerDynamicMBean(DefaultMBeanServerInterceptor.java:963)
+        at com.sun.jmx.interceptor.DefaultMBeanServerInterceptor.registerObject(DefaultMBeanServerInterceptor.java:917)
+        at com.sun.jmx.interceptor.DefaultMBeanServerInterceptor.registerMBean(DefaultMBeanServerInterceptor.java:312)
+        at com.sun.jmx.mbeanserver.JmxMBeanServer.registerMBean(JmxMBeanServer.java:482)
+        at org.apache.zookeeper.jmx.MBeanRegistry.register(MBeanRegistry.java:98)
+        at org.apache.hedwig.server.persistence.ReadAheadCache.registerJMX(ReadAheadCache.java:727)
+        at org.apache.hedwig.server.netty.PubSubServer.registerJMX(PubSubServer.java:300)
+        at org.apache.hedwig.server.netty.PubSubServer$3.run(PubSubServer.java:395)
+        at java.lang.Thread.run(Thread.java:680)
+

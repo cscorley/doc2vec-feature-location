@@ -1,0 +1,8 @@
+The SyncThread get a NPE while the rest of the bookie is still running. This causes the journal gc to be stopped and the filesystem get full.
+
+Tue Dec 18 17:01:18 2012: Exception in thread "SyncThread" java.lang.NullPointerException
+Tue Dec 18 17:01:18 2012:       at org.apache.bookkeeper.bookie.LedgerCacheImpl.getLedgerEntryPage(LedgerCacheImpl.java:153)
+Tue Dec 18 17:01:18 2012:       at org.apache.bookkeeper.bookie.LedgerCacheImpl.flushLedger(LedgerCacheImpl.java:421)
+Tue Dec 18 17:01:18 2012:       at org.apache.bookkeeper.bookie.LedgerCacheImpl.flushLedger(LedgerCacheImpl.java:363)
+Tue Dec 18 17:01:18 2012:       at org.apache.bookkeeper.bookie.InterleavedLedgerStorage.flush(InterleavedLedgerStorage.java:148)
+Tue Dec 18 17:01:18 2012:       at org.apache.bookkeeper.bookie.Bookie$SyncThread.run(Bookie.java:221)

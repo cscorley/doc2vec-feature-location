@@ -1,0 +1,5 @@
+I tried to compile Mahout on people.apache.org yesterday: The build failed at first, because tests could not generate test data. The reason: Some tests tried to generate test data at /tmp/<mahout-dir>/... - but those directories did exist already and belonged to Sean. Why? Probably because Sean had run the build earlier this year - but tests did not remove the data they generated.
+
+Proposed solution: Tests come with setup and with shutdown hooks. We should remove any data when a test is finished and shut down.
+
+Any thoughts?

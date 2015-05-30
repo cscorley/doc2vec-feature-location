@@ -1,0 +1,3 @@
+I have a test document (pptx) where there is a 0 byte embedded part which is referenced in a relationship. I don't really know how the document got like this but Office can open it without any issues. The problem is in AbstractOOXMLExtractor::handleEmbeddedOle. It attempts to create a POIFSFileSystem:
+     POIFSFileSystem fs = new POIFSFileSystem(part.getInputStream());
+using the part stream in the constructor but fails because of insufficient data. Given that the whole function except for this one line is in a try -> catch -> ignore, it seems like the best option is to put this line inside the try / catch. There is no metadata to extract from the 0 byte part.

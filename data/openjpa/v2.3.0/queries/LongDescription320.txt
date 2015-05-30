@@ -1,0 +1,25 @@
+DB2's system tables (schemas beginning with SYS*) are causing problems with the JPA CTS bucket, if we're trying to use the SynchronizeMappings feature.
+
+From our dev mailing list (http://www.nabble.com/Null-schema-name-when-generating-tables--tf4280146.html):
+
+======================================================
+We're running the CTS TCK against DB2 and we've hit a snag with the SynchronizeMappings feature (I know this is not a required aspect of the TCK, but that's what we have been using to create the tables for the testing).
+
+One of the tests in the TCK requires a table called DATATYPES.  The problem is that DB2 has a system table by this name, so when OpenJPA attempts to look up any existing table information, we accidentally find the system table (SYSCAT) instead of the user's table (cts1).  The following trace snippet shows the problem.
+
+1000  JPATCK  TRACE  [main] openjpa.jdbc.Schema - Reading table information for schema name "null", table name "DATATYPES".
+1000  JPATCK  TRACE  [main] openjpa.jdbc.JDBC - <t 16515324, conn 1314410072> [0 ms] rollback
+1000  JPATCK  TRACE  [main] openjpa.jdbc.JDBC - <t 16515324, conn 1314410072> getColumns: null, null, DATATYPES, null
+1500  JPATCK  TRACE  [main] openjpa.jdbc.Schema - Reading column information for table " SYSCAT.DATATYPES".
+
+Of course, this goes on thinking that we have found an appropriate DATATYPES table definition, but later when we attempt to alter it, we get an error:
+
+1891  JPATCK  TRACE  [main] openjpa.jdbc.SQL - <t 16515324, conn 477240434> executing stmnt 854733554 ALTER TABLE DATATYPES ADD id INTEGER
+1891  JPATCK  TRACE  [main] openjpa.jdbc.SQL - <t 16515324, conn 477240434> [0 ms] spent
+1891  JPATCK  TRACE  [main] openjpa.jdbc.JDBC - <t 16515324, conn 477240434> [0 ms] close
+<openjpa-0.0.0-r420667:563705M nonfatal general error> org.apache.openjpa.persistence.PersistenceException: DB2 SQL error: SQLCODE: -204, SQLSTATE: 42704, SQLERRMC: CTS1.DATATYPES 
+{stmnt 854733554 ALTER TABLE DATATYPES ADD id INTEGER}
+ [code=-204, state=42704]
+======================================================
+
+By examining and experimenting with OpenJPA, it looks like we have a mechanism already in place to skip over these type of system tables.  By setting the variable systemSchemas with the names of these DB2-specific schema names, then we can bypass these tables and avoid the problem.

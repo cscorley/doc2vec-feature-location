@@ -1,0 +1,26 @@
+Consider the following Pig script which casts return values of the SQUARE UDF which are  tuples of doubles to long. The describe output of B shows it is long, however the result is still double.
+
+
+register statistics.jar;
+A = load 'myfloatdata.txt' using PigStorage() as (doublecol:double);
+B = foreach A generate (tuple(long))statistics.SQUARE(doublecol) as squares:(loadtimesq);
+describe B;
+explain B;
+dump B;
+
+
+===========================================
+Describe output of B:
+B: 
+{squares: (loadtimesq: long)}
+===========================================================
+Sample output of B:
+((7885.44))
+((792098.2200010001))
+((1497360.9268889998))
+((50023.7956))
+((0.972196))
+((0.30980356))
+((9.9760144E-7))
+===========================================================
+Cause: The cast for Tuples has not been implemented in POCast.java

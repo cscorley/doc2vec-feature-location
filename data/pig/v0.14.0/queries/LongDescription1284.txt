@@ -1,0 +1,50 @@
+Hi All,
+
+ We are planning to add the XMLLoader UDF in the piggybank repository.
+
+Here is the proposal with the user docs :-
+
+ The load function to load the XML file
+ This will implements the LoadFunc interface which is used to parse records
+ from a dataset.
+ This takes a xmlTag as the arg which it will use to split the inputdataset into
+ multiple records.
+
+
+ For example if the input xml (input.xml) is like this
+ <configuration>
+ <property>
+ <name> foobar </name>
+ <value> barfoo </value>
+ </property>
+ <ignoreProperty>
+ <name> foo </name>
+ </ignoreProperty>
+ <property>
+ <name> justname </name>
+ </property>
+ </configuration>
+
+ And your pig script is like this
+
+ --load the jar files
+ register loader.jar;
+ – load the dataset using XMLLoader
+ – A is the bag containing the tuple which contains one atom i.e doc see output
+ A = load '/user/aloks/pig/input.xml using loader.XMLLoader('property') as (doc:chararray);
+ --dump the result
+ dump A;
+
+
+ Then you will get the output
+
+(<property>
+<name> foobar </name>
+<value> barfoo </value>
+</property>)
+(<property>
+<name> justname </name>
+</property>)
+
+Where each () indicate one record
+

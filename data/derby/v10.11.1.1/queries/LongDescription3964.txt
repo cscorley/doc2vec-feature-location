@@ -1,0 +1,47 @@
+Cf repro RegenerateAfterOnDeleteSetNullError.java enclosed.
+
+1) test_1(org.apache.derbyTesting.functionTests.tests.lang.RegenerateAfterOnDeleteSetNullError)java.sql.SQLException: The exception 'java.lang.NullPointerException' was thrown while evaluating an expression.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:95)
+	at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Util.java:87)
+	at org.apache.derby.impl.jdbc.Util.seeNextException(Util.java:223)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:398)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:346)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:2201)
+	at org.apache.derby.impl.jdbc.ConnectionChild.handleException(ConnectionChild.java:81)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1323)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:625)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(EmbedStatement.java:175)
+	at org.apache.derbyTesting.functionTests.tests.lang.RegenerateAfterOnDeleteSetNullError.test_1(RegenerateAfterOnDeleteSetNullError.java:60)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:105)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+Caused by: java.sql.SQLException: The exception 'java.lang.NullPointerException' was thrown while evaluating an expression.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(SQLExceptionFactory40.java:119)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:70)
+	... 31 more
+Caused by: java.sql.SQLException: Java exception: ': java.lang.NullPointerException'.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(SQLExceptionFactory40.java:119)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:70)
+	at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Util.java:87)
+	at org.apache.derby.impl.jdbc.Util.javaException(Util.java:244)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:403)
+	... 29 more
+Caused by: java.lang.NullPointerException
+	at org.apache.derby.impl.sql.execute.BaseActivation.getColumnFromRow(BaseActivation.java:1451)
+	at org.apache.derby.exe.ac30fbc0bbx011dxd4a8x4baexffffd28a99d54.e5(Unknown Source)
+	at org.apache.derby.impl.services.reflect.DirectCall.invoke(ReflectGeneratedClass.java:149)
+	at org.apache.derby.impl.sql.execute.NoRowsResultSetImpl.evaluateGenerationClauses(NoRowsResultSetImpl.java:623)
+	at org.apache.derby.impl.sql.execute.UpdateResultSet.collectAffectedRows(UpdateResultSet.java:451)
+	at org.apache.derby.impl.sql.execute.DeleteCascadeResultSet.collectAffectedRows(DeleteCascadeResultSet.java:195)
+	at org.apache.derby.impl.sql.execute.DeleteCascadeResultSet.open(DeleteCascadeResultSet.java:120)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:416)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:297)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1235)
+	... 24 more

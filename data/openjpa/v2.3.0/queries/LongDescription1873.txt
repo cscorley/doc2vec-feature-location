@@ -1,0 +1,5 @@
+I've tested this with the latest from branches/2.0.x.
+
+My entity has an @EntityListeners which observes the @PostLoad lifecycle event. This listener stores the 'old' values from the database for later use (see http://struberg.wordpress.com/2010/07/31/howto-changelog-with-jpa/ for the intention behind). All works well if the table has only a few rows. But if you add more rows, OpenJPA tries to optimize the access and only loads the @Version field + the dirty fields. In this case the merging seems to be wrong, because I get the NEW values from the dirty fields instead of the original values from the database passed to my @PostLoad method.
+
+Did cost me a few grey hairs to track down the differences between the working and the broken scenarios here  But finally I was able to creat a unit test showing the problem

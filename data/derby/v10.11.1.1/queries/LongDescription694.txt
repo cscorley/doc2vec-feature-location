@@ -1,0 +1,3 @@
+Scenario:
+
+Autocommit off. Have two prepared statements, calling executeQuery() on both, giving me two result sets. Can fetch data from both with next(). If one statement gets an exception (say, caused by a division by zero), not only this statement's result set is closed, but also the other open resultset. This happens with the client driver, whereas in embedded mode, the other result set is unaffected by the exception in the first result set (as it should be).

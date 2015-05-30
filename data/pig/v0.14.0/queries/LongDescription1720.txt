@@ -1,0 +1,22 @@
+I have a simple script, which I attempt to run with Pig 0.8
+
+The script looks like this:
+
+
+clicks = load 'pairs.out' using PigStorage('\u0001') as (user,query,id);
+query0 = group clicks by query;
+
+query1 = foreach query0 {
+        distinct_id = DISTINCT clicks.id; 
+        distinct_user = DISTINCT clicks.user;
+        count = COUNT(distinct_user);
+        generate count as count,group,distinct_id; }
+
+store query1 into 'query.out' using PigStorage('|');
+
+
+
+The Mapper's fail in the quick sort phase with the following error message:
+
+java.lang.NegativeArraySizeException at org.apache.pig.data.BinInterSedes$BinInterSedesTupleRawComparator.compareBinInterSedesDatum(BinInterSedes.java:782) at org.apache.pig.data.BinInterSedes$BinInterSedesTupleRawComparator.compareBinSedesTuple(BinInterSedes.java:662) at org.apache.pig.data.BinInterSedes$BinInterSedesTupleRawComparator.compare(BinInterSedes.java:623) at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigSecondaryKeyComparator.compare(PigSecondaryKeyComparator.java:78) at org.apache.hadoop.mapred.MapTask$MapOutputBuffer.compare(MapTask.java:995) at org.apache.hadoop.util.QuickSort.sortInternal(QuickSort.java:95) at org.apache.hadoop.util.QuickSort.sort(QuickSort.java:59) at org.apache.hadoop.mapred.MapTask$MapOutputBuffer.sortAndSpill(MapTask.java:1281) at org.apache.hadoop.mapred.MapTask$MapOutputBuffer.flush(MapTask.java:1182) at org.apache.hadoop.mapred.MapTask$NewOutputCollector.close(MapTask.java:608) at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:676) at org.apache.hadoop.mapred.MapTask.run(MapTask.java:335) at org.apache.hadoop.mapred.Child$4.run(Child.java:242) at java.security.AccessController.doPrivileged(Native Method) at javax.security.auth.Subject.doAs(Subject.java:396) at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1045) at org.apache.hadoop.mapred.Child.main(Child.java:236) 
+Viraj

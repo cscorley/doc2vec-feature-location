@@ -1,0 +1,22 @@
+Right now MapReduceLauncher caches the job exception in jobControlException and only processes it when all the jobs are done:
+
+
+  jcThread.setUncaughtExceptionHandler(jctExceptionHandler);
+  ...
+  jcThread.start();
+  // Now wait, till we are finished.
+  while(!jc.allFinished()){
+  ...
+  }
+  //check for the jobControlException first
+  //if the job controller fails before launching the jobs then there are
+  //no jobs to check for failure
+  if (jobControlException != null) {
+    ...
+  }
+
+
+
+There are two problems with this approach:
+1. There is only one jobControlException variable. If two jobs are throwing exceptions, the first one will be lost.
+2. If there are multiple jobs, the exceptions will not be reported until other jobs are finished, which is a waste of system resource.

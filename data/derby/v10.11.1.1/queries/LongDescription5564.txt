@@ -1,0 +1,50 @@
+I see a problem in the code handling lock timeout exceptions.  In the code in various places there are calls such as:
+
+            // 2 kinds of errors here expected here.  Either container not 
+            // found or could not obtain lock (LOCK_TIMEOUT or DEADLOCK).
+            //
+            // It is possible by the time this post commit work gets scheduled 
+            // that the container has been dropped and that the open container 
+            // call will return null - in this case just return assuming no 
+            // work to be done.
+
+                                                if (se.getMessageId().equals(SQLState.LOCK_TIMEOUT) ||
+                                                                se.getMessageId().equals(SQLState.DEADLOCK))
+
+
+Or  
+
+
+        // First try to do the work in the nested transaction. Fail if we can't
+        // get a lock immediately.
+        if ( nestedTransaction != null )
+        {
+            try 
+{
+                return updateCurrentValueOnDisk( nestedTransaction, oldValue, newValue, false );
+            }
+            catch (StandardException se)
+            {
+                if ( !se.getMessageId().equals( SQLState.LOCK_TIMEOUT ) ) 
+{ throw se; }
+            }
+
+
+Or
+
+            // exception might have occured either container got dropper or lock not granted.
+            // It is possible by the time this post commit work gets scheduled 
+            // that the container has been dropped and that the open container 
+            // call will return null - in this case just return assuming no 
+            // work to be done.
+
+                                                //If this expcetion is because lock could not be obtained , work is requeued.
+                                                if (se.getMessageId().equals(SQLState.LOCK_TIMEOUT) || 
+                                                                se.getMessageId().equals(SQLState.DEADLOCK))
+                                                {
+                                                                requeue_work = true;
+                                                }
+
+The problem that I see is that if the property "derby.locks.deadlockTrace=true" is set, then instead of a SQLState.LOCK_TIMEOUT, the code will see a SQLState.LOCK_TIMEOUT_LOG.  Note that this is not being checked for in the above tests and others as well, so now the code behavior is going to change basd on whether the lock tracing is enabled or not.    
+
+I think that 99% of the code that is testing for SQLState.LOCK_TIMEOUT should also be checking for SQLState.LOCK_TIMEOUT_LOG as well.    I only see one place in DDLConstantAction where it is explicitly mentioned that SQLState.LOCK_TIMEOUT_LOG is not being looked at.

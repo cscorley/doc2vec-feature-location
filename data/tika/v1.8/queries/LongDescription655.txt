@@ -1,0 +1,5 @@
+If you try to use AutoDetectParser to handle an iWork document, it'll fail with:
+ org.xml.sax.SAXParseException; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
+	at com.sun.org.apache.xerces.internal.util.ErrorHandlerWrapper.createSAXParseException(ErrorHandlerWrapper.java:198)
+
+However IWorkPackageParser works fine. It seems the IWorkParser needs just the individual zip part, but is registered as the handler for the individual mime types, so breaks.

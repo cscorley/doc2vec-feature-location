@@ -1,0 +1,15 @@
+The method derbyVMLevel gives correct result only up to and including Java 6, cf. this snippet:
+
+public static String derbyVMLevel()
+{
+    switch (JDK_ID)
+    {
+    case J2SE_14: return J2ME ? "J2ME - JDBC for CDC/FP 1.1" : "J2SE 1.4 - JDBC 3.0";
+    case J2SE_142: return "J2SE 1.4.2 - JDBC 3.0";
+    case J2SE_15: return "J2SE 5.0 - JDBC 3.0";
+    case J2SE_16: return "Java SE 6 - JDBC 4.0";
+    default: return "?-?";
+    }
+}
+
+This is exposed through our MBean implementation in org.apache.derby.jdbc.JDBC#getDriverLevel

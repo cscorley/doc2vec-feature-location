@@ -1,0 +1,11 @@
+I'm unable to set the format of the outgoing date string in the constructor as it's supposed to work. 
+The only way i could change the format was to change the default in the java class and rebuild piggybank.
+Apparently this has something to do with the way pig instantiates DateExtractor, quoting a replier on the mailing list:
+
+David Vrensk said:
+
+I ran into the same problem a couple of weeks ago, and
+played around with the code inserting some print/log statements.  It turns
+out that the arguments are only used in the initial constructor calls, when
+the pig process is starting, but once pig reaches the point where it would
+use the udf, it creates new DateExtractors without passing the arguments.

@@ -1,0 +1,29 @@
+To find out what would happen if a table was dropped while its statistics were being written to disk, I put a breakpoint in IndexStatisticsImpl.writeUpdatedStats() right after the call to dropStatisticsDescriptors(), started an ij session in the debugger and executed some statements to make the istat code kick in. When the breakpoint was hit, I dropped the table being updated in ij, before letting the istat thread continue.
+
+With insane jars, the following NPE was printed on the ij console:
+
+Exception in thread "index-stat-thread" java.lang.NullPointerException
+	at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.writeUpdatedStats(IndexStatisticsDaemonImpl.java:556)
+	at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.updateIndexStatsMinion(IndexStatisticsDaemonImpl.java:486)
+	at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.generateStatistics(IndexStatisticsDaemonImpl.java:323)
+	at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.processingLoop(IndexStatisticsDaemonImpl.java:759)
+	at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.run(IndexStatisticsDaemonImpl.java:675)
+	at java.lang.Thread.run(Thread.java:662)
+
+Apart from the stack trace being printed, nothing bad happened. The istat thread was able to recover, and the ij session was unaffected too.
+
+Using a debug build, I got an assert failure instead:
+
+Exception in thread "index-stat-thread" org.apache.derby.shared.common.sanity.AssertFailure: ASSERT FAILED transaction not pristine
+	at org.apache.derby.shared.common.sanity.SanityManager.THROWASSERT(SanityManager.java:162)
+	at org.apache.derby.shared.common.sanity.SanityManager.THROWASSERT(SanityManager.java:147)
+	at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.processingLoop(IndexStatisticsDaemonImpl.java:810)
+	at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.run(IndexStatisticsDaemonImpl.java:675)
+	at java.lang.Thread.run(Thread.java:662)
+
+The assert failure prevented some cleanup from happening, so the istat thread seemed to hold on to a lock on SYSSTATISTICS, so the following statement would keep failing in ij after on:
+
+ij> select * from sys.sysstatistics;
+STATID                              |REFERENCEID                         |TABLEID                             |CREATIONTIMESTAMP            |&|VALID|COLCOUNT   |STATISTICS     
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ERROR 40XL1: A lock could not be obtained within the time requested

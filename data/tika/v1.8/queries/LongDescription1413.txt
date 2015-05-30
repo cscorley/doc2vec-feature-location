@@ -1,0 +1,86 @@
+AbstractOOXMLExtractor.handleThumbnail processes thumbnails using EmbeddedDocumentExtractor, but with the outputHtml flag set to true (unlike other embedded parts in handleEmbeddedParts(...)).
+This results in adding the thumbnail name to the main body of the document (as a package-entry), which in my opinion is wrong.
+
+Example:
+
+
+<?xml version="1.0" encoding="UTF-8"?><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="meta:slide-count" content="1"/>
+<meta name="cp:revision" content="5"/>
+<meta name="meta:last-author" content="Nick Burch"/>
+<meta name="Slide-Count" content="1"/>
+<meta name="Last-Author" content="Nick Burch"/>
+<meta name="meta:save-date" content="2010-09-08T16:15:14Z"/>
+<meta name="Content-Length" content="202969"/>
+<meta name="subject" content="Gym class featuring a brown fox and lazy dog"/>
+<meta name="Application-Name" content="Microsoft Office PowerPoint"/>
+<meta name="Author" content="Nevin Nollop"/>
+<meta name="dcterms:created" content="1601-01-01T00:00:00Z"/>
+<meta name="Application-Version" content="12.0000"/>
+<meta name="date" content="2010-09-08T16:15:14Z"/>
+<meta name="Total-Time" content="2"/>
+<meta name="extended-properties:Template" content=""/>
+<meta name="publisher" content=""/>
+<meta name="creator" content="Nevin Nollop"/>
+<meta name="Word-Count" content="9"/>
+<meta name="meta:paragraph-count" content="1"/>
+<meta name="extended-properties:AppVersion" content="12.0000"/>
+<meta name="Creation-Date" content="1601-01-01T00:00:00Z"/>
+<meta name="meta:author" content="Nevin Nollop"/>
+<meta name="cp:subject" content="Gym class featuring a brown fox and lazy dog"/>
+<meta name="extended-properties:Application" content="Microsoft Office PowerPoint"/>
+<meta name="resourceName" content="testPPT_embeded.pptx"/>
+<meta name="Paragraph-Count" content="1"/>
+<meta name="dc:title" content="The quick brown fox jumps over the lazy dog"/>
+<meta name="Last-Save-Date" content="2010-09-08T16:15:14Z"/>
+<meta name="custom:Version" content="1"/>
+<meta name="Revision-Number" content="5"/>
+<meta name="Last-Printed" content="1601-01-01T00:00:00Z"/>
+<meta name="meta:print-date" content="1601-01-01T00:00:00Z"/>
+<meta name="meta:creation-date" content="1601-01-01T00:00:00Z"/>
+<meta name="dcterms:modified" content="2010-09-08T16:15:14Z"/>
+<meta name="Template" content=""/>
+<meta name="dc:creator" content="Nevin Nollop"/>
+<meta name="meta:word-count" content="9"/>
+<meta name="extended-properties:Company" content=""/>
+<meta name="Last-Modified" content="2010-09-08T16:15:14Z"/>
+<meta name="extended-properties:PresentationFormat" content="On-screen Show (4:3)"/>
+<meta name="X-Parsed-By" content="org.apache.tika.parser.DefaultParser"/>
+<meta name="X-Parsed-By" content="org.apache.tika.parser.microsoft.ooxml.OOXMLParser"/>
+<meta name="modified" content="2010-09-08T16:15:14Z"/>
+<meta name="xmpTPg:NPages" content="1"/>
+<meta name="extended-properties:TotalTime" content="2"/>
+<meta name="dc:publisher" content=""/>
+<meta name="Content-Type" content="application/vnd.openxmlformats-officedocument.presentationml.presentation"/>
+<meta name="Presentation-Format" content="On-screen Show (4:3)"/>
+<title>The quick brown fox jumps over the lazy dog</title>
+</head>
+<body><p>The quick brown fox jumps over the lazy dog</p>
+<div class="embedded" id="slide1_rId4"/>
+<div class="embedded" id="slide1_rId5"/>
+<div class="embedded" id="slide1_rId6"/>
+<div class="embedded" id="slide1_rId7"/>
+<div class="embedded" id="slide1_rId8"/>
+<div class="embedded" id="slide1_rId9"/>
+<div class="embedded" id="thumbnail_0.jpeg"/><div class="package-entry"><h1>thumbnail_0.jpeg</h1></div></body></html>
+
+
+
+The extracted plain text looks like this (using tika-app):
+
+
+The quick brown fox jumps over the lazy dog
+
+
+
+
+
+
+thumbnail_0.jpeg
+
+
+
+The fix is trivial - change the flag in AbstractOOXMLExtractor:158 to false.
+
+I think also that the id attribute should be set to the real thumbnail path within the package (i.e. tPart.getPartName().getName()) instead of the artificially created sequential name.

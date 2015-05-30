@@ -1,0 +1,38 @@
+This is a hole of PIG-1824. If the path of python module is in classpath, job die with the message could not instantiate 'org.apache.pig.scripting.jython.JythonFunction'.
+
+Here is my observation:
+If the path of python module is in classpath, fileEntry we got in JythonScriptEngine:236 is _pyclasspath_/script$py.class instead of the script itself. Thus we cannot locate the script and skip the script in job.xml. 
+
+For example:
+
+
+
+register 'scriptB.py' using org.apache.pig.scripting.jython.JythonScriptEngine as pig
+
+A = LOAD 'table_testPythonNestedImport' as (a0:long, a1:long);
+B = foreach A generate pig.square(a0);
+
+dump B;
+
+scriptB.py:
+
+#!/usr/bin/python
+import scriptA
+@outputSchema("x:{t:(num:double)}")
+def sqrt(number):
+ return (number ** .5)
+@outputSchema("x:{t:(num:long)}")
+def square(number):
+ return long(scriptA.square(number))
+
+scriptA.py:
+
+#!/usr/bin/python
+def square(number):
+ return (number * number)
+
+
+
+When we register scriptB.py, we use jython library to figure out the dependent modules scriptB relies on, in this case, scriptA. However, if current directory is in classpath, instead of scriptA.py, we get _pyclasspath/scriptA.class. Then we try to put __pyclasspath/script$py.class into job.jar, Pig complains __pyclasspath_/script$py.class does not exist. 
+
+This is exactly TestScriptUDF.testPythonNestedImport is doing. In hadoop 20.x, the test still success because MiniCluster will take local classpath so it can still find scriptA.py even if it is not in job.jar. However, the script will fail in real cluster and MiniMRYarnCluster of hadoop 23.

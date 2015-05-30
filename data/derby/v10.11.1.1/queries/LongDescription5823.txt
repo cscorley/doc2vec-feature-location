@@ -1,0 +1,20 @@
+Exeuting an insert that results in multiple rows being inserted into a table without any generated keys defined fails if the JDBC statement is configured to return generated keys. Example stack trace:
+
+Caused by: ERROR XSCH4: Conglomerate could not be created.
+        at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:268)
+        at org.apache.derby.impl.store.access.heap.Heap.create(Heap.java:296)
+        at org.apache.derby.impl.store.access.heap.HeapConglomerateFactory.createConglomerate(HeapConglomerateFactory.java:206)
+        at org.apache.derby.impl.store.access.RAMTransaction.createConglomerate(RAMTransaction.java:820)
+        at org.apache.derby.impl.sql.execute.TemporaryRowHolderImpl.insert(TemporaryRowHolderImpl.java:302)
+        at org.apache.derby.impl.sql.execute.InsertResultSet.normalInsertCore(InsertResultSet.java:1007)
+        at org.apache.derby.impl.sql.execute.InsertResultSet.open(InsertResultSet.java:508)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:443)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:324)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1242)
+        ... 30 more
+
+This happens only with multi-row inserts, and only with the embedded driver (the client driver uses IDENTITY_VAL_LOCAL).
+The problem is that Derby tries to create a temporary conglomerate with a zero-length row template. A guard against this scenario is probably missing.
+
+FYI, the transition threshold (from in-memory to on-disk) is currently five rows.
+I marked versions back to 10.7 as affected, but this bug probably goes back all the way.

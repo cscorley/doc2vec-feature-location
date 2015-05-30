@@ -1,0 +1,17 @@
+Right now if you want to connect with a lowercase authorization id, you need to double-quote it:
+
+  connect 'jdbc:derby:db;user="dbo";password=dbo_password';
+
+But you don't use double-quotes when creating NATIVE credentials for that user:
+
+  call syscs_util.syscs_create_user( 'dbo', 'dbo_password' );
+
+I will attach a proof-of-concept patch which causes the NATIVE procedures to normalize USERNAME arguments before using them to key into SYS.SYSUSERS. This preserves the following feature of the current implementation:
+
+1) Only one set of NATIVE credentials can be stored for a given authorization id. Note that this differs from the behavior of other authentication schemes. The other authentication schemes let you store a set of credentials for every upper/lower-case permutation of the authorization id. To me , this seems like a big security hole in those other authentication schemes.
+
+In addition, the proof-of-concept patch has the following behavior:
+
+2) You connect with the same username string which you use when calling syscs_util.syscs_create_user.
+
+If this seems like the right casing behavior, I will write some tests and check this in.

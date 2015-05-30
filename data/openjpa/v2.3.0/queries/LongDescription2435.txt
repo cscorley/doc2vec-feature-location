@@ -1,0 +1,23 @@
+I've recreated an issue where a @Version field is returned as an Integer when the field is defined as a Long or Short.  To explain, lets take this entity:
+
+@Entity
+public class LongVersionEntity implements Serializable {
+.......
+    @Version
+    protected Long version;
+.......
+
+With this entity take the following query:
+
+String str = "SELECT o.id, o.version FROM LongVersionEntity o";
+Query query = em.createQuery(str);
+List<Object[]> objectList = query.getResultList();
+for (Object[] objects : objectList) {
+    objects[1].getClass() //Will return Integer.
+
+Notice in this query we are selecting the version field.  When iterating over the results, we will find that objects[1].getClass() will return Integer, rather than Long.  The same seems to be true for the other supported types, except for Timestamp.
+I will provide a full test in the next day or so.
+
+Thanks,
+
+Heath

@@ -1,0 +1,60 @@
+Considering the following script, it works perfectly fine or the script never ends depending on the fields used at output.
+
+input ("scores" file) contains:
+------------------
+test1;0.1
+test2;0.9
+test1;0.3
+------------------
+
+------------------------------------------------------------------------------
+score_list = LOAD  'scores' USING PigStorage(';')
+  AS (word: chararray, score: double);
+
+score_list_ = FOREACH score_list GENERATE
+  word,
+  score,
+  0 AS joinField;
+
+group_score = GROUP score_list ALL;
+sum_score = FOREACH group_score GENERATE
+  0 AS joinField,
+  SUM(score_list.score) as scoreTotal;
+
+score_with_sum = JOIN score_list_ BY joinField, sum_score BY joinField;
+out = FOREACH score_with_sum GENERATE word, (score / scoreTotal);
+DUMP out;
+------------------------------------------------------------------------------
+
+This works fine
+
+But if I change "out" to : out = FOREACH score_with_sum GENERATE word;
+
+Then the script never ends and the output keeps repeating lines likes:
+2011-06-15 15:00:22,536 [SpillThread] INFO  org.apache.hadoop.mapred.MapTask - Finished spill 24
+2011-06-15 15:00:22,889 [Thread-13] INFO  org.apache.hadoop.mapred.MapTask - Spilling map output: record full = true
+2011-06-15 15:00:22,889 [Thread-13] INFO  org.apache.hadoop.mapred.MapTask - bufstart = 65535810; bufend = 68157240; bufvoid = 99614720
+2011-06-15 15:00:22,889 [Thread-13] INFO  org.apache.hadoop.mapred.MapTask - kvstart = 327661; kvend = 262124; length = 327680
+2011-06-15 15:00:22,994 [SpillThread] INFO  org.apache.hadoop.mapred.MapTask - Finished spill 25
+2011-06-15 15:00:23,345 [Thread-13] INFO  org.apache.hadoop.mapred.MapTask - Spilling map output: record full = true
+2011-06-15 15:00:23,345 [Thread-13] INFO  org.apache.hadoop.mapred.MapTask - bufstart = 68157240; bufend = 70778670; bufvoid = 99614720
+2011-06-15 15:00:23,345 [Thread-13] INFO  org.apache.hadoop.mapred.MapTask - kvstart = 262124; kvend = 196587; length = 327680
+2011-06-15 15:00:23,447 [SpillThread] INFO  org.apache.hadoop.mapred.MapTask - Finished spill 26
+2011-06-15 15:00:23,794 [Thread-13] INFO  org.apache.hadoop.mapred.MapTask - Spilling map output: record full = true
+2011-06-15 15:00:23,794 [Thread-13] INFO  org.apache.hadoop.mapred.MapTask - bufstart = 70778670; bufend = 73400100; bufvoid = 99614720
+2011-06-15 15:00:23,794 [Thread-13] INFO  org.apache.hadoop.mapred.MapTask - kvstart = 196587; kvend = 131050; length = 327680
+2011-06-15 15:00:23,896 [SpillThread] INFO  org.apache.hadoop.mapred.MapTask - Finished spill 27
+2011-06-15 15:00:24,243 [Thread-13] INFO  org.apache.hadoop.mapred.MapTask - Spilling map output: record full = true
+2011-06-15 15:00:24,243 [Thread-13] INFO  org.apache.hadoop.mapred.MapTask - bufstart = 73400100; bufend = 76021530; bufvoid = 99614720
+2011-06-15 15:00:24,243 [Thread-13] INFO  org.apache.hadoop.mapred.MapTask - kvstart = 131050; kvend = 65513; length = 327680
+2011-06-15 15:00:24,346 [SpillThread] INFO  org.apache.hadoop.mapred.MapTask - Finished spill 28
+2011-06-15 15:00:24,692 [Thread-13] INFO  org.apache.hadoop.mapred.MapTask - Spilling map output: record full = true
+2011-06-15 15:00:24,692 [Thread-13] INFO  org.apache.hadoop.mapred.MapTask - bufstart = 76021530; bufend = 78642970; bufvoid = 99614720
+2011-06-15 15:00:24,693 [Thread-13] INFO  org.apache.hadoop.mapred.MapTask - kvstart = 65513; kvend = 327657; length = 327680
+2011-06-15 15:00:24,793 [SpillThread] INFO  org.apache.hadoop.mapred.MapTask - Finished spill 29
+2011-06-15 15:00:25,144 [Thread-13] INFO  org.apache.hadoop.mapred.MapTask - Spilling map output: record full = true
+2011-06-15 15:00:25,144 [Thread-13] INFO  org.apache.hadoop.mapred.MapTask - bufstart = 78642970; bufend = 81264400; bufvoid = 99614720
+2011-06-15 15:00:25,144 [Thread-13] INFO  org.apache.hadoop.mapred.MapTask - kvstart = 327657; kvend = 262120; length = 327680
+
+
+P.S. I know it's possible to refactor the script using casting to scalar 

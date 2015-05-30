@@ -1,0 +1,78 @@
+Hi all, I'm working on some automated analysis of the clusterdump output using '-of = JSON'. While digging into the structure of the representation of the data I've noticed something that seems a little odd to me.
+
+In order to access the data for a particular cluster, the 'cluster', 'n', 'c' & 'r' values are all in one continuous string. For example:
+
+
+{"cluster":"VL-10515{n=5924 c=[action:0.023, adherence:0.223, administration:0.011 r=[action:0.446, adherence:1.501, administration:0.306]}"}
+
+
+
+This is also the case for the "point":
+
+
+{"point":"013FFD34580BA31AECE5D75DE65478B3D691D138 = [body:6.904, harm:10.101]","vector_name":"013FFD34580BA31AECE5D75DE65478B3D691D138","weight":"1.0"}
+
+
+
+This leads me to believe that the only way I can get to the individual data in these items is by string parsing. For JSON deserialization I would have expected to see something along the lines of:
+
+
+{
+    "cluster":"VL-10515",
+    "n":5924,
+    "c":
+    [
+        {"action":0.023},
+        {"adherence":0.223},
+        {"administration":0.011}
+    ],
+    "r":
+    [
+        {"action":0.446},
+        {"adherence":1.501},
+        {"administration":0.306}
+    ]
+}
+
+
+
+and:
+
+
+{
+    "point": {
+        "body": 6.904,
+        "harm": 10.101
+    },
+    "vector_name": "013FFD34580BA31AECE5D75DE65478B3D691D138",
+    "weight": 1.0
+} 
+
+
+
+
+Andrew Musselman replied:
+
+
+Looks like a bug to me as well; I would have expected something similar to
+what you were expecting except maybe something like this which puts the "c"
+and "r" values in objects rather than arrays of single-element objects:
+
+
+{
+    "cluster":"VL-10515",
+    "n":5924,
+    "c":
+    {
+        "action":0.023,
+        "adherence":0.223,
+        "administration":0.011
+    },
+    "r":
+    {
+       "action":0.446,
+       "adherence":1.501,
+       "administration":0.306
+    }
+}
+

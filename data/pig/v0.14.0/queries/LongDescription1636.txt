@@ -1,0 +1,13 @@
+The following script fail:
+
+
+a = load 'studenttab10k' as (name: chararray, age: int, gpa: float);
+b = group a all;
+c = foreach b generate SUM(a.age) as total;
+c1= limit c 1;
+d = foreach a generate name, age/(double)c1.total as d_sum;
+store d into '111';
+
+
+
+The problem is we have a reference to c1 in d. In the optimizer, we push limit before foreach, d still reference to limit, and we get the wrong schema for the scalar.

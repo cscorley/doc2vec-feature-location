@@ -1,0 +1,7 @@
+Shashi's last patch on MAHOUT-165 swapped out the int/double parallel array impl of SparseVector for an OpenIntDoubleMap (hash-based) one.  We actually need both, as I think I've mentioned a gazillion times.
+
+There was a patch, long ago, on MAHOUT-165, in which Ted had OrderedIntDoubleVector, and OpenIntDoubleHashVector (or something to that effect), and neither of them are called SparseVector.  I like this, because it forces people to choose what kind of SparseVector they want (and they should: sparse is an optimization, and the client should make a conscious decision what they're optimizing for).  
+
+We could call them RandomAccessSparseVector and SequentialAccessSparseVector, to be really obvious.
+
+But really, the important part is we have both.

@@ -1,0 +1,3 @@
+If you try to connect to embedded Derby from two threads simultaneously, and the embedded driver has not been loaded yet, one of the threads will trigger auto-loading of the driver and connect successfully, whereas the other thread will fail with this message: java.sql.SQLException: No suitable driver found for jdbc:derby:db;create=true
+
+This problem has been present since JDBC 4 auto-loading was implemented (10.2.1.6).

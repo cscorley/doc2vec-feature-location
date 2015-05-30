@@ -1,0 +1,1 @@
+Currently, Utils.setTmpFileCompressionOnConf(pigContext, conf); is invoked for every job. In case of Seqfile, this api sets mapreduce params on conf to assist SequenceFileInterStorage. However, as a side effect, this might change the behavior of other storers due to these mapred properties. This api should only be called for jobs with intermediate storage.

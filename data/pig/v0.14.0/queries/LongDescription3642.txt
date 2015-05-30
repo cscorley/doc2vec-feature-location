@@ -1,0 +1,19 @@
+With this patch I'd like to add the possibility to directly read data from HDFS instead of launching MR jobs in case of simple (map-only) tasks. Hive already has this feature (fetch). This patch shares some similarities with the local mode of Pig 0.6. Here, fetching kicks off when the following holds for a script:
+
+
+	it contains only LIMIT, FILTER, UNION (if no split is generated), STREAM, (nested) FOREACH with expression operators, custom UDFs..etc
+	no scalar aliases
+	no SampleLoader
+	single leaf job
+	DUMP (no STORE)
+
+
+
+The feature is enabled by default and can be toggled with:
+
+	-N or -no_fetch
+	set opt.fetch true/false;
+
+
+
+There's no STORE support because I wanted to make it explicit that this "optimization" is for launching small/simple scripts during development, rather than querying and filtering large number of rows on the client machine. However, a threshold could be given on the input size (an estimation) to determine whether to prefer fetch over MR jobs, similar to what Hive's 'hive.fetch.task.conversion.threshold' does. (through Pig's LoadMetadata#getStatistic ?)

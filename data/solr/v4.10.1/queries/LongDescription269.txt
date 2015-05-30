@@ -1,0 +1,20 @@
+A simple UpdateRequestProcessor was added to a bloated SOLR-133 commit. 
+
+An UpdateRequestProcessor lets clients plug in logic after a document has been parsed and before it has been 'updated' with the index.  This is a good place to add custom logic for:
+
+	transforming the document fields
+	fine grained authorization (can user X updated document Y?)
+	allow update, but not delete (by query?)
+
+
+
+
+   <requestHandler name="/update" class="solr.StaxUpdateRequestHandler" >
+     <str name="update.processor.class">org.apache.solr.handler.UpdateRequestProcessor</str>
+     <lst name="update.processor.args">
+      ... (optionally pass in arguments to the factory init method) ...
+     </lst> 
+   </requestHandler>
+
+
+http://www.nabble.com/Re%3A-svn-commit%3A-r547495---in--lucene-solr-trunk%3A-example-solr-conf-solrconfig.xml-src-java-org-apache-solr-handler-StaxUpdateRequestHandler.java-src-java-org-apache-solr-handler-UpdateRequestProcessor.jav-tf3950072.html#a11206583

@@ -1,0 +1,24 @@
+When Turkish locale is used in EE (AppServer) environment, entity class transformation failed with the following exception.
+
+org.apache.openjpa.util.GeneralException: An error occurred while enhancing 
+itemejb3.ItemJPA. Exception message: org.apache.openjpa.enhance.StateManager.replace�ntField(org.apache.openjpa.enhance.PersistenceCapable, int)
+	at org.apache.openjpa.enhance.PCEnhancer.run(PCEnhancer.java:538)
+	at org.apache.openjpa.enhance.PCClassFileTransformer.transform0(PCClassFileTransformer.java:146)
+	at org.apache.openjpa.enhance.PCClassFileTransformer.transform(PCClassFileTransformer.java:120)
+	at org.apache.openjpa.persistence.PersistenceProviderImpl$ClassTransformerImpl.transform(PersistenceProviderImpl.java:210)
+	at com.ibm.ws.jpa.management.JPAPUnitInfo.transformClass(JPAPUnitInfo.java:1815)
+        ......
+Caused by: java.lang.NoSuchMethodException: 
+org.apache.openjpa.enhance.StateManager.replace�ntField(org.apache.openjpa.enhance.PersistenceCapable, int)
+	at java.lang.Class.throwNoSuchMethodException(Class.java:283)
+	at java.lang.Class.getDeclaredMethod(Class.java:609)
+	at org.apache.openjpa.lib.util.J2DoPrivHelper$8.run(J2DoPrivHelper.java:288)
+	at java.security.AccessController.doPrivileged(AccessController.java:251)
+	at org.apache.openjpa.enhance.PCEnhancer.getMethod(PCEnhancer.java:2597)
+	at org.apache.openjpa.enhance.PCEnhancer.getStateManagerMethod(PCEnhancer.java:2546)
+	at org.apache.openjpa.enhance.PCEnhancer.addReplaceFieldsMethods(PCEnhancer.java:1338)
+	at org.apache.openjpa.enhance.PCEnhancer.addPCMethods(PCEnhancer.java:1070)
+	at org.apache.openjpa.enhance.PCEnhancer.run(PCEnhancer.java:523)
+	... 33 more
+
+Albert Lee.

@@ -1,0 +1,8 @@
+The following query does not generate the correct SQL with Oracle : 
+"SELECT e,d from Employee e, Dependent d "
+                + "WHERE e.empId = :empid "
+                + "AND d.id.empid = (SELECT MAX (e2.empId) FROM Employee e2) "
+                + "AND d.id.effDate > :minDate "
+                + "AND d.id.effDate < :maxDate ";
+
+The problem will exist with any DBDictionary that uses JoinSyntaxes.SYNTAX_DATABASE (no joins will be created for Dependent). 

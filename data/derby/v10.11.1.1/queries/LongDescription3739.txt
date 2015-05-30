@@ -1,0 +1,11 @@
+If ArrayInputStream.skip() is called with a large value (like Long.MAX_VALUE) an internal calculation may overflow and cause unexpected results.
+
+It's the line which says
+
+    if ((position + count) > end) {
+
+that can overflow. If count (a long) is so big that position + count doesn't fit in a long, the condition will evaluate to false although it should have evaluated to true. Changing the condition to (count > end - position) will fix the problem. Alternatively, we could simplify the entire method body to:
+
+    count = Math.min(count, end - position);
+    position += count;
+    return count;

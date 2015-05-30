@@ -1,0 +1,25 @@
+I have an input file that contains 50,000 distinct integers. Each integer is repeated twice, for a total of 100,000 lines.
+
+Script 1, using GROUP BY to get distinct entries in the data, works:
+
+
+
+grunt> f = load 'tmp/dupnumbers.txt';              
+grunt> d = foreach (group f by $0) generate group; 
+grunt> s = sample d 0.01;                          
+grunt> n = foreach (group s all) generate COUNT(s);
+grunt> dump n;
+(493)
+
+
+
+Script 2, using DISTINCT for the same purpose, allows sampling to be done before DISTINCT:
+
+
+
+grunt> f = load 'tmp/dupnumbers.txt';              
+grunt> d = distinct f;
+grunt> s = sample d 0.01;                          
+grunt> n = foreach (group s all) generate COUNT(s);
+(980)
+

@@ -1,0 +1,23 @@
+This problem was discovered while working a separate issue with the EHCache plugin developer (Craig Andrews).  The complete exchange can be found on this EHCache bug tracker [1].  According to the latest JPA 2.0 spec, the contract for Cache.evict(Clazz) is as follows:
+
+/**
+
+	Remove the data for entities of the specified class (and its
+	subclasses) from the cache.
+*/
+public void evict(Class cls);
+
+
+
+But, we are not removing the subclasses.  We need to change our implementation of Cache.evict(Clazz) to be consistent with the spec.
+
+Also, as we were digging into this area of the code, the internal OpenJPA DataCache implementation of the removeAllInternal(Clazz, boolean) method is not taking the boolean into account.  We should correct this implementation at the same time.
+
+Thanks,
+Kevin
+
+
+
+
+
+[1]  https://sourceforge.net/tracker/index.php?func=detail&aid=2828752&group_id=93232&atid=603559

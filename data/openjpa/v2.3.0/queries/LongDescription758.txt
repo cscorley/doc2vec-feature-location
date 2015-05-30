@@ -1,0 +1,29 @@
+We are working with ValueHandlers for enterprise applications that   
+will be deployed on WebSphere, currently 6.1.0.19. We believe that the   
+current OpenJPA implementation has made a less than stellar choice in   
+how to load value handlers, and suggest a change
+
+
+ValueHandlers are naturally (or so we find) specific for certain value   
+types, that are often dependent on the semantics of your business, and   
+thus are part of the application, in some way bundled in the ear you   
+are deploying. We do unit testing out of the container with OpenJPA   
+1.0.3, and everything works like a charm. 
+
+When we deploy on WebSphere however, nothing works. OpenJPA does not   
+find our value handlers. 
+Luckily OpenJPA is open source , so we found with certainty that   
+the reason is that OpenJPA tries to load the value handler with the   
+class loader that loaded the meta information for the property. The   
+class of that object is part of OpenJPA, and inside WebSphere, OpenJPA   
+is loaded with a class loader that has no access to the application   
+code, the code in the ear. So, ClassNotFoundException. Bummer. 
+
+The long term solution, we believe, is not to use the classloader   
+associated with the meta information for the property (i.e., the   
+OpenJPA class loader), but instead the class loader of the entity for   
+which we are working (which is also reachable via the parameters of   
+the method that does the loading). Using the class loader of the   
+actual value we want to handle is not an option, since the value can   
+be null. The entity however is normally also part of the application,   
+the ear, and cannot be null. 

@@ -1,0 +1,12 @@
+here comes the stacktrace:
+<error message="unable to create new native thread" type="java.lang.OutOfMemoryError">java.lang.OutOfMemoryError: unable to create new native thread
+        at java.lang.Thread.start0(Native Method)
+        at java.lang.Thread.start(Thread.java:597)
+        at org.apache.openjpa.slice.TestQueryMultiThreaded.testHeavyLoad(TestQueryMultiThreaded.java:236)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+        at java.lang.reflect.Method.invoke(Method.java:597)
+        at junit.framework.TestCase.runTest(TestCase.java:154)
+
+reducing the thread count to 800 should help to prevent this problem. This might be caused to the 1024 processes ulimit on most linux installations.

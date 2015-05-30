@@ -1,0 +1,39 @@
+The following code checking that a CLOSE_CURSORS_AT_COMMIT ResultSet is closed by xa_start  throws the wrong exception for embedded, indicating that there is no current connection instead of the ResultSet  being closed.
+   Statement s4 = conn4.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY, ResultSet.CLOSE_CURSORS_AT_COMMIT);
+        ResultSet rs4 = s4.executeQuery("select i from autocommitxastart");
+        rs4.next();
+        assertEquals(1, rs4.getInt(1));
+        rs4.next();
+        assertEquals(2, rs4.getInt(1));
+
+        // XAResource().start should commit the transaction
+        try 
+{
+            xac4.getXAResource().start(xid4a, XAResource.TMNOFLAGS);
+            xac4.getXAResource().end(xid4a, XAResource.TMSUCCESS);
+        }
+ catch (XAException xae) 
+{
+            fail("unexpected XAException on xac4.getXAResource.start or end");
+        }
+ catch (Exception e) 
+{
+            fail("unexpected Exception on xac4.getXAResource.start or end");
+        }
+
+        // DERBY-1025.
+        // With Embedded, this will give error: 08003 - No current connection
+        // But with NetworkServer / DerbyNetClient, the transaction does not
+        // appear to be closed, and we actually get a value.
+        try 
+{
+            rs4.next();
+            rs4.getInt(1);            
+            fail ("expected an exception indicating resultset is closed.");
+        }
+ catch (SQLException sqle) 
+{
+            // Embedded gets 08003.
+        	if (usingDerbyNetClient())
+        		assertSQLState("XCL16",sqle);
+        }

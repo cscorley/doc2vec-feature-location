@@ -1,0 +1,20 @@
+When issuing a query to many shards or even just one:
+
+http://localhost:8983/solr/select?sort=some_date+desc&indent=on&hl.fl=&q=solr&rows=10&fl=*%2Cscore&qt=standard&wt=ruby&explainOther=&hl.fl=&shards=localhost:8983/solr
+
+It returns:
+java.lang.NullPointerException
+	at org.apache.solr.request.JSONWriter.writeSolrDocumentList(JSONResponseWriter.java:528)
+	at org.apache.solr.request.TextResponseWriter.writeVal(TextResponseWriter.java:147)
+	at org.apache.solr.request.JSONWriter.writeNamedListAsMapWithDups(JSONResponseWriter.java:175)
+	at org.apache.solr.request.JSONWriter.writeNamedList(JSONResponseWriter.java:288)
+	at org.apache.solr.request.JSONWriter.writeResponse(JSONResponseWriter.java:88)
+	at org.apache.solr.request.RubyResponseWriter.write(RubyResponseWriter.java:34)
+	at org.apache.solr.servlet.SolrDispatchFilter.doFilter(SolrDispatchFilter.java:297)
+	at org.mortbay.jetty.servlet.ServletHandler$CachedChain.doFilter(ServletHandler.java:1089)
+
+I tried to swap out the call to writeLong from:
+	   writeFloat(null,docs.getMaxScore());
+to:
+	   writeFloat(null,0);
+and it then works without bringing back the max_score. However, I am not sure why the score is coming back null here. If you return the results in XML it also works so the problem seems limited to JSON and Ruby.

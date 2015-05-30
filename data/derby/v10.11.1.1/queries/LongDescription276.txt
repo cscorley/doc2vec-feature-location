@@ -1,0 +1,13 @@
+If the cursor is not positioned on a row, calling ResultSet.relative() causes the following exception:
+
+Exception in thread "main" ERROR X0X87: ResultSet.relative(int row) cannot be called when the cursor is not positioned on a row.
+        at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:301)
+        at org.apache.derby.impl.sql.execute.ScrollInsensitiveResultSet.getRelativeRow(ScrollInsensitiveResultSet.java:336)
+        at org.apache.derby.impl.jdbc.EmbedResultSet.movePosition(EmbedResultSet.java:366)
+        at org.apache.derby.impl.jdbc.EmbedResultSet.relative(EmbedResultSet.java:1840)
+
+However, The 1.4.2 Javadoc says:
+Note: Calling the method relative(1)  is identical to calling the method next() and calling the method relative(-1) is identical to calling the method previous(). (This is confirmed by the JDBC 3.0 spec, ch. 14.2.2)
+
+Since next() is valid, so should rs.relative(1) (and all other arguments, since a too large value will position the
+cursor after the last row, and a too low value will position it before the first).

@@ -1,0 +1,14 @@
+A pattern in Derby is to use the following piece of code to determine if the data value has a stream or not:
+    if (dvd.getStream() != null) ...
+
+Since the stream has mutable state, obtaining a reference to it just to check if it is not null is sub-optimal for several reasons:
+
+	it may throw an exception (data types not supporting streams)
+	the stream reference is leaked, which is unfortunately if we are / will be required to guarantee something about the stream state (for instance that the descriptor is in sync with the stream).
+	in cases where we have to investigate the state of the stream, we're doing unnecessary work
+	makes it harder to write debug code (i.e., is a stream reference obtained from the data value descriptor more than once?)
+
+
+
+I plan to introduce the method DataValueDescriptor.hasStream, returning a boolean.
+In addition to the obvious check if the stream variable is non-null, it can also be used to instruct Derby to treat certain data values as non-streams even though the underlying value is currently a stream. One example is CHAR and VARCHAR, whose maximum lengths are so small that they should always be materialized to avoid the added complexity coming with streams (stream state, isolation levels - extra lock to keep stream stable?, cloning).

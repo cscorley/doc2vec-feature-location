@@ -1,0 +1,16 @@
+Profiling shows that a significant amount of CPU is spent doing boundary checking in ArrayInputStream.setPosition() and ArrayInputStream.setLimit(). These checks appear to be there to detect error conditions, so it seems more appropriate to make them ASSERTs. Especially since they are so expensive.
+
+DTrace analysis seems to confirm that these methods get called very frequently:
+
+Knut Anders Hatlen wrote the following in a message on derby-dev:
+
+FYI, I just ran the DERBY-1961 test clients and traced them with a
+DTrace script that printed how often each method was called. For the
+join client, ArrayInputStream.setPosition() was the most frequently
+called method (43837.7 calls/tx). For the single-record select client,
+it was third (58.4 calls/tx), only beaten by Object.<init>() and
+DDMWriter.ensureLength(). I think this means that setPosition() is the
+engine method that is most frequently called, at least in read-mostly
+transactions.  ArrayInputStream.setLimit() also appeared near the top
+of the list. See http://wiki.apache.org/db-derby/Derby1961MethodCalls
+for the details.

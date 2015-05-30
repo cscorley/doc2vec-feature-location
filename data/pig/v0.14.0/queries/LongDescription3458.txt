@@ -1,0 +1,41 @@
+Our user reported an issue where their scalar results goes missing when having two store statements.
+
+
+A = load 'test1.txt' using PigStorage('\t') as (a:chararray, count:long);
+B = group A all;
+C = foreach B generate SUM(A.count) as total ;
+store C into 'deleteme6_C' using PigStorage(',');
+
+Z = load 'test2.txt' using PigStorage('\t') as (a:chararray, id:chararray );
+Y = group Z by id;
+X = foreach Y generate group, C.total;
+store X into 'deleteme6_X' using PigStorage(',');
+
+====Inputs
+ pig> cat test1.txt
+a       1
+b       2
+c       8
+d       9
+ pig> cat test2.txt
+a       z
+b       y
+c       x
+ pig>
+
+
+
+Result X should contain the total count of '20' but instead it's empty.
+
+
+ pig> cat deleteme6_C/part-r-00000
+20
+ pig> cat deleteme6_X/part-r-00000
+x,
+y,
+z,
+ pig>
+
+
+
+This works if we take out first "store C" statement.

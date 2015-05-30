@@ -1,0 +1,13 @@
+I was perusing the Tuple created by the default Tuple factory, when I wanted it to copy my input list.
+here i noticed that the List constructor uses List.add(index, element), which is different from set(index, element) in that it shifts the right side of the list, with ArrayList this causes an no-op System.arraycopy call which is completely unnecessary.
+Even though the array copy call isn't actually copying any bytes, it's still unnecessary, and can be easily avoided.
+
+it's also N iterate/add function calls, that can be avoided by using:
+
+
+new ArrayList<Object>(c);
+
+
+which, is more efficient. For arbitrary collection inputs this is at worst N iterator calls (same as existing code); when constructing from ArrayLists or Arrays.asList, the construction is accomplished via a single System.arraycopy call, which is an actual improvement.
+
+There do not seem to be DefaultTuple tests.

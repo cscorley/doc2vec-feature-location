@@ -1,0 +1,5 @@
+When PigServer runs it creates temporary files using the FileLocalizer.getTemporaryPath(..). This static method creates and returns a handle to a temporary file (as an instance of ElementDescriptor). The ElementDescriptors returned by this method are kept on a static Stack named toDelete. The items on toDelete get removed by the FileLocalizer.deleteTempFile() method.
+
+The only place in the code where I see FileLocalizer.deleteTempFile() called is in the Main class. PigServer does not call that method though, so a long-running VM that repeatedly uses instances of PigServer to run jobs will leak memory via toDelete.
+
+One suggested fix is to have PigServer.shutdown() call FileLocalizer.deleteTempFile(), but this would cause problems in a multi-threaded environment, since it seems ElementDescriptors are pushed onto the toDelete stack before they're used, not once they're done with. With this approach, running multiple instances of PigServer in separate threads could cause one completed job to clobber the other's still-in-use temp files.

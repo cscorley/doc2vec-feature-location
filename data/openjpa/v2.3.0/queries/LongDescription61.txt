@@ -1,0 +1,31 @@
+A discussion on the dev mailing list indicates that OpenJPA currently does not utilize the TransactionSynchronizationRegistry.  Although OpenJPA does provide other means of finding and accessing the various TransactionManagers, we should update OpenJPA to use the standard interfaces.  Following are the two notes on this subject...
+
+========================================================================================		
+o  David Jencks 	<david_jencks@yahoo.com> to open-jpa-dev 	 More options	  Sep 27 (19 hours ago)
+I'm trying to get openjpa running in geronimo and wonder how openjpa
+locates the TransactionSynchronizationRegistry.  Grep'ing for
+TransactionSynchronizationRegistry I don't see it used anywhere in
+the code base.  What am I missing?
+
+thanks
+david jencks
+========================================================================================
+o  Marc Prud'hommeaux 	to open-jpa-dev	 More options	  Sep 27 (19 hours ago)
+David-
+
+We don't use TransactionSynchronizationRegistry (not yet, at least).
+Instead, we manually locate the TransactionManager via appserver-
+specific heuristics defined in openjpa-kernel/src/main/java/org/
+apache/openjpa/ee/AutomaticManagedRuntime.java
+
+If the Geronimo TransactionManager is accessible from JNDI or some
+method invocation, you can just add it into AutomaticManagedRuntime
+as a default (you can test it out by specifying the
+"openjpa.ManagedRuntime" property to "jndi
+(TransactionManagerName=java:/GeronimoJNDINameForTransactionManager)".
+
+We may add support for integration via
+TransactionSynchronizationRegistry in the future, but the fact that
+it doesn't provide support for accessing the current Transaction
+would mean that we would need to rework some OpenJPA internals.
+========================================================================================

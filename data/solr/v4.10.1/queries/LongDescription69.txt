@@ -1,0 +1,36 @@
+Here's a patch that implements simple support of Lucene's MoreLikeThis class.
+
+The MoreLikeThisHelper code is heavily based on (hmm..."lifted from" might be more appropriate  Erik Hatcher's example mentioned in http://www.mail-archive.com/solr-user@lucene.apache.org/msg00878.html
+
+To use it, add at least the following parameters to a standard or dismax query:
+
+  mlt=true
+  mlt.fl=list,of,fields,which,define,similarity
+
+See the MoreLikeThisHelper source code for more parameters.
+
+Here are two URLs that work with the example config, after loading all documents found in exampledocs in the index (just to show that it seems to work - of course you need a larger corpus to make it interesting):
+
+http://localhost:8983/solr/select/?stylesheet=&q=apache&qt=standard&mlt=true&mlt.fl=manu,cat&mlt.mindf=1&mlt.mindf=1&fl=id,score
+
+http://localhost:8983/solr/select/?stylesheet=&q=apache&qt=dismax&mlt=true&mlt.fl=manu,cat&mlt.mindf=1&mlt.mindf=1&fl=id,score
+
+Results are added to the output like this:
+<response>
+  ...
+  <lst name="moreLikeThis">
+    <result name="UTF8TEST" numFound="1" start="0" maxScore="1.5293242">
+      <doc>
+        <float name="score">1.5293242</float>
+        <str name="id">SOLR1000</str>
+      </doc>
+    </result>
+    <result name="SOLR1000" numFound="1" start="0" maxScore="1.5293242">
+      <doc>
+        <float name="score">1.5293242</float>
+        <str name="id">UTF8TEST</str>
+      </doc>
+    </result>
+  </lst>
+
+I haven't tested this extensively yet, will do in the next few days. But comments are welcome of course.

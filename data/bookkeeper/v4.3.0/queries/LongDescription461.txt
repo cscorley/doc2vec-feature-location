@@ -1,0 +1,3 @@
+When running benchmarking over the hub server, found that delivery throughput degrades when there are lots of publishers publishing messages. And the delivery throughput will goes up when there is no publishes.
+
+This issue is introduced due to ReadAheadCache only runs a single thread. So when the netty workers are busy handling publish requests, they are pushing lots of messages into ReadAheadCache's queue to put them in to read ahead cache. So the readahead cache is busy on updating keys.

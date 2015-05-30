@@ -1,0 +1,12 @@
+Should be able to parse RDF bag elements as multi-valued metadata fields, i.e:
+ <IPTC:Contact>
+  <rdf:Bag>
+   <rdf:li>Ray</rdf:li>
+   <rdf:li>Gavin</rdf:li>
+  </rdf:Bag>
+ </IPTC:Contact>
+
+Unfortunately in some libraries and command lines a single value in that same value may be presented as:
+ <IPTC:Contact>Ray</IPTC:Contact>
+
+ElementMetadataHandler should have a constructor which accepts a metadata Property in addition to the constructor which accepts a metadata name and be able to parse either format above if that Property.PropertyType is a bag.

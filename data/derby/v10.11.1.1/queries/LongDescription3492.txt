@@ -1,0 +1,14 @@
+In MasterController#appendLog, log is force-sent to the slave if the replication log buffer becomes full. However, the log chunk that should have been appended is discarded:
+
+try {
+     logBuffer.appendLog(greatestInstant, log, logOffset, logLength);
+} catch (LogBufferFullException lbfe) {
+     try 
+{
+         logShipper.forceFlush();
+     }
+ catch (IOException ioe) {
+...
+}
+
+The log chunk must be added after freeing a log buffer by calling forceFlush

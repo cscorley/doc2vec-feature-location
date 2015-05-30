@@ -1,0 +1,39 @@
+I ran suites.All on Java 8 EA compact2 profile and saw that the compatibility tests failed many times with errors like this:
+
+1) JDBCDriverTest suitejava.sql.SQLFeatureNotSupportedException: The DDM object 0x1232 is not supported.  The connection has been terminated.
+        at org.apache.derby.client.am.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:92)
+        at org.apache.derby.client.am.SqlException.getSQLException(SqlException.java:364)
+        at org.apache.derby.jdbc.ClientDriver.connect(ClientDriver.java:176)
+        at java.sql.DriverManager.getConnection(DriverManager.java:591)
+        at java.sql.DriverManager.getConnection(DriverManager.java:191)
+        at org.apache.derbyTesting.junit.DriverManagerConnector.openConnection(DriverManagerConnector.java:100)
+        at org.apache.derbyTesting.junit.DriverManagerConnector.openConnection(DriverManagerConnector.java:67)
+        at org.apache.derbyTesting.junit.DriverManagerConnector.openConnection(DriverManagerConnector.java:43)
+        at org.apache.derbyTesting.junit.TestConfiguration.openDefaultConnection(TestConfiguration.java:1687)
+        at org.apache.derbyTesting.junit.BaseJDBCTestSetup.getConnection(BaseJDBCTestSetup.java:72)
+        at org.apache.derbyTesting.functionTests.tests.compatibility.JDBCDriverTest$1.setUp(JDBCDriverTest.java:1360)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:20)
+        at junit.extensions.TestSetup.run(TestSetup.java:25)
+        at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+        at junit.extensions.TestSetup.run(TestSetup.java:25)
+Caused by: org.apache.derby.client.am.DisconnectException: The DDM object 0x1232 is not supported.  The connection has been terminated.
+        at org.apache.derby.client.net.NetConnectionReply.doObjnsprmSemantics(NetConnectionReply.java:2781)
+        at org.apache.derby.client.net.NetConnectionReply.parseCommonError(NetConnectionReply.java:420)
+        at org.apache.derby.client.net.NetConnectionReply.parseSecurityCheckError(NetConnectionReply.java:376)
+        at org.apache.derby.client.net.NetConnectionReply.parseSECCHKreply(NetConnectionReply.java:227)
+        at org.apache.derby.client.net.NetConnectionReply.readSecurityCheck(NetConnectionReply.java:72)
+        at org.apache.derby.client.net.NetConnection.readSecurityCheckAndAccessRdb(NetConnection.java:828)
+        at org.apache.derby.client.net.NetConnection.flowSecurityCheckAndAccessRdb(NetConnection.java:765)
+        at org.apache.derby.client.net.NetConnection.flowUSRIDPWDconnect(NetConnection.java:594)
+        at org.apache.derby.client.net.NetConnection.flowConnect(NetConnection.java:409)
+        at org.apache.derby.client.net.NetConnection.<init>(NetConnection.java:223)
+        at org.apache.derby.client.net.NetConnection40.<init>(NetConnection40.java:74)
+        at org.apache.derby.client.net.ClientJDBCObjectFactoryImpl40.newNetConnection(ClientJDBCObjectFactoryImpl40.java:259)
+        at org.apache.derby.jdbc.ClientDriver.connect(ClientDriver.java:167)
+        ... 21 more
+
+It turns out that network servers that lack the fixes for DERBY-5955 cannot load the EmbeddedDriver. More precisely, they cannot load the full JDBC driver, and they end up using the JSR-169 driver, which is not good enough for the network server.
+
+On compact2, we should skip the compatibility test combinations that use servers older than 10.10.

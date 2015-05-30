@@ -1,0 +1,11 @@
+I'm trying to run RecommenderJob and do --startPhase 2 since I have my prefs already in the right format.  Unfortunately, when I do that, I get:
+
+java.lang.IllegalArgumentException: Number of columns was not correctly set!
+	at com.google.common.base.Preconditions.checkArgument(Preconditions.java:88)
+	at org.apache.mahout.math.hadoop.similarity.RowSimilarityJob$SimilarityReducer.setup(RowSimilarityJob.java:296)
+	at org.apache.hadoop.mapreduce.Reducer.run(Reducer.java:174)
+	at org.apache.hadoop.mapred.ReduceTask.runNewReducer(ReduceTask.java:648)
+	at org.apache.hadoop.mapred.ReduceTask.run(ReduceTask.java:416)
+	at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:256)
+
+This appears to be due to the fact that the numberOfUsers variable defaults to 0 and is only set when phase 1 is run.

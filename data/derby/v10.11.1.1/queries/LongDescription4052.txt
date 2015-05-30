@@ -1,0 +1,7 @@
+The last line of SQLChar.copyState() looks incorrect.
+
+        this.localeFinder = localeFinder;
+
+This line doesn't do anything, since the left side and the right side of the assignment are identical.
+
+It might be intentional, but in that case there should be a comment explaining why. Looking at the rest of the method, it looks like the intention is that the right side of the assignment should be other.localeFinder.

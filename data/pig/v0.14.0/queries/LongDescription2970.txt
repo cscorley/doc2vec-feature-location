@@ -1,0 +1,25 @@
+While looking at PIG-2968, hit a weird error message.
+
+
+$ cat -n test/foreach2.pig
+     1  daily = load 'nyse' as (exchange, symbol);
+     2  grpd = group daily by exchange;
+     3  unique = foreach grpd {
+     4          sym = daily.symbol;
+     5          uniq_sym = distinct sym;
+     6          --ignoring uniq_sym result
+     7          generate group, daily;
+     8  };
+     9  describe unique;
+    10  zzz = foreach unique generate group;
+    11  explain zzz;
+
+% pig -x local -t ColumnMapKeyPrune test/foreach2.pig
+...
+unique: {symbol: bytearray}
+
+2012-10-12 16:55:44,226 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1025: 
+<file test/foreach2.pig, line 10, column 30> Invalid field projection. Projected field [group] does not exist in schema: symbol:bytearray.
+...
+
+

@@ -1,0 +1,9 @@
+Running the Mahout test suite creates the temp directory /tmp/hadoop-$user which is used by all Hadoop related tests that pull up a local cluster. The directory is not removed after running the tests. In particular when running multiple tests in parallel on the same machine as the same user this can lead to problems.
+
+To re-produce issue the following commands prior to running the full test suite:
+
+mkdir /tmp/hadoop-$USER
+
+chmod 000 /tmp/hadoop-$USER
+
+mvn test

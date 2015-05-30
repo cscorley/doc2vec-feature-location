@@ -1,0 +1,62 @@
+When trying to use jbossCache (version 3.2.5) and an embedded derby driver the following exception is thrown when jbossCache tries to persist information to the database
+
+48610 [AsyncCacheLoader-0] ERROR org.jboss.cache.loader.JDBCCacheLoader [] - Failed to insert node :Java exception: ': java.lang.NullPointerException'.
+ 48610 [AsyncCacheLoader-0] WARN  org.jboss.cache.loader.AsyncCacheLoader [] - Failed to process async modifications: java.lang.IllegalStateException: Failed to insert node: Java e
+xception: ': java.lang.NullPointerException'.
+ 48610 [AsyncCacheLoader-0] DEBUG org.jboss.cache.loader.AsyncCacheLoader [] - Exception:
+ java.lang.IllegalStateException: Failed to insert node: Java exception: ': java.lang.NullPointerException'.
+        at org.jboss.cache.loader.AdjListJDBCCacheLoader.insertNode(AdjListJDBCCacheLoader.java:562)
+        at org.jboss.cache.loader.JDBCCacheLoader.addNewSubtree(JDBCCacheLoader.java:367)
+        at org.jboss.cache.loader.JDBCCacheLoader.put(JDBCCacheLoader.java:110)
+        at org.jboss.cache.loader.AbstractCacheLoader.put(AbstractCacheLoader.java:303)
+        at org.jboss.cache.loader.AbstractDelegatingCacheLoader.put(AbstractDelegatingCacheLoader.java:110)
+        at org.jboss.cache.loader.AsyncCacheLoader.access$601(AsyncCacheLoader.java:105)
+        at org.jboss.cache.loader.AsyncCacheLoader$AsyncProcessor.put(AsyncCacheLoader.java:417)
+        at org.jboss.cache.loader.AsyncCacheLoader$AsyncProcessor.run0(AsyncCacheLoader.java:409)
+        at org.jboss.cache.loader.AsyncCacheLoader$AsyncProcessor.run(AsyncCacheLoader.java:371)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)
+        at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+        at java.lang.Thread.run(Thread.java:619)
+Caused by: java.sql.SQLException: Java exception: ': java.lang.NullPointerException'.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:95)
+        at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Util.java:142)
+        at org.apache.derby.impl.jdbc.Util.javaException(Util.java:299)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:403)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:346)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:2269)
+        at org.apache.derby.impl.jdbc.ConnectionChild.handleException(ConnectionChild.java:81)
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement.<init>(EmbedPreparedStatement.java:148)
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement20.<init>(EmbedPreparedStatement20.java:82)
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement30.<init>(EmbedPreparedStatement30.java:63)
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement40.<init>(EmbedPreparedStatement40.java:40)
+        at org.apache.derby.jdbc.Driver40.newEmbedPreparedStatement(Driver40.java:105)
+        at org.apache.derby.impl.jdbc.EmbedConnection.prepareStatement(EmbedConnection.java:1607)
+        at org.apache.derby.impl.jdbc.EmbedConnection.prepareStatement(EmbedConnection.java:1435)
+        at com.mchange.v2.c3p0.impl.NewProxyConnection.prepareStatement(NewProxyConnection.java:213)
+        at org.jboss.cache.loader.AdjListJDBCCacheLoader.prepareAndLogStatement(AdjListJDBCCacheLoader.java:90)
+        at org.jboss.cache.loader.AdjListJDBCCacheLoader.insertNode(AdjListJDBCCacheLoader.java:545)
+        ... 14 more
+Caused by: java.sql.SQLException: Java exception: ': java.lang.NullPointerException'.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(SQLExceptionFactory40.java:119)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:70)
+        ... 30 more
+Caused by: java.lang.NullPointerException
+        at org.apache.derby.impl.sql.compile.CharTypeCompiler.convertible(CharTypeCompiler.java:54)
+        at org.apache.derby.impl.sql.compile.CharTypeCompiler.storable(CharTypeCompiler.java:100)
+        at org.apache.derby.impl.sql.compile.ResultColumn.checkStorableExpression(ResultColumn.java:887)
+        at org.apache.derby.impl.sql.compile.ResultColumn.checkStorableExpression(ResultColumn.java:879)
+        at org.apache.derby.impl.sql.compile.ResultColumnList.checkStorableExpressions(ResultColumnList.java:953)
+        at org.apache.derby.impl.sql.compile.InsertNode.bindStatement(InsertNode.java:456)
+        at org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatement.java:324)
+        at org.apache.derby.impl.sql.GenericStatement.prepare(GenericStatement.java:90)
+        at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(GenericLanguageConnectionContext.java:828)
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement.<init>(EmbedPreparedStatement.java:130)
+        ... 23 more
+
+It works fine using ClientDriver.
+
+Sample code and configuration files are attached.

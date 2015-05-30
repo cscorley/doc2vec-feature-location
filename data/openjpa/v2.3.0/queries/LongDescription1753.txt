@@ -1,0 +1,11 @@
+This test case spawns three threads and the pass/no pass of the test cases depends on the timing. 
+
+	One example is TestMixedLockManagerFindPermutation.testFindReadPessimisticRead: 
+        commonFindTest(
+            "testFind(Read,Commit/PessimisticRead,Rollback)",
+            LockModeType.READ, Act.CommitTx, 1, null,
+            LockModeType.PESSIMISTIC_READ, Act.RollbackTx, 1, null);
+
+	If the find by the second child [Thread-8] is executed before the jdbc commit of the update statement by the first child [Thread-7], the test will fail. Attached are the trace file for the successful run and failing run. 
+
+

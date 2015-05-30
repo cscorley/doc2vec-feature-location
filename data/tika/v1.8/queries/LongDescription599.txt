@@ -1,0 +1,18 @@
+When using tika to index web crawls, I seem to have run across a thread-safety issue with the autodetect parser. My indexer has gone into an apparent loop with all 5 threads in the same bit of code:
+
+"Thread-5" prio=3 tid=0x0898a400 nid=0x19 runnable [0x75238000]
+   java.lang.Thread.State: RUNNABLE
+        at java.util.HashMap.get(HashMap.java:303)
+        at org.ccil.cowan.tagsoup.Schema.getElementType(Schema.java:122)
+        at org.ccil.cowan.tagsoup.Parser.gi(Parser.java:959)
+        at org.ccil.cowan.tagsoup.HTMLScanner.scan(HTMLScanner.java:505)
+        at org.ccil.cowan.tagsoup.Parser.parse(Parser.java:449)
+        at org.apache.tika.parser.html.HtmlParser.parse(HtmlParser.java:198)
+        at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:197)
+        at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:197)
+        at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:135)
+        ....
+
+This is the same line in HashMap as we see in TIKA-374.
+
+Let me know if you need any more information. This is with the latest tika-0.9.

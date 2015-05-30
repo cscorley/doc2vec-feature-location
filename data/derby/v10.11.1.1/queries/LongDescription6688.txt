@@ -1,0 +1,60 @@
+This subquery usage works:
+
+
+select * from (select x from t order by row_number() over () fetch first 1 row only) tt;
+
+
+but this one leads to NPE in insane mode, or a Sanity ASSERT failure in sane mode:
+
+
+select * from t where x =  (select x from t order by row_number() over () fetch first row only);
+
+
+leading to this error:
+
+
+Exception in thread "main" java.sql.SQLException: Java exception: ': java.lang.NullPointerException'.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.Util.seeNextException(Unknown Source)
+        at org.apache.derby.impl.jdbc.Util.javaException(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.ConnectionChild.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+        at derby6565.Derby6565.main(Derby6565.java:33)
+Caused by: ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+        at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory.wrapArgsForTransportAcrossDRDA(Unknown Source)
+        ... 11 more
+Caused by: java.lang.NullPointerException
+        at org.apache.derby.impl.sql.compile.UnaryOperatorNode.getReceiverInterfaceName(Unknown Source)
+        at org.apache.derby.impl.sql.compile.UnaryOperatorNode.generateExpression(Unknown Source)
+        at org.apache.derby.impl.sql.compile.ResultColumn.generateExpression(Unknown Source)
+        at org.apache.derby.impl.sql.compile.ResultColumnList.generateEvaluatedRow(Unknown Source)
+        at org.apache.derby.impl.sql.compile.ResultColumnList.generateCore(Unknown Source)
+        at org.apache.derby.impl.sql.compile.ProjectRestrictNode.generateMinion(Unknown Source)
+        at org.apache.derby.impl.sql.compile.ProjectRestrictNode.generate(Unknown Source)
+        at org.apache.derby.impl.sql.compile.OrderByList.generate(Unknown Source)
+        at org.apache.derby.impl.sql.compile.OrderByNode.generate(Unknown Source)
+        at org.apache.derby.impl.sql.compile.ProjectRestrictNode.generateMinion(Unknown Source)
+        at org.apache.derby.impl.sql.compile.ProjectRestrictNode.generate(Unknown Source)
+        at org.apache.derby.impl.sql.compile.RowCountNode.generate(Unknown Source)
+        at org.apache.derby.impl.sql.compile.SubqueryNode.generateExpression(Unknown Source)
+        at org.apache.derby.impl.sql.compile.BinaryOperatorNode.generateExpression(Unknown Source)
+        at org.apache.derby.impl.sql.compile.ResultColumn.generateExpression(Unknown Source)
+        at org.apache.derby.impl.sql.compile.ResultColumnList.generateEvaluatedRow(Unknown Source)
+        at org.apache.derby.impl.sql.compile.ResultColumnList.generateCore(Unknown Source)
+        at org.apache.derby.impl.sql.compile.ProjectRestrictNode.generateMinion(Unknown Source)
+        at org.apache.derby.impl.sql.compile.ProjectRestrictNode.generate(Unknown Source)
+        at org.apache.derby.impl.sql.compile.UpdateNode.generate(Unknown Source)
+        at org.apache.derby.impl.sql.compile.StatementNode.generate(Unknown Source)
+        at org.apache.derby.impl.sql.GenericStatement.prepMinion(Unknown Source)
+        at org.apache.derby.impl.sql.GenericStatement.prepare(Unknown Source)
+        at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(Unknown Source)
+        ... 3 more
+
+
+The immediate problem is that the field #operand is null.

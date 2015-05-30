@@ -1,0 +1,6 @@
+OpenJPA invokes postPersist call back after commit or flush. This is compliant to JPA spec. But the spec itself is slightly ambiguous about what a 'persistent identity' is and when it is assigned to a persistent instance. 
+But if an application wants to receive a postPersist callback immediately after persist() – currently there is no choice. 
+
+This is a proposal to allow a configuration option for such behavior. A boolean option (added to MetaDataDefaults) that controls whether postPersist() is called back after commit/flush (default behavior as it exists now) or immediately after persist().
+
+Given that the proposed configurable behavior is beyond the spec, I will welcome your comments/views.

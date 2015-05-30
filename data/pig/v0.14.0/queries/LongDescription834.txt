@@ -1,0 +1,58 @@
+a = load 'students.txt' as (c1,c2,c3,c4); 
+c = group a by c2;  
+f = foreach c generate COUNT(org.apache.pig.builtin.Distinct($1.$2));
+
+Notice that Distinct udf is missing in Combiner and reduce stage. As a result distinct does not function, and incorrect results are produced.
+Distinct should have been evaluated in the 3 stages and output of Distinct should be given to COUNT in reduce stage.
+
+
+
+# Map Reduce Plan                                  
+#--------------------------------------------------
+MapReduce node 1-122
+Map Plan
+Local Rearrange[tuple]{bytearray}(false) - 1-139
+|   |
+|   Project[bytearray][1] - 1-140
+|
+|---New For Each(false,false)[bag] - 1-127
+    |   |
+    |   POUserFunc(org.apache.pig.builtin.COUNT$Initial)[tuple] - 1-125
+    |   |
+    |   |---POUserFunc(org.apache.pig.builtin.Distinct)[bag] - 1-126
+    |       |
+    |       |---Project[bag][2] - 1-123
+    |           |
+    |           |---Project[bag][1] - 1-124
+    |   |
+    |   Project[bytearray][0] - 1-133
+    |
+    |---Pre Combiner Local Rearrange[tuple]{Unknown} - 1-141
+        |
+        |---Load(hdfs://wilbur11.labs.corp.sp1.yahoo.com/user/tejas/students.txt:org.apache.pig.builtin.PigStorage) - 1-111--------
+Combine Plan
+Local Rearrange[tuple]{bytearray}(false) - 1-143
+|   |
+|   Project[bytearray][1] - 1-144
+|
+|---New For Each(false,false)[bag] - 1-132
+    |   |
+    |   POUserFunc(org.apache.pig.builtin.COUNT$Intermediate)[tuple] - 1-130
+    |   |
+    |   |---Project[bag][0] - 1-135
+    |   |
+    |   Project[bytearray][1] - 1-134
+    |
+    |---POCombinerPackage[tuple]{bytearray} - 1-137--------
+Reduce Plan
+Store(fakefile:org.apache.pig.builtin.PigStorage) - 1-121
+|
+|---New For Each(false)[bag] - 1-120
+    |   |
+    |   POUserFunc(org.apache.pig.builtin.COUNT$Final)[long] - 1-119
+    |   |
+    |   |---Project[bag][0] - 1-136
+    |
+    |---POCombinerPackage[tuple]{bytearray} - 1-145--------
+Global sort: false
+

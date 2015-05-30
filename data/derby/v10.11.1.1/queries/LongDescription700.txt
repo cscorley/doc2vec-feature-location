@@ -1,0 +1,21 @@
+Derby does not prevent dual boot from two different classloaders on Linux and Mac OS X.
+
+
+To reproduce run the  program DualBootRepro with no derby jars in your classpath. The program assumes derby.jar is in 10.1.2.1/derby.jar, you can change the location by changing the DERBY_LIB_DIR variable.
+
+On Linux the output is:
+
+$java -cp . DualBootRepro
+Loading derby from file:10.1.2.1/derby.jar
+10.1.2.1/derby.jar
+Booted database in loader java.net.URLClassLoader@8ed465
+FAIL: Booted database in 2nd loader java.net.URLClassLoader@dc6a77
+
+
+On Windows I get the expected output.
+$ java -cp . DualBootRepro
+Loading derby from file:10.1.2.1/derby.jar
+10.1.2.1/derby.jar
+Booted database in loader java.net.URLClassLoader@1ac04e8
+PASS: Expected exception for dualboot:Another instance of Derby may have already booted the database D:\marsden\repro\dualboot\mydb.
+

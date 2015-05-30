@@ -1,0 +1,19 @@
+As part of the Hadoop stack integration project (Apache Bigtop) we are now trying to compile Mahout's upcoming 0.6 release against Hadoop 0.22 and 0.23.
+
+I'm attaching the patch to Mahout's Maven build system that made it possible. I would also like to request help in solving the real issues that poped
+up when we tried to compile Mahout: http://bigtop01.cloudera.org:8080/job/Bigtop-hadoop22/COMPONENT=mahout,label=centos5/6/console
+
+
+[ERROR] /mnt/jenkins/workspace/workspace/Bigtop-hadoop22/COMPONENT/mahout/label/centos5/build/mahout/rpm/BUILD/apache-mahout-c298f70/core/src/test/java/org/apache/mahout/df/mapreduce/partial/Step0JobTest.java:[182,33] org.apache.hadoop.mapreduce.TaskAttemptContext is abstract; cannot be instantiated
+[ERROR] /mnt/jenkins/workspace/workspace/Bigtop-hadoop22/COMPONENT/mahout/label/centos5/build/mahout/rpm/BUILD/apache-mahout-c298f70/core/src/test/java/org/apache/mahout/df/mapreduce/partial/Step0JobTest.java:[218,9] org.apache.mahout.df.mapreduce.partial.Step0JobTest.Step0Context is not abstract and does not override abstract method getInputSplit() in org.apache.hadoop.mapreduce.MapContext
+[ERROR] /mnt/jenkins/workspace/workspace/Bigtop-hadoop22/COMPONENT/mahout/label/centos5/build/mahout/rpm/BUILD/apache-mahout-c298f70/core/src/test/java/org/apache/mahout/df/mapreduce/partial/Step0JobTest.java:[229,12] cannot find symbol
+[ERROR] symbol  : constructor Context(org.apache.hadoop.conf.Configuration,org.apache.hadoop.mapreduce.TaskAttemptID,<nulltype>,<nulltype>,<nulltype>,<nulltype>,<nulltype>)
+[ERROR] location: class org.apache.hadoop.mapreduce.Mapper.Context
+[ERROR] /mnt/jenkins/workspace/workspace/Bigtop-hadoop22/COMPONENT/mahout/label/centos5/build/mahout/rpm/BUILD/apache-mahout-c298f70/core/src/test/java/org/apache/mahout/common/DummyRecordWriter.java:[68,18] org.apache.hadoop.mapreduce.Mapper.Context is abstract; cannot be instantiated
+[ERROR] /mnt/jenkins/workspace/workspace/Bigtop-hadoop22/COMPONENT/mahout/label/centos5/build/mahout/rpm/BUILD/apache-mahout-c298f70/core/src/test/java/org/apache/mahout/common/DummyRecordWriter.java:[77,19] org.apache.hadoop.mapreduce.Reducer.Context is abstract; cannot be instantiated
+[ERROR] /mnt/jenkins/workspace/workspace/Bigtop-hadoop22/COMPONENT/mahout/label/centos5/build/mahout/rpm/BUILD/apache-mahout-c298f70/core/src/test/java/org/apache/mahout/df/mapreduce/partial/PartialSequentialBuilder.java:[110,30] org.apache.hadoop.mapreduce.TaskAttemptContext is abstract; cannot be instantiated
+[ERROR] /mnt/jenkins/workspace/workspace/Bigtop-hadoop22/COMPONENT/mahout/label/centos5/build/mahout/rpm/BUILD/apache-mahout-c298f70/core/src/test/java/org/apache/mahout/df/mapreduce/partial/PartialSequentialBuilder.java:[206,28] org.apache.hadoop.mapreduce.JobContext is abstract; cannot be instantiated
+[ERROR] /mnt/jenkins/workspace/workspace/Bigtop-hadoop22/COMPONENT/mahout/label/centos5/build/mahout/rpm/BUILD/apache-mahout-c298f70/core/src/test/java/org/apache/mahout/df/mapreduce/partial/PartialSequentialBuilder.java:[227,30] org.apache.hadoop.mapreduce.TaskAttemptContext is abstract; cannot be instantiated
+[ERROR] /mnt/jenkins/workspace/workspace/Bigtop-hadoop22/COMPONENT/mahout/label/centos5/build/mahout/rpm/BUILD/apache-mahout-c298f70/core/src/test/java/org/apache/mahout/df/mapreduce/partial/MockContext.java:[30,6] org.apache.mahout.df.mapreduce.partial.MockContext is not abstract and does not override abstract method getInputSplit() in org.apache.hadoop.mapreduce.MapContext
+[ERROR] /mnt/jenkins/workspace/workspace/Bigtop-hadoop22/COMPONENT/mahout/label/centos5/build/mahout/rpm/BUILD/apache-mahout-c298f70/core/src/test/java/org/apache/mahout/df/mapreduce/partial/MockContext.java:[38,10] cannot find symbol
+

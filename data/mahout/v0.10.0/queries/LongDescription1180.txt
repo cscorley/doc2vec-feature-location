@@ -1,0 +1,8 @@
+Here's [1] an example of the problem (from BallKMeans, lines 225-232, [2]).
+
+When iterating through the elements in a Multinomial and updating the probabilities, sometimes newWeight becomes 0 (because of using CosineDistances).
+When setting a weight to 0 in Multinomial, the element is removed from the items hash map while using the hash map for iteration.
+This causes a ConcurrentModificationException.
+
+[1] https://gist.github.com/dfilimon/5270234
+[2] https://github.com/dfilimon/mahout/blob/skm/core/src/main/java/org/apache/mahout/clustering/streaming/cluster/BallKMeans.java#L225

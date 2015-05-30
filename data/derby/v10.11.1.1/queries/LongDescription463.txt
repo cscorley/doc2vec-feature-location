@@ -1,0 +1,76 @@
+I have a table
+PEOPLE(SEQ_ID INT NOT NULL PRIMARY KEY, PICTURE BLOB).
+
+A row is inserted; both values are not NULL.
+
+From inside a JDBC program, I select the Blob for update.
+I then get the Blob output stream with a call to
+  Blob.setBinaryStream(long)
+To this stream I write several times with
+  OutputStream.write(byte[], int, int)
+I close the stream, update the selected row with the new Blob and commit.
+
+The new value of the Blob now is exactly the value of the last content of the byte[],
+and it is like the previous calls to write() have never taken place, or as if the file pointer
+of the output stream has been reset between the calls.
+
+A sample program follows; the size of the input file "picture.jpg" is 23237, the length
+of the Blob after the program has run is 23237 % 1024 = 709
+
+------------ sample program -------------
+import java.sql.*;
+
+class TestApp {
+   private TestApp() {}
+
+   public static void main(String[] args)
+         throws ClassNotFoundException, SQLException, java.io.IOException {
+      // try to load JDBC driver
+      Class.forName("com.ibm.db2.jcc.DB2Driver");
+
+      // open the input file
+      java.io.InputStream instream = new java.io.FileInputStream("picture.jpg");
+
+      // login to database
+      Connection conn = DriverManager.getConnection(
+            "jdbc:derby:net://dbtuxe/testdb", "laurenz", "apassword");
+      conn.setAutoCommit(false);
+
+      // select Blob for update
+      PreparedStatement stmt = conn.prepareStatement(
+            "SELECT PICTURE FROM PEOPLE WHERE SEQ_ID=? FOR UPDATE OF PICTURE");
+      stmt.setInt(1, 1);
+      ResultSet rs = stmt.executeQuery();
+
+      // get Blob output stream
+      rs.next();
+      Blob blob = rs.getBlob(1);
+      java.io.OutputStream outstream = blob.setBinaryStream(1l);
+
+      // copy the input file to the Blob in chunks of 1K
+      byte[] buf = new byte[1024];
+      int count;
+      while (-1 != (count = instream.read(buf))) 
+{
+         outstream.write(buf, 0, count);
+         System.out.println("Written " + count + " bytes to Blob");
+      }
+
+      // close streams
+      instream.close();
+      outstream.close();
+
+      // update Blob with new value
+      String cursor = rs.getCursorName();
+      PreparedStatement stmt2 = conn.prepareStatement(
+            "UPDATE PEOPLE SET PICTURE=? WHERE CURRENT OF " + cursor);
+      stmt2.setBlob(1, blob);
+      stmt2.executeUpdate();
+
+      // clean up
+      stmt2.close();
+      stmt.close();
+      conn.commit();
+      conn.close();
+   }
+}

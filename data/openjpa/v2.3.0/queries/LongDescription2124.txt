@@ -1,0 +1,5 @@
+XMLValueHandler is used to convert xml content from database to java object.  It threw NullPointerException from XMLValueHandler.toObjectValue() when class loader does not provide package support.
+
+Basically getPackage() function call in XMLValueHandler.toObjectValue returns null.
+
+The fix is to parse the entity class name directly to retrieve the package name.

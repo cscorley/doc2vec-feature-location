@@ -1,0 +1,18 @@
+Tika now detect xps files using only file extension.
+Please modify XPS definition in tika-mimetypes.xml in the following way:
+
+
+	<mime-type type="application/vnd.ms-xpsdocument">
+		<glob pattern="*.xps"/>
+		<sub-class-of type="application/zip" />
+		<magic priority="50">
+			<match value="PK\003\004" type="string" offset="0">
+				<match value="Metadata/Job_PT.xml" type="string" offset="30" />
+			</match>
+		</magic>
+	</mime-type>
+
+
+
+Thank you,
+Marco

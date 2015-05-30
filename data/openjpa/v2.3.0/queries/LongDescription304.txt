@@ -1,0 +1,28 @@
+TestDepthFirstAnalysis was reporting two errors when running with the IBM JDK.  The testcase ran just fine with the Sun JDK.  The error conditions were NPE's in testBackEdges and testForwardEdges:
+
+testBackEdges(org.apache.openjpa.lib.graph.TestDepthFirstAnalysis)  Time elapsed: 0 sec  <<< ERROR!
+java.lang.NullPointerException
+        at org.apache.openjpa.lib.graph.DepthFirstAnalysis.visit(DepthFirstAnalysis.java:97)
+        at org.apache.openjpa.lib.graph.DepthFirstAnalysis.<init>(DepthFirstAnalysis.java:74)
+        at org.apache.openjpa.lib.graph.TestDepthFirstAnalysis.setUpGraph2 (TestDepthFirstAnalysis.java:78)
+        at org.apache.openjpa.lib.graph.TestDepthFirstAnalysis.testBackEdges(TestDepthFirstAnalysis.java:105)
+        :
+
+testForwardEdges(org.apache.openjpa.lib.graph.TestDepthFirstAnalysis)  Time elapsed: 0 sec  <<< ERROR!
+java.lang.NullPointerException
+        at org.apache.openjpa.lib.graph.DepthFirstAnalysis.visit(DepthFirstAnalysis.java:97)
+        at org.apache.openjpa.lib.graph.DepthFirstAnalysis.<init>(DepthFirstAnalysis.java :74)
+        at org.apache.openjpa.lib.graph.TestDepthFirstAnalysis.setUpGraph2(TestDepthFirstAnalysis.java:78)
+        at org.apache.openjpa.lib.graph.TestDepthFirstAnalysis.testForwardEdges(TestDepthFirstAnalysis.java :129)
+        :
+
+Some debugging with the IBM JDK turned up a couple of problems:
+
+1)  The code in DepthFirstAnalysis.java and Edges.java was using == for equality testing instead of .equals().  It turns out that the IBM JDK has an optimization when using Integer instances as keys to HashMaps and new copies of the keys are created (vs using the input key objects directly).  Thus, the == check was not sufficient to do the comparison testing.
+
+2)  After performing those updates, there was yet another problem with the order of the entries returned by the iterator() of the HashMap.  By definition, the
+order is not guaranteed with a HashMap implementation.  In these particular failing testcases, the Sun JDK was starting with node 2 via the Iterator, while the IBM JDK was starting with node 5.  By changing the declaration of this Graph._nodes structure to use a LinkedHashMap (instead of HashMap), we can
+reliably determine the order of the iterator.  And, now both the Sun and IBM JDK's produce the same results.
+
+Thanks,
+Kevin

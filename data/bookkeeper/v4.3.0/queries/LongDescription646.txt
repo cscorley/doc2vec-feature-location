@@ -1,0 +1,26 @@
+Following is the exception:
+
+
+--------- Lid=3, Eid=99, ByteOffset=5992, EntrySize=56 ---------
+Type:           DATA
+LastConfirmed:  98
+
+--------- Lid=3, Eid=-8192, ByteOffset=6052, EntrySize=16 ---------
+Exception in thread "main" java.nio.BufferUnderflowException
+	at java.nio.Buffer.nextGetIndex(Buffer.java:480)
+	at java.nio.HeapByteBuffer.getLong(HeapByteBuffer.java:387)
+	at org.apache.bookkeeper.bookie.BookieShell.formatEntry(BookieShell.java:899)
+	at org.apache.bookkeeper.bookie.BookieShell.access$1(BookieShell.java:882)
+	at org.apache.bookkeeper.bookie.BookieShell$2.process(BookieShell.java:857)
+	at org.apache.bookkeeper.bookie.Journal.scanJournal(Journal.java:395)
+	at org.apache.bookkeeper.bookie.BookieShell.scanJournal(BookieShell.java:738)
+	at org.apache.bookkeeper.bookie.BookieShell.scanJournal(BookieShell.java:849)
+	at org.apache.bookkeeper.bookie.BookieShell$ReadJournalCmd.runCmd(BookieShell.java:440)
+	at org.apache.bookkeeper.bookie.BookieShell$MyCommand.runCmd(BookieShell.java:111)
+	at org.apache.bookkeeper.bookie.BookieShell.run(BookieShell.java:630)
+	at org.apache.bookkeeper.bookie.BookieShell.main(BookieShell.java:656)
+
+
+
+
+Cause: When reading entries from a fenced ledger, BookieShell#formatEntry meeting Bookie.METAENTRY_ID_FENCE_KEY as an entry, but it doesn't have any data.

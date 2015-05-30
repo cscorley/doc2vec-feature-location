@@ -1,0 +1,37 @@
+This is another bug that I discovered after deploying CASE/IN expressions internally.
+
+The current implementation of CASE/IN expression assumes that the 1st operand is a single expression. But this is not true, for example, if it contains a dereferencing operator. The following example demonstrates the problem:
+
+
+A = LOAD 'foo' AS (k1:chararray, k2:chararray, v:int);
+B = GROUP A BY (k1, k2);
+C = FILTER B BY group.k1 IN ('a', 'b');
+DUMP C;
+
+
+This fails with the following error:
+
+
+Caused by: java.lang.IndexOutOfBoundsException: Index: 5, Size: 5
+    at java.util.ArrayList.RangeCheck(ArrayList.java:547)
+    at java.util.ArrayList.get(ArrayList.java:322)
+    at org.apache.pig.parser.LogicalPlanGenerator.in_eval(LogicalPlanGenerator.java:8624)
+    at org.apache.pig.parser.LogicalPlanGenerator.cond(LogicalPlanGenerator.java:8405)
+    at org.apache.pig.parser.LogicalPlanGenerator.filter_clause(LogicalPlanGenerator.java:7564)
+    at org.apache.pig.parser.LogicalPlanGenerator.op_clause(LogicalPlanGenerator.java:1403)
+    at org.apache.pig.parser.LogicalPlanGenerator.general_statement(LogicalPlanGenerator.java:821)
+    at org.apache.pig.parser.LogicalPlanGenerator.statement(LogicalPlanGenerator.java:539)
+    at org.apache.pig.parser.LogicalPlanGenerator.query(LogicalPlanGenerator.java:414)
+    at org.apache.pig.parser.QueryParserDriver.parse(QueryParserDriver.java:181)
+
+
+Here is the relavant code that causes trouble:
+QueryParser.g
+
+if(tree.getType() == IN) {
+  Tree lhs = tree.getChild(0); // lhs is not a single node!
+  for(int i = 2; i < tree.getChildCount(); i = i + 2) {
+    tree.insertChild(i, deepCopy(lhs));
+  }
+}
+

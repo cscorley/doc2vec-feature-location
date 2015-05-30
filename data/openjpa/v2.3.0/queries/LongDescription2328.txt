@@ -1,0 +1,43 @@
+We have just discovered a critical bug in the library preventing our program from operating. The problem comes from an NPE generated when there is one too many calls on the iterator of a collection, causing this type of stack trace:
+
+<openjpa-2.2.1-r422266:1396819 fatal store error> org.apache.openjpa.persistence.RollbackException: null
+	at org.apache.openjpa.persistence.EntityManagerImpl.commit(EntityManagerImpl.java:594)
+	at com.qualiformed.qualinax.platform.dao.GenericDAO.update(GenericDAO.java:136)
+	at com.qualiformed.qualinax.platform.dao.SettingDAO.persist(SettingDAO.java:54)
+	at com.qualiformed.qualinax.application.QualinaxConfig.save(QualinaxConfig.java:509)
+	at com.qualiformed.qualinax.application.model.LancerQualimagiQModel.supprimerSettingsQualimagiQ(LancerQualimagiQModel.java:103)
+	at com.qualiformed.qualinax.application.controller.QualimagiqController.setupAnalysis(QualimagiqController.java:371)
+	at com.qualiformed.qualinax.application.controller.QualimagiqProcessor$8$1.doInBackground(QualimagiqProcessor.java:449)
+	at com.qualiformed.qualinax.application.controller.QualimagiqProcessor$8$1.doInBackground(QualimagiqProcessor.java:446)
+	at javax.swing.SwingWorker$1.call(SwingWorker.java:277)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at javax.swing.SwingWorker.run(SwingWorker.java:316)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+Caused by: <openjpa-2.2.1-r422266:1396819 nonfatal general error> org.apache.openjpa.persistence.PersistenceException: null
+	at org.apache.openjpa.kernel.BrokerImpl.beforeCompletion(BrokerImpl.java:2000)
+	at org.apache.openjpa.kernel.LocalManagedRuntime.commit(LocalManagedRuntime.java:81)
+	at org.apache.openjpa.kernel.BrokerImpl.commit(BrokerImpl.java:1516)
+	at org.apache.openjpa.kernel.DelegatingBroker.commit(DelegatingBroker.java:933)
+	at org.apache.openjpa.persistence.EntityManagerImpl.commit(EntityManagerImpl.java:570)
+	... 14 more
+Caused by: java.util.NoSuchElementException
+	at java.util.HashMap$HashIterator.nextEntry(HashMap.java:796)
+	at java.util.HashMap$KeyIterator.next(HashMap.java:828)
+	at org.apache.openjpa.jdbc.meta.strats.HandlerRelationMapTableFieldStrategy.update(HandlerRelationMapTableFieldStrategy.java:320)
+	at org.apache.openjpa.jdbc.meta.FieldMapping.update(FieldMapping.java:699)
+	at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.update(AbstractUpdateManager.java:343)
+	at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.update(AbstractUpdateManager.java:370)
+	at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.populateRowManager(AbstractUpdateManager.java:174)
+	at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.flush(AbstractUpdateManager.java:97)
+	at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.flush(AbstractUpdateManager.java:78)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.flush(JDBCStoreManager.java:735)
+	at org.apache.openjpa.kernel.DelegatingStoreManager.flush(DelegatingStoreManager.java:131)
+	at org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:2176)
+	at org.apache.openjpa.kernel.BrokerImpl.flushSafe(BrokerImpl.java:2074)
+	at org.apache.openjpa.kernel.BrokerImpl.beforeCompletion(BrokerImpl.java:1992)
+	... 18 more
+
+We have created a patch to correct the problem, but I haven't had the time to create the unitary test to reproduce it.

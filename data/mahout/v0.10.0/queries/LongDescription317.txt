@@ -1,0 +1,5 @@
+see: http://www.lucidimagination.com/search/document/ae484d53e969250e/who_owns_mahout_bucket_on_s3
+
+The collocation code currently uses maps in the CollocCombiner and CollocReducer to perform frequency calculations which can cause the process to exceed the heap space if a large number of ngrams exist for any given subgram.
+
+Convert the code to use a composite key / secondary sort to avoid the need for in-memory map for frequency calculations. 

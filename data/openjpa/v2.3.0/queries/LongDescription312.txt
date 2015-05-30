@@ -1,0 +1,9 @@
+derby fails with duplicate primary key(s) in group by list
+
+With query "select o.customer, avg(o.amount) from Order o group by o.customer" the push-down query contains duplicate columns in the group by clause.  This is okay when DB2 and other DB that tolerate the duplicates but Derby returns error.
+
+Of course, we can ask fix on Derby but we can also easy fix in OpenJPA to avoid duplicates in the group by list.  Please refer to the following for the error result and the attach patch for the fix.
+
+Output from running the query that generate duplicate in the group by list:
+6429  demo  TRACE  [main] openjpa.Query - Executing query: select o.customer, avg(o.amount) from Order o group by o.customer
+6639  demo  TRACE  [main] openjpa.jdbc.SQL - <t 1094861122, conn 1639735740> executing prepstmnt 1405375428 SELECT t1.countryCode, t1.id, t1.version, t1.city, t1.state, t1.street, t1.zip, t1.creditRating, t1.name, AVG(t0.amount) FROM Order t0 INNER JOIN Customer t1 ON t0.customer_countryCode = t1.countryCode AND t0.customer_id = t1.id GROUP BY t1.countryCode, t1.id, t1.version, t1.countryCode, t1.id, t1.city, t1.state, t1.street, t1.zip, t1.countryCode, t1.id, t1.creditRating, t1.name 

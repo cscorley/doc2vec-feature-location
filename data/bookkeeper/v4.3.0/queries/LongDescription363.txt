@@ -1,0 +1,4 @@
+When a new hub is added to an already existing hedwig cluster, that hub should pick up some of the topics. Currently the mechanism hedwig provides is to configure the time for which a topic is retained. A better approach might be to run a re-balancer thread that periodically checks if topics are distributed evenly among hubs and if not, releases some topics to balance the load. 
+
+https://reviews.apache.org/r/6700/
+There is a race condition while updating load as mentioned in the comments and that is not handled in this review.

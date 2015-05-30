@@ -1,0 +1,14 @@
+When processing tika-mimetypes.xml, additional supertype information should be set so that the right parser gets called if there's no explicit parser for that mime-type.
+
+Jukka suggested:
+
+The type registry could do with some implicit supertype settings like the following (in order):
+
+
+	a type with an explicit <sub-class-of/> setting is a specialization
+of the specified type
+	a type with parameters is a specialization of the same type without parameters
+	all /+xml types are specializations of application/xml
+	all text/* types are specializations of text/plain
+	everything is a specialization of application/octet-stream
+

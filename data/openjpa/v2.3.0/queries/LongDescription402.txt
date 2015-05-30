@@ -1,0 +1,58 @@
+We ran into a scenario in which an application has all the correct configuration in the persistence.xml and orm.xml but the provider is still unabled to recognize an entity and establish its meta data. As a result, the following exception is thrown from openjpa.
+
+    org.apache.openjpa.persistence.ArgumentException:No metadata was found for type "class suite.r70.base.jpaspec.relationships.manyXmany.entities.containertype.annotated.MMContainerTypeEntityA". The class does not appear in the list of persistent types:
+[suite.r70.base.jpaspec.relationships.manyXmany.entities.uni.annotation.MMUniEntA, 
+suite.r70.base.jpaspec.relationships.manyXmany.entities.bi.xml.XMLMMBiEntB_CA, 
+  ..........
+suite.r70.base.jpaspec.relationships.manyXmany.entities.bi.xml.XMLMMBiEntB_CRM]
+
+	at org.apache.openjpa.meta.MetaDataRepository.getMetaData(MetaDataRepository.java:299)
+	at org.apache.openjpa.kernel.BrokerImpl.persist(BrokerImpl.java:2371)
+	at org.apache.openjpa.kernel.BrokerImpl.persist(BrokerImpl.java:2224)
+	at org.apache.openjpa.kernel.DelegatingBroker.persist(DelegatingBroker.java:1005)
+	at org.apache.openjpa.persistence.EntityManagerImpl.persist(EntityManagerImpl.java:541)
+
+There are many entities defined in this application. A point of interest is there are 2 entities in the same package, in the same persistence archive but only one of these entity's meta data is found.
+
+------------------------------------------
+
+The cause of the problem is in ZipFileMetaDataIterator.getContent() method.
+
+     public byte[] getContent() throws IOException {
+        long size = _entry.getSize();
+        if (size == 0)
+            return new byte[0];
+
+        InputStream in = _file.getInputStream(_entry);
+        byte[] content;
+        if (size < 0) 
+{
+            ByteArrayOutputStream bout = new ByteArrayOutputStream();
+            byte[] buf = new byte[1024];
+            for (int r; (r = in.read(buf)) != -1; bout.write(buf, 0, r)) ;
+            content = bout.toByteArray();
+        }
+ else 
+{
+            content = new byte[(int) size];
+            in.read(content);     <<<<<<<  cause of the problem here.
+        }
+        in.close();
+        return content;
+    }
+
+What happened is if the entity class file is big enough, the in.read() only returns partial content of the .class file. Therefore during the ClassAnnotationMetaDataFilter.match() processing the annotation attribute count in the .class file is read to be zero and the entity is not detected as an Entity.
+
+The solution is to replace
+
+            in.read(content);     <<<<<<<  cause of the problem here.
+
+ by
+
+            int offset = 0;
+            int read;
+            while (offset < size
+                && (read = in.read(content, offset, (int) size - offset)) != -1) 
+{
+                offset += read;
+            }

@@ -1,0 +1,53 @@
+Simple script fails to read files from BinStorage() and fails to submit jobs to JobTracker. This occurs with trunk and not with Pig 0.6 branch.
+
+
+
+data = load 'binstoragesample' using BinStorage() as (s, m, l);
+A = foreach ULT generate   s#'key'         as value;
+X = limit A 20;
+dump X;
+
+
+
+When this script is submitted to the Jobtracker, we found the following error:
+2010-03-18 22:31:22,296 [main] INFO  org.apache.hadoop.mapreduce.lib.input.FileInputFormat - Total input paths to process : 2
+2010-03-18 22:32:01,574 [main] INFO  org.apache.hadoop.mapreduce.lib.input.FileInputFormat - Total input paths to process : 2
+2010-03-18 22:32:43,276 [main] INFO  org.apache.hadoop.mapreduce.lib.input.FileInputFormat - Total input paths to process : 2
+2010-03-18 22:33:21,743 [main] INFO  org.apache.hadoop.mapreduce.lib.input.FileInputFormat - Total input paths to process : 2
+2010-03-18 22:34:02,004 [main] INFO  org.apache.hadoop.mapreduce.lib.input.FileInputFormat - Total input paths to process : 2
+2010-03-18 22:34:43,442 [main] INFO  org.apache.hadoop.mapreduce.lib.input.FileInputFormat - Total input paths to process : 2
+2010-03-18 22:35:25,907 [main] INFO  org.apache.hadoop.mapreduce.lib.input.FileInputFormat - Total input paths to process : 2
+2010-03-18 22:36:07,402 [main] INFO  org.apache.hadoop.mapreduce.lib.input.FileInputFormat - Total input paths to process : 2
+2010-03-18 22:36:48,596 [main] INFO  org.apache.hadoop.mapreduce.lib.input.FileInputFormat - Total input paths to process : 2
+2010-03-18 22:37:28,014 [main] INFO  org.apache.hadoop.mapreduce.lib.input.FileInputFormat - Total input paths to process : 2
+2010-03-18 22:38:04,823 [main] INFO  org.apache.hadoop.mapreduce.lib.input.FileInputFormat - Total input paths to process : 2
+2010-03-18 22:38:38,981 [main] INFO  org.apache.hadoop.mapreduce.lib.input.FileInputFormat - Total input paths to process : 2
+2010-03-18 22:39:12,220 [main] INFO  org.apache.hadoop.mapreduce.lib.input.FileInputFormat - Total input paths to process : 2
+
+Stack Trace revelead 
+
+at org.apache.pig.impl.io.ReadToEndLoader.init(ReadToEndLoader.java:144)
+        at org.apache.pig.impl.io.ReadToEndLoader.<init>(ReadToEndLoader.java:115)
+        at org.apache.pig.builtin.BinStorage.getSchema(BinStorage.java:404)
+        at org.apache.pig.impl.logicalLayer.LOLoad.determineSchema(LOLoad.java:167)
+        at org.apache.pig.impl.logicalLayer.LOLoad.getProjectionMap(LOLoad.java:263)
+        at org.apache.pig.impl.logicalLayer.ProjectionMapCalculator.visit(ProjectionMapCalculator.java:112)
+        at org.apache.pig.impl.logicalLayer.LOLoad.visit(LOLoad.java:210)
+        at org.apache.pig.impl.logicalLayer.LOLoad.visit(LOLoad.java:52)
+        at org.apache.pig.impl.plan.DependencyOrderWalker.walk(DependencyOrderWalker.java:69)
+        at org.apache.pig.impl.plan.PlanVisitor.visit(PlanVisitor.java:51)
+        at org.apache.pig.impl.logicalLayer.optimizer.LogicalTransformer.rebuildProjectionMaps(LogicalTransformer.java:76)
+        at org.apache.pig.impl.logicalLayer.optimizer.LogicalOptimizer.optimize(LogicalOptimizer.java:216)
+        at org.apache.pig.PigServer.compileLp(PigServer.java:883)
+        at org.apache.pig.PigServer.store(PigServer.java:564)
+
+The binstorage data was generated from 2 datasets using limit and union:
+
+
+Large1 = load 'input1'  using PigStorage();
+Large2 = load 'input2' using PigStorage();
+V = limit Large1 10000;
+C = limit Large2 10000;
+U = union V, C;
+store U into 'binstoragesample' using BinStorage();
+

@@ -1,0 +1,66 @@
+If an XA  two phase commit is performed while an GLOBAL TEMPORARY TABLE is active,  it will fail with:
+XAER_RMERR
+Exception in thread "main" javax.transaction.xa.XAException: An internal error w
+as identified by RawStore module.
+        at org.apache.derby.jdbc.EmbedXAResource.wrapInXAException(EmbedXAResour
+ce.java:820)
+        at org.apache.derby.jdbc.EmbedXAResource.commit(EmbedXAResource.java:143
+)
+        at ReproXATempTable.tempTableInXA(ReproXATempTable.java:51)
+        at ReproXATempTable.main(ReproXATempTable.java:14)
+Caused by: java.sql.SQLTransactionRollbackException: An internal error was ident
+ified by RawStore module.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLE
+xceptionFactory40.java:88)
+        at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Util.java:256)
+
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException
+(TransactionResourceImpl.java:391)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Tr
+ansactionResourceImpl.java:346)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConne
+ction.java:2269)
+        at org.apache.derby.impl.jdbc.EmbedConnection.xa_commit(EmbedConnection.
+java:2924)
+        at org.apache.derby.jdbc.XATransactionState.xa_commit(XATransactionState
+.java:339)
+        at org.apache.derby.jdbc.EmbedXAResource.commit(EmbedXAResource.java:141
+)
+        ... 2 more
+Caused by: java.sql.SQLException: An internal error was identified by RawStore m
+odule.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExc
+eptionFactory.java:45)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransport
+AcrossDRDA(SQLExceptionFactory40.java:119)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLE
+xceptionFactory40.java:70)
+        ... 9 more
+Caused by: ERROR 40XT0: An internal error was identified by RawStore module.
+        at org.apache.derby.iapi.error.StandardException.newException(StandardEx
+ception.java:276)
+        at org.apache.derby.impl.store.raw.xact.Xact.setActiveState(Xact.java:18
+09)
+        at org.apache.derby.impl.store.raw.xact.Xact.addContainer(Xact.java:1357
+)
+        at org.apache.derby.impl.store.access.heap.Heap.create(Heap.java:274)
+        at org.apache.derby.impl.store.access.heap.HeapConglomerateFactory.creat
+eConglomerate(HeapConglomerateFactory.java:195)
+        at org.apache.derby.impl.store.access.RAMTransaction.createConglomerate(
+RAMTransaction.java:823)
+        at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.clean
+upTempTableOnCommitOrRollback(GenericLanguageConnectionContext.java:1345)
+        at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.doCom
+mit(GenericLanguageConnectionContext.java:1263)
+        at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.xaCom
+mit(GenericLanguageConnectionContext.java:1160)
+        at org.apache.derby.impl.jdbc.EmbedConnection.xa_commit(EmbedConnection.
+java:2921)
+        ... 4 more
+
+See attached program for reproduction. 
+javac  -g ReproXATempTable.java utilXid.java
+java ReproXATempTable
+
+To work around the issue, you can drop the temp table before ending the xa transaction.
+

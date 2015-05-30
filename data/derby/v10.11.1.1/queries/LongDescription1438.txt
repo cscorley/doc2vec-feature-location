@@ -1,0 +1,14 @@
+The first part of the string written by SQLExeption.toString() differs
+between the Derby client driver and the embedded driver. The embedded
+driver writes:
+
+   SQL Exception: Table/View 'DERBYDB' does not exist.
+
+while the client driver writes:
+
+   java.sql.SQLException: Table/View 'DERBYDB' does not exist.
+
+It would be good if we changed this so the same text is written by
+both drivers. This reduces the difference seen when changing between
+client and embedded Derby and it make it possible to reduce the amount
+of sed-ing or the number of master file variants for some tests.

@@ -1,0 +1,3 @@
+OpenJPA's @Persistent annotation and configuration via OpenJPA's xml extensions provide a mechanism to mark embedded fields lazy.  When trying to use this facility I found a couple bugs.
+Bug 1: The xml extension does not process the fetch attribute, so the field is never marked lazy.
+Bug 2: If marked lazy via the annotation or xml (with a fix) the lazy field does not get loaded along with the entity (as expected), but then will not load when accessed.

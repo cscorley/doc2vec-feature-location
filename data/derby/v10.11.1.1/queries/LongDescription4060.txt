@@ -1,0 +1,13 @@
+If you have a BLOB of length 20, and call blob.getBinaryStream(11,10), it will give you an error:
+
+    java.sql.SQLException: Sum of position('11') and length('10') is greater than the size of the LOB.
+
+This is following word for word an error in the JDBC Javadoc:
+
+        SQLException - if pos is less than 1 or if pos is greater than the number of bytes in the Blob or if pos + length is greater than the number of bytes in the Blob
+
+So it's checking 11 + 10 > 20, but it should check 11 + 10 > 21    (pos + len > blob.length() + 1) to allow reading the last byte.
+
+The Javadoc for Clob.getCharacterStream(long,long) has similar wording so it may have the same issue.
+
+Likewise, the client driver may have the same issue – I haven't yet checked.

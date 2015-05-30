@@ -1,0 +1,13 @@
+The goal of Streaming UDFs is to allow users to easily write UDFs in scripting languages with no JVM implementation or a limited JVM implementation.  The initial proposal is outlined here: https://cwiki.apache.org/confluence/display/PIG/StreamingUDFs.
+
+In order to implement this we need new syntax to distinguish a streaming UDF from an embedded JVM UDF.  I'd propose something like the following (although I'm not sure 'language' is the best term to be using):
+
+
+define my_streaming_udfs language('python') ship('my_streaming_udfs.py')
+
+
+We'll also need a language-specific controller script that gets shipped to the cluster which is responsible for reading the input stream, deserializing the input data, passing it to the user written script, serializing that script output, and writing that to the output stream.
+
+Finally, we'll need to add a StreamingUDF class that extends evalFunc.  This class will likely share some of the existing code in POStream and ExecutableManager (where it make sense to pull out shared code) to stream data to/from the controller script.
+
+One alternative approach to creating the StreamingUDF EvalFunc is to use the POStream operator directly.  This would involve inserting the POStream operator instead of the POUserFunc operator whenever we encountered a streaming UDF while building the physical plan.  This approach seemed problematic because there would need to be a lot of changes in order to support POStream in all of the places we want to be able use UDFs (For example - to operate on a single field inside of a for each statement).

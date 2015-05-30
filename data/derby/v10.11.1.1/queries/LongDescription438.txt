@@ -1,0 +1,26 @@
+Suppose I have 1) a table "t1" with blob data in it, and 2) an UPDATE trigger "tr1" defined on that table, where the triggered-SQL-action for "tr1" references the blob column from the updated ("new") row. Ex:
+
+create table t1 (id int, updated smallint, bl blob(32000));
+create trigger tr1 after update on t1 referencing new as n_row for each row mode db2sql values length(n_row.bl);
+
+Assuming that t1 has been populated with some data, then attempts to update t1 will fire the trigger, but the result will be one of the two following errors:
+
+1) If blob data is < 32K...
+
+If the actual data in the table is less than 32K in length, the result will be:
+
+ERROR XCL12: An attempt was made to put a data value of type 'org.apache.derby.impl.jdbc.EmbedBlob' into a data value of type 'BLOB'.
+
+2) If blob data is > 32K...
+
+If at least one row in the table has blob data that is longer than 32K (which means that Derby will stream it, so far as I can tell), then the error will be:
+
+ERROR XCL30: An IOException was thrown when reading a 'BLOB' from an InputStream.
+ERROR XJ001: Java exception: ': java.io.EOFException'.
+
+Note that for data larger than 32K, this error will occur regardless of whether or not the triggered-SQL-statement
+references the blob column.
+
+Surprisingly, it doesn't (appear to) matter what the trigger statement is actually doing--so long as it references the blob column at least once, one of these two errors will occur, depending on the length of the data.  And if the data is greater than 32k, then the error will happen regardless of what the trigger does or whether or not it references the blob column.
+
+I looked at the documentation for UPDATE statements and TRIGGER statements, but nowhere did I see anything saying that either of these will not work with blobs.  So as far as I can tell, both of the above scenarios should succeed...

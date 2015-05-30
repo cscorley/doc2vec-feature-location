@@ -1,0 +1,18 @@
+I see this problem on 10.8 and higher. To reproduce, create a database with a trigger like this:
+
+connect 'jdbc:derby:trigdb;create=true';
+create table t1(x int, y int);
+create table t2(x int, y int);
+create trigger tr after update of x on t1 referencing old table as old insert into t2 select * from old;
+
+Then run dblook on the database, and you'll see the following output:
+
+– ----------------------------------------------
+– DDL Statements for triggers
+– ----------------------------------------------
+
+CREATE TRIGGER "APP"."TR" AFTER UPDATE OF "X", "Y" ON "APP"."T1" REFERENCING OLD_TABLE AS OLD FOR EACH STATEMENT insert into t2 select * from old;
+
+Notice that the DDL creates an update trigger for columns X and Y, whereas the original trigger was defined on column X only.
+
+I see the expected DDL on 10.7.1.1.

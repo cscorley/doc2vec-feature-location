@@ -1,0 +1,18 @@
+The problem occurs with the following relationships between classes:
+
+Parent ->* Child ->* GrandChild. Class Parent has a collection of Childs.
+Class Child has a collection of GrandChilds.
+Each one-to-many relationship is annotated like this: @OneToMany(cascade = CascadeType.
+ALL, orphanRemoval = true, ...). I.e. we use orphan removal and remove operations cascade from parents to children and grandchildren.
+
+When we do the following a DB constraint violation occurs:
+1) Start a transaction
+2) Load a Parent instance from the database
+3) Navigate to a Child and modify it
+4) Cut the relationship between Child and GrandChild
+5) Cut the relationship between Parent and Child
+6) Commit the transaction
+
+Caused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: DELETE on table 'JPAORPHAN_CHILD' caused a violation of foreign key constraint 'SQL120320110237861' for key (11).  The statement has been rolled back. 
+{prepstmnt 1074806800 DELETE FROM APP.JPAORPHAN_CHILD WHERE ID = ? [params=(int) 11]}
+ [code=20000, state=23503]

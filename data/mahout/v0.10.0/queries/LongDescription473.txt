@@ -1,0 +1,23 @@
+In RecommenderJob
+
+RecommenderJob.java
+
+    int numberOfUsers = TasteHadoopUtils.readIntFromFile(getConf(), countUsersPath);
+
+    if (shouldRunNextPhase(parsedArgs, currentPhase)) {
+      /* Once DistributedRowMatrix uses the hadoop 0.20 API, we should refactor this call to something like
+       * new DistributedRowMatrix(...).rowSimilarity(...) */
+      try {
+        RowSimilarityJob.main(new String[] { "-Dmapred.input.dir=" + maybePruneItemUserMatrixPath.toString(),
+            "-Dmapred.output.dir=" + similarityMatrixPath.toString(), "--numberOfColumns",
+            String.valueOf(numberOfUsers), "--similarityClassname", similarityClassname, "--maxSimilaritiesPerRow",
+            String.valueOf(maxSimilaritiesPerItemConsidered + 1), "--tempDir", tempDirPath.toString() });
+      } catch (Exception e) {
+        throw new IllegalStateException("item-item-similarity computation failed", e);
+      }
+    }
+
+
+
+We have not passed parameter -Dmapred.reduce.tasks when job RowSimilarityJob.
+It caused all three  RowSimilarityJob sub-jobs run using 1 map and 1 reduce, so the sub jobs can not be scalable.

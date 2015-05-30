@@ -1,0 +1,23 @@
+Currently, the last sql statement in following set of sql statements will raise a null pointer exception
+
+connect 'jdbc:derby:c:/dellater/dbmaintest2;create=true' user 'mamta1' as mamta1;
+create table t11ConstraintTest (c111 int not null, c112 int not null, primary key (c111, c112));
+grant references on t11ConstraintTest to mamta3;
+connect 'jdbc:derby:c:/dellater/dbmaintest2;create=true' user 'mamta3' as mamta3;
+drop table t31ConstraintTest;
+– the following statement should remember that it depends on REFERENCES privilege on mamta1.t11ConstraintTest
+create table t31ConstraintTest (c311 int, c312 int, foreign key(c311, c312) references mamta1.t11ConstraintTest);
+drop table t31ConstraintTest;
+set connection mamta1;
+– following should revoke all the privileges granted on it
+drop table t11ConstraintTest;
+create table t11ConstraintTest (c111 int not null, c112 int not null, primary key (c111, c112));
+grant references(c111) on t11ConstraintTest to mamta3;
+grant references(c112) on t11ConstraintTest to PUBLIC;
+--connect 'jdbc:derby:c:/dellater/dbmaintest2;create=true' user 'mamta3' as mamta3;
+set connection mamta3;
+drop table t31ConstraintTest;
+– following sql should recompie itself because the earlier plan depended on a privilege which doesn't
+– exist anymore. Instead, new privileges have been granted and the plan for following statement should depend
+– on those new privileges
+create table t31ConstraintTest (c311 int, c312 int, foreign key(c311, c312) references mamta1.t11ConstraintTest); 

@@ -1,0 +1,47 @@
+If a SELECT query contains a subquery which includes an untyped NULL value at any place other than in the FROM list, Derby will throw an NPE at bind time.
+
+ij> create table t1 (i int);
+0 rows inserted/updated/deleted
+
+– If the untyped NULL is in the FROM list, a reasonable error is thrown.
+
+ij> select * from (values null) x;
+ERROR 42X07: Null is only allowed in a VALUES clause within an INSERT statement.
+
+ij> select * from (select * from t1, (values null) x )y;
+ERROR 42X07: Null is only allowed in a VALUES clause within an INSERT statement.
+
+– But if it appears anywhere else, the result is an NPE:
+
+– IN-list
+ij> select * from t1 where i in (1, 2, (values null));
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+
+– where clause
+select * from t1 where (values null);
+
+– order by clause
+select * from t1 order by (values null);
+
+– result column
+select (values null) from t1;
+
+– group by clause (only works in 10.2 and later)
+select * from t1 group by (values null);
+
+– having clause
+select * from t1 group by i having (values null);
+
+Stack trace (from 10.2.2) is:
+
+java.lang.NullPointerException
+	at org.apache.derby.impl.sql.compile.SubqueryNode.setDataTypeServices(SubqueryNode.java:2289)
+	at org.apache.derby.impl.sql.compile.SubqueryNode.bindExpression(SubqueryNode.java:529)
+	at org.apache.derby.impl.sql.compile.ValueNodeList.bindExpression(ValueNodeList.java:130)
+	at org.apache.derby.impl.sql.compile.BinaryListOperatorNode.bindExpression(BinaryListOperatorNode.java:161)
+	at org.apache.derby.impl.sql.compile.SelectNode.bindExpressions(SelectNode.java:540)
+	at org.apache.derby.impl.sql.compile.DMLStatementNode.bindExpressions(DMLStatementNode.java:249)
+	at org.apache.derby.impl.sql.compile.DMLStatementNode.bind(DMLStatementNode.java:162)
+	at org.apache.derby.impl.sql.compile.CursorNode.bind(CursorNode.java:253)
+	at org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatement.java:345)
+	at org.apache.derby.impl.sql.GenericStatement.prepare(GenericStatement.java:119)

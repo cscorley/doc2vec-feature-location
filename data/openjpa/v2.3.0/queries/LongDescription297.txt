@@ -1,0 +1,12 @@
+When using unenhanced classes, sometimes OpenJPA is unable to intercept field accesses, and therefore unable to do lazy loading of those fields prior to access. In these cases, we should eagerly load data that was marked as lazy.
+
+This will happen in the following scenarios:
+
+
+	all instances (user-created and OpenJPA-created) when using field access and redefinition is not available
+
+
+
+
+	user-created instances (new instances) when using property access and redefinition is not available
+

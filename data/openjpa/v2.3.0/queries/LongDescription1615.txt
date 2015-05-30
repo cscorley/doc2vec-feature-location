@@ -1,0 +1,29 @@
+Seeing 2 different testcase failures in TestTypesafeCriteria for MSSQL:
+
+1)  MSSQL doesn't support the MOD() function syntax but expects "%" instead, which is set in the SQLServerDictionary as "supportsModOperator = true", but CriteriaBuilderImpl and Expressions is ignoring this option when generating the JPQL, so the testFunctionWithTwoArgument() and testFunctionWithFunctionArgumentInOrderBy() tests fail -
+
+junit.framework.AssertionFailedError: CriteriaQuery corresponding to SELECT MOD(c.balanceOwed,10) FROM Customer c failed to execute
+java.lang.RuntimeException: SELECT MOD(t0.balanceOwed, ?) FROM CR_CUST t0
+at org.apache.openjpa.persistence.criteria.AbstractCriteriaTestCase.executeQueryAndCollectSQL(AbstractCriteriaTestCase.java:314)
+at org.apache.openjpa.persistence.criteria.AbstractCriteriaTestCase.executeAndCompareSQL(AbstractCriteriaTestCase.java:164)
+at org.apache.openjpa.persistence.criteria.AbstractCriteriaTestCase.assertEquivalence(AbstractCriteriaTestCase.java:141)
+at org.apache.openjpa.persistence.criteria.AbstractCriteriaTestCase.assertEquivalence(AbstractCriteriaTestCase.java:108)
+at org.apache.openjpa.persistence.criteria.TestTypesafeCriteria.testFunctionWithTwoArgument(TestTypesafeCriteria.java:908)
+. . .
+Caused by: <openjpa-2.0.0-SNAPSHOT-runknown fatal general error> org.apache.openjpa.persistence.PersistenceException: 'MOD' is not a recognized built-in function name. 
+{prepstmnt 3164468 SELECT MOD(t0.balanceOwed, ?) FROM CR_CUST t0 [params=(int) 10]} [code=195, state=S00010]
+. . .
+Caused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: 'MOD' is not a recognized built-in function name. {prepstmnt 3164468 SELECT MOD(t0.balanceOwed, ?) FROM CR_CUST t0 [params=(int) 10]}
+ [code=195, state=S00010]
+
+
+2) There is a NVARCHAR to BigDecimal conversion failure in testBigDecimalConversion()-
+<openjpa-2.0.0-SNAPSHOT-runknown fatal general error> org.apache.openjpa.persistence.PersistenceException: Error converting data type nvarchar to decimal. 
+{prepstmnt 17141330 SELECT (t0.accountNum * ?) FROM CR_CUST t0 WHERE (t0.id = ?) [params=(BigDecimal) 10.3259699999999998709654391859658062458038330078125, (long) 301]} [code=8114, state=S0005]
+. . .
+Caused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: Error converting data type nvarchar to decimal. {prepstmnt 17141330 SELECT (t0.accountNum * ?) FROM CR_CUST t0 WHERE (t0.id = ?) [params=(BigDecimal) 10.3259699999999998709654391859658062458038330078125, (long) 301]}
+ [code=8114, state=S0005]
+. . .
+NestedThrowables:
+com.microsoft.sqlserver.jdbc.SQLServerException: Error converting data type nvarchar to decimal.
+at com.microsoft.sqlserver.jdbc.SQLServerException.makeFromDatabaseError(SQLServerException.java:196)

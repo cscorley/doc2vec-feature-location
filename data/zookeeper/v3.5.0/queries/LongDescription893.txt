@@ -1,0 +1,31 @@
+When ZooKeeper receives certain illegally formed messages on the internal communication port (:4181 by default), it's possible for ZooKeeper to enter an infinite loop which causes 100% cpu usage. It's related to ZOOKEEPER-427, but that patch does not resolve all issues.
+
+from: src/java/main/org/apache/zookeeper/server/quorum/QuorumCnxManager.java 
+
+the two affected parts:
+===========
+int length = msgLength.getInt();                                                        
+if(length <= 0) 
+{                                                                       
+    throw new IOException("Invalid packet length:" + length);                           
+}
+ 
+===========
+
+
+===========
+while (message.hasRemaining()) {                                                    
+    temp_numbytes = channel.read(message);                                          
+    if(temp_numbytes < 0) 
+{                                                         
+        throw new IOException("Channel eof before end");                            
+    }
+                                                                               
+    numbytes += temp_numbytes;                                                      
+} 
+===========
+
+how to replicate this bug:
+
+perform an nmap portscan against your zookeeper server: "nmap -sV -n your.ip.here -p4181"
+wait for a while untill you see some messages in the logfile and then you will see 100% cpu usage. It does not recover from this situation. With my patch, it does not occur anymore

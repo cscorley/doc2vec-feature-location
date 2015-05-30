@@ -1,0 +1,9 @@
+ClusterDumper utility never calls flush on the OutputStreamWriter.  As of issue https://issues.apache.org/jira/browse/MAHOUT-679, the output stream is never being closed when it defaults to System.out – while that's a good thing, it would be nice to flush the stream before exiting the program.  As is, when I run cluster dumper with the -b (substring) option set to something like 50, the stream never gets big enough to overflow the default buffer on my machine, so I see no output.  Even when it does get big enough to overflow the buffer, I still miss the last cluster's summary.  When the output is written to a file, the close() method usually flushes the buffer by default, but it shouldn't hurt to call the flush method either way – therefore I'd suggest adding in an unconditional call to writer.flush(); in the finally block just before conditionally closing the writer. (line 199 in the org.apache.mahout.utils.clustering.ClusterDumper.run(String[] args) method)
+
+    } finally {
+      writer.flush();
+      if (shouldClose) 
+{
+        Closeables.closeQuietly(writer);
+      }
+    }

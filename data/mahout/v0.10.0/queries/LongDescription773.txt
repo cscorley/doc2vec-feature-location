@@ -1,0 +1,7 @@
+I'll create an implementation of Random Walk with Restarts as described in Kang, Tsourakakis, Faloutsos, "PEGASUS: A Peta-Scale Graph Mining System - Implementation and Observations" http://www.cs.cmu.edu/~christos/PUBLICATIONS/icdm09-pegasus.pdf
+
+The algorithm is a random walk similar to PageRank with the difference that you start at and teleport to a certain node. The probabilities it computes can be seen as a measure of proximity between the start node and a reached node. To my knowledge RWR can be e.g used for link predicition in social networks.
+
+I will try to create an implementation that is able to do several walks in parallel and I will assume that a steadystate probability vector fits in memory.
+
+I don't plan to use the implementation details from the paper but I'll model the algorithm as an iterative multiplication between the adjacency matrix of the graph and the matrix created from the steadystate probability vectors for the vertices we compute the random walks for.

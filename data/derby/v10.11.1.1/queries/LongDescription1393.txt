@@ -1,0 +1,10 @@
+From the javadoc:
+
+Throws:
+ ...
+    SQLFeatureNotSupportedException - if targetSqlType is a ARRAY, BLOB, CLOB, DATALINK, JAVA_OBJECT, NCHAR, NCLOB, NVARCHAR, LONGNVARCHAR, REF, ROWID, SQLXML or STRUCT data type and the JDBC driver does not support this data type
+
+Since Derby doesn't support ARRAY, DATALINK, NCHAR, NCLOB, NVARCHAR, LONGNVARCHAR, REF, ROWID, SQLXML or STRUCT the method should throw SQLFeatureNotSupportedException if used with any of these types. Currently a general type conversion exception is thrown:
+
+>>1) testSetObjectNotImplementedARRAY(org.apache.derbyTesting.functionTests.tests.jdbc4.PreparedStatementTest)SQL Exception: An attempt was made to get a data value of type 'CLOB' from a data value of type '2003'.
+>>Caused by: SQL Exception: An attempt was made to get a data value of type 'CLOB' from a data value of type '2003'.

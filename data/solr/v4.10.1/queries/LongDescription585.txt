@@ -1,0 +1,21 @@
+The ResponseBuilder never gets it's QParser set.
+
+I believe the fix is:
+
+Index: src/java/org/apache/solr/handler/component/QueryComponent.java
+===================================================================
+--- src/java/org/apache/solr/handler/component/QueryComponent.java      (revision 660920)
++++ src/java/org/apache/solr/handler/component/QueryComponent.java      (working copy)
+@@ -80,7 +80,7 @@
+       QParser parser = QParser.getParser(rb.getQueryString(), defType, req);
+       rb.setQuery( parser.getQuery() );
+       rb.setSortSpec( parser.getSort(true) );
+-
++      rb.setQparser(parser);
+       String[] fqs = req.getParams().getParams(org.apache.solr.common.params.CommonParams.FQ);
+       if (fqs!=null && fqs.length!=0) {
+         List<Query> filters = rb.getFilters();
+
+
+
+but will test it first!

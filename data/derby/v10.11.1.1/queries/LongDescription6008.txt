@@ -1,0 +1,46 @@
+Currently, Derby doesn't allow ORDER BY nested in a set operand, e.g. in the following construct:
+
+(select i from t1 order by j offset 1 row)    union 
+(select i from t2 order by j desc offset 2 rows)
+
+This is allowed by the standard, as far as I can understand, cf. this quote from section 7.12 in SQL 2011:
+
+<query expression body> ::=
+    <query term>
+
+
+   <query expression body> UNION [ ALL 
+ DISTINCT ]
+  [ <corresponding spec> ] <query term>
+
+
+   <query expression body> EXCEPT [ ALL 
+ DISTINCT ]
+  [ <corresponding spec> ] <query term>
+
+
+
+
+<query term> ::=
+   <query primary>
+
+
+  <query term> INTERSECT [ ALL 
+ DISTINCT ]
+   [ <corresponding spec> ] <query primary>
+
+
+
+
+
+<query primary> ::=
+   <simple table>
+
+
+  <left paren> <query expression body>
+     [ <order by clause> ] [ <result offset clause> ] [ <fetch first clause> ] <right paren>
+
+
+
+
+I.e. the left paren chooses the second alternative in the production for <query primary>.

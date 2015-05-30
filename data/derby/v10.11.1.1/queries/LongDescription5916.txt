@@ -1,0 +1,34 @@
+ I got a report of the exception below trying to connect to  database with absolute path and network server and the database name attribute.  I haven't gotten  information  on the derby version or  platform, Below is the url I received with some characters replaced.
+
+
+ij> connect 'jdbc:derby://localhost:1527/;databaseName=/home/uxxxx/Installs/hxxx_ext/mxxxxxxxx_db;create=true' ;
+
+
+ java.lang.NullPointerException
+        at org.apache.derby.impl.store.raw.data.BaseDataFileFactory.stop(Unknown Source)
+        at org.apache.derby.impl.services.monitor.TopService.stop(Unknown Source)
+        at org.apache.derby.impl.services.monitor.TopService.shutdown(Unknown Source)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.bootService(Unknown Source)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.startProviderService(Unknown Source)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.findProviderAndStartService(Unknown Source)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.startPersistentService(Unknown Source)
+        at org.apache.derby.iapi.services.monitor.Monitor.startPersistentService(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedConnection.bootDatabase(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedConnection.<init>(Unknown Source)
+        at org.apache.derby.jdbc.Driver40.getNewEmbedConnection(Unknown Source)
+        at org.apache.derby.jdbc.InternalDriver.connect(Unknown Source)
+        at org.apache.derby.jdbc.AutoloadedDriver.connect(Unknown Source)
+        at org.apache.derby.impl.drda.Database.makeConnection(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.getConnFromDatabaseName(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.verifyUserIdPassword(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.parseSECCHK(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.parseDRDAConnection(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.processCommands(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.run(Unknown Source)
+Cleanup action completed
+2012-08-31 22:41:09.216 GMT Thread[DRDAConnThread_10,5,main] (DATABASE = ), (DRDAID = 
+{1}
+), Java exception: ': java.lang.NullPointerException'.
+
+I wanted to go ahead and file it even without much information as I noticed there was a similar issue reported on the list but never filed:
+http://old.nabble.com/Random-DRDA-Error-on-IBM-J9-JVM-td33532717.html#a33532717

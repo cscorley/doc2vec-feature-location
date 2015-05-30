@@ -1,0 +1,13 @@
+This seems to be introduced after changes in PIG-613 .
+
+grunt> cat /tmp/students.txt                                                               
+qwer    F       
+{(1),(2)}
+zxldf   M       {}
+
+grunt> l = load '/tmp/students.txt' as (n : chararray, s : chararray, b: {t : (i : int)} );
+grunt> dump l;  
+(qwer,F,{(1),(2)}
+)
+(zxldf,M,)
+grunt> 

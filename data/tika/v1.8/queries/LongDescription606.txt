@@ -1,0 +1,47 @@
+When parsing an mp3-file with lyrics in the metadata I get the following error:
+
+org.apache.tika.exception.TikaException: Unexpected RuntimeException from org.apache.tika.parser.mp3.Mp3Parser@cf546f8
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:199)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:197)
+	at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:137)
+	at org.apache.tika.gui.TikaGUI.importStream(TikaGUI.java:186)
+	at org.apache.tika.gui.ParsingTransferHandler.importData(ParsingTransferHandler.java:89)
+	at javax.swing.TransferHandler.importData(TransferHandler.java:762)
+	at javax.swing.TransferHandler$DropHandler.drop(TransferHandler.java:1485)
+	at java.awt.dnd.DropTarget.drop(DropTarget.java:446)
+	at javax.swing.TransferHandler$SwingDropTarget.drop(TransferHandler.java:1210)
+	at sun.awt.dnd.SunDropTargetContextPeer.processDropMessage(SunDropTargetContextPeer.java:517)
+	at sun.awt.X11.XDropTargetContextPeer.processDropMessage(XDropTargetContextPeer.java:183)
+	at sun.awt.dnd.SunDropTargetContextPeer$EventDispatcher.dispatchDropEvent(SunDropTargetContextPeer.java:830)
+	at sun.awt.dnd.SunDropTargetContextPeer$EventDispatcher.dispatchEvent(SunDropTargetContextPeer.java:754)
+	at sun.awt.dnd.SunDropTargetEvent.dispatch(SunDropTargetEvent.java:48)
+	at java.awt.Component.dispatchEventImpl(Component.java:4324)
+	at java.awt.Container.dispatchEventImpl(Container.java:2163)
+	at java.awt.Component.dispatchEvent(Component.java:4295)
+	at java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4461)
+	at java.awt.LightweightDispatcher.processDropTargetEvent(Container.java:4196)
+	at java.awt.LightweightDispatcher.dispatchEvent(Container.java:4050)
+	at java.awt.Container.dispatchEventImpl(Container.java:2149)
+	at java.awt.Window.dispatchEventImpl(Window.java:2478)
+	at java.awt.Component.dispatchEvent(Component.java:4295)
+	at java.awt.EventQueue.dispatchEvent(EventQueue.java:604)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:275)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:200)
+	at java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:190)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:185)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:177)
+	at java.awt.EventDispatchThread.run(EventDispatchThread.java:138)
+Caused by: java.lang.NumberFormatException: For input string: "peg is"
+	at java.lang.NumberFormatException.forInputString(NumberFormatException.java:65)
+	at java.lang.Integer.parseInt(Integer.java:481)
+	at java.lang.Integer.parseInt(Integer.java:514)
+	at org.apache.tika.parser.mp3.LyricsHandler.<init>(LyricsHandler.java:92)
+	at org.apache.tika.parser.mp3.LyricsHandler.<init>(LyricsHandler.java:42)
+	at org.apache.tika.parser.mp3.Mp3Parser.getAllTagHandlers(Mp3Parser.java:151)
+	at org.apache.tika.parser.mp3.Mp3Parser.parse(Mp3Parser.java:64)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:197)
+	... 29 more
+
+
+I tried to do it with tika version 0.8 and 0.9. They had the same result.
+I can send you the mp3's if necessary.

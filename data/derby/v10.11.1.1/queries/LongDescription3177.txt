@@ -1,0 +1,13 @@
+I have a DB that I've been updating over time, and I've run into this bug.  After running this script Messages.ID table looses it's auto incrementing column after running the script to completion.  If I create a virgin DB and run this script against the Message table's ID column looses it's auto increment data type.  If you comment out the last three alter table statements the column's auto increment feature is not lost.  You don't have to insert any data into the database for this to happen.
+
+I tried creating a simpler script to expose this problem, but was unsuccessful.  I tried something like:
+
+create table Messages ( 
+  Name varchar(256), 
+  KillThis varchar(256),
+  id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), 
+  CONSTRAINT MESSAGES_id_pk PRIMARY KEY(id) 
+);
+alter table Messages drop column KillThis;
+
+However, this DID NOT EXPOSE THE BUG.  So there is something else at work causing this problem.  See the attached script to recreate the problem.

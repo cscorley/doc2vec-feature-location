@@ -1,0 +1,26 @@
+While using TOP, and if the DataBag contains null value to compare, it will generate the following exception:
+
+Caused by: java.lang.NullPointerException
+	at org.apache.pig.data.DataType.compare(DataType.java:427)
+	at org.apache.pig.builtin.TOP$TupleComparator.compare(TOP.java:97)
+	at org.apache.pig.builtin.TOP$TupleComparator.compare(TOP.java:1)
+	at java.util.PriorityQueue.siftUpUsingComparator(PriorityQueue.java:649)
+	at java.util.PriorityQueue.siftUp(PriorityQueue.java:627)
+	at java.util.PriorityQueue.offer(PriorityQueue.java:329)
+	at java.util.PriorityQueue.add(PriorityQueue.java:306)
+	at org.apache.pig.builtin.TOP.updateTop(TOP.java:141)
+	at org.apache.pig.builtin.TOP.exec(TOP.java:116)
+
+
+code: (TOP.java, starts with line 91)
+                Object field1 = o1.get(fieldNum);
+                Object field2 = o2.get(fieldNum);
+                if (!typeFound) 
+{
+                    datatype = DataType.findType(field1);
+                    typeFound = true;
+                }
+                return DataType.compare(field1, field2, datatype, datatype);
+
+The reason is that if the typeFound is true , and the dataType is not null, and field1 is null, the script failed.
+So we need to judge the field1 whether is null.

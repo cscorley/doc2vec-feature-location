@@ -1,0 +1,59 @@
+I have a simple entity:
+
+@Entity
+@Table(name = "JSEEmployee")
+public class Employee {
+    @Id
+    private int id;
+    ......
+    @Temporal(TemporalType.DATE)
+    private java.util.Date date;
+   .....
+}
+
+When I run the mapping tool to generated the sql as in below, the "date" column is still a TIMESTAMP type. Would it be of DATE type due to the @Temporal annotation ?
+
+------------------------------------------------
+C:\a.workspace\eclipse.workspace\wasx.jpa.jse.test\JPA.JSE>java org.apache.openjpa.jdbc.meta.MappingTool -sa build -sql create.sql
+16  Employee  TRACE  [main] openjpa.Runtime - Setting the following properties from "file:/C:/a.workspace/eclipse.workspace/wasx.jpa.jse.test/JPA.JSE/META-INF/persistence.xml" into configuration: 
+{ openjpa.ConnectionURL=jdbc:db2:WSTest, openjpa.Id=Employee, openjpa.ConnectionUserName=leealber, openjpa.Log=DefaultLevel=TRACE, MetaData=TRACE, Runtime=TRACE, Enhance=TRACE, SQL=TRACE, openjpa.jdbc.DBDictionary=db2, openjpa.MetaDataFactory=jpa (Types=suite.r70.jse.Employee), javax.persistence.provider=com.ibm.websphere.persistence.PersistenceProviderImpl, openjpa.ConnectionDriverName=COM.ibm.db2.jdbc.app.DB2Driver,openjpa.ConnectionPassword=fth616dy, openjpa.jdbc.SynchronizeMappings=buildSchema }
+63  Employee  INFO   [main] openjpa.jdbc.JDBC - Using dictionary class "org.apache.openjpa.jdbc.sql.DB2Dictionary".
+78  Employee  INFO   [main] openjpa.Tool - No targets were given.  Running on all classes listed in your configuration,or all persistent classes in the classpath if no classes are configured.  Use -help to display tool usage information.
+125  Employee  TRACE  [main] openjpa.MetaData - Using metadata factory "org.apache.openjpa.persistence.jdbc.PersistenceMappingFactory@2ea82ea8".
+125  Employee  TRACE  [main] openjpa.MetaData - Scanning resource "META-INF/orm.xml" for persistent types.
+141  Employee  TRACE  [main] openjpa.MetaData - parsePersistentTypeNames() found [suite.r70.jse.Employee].
+141  Employee  TRACE  [main] openjpa.MetaData - Found 1 classes with metadata in 16 milliseconds.
+141  Employee  INFO   [main] openjpa.Tool - Mapping tool running on type "class suite.r70.jse.Employee" with action "buildSchema".
+141  Employee  TRACE  [main] openjpa.MetaData - Using metadata factory "org.apache.openjpa.persistence.jdbc.PersistenceMappingFactory@19621962 ".
+141  Employee  TRACE  [main] openjpa.MetaData - Loading metadata for "class suite.r70.jse.Employee" under mode "[META][QUERY]".
+141  Employee  TRACE  [main] openjpa.MetaData - Scanning resource "META-INF/orm.xml" for persistent types.
+141  Employee  TRACE  [main] openjpa.MetaData - parsePersistentTypeNames() found [suite.r70.jse.Employee].
+141  Employee  TRACE  [main] openjpa.MetaData - Found 1 classes with metadata in 0 milliseconds.
+172  Employee  TRACE  [main] openjpa.MetaData - Parsing class "suite.r70.jse.Employee".
+172  Employee  TRACE  [main] openjpa.MetaData - Parsing package "suite.r70.jse.Employee".
+203  Employee  TRACE  [main] openjpa.MetaData - Generating default metadata for type " suite.r70.jse.Employee".
+234  Employee  TRACE  [main] openjpa.MetaData - Set persistence-capable superclass of "suite.r70.jse.Employee" to "null".
+234  Employee  TRACE  [main] openjpa.MetaData - Resolving metadata for "suite.r70.jse.Employee@1018576054".
+234  Employee  TRACE  [main] openjpa.MetaData -         Resolving field "suite.r70.jse.Employee@1018576054.date ".
+250  Employee  TRACE  [main] openjpa.MetaData -         Resolving field "suite.r70.jse.Employee@1018576054.id".
+250  Employee  TRACE  [main] openjpa.MetaData -         Resolving field "suite.r70.jse.Employee@1018576054.name".
+250  Employee  TRACE  [main] openjpa.MetaData -         Resolving field " suite.r70.jse.Employee@1018576054.salary".
+250  Employee  TRACE  [main] openjpa.MetaData - Preparing mapping for "suite.r70.jse.Employee".
+250  Employee  TRACE  [main] openjpa.MetaData -         Resolving field "suite.r70.jse.Employee@1018576054.id".
+266  Employee  TRACE  [main] openjpa.MetaData -         "id" has mapping strategy "org.apache.openjpa.jdbc.meta.strats.PrimitiveFieldStrategy".
+266  Employee  TRACE  [main] openjpa.MetaData -         Resolving field " suite.r70.jse.Employee@1018576054.date".
+266  Employee  TRACE  [main] openjpa.MetaData -         "date" has mapping strategy "org.apache.openjpa.jdbc.meta.strats.HandlerFieldStrategy".
+266  Employee  TRACE  [main] openjpa.MetaData -         Resolving field "suite.r70.jse.Employee@1018576054.name".
+266  Employee  TRACE  [main] openjpa.MetaData -         "name" has mapping strategy " org.apache.openjpa.jdbc.meta.strats.StringFieldStrategy".
+266  Employee  TRACE  [main] openjpa.MetaData -         Resolving field "suite.r70.jse.Employee@1018576054.salary ".
+266  Employee  TRACE  [main] openjpa.MetaData -         "salary" has mapping strategy "org.apache.openjpa.jdbc.meta.strats.PrimitiveFieldStrategy".
+266  Employee  TRACE  [main] openjpa.MetaData - "suite.r70.jse.Employee<discriminator>" has mapping strategy "none".
+266  Employee  TRACE  [main] openjpa.MetaData - "suite.r70.jse.Employee<version>" has mapping strategy "none".
+266  Employee  TRACE  [main] openjpa.MetaData - Resolving mapping for "suite.r70.jse.Employee@1018576054".
+266  Employee  TRACE  [main] openjpa.MetaData - "suite.r70.jse.Employee" has mapping strategy "full".
+266  Employee  INFO   [main] openjpa.Tool - Recording mapping and schema changes.
+391  Employee  TRACE  [main] openjpa.MetaData - Clearing metadata repository "org.apache.openjpa.jdbc.meta.MappingRepository@54685468 ".
+
+C:\a.workspace\eclipse.workspace\wasx.jpa.jse.test\JPA.JSE>type create.sql
+CREATE TABLE JSEEmployee (id INTEGER NOT NULL, date TIMESTAMP, name VARCHAR(254), salary BIGINT, PRIMARY KEY (id));
+------------------------------------------------ 

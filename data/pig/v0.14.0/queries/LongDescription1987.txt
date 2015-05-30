@@ -1,0 +1,19 @@
+The following script works
+
+
+
+set default_parallel 10;
+import 'scripts/macro1.pig';
+import 'scripts/macro2.pig';
+
+wlogs = load 'clicks' as (url, pageid, timestamp);
+good  = spam_filter(wlogs, url);
+
+
+
+But if -dryrun is added to the command line it returns the error:
+
+
+
+ERROR 1200: <file scripts/book.pig.substituted, line 1, column 0>  Syntax error, unexpected symbol at or near 'set'
+

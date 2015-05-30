@@ -1,0 +1,19 @@
+
+A = load '$INPUT' using PigStorage(':');
+B = foreach A generate $0 as id;
+store B into '$OUTPUT' USING PigStorage();
+
+
+
+Invoking above script which contains no EOL in the last line of script as following:
+
+
+ 
+pig -param INPUT=mydata/input -param OUTPUT=mydata/output myscript.pig
+
+
+
+results in parser error:
+
+[main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1000: Error during parsing. Lexical error at line 3, column 42.  Encountered: <EOF> after : ""
+

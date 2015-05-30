@@ -1,0 +1,1 @@
+Currently, the writeLongToFile() function opens the file for truncate, writes the new data, syncs, and then closes. If the process crashes after opening the file but before writing the new data, the file may be left empty, causing ZK to "forget" an earlier promise. Instead, it should use RandomAccessFile to avoid truncating.

@@ -1,0 +1,7 @@
+In experimenting with things, I was getting some errors from RowSimilarityJob, that in looking at the source I realized were a little incomplete as to what the true issue was.  In this case, they were of the form:
+
+Preconditions.checkArgument(maxSimilaritiesPerRow > 0, "Incorrect maximum number of similarities per row!");
+
+Here, it is known that the actual issue is that the parameter must be zero (or negative), not just that it's "incorrect", and a (trivial) change to the error message might save some folks some time... especially newbies like myself.
+
+A quick grep of the code showed a few more cases like that across the code base that would be (apparently) easy to fix and maybe save folks time when they get the relevant error.

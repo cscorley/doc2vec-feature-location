@@ -1,0 +1,31 @@
+Here is my pig script:
+register $zebraJar;
+--fs -rmr $outputDir
+
+
+a1 = LOAD '$inputDir/small1' USING org.apache.hadoop.zebra.pig.TableLoader('count,seed,int1,str2');
+a2 = LOAD '$inputDir/small2' USING org.apache.hadoop.zebra.pig.TableLoader('count,seed,int1,str2');
+
+sort1 = order a1 by str2;
+sort2 = order a2 by str2;
+
+--store sort1 into '$outputDir/smallsorted11' using org.apache.hadoop.zebra.pig.TableStorer('[count,seed,int1,str2]');
+--store sort2 into '$outputDir/smallsorted21' using org.apache.hadoop.zebra.pig.TableStorer('[count,seed,int1,str2]');
+
+rec1 = load '$outputDir/smallsorted11' using org.apache.hadoop.zebra.pig.TableLoader();
+rec2 = load '$outputDir/smallsorted21' using org.apache.hadoop.zebra.pig.TableLoader();
+
+joina = join rec1 by str2, rec2 by str2 using "merge" ;
+
+E = foreach joina  generate $0 as count,  $1 as seed,  $2 as int1,  $3 as str2;
+
+--limitedVals = LIMIT E 5;
+--dump limitedVals;
+
+store E into '$outputDir/smalljoin2' using org.apache.hadoop.zebra.pig.TableStorer('');
+
+
+
+============
+Here is the stacktrace:
+java.lang.NullPointerException at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLocalRearrange.getNext(POLocalRearrange.java:312) at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POMergeJoin.extractKeysFromTuple(POMergeJoin.java:464) at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POMergeJoin.getNext(POMergeJoin.java:341) at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:260) at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.getNext(POForEach.java:237) at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:253) at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.close(PigMapBase.java:107) at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:57) at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:358) at org.apache.hadoop.mapred.MapTask.run(MapTask.java:307) at org.apache.hadoop.mapred.Child.main(Child.java:159) 

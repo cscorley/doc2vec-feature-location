@@ -1,0 +1,6 @@
+Currently, mahout uses Lucene's non-reusable analysis API.
+
+This means that per-"document", a lot of objects are recreated (e.g. every TokenStream in the analysis chain, every Attribute).
+This can create a lot of unnecessary overhead, particularly if "documents" are short.
+
+It looks like an easy win to use the reusable API (reusableTokenStream) instead.

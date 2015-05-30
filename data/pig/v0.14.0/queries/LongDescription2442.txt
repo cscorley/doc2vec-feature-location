@@ -1,0 +1,51 @@
+Hi,
+
+If there are multiple store in a pig streaming script, it goes into infinite waiting. 
+
+Script
+
+
+DEFINE SCRIPT `./a.pl` SHIP ('/homes/anithar/a.pl');;
+DEFINE SCRIPT1 `./b.pl` SHIP ('/homes/anithar/b.pl');;
+A = LOAD 'test.txt' USING PigStorage() ;
+B1 = STREAM A THROUGH SCRIPT ;
+B1 = foreach B1 generate $0;
+STORE B1 INTO 'B1' USING PigStorage();
+B2 =  STREAM B1 THROUGH SCRIPT1;
+STORE B2 INTO 'B2' USING PigStorage();
+
+
+
+a.pl
+--------
+#! /usr/bin/perl -w
+while (my $line = <STDIN>) 
+{
+        print uc($line);
+}
+--------
+
+b.pl
+---------
+#! /usr/bin/perl -w
+while (my $line = <STDIN>) 
+{
+        print $line;
+}
+---------
+
+Input (test.txt)
+
+
+test
+hi
+hello
+
+
+
+This infinite waiting happens randomly causing the job to fail with "Task attempt failed to report
+status for 605 seconds. Killing!". 
+Same happens with 0.8 version too.
+
+Regards,
+Anitha

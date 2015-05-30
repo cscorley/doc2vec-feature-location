@@ -1,0 +1,66 @@
+Given the following entity definitions:
+
+@Entity
+@IdClass(PersonId.class)
+public class MedicalHistory implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+    @Id
+    @OneToOne
+    private Person patient;
+    private String doctorName;
+          .....
+
+-------------------------------
+@Entity
+@IdClass(PersonId.class)
+public class Person implements Serializable {
+
+    @Id
+    String firstName;
+    @Id
+    String lastName;
+    String ssn;
+          ...
+-------------------------------
+public class PersonId implements java.io.Serializable {
+
+    String firstName;
+    String lastName;
+
+-------------------------------
+Removing MedicalHistory as shown below throws ClassCastException:
+
+MedicalHistory newMHistory = em.find(MedicalHistory.class, personId);
+em.remove(newMHistory);
+et.commit();
+
+
+Caused by: <openjpa-0.0.0-rnull nonfatal general error> org.apache.openjpa.persistence.PersistenceException: test.Person cannot be cast to java.lang.String
+	at org.apache.openjpa.kernel.BrokerImpl.beforeCompletion(BrokerImpl.java:1939)
+	at org.apache.openjpa.kernel.LocalManagedRuntime.commit(LocalManagedRuntime.java:81)
+	at org.apache.openjpa.kernel.BrokerImpl.commit(BrokerImpl.java:1455)
+	at org.apache.openjpa.kernel.DelegatingBroker.commit(DelegatingBroker.java:903)
+	at org.apache.openjpa.persistence.EntityManagerImpl.commit(EntityManagerImpl.java:551)
+	... 20 more
+Caused by: java.lang.ClassCastException: test.Person cannot be cast to java.lang.String
+	at org.apache.openjpa.jdbc.sql.DBDictionary.setTyped(DBDictionary.java:1284)
+	at org.apache.openjpa.jdbc.sql.RowImpl.flush(RowImpl.java:892)
+	at org.apache.openjpa.jdbc.sql.RowImpl.flush(RowImpl.java:852)
+	at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flushAndUpdate(PreparedStatementManagerImpl.java:114)
+	at org.apache.openjpa.jdbc.kernel.BatchingPreparedStatementManagerImpl.flushAndUpdate(BatchingPreparedStatementManagerImpl.java:80)
+	at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flushInternal(PreparedStatementManagerImpl.java:97)
+	at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flush(PreparedStatementManagerImpl.java:85)
+	at org.apache.openjpa.jdbc.kernel.ConstraintUpdateManager.flush(ConstraintUpdateManager.java:550)
+	at org.apache.openjpa.jdbc.kernel.ConstraintUpdateManager.flush(ConstraintUpdateManager.java:120)
+	at org.apache.openjpa.jdbc.kernel.BatchingConstraintUpdateManager.flush(BatchingConstraintUpdateManager.java:59)
+	at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.flush(AbstractUpdateManager.java:103)
+	at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.flush(AbstractUpdateManager.java:76)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.flush(JDBCStoreManager.java:676)
+	at org.apache.openjpa.kernel.DelegatingStoreManager.flush(DelegatingStoreManager.java:130)
+	at org.apache.openjpa.datacache.DataCacheStoreManager.flush(DataCacheStoreManager.java:540)
+	at org.apache.openjpa.kernel.DelegatingStoreManager.flush(DelegatingStoreManager.java:130)
+	at org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:2116)
+	at org.apache.openjpa.kernel.BrokerImpl.flushSafe(BrokerImpl.java:2013)
+	at org.apache.openjpa.kernel.BrokerImpl.beforeCompletion(BrokerImpl.java:1931)
+	... 24 more

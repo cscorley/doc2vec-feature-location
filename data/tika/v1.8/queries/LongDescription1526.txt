@@ -1,0 +1,46 @@
+the JDK has numerous pain points regarding the Turkish locale, "posix_spawn" lowercasing being one of them...
+
+https://bugs.openjdk.java.net/browse/JDK-8047340
+https://bugs.openjdk.java.net/browse/JDK-8055301
+
+As of Tika 1.7, the TesseractOCRParser (which is an ExternalParser) is enabled & configured by default in Tika, and uses ExternalParser.check to see if tesseract is available – but because of the JDK bug, this means that Tika fails fast for Turkish users on BSD/UNIX variants (including MacOSX) like so...
+
+
+  [junit4]    > Throwable #1: java.lang.Error: posix_spawn is not a supported process launch mechanism on this platform.
+  [junit4]    > 	at java.lang.UNIXProcess$1.run(UNIXProcess.java:105)
+  [junit4]    > 	at java.lang.UNIXProcess$1.run(UNIXProcess.java:94)
+  [junit4]    > 	at java.security.AccessController.doPrivileged(Native Method)
+  [junit4]    > 	at java.lang.UNIXProcess.<clinit>(UNIXProcess.java:92)
+  [junit4]    > 	at java.lang.ProcessImpl.start(ProcessImpl.java:130)
+  [junit4]    > 	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1029)
+  [junit4]    > 	at java.lang.Runtime.exec(Runtime.java:620)
+  [junit4]    > 	at java.lang.Runtime.exec(Runtime.java:485)
+  [junit4]    > 	at org.apache.tika.parser.external.ExternalParser.check(ExternalParser.java:344)
+  [junit4]    > 	at org.apache.tika.parser.ocr.TesseractOCRParser.hasTesseract(TesseractOCRParser.java:117)
+  [junit4]    > 	at org.apache.tika.parser.ocr.TesseractOCRParser.getSupportedTypes(TesseractOCRParser.java:90)
+  [junit4]    > 	at org.apache.tika.parser.CompositeParser.getParsers(CompositeParser.java:81)
+  [junit4]    > 	at org.apache.tika.parser.DefaultParser.getParsers(DefaultParser.java:95)
+  [junit4]    > 	at org.apache.tika.parser.CompositeParser.getSupportedTypes(CompositeParser.java:229)
+  [junit4]    > 	at org.apache.tika.parser.CompositeParser.getParsers(CompositeParser.java:81)
+  [junit4]    > 	at org.apache.tika.parser.CompositeParser.getParser(CompositeParser.java:209)
+  [junit4]    > 	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:244)
+  [junit4]    > 	at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:120)
+
+
+
+...unless they go out of their way to white list only the parsers they need/want so TesseractOCRParser (and any other ExternalParsers) will never even be check()ed.
+
+It would be nice if Tika's ExternalParser class added a similar hack/workarround to what was done in SOLR-6387 to trap these types of errors.  In Solr we just propogate a better error explaining why Java hates the turkish langauge...
+
+
+
+} catch (Error err) {
+  if (err.getMessage() != null && (err.getMessage().contains("posix_spawn") || err.getMessage().contains("UNIXProcess"))) {
+    log.warn("Error forking command due to JVM locale bug (see https://issues.apache.org/jira/browse/SOLR-6387): " + err.getMessage());
+    return "(error executing: " + cmd + ")";
+  }
+}
+
+
+
+...but with Tika, it might be better for all ExternalParsers to just "opt out" as if they don't recognize the filetype when they detect this type of error fro m the check method (or perhaps it would be better if AutoDetectParser handled this? ... i'm not really sure how it would best fit into Tika's architecture)

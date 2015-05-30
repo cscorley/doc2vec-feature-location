@@ -1,0 +1,11 @@
+Derby's implementation of the NON_UNIQUE column for getIndexInfo() resolves to this expression:
+
+(CASE WHEN CONGLOMS.DESCRIPTOR.isUnique() THEN FALSE ELSE TRUE END) AS NON_UNIQUE
+
+The possible return values for this are TRUE or FALSE (this is internal SQL), which are both non-null constants,
+thus its type should be not nullable. A similar external SQL expression by itself does return the correct nullability,
+thus it seems to be a possible case where one node's nullability is affecting another. See DERBY-2775 and DERBY-3342. This like DERBY-3342 was found while fixing DERBY-2775.
+
+
+Working SQL with correct nullability:
+VALUES CASE WHEN 3=? THEN 1 ELSE 2 END

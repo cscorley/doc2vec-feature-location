@@ -1,0 +1,6 @@
+Batch inserts with Clobs fail because Derby is unable to determine if it should write the Clob stream header formats using the old 10.4 style format or the new 10.5 format.
+More specifically, the access mode (soft upgrade or not) hasn't been set specifically by Derby before the stream header has to be generated, and there isn't enough context to determine the mode at generation time.
+
+Bug was reported on derby-user: http://www.nabble.com/Hibernate-%2B-Derby---Unable-to-determine-stream-header-for-hibernate-type-%27text%27-td24099674.html
+
+The bug was reported for Derby used with Hibernate. Possible workarounds are to use the client driver or to avoid using batched inserts with Clobs (i.e. don't use batched inserts, which may degrade performance, or use a different data type).

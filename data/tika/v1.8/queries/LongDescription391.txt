@@ -1,0 +1,12 @@
+I am doing some testing of Tika 0.6 and noticed some odd results for the testEXCEL.xls file included in the test suite. 
+
+100 calls to the following code:
+
+            is = new BufferedInputStream(new FileInputStream(filename));
+
+            Metadata metadata = new Metadata();
+            metadata.set(Metadata.RESOURCE_NAME_KEY, filename);
+
+            String type = tika.detect(is, metadata);
+
+Results in different matches as application/msword or application/vnd.ms-excel seemingly at random.

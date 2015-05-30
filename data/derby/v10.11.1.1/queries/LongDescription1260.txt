@@ -1,0 +1,5 @@
+For large, deeply nested queries and/or queries with a high number of FROM tables/expressions with high row count estimates, the the resultant cost estimates can be multiplied-sometimes many times over-throughout the optimization process, which means that the overall query estimate can climb to a very large number very quickly.  If the query is big enough, this can actually cause the optimizer to reach an estimated cost of INFINITY.
+
+That said, the current optimizer logic for costing and comparing access paths does not expect-and therefore does not account for-infinite cost estimates.  As a result the optimizer does comparisons of, and basic arithmetic with, cost estimates and row counts that, when applied to estimtes of Infinity, can give unexpected results.  One specific example of this is DERBY-1259.
+
+I'm filing this issue for the task of investigating the optimizer code more closely to see what other issues might exist when infinite cost estimates come into play.

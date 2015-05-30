@@ -1,0 +1,8 @@
+I noticed that ServiceLoader is using different classloader when loading 'services' like Parsers, etc (java.net.FactoryURLClassLoader) than MimeTypesFactory (org.eclipse.jetty.webapp.WebAppClassLoader) when loading mime types definitions. As result - it works completely different:
+
+When jar with custom parser and custom-mimetypes.xml is added to solr.war - both resources are located and loaded (META-INF\services\org.apache.tika.parser.Parser and org\apache\tika\mime\custom-mimetypes.xml) and everything works fine.
+
+When jar with custom parser is in Solr core lib and configured in solrconfig.xml - only META-INF\services\org.apache.tika.parser.Parser is loaded, but custom-mimetypes.xml is ignored.
+
+MimeTypesFactory ignores custom classLoader provided in TikaConfig and always using only context provided one:
+ClassLoader cl = MimeTypesReader.class.getClassLoader();

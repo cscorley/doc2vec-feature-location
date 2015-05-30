@@ -1,0 +1,10 @@
+With current trunk NGramTokenFilter(min=2,max=4) , I index "abcdef" string into an index, but I can't query it with "abc". If I query with "ab", I can get a hit result.
+
+The reason is that the NGramTokenFilter generates badly ordered TokenStream. Query is based on the Token order in the TokenStream, that how stemming or phrase should be anlayzed is based on the order (Token.positionIncrement).
+
+With current filter, query string "abc" is tokenized to : ab bc abc 
+meaning "query a string that has ab bc abc in this order".
+Expected filter will generate : ab abc(positionIncrement=0) bc
+meaning "query a string that has (ab|abc) bc in this order"
+
+I'd like to submit a patch for this issue. 

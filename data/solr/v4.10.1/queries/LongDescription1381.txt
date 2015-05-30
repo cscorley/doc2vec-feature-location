@@ -1,0 +1,37 @@
+Highlighting does not work when a field that is used to be highlightened has the attribute termPositions="true".
+Steps to reproduce the problem:
+1. use the original data and config files and add termPositions="true" to the field "name" in schema.xml
+2. post the example files.
+3. do the request: http://localhost:8983/solr/select/?q=solr&version=2.2&start=0&rows=10&indent=on&hl=on&hl.fl=name
+4. get this
+
+null
+
+java.lang.NullPointerException
+	at org.apache.solr.highlight.TermOffsetsTokenStream$1.next(DefaultSolrHighlighter.java:448)
+	at org.apache.lucene.analysis.TokenStream.incrementToken(TokenStream.java:284)
+	at org.apache.lucene.search.highlight.Highlighter.getBestTextFragments(Highlighter.java:246)
+	at org.apache.solr.highlight.DefaultSolrHighlighter.doHighlighting(DefaultSolrHighlighter.java:321)
+	at org.apache.solr.handler.component.HighlightComponent.process(HighlightComponent.java:89)
+	at org.apache.solr.handler.component.SearchHandler.handleRequestBody(SearchHandler.java:195)
+	at org.apache.solr.handler.RequestHandlerBase.handleRequest(RequestHandlerBase.java:131)
+	at org.apache.solr.core.SolrCore.execute(SolrCore.java:1299)
+	at org.apache.solr.servlet.SolrDispatchFilter.execute(SolrDispatchFilter.java:338)
+	at org.apache.solr.servlet.SolrDispatchFilter.doFilter(SolrDispatchFilter.java:241)
+	at org.mortbay.jetty.servlet.ServletHandler$CachedChain.doFilter(ServletHandler.java:1089)
+	at org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:365)
+	at org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)
+	at org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:181)
+	at org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:712)
+	at org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:405)
+	at org.mortbay.jetty.handler.ContextHandlerCollection.handle(ContextHandlerCollection.java:211)
+	at org.mortbay.jetty.handler.HandlerCollection.handle(HandlerCollection.java:114)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:139)
+	at org.mortbay.jetty.Server.handle(Server.java:285)
+	at org.mortbay.jetty.HttpConnection.handleRequest(HttpConnection.java:502)
+	at org.mortbay.jetty.HttpConnection$RequestHandler.headerComplete(HttpConnection.java:821)
+	at org.mortbay.jetty.HttpParser.parseNext(HttpParser.java:513)
+	at org.mortbay.jetty.HttpParser.parseAvailable(HttpParser.java:208)
+	at org.mortbay.jetty.HttpConnection.handle(HttpConnection.java:378)
+	at org.mortbay.jetty.bio.SocketConnector$Connection.run(SocketConnector.java:226)
+	at org.mortbay.thread.BoundedThreadPool$PoolThread.run(BoundedThreadPool.java:442)

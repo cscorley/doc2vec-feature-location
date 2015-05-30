@@ -1,0 +1,38 @@
+Will result missing records in some cases. One case is when we have two flatten in a single pipeline, when the first flatten still hold some records, the second flatten cannot return EOP just because an empty bag. Here is the test script:
+
+
+
+a = load '1.txt' as (bag1:bag{(t:int)});
+b = foreach a generate flatten(bag1) as field1;
+c = foreach b generate flatten(GenBag(field1));
+dump c;
+
+
+GenBag:
+
+
+public class GenBag extends EvalFunc<DataBag> {
+        @Override
+        public DataBag exec(Tuple input) throws IOException {
+            Integer content = (Integer)input.get(0);
+            DataBag bag = BagFactory.getInstance().newDefaultBag();
+
+            if (content > 10) {
+                Tuple t = TupleFactory.getInstance().newTuple();
+                t.append(content);
+                bag.add(t);
+            }
+            return bag;
+        }
+    }
+
+
+Input:
+
+
+{(1),(12),(9)}
+{(15),(2)}
+
+
+
+The test case in PIG-3060 fails if rollback, need to fix it when rollback.

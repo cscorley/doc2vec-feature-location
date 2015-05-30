@@ -1,0 +1,26 @@
+As of r881342, I encounter the following error when trying to parse the "HTML" from <http://www.nheri.org/> with the AutoDetectParser. (I will attach my example.) It works fine if I use the HtmlParser explicitly.
+
+org.apache.tika.exception.TikaException: TIKA-237: Illegal SAXException from org.apache.tika.parser.xml.DcXMLParser@45d64c37
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:130)
+	at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:101)
+	at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:114)
+	at org.cdlib.was.tikaIndexer.parser$.main(Parser.scala:18)
+	at org.cdlib.was.tikaIndexer.parser.main(Parser.scala)
+Caused by: org.xml.sax.SAXParseException: The markup in the document following the root element must be well-formed.
+	at com.sun.org.apache.xerces.internal.util.ErrorHandlerWrapper.createSAXParseException(ErrorHandlerWrapper.java:195)
+	at com.sun.org.apache.xerces.internal.util.ErrorHandlerWrapper.fatalError(ErrorHandlerWrapper.java:174)
+	at com.sun.org.apache.xerces.internal.impl.XMLErrorReporter.reportError(XMLErrorReporter.java:388)
+	at com.sun.org.apache.xerces.internal.impl.XMLScanner.reportFatalError(XMLScanner.java:1414)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl$TrailingMiscDriver.next(XMLDocumentScannerImpl.java:1422)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl.next(XMLDocumentScannerImpl.java:648)
+	at com.sun.org.apache.xerces.internal.impl.XMLNSDocumentScannerImpl.next(XMLNSDocumentScannerImpl.java:140)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(XMLDocumentFragmentScannerImpl.java:510)
+	at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:807)
+	at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:737)
+	at com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(XMLParser.java:107)
+	at com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.parse(AbstractSAXParser.java:1205)
+	at com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser.parse(SAXParserImpl.java:522)
+	at javax.xml.parsers.SAXParser.parse(SAXParser.java:395)
+	at javax.xml.parsers.SAXParser.parse(SAXParser.java:198)
+	at org.apache.tika.parser.xml.XMLParser.parse(XMLParser.java:72)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:120)

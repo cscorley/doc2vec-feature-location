@@ -1,0 +1,254 @@
+Thanks again to the DERBY developers.
+
+For my convenience I use the client/server variant of DERBY.  This is where the error occurs.  I have temporarily alleviated the problem for my case by using the embedded version.
+
+I'm forced to use outlook and have built a program which siphons the messages into a derby database (phase 1 – table has two varchar fields and a clob).  When reading them back (phase 2 – simple select of all records in no particular order, all 3 attributes), it has developed an exception.  This is a result of data volume.  I have reduced the problem to a single demonstration program.
+
+This behaviour, and the fact that the error is not a "DERBY Exception", but a proper exception coming back from the JDBC call, leads me to the diagnosis that it is a derby network client jdbc problem.
+
+The problem has been reproduced once by Bryan Pendleton: http://www.nabble.com/IndexOutOfBoundsException-t4926228.html
+
+I'll try to attach the code "error.java"; it can also be found on: http://www.os10000.net/error.java
+
+Please use as follows:
+
+javac -classpath derby.jar:derbynet.jar error.java
+java -cp .:derby.jar:derbynet.jar error
+
+It will create a directory "test_db" and fill it with approx 120mb data.
+Then you will observe the failure. 
+
+/*  Mode:Java; c-basic-offset:8  */
+
+// --------------------------------------------------------------------------------
+
+public class error {
+
+	// ------------------------------------------------------------------------
+
+	public static final int port = 1527;
+	public static final String host = "127.0.0.1";
+
+	// ------------------------------------------------------------------------
+
+	public static void log(String x) 
+{ System.out.println(x); }
+;
+
+	// ------------------------------------------------------------------------
+
+	public static void log_stacktrace(Exception e) 
+{
+                java.io.StringWriter sw = new java.io.StringWriter();
+                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                e.printStackTrace(pw);
+                log(sw.toString());
+	}
+;
+
+	// ------------------------------------------------------------------------
+
+	public static void start_server() {
+		try {
+			org.apache.derby.drda.NetworkServerControl server =
+				new org.apache.derby.drda.NetworkServerControl(java.net.InetAddress.getByName(host),port);
+			server.start(null);
+			try 
+{ java.lang.Thread.sleep(5000); }
+ catch (Exception e) { };
+			log("started DERBY on host "host" port "Integer.toString(port)".");
+		} catch (Exception e) 
+{
+			log_stacktrace(e);
+		}
+;
+	};
+
+	// ------------------------------------------------------------------------
+
+	public static java.sql.Connection con()
+		throws java.sql.SQLException, java.lang.ClassNotFoundException 
+{
+		Class.forName("org.apache.derby.jdbc.ClientDriver");
+		String x_dbse = "test_db";
+		String x_user = ";user=os10000";
+		String x_pass = ";password=ding";
+		String x_crte = ";create=true";
+		String x_msgs = ";retrieveMessagesFromServerOnGetMessage=true";
+		String connect = "jdbc:derby://"+host+":"+port+"/"+x_dbse+x_user+x_crte+x_msgs;
+		return java.sql.DriverManager.getConnection(connect);
+	}
+;
+
+	// ----------------------------------------------------------------------
+
+	public static String getclob(java.sql.Clob b) {
+		java.io.CharArrayWriter caw = new java.io.CharArrayWriter();
+		try {
+			java.io.Reader rd = b.getCharacterStream();
+			char cb[] = new char[4096];
+			int off=0, bts = rd.read(cb);
+			while (bts>0) 
+{ caw.write(cb,off,bts); off+=bts; bts=rd.read(cb); }
+;
+			rd.close();
+		} catch(Exception e) {};
+		String res = caw.toString();
+		caw.close();
+		return res;
+	};
+
+	// ----------------------------------------------------------------------
+
+	public static class myclob implements java.sql.Clob {
+		String v;
+		public myclob(String z) 
+{ v=z; }
+;
+		public java.io.InputStream getAsciiStream() 
+{ return new java.io.ByteArrayInputStream(v.getBytes()); }
+;
+		public java.io.Reader getCharacterStream() 
+{ return new java.io.CharArrayReader(v.toCharArray()); }
+;
+		public String getSubString(long pos, int length) 
+{ return v.substring((int)pos,(int)(pos+length)); }
+;
+		public long length() 
+{ return v.length(); }
+;
+		public long position(java.sql.Clob pattern, long start) 
+{ return 0; };
+	        public long position(String pattern, long start) { return 0; }
+;
+		public java.io.OutputStream setAsciiStream(long pos) 
+{
+			new java.sql.SQLException("setAsciiStream not implemented."); return null; }
+;
+		public java.io.Writer setCharacterStream(long pos) 
+{
+			new java.sql.SQLException("setCharacterStream not implemented."); return null; }
+;
+		public int setString(long pos, String s) 
+{
+			new java.sql.SQLException("setString not implemented."); return -1; };
+		public int setString(long pos, String s, int offset, int len) {			new java.sql.SQLException("setString not implemented."); return -1; }
+;
+		public void truncate(long len) 
+{
+			new java.sql.SQLException("truncate not implemented."); }
+;
+	};
+
+	public static java.sql.Clob putclob(String x) 
+{ return new myclob(x); }
+;
+
+	// ------------------------------------------------------------------------
+
+	public static String getLob(java.sql.ResultSet rs, int arg)
+		throws java.sql.SQLException 
+{ return getclob(rs.getClob(arg)); }
+;
+	public static void setLob(java.sql.PreparedStatement ps, int arg, String val)
+		throws java.sql.SQLException 
+{ ps.setClob(arg,putclob(val)); }
+;
+
+	// ------------------------------------------------------------------------
+
+	public static String clean_string(String x) 
+{
+		return x.replaceAll("[\0\r\\\\]","").replaceAll("'","\\\"").replaceAll(",+",",");
+	}
+;
+
+	// ------------------------------------------------------------------------
+
+	public static String make_string(int digits) {
+		double dl = (Math.random()) * (Math.pow(10.0,digits*Math.random()));
+		int len = (int) dl;
+		byte buf[] = new byte[len];
+		while (len>0) 
+{
+			double db = 256*Math.random();
+			buf[--len] = (byte)db;
+		}
+;
+		return clean_string(new String(buf));
+	};
+
+	// ------------------------------------------------------------------------
+
+	public static void update(java.sql.Connection c, String cmd)
+		throws java.sql.SQLException 
+{
+		c.createStatement().execute(cmd);
+	}
+;
+
+	// ------------------------------------------------------------------------
+
+	public static final int entries=100000;
+
+	public static void fill_db(java.sql.Connection c)
+		throws java.sql.SQLException {
+		try 
+{ update(c,"drop table mail_raw"); }
+ catch (Exception e) {};
+
+		try 
+{ update(c,"create table mail_raw ( msg varchar(999), att varchar(100), val clob )"); }
+ 
+		catch (Exception e) 
+{ log_stacktrace(e); };
+
+		java.sql.PreparedStatement pstmt = null;
+
+		try { pstmt = c.prepareStatement("insert into mail_raw values ( ?, ?, ? )"); }
+		catch (Exception e) { log_stacktrace(e); }
+;
+
+		for (int i=0; i<entries; i++) 
+{
+			pstmt.setString(1,make_string(3));
+			pstmt.setString(2,"5 body");
+			setLob(pstmt,3,make_string(4));
+			pstmt.executeUpdate();
+			if (i%100==0) log("step "+i+"/"+entries);
+		}
+;
+	};
+
+	// ------------------------------------------------------------------------
+
+	public static void dump_db(java.sql.Connection c)
+		throws java.sql.SQLException {
+		log("performing dump.");
+		java.sql.ResultSet rs = c.createStatement().executeQuery("select * from mail_raw");
+		while (rs.next()) 
+{
+			String msg = rs.getString(1);
+			String att = rs.getString(2);
+			String val = getLob(rs,3);
+		}
+;
+	};
+
+	// ------------------------------------------------------------------------
+
+	public static void main(String args[]) {
+		start_server();
+		try 
+{
+			java.sql.Connection c = con();
+			fill_db(c);
+			dump_db(c);
+		}
+ catch (Exception e) 
+{ log_stacktrace(e); }
+;
+	};
+
+	// ------------------------------------------------------------------------
+};

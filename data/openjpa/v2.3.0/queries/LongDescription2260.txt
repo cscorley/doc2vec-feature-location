@@ -1,0 +1,9 @@
+The processing of properties for the creation of an EntityManager do not properly handle simple value types that can be augmented by parenthesized configuration options.
+
+For example,
+
+   Map propMap = new HashMap();
+   propMap.put("openjpa.jdbc.QuerySQLCache", "true(EnableStatistics=true)");
+   EntityManager em = emf.createEntityManager(propMap);
+
+actually results in the creation of an EntityManager instance where the Query SQL Cache is disabled.  This is because the entire value, "true(EnableStatistics=true)" is passed into Strings.parse() which returns the result of a Boolean.valueOf() operation.  Since "true" doesn't match "true(EnableStatistics=true)", the call to parse() returns false - so in this case, the QuerySQLCache property is set to false causing it to be disabled for that instance of EntityManager.

@@ -1,0 +1,16 @@
+Currently the Mime checker does not recognize the pcap file format. As I need the recognition for our project, I added it to the tike-mimetypes.xml:
+
+  <!-- MIME Type for pcap file format, see http://www.iana.org/assignments/media-types/application/vnd.tcpdump.pcap -->
+  <mime-type type="application/vnd.tcpdump.pcap">
+    <magic priority="50">
+      <match value="0xa1b2c3d4" type="big32" offset="0" />
+      <match value="0xd4c3b2a1" type="big32" offset="0" />
+    </magic>
+  	<glob pattern="*.pcap"/>
+  	<glob pattern="*.cap"/>
+  	<glob pattern="*.dmp"/>
+  </mime-type>
+
+*.cap is already used in image/x-raw-phaseone, so I had to comment it out to pass the tests, but I'm sure there is a better way to deal with the conflict, just did not have the time to look into it.
+
+With the configuration above pcap recognition works just fine for me, so I just wanted to contribute this, in case anyone finds it useful.

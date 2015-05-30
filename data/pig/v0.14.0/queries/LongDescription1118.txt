@@ -1,0 +1,11 @@
+The problem is in trunk . It works fine in 0.6 branch.
+
+l = load '/tmp/students.txt' as (a : chararray,b : chararray,c : int);
+grunt> g = group l by 1;
+grunt> dump g;
+(1,
+{(asdfxc,M,23),(qwer,F,21),(uhsdf,M,34),(zxldf,M,21),(qwer,F,23),(oiue,M,54)}
+)
+grunt> f = foreach g generate SUM(l.c), 1 + SUM(l.c) + SUM(l.c);
+grunt> dump f;
+(176L,)

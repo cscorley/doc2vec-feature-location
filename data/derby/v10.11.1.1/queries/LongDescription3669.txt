@@ -1,0 +1,25 @@
+Running the test XAJNDITest (from old xaJNDI.java) with network server  fails because the XADataSource as bound to JNDI, and then fetch from JNDI are not identical.
+This is what the test does to get the XADataSource & to bind & get it from JNDI:
+----------------
+...
+            XADataSource xads = J2EEDataSource.getXADataSource();
+            String dbName = TestConfiguration.getCurrent().getDefaultDatabaseName();
+            JDBCDataSource.setBeanProperty(xads, "databaseName", dbName);
+            JDBCDataSource.setBeanProperty(xads, "createDatabase", "create");
+            JDBCDataSource.setBeanProperty(xads, "description", "XA DataSource");
+
+            Hashtable env = new Hashtable();
+            env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+            // using a system property - these will have to be passed in somehow.
+            env.put(Context.PROVIDER_URL, "ldap://" + ldapServer + ":" + ldapPort);
+            env.put(Context.SECURITY_AUTHENTICATION, "simple");        
+
+            ic.rebind("cn=compareDS, o=" + dnString, xads);
+            javax.sql.XADataSource ads =
+                (javax.sql.XADataSource)ic.lookup("cn=compareDS, o=" + dnString);
+...
+-------------------
+
+
+Further checking showed that the fetched datasource has a String with value "null" rather than a null value for the following properties:
+dataSourceName, connectionAttributes, traceDirectory, traceFile.

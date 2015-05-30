@@ -1,0 +1,16 @@
+I have a pretty simple 1-1 bi-directional relationship.  If I set both sides to eager and then do a select on one side, the following SQL is executed:
+
+SELECT t1.USERID, t2.ACCOUNTID, t2.BALANCE
+, t2.CREATIONDATE, t2.LASTLOGIN, t2.LOGINCOUNT, t2.LOGOUTCOUNT, t2.OPENBALANCE,
+t1.ADDRESS, t1.CREDITCARD, t1.EMAIL, t1.FULLNAME, t1.PASSWD FROM ACCOUNTEJB t0 I
+NNER JOIN ACCOUNTPROFILEEJB t1 ON t0.PROFILE_USERID = t1.USERID LEFT OUTER JOIN
+ACCOUNTEJB t2 ON t1.USERID = t2.PROFILE_USERID WHERE t0.ACCOUNTID = ?  optimize
+for 1 row
+
+the relationship is account <-> accountprofile.   you can see we actually do 2 joins.
+
+This is one in a family of problems which was supposed to have been solved in https://issues.apache.org/jira/browse/OPENJPA-134
+
+There is also a related issue where an uneeded load is done, which I documented a while ago in https://issues.apache.org/jira/browse/OPENJPA-241
+
+I think this is a general comment on the lack of sophistication of the persistence engine to understand when data is logically going to be there anyways, and not to add joins or trigger data loading.

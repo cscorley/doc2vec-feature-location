@@ -1,0 +1,19 @@
+Minor issue but CancelQueryTask.forgetContext() has this code (in GenericStatementContext.java)
+
+        public void forgetContext() {
+            boolean mayStillRun = !cancel();
+            if (mayStillRun) {
+                synchronized (this) 
+{
+                    statementContext = null;
+                }
+            }
+        }
+
+The mayStillRun = !cancel() is somewhat confusing. I can't see from the javadoc of TimerTask.cancel() how its return value could indicate the task may still run.
+Less confusing code could be:
+
+        public void forgetContext() {
+               synchronized (this) {                    statementContext = null;                }
+                cancel();
+        }

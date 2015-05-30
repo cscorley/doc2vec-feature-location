@@ -1,0 +1,6 @@
+I think, the way the JPA metamodel generator places the generated Java files, is flawed. I would have reopened OPENJPA-1187, if I had been able to.
+
+There should be no need to specify a proprietary switch ("openjpa.out") to specify the output dir. There is a switch '-s' to be used with javac to specify the output directory of the generated source files; see http://java.sun.com/javase/6/docs/technotes/tools/windows/javac.html. A proprietary switch should only be used as a fallback option for inconsistent java-implementations.
+
+Furthermore, the current approach does not play well with eclipse IDE annotation processing. The generated source files are placed under the eclipse installation directory. I can only prevent this, if I specify a fully qualified "out"-path. This is not feasible, as a project with these settings might be checked out to everywhere.
+The current approach with "setSourceOutputDirectory(new File(outDir))" seams only to be working by coincidence with relative paths (e.g with ant-javac).

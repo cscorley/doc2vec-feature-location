@@ -1,0 +1,9 @@
+While trying to connect in ij under XA environment, I get an error message which talks about looking into cloudscape.LOG rather than derby.log Here are the steps to reproduce
+Just have derbytools.jar in the classpath and try to connect using ij as follows
+java -Dij.exceptionTrace=true org.apache.derby.tools.ij
+xa_datasource 'c:/dellater/db1drda';
+
+The ij window throws following exception
+IJ ERROR: org.apache.derby.impl.tools.ij.ijException: EmbeddedXADataSource not in classpath, please put derby.jar file in your classpath : EmbeddedXADataSource not in classpath, please put derby.jar file in your classpath (see cloudcape.LOG)
+
+The error message should say (see derby.log) rather than (see cloudscape.LOG)

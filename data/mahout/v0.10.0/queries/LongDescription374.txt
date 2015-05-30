@@ -1,0 +1,208 @@
+--------------------
+
+
+	Introduction
+
+
+
+In recent years, multicore computer becomes main stream. However, the potential of multicore has not been fully exploited for machine learning because the lack of good programming framework for multicore. Recently, Chu et. al. [CHU07] adapt Google's map-reduce paradigm [DEA04] and implemented 10 different machine learning algorithms on multicore processor. Their results show almost double speedup on average with a dual processor. Their work has inspired a lot of interesting projects under Mahout of Apache Software Foundation.
+
+An artificial neural network (ANN) is a supervised learning tool inspired by the biological nervous system. It can capture and represent complex input/output relationships. The neural network has capability to represent both linear and non-linear relationships by learning the relationships directly from the data being modeled. Artificial neural network have been widely applied for classification, data processing and function approximation.
+
+We propose to implement an artificial neural network with back-propagation under map-reduce framework. Success of delivery should include a fast neural network customized for multicore computer.
+
+--------------------
+
+
+	Methodology
+
+
+
+In this section, we briefly introduce map-reduce and back propagated neural network.
+
+
+	Map-reduce
+
+
+
+Map-reduce [DEA04] is a programming model developed by Google. It gets its name from the map and reduce primitives in the functional language such as Lisp. Its inventors realize that most of their distributed computation involve applying a map operation and reduce operation. Where map operation is to compute a set of intermediate key/value pairs for each logical record in the input and reduce operation is applied on all the values that share the same key in order to combine the derived data appropriately. The reduce process allow users to handle large value list difficult to fit in memory.
+
+Map-reduce makes it possible to have a simple interface enabling automatic parallelization and distribution of large-scale computation. The programming model can be applied on multiple core personal computer as well as large clusters of commodity PCs.
+
+Here is an example of map-reduce from [DEA04]. To count the number of occurrences of each word in a large collection of documents, the user can write like the pseudo code below:
+
+map(String key, String value):
+
+// key: document name
+
+// value: document contents
+
+for each word w in value:
+
+       EmitIntermediate(w, "1");
+
+reduce(String key, Iterator values):
+
+// key: a word
+
+// values: a list of counts
+
+int result = 0;
+
+for each v in values:
+
+       result += ParseInt(v);
+
+       Emit(AsString(result))
+
+The map function above emits each word and its associated counts (one in this example). The reduce function sums together all counts emitted for a particular word.
+
+The Map-reduce model has been successfully applied to a large variety of problems, such as Google's Web search service, sorting, data mining etc. It helps to reduce the amount of data sent across the network. In addition, its easiness to use makes the parallel and distributed computing achievable even for inexperienced programmer.
+
+[CHU07] provide a multicore map-reduce framework that is capable of implementing algorithm fitting the Statistical Query Model. Neural network is one of the ten machine learning algorithms fitting the requirement.
+
+
+	Neural Network
+
+
+
+Neural network is one of many modern technology inspired by biology. It is a model which can perform simple computation such as linear regression as well as very complex nonlinear calculation. Without doubt, neural network is one of the most popular machine learning methodology.
+
+The simplest artificial neural network is a single-layer perceptron as shown in Figure 1.  It contains a single layer of adaptive weights.  The output is calculated by applying an activation function f to the weighted sum of inputs:
+
+http://www.cs.ucf.edu/~yhu/gsoc/formula1.JPG             (1)
+
+http://www.cs.ucf.edu/~yhu/gsoc/fig1.JPG
+Figure 1 - Single-layer Perceptron
+
+The limitation of a single-layer perceptron is that it can only model linear relationships between an output and the inputs. This is overcome by multi-layer perceptrons. Multi-layer perceptrons contain several layers of adaptive weights. In Figure 2, a hidden layer was added into the single layer perceptron in Figure 1  to form a two-layer perceptron. If there is an activation function g for the first layer of adaptive weights and f for the second layer of weights, then output can be calculated as in (2). Actually, even the two-layer perceptron is capable of approximating any continuous functional mapping [Bis95]. This is superior to a single-layer perceptron.
+
+http://www.cs.ucf.edu/~yhu/gsoc/formula2.JPG    (2)
+
+http://www.cs.ucf.edu/~yhu/gsoc/fig2.JPG
+Figure 2 - Two-layer Perceptron
+
+A neural network is called a feed-forward network if there is no feedback loops in the architecture. The most commonly used training method for feed-forward neural network is back-propagation [RUM86]. This method propagates errors backward through the network by evaluating the derivatives of the error with respect to the weights. The chain rule in calculus plays a important role to calculate all the derivatives. The calculated derivatives can then be used to find weight values minimizing the error function.
+
+Other than back propagation, there are other training methods such as hill climbing and conjugate gradient. However, none of these methods guarantee finding the global optimum. It is very possible that the result of neural network stuck in a local optimum. Additionally, neural network is also criticized as to be lacking of interpretability.
+
+--------------------
+
+
+	Implementation
+
+
+
+A sequential back-propagated neural network in Java is not very difficult to implement. The UML diagram of a neural network is as Figure 3. The main hurdle for this project will be to apply map-reduce programming model. Scalability on large dataset will also likely be an issue.
+
+http://www.cs.ucf.edu/~yhu/ClassDiagram.gif
+
+Figure 3 UML Diagram of a Neural Network
+
+The performance of module will be measured by using commonly used machine learning data sets from the UCI Machine Learning Repository. Firstly, we need an accurate neural network. Secondly, it should show reasonable speedup on multicore system. The results in [CHU07] serve as our reference.
+
+--------------------
+
+
+	Project Timeline
+
+
+
+Preparation
+
+
+	Now — May 23: set up development environment, read source code and development documentation of Mahout and previous map-reduce implementation.
+
+
+
+Coding
+
+
+	May 24 — June 10: start coding Neural Networks on map-reduce, implement a workable simple perceptron before adding hidden layer
+
+
+
+
+	June 11 — June 24: implement a three layer back-propagated Neural Network;
+
+
+
+
+	June 25 — July 1: Perform unit testing of the Neural Network module on benchmark dataset;
+
+
+
+
+	July 2 — July 11: improve and finish documentation of Neural Network module;
+
+
+
+
+	July 12: submit code, testing result and documentation for midterm evaluation;
+
+
+
+Finishing up
+
+
+	July 13 — August 8: Perform large scale testing and performance turning
+
+
+
+
+	August 9 — August 15: organize everything which has been finished, do minor modifications when necessary
+
+
+
+
+	August 16: submit code, testing result and documentation for final evaluation
+
+
+
+-------------------
+
+
+	Deliverables
+
+
+
+
+	A back-propagated three layer Neural Network module on map-reduce;
+
+
+
+
+	Test cases, results and related analysis;
+
+
+
+
+	Development documentation.
+
+
+
+--------------------
+
+
+	About me
+
+
+
+I am interested in this project mainly because I have passion for machine learning. I have been working in a few different areas of Computer Science and find machine learning my favorite subject. If my proposal is approved, I will quit all the other obligations (Research Assistant, Courses) for the summer and focus only on this project. This project will be my full time summer job.
+
+I am currently a Ph.D. student at University of Central Florida, and majoring in Modeling and Simulation. I also hold master of Computer Science. I have (1). knowledge of machine learning and done numerous related projects.  (2). strong statistical and mathematical background, and (3). project experience on Neural Network with back propagation using Java. I have more than ten years of programming experience. The programming language I am most familiar with is Java. Although I have limited experience of Hadoop and Mahout, I am quick learner and ready to devote the whole summer to this project. For more information about me, please visit my homepage at http://www.cs.ucf.edu/~yhu/.
+
+--------------------
+
+
+	References
+
+
+
+[BIS95] CM Bishop, Neural Networks for Pattern Recognition, Oxford University Press, New York City, 1995
+
+[CHU07] CT Chu, SK Kim, YA Lin, YY Yu, G Bradski, AY Ng & K Olukotun, Map-reduce for Machine Learning on Multicore, Advances in Neural Information Processing Systems 19, 2007
+
+[DEA04] J Dean, S Ghemawat, Mapreduce:simplified data processing on large clusters, ACM OSDI, 2004
+
+[RUM86] DE Rumelhart, GE Hinton, RJ Williams, Learning representations by back-propagating errors, Nature, 323(9), 533-536, 1986

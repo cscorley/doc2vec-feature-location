@@ -1,0 +1,42 @@
+Regarding jpa 2.0 embeddable, suppose Entity A contains a collection of embeddables.
+The collection of embeddable is stored in a separate table. @CollectionTable can be used to specify the table name, etc. If the @CollectionTable is not used, a default table name is used (see spec, p 272 ). 
+
+The embeddable may contain the relation to EntityB in the following scenarios:
+(1) If in the embeddable, there is:
+      @ManyToOne
+       private EnittyB entityB; 
+
+       then the relation from EntityA to EntityB is OneToMany, 
+       and the relation from EntityB to EntityA is ManyToOne (Spec 2.5):
+       @ManyToOne
+       private EntityA entityA;
+
+(2) If in the embeddable, there is:
+      @OneToOne
+      private EntityB; 
+
+      then the relation from EntityA to EntityB is OneToMany,
+      and the relation from EntityB to EntityA is ManyToOne (Spec 2.5):
+      @ManyToOne
+      private EntityA entityA;
+
+(3) If in the embeddable, there is:
+      @OneToOne(mappedBy = "entityB")
+       private EntityB
+       The relation from EntityA to EnityB is OneToMany,
+       and the relation from EntityB to EntityA is ManyToOne:
+       @ManyToOne
+       private EntityA entityA;       
+
+The relation to EntityB will be stored in the third table (the CollectionTable) so that it can be associated with the embeddable. However, we can not use "mappedBy" in the ManyToOne relation in EntityB. How to have bi-directional relation between EntityA and EntityB in these situations? Is it possible to have a bi-directional relation between these two entities when embeddable is involved as described above?
+
+In scenario (3), an explicit "mappedBy" is specified in the embeddable, so that the bi-directional relation between EntityA and EntityB will be stored in the EntityB table, but then how can we associate EntityB with the embeddable when EntityA is retrieved back as embeddable itself does not have identity?
+
+
+
+
+
+
+
+
+

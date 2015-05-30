@@ -1,0 +1,118 @@
+Bug related to creation of the model when you run trainlogistic 
+
+ Its creating the JSON model file  using the toJson function as illustrated below
+--------------------------------
+In,
+ LogisticModelParameters.java
+Function
+void saveTo(Writer out)
+{
+...
+..
+String savedForm = gson.toJson(this);
+...
+}
+--------------------------------
+
+But this is not working as expected : -  String savedForm = gson.toJson(this);
+
+
+For my experiment using a different dataset - 
+
+I get the following model file : 
+
+
+{"targetVariable":"customer","typeMap":
+{"feature2":"n","feature3":"n",
+    "feature1":"n"}
+,"numFeatures":334,"useBias":true,"maxTargetCategories":
+  2,"targetCategories":["0","1"],"lambda":1.0E-4,"learningRate":0.001,"lr":{
+    "mu0":0.001,"decayFactor":0.999,"stepOffset":10,"forgettingExponent":
+    -0.5,"perTermAnnealingOffset":20,"beta":
+{"rows":1,"cols":334,"data":[[
+          0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
+          0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
+          0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
+          0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
+          0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
+          0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
+          0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
+          0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
+          0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
+          0.0,6.741887291022263E-4,0.0,0.0,-53.6076187622054,0.0,0.0,0.0,
+          0.0,0.0,0.0,0.0,0.0,0.0,0.0,5.031178185395536E-5,0.0,0.0,0.0,0.0,
+          0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
+          0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
+          0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
+          0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.04383410529689268,
+          0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
+          0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
+          0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
+          0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
+          0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
+          0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
+          0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]]}
+,
+    "numCategories":2,"step":260951,"updateSteps":{}"updateCounts":{}
+    "lambda":1.0E-4,"prior":{}"sealed":true,"gradient":{}}}
+
+
+If you notice the last part,
+
+  "numCategories":2,"step":260951,"updateSteps":{}"updateCounts":{}
+    "lambda":1.0E-4,"prior":{}"sealed":true,"gradient":{}}}
+
+are missing commas between updateSteps,updateCounts  and Sealed variables
+
+Investigating further, 
+These come from the  AbstractOnlineLogisticRegression.java and the above variables are not initialized hence the wrong output by the toJson function. 
+
+This is a bug with  - > gson.toJson function,  I see that I am using gson-1.3 and upgrading to 1.4  by modifying core/pom.xml fixes things, But runLogistic then complains about 
+
+10/11/29 03:29:43 WARN conf.Configuration: DEPRECATED: hadoop-site.xml found in the classpath. Usage of hadoop-site.xml is deprecated. Instead use core-site.xml, mapred-site.xml and hdfs-site.xml to override properties of core-default.xml, mapred-default.xml and hdfs-default.xml respectively
+Exception in thread "main" java.lang.RuntimeException: No-args constructor for interface org.apache.mahout.math.Vector does not exist. Register an InstanceCreator with Gson for this type to fix this problem.
+	at com.google.gson.MappedObjectConstructor.constructWithNoArgConstructor(MappedObjectConstructor.java:64)
+	at com.google.gson.MappedObjectConstructor.construct(MappedObjectConstructor.java:53)
+	at com.google.gson.JsonObjectDeserializationVisitor.constructTarget(JsonObjectDeserializationVisitor.java:41)
+	at com.google.gson.JsonDeserializationVisitor.getTarget(JsonDeserializationVisitor.java:56)
+	at com.google.gson.ObjectNavigator.accept(ObjectNavigator.java:101)
+	at com.google.gson.JsonDeserializationVisitor.visitChild(JsonDeserializationVisitor.java:107)
+	at com.google.gson.JsonDeserializationVisitor.visitChildAsObject(JsonDeserializationVisitor.java:95)
+	at com.google.gson.JsonObjectDeserializationVisitor.visitObjectField(JsonObjectDeserializationVisitor.java:62)
+	at com.google.gson.ObjectNavigator.navigateClassFields(ObjectNavigator.java:156)
+	at com.google.gson.ObjectNavigator.accept(ObjectNavigator.java:123)
+	at com.google.gson.JsonDeserializationVisitor.visitChild(JsonDeserializationVisitor.java:107)
+	at com.google.gson.JsonDeserializationVisitor.visitChildAsObject(JsonDeserializationVisitor.java:95)
+	at com.google.gson.JsonObjectDeserializationVisitor.visitObjectField(JsonObjectDeserializationVisitor.java:62)
+	at com.google.gson.ObjectNavigator.navigateClassFields(ObjectNavigator.java:156)
+	at com.google.gson.ObjectNavigator.accept(ObjectNavigator.java:123)
+	at com.google.gson.JsonDeserializationContextDefault.fromJsonObject(JsonDeserializationContextDefault.java:73)
+	at com.google.gson.JsonDeserializationContextDefault.deserialize(JsonDeserializationContextDefault.java:51)
+	at com.google.gson.Gson.fromJson(Gson.java:495)
+	at com.google.gson.Gson.fromJson(Gson.java:444)
+	at com.google.gson.Gson.fromJson(Gson.java:419)
+	at org.apache.mahout.classifier.sgd.LogisticModelParameters.loadFrom(LogisticModelParameters.java:142)
+	at org.apache.mahout.classifier.sgd.LogisticModelParameters.loadFrom(LogisticModelParameters.java:155)
+	at org.apache.mahout.classifier.sgd.RunLogistic.main(RunLogistic.java:56)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:616)
+	at org.apache.hadoop.util.ProgramDriver$ProgramDescription.invoke(ProgramDriver.java:68)
+	at org.apache.hadoop.util.ProgramDriver.driver(ProgramDriver.java:139)
+	at org.apache.mahout.driver.MahoutDriver.main(MahoutDriver.java:182)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:616)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:156)
+
+Which I haven't had the time to investigate yet, Will post more results tomorrow.
+
+
+
+
+
+
+
+

@@ -1,0 +1,27 @@
+AllocPage.createPage() will initialize minimumRecordSize to the same
+value as borrowedSpace. See this code taken from AllocPage.java:
+
+-------------------
+	protected void createPage(PageKey newIdentity, int[] args) 
+		 throws StandardException
+	{
+
+		super.createPage(newIdentity, args);
+
+		// args[0] is the format id
+		// args[1] is whether to sync the page to disk or not
+		// args[2] is the pagesize (used by StoredPage)
+		// args[3] is the spareSize (used by StoredPage)
+		// args[4] is the number of bytes to reserve for container header
+		// args[5] is the minimumRecordSize
+		// NOTE: the arg list here must match the one in FileContainer
+		int pageSize = args[2];
+		int minimumRecordSize = args[5];
+		borrowedSpace = args[4];
+-------------------
+
+Here it correctly takes args[5] and puts into the local variable
+minimumRecordSize. However, that variable hides a field with the same
+name, and that field is set to args[4] in the call to
+super.createPage() at the first line in the method. The local variable
+is never used.

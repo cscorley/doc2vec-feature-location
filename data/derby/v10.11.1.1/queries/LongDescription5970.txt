@@ -1,0 +1,5 @@
+At boot time, Derby does not check whether connection attributes are set to legal values. This can cause them to be silently ignored. In the case of security operations like re(un)encryption, these silent failures deceive the DBO into thinking that the security behavior of the database has changed when, in fact, it hasn't. We should do the following:
+
+1) Prevent decryptDatabase from being set to an illegal value. Since this is a new attribute, there are no backward compatibility issues.
+
+2) Evaluate other attributes on a case-by-case basis to determine which ones should raise exceptions if they are set to illegal values. Technically, this may result in backwardly incompatible behavior. However, I think that for most attributes, we will decide that the incompatibility is minor and is a welcome bugfix.

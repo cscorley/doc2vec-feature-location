@@ -1,0 +1,67 @@
+reading the 'length()' of a blob reads a previously aquired binary stream.
+
+test case:
+
+    public static void main(String[] argv) throws Exception 
+{
+        String driver = "org.apache.derby.jdbc.EmbeddedDriver";
+        String url = "jdbc:derby:derby/test;create=true";
+        Class.forName(driver);
+        Connection con = DriverManager.getConnection(url, "sa", "");
+        con.setAutoCommit(true);
+
+        // create table
+        System.out.println("1) creating table...");
+        Statement stmt = con.createStatement();
+        stmt.execute("create table T1 (ID char(32) PRIMARY KEY, DATA blob(2G) not null)");
+        stmt.close();
+
+        // add row
+        System.out.println("2) adding row...");
+        byte[] data = new byte[1024*1024*1];
+        data[0] = 1;
+        data[1] = 2;
+
+        PreparedStatement s = con.prepareStatement("insert into T1 (ID, DATA) values (?, ?)");
+        s.setString(1, "id");
+        s.setBytes(2, data);
+        s.execute();
+        s.close();
+
+        // read row
+        System.out.println("3) reading row...");
+        s = con.prepareStatement("select DATA from T1 where ID = ?");
+        s.setString(1, "id");
+        s.execute();
+        ResultSet rs = s.getResultSet();
+        rs.next();
+        Blob b = rs.getBlob(1);
+
+        // test output
+        System.out.println("4) Length: " + b.length());
+        InputStream in = b.getBinaryStream();
+        System.out.println("   First Byte: " + in.read());
+        in.close();
+
+        in = b.getBinaryStream();
+        System.out.println("5) Length: " + b.length());
+        System.out.println("   First Byte: " + in.read());
+        in.close();
+
+        rs.close();
+        s.close();
+        con.close();
+    }
+
+
+gives:
+
+1) creating table...
+2) adding row...
+3) reading row...
+4) Length: 1048576
+   First Byte: 1
+5) Length: 1048576
+   First Byte: -1
+
+imo, 5) is wrong.

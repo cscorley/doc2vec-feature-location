@@ -1,0 +1,14 @@
+We hit a problem that OpenJPA always rounds to the nearest 10ms for PostgreSQL. We found the following old issue in which a workaround got outlined in OPENJPA-433
+
+But still the question remains: PostgreSQL is perfectly fine to store milliseconds, so why does the PostgresDictionary line 146 sets:
+> datePrecision = CENTI;
+?
+
+The generated TIMESTAMP type in PostgreSQL should even be able to store microseconds! [1]
+And that seems to be the case since quite some time now (1999) [2].
+
+I'm really tempted to set this to MICRO; Anyone against it?
+
+
+[1] http://www.postgresql.org/docs/9.0/interactive/datatype-datetime.html
+[2] http://www.postgresql.org/docs/7.0/static/datatype1134.htm

@@ -1,0 +1,28 @@
+Eg: MultiQuery_9
+Error message:
+FATAL org.apache.hadoop.mapred.Child: Error running child : java.lang.NoClassDefFoundError: org/xerial/snappy/SnappyCodec
+	at org.apache.pig.impl.util.Utils$TEMPFILE_CODEC.<clinit>(Utils.java:253)
+	at org.apache.pig.impl.util.Utils$TEMPFILE_STORAGE.<clinit>(Utils.java:274)
+	at org.apache.pig.impl.util.Utils.getTmpFileStorage(Utils.java:352)
+	at org.apache.pig.impl.util.Utils.getTmpFileStorageObject(Utils.java:339)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.partitioners.WeightedRangePartitioner.setConf(WeightedRangePartitioner.java:129)
+	at org.apache.hadoop.util.ReflectionUtils.setConf(ReflectionUtils.java:62)
+	at org.apache.hadoop.util.ReflectionUtils.newInstance(ReflectionUtils.java:117)
+	at org.apache.hadoop.mapred.MapTask$NewOutputCollector.<init>(MapTask.java:677)
+	at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:756)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:370)
+	at org.apache.hadoop.mapred.Child$4.run(Child.java:255)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:396)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1121)
+	at org.apache.hadoop.mapred.Child.main(Child.java:249)
+Caused by: java.lang.ClassNotFoundException: org.xerial.snappy.SnappyCodec
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:202)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:190)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:306)
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:301)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:247)
+	... 15 more
+
+Need to ship snappy-java.jar to backend.

@@ -1,0 +1,6 @@
+Since SASL support was added, all connections with non-secure clients have started logging messages like:
+
+2012-07-01 02:13:34,986 WARN org.apache.zookeeper.client.ZooKeeperSaslClient: SecurityException: java.lang.SecurityException: Unable to locate a login configuration occurred when trying to find JAAS configuration.
+2012-07-01 02:13:34,986 INFO org.apache.zookeeper.client.ZooKeeperSaslClient: Client will not SASL-authenticate because the default JAAS configuration section 'Client' could not be found. If you are not using SASL, you may ignore this. On the other hand, if you expected SASL to work, please fix your JAAS configuration.
+
+Despite the "you may ignore this" qualifier, I've seen a lot of users confused by this message. Instead, it would be better to either log at DEBUG level, or piggy back the SASL information onto the "Opening socket connection" message (eg "Opening socket connection to X:2181. Will not use SASL because no configuration was located.")

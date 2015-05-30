@@ -1,0 +1,15 @@
+When using the DateFormatTransformer, if the source column is of type java.sql.TimeStamp, an exception is thrown converting this to a String. Solution is to not typecast to a String but rather invoke the .toString() method of the object to retrieve the string representation of the object.
+
+(About line 68)
+        } else 
+{
+          String value = (String) o;
+          aRow.put(column, process(value, fmt));
+        }
+
+should be
+        } else 
+{
+          String value = o.toString();
+          aRow.put(column, process(value, fmt));
+        }

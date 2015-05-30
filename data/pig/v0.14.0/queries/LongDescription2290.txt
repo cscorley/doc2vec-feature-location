@@ -1,0 +1,22 @@
+The TOBAG function indiscriminately wraps all parameters in a tuple.  When I pass a list of tuples to the function, I would expect it to return a bag containing those tuples.  Instead, it returns a bag containing single element tuples, where each tuple contains one of the tuples passed in.
+
+Example:
+tuples.txt
+
+(mike,608)
+(ryan,11624)
+(justin,2317)
+
+
+
+Demonstration using pig 0.9.0
+
+grunt> TUPLE_DATA = LOAD 'tuples.txt' AS (T:tuple(name:chararray,street_number:int));
+grunt> BAGGED = FOREACH TUPLE_DATA GENERATE TOBAG(T);
+grunt> DESCRIBE BAGGED;
+BAGGED: {{(name: chararray,street_number: int)}}
+grunt> DUMP BAGGED;
+({((mike,608))})
+({((ryan,11624))})
+({((justin,2317))})
+

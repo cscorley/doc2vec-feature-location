@@ -1,0 +1,24 @@
+This is not correctness issue, but it is ugly to throw an NPE there. 
+
+
+Running org.apache.bookkeeper.test.BookieFailureTest
+Nov 17, 2011 2:48:28 PM org.jboss.netty.channel.DefaultChannelFuture
+WARNING: An exception was thrown by ChannelFutureListener.
+java.lang.NullPointerException
+	at org.apache.bookkeeper.proto.PerChannelBookieClient.addEntry(PerChannelBookieClient.java:231)
+	at org.apache.bookkeeper.proto.BookieClient$1.operationComplete(BookieClient.java:85)
+	at org.apache.bookkeeper.proto.BookieClient$1.operationComplete(BookieClient.java:78)
+	at org.apache.bookkeeper.proto.PerChannelBookieClient$1.operationComplete(PerChannelBookieClient.java:158)
+	at org.jboss.netty.channel.DefaultChannelFuture.notifyListener(DefaultChannelFuture.java:381)
+	at org.jboss.netty.channel.DefaultChannelFuture.notifyListeners(DefaultChannelFuture.java:372)
+	at org.jboss.netty.channel.DefaultChannelFuture.setSuccess(DefaultChannelFuture.java:316)
+	at org.jboss.netty.channel.socket.nio.NioWorker$RegisterTask.run(NioWorker.java:767)
+	at org.jboss.netty.channel.socket.nio.NioWorker.processRegisterTaskQueue(NioWorker.java:256)
+	at org.jboss.netty.channel.socket.nio.NioWorker.run(NioWorker.java:198)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:680)
+
+
+
+The fix should be trivial, though.

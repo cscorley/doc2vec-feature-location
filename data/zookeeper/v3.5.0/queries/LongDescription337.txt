@@ -1,0 +1,10 @@
+leader election has the following code:
+
+                requestPacket.setSocketAddress(server.addr);
+                LOG.info("Server address: " + server.addr);
+
+this should be switched to have the info log first, set sock addr second.
+
+The reason for this is that if the setSocketAddress fails SUN is not printing the address used. As a result it's verify difficult to debug this issue.
+
+If we log the server address first, then if the setSockAddress fails we'll see both the address of the server and the exception detail (right now we just see the exception detail which does not include the invlaid address in invalidAddressException).

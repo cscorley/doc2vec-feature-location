@@ -1,0 +1,8 @@
+<property name="openjpa.InitializeEagerly" value="true"/> breaks the bean-validation integration
+
+AbstractBrokerFactory#makeReadOnly
+evaluates conf.isInitializeEagerly() which returns true (due to the config) and calls _conf.setReadOnly(Configuration.INIT_STATE_FROZEN)
++ at the end of AbstractBrokerFactory#initializeBroker it gets called again
+
+that causes:
+the created BrokerFactory gets used as argument for PersistenceProviderImpl#loadValidator which fails (with a warning or an exception depending on the validation-mode configured in the persistence.xml) because the config is in state INIT_STATE_FROZEN

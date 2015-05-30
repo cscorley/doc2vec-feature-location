@@ -1,0 +1,12 @@
+this is an issue introduced when fixing BOOKKEEPER-337. the original #resolveConflicts logic was removed by just checking state and current ensemble, which tends to fixing multiple bookies changed in same ensemble.
+
+the issue could be reproduce by a test case in following steps:
+
+1. Ledger L writing several entries to ensemble A, B, C.
+2. C succeed, B failed with slow responses and A failed with unrecoverable issue.
+3. L would fail all the pending add ops and close the ledger with lastEntryId = -1. (since no add operations succeed).
+4. The ownership of this Ledger is released and transferred to other machines (it is the normal use case for Hedwig).
+5. the new owner tried to open Ledger L and recover the ensemble, suppose A, B is back to normal at this case. so L is closed with lastEntryId is not -1.
+6. the old owner although closed the ledger, but doesn't blocking the responses for already failed pending add ops. so failures for B would kick in some ensemble changes and since the ledger metadata is already changed by new owner, so it needs to resolve the conflicts and update the ledger metadata with lastEntryId = -1 again. so we get different lastEntryId at different time, which cause inconsistency and data loss.
+
+for details of this sequence, a test case could describe it more clearly.

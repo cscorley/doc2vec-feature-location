@@ -1,0 +1,19 @@
+This one may be more controversial but is useful and interesting enough to discuss.
+
+I personally believe instance fields should always be private. I think the pro- and con- debate goes like this:
+
+Making all fields private increases encapsulation. Fields must be made explicitly accessible via getters and setters, which is good – default to hiding, rather than exposing. Not-hiding a field amounts to committing it to be a part of the API, which is rarely intended. Using getters/setters allows read/write access to be independently controlled and even allowed – allows for read-only 'fields'. Getters/setters establish an API independent from the representation which is a Good Thing.
+
+But don't getters and setters slow things down?
+
+Trivially. JIT compilers will easily inline one-liners. Making fields private more readily allows fields to be marked final, and these two factors allow for optimizations by (Proguard or) JIT. It could actually speed things up.
+
+But isn't it messy to write all those dang getters/setters?
+
+Not really, and not at all if you use an IDE, which I think we all should be.
+
+But sometimes a class needs to share representation with its subclasses.
+
+Yes, and it remains possible with package-private / protected getters and setters. This is IMHO a rare situation anyway, and, the code is far easier to read when fields from a parent don't magically appear, or one doesn't wonder about where else a field may be accessed in subclasses. I also feel like sometimes making a field more visible is a shortcut enabler to some bad design. It usually is a bad smell.
+
+Thoughts on this narrative. Once again I volunteer to implement the consensus.

@@ -1,0 +1,81 @@
+This bug was found when doing soft upgrade testing from Derby version 10.4.2.0 to 10.5.1.0 (RC1)
+
+Steps followed are as follows.
+
+1. Run setEmbeddedCP.bat from version 10.4.2.0's bin folder
+2. In a test folder run ij
+3. create system/wombat database.
+    ij> connect 'jdbc:derby:system/wombat;create=true';
+4. exit ij
+5. Copy the 10.5.1.0 derby jars (from lib folder) and the derbyTesting.jar from 10.4.2.0 to the test folder and set classpath with them (including junit and ORO)
+6. Run suites.All
+     java -Xmx512M -Xms512M -Dderby.tests.trace=true junit.textui.TestRunner org.apache.derbyTesting.functionTests.suites.All
+
+Result:
+Tests run: 10479, Failures: 56, Errors: 34 
+
+The stack trace is as follows.
+---------------------------------------------------------------------------------------------------------
+21) testGetColumnsReadOnly(org.apache.derbyTesting.functionTests.tests.jdbcapi.DatabaseMetaDataTest)java.lang.ArrayIndexOutOfBoundsException: 122
+	at org.apache.derby.client.net.NetCursor.readFdocaBytes(Unknown Source)
+	at org.apache.derby.client.net.NetCursor.parseSQLCAXGRP(Unknown Source)
+	at org.apache.derby.client.net.NetCursor.parseSQLCAGRP(Unknown Source)
+	at org.apache.derby.client.net.NetCursor.parseSQLCARD(Unknown Source)
+	at org.apache.derby.client.net.NetCursor.calculateColumnOffsetsForRow_(Unknown Source)
+	at org.apache.derby.client.am.Cursor.stepNext(Unknown Source)
+	at org.apache.derby.client.net.NetCursor.scanDataBufferForEndOfData(Unknown Source)
+	at org.apache.derby.client.net.NetResultSet.preClose_(Unknown Source)
+	at org.apache.derby.client.am.ResultSet.closeX(Unknown Source)
+	at org.apache.derby.client.am.ResultSet.close(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.DatabaseMetaDataTest.crossCheckGetColumnsAndResultSetMetaData(DatabaseMetaDataTest.java:1660)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.DatabaseMetaDataTest.testGetColumnsReadOnly(DatabaseMetaDataTest.java:1357)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:102)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+
+22) testGetColumnsModify(org.apache.derbyTesting.functionTests.tests.jdbcapi.DatabaseMetaDataTest)java.lang.ArrayIndexOutOfBoundsException: 122
+	at org.apache.derby.client.net.NetCursor.readFdocaBytes(Unknown Source)
+	at org.apache.derby.client.net.NetCursor.parseSQLCAXGRP(Unknown Source)
+	at org.apache.derby.client.net.NetCursor.parseSQLCAGRP(Unknown Source)
+	at org.apache.derby.client.net.NetCursor.parseSQLCARD(Unknown Source)
+	at org.apache.derby.client.net.NetCursor.calculateColumnOffsetsForRow_(Unknown Source)
+	at org.apache.derby.client.am.Cursor.stepNext(Unknown Source)
+	at org.apache.derby.client.net.NetCursor.scanDataBufferForEndOfData(Unknown Source)
+	at org.apache.derby.client.net.NetResultSet.preClose_(Unknown Source)
+	at org.apache.derby.client.am.ResultSet.closeX(Unknown Source)
+	at org.apache.derby.client.am.ResultSet.close(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.DatabaseMetaDataTest.crossCheckGetColumnsAndResultSetMetaData(DatabaseMetaDataTest.java:1660)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.DatabaseMetaDataTest.testGetColumnsReadOnly(DatabaseMetaDataTest.java:1357)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.DatabaseMetaDataTest.testGetColumnsModify(DatabaseMetaDataTest.java:1374)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:102)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+----------------------------------------------------------------------------------
+
+I did not see anything in the derby.log from the tests that seemed to be related to this.
+
+Note that this test passed when run by itself, and also when run after a couple of failing tests (namely org.apache.derbyTesting.functionTests.tests.jdbcapi.BlobClob4BlobTest and org.apache.derbyTesting.functionTests.tests.jdbcapi.UpdatableResultSetTest)

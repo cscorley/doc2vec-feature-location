@@ -1,0 +1,54 @@
+
+
+l1 = load 'std.txt';
+l2 = load 'std.txt'; 
+f1 = foreach l1 generate $0 as abc, $1 as  def;
+-- j =  join f1 by $0, l2 by $0 using 'replicated';    
+-- j =  join l2 by $0, f1 by $0 using 'replicated';    
+j =  join l2 by $0, f1 by $0 ;    
+dump j;
+
+
+
+the error -
+
+
+2010-09-22 16:24:48,584 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 2044: The type null cannot be collected as a Key type
+
+
+
+The MR plan from explain  -
+
+
+#--------------------------------------------------
+# Map Reduce Plan                                  
+#--------------------------------------------------
+MapReduce node scope-21
+Map Plan
+Union[tuple] - scope-22
+|
+|---j: Local Rearrange[tuple]{bytearray}(false) - scope-11
+|   |   |
+|   |   Project[bytearray][0] - scope-12
+|   |
+|   |---l2: Load(file:///Users/tejas/pig_obyfail/trunk/std.txt:org.apache.pig.builtin.PigStorage) - scope-0
+|
+|---j: Local Rearrange[tuple]{NULL}(false) - scope-13
+    |   |
+    |   Project[NULL][0] - scope-14
+    |
+    |---f1: New For Each(false,false)[bag] - scope-6
+        |   |
+        |   Project[bytearray][0] - scope-2
+        |   |
+        |   Project[bytearray][1] - scope-4
+        |
+        |---l1: Load(file:///Users/tejas/pig_obyfail/trunk/std.txt:org.apache.pig.builtin.PigStorage) - scope-1--------
+Reduce Plan
+j: Store(/tmp/x:org.apache.pig.builtin.PigStorage) - scope-18
+|
+|---POJoinPackage(true,true)[tuple] - scope-23--------
+Global sort: false
+----------------
+
+

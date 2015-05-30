@@ -1,0 +1,1 @@
+When shutting down the QuroumPeer, ZK server logs unnecessary errors. See QuorumCnxManager.Listener.run() - ss.accept() will throw an exception when it is closed. The catch (IOException e) will log errors. It should first check the shutdown field to see if the Listener is being shutdown. If it is, the exception is correct and no errors should be logged.

@@ -1,0 +1,19 @@
+In private correspondence, Mani Afschar Yazdi reports that dblook omits the length specification for VARCHAR FOR BIT DATA columns when run across the network. Embedded dblook runs fine. I can reproduce this problem as follows:
+
+1) Bring up a server (here I am using port 8246).
+
+2) Create a database with the following ij script:
+
+connect 'jdbc:derby://localhost:8246/memory:db;create=true';
+
+create table t( a varchar( 20 ) for bit data );
+
+3) Now run dblook across the network:
+
+java -org.apache.derby.tools.dblook -d "jdbc:derby://localhost:8246/memory:db"
+
+This produces the following DDL for the table:
+
+CREATE TABLE "APP"."T" ("A" VARCHAR () FOR BIT DATA);
+
+A similar experiment using an embedded database produces usable DDL which includes a length specification for the VARCHAR FOR BIT DATA column.

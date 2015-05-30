@@ -1,0 +1,10 @@
+The following Mahout programs incorrectly processed -h flags, throwing OptionExceptions:
+
+seq2sparse
+seqdirectory
+seqwiki
+svd
+trainclassifier
+transpose
+
+The first five are easily addressed by adding "parser.setHelpOption(helpOpt)" in the correct driver files (thanks to Jeff Eastman). The "transpose" program also contained a NullPointerException thrown when two integer arguments were not verified. See the patch file for a possible fix.

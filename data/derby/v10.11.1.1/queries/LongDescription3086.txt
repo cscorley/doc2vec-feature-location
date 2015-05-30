@@ -1,0 +1,7 @@
+More permissions need to be granted to derbynet.jar in the server.policy file. David van Couvering reports that if you bring up the server and run the following command:
+
+java -jar derbyrun.jar server sysinfo
+
+then you get security exceptions as the sysinfo code, running inside the network jarball tries to read user.dir, user.home, user.name, java.home, and java.class.path.
+
+Kathey Marsden reports that  if you try to run the network server with drda tracing turned on, then you get security exceptions when the server tries to open the trace log file.

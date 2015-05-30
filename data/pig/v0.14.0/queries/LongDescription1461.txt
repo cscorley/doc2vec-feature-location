@@ -1,0 +1,14 @@
+When the data has schema, it often makes sense to union on column names in schema rather than the position of the columns. 
+The behavior of existing union operator should remain backward compatible .
+
+This feature can be supported using either a new operator or extending union to support 'using' clause . I am thinking of having a new operator called either unionschema or merge . Does anybody have any other suggestions for the syntax ?
+
+example -
+
+L1 = load 'x' as (a,b);
+L2 = load 'y' as (b,c);
+U = unionschema L1, L2;
+
+describe U;
+U: 
+{a:bytearray, b:byetarray, c:bytearray}

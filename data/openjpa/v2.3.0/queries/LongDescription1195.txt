@@ -1,0 +1,9 @@
+Create a query expression that uses a datastore function such as MOD(..) or MAX(..) in a generic fashion.
+
+This is required by function() support for CriteriaQuery and adds a generic capability for queries so we can query something like
+
+  "select  CURRENT_USER(), x.name FROM Person x WHERE LENGTH(x.name)>10 ORDER BY LENGTH(x.name)"
+
+Notice that JPQL Parser may not like the syntax – but CriteriaQuery will allow such possibility.
+
+Allow the function() to accept 0 or more arguments as expressions.

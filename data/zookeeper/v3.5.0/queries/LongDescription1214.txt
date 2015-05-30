@@ -1,0 +1,22 @@
+When a QuorumPeer thread dies, it is unregistering all ZKMBeanInfo MBeans previously registered on its java process; including those that has not been registered by itself.
+
+It does not cause any side effect in production environment where each server is running on a separate java process; but fails when using "org.apache.zookeeper.test.QuorumUtil" to programmatically start up a zookeeper server ensemble and use its provided methods to force Disconnected, SyncConnected or SessionExpired events; in order to perform some basic/functional testing.
+
+Scenario:
+
+	QuorumUtil qU = new QuorumUtil(1); // It creates a 3 servers ensemble.
+	qU.startAll(); // Startup all servers: 1 Leader + 2 Followers
+	qU.shutdown(i); // i is a number from 1 to 3. It shutdown one server.
+
+
+
+The last method causes that a QuorumPeer will die, invoking the MBeanRegistry.unregisterAll() method.
+As a result, all ZKMBeanInfo MBeans are unregistered; including those belonging to the other QuorumPeer instances.
+
+When trying to restart previous server (qU.restart(i)) an AssertionError is thrown at MBeanRegistry.register(ZKMBeanInfo bean, ZKMBeanInfo parent) method, causing the QuorumPeer thread dead.
+
+To solve it:
+
+	MBeanRegistry.unregisterAll() method has been removed.
+	QuorumPeer only unregister its ZKMBeanInfo MBeans.
+

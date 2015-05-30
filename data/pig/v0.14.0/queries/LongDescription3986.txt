@@ -1,0 +1,3 @@
+Currently one PigSplit wraps one to many input split and pig assign one PigSplit to one mapper; however when it serializes the split class name, it expects all input split to be of same class, hence it serializes class name only once — the first split (see code snippet at the end).
+
+To support PigSplit wrap multi split class, we can serialize each split along with its own class name.    This would allow each split to be deserialized/restored correctly.  Of course, LoadFunc would need to dispatch input split to appropriate record reader.

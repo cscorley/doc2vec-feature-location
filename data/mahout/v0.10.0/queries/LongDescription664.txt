@@ -1,0 +1,14 @@
+In the spirit of MAHOUT-510 and continuing to standardize approaches without going too nuts – I notice that there is only one use of XStream left in the code, in StringUtils, which is merely a wrapper for serializing/deserializing an object to a String.
+
+There are two key mahout-core usages:
+
+	org.apache.mahout.ga.watchmaker. Here it seems to be used to serialize/deserialize a candidate solution to a file on HDFS and fed into a mapper. Surely it's more appropriate to do something with Writable here?
+	org.apache.mahout.df.mapreduce. It's used to serialize/deserialize a DefaultTreeBuilder. Does it need to be done? it seems like DefaultTreeBuilder is parameterized entirely by its param "m" but I haven't looked hard.
+
+
+
+All of the other usages are in mahout-examples/, which suggests they're of secondary importance.
+
+Some usages are serialization of longs and char[], which seems pointless.
+
+Any thoughts? putting this on the map for 1.0.

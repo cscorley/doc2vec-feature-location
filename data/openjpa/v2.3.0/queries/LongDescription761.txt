@@ -1,0 +1,18 @@
+A test used the SchemaTool to reflect "all" schema in a Oracle DB but run in a NPE as observed below:
+
+     [exec] 131  INFO   [main] openjpa.jdbc.JDBC - Using dictionary class "com.ibm.ws.persistence.jdbc.sql.OracleDictionary".
+     [exec] 1127  INFO   [main] openjpa.Tool - Reflecting on schemas "all".  This process may take some time.  Enable the org.apache.openjpa.jdbc.Schema logging category to see messages about the collection of schema data.
+     [exec] Exception in thread "main" java.lang.NullPointerException
+     [exec] 	at org.apache.openjpa.jdbc.schema.ForeignKey.join(ForeignKey.java:521)
+     [exec] 	at org.apache.openjpa.jdbc.schema.SchemaGenerator.generateForeignKeys(SchemaGenerator.java:794)
+     [exec] 	at org.apache.openjpa.jdbc.schema.SchemaGenerator.generateForeignKeys(SchemaGenerator.java:431)
+     [exec] 	at org.apache.openjpa.jdbc.schema.SchemaGenerator.generateSchemas(SchemaGenerator.java:278)
+     [exec] 	at org.apache.openjpa.jdbc.schema.SchemaGenerator.generateSchemas(SchemaGenerator.java:243)
+     [exec] 	at org.apache.openjpa.jdbc.schema.SchemaTool.run(SchemaTool.java:1433)
+     [exec] 	at org.apache.openjpa.jdbc.schema.SchemaTool.run(SchemaTool.java:1403)
+     [exec] 	at org.apache.openjpa.jdbc.schema.SchemaTool$1.run(SchemaTool.java:1348)
+     [exec] 	at org.apache.openjpa.lib.conf.Configurations.launchRunnable(Configurations.java:708)
+     [exec] 	at org.apache.openjpa.lib.conf.Configurations.runAgainstAllAnchors(Configurations.java:693)
+     [exec] 	at org.apache.openjpa.jdbc.schema.SchemaTool.main(SchemaTool.java:1343)
+
+Albert Lee

@@ -1,0 +1,31 @@
+
+2013-02-11 14:06:28,904 - WARN  - [GarbageCollectorThread:ScanAndCompareGarbageCollector@103] - Exception when iterating over the metadata {}
+java.io.IOException: Error when check more elements
+	at org.apache.bookkeeper.meta.HierarchicalLedgerManager$HierarchicalLedgerRangeIterator.hasNext(HierarchicalLedgerManager.java:423)
+	at org.apache.bookkeeper.bookie.ScanAndCompareGarbageCollector.gc(ScanAndCompareGarbageCollector.java:75)
+	at org.apache.bookkeeper.bookie.GarbageCollectorThread.doGcLedgers(GarbageCollectorThread.java:302)
+	at org.apache.bookkeeper.bookie.GarbageCollectorThread.run(GarbageCollectorThread.java:271)
+Caused by: java.lang.NullPointerException
+	at org.apache.bookkeeper.meta.HierarchicalLedgerManager$HierarchicalLedgerRangeIterator.hasNext(HierarchicalLedgerManager.java:419)
+	... 3 more
+
+
+
+In the code below, l2NodesIter appears to be null.
+
+
+
+public boolean hasNext() throws IOException {
+   try {
+      if (l1NodesIter == null) {
+          l1NodesIter = zk.getChildren(ledgerRootPath, null).iterator();
+          hasMoreElement = nextL1Node();
+      } else if (!l2NodesIter.hasNext()) {
+          hasMoreElement = nextL1Node();
+      }
+   } catch (Exception e) {
+      throw new IOException("Error when check more elements", e);
+   }
+   return hasMoreElement;
+}
+

@@ -1,0 +1,28 @@
+This issue happens with the following scenario with JTA transaction.
+
+Suppose there is Entity A which is related to table with two columns accountId and name. accountId is PK of the table whose value is generated using sequence in DB.
+
+1. Thread A starts Transaction 1.
+2. Thread B starts Transaction 2.
+3. Thread A and Thread B both calls EntityManager.persist(o) where o is 
+Entity object whose primary key is generated with a sequence in DB.
+4. A call is made to o.getAccountId() concurrently.
+5. Thread A suspends Transaction 1, and gets the value of accountId. It updates 
+sequence value in DB with new Transaction 3. It saves Transaction 1.
+6. Thread B suspends Transaction 2, and gets the value of accountId. It updates 
+sequence value in DB with new Transaction 4. It saves Transaction 2.
+7. Now, when both Thread A and Thread B resumes outer transaction 
+concurrently, it updates Transaction Manager with Transaction 2.
+
+The problem happens when JTA transaction is saved in AbstractJDBCSeq _outerTransaction variable. The variable gets overwritten if multiple threads load the value of accountId from sequence in DB, when it resumes the JTA transaction later it resumes the transaction 2 for both threads resulting in following exception.
+
+
+javax.ejb.EJBException: nested exception is: javax.persistence.TransactionRequiredException: The method public abstract void javax.persistence.EntityManager.persist(java.lang.Object) must be called in the context of a transaction.
+javax.persistence.TransactionRequiredException: The method public abstract void javax.persistence.EntityManager.persist(java.lang.Object) must be called in the context of a transaction.
+	at weblogic.deployment.BasePersistenceContextProxyImpl.validateInvocation(BasePersistenceContextProxyImpl.java:121)
+	at weblogic.deployment.BasePersistenceContextProxyImpl.invoke(BasePersistenceContextProxyImpl.java:86)
+	at weblogic.deployment.TransactionalEntityManagerProxyImpl.invoke(TransactionalEntityManagerProxyImpl.java:90)
+	at weblogic.deployment.BasePersistenceContextProxyImpl.invoke(BasePersistenceContextProxyImpl.java:80)
+	at $Proxy63.persist(Unknown Source)
+
+Please check README.txt of attached testcase.zip to see how to reproduce the issue.

@@ -1,0 +1,6 @@
+A continuation of PIG-3492. We realize separate validation rules (such as DuplicateForEachColumnRewriteVisitor, ImplicitSplitInsertVisitor) from optimizer would make code clear. The reason is:
+1. validation rule only need to run once
+2. In contrast to optimization rule, validation rule works on an inconsistent plan, and should be careful about precondition. Also some global operation such as resetSchema is not possible on inconsistent plan
+3. Some operations should work with unoptimized but validated plan, such as describe
+
+Also want to address PIG-3508 in the cleanup. We should call LogicalPlan.optimize explicitly rather than rely on HExecutionEngine.compile to do the logical plan optimization.

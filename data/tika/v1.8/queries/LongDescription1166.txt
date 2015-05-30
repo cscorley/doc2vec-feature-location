@@ -1,0 +1,47 @@
+On certain video files, the FLV parser throws an NPE on line 242.
+
+The piece of code causing this is the following:
+https://github.com/apache/tika/blob/1.4/tika-parsers/src/main/java/org/apache/tika/parser/video/FLVParser.java#L242
+
+
+241: for (Entry<String, Object> entry : extractedMetadata.entrySet()) {
+242:   metadata.set(entry.getKey(), entry.getValue().toString());
+243: }
+
+ 
+
+Which should probably be replaced by something like this:
+
+
+241: for (Entry<String, Object> entry : extractedMetadata.entrySet()) {
+242:   if (entry.getValue() == null) continue;
+243:   metadata.set(entry.getKey(), entry.getValue().toString());
+244: }
+
+ 
+
+Exception trace :
+
+
+[root@hermes backend]# java -jar bin/tika-app-1.1.jar -j ./data.mp4
+Exception in thread "main" org.apache.tika.exception.TikaException: Unexpected RuntimeException from org.apache.tika.parser.video.FLVParser@58d9660d
+        at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:244)
+        at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+        at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:120)
+        at org.apache.tika.cli.TikaCLI$OutputType.process(TikaCLI.java:130)
+        at org.apache.tika.cli.TikaCLI.process(TikaCLI.java:397)
+        at org.apache.tika.cli.TikaCLI.main(TikaCLI.java:101)
+Caused by: java.lang.NullPointerException
+        at org.apache.tika.parser.video.FLVParser.parse(FLVParser.java:242)
+        at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+        ... 5 more
+org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:120)
+        at org.apache.tika.cli.TikaCLI$OutputType.process(TikaCLI.java:130)
+        at org.apache.tika.cli.TikaCLI.process(TikaCLI.java:397)
+        at org.apache.tika.cli.TikaCLI.main(TikaCLI.java:101)
+Caused by: java.lang.NullPointerException
+        at org.apache.tika.parser.video.FLVParser.parse(FLVParser.java:242)
+        at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+        ... 5 more
+
+ 

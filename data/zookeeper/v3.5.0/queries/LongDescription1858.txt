@@ -1,0 +1,30 @@
+I've noticed one potential case, where previously created zkclient session immediately reconnected and publishing those beans while starting back the zkserver and affecting zk#startup jmx checks.
+
+Say, before stopping the server, there is a zk client session 0x143576544c50000 exists. While starting back the server, there could be possibility of seeing the client sessions in jmx. Following is one such case. Please see below logs which has taken from build https://builds.apache.org/job/ZooKeeper-trunk-WinVS2008_java/642/
+
+
+    [junit] 2014-01-03 09:18:12,809 [myid:] - INFO  [main-SendThread(127.0.0.1:11222):ClientCnxn$SendThread@1228] - Session establishment complete on server 127.0.0.1/127.0.0.1:11222, sessionid = 0x143576544c50000, negotiated timeout = 30000
+    [junit] 2014-01-03 09:18:12,809 [myid:] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:11222:ZooKeeperServer@617] - Established session 0x143576544c50000 with negotiated timeout 30000 for client /127.0.0.1:55377
+
+
+
+ [junit] 2014-01-03 09:18:12,391 [myid:] - INFO  [main:JMXEnv@135] - ensureOnly:[]
+    [junit] 2014-01-03 09:18:12,395 [myid:] - INFO  [main:ClientBase@438] - STARTING server
+    [junit] 2014-01-03 09:18:12,395 [myid:] - INFO  [main:ClientBase@359] - CREATING server instance 127.0.0.1:11222
+    [junit] 2014-01-03 09:18:12,395 [myid:] - INFO  [main:NIOServerCnxnFactory@94] - binding to port 0.0.0.0/0.0.0.0:11222
+    [junit] 2014-01-03 09:18:12,395 [myid:] - INFO  [main:ClientBase@334] - STARTING server instance 127.0.0.1:11222
+
+    [junit] 2014-01-03 09:18:19,030 [myid:] - INFO  [main:JMXEnv@142] - unexpected:org.apache.ZooKeeperService:name0=StandaloneServer_port-1,name1=Connections,name2=127.0.0.1,name3=0x143576544c50000
+    [junit] 2014-01-03 09:18:19,030 [myid:] - INFO  [main:JMXEnv@142] - unexpected:org.apache.ZooKeeperService:name0=StandaloneServer_port-1
+    [junit] 2014-01-03 09:18:19,030 [myid:] - INFO  [main:JUnit4ZKTestRunner$LoggedInvokeMethod@62] - TEST METHOD FAILED testDefaultWatcherAutoResetWithChroot
+    [junit] junit.framework.AssertionFailedError: expected:<0> but was:<2>
+    [junit] 	at junit.framework.Assert.fail(Assert.java:47)
+    [junit] 	at junit.framework.Assert.failNotEquals(Assert.java:283)
+    [junit] 	at junit.framework.Assert.assertEquals(Assert.java:64)
+    [junit] 	at junit.framework.Assert.assertEquals(Assert.java:195)
+    [junit] 	at junit.framework.Assert.assertEquals(Assert.java:201)
+    [junit] 	at org.apache.zookeeper.test.JMXEnv.ensureOnly(JMXEnv.java:144)
+    [junit] 	at org.apache.zookeeper.test.ClientBase.startServer(ClientBase.java:443)
+    [junit] 	at org.apache.zookeeper.test.DisconnectedWatcherTest.testDefaultWatcherAutoResetWithChroot(DisconnectedWatcherTest.java:123)
+    [junit] 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+

@@ -1,0 +1,24 @@
+I am testing the code from SOLR-127. I have seen following behaviour for the Expires HTTP header.
+
+Solr-config:
+
+<httpCaching lastModFrom="dirLastMod" etagSeed="IBX20080304">
+    <cacheControl>max-age=2419200</cacheControl>
+</httpCaching>
+
+
+
+Generated HTTP-headers:
+HTTP/1.x 200 OK
+Server: Apache-Coyote/1.1
+Cache-Control: max-age=2419200
+Expires: Mon, 11 Feb 2008 15:24:49 GMT
+Last-Modified: Fri, 29 Feb 2008 14:25:07 GMT
+Etag: "NmVmZmNiYzdjODgwMDAwMElCWDIwMDgwMzA0"
+Content-Type: text/xml;charset=UTF-8
+Transfer-Encoding: chunked
+Content-Encoding: gzip
+Vary: Accept-Encoding
+Date: Tue, 04 Mar 2008 08:27:36 GMT
+
+We are going back in time. max-age=2419200 is 4 weeks in seconds. I checked the code and I have not found anything that could trigger that behaviour.

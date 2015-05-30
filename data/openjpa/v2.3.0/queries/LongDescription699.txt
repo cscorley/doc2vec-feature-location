@@ -1,0 +1,38 @@
+If set  "kodo.ConnectionFactoryProperties" "warningAction" to "throw" or "handle", when an INSERT statement fails due 
+to an attempt to insert null into a non-null column, log output is  "The statement has been 
+terminated".
+If didn't set  "warningAction", the default value is "ignore". It logs correct SQLException which is as follows:
+
+Cannot 
+insert the value NULL into column 'TestTimeNotNullNoDefaultUtc', table 
+'STADatabase.dbo.DefaultValuesJ'; column does not allow nulls. INSERT fails. 
+{prepstmnt 112461492 
+... ...
+
+In org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.LoggingPreparedStatement.executeUpdate(), the 
+code is
+            public int executeUpdate(String sql) throws SQLException {
+                _sql = sql;
+                logSQL(this);
+                long start = System.currentTimeMillis();
+                try 
+{
+                    return super.executeUpdate(sql);
+                }
+ catch (SQLException se) 
+{
+                    throw wrap(se, LoggingStatement.this);
+                }
+ finally 
+{
+                    logTime(start);
+                    handleSQLWarning(LoggingStatement.this);
+                }
+            }
+In this test case, it got a SQLWarning with msg 'The statement has been 
+terminated' and a SQLException which tells Column null is not allowed.
+When WarningAction is set to 'throw' or 'handle' and if handle doesn't 
+consume the warning but throw it, the SQLWarning is thrown from finally 
+block.
+The SQLWarning which it is a subclass of SQLException will be processed by 
+DBdictionary.newStoreException() so we see the incorrect message.

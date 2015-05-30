@@ -1,0 +1,5 @@
+The current parser implementation takes hints used for group by or join by such as 'collected' and 'skewed' as tokens, which is different from the old parser, causing some undesirable side-effects. For instance, the following query will fail.
+
+A = load 'skewed';
+
+This needs to be corrected to be consistent with the old parser.

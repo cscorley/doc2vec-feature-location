@@ -1,0 +1,81 @@
+In a multithreaded clob update where the same row is being updated, space will not be reclaimed.  The offending code is in ReclaimSpaceHelper:
+
+	RecordHandle headRecord = work.getHeadRowHandle();
+
+		if (!container_rlock.lockRecordForWrite(
+                tran, headRecord, false /* not insert /, false / nowait */))
+		{
+			// cannot get the row lock, retry
+			tran.abort();
+			if (work.incrAttempts() < 3)
+            {
+				return Serviceable.REQUEUE;
+            }
+			else
+            {
+                // If code gets here, the space will be lost forever, and
+                // can only be reclaimed by a full offline compress of the
+                // table/index.
+
+                if (SanityManager.DEBUG)
+                {
+                    if (SanityManager.DEBUG_ON(DaemonService.DaemonTrace))
+                    {
+                        SanityManager.DEBUG(
+                            DaemonService.DaemonTrace, 
+                            "  gave up after 3 tries to get row lock " + 
+                            work);
+                    }
+                }
+				return Serviceable.DONE;
+            }
+		}
+
+
+If we cannot get the lock after three tries we give up.  The reproduction for this issue is in the test store.ClobReclamationTest.xtestMultiThreadUpdateSingleRow().
+
+
+This issue also used to reference the code below and has some references to trying to get a reproduction for that issue, but that work has moved to DERBY-4054.  Please see DERBY-4054 for work on the container lock issue.
+
+ContainerHandle containerHdl = 
+			openContainerNW(tran, container_rlock, work.getContainerId());
+
+		if (containerHdl == null)
+		{
+			tran.abort();
+
+			if (SanityManager.DEBUG)
+            {
+                if (SanityManager.DEBUG_ON(DaemonService.DaemonTrace))
+                {
+                    SanityManager.DEBUG(
+                        DaemonService.DaemonTrace, " aborted " + work + 
+                        " because container is locked or dropped");
+                }
+            }
+
+			if (work.incrAttempts() < 3) // retry this for serveral times
+            {
+				return Serviceable.REQUEUE;
+            }
+			else
+            {
+                // If code gets here, the space will be lost forever, and
+                // can only be reclaimed by a full offline compress of the
+                // table/index.
+
+                if (SanityManager.DEBUG)
+                {
+                    if (SanityManager.DEBUG_ON(DaemonService.DaemonTrace))
+                    {
+                        SanityManager.DEBUG(
+                            DaemonService.DaemonTrace, 
+                            "  gave up after 3 tries to get container lock " + 
+                            work);
+                    }
+                }
+
+				return Serviceable.DONE;
+            }
+		}	
+

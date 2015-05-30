@@ -1,0 +1,7 @@
+It turnes out that some of generated patterns have incorrect support. The returned support is slightly higher than the true one.
+I attached the test, which proves that FPGrowth has a bug. Test is using data (retail) found here: http://fimi.ua.ac.be/data/
+The pattern (36, 39, 41) occurs in the transactions 572 times (this is also calculated in test), but the FPGrowth returns pattern (36, 39, 41) with support 573.
+
+Please note that mentioned pattern is not the only one with incorrect support - the test only point out one example to hace something to focus on. There is plenty more patterns with support higher than the real one. The biggest difference I noticed was support 8 higher than the real one for one of patterns.
+
+Please find attached failing unit test - it's actually a maven project, which contains test data and is ready to run.

@@ -1,0 +1,24 @@
+I have a test document (unfortunately not committable) whose page
+numbers are rendered with no separator (<p> nor space) before the next
+word.  So I have words like:
+
+	1Massachusetts
+	2Course
+	3also
+	4The
+
+
+
+But then when I ran the ExtractText -html command-line from PDFBox, I
+can see that <p> is inserted after these page numbers (spookily, not
+closing the previous <p>; I opened PDFBOX-1130 for that).
+
+So I made a simple change to Tika's PDF2XHTML, to have it override the
+writeStart/EndParagraph, and call handler.start/EndElement("p"), ie to
+preserve the paragraph structure that PDFBOX detects out to the
+resulting XHTML handler, and this fixes the issue (I now see the page
+number as a separate paragraph, rendered w/ newline in "text" mode
+from TikaCLI).
+
+Note that this test document is the same document from PDFBOX-1129
+(there are some quote characters that are not extracted correctly).

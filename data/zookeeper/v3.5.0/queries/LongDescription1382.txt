@@ -1,0 +1,62 @@
+I've observed that zookeeper server holds onto expired session ids in the watcher data structures. The result is the wchp command reports session ids that cannot be found through cons/dump and those expired session ids sit there maybe until the server is restarted. Here are snippets from the client and the server logs that lead to this state, for one particular session id 0x134485fd7bcb26f -
+
+There are 4 servers in the zookeeper cluster - 223, 224, 225 (leader), 226 and I'm using ZkClient to connect to the cluster
+
+From the application log -
+
+application.log.2012-01-26-325.gz:2012/01/26 04:56:36.177 INFO [ClientCnxn] [main-SendThread(223.prod:12913)] [application Session establishment complete on server 223.prod/172.17.135.38:12913, sessionid = 0x134485fd7bcb26f, negotiated timeout = 6000
+application.log.2012-01-27.gz:2012/01/27 09:52:37.714 INFO [ClientCnxn] [main-SendThread(223.prod:12913)] [application] Client session timed out, have not heard from server in 9827ms for sessionid 0x134485fd7bcb26f, closing socket connection and attempting reconnect
+application.log.2012-01-27.gz:2012/01/27 09:52:38.191 INFO [ClientCnxn] [main-SendThread(226.prod:12913)] [application] Unable to reconnect to ZooKeeper service, session 0x134485fd7bcb26f has expired, closing socket connection
+
+On the leader zk, 225 -
+
+zookeeper.log.2012-01-27-leader-225.gz:2012-01-27 09:52:34,010 - INFO  [SessionTracker:ZooKeeperServer@314] - Expiring session 0x134485fd7bcb26f, timeout of 6000ms exceeded
+zookeeper.log.2012-01-27-leader-225.gz:2012-01-27 09:52:34,010 - INFO  [ProcessThread:-1:PrepRequestProcessor@391] - Processed session termination for sessionid: 0x134485fd7bcb26f
+
+On the server, the client was initially connected to, 223 -
+
+zookeeper.log.2012-01-26-223.gz:2012-01-26 04:56:36,173 - INFO  [CommitProcessor:1:NIOServerCnxn@1580] - Established session 0x134485fd7bcb26f with negotiated timeout 6000 for client /172.17.136.82:45020
+zookeeper.log.2012-01-27-223.gz:2012-01-27 09:52:34,018 - INFO  [CommitProcessor:1:NIOServerCnxn@1435] - Closed socket connection for client /172.17.136.82:45020 which had sessionid 0x134485fd7bcb26f
+
+Here are the log snippets from 226, which is the server, the client reconnected to, before getting session expired event -
+
+2012-01-27 09:52:38,190 - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:12913:NIOServerCnxn@770] - Client attempting to renew session 0x134485fd7bcb26f at /172.17.136.82:49367
+2012-01-27 09:52:38,191 - INFO  [QuorumPeer:/0.0.0.0:12913:NIOServerCnxn@1573] - Invalid session 0x134485fd7bcb26f for client /172.17.136.82:49367, probably expired
+2012-01-27 09:52:38,191 - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:12913:NIOServerCnxn@1435] - Closed socket connection for client /172.17.136.82:49367 which had sessionid 0x134485fd7bcb26f
+
+wchp output from 226, taken on 01/30 -
+
+nnarkhed-ld:zk-cons-wchp-2012013000 nnarkhed$ grep 0x134485fd7bcb26f 226.*wchp | wc -l
+3
+
+wchp output from 223, taken on 01/30 -
+
+nnarkhed-ld:zk-cons-wchp-2012013000 nnarkhed$ grep 0x134485fd7bcb26f 223.*wchp | wc -l
+0
+
+cons output from 223 and 226, taken on 01/30 -
+
+nnarkhed-ld:zk-cons-wchp-2012013000 nnarkhed$ grep 0x134485fd7bcb26f 226.*cons | wc -l
+0
+
+nnarkhed-ld:zk-cons-wchp-2012013000 nnarkhed$ grep 0x134485fd7bcb26f 223.*cons | wc -l
+0
+
+So, what seems to have happened is that the client was able to re-register the watches on the new server (226), after it got disconnected from 223, inspite of having an expired session id. 
+
+
+In NIOServerCnxn, I saw that after suspecting that a session is expired, a server removes the cnxn and its watches from its internal data structures. But before that it allows more requests to be processed even if the session is expired -
+
+            // Now that the session is ready we can start receiving packets
+            synchronized (this.factory) 
+{
+                sk.selector().wakeup();
+                enableRecv();
+            }
+        } catch (Exception e) 
+{
+            LOG.warn("Exception while establishing session, closing", e);
+            close();
+        }
+
+I wonder if the client somehow sneaked in the set watches, right after the server removed the connection through removeCnxn() API ?

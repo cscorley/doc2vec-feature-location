@@ -1,0 +1,13 @@
+Reported on user@ by Pierre Mage:
+
+I found the following issue in the trunk: If the dataSource option is "hdfs"
+in org.apache.mahout.classifier.
+Classify, there is a problem with InMemoryBayesDatastore because its
+basePath param is not defined :
+To fix it, I edited Classify like this:
+122.  if ("hdfs".equals(dataSource)) {
+123.    params.set("basePath", modelBasePath);
+
+Yes, looks like InMemoryDataStore expects this to be set – so does HBaseDataStore. But that takes the base path (table) separately as a param. And InMemoryDataStore doesn't take it at all. I adjusted this since it seems correct. And then tried to centralized handling of Bayes params in BayesParameters since it seems to get half processed in this class only.
+
+I have attached my own rather more elaborate patch that reflects this.

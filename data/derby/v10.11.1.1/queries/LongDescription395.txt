@@ -1,0 +1,27 @@
+Documentation in the Server & Admin guide talks about a "derby.drda.traceAll" system property and two trace commands available from the NetworkServerControl API: "trace on" and "trace off".   The "trace on" command is supposed to turn tracing on for all server sessions, unless a specific session number is passed in via the "-s" parameter.  Similarly, the "trace off" command is supposed to turn tracing off for all server sessions, unless a specific session number is passed in via the "-s" parameter.
+
+However, I've noticed the following behavior, which appears to be incorrect.
+
+1) if the server is started with derby.drda.traceAll=true, then subsequent attempts to turn tracing off do not work.  For example:
+
+// Start the server with 'traceAll' set to true.
+> java -Dderby.drda.traceAll=true org.apache.derby.drda.NetworkServerControl start
+Server is ready to accept connections on port 1527.
+
+// Try to turn tracing off.
+> java org.apache.derby.drda.NetworkServerControl trace off
+Trace turned off for all sessions.
+
+But then, despite the message saying that trace was turned off, tracing is still enabled for all connections thereafter: if I connect three more times, I will see a 'ServerX.trace' file for each connection.
+
+2) If the server is started with derby.drda.traceAll=false, then attempts to turn tracing on only affect the connection that enables tracing; tracing will NOT be done for any subsequent connections.  For ex:
+
+// Start the server with 'traceAll' set to false (which is also the default)
+> java -Dderby.drda.traceAll=false org.apache.derby.drda.NetworkServerControl start
+Server is ready to accept connections on port 1527.
+
+// Turn tracing on.
+> java org.apache.derby.drda.NetworkServerControl trace on
+Trace turned on for all sessions.
+
+Now I see a 'ServerX.trace' for the connection that was made to turn tracing on.  However, if I then connect three more times, I will not see any 'ServerX.trace' files for those connections.

@@ -1,0 +1,21 @@
+The following exception causes a client to stall:
+
+
+WARN  - [NIOServerFactory:NIOServerFactory@123] - Exception in server socket loop: /0.0.0.0
+java.util.NoSuchElementException
+        at java.util.HashMap$HashIterator.nextEntry(HashMap.java:796)
+        at java.util.HashMap$EntryIterator.next(HashMap.java:834)
+        at java.util.HashMap$EntryIterator.next(HashMap.java:832)
+        at org.apache.bookkeeper.bookie.LedgerCache.grabCleanPage(LedgerCache.java:429)
+        at org.apache.bookkeeper.bookie.LedgerCache.putEntryOffset(LedgerCache.java:133)
+        at org.apache.bookkeeper.bookie.LedgerDescriptor.addEntry(LedgerDescriptor.java:84)
+        at org.apache.bookkeeper.bookie.Bookie.addEntry(Bookie.java:477)
+        at org.apache.bookkeeper.proto.BookieServer.processPacket(BookieServer.java:108)
+        at org.apache.bookkeeper.proto.NIOServerFactory$Cnxn.readRequest(NIOServerFactory.java:309)
+        at org.apache.bookkeeper.proto.NIOServerFactory$Cnxn.doIO(NIOServerFactory.java:207)
+        at org.apache.bookkeeper.proto.NIOServerFactory.run(NIOServerFactory.java:118)
+
+
+
+
+The client  remains connected to the bookie, but never receives a response to the addEntry, causing the client pipeline to stall.

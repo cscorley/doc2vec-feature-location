@@ -1,0 +1,17 @@
+A timing window exists in the MetaDataRepository where the following[1] NPE can be encountered. It is incorrect to assume that calling processRegisteredClasses at the end of preload would process all registered classes. As it turns out, that call does process all registered classes that this instance of the MDR cares about. The problem comes in when after the MDR is preloaded, Entities that belong to a different PU are registered with the PCRegistry and they are added to the _registered list. 
+
+[1] Caused by: java.lang.NullPointerException
+        at org.apache.openjpa.meta.MetaDataRepository.processRegisteredClasses(MetaDataRepository.java:1622)
+        at org.apache.openjpa.meta.ClassMetaData.getPCSubclasses(ClassMetaData.java:364)
+        at org.apache.openjpa.meta.ClassMetaData.getPCSubclassMetaDatas(ClassMetaData.java:381)
+        at org.apache.openjpa.meta.ClassMetaData.getMappedPCSubclassMetaDatas(ClassMetaData.java:403)
+        at org.apache.openjpa.jdbc.meta.ClassMapping.getMappedPCSubclassMappings(ClassMapping.java:628)
+        at org.apache.openjpa.jdbc.meta.ClassMapping.getIndependentAssignableMappings(ClassMapping.java:667)
+        at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.initializeState(JDBCStoreManager.java:380)
+        at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.initialize(JDBCStoreManager.java:342)
+        at com.ibm.ws.persistence.jdbc.kernel.WsJpaJDBCStoreManager.initialize(WsJpaJDBCStoreManager.java:147)
+        at org.apache.openjpa.kernel.DelegatingStoreManager.initialize(DelegatingStoreManager.java:112)
+        at org.apache.openjpa.kernel.ROPStoreManager.initialize(ROPStoreManager.java:57)
+        at org.apache.openjpa.kernel.BrokerImpl.initialize(BrokerImpl.java:1005)
+        at org.apache.openjpa.kernel.BrokerImpl.find(BrokerImpl.java:963)
+        ... 46 more

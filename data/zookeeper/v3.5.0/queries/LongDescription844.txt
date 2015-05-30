@@ -1,0 +1,13 @@
+ClientCnxn.java currently has the following code:
+  if (replyHdr.getXid() == -4) {
+                // -2 is the xid for AuthPacket
+                // TODO: process AuthPacket here
+                if (LOG.isDebugEnabled()) 
+{
+                    LOG.debug("Got auth sessionid:0x"
+                            + Long.toHexString(sessionId));
+                }
+                return;
+            }
+
+Auth failures appear to cause the server to disconnect but the client never gets a proper state change or notification that auth has failed, which makes handling this scenario very difficult as it causes the client to go into a loop of sending bad auth, getting disconnected, trying to reconnect, sending bad auth again, over and over. 

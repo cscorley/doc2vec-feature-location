@@ -1,0 +1,32 @@
+Given a partitioned Hive table:
+
+
+
+hive> describe mytable;
+OK
+f1    string  
+f2     string  
+f3     string  
+partition_dt    string
+
+
+
+The following Pig script gives the correct schema:
+
+
+
+grunt> A = load '/hive/warehouse/mytable' using org.apache.pig.piggybank.storage.HiveColumnarLoader('f1 string,f2string,f3 string');
+grunt> describe A
+A: {f1: chararray,f2: chararray,f3: chararray,partition_dt: chararray}
+
+
+
+But, the command
+
+
+
+grunt> dump A
+
+
+
+only produces the first column of all records in the table (all four columns are expected).

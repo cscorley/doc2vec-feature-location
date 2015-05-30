@@ -1,0 +1,18 @@
+This is a regression of PIG-2207.
+
+The Warning_4 e2e test fails because expected warning messages are not printed to stderr. I confirmed that the following lines are present w/o PIG-2207, whereas they are not w/ PIG-2207.
+
+
+2014-02-02 04:48:11,211 [main] WARN  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - Encountered Warning UDF_WARNING_3 10989 time(s).
+2014-02-02 04:48:11,211 [main] WARN  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - Encountered Warning UDF_WARNING_4 22 time(s).
+
+
+
+Here is the test query-
+
+
+register ./lib/java/testudf.jar;
+a = load '/user/pig/tests/data/singlefile/studentnulltab10k' as (name, age: int, gpa: float);
+b = foreach a generate org.apache.pig.test.udf.evalfunc.TestWarningFunc(name, age, gpa);
+store b into '/user/pig/out/cheolsoop-1391202001-cmdline.conf-Warning/Warning_4.out';
+

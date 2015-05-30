@@ -1,0 +1,30 @@
+If the VM throws a OutOfMemoryException, which is caught in:
+NetStatementReply.copyEXTDTA:
+
+    protected void copyEXTDTA(NetCursor netCursor) throws DisconnectException {
+        try {
+            parseLengthAndMatchCodePoint(CodePoint.EXTDTA);
+            byte[] data = null;
+            if (longValueForDecryption_ == null) 
+{
+                data = (getData(null)).toByteArray();
+            }
+ else 
+{
+                data = longValueForDecryption_;
+                dssLength_ = 0;
+                longValueForDecryption_ = null;
+            }
+            netCursor.extdtaData_.add(data);
+        } catch (java.lang.OutOfMemoryError e) 
+{     <--- outofmemory
+            agent_.accumulateChainBreakingReadExceptionAndThrow(new DisconnectException(agent_,
+                new ClientMessageId(SQLState.NET_LOB_DATA_TOO_LARGE_FOR_JVM),
+                e));  <----- message does not take parameters, causing assert failure
+        }
+    } 
+
+Instead of getting the message: java.sql.SQLException: Attempt to fully materialize lob data that is too large for the JVM.  The connection has been terminated.
+I am getting an assert: 
+Exception in thread "main" org.apache.derby.shared.common.sanity.AssertFailure: ASSERT FAILED Number of parameters expected for message id 58009.C.6 (0) does not match number of arguments received (1)
+        at org.apache.derby.shared.common.sanity.SanityManager.ASSERT(SanityManager.java:119) 

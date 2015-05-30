@@ -1,0 +1,17 @@
+Hi all,
+When I run a native MR job with the MAPREDUCE keyword and store the intermediate data in HBase with:
+    stored = MAPREDUCE 'my.jar'
+              STORE x INTO 'hbase://temp_table'
+              USING org.apache.pig.backend.hadoop.hbase.HBaseStorage('hbase_schema')
+              .... and the rest ....;
+
+Pig tries to delete the temp files, which in this case has an HBase path, and fails with the exception:
+
+Caused by: java.lang.IllegalArgumentException: java.net.URISyntaxException: Relative path in absolute URI: file:hbase:/temp_table
+        at org.apache.hadoop.fs.Path.initialize(Path.java:148)
+        at org.apache.hadoop.fs.Path.<init>(Path.java:126)
+        at org.apache.pig.backend.hadoop.datastorage.HDataStorage.isContainer(HDataStorage.java:197)
+        at org.apache.pig.backend.hadoop.datastorage.HDataStorage.asElement(HDataStorage.java:128)
+        at org.apache.pig.impl.io.FileLocalizer.delete(FileLocalizer.java:415)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher.launchPig(MapReduceLauncher.java:419)
+        at org.apache.pig.PigServer.launchPlan(PigServer.java:1322)

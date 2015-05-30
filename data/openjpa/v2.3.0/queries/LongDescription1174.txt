@@ -1,0 +1,47 @@
+ When configurations are provided from orm.xml file, some behaviors are different from behaviors on annotation configuration. 
+The behavior difference occurs when fetch=LAZY is specified on many-to-one mapping.
+
+When there are two objects Country and Security and Security has many-to-one mapping field country, 
+OpenJPA executes one more SQL query to get country field if orm.xml file is used.
+
+
+
+	annotation case
+
+
+
+     // step 1) Load country in entity manager
+     aUS_country = t.em.find(Country.class, aUS_sid);
+     // SELECT t0.NAME FROM TEST16.COUNTRY t0 WHERE t0.COUNTRY_ID = ?
+
+     // step 2) Load security in entity manager
+     aI_security = t.em.find(Security.class, aI_sid);
+     // SELECT t0.COUNTRY_ID, t0.SYMBOL FROM TEST19.SECURITY t0 WHERE t0.SECURITY_ID = ?
+
+     // step 3) get country from security
+     Country aUS_country2 = aI_security.getCountry();
+     // no SQL was executed.
+ .
+
+	orm.xml case
+ .
+     // step 1) Load country in entity manager
+     aUS_country = t.em.find(Country.class, aUS_sid);
+     // SELECT t0.NAME FROM TEST16.COUNTRY t0 WHERE t0.COUNTRY_ID = ?
+ .
+     // step 2) Load security in entity manager
+     aI_security = t.em.find(Security.class, aI_sid);
+     // SELECT t0.SYMBOL FROM TEST16.SECURITY t0 WHERE t0.SECURITY_ID = ?
+ .
+     // step 3) get country from security
+     Country aUS_country2 = aI_security.getCountry();
+     // SELECT t1.COUNTRY_ID, t1.NAME   FROM TEST16.SECURITY t0, TEST16.COUNTRY t1 WHERE t0.SECURITY_ID = ? AND t0.COUNTRY_ID = t1.COUNTRY_ID
+
+
+
+
+ The important difference is in step 2. When using orm.xml, many-to-one field "country" was not loaded if fetch=LAZY.
+ Instead, it's loaded on annotation configuration.
+ .
+ Because many-to-one "country" field is not loaded, step 3 executes additional SQL to load "country" field on orm.xml.
+ Instead, on annotation case, step 3 did not execute any SQLs.

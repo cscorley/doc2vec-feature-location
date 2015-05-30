@@ -1,0 +1,117 @@
+Derby has a large data suite which runs LobLimitsTest with small data size, large data size and with embedded and network server configurations. The large data suite is run as follows
+time java  -Dderby.tests.trace=true -Dderby.infolog.append=true junit.textui.TestRunner org.apache.derbyTesting.functionTests.tests.largedata._Suite > runall.out 2>&1
+
+I made a simple change to the suite to log statement text as shown in the attached patch(DERBY5663_patch1.txt). This causes the large data suite to run into NPE (NPE can be seen in runall.out) as shown below. Not sure what I am doing wrong while trying to set the property, which results in NPE.
+.
+(emb)largedata.Derby5624Test.testDERBY_5624 used 411473 ms .
+(emb)largedata.LobLimitsTest.test_01_Blob used 1555 ms .
+(emb)largedata.LobLimitsTest.test_02_BlobNegative used 42 ms .
+(emb)largedata.LobLimitsTest.test_03_Clob1 used 1436 ms .
+(emb)largedata.LobLimitsTest.test_04_Clob2 used 1707 ms .
+(emb)largedata.LobLimitsTest.test_05_ClobNegative used 967 ms E.
+(emb)largedata.LobLimitsTest.test_01_Blob used 2929139 ms .
+(emb)largedata.LobLimitsTest.test_02_BlobNegative used 154 ms .
+(emb)largedata.LobLimitsTest.test_03_Clob1 used 2854121 ms .
+(emb)largedata.LobLimitsTest.test_04_Clob2 used 656137 ms .
+(emb)largedata.LobLimitsTest.test_05_ClobNegative used 331288 ms EF
+Time: 7,589.168
+There were 2 errors:
+1) LobLimitsTestjava.lang.NullPointerException
+	at org.apache.derbyTesting.junit.SystemPropertyTestSetup.setProperties(SystemPropertyTestSetup.java:116)
+	at org.apache.derbyTesting.junit.SystemPropertyTestSetup.setUp(SystemPropertyTestSetup.java:87)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:18)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+2) LobLimitsTestjava.sql.SQLNonTransientConnectionException: DERBY SQL error: SQLCODE: -1, SQLSTATE: 08006, SQLERRMC: org.apache.derby.jdbc.EmbeddedDriver is not registered with the JDBC driver manager
+	at org.apache.derby.client.am.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:71)
+	at org.apache.derby.client.am.SqlException.getSQLException(SqlException.java:364)
+	at org.apache.derby.jdbc.ClientDriver.connect(ClientDriver.java:166)
+	at java.sql.DriverManager.getConnection(DriverManager.java:322)
+	at java.sql.DriverManager.getConnection(DriverManager.java:297)
+	at org.apache.derbyTesting.junit.DriverManagerConnector.openConnection(DriverManagerConnector.java:100)
+	at org.apache.derbyTesting.junit.DriverManagerConnector.openConnection(DriverManagerConnector.java:67)
+	at org.apache.derbyTesting.junit.DriverManagerConnector.openConnection(DriverManagerConnector.java:43)
+	at org.apache.derbyTesting.junit.TestConfiguration.openDefaultConnection(TestConfiguration.java:1633)
+	at org.apache.derbyTesting.junit.BaseJDBCTestSetup.getConnection(BaseJDBCTestSetup.java:72)
+	at org.apache.derbyTesting.junit.CleanDatabaseTestSetup.setUp(CleanDatabaseTestSetup.java:104)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:18)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+Caused by: org.apache.derby.client.am.SqlException: DERBY SQL error: SQLCODE: -1, SQLSTATE: 08006, SQLERRMC: org.apache.derby.jdbc.EmbeddedDriver is not registered with the JDBC driver manager
+	at org.apache.derby.client.am.Connection.completeSqlca(Connection.java:2125)
+	at org.apache.derby.client.net.NetConnectionReply.parseRdbAccessFailed(NetConnectionReply.java:538)
+	at org.apache.derby.client.net.NetConnectionReply.parseAccessRdbError(NetConnectionReply.java:431)
+	at org.apache.derby.client.net.NetConnectionReply.parseACCRDBreply(NetConnectionReply.java:294)
+	at org.apache.derby.client.net.NetConnectionReply.readAccessDatabase(NetConnectionReply.java:121)
+	at org.apache.derby.client.net.NetConnection.readSecurityCheckAndAccessRdb(NetConnection.java:826)
+	at org.apache.derby.client.net.NetConnection.flowSecurityCheckAndAccessRdb(NetConnection.java:762)
+	at org.apache.derby.client.net.NetConnection.flowUSRIDPWDconnect(NetConnection.java:591)
+	at org.apache.derby.client.net.NetConnection.flowConnect(NetConnection.java:406)
+	at org.apache.derby.client.net.NetConnection.<init>(NetConnection.java:220)
+	at org.apache.derby.client.net.NetConnection40.<init>(NetConnection40.java:74)
+	at org.apache.derby.client.net.ClientJDBCObjectFactoryImpl40.newNetConnection(ClientJDBCObjectFactoryImpl40.java:269)
+	at org.apache.derby.jdbc.ClientDriver.connect(ClientDriver.java:157)
+	... 43 more
+There was 1 failure:
+1) LobLimitsTestjunit.framework.ComparisonFailure: Engine shutdown expected:<XJ015> but was:<08001>
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.assertSQLState(BaseJDBCTestCase.java:790)
+	at org.apache.derbyTesting.junit.TestConfiguration.shutdownEngine(TestConfiguration.java:1751)
+	at org.apache.derbyTesting.junit.SystemPropertyTestSetup.tearDown(SystemPropertyTestSetup.java:108)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:20)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+Caused by: java.sql.SQLException: No suitable driver
+	at java.sql.DriverManager.getConnection(DriverManager.java:330)
+	at java.sql.DriverManager.getConnection(DriverManager.java:297)
+	at org.apache.derbyTesting.junit.DriverManagerConnector.getConnectionByAttributes(DriverManagerConnector.java:163)
+	at org.apache.derbyTesting.junit.DriverManagerConnector.shutEngine(DriverManagerConnector.java:140)
+	at org.apache.derbyTesting.junit.TestConfiguration.shutdownEngine(TestConfiguration.java:1748)
+	... 31 more
+
+FAILURES!!!
+Tests run: 11,  Failures: 1,  Errors: 2

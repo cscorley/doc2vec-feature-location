@@ -1,0 +1,89 @@
+I'm using the 0.9.1 official release.
+
+My input data are read form a text file 'activity' (provided as attachment):
+
+
+
+00,1239698069000, <- this is the line that is not correctly handled
+01,1239698505000,b
+01,1239698369000,a
+02,1239698413000,b
+02,1239698553000,c
+02,1239698313000,a
+03,1239698316000,a
+03,1239698516000,c
+03,1239698416000,b
+03,1239698621000,d
+04,1239698417000,c
+
+
+
+My script is working correctly:
+
+
+
+-- load input data
+activities = LOAD 'activity' USING PigStorage(',') AS (sid:chararray, timestamp:long, name:chararray);
+
+-- group input data
+activities = GROUP activities BY sid;
+activities = FOREACH activities GENERATE group, activities.(timestamp, name);
+
+-- store grouped activities in a temporary file
+STORE activities INTO 'tmp' USING PigStorage();
+
+-- reload grouped activities from the temporary file
+activities = LOAD 'tmp' USING PigStorage() AS (sid:chararray, acts:bag { act:tuple (timestamp:long, name:chararray) });
+
+-- store grouped activities again in an output file
+STORE activities INTO 'output' USING PigStorage();
+
+
+
+After running this script, the 'output' file contains a correct result:
+
+
+
+00	{(1239698069000,)}
+01	{(1239698505000,b),(1239698369000,a)}
+02	{(1239698413000,b),(1239698553000,c),(1239698313000,a)}
+03	{(1239698316000,a),(1239698516000,c),(1239698416000,b),(1239698621000,d)}
+04	{(1239698417000,c)}
+
+
+
+But the issue occurs when I use BinStorage() instead of PigStorage() to store / reload my temporary files. The 'output' file in that case is not complete:
+
+
+
+00	
+01	{(1239698505000,b),(1239698369000,a)}
+02	{(1239698413000,b),(1239698553000,c),(1239698313000,a)}
+03	{(1239698316000,a),(1239698516000,c),(1239698416000,b),(1239698621000,d)}
+04	{(1239698417000,c)}
+
+
+
+The not working script is the following:
+
+
+
+-- load input data
+activities = LOAD 'activity' USING PigStorage(',') AS (sid:chararray, timestamp:long, name:chararray);
+
+-- group input data
+activities = GROUP activities BY sid;
+activities = FOREACH activities GENERATE group, activities.(timestamp, name);
+
+-- store grouped activities in a temporary file
+STORE activities INTO 'tmp' USING PigStorage();
+
+-- reload grouped activities from the temporary file
+activities = LOAD 'tmp' USING PigStorage() AS (sid:chararray, acts:bag { act:tuple (timestamp:long, name:chararray) });
+
+-- store grouped activities again in an output file
+STORE activities INTO 'output' USING PigStorage();
+
+
+
+So the issue seems to be located in the way the BinStorage() store or load bags.

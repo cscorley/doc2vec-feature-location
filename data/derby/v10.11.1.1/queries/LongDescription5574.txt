@@ -1,0 +1,141 @@
+encryption tests in nightly are intermittently failing.  The suite runs same set of tests with a number of different
+encryption algorithms.  Different ones of these runs sometimes fail.  
+
+What has changed on this nightly platform is that we are now running each jvm set of tests concurrently to
+get better throughput.  This has changed load on machine and timing of operations.  Each JVM puts results
+into a different part of file system.  
+
+At least after the fact the file being renamed still exists and the destination file does not exist.
+
+nightly test failure, jdk16, current 10.7 branch, windows.
+
+http://people.apache.org/~myrnavl/derby_test_results/v10_7/windows/testlog/ibm16/1231439-derbyall_diff.txt
+
+Failure Details:
+
+	
+	
+		
+		
+			
+			
+				
+				
+					
+					
+						
+						
+							
+							
+								
+								
+									Diff file derbyall/derbynetclientmats/DerbyNetClient/encodingTests/TestEnc.diff
+								
+								
+							
+							
+						
+						
+					
+					
+				
+				
+			
+			
+			Start: TestEnc jdk1.6.0 DerbyNetClient derbynetclientmats:encodingTests 2012-01-14 01:42:10 ***
+derbyTesting.encoding can only be used with jdk15, skipping test
+			End:   TestEnc jdk1.6.0 DerbyNetClient derbynetclientmats:encodingTests 2012-01-14 01:42:10 ***
+			
+				
+				
+					
+					
+						
+						
+							
+							
+								
+								
+									Diff file derbyall/encryptionAll/encryptionAES/encryptDatabase.diff
+								
+								
+							
+							
+						
+						
+					
+					
+				
+				
+			
+			
+			Start: encryptDatabase jdk1.6.0 encryptionAll:encryptionAES 2012-01-14 01:51:40 ***
+74 del
+< 0 rows inserted/updated/deleted
+74a74,76
+> ERROR 38000: The exception 'org.apache.derby.iapi.error.PassThroughException: encryptionAll:encryptionAES 'F:\jartest\JarResults.2012-01-13\ibm16_derbyall\derbyall\encryptionAll\encryptionAES\encryptDatabase\wombat\service.properties' to 'F:\jartest\JarResults.2012-01-13\ibm16_derbyall\derbyall\encryptionAll\encryptionAES\encryptDatabase\wombat\service.propertiesold'' was thrown while evaluating an expression.
+> ERROR XJ001: Java exception: 'ERROR XBM0S: Unable to rename file 'F:\jartest\JarResults.2012-01-13\ibm16_derbyall\derbyall\encryptionAll\encryptionAES\encryptDatabase\wombat\service.properties' to 'F:\jartest\JarResults.2012-01-13\ibm16_derbyall\derbyall\encryptionAll\encryptionAES\encryptDatabase\wombat\service.propertiesold': org.apache.derby.iapi.error.PassThroughException'.
+> ERROR XBM0S: Unable to rename file 'F:\jartest\JarResults.2012-01-13\ibm16_derbyall\derbyall\encryptionAll\encryptionAES\encryptDatabase\wombat\service.properties' to 'F:\jartest\JarResults.2012-01-13\ibm16_derbyall\derbyall\encryptionAll\encryptionAES\encryptDatabase\wombat\service.propertiesold'
+94,95d95
+< ERROR XJ040: Failed to start database 'wombat' with class loader XXXX,  see the next exception for details.
+< ERROR XBM06: Startup failed. An encrypted database cannot be accessed without the correct boot password.  
+97 del
+< ij> values SYSCS_UTIL.SYSCS_GET_DATABASE_PROPERTY('bootPassword');
+97a97
+> ij(CONNECTION1)> values SYSCS_UTIL.SYSCS_GET_DATABASE_PROPERTY('bootPassword');
+101 del
+< ij> values SYSCS_UTIL.SYSCS_GET_DATABASE_PROPERTY('encryptedBootPassword');
+101a101
+> ij(CONNECTION1)> values SYSCS_UTIL.SYSCS_GET_DATABASE_PROPERTY('encryptedBootPassword');
+105 del
+< ij> – change it again, make sure it trims white spaces
+105a105
+> ij(CONNECTION1)> – change it again, make sure it trims white spaces
+107 del
+< 0 rows inserted/updated/deleted
+108 del
+< ij> call SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY('bootPassword', 'bbderbypwdx, derbypwdxx ');
+109 del
+< 0 rows inserted/updated/deleted
+110 del
+< ij> values SYSCS_UTIL.SYSCS_GET_DATABASE_PROPERTY('bootPassword');
+110a107,110
+> ERROR XBCXA: Wrong boot password.
+> ij(CONNECTION1)> call SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY('bootPassword', 'bbderbypwdx, derbypwdxx ');
+> ERROR XBCXA: Wrong boot password.
+> ij(CONNECTION1)> values SYSCS_UTIL.SYSCS_GET_DATABASE_PROPERTY('bootPassword');
+114 del
+< ij> values SYSCS_UTIL.SYSCS_GET_DATABASE_PROPERTY('encryptedBootPassword');
+114a114
+> ij(CONNECTION1)> values SYSCS_UTIL.SYSCS_GET_DATABASE_PROPERTY('encryptedBootPassword');
+118 del
+< ij> disconnect;
+118a118
+> ij(CONNECTION1)> disconnect;
+124a125,126
+> ERROR XJ040: Failed to start database 'wombat' with class loader XXXX,  see the next exception for details.
+> ERROR XBM06: Startup failed. An encrypted database cannot be accessed without the correct boot password.  
+126 del
+< A                   
+127 del
+< --------------------
+128 del
+< hello world         
+128a128
+> IJ ERROR: Unable to establish connection
+132 del
+< ERROR XBCXD: The encryption algorithm cannot be changed after the database is created.
+132a132
+> IJ ERROR: Unable to establish connection
+134 del
+< ERROR XBCXE: The encryption provider cannot be changed after the database is created.
+134a134
+> IJ ERROR: Unable to establish connection
+Test Failed.
+			End:   encryptDatabase jdk1.6.0 encryptionAll:encryptionAES 2012-01-14 01:51:49 ***
+------------------------------------------------------
+		
+		
+	
+	
+

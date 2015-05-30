@@ -1,0 +1,11 @@
+Users have reported databases that will not boot with stack traces showing:
+Caused by: java.lang.ArrayIndexOutOfBoundsException
+at java.lang.System.arraycopy(Native Method)
+at org.apache.derby.impl.store.raw.data.AllocPage.ReadContainerInfo(Unknown Source)
+at org.apache.derby.impl.store.raw.data.FileContainer.readHeader(Unknown Source)
+
+I suggest the code be changed to catch the out of bounds and turn it
+into a StandardException and include as much runtime information as
+possible so that the underlying problem can be diagnosed.  Information
+should include sizes of both arrays, the amount of data being copied ("N"),
+and possibly a hex dump of the source array.

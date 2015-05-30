@@ -1,0 +1,5 @@
+This is related to, but not exactly the same as SOLR-544 and SOLR-470.
+
+When DateMath was introduced in Solr 1.2 a SimpleDateFormat was introduced for formating Date objects as "internal" String values that (erroneously) include trailing zeros in milliseconds when the number of millis is divisible by 10.  (ie: "2008-04-27T23:38:22.120" instead of "2008-04-27T23:38:22.12"
+
+this makes it incorrect when doing lexigraphical comparisons with dates provided as strings by clients that follow the spec correctly (see SOLR-544)

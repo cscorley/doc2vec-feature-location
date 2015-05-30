@@ -1,0 +1,22 @@
+The PigStorage has the following snippet.
+
+
+
+private void setCompression(Path path, Job job) {
+     	String location=path.getName();
+        if (location.endsWith(".bz2") || location.endsWith(".bz")) {
+            FileOutputFormat.setCompressOutput(job, true);
+            FileOutputFormat.setOutputCompressorClass(job,  BZip2Codec.class);
+        }  else if (location.endsWith(".gz")) {
+            FileOutputFormat.setCompressOutput(job, true);
+            FileOutputFormat.setOutputCompressorClass(job, GzipCodec.class);
+        } else {
+            FileOutputFormat.setCompressOutput( job, false);
+        }
+    }
+
+
+
+This limits it to only work with STORE filenames provided as 'output.gz' or 'output.bz2' and for the rest (like LZO) one has to specify codecs and manually enable compression.
+
+Ideally Pig can rely on Hadoop's extension-to-codec detector instead of having this ladder.

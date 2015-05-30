@@ -1,0 +1,28 @@
+EJB Q::   SELECT d.name FROM DeptBean d WHERE SUBSTRING(d.name,1,10) = 'Dept' 
+
+DB2 SQL error: SQLCODE: -417, SQLSTATE: 42609, SQLERRMC: null 
+{prepstmnt 1662018320 SELECT t0.name FROM DeptBean t0
+WHERE (SUBSTR(CAST((t0.name) AS VARCHAR(1000)), CAST(((? - ?)) AS INTEGER) + 1, CAST(((? + (? - ?))) AS INTEGER) - CAST(((?
+- ?)) AS INTEGER)) = ?) [params=(long) 1, (int) 1, (long) 10, (long) 1, (int) 1, (long) 1, (int) 1, (String) Dept]}
+[code=-417, state=42609]
+
+
+EJB QL SELECT e.name FROM EmpBean e WHERE LOCATE('10',e.name,5) > 0 
+            DB2 SQL error: SQLCODE: -417, SQLSTATE: 42609, SQLERRMC: null 
+{prepstmnt 1217808534 SELECT t0.name FROM EmpBean t0 WHERE
+(((LOCATE(CAST((?) AS VARCHAR(1000)), CAST((t0.name) AS VARCHAR(1000)), CAST(((? - ?)) AS INTEGER) + 1) - 1) + ?) >
+?) [params=(String) 10, (long) 5, (int) 1, (int) 1, (long) 0]}
+ [code=-417, state=42609]
+ TEST411; 1 tuple
+
+
+I am not sure why OpenJPA generates the sql expression ?-?.  The proper SQL should be 
+
+SELECT t0.name FROM DeptBean t0  WHERE  substr (to.name, CAST ( as INTEGER),  CAST ( as INTEGER)   with parm values ( Integer 1,  Integer 10)
+
+Although it helps query reuse to replace literals with parm markers and then pass the literal values as parm values,  this is not always 
+best in a system like DB2 which uses distribution statistics and cost based optimization to compute the sql access path.  The better sql would 
+simply be 
+SELECT t0.name FROM DeptBean t0  WHERE  substr (to.name,1, 10)
+
+

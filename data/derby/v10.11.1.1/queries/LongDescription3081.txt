@@ -1,0 +1,24 @@
+4 tests fail to instantiate a generated class:
+
+	1) testTrimCharIsExpr(org.apache.derbyTesting.functionTests.tests.lang.AnsiTrimTest)java.sql.SQLException: Cannot create an instance of generated class org.apache.derby.exe.ac848c0061x0114xfee3x0ec7x0000636c39840.
+
+	2) testEnglishCollation(org.apache.derbyTesting.functionTests.tests.lang.CollationTest)java.sql.SQLException: Cannot create an instance of generated class org.apache.derby.exe.aca31ba168x0114xfee3x0ec7x0000636c39842a.
+
+	3) testNorwayCollation(org.apache.derbyTesting.functionTests.tests.lang.CollationTest)java.sql.SQLException: Cannot create an instance of generated class org.apache.derby.exe.ac066fa8c8x0114xfee3x0ec7x0000636c39842a.
+
+	4) testPolishCollation(org.apache.derbyTesting.functionTests.tests.lang.CollationTest)java.sql.SQLException: Nie mo?na utworzy? instancji wygenerowanej klasy org.apache.derby.exe.ac86a73025x0114xfee3x0ec7x0000636c39842a.
+
+All these something like this:
+    ------------------------
+    Caused by: java.lang.VerifyError: org/apache/derby/exe/ac86a73025x0114xfee3x0ec7x0000636c39842a 0000 0000 
+	at java.lang.Throwable.<init>(Throwable.java:195)
+	at java.lang.Error.<init>(Error.java:49)
+	at java.lang.VerifyError.<init>(VerifyError.java:34)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:39)
+	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:27)
+	at java.lang.reflect.Constructor.newInstance(Constructor.java:274)
+	at org.apache.derby.iapi.services.loader.ClassInfo.getNewInstance(Unknown Source)
+	at org.apache.derby.impl.services.reflect.LoadedGeneratedClass.newInstance(Unknown Source)
+	at org.apache.derby.impl.services.reflect.ReflectGeneratedClass.newInstance(Unknown Source)
+	at org.apache.derby.impl.sql.GenericActivationHolder.<init>(Unknown Source)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.getActivation(Unknown Source)

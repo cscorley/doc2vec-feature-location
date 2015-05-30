@@ -1,0 +1,11 @@
+NetHarnessJavaTest reuses the old framework test 'testProtocol' via
+old framework adapter HarnessJavaTest.
+testProtocol uses the class TestProto which hardcodes use of port 1527.
+It would be nice to pass the port used in the current TestConfiguration
+to testProtocol/TestProto so the JUnit suites can move towards being runnable
+with another port than the default. 
+
+Currently, using another port than 1527 for TestConfiguration.DEFAULT_PORT,
+ the test fails and crashes JUnit's TestRunner with the console message:
+
+Couldn't get I/O for the connection to: localhost

@@ -1,0 +1,15 @@
+You can see this with the recently added testWORD_embedded_pdf.doc
+(for TIKA-948): the "Bye Bye" text comes before the "Wer
+wjelrwoierj..." text from the embedded PDF, opposite of what you see
+when you open the doc with Word.
+
+Yet, the thumbnail images do seem to be extracted at the right place
+(inlined).
+
+This is because WordExtractor.java has a separate pass at the end to
+visit the embedded docs.
+
+Would it be possible to recurse into an embedded doc at the point when
+it's first encountered instead...?  Or maybe somehow correlate the
+images with their corresponding attachment (right now they are just
+named image1, image2, ...)?

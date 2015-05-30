@@ -1,0 +1,63 @@
+I often see failures of this type in derbynet/runtimeinfo.java:
+
+
+	
+	
+		
+		
+			
+			
+				
+				
+					
+					
+						
+						
+							
+							
+								
+								
+									Diff file derbyall/derbynetclientmats/DerbyNetClient/derbynetmats/derbynetmats/runtimeinfo.diff
+								
+								
+							
+							
+						
+						
+					
+					
+				
+				
+			
+			
+			Start: runtimeinfo jdk1.5.0_04 DerbyNetClient derbynetmats:derbynetmats 2006-01-20 23:19:43 ***
+57a58,66
+> Session # :4
+> Database :wombat;create=true
+> User :APP
+> # Statements:2
+> Prepared Statement Information: 
+> 	Stmt ID		SQLText
+> 	-------------	-----------
+> 	SYSLH0002	VALUES(2)
+> 	SYSLH0001	SELECT count from sys.systables
+61 del
+< # Active Sessions : 1
+61a70
+> # Active Sessions : 2
+Test Failed.
+			End:   runtimeinfo jdk1.5.0_04 DerbyNetClient derbynetmats:derbynetmats 2006-01-20 23:19:51 ***
+		
+		
+	
+	
+
+
+
+It doesn't seem to happen very frequently in Ole's nightly testing, but it has occurred there too:
+
+http://www.multinet.no/~solberg/public/Apache/TinderBox_Derby/testlog/SunOS-5.10_i86pc-i386/386483-derbyall_diff.txt
+http://www.multinet.no/~solberg/public/Apache/Derby/testlog/Linux-2.6.14-1.1644_FC4_i686-i686/354827-derbyall_diff.txt
+http://www.multinet.no/~solberg/public/Apache/Derby/testlog/Linux-2.6.14-1.1644_FC4_i686-i686/355169-derbynetmats_diff.txt
+http://www.multinet.no/~solberg/public/Apache/Derby/testlog/SunOS-5.10_i86pc-i386/321161-derbynetclientmats_diff.txt
+http://www.multinet.no/~solberg/public/Apache/Derby/testlog/SunOS-5.10_i86pc-i386/370878-derbyall_diff.txt

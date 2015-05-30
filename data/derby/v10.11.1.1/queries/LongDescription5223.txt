@@ -1,0 +1,13 @@
+Sometimes we have this this stack trace on the log from SuitesAll:
+
+.Exception in thread "WorkerThread. Thread#5" junit.framework.AssertionFailedError
+        at junit.framework.Assert.fail(Assert.java:47)
+        at junit.framework.Assert.assertTrue(Assert.java:20)
+        at junit.framework.Assert.assertTrue(Assert.java:27)
+        at org.apache.derbyTesting.functionTests.tests.store.InterruptResilienceTest$WorkerThread.run(InterruptResilienceTest.java:430) 
+
+This happens sometimes when the application thread's interrupt flag is set before we enter a Derby API call, but the flag is cleared on return contrary to our specified behavior.
+
+Cf mention on https://issues.apache.org/jira/browse/DERBY-5081?focusedCommentId=13030155&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-13030155
+
+I can reproduce this every 20 runs or so on Linux with JDK7, but it has been seen also on Windows, so it is not VM specific.

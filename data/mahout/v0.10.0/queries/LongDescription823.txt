@@ -1,0 +1,21 @@
+http://codesearch.google.com/#6LK_nEANBKE/math/src/main/java/org/apache/mahout/math/RandomAccessSparseVector.java&l=172
+
+The complexity of the algorithm is O(num nondefault elements in this), while it could clearly be O(min(num nondefault in this, num nondefault in x)).
+
+This can be fixed by adding this code before line 189.
+
+
+
+if(x.getNumNondefaultElements() < this.getNumNondefaultElements()) {
+  return x.dot(this);
+}
+
+
+
+An easy case where this asymmetry is very apparent and makes a huge difference in performance is K-Means clustering.
+
+In K-Means for high-dimensional points (e.g. those that arise in text retrieval problems), the centroids often have a huge number of non-zero components, whereas points have a small number of them.
+
+So, if you make a mistake and use centroid.dot(point) in your code for computing the distance, instead of point.dot(centroid), you end up with orders of magnitude worse performance (which is what we actually observed - the clustering time was a couple of minutes with this fix and over an hour without it).
+
+So, perhaps, if you make this fix, quite a few people who had a similar case but didn't notice it will suddenly have a dramatic performance increase 

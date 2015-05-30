@@ -1,0 +1,11 @@
+In a variety of situations, OpenJPA searches class hierarchies for fields. These searches invoke Class.getDeclaredField() in order to find non-public fields. This method throws an exception when it fails to find the specified field, and the exception creation is, as ever, slow.
+
+It would be useful to create a static (and thus per-classloader) Map<WeakReference<Class>,Collection<String>> of fields known not to be available in a given class.
+
+It may also be beneficial to maintain a cache of which fields are present in a given class, but this issue is being filed as a result of a demonstrated performance hit during deployment due to the lack of a negative cache. If we obtain quantitative data indicating that a positive cache would be useful, we might want to implement such a thing at that time.
+
+Trace 3 (2115 occurances): [excepti][00090] java/lang/NoSuchFieldException: domainName
+     at java/lang/Class.getDeclaredField(Ljava/lang/String;I)Ljava/lang/reflect/Field;(Unknown Source)
+     at org/apache/openjpa/enhance/Reflection.findField(Ljava/lang/Class;Ljava/lang/String;Z)Ljava/lang/reflect/Field;(Reflection.java:101)
+     at org/apache/openjpa/util/ApplicationIds.toPKValues(Ljava/lang/Object;Lorg/apache/openjpa/meta/ClassMetaData[Ljava/lang/Object;
+(ApplicationIds.java:89)

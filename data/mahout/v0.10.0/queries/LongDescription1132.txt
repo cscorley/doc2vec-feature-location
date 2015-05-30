@@ -1,0 +1,26 @@
+I create follow file as input for fpgrowth2:
+0, 0, 0
+0, 0, 0
+0, 0, 0
+
+and when I run ./bin/mahout -i kv -o output -2 --mathod mapreduct I take a crash:
+java.lang.IllegalStateException: mismatched counts for targetAttr=0, (3 != 9); thisTree=[FPTree
+  -
+{attr:-1, cnt:0}
+1>-
+{attr:0, cnt:3}
+]
+
+	at org.apache.mahout.fpm.pfpgrowth.fpgrowth2.FPTree.createMoreFreqConditionalTree(FPTree.java:259)
+	at org.apache.mahout.fpm.pfpgrowth.fpgrowth2.FPGrowthIds.growth(FPGrowthIds.java:238)
+	at org.apache.mahout.fpm.pfpgrowth.fpgrowth2.FPGrowthIds.fpGrowth(FPGrowthIds.java:163)
+	at org.apache.mahout.fpm.pfpgrowth.fpgrowth2.FPGrowthIds.generateTopKFrequentPatterns(FPGrowthIds.java:220)
+	at org.apache.mahout.fpm.pfpgrowth.fpgrowth2.FPGrowthIds.generateTopKFrequentPatterns(FPGrowthIds.java:115)
+	at org.apache.mahout.fpm.pfpgrowth.ParallelFPGrowthReducer.reduce(ParallelFPGrowthReducer.java:99)
+	at org.apache.mahout.fpm.pfpgrowth.ParallelFPGrowthReducer.reduce(ParallelFPGrowthReducer.java:48)
+	at org.apache.hadoop.mapreduce.Reducer.run(Reducer.java:176)
+	at org.apache.hadoop.mapred.ReduceTask.runNewReducer(ReduceTask.java:649)
+	at org.apache.hadoop.mapred.ReduceTask.run(ReduceTask.java:417)
+	at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:260)
+
+Follow patch fix it.

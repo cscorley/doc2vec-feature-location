@@ -1,0 +1,7 @@
+The problem reported by Knut Anders Hatlen in DERBY-646 is caused by improper handling of the temporary directory created for the database.
+A NullPointerException was thrown on database shutdown.
+
+After studying the code, I believe it is wise to follow the approach taken by the base storage factory;
+ o locate the temporary directory within the database directory
+    (i.e. for database 'mydb' this will by 'mydb/tmp')
+ o don't create the temporary directory before Derby supplies a unique name to the storage factory

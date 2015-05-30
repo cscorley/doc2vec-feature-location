@@ -1,0 +1,26 @@
+I'm seeing this on head of trunk:
+
+
+ij> select c, c = all (values 'Y'), case when c = all (values 'Y') then true else false end from (values 'Y', 'N') v(c);
+C|2    |3    
+-------------
+Y|true |false
+N|false|true 
+
+2 rows selected
+
+
+
+Column 2 and column 3 should have the same value, but something seems to go wrong when the quantified comparison is used in a CASE expression.
+
+I'm seeing the expected result on 10.10.2.0, though:
+
+
+ij> select c, c = all (values 'Y'), case when c = all (values 'Y') then true else false end from (values 'Y', 'N') v(c);
+C|2    |3    
+-------------
+Y|true |true 
+N|false|false
+
+2 rows selected
+

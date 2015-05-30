@@ -1,0 +1,21 @@
+First pass at basic facet support.  initial patch includes utilities for use in RequestHandlers, and usage in StandardRequestHandler (DisMax should use SolrParams before attempting to add this)
+
+Basic idea is that:
+
+	facet=true indicates facet counts are desired.
+	facetField=inStock indicates we want a count of the matching docs for each value in the field inStock
+	facetQuery=title:ipod indicates we want the count of matching docs also in the set of docs matching query title:ipod
+	if user wants to apply a facet constraint on subsequent queries, they can add an "fq" (filter query) param (support for this was added to StandardRequestHandler as well)
+
+
+
+Things marked TODO...
+
+	add support for per field facetLimit indicating that only the top N items in each facetField should be returned
+	add support for a per field facetZero boolean indicating that there is no reason to bother returning counts of 0 for facetFields (some clients may want to know the list, others don't care)
+	potential optimization when using faceLimit to cache the terms with the highest docFreq and see if they provide all the info we need without doing a full TermEnum
+
+
+
+I'd like to get some feedback on the overall appraoch and params before i proceed too much farther.
+

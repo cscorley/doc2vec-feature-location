@@ -1,0 +1,54 @@
+This is a foolowup to LUCENE-2270, where a part of this problem was fixed (boost = 0 leading to NaN scores, which is also un-intuitive), but in general, function queries in Solr can create these invalid scores easily. In previous version of Lucene these scores ordered correct (except NaN, which mixes up results), but never invalid document ids are returned (like Integer.MAX_VALUE).
+
+The problem is: TopScoreDocCollector pre-fills the HitQueue with sentinel ScoreDocs with a score of -inf and a doc id of Integer.MAX_VALUE. For the HQ to work, this sentinel must be smaller than all posible values, which is not the case:
+
+	-inf is equal and the document is not inserted into the HQ, as not competitive, but the HQ is not yet full, so the sentinel values keep in the HQ and result is the Integer.MAX_VALUE docs. This problem is solveable (and only affects the Ordered collector) by chaning the exit condition to:
+
+
+if (score <= pqTop.score && pqTop.doc != Integer.MAX_VALUE) {
+    // Since docs are returned in-order (i.e., increasing doc Id), a document
+    // with equal score to pqTop.score cannot compete since HitQueue favors
+    // documents with lower doc Ids. Therefore reject those docs too.
+    return;
+}
+
+
+
+
+
+
+	The NaN case can be fixed in the same way, but then has another problem: all comparisons with NaN result in false (none of these is true): x < NaN, x > NaN, NaN == NaN. This leads to the fact that HQ's lessThan always returns false, leading to unexspected ordering in the PQ and sometimes the sentinel values do not stay at the top of the queue. A later hit then overrides the top of the queue but leaves the incorrect sentinels  unchanged -> invalid results. This can be fixed in two ways in HQ:
+Force all sentinels to the top:
+
+
+protected final boolean lessThan(ScoreDoc hitA, ScoreDoc hitB) {
+    if (hitA.doc == Integer.MAX_VALUE)
+      return true;
+    if (hitB.doc == Integer.MAX_VALUE)
+      return false;
+    if (hitA.score == hitB.score)
+      return hitA.doc > hitB.doc; 
+    else
+      return hitA.score < hitB.score;
+}
+
+
+or alternatively have a defined order for NaN (Float.compare sorts them after +inf):
+
+
+protected final boolean lessThan(ScoreDoc hitA, ScoreDoc hitB) {
+    if (hitA.score == hitB.score)
+      return hitA.doc > hitB.doc; 
+    else
+      return Float.compare(hitA.score, hitB.score) < 0;
+}
+
+
+
+
+
+The problem with both solutions is, that we have now more comparisons per hit and the use of sentinels is questionable. I would like to remove the sentinels and use the old pre 2.9 code for comparing and using PQ.add() when a competitive hit arrives. The order of NaN would be unspecified.
+
+To fix the order of NaN, it would be better to replace all score comparisons by Float.compare() [also in FieldComparator].
+
+I would like to delay 2.9.2 and 3.0.1 until this problem is discussed and solved.

@@ -1,0 +1,3 @@
+in some cases the tests are failing with JMX errors. From the logs I can see that QP was shutdown, however it did not exit it's thread until some time much later. This is causing interference with subsequent tests, causing the test to fail.
+
+I have a patch that attempts to verify that the QP was shutdown (by joining the thread). It turns out that tests based on QuorumBase do this check (join) however some of the other tests do not. I believe this will address the issue.

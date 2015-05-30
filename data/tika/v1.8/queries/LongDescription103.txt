@@ -1,0 +1,14 @@
+Unfortunately Excel stores dates as the number of days since 1900 (or 1904, but ignore that atm)  with the time element being stored in the fractional part of the numeric value. So for example 19 Jan 2008 04:35:01 is stored as Double value 39466.190980358806.  The only way to make sense of the data is to look at the formatting on the cell. Although dates are the worst case, it also affects other numeric values - currencies, percentages, scientific, fractions and worst of all custom formats.
+
+POI recognises 49 "built in" formats of excel and for those it has the limited capability of determining whether a numeric cell is a date or not and if it is, a utility to convert to a java date, something like:
+
+    if (HSSFDateUtil.isCellDateFormatted(cell)) 
+{
+        Date date = HSSFDateUtil.getJavaDate(cell.getNumericCellValue());
+    }
+
+The current ExcelParser implementation takes no account of the data format and IMO is going to severly limit how useful that implementation is. I'm also think that the above while improving the situation slightly is still not great. I asked about this on the POI dev list a couple of days ago[1] and the only light is someone posted a format parser a few months back. It sounds like POI will accept that contribution if it has unit tests. So I'm going to try and find time to do that. If the data format can be properly parsed then it means being able to extract it in the format the users sees it within Excel - which IMO would be the ideal situation.
+
+[1] http://www.mail-archive.com/dev@poi.apache.org/msg00582.html
+
+

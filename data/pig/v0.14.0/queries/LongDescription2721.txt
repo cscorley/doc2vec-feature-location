@@ -1,0 +1,26 @@
+
+
+A = LOAD '/user/pvivek/sample' as (id:chararray,mybag:bag{tuple(bttype:chararray,cat:long)});
+B = foreach A generate id,FLATTEN(mybag) AS (bttype, cat);
+C = order B by id;
+dump C;
+
+
+
+The above code generates wrong results when executed with Pig 0.10 and Pig 0.9
+The below is the sample input;
+
+
+...LKGaHqg--	{(aa,806743)}
+..0MI1Y37w--	{(aa,498970)}
+..0bnlpJrw--	{(aa,806740)}
+..0p0IIhbA--	{(aa,498971),(se,498995)}
+..1VkGqvXA--	{(aa,805219)}
+
+
+
+I think the Pig optimizers are causing this issue.From the logs I can see that the $1 is pruned for the relation A.
+
+[main] INFO  org.apache.pig.newplan.logical.rules.ColumnPruneVisitor - Columns pruned for A: $1
+
+One workaround for this is to disable -t ColumnMapKeyPrune.

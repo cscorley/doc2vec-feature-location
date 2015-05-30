@@ -1,0 +1,65 @@
+My code changes DB structure (create a column), then immediately after setting autocommit back to true, the code rescans the DB metadata
+DatabaseMetaData.getColumns(catalog, schemaName, tableName, null);
+
+I am sometimes getting a deadlock with these operations:
+
+2008-04-16 19:50:47.833 GMT Thread[Default RequestProcessor,1,system] (XID = 569844), (SESSIONID = 2), (DATABASE = /..../a3/.config/localdb/db), (DRDAID = null), Cleanup action starting 2008-04-16 19:50:47.833 GMT Thread[Default RequestProcessor,1,system] (XID = 569844), (SESSIONID = 2),  (DATABASE = /..../IJCProjects/a3/.config/localdb/db), (DRDAID = null), Failed Statement is: EXECUTE STATEMENT SYS."getColumns" ERROR 40XL2: A lock could not be obtained within the time requested.
+
+The lockTable dump is:
+2008-04-16 19:50:47.796 GMT
+XID       |TYPE         |MODE|LOCKCOUNT|LOCKNAME                                                 |STATE|TABLETYPE /LOCKOBJ                   |INDEXNAME / CONTAINER_ID / MODE for LATCH only)  |TABLENAME / CONGLOM_ID                |
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	
+	
+		
+		
+			The following row is the victim ***
+569852    |ROW          |X   |0        |(44,7)                                                |WAIT |S                      |NULL |SYSSTATEMENTS                         | 
+			The above row is the victim ***
+		
+		
+	
+	
+
+
+
+The stacktrace of the operation causing the deadlock is 
+        at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+        at org.apache.derby.impl.services.locks.Timeout.createException(Unknown Source)
+        at org.apache.derby.impl.services.locks.Timeout.buildException(Unknown Source)
+        at org.apache.derby.impl.services.locks.ConcurrentLockSet.lockObject(Unknown Source)
+        at org.apache.derby.impl.services.locks.AbstractPool.lockObject(Unknown Source)
+        at org.apache.derby.impl.services.locks.ConcurrentPool.lockObject(Unknown Source)
+        at org.apache.derby.impl.store.raw.xact.RowLocking3.lockRecordForWrite(Unknown Source)
+        at org.apache.derby.impl.store.access.heap.HeapController.lockRow(Unknown Source)
+        at org.apache.derby.impl.store.access.heap.HeapController.lockRow(Unknown Source)
+        at org.apache.derby.impl.store.access.btree.index.B2IRowLocking3.lockRowOnPage(Unknown Source)
+        at org.apache.derby.impl.store.access.btree.index.B2IRowLocking3._lockScanRow(Unknown Source)
+        at org.apache.derby.impl.store.access.btree.index.B2IRowLockingRR.lockScanRow(Unknown Source)
+        at org.apache.derby.impl.store.access.btree.BTreeForwardScan.fetchRows(Unknown Source)
+        at org.apache.derby.impl.store.access.btree.BTreeScan.fetchNext(Unknown Source) 
+        at org.apache.derby.impl.sql.catalog.TabInfoImpl.updateRow(Unknown Source) 
+        at org.apache.derby.impl.sql.catalog.TabInfoImpl.updateRow(Unknown Source)
+        at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.updateSPS(Unknown Source )
+        at org.apache.derby.iapi.sql.dictionary.SPSDescriptor.updateSYSSTATEMENTS(Unknown Source)
+        at org.apache.derby.iapi.sql.dictionary.SPSDescriptor.getPreparedStatement(Unknown Source)
+        at org.apache.derby.iapi.sql.dictionary.SPSDescriptor.getPreparedStatement(Unknown Source)
+        at org.apache.derby.impl.sql.compile.ExecSPSNode.generate(Unknown Source)
+        at org.apache.derby.impl.sql.GenericStatement.prepMinion(Unknown Source)
+        at org.apache.derby.impl.sql.GenericStatement.prepare(Unknown Source)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.rePrepare(Unknown Source)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.execute(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeStatement(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeQuery(Unknown Source) 
+        at org.apache.derby.impl.jdbc.EmbedDatabaseMetaData.doGetCols(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedDatabaseMetaData.getColumns(Unknown Source)
+
+I've seen the deadlock occur during several get-metadata operations (getImportedKeys, ...), each time waiting on the SYSSTATEMENTS apparently because of internally constructed PreparedStatement. The lock eventually times out and the locked out operation completes without error.
+
+When the deadlock occurs, the "real" SQL into systables is being compiled (I traced this sql to be the value of "getColumns" key in org/apache/derby/impl/jdbc/metadata.properties file):
+--------%<---------------------%<-------------
+Begin compiling prepared statement: SELECT CAST ('' AS VARCHAR(128)) AS PKTABLE_CAT, S.SCHEMANAME AS PKTABLE_SCHEM, TABLENAME AS
+PKTABLE_NAME, COLS.COLUMNNAME AS PKCOLUMN_NAME, CAST ('' AS VARCHAR(128)) AS FKTABLE_CAT, FKTABLE_SCHEM, FKTABLE_NAME, FKCOLUMN_NAME, CAST ...
+--------%<---------------------%<-------------

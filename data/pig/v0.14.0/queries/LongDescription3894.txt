@@ -1,0 +1,31 @@
+The simple datetime functions: GetMonth, GetHour, ToDate, GetYear etc all have safe treatment of null values in the input tuple.
+
+e.g.
+GetMonth.java
+
+@Override
+public Integer exec(Tuple input) throws IOException {
+    if (input == null || input.size() < 1 || input.get(0) == null) {
+        return null;
+    }
+    return ((DateTime) input.get(0)).getMonthOfYear();
+}
+
+
+
+However, all of the "Duration" or "Between" functions are missing this null-checking, and so fail completely when the are passed tuples with null values.
+
+e.g.
+AddDuration.java
+
+@Override
+public DateTime exec(Tuple input) throws IOException {
+    if (input == null || input.size() < 2) {
+        return null;
+    }
+    return ((DateTime) input.get(0)).plus(new Period((String) input.get(1)));
+}
+
+
+
+This is inconsistent, problematic and easy to fix.

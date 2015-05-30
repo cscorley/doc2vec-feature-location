@@ -1,0 +1,13 @@
+Pig generates an error with this script:
+
+
+
+grunt> a = load 'a.txt';                      
+grunt> b = group a all;                       
+grunt> c = foreach b generate COUNT(a) as sum;
+grunt> d = limit a 1 * c.sum;  
+[main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1200: <line 4, column 14>  mismatched input '*' expecting SEMI_COLON
+
+
+
+The reason is the parser chooses the wrong alternative.

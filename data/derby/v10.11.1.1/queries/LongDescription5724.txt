@@ -1,0 +1,10 @@
+EncryptionKeyTest has this code to clean up the connection:
+
+        if (con != null && !con.isClosed()) 
+{
+            con.rollback();
+            con.close();
+            con = null;
+        }
+
+If the connection is already closed, it won't null out the reference. It should set con to null unconditionally.

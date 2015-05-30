@@ -1,0 +1,17 @@
+When an entity has nested embeddables, the merge operation fails with the following exception:
+
+org.apache.openjpa.persistence.ArgumentException:
+Cannot manipulate identity of type "com.ibm.wssvt.acme.annuity.common.bean.jpa.Address": it's identity type is unknown.
+        at org.apache.openjpa.kernel.StateManagerImpl.<init>(StateManagerImpl.java:173)
+        at org.apache.openjpa.kernel.BrokerImpl.embed(BrokerImpl.java:2770)
+        at org.apache.openjpa.kernel.DetachedStateManager.attach(DetachedStateManager.java:106)
+        at org.apache.openjpa.kernel.AttachManager.attach(AttachManager.java:251)
+        at org.apache.openjpa.kernel.DetachedStateManager.attach(DetachedStateManager.java:244)
+        at org.apache.openjpa.kernel.AttachManager.attach(AttachManager.java:251)
+        at org.apache.openjpa.kernel.AttachStrategy.attachMap(AttachStrategy.java:462)
+        at org.apache.openjpa.kernel.DetachedStateManager.attach(DetachedStateManager.java:269)
+        at org.apache.openjpa.kernel.AttachManager.attach(AttachManager.java:251)
+        at org.apache.openjpa.kernel.AttachManager.attach(AttachManager.java:104)
+        at org.apache.openjpa.kernel.BrokerImpl.attach(BrokerImpl.java:3346)
+        at org.apache.openjpa.kernel.DelegatingBroker.attach(DelegatingBroker.java:1176)
+        at org.apache.openjpa.persistence.EntityManagerImpl.merge(EntityManagerImpl.java:852)

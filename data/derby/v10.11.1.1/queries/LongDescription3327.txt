@@ -1,0 +1,12 @@
+The current LanguageConnectionContext keeps the user authorization identifier for an SQL session.
+The lcc is shared context also for nested connections (opened from stored procedures).
+So far, for roles, the current role has been stored in the lcc also. However, SQL requires that
+authorization identifers be pushed on a "authorization stack" when calling a stored procedure, cf.
+SQL 2003, vol 2, section 4.34.1.1 and 4.27.3 and 10.4 GR 5h and i.
+This allows a caller to keep its current role after a call even if changed by the stored procedure.
+
+This issue will implement the current role name part ("cell") of the authorization stack. 
+
+The authorization stack will be implemented as part of the SQL session context.
+The patch will also implement the pushing of the current unqualified schema name part of
+the SQL session context, cf. 10.4 GR 5a (DERBY-1331).

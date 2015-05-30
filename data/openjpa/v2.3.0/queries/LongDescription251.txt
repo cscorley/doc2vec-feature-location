@@ -1,0 +1,31 @@
+Given 
+
+public interface A 
+{ Object getId(); }
+
+@Entity
+public class B implements A { 
+    @Id
+    public String getId() 
+{ return "foo"; }
+ 
+}
+
+B.class.getDeclaredMethods() will include both "public java.lang.String B.getId()" and "public java.lang.Object B.getId()". The order in which these two methods appear is NOT DEFINED! Because org.apache.openjpa.enhance.Reflection.getDeclaredMethod()  returns the first matching method, and because that method might well be the abstract one retuning Object, OpenJPA will complain that it cannot persist an ID with a non-explicit strategy, and throw up.
+
+Class.getDeclaredMethod() (note singular, not plural) is defined to return the method with the most specific return type under these circumstances, and should therefore be used. Here's my implementation of Reflection.getDeclaredMethod:
+
+	private static Method getDeclaredMethod(Class cls, String name, Class param)
+	{
+		Class[] params = param == null ? new Class[0] : new Class[] 
+{ param }
+;
+		try
+		{
+			return cls.getDeclaredMethod(name, params);
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+	}

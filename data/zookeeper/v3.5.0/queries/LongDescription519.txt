@@ -1,0 +1,29 @@
+We noticed this in our tests -
+
+
+
+
+java.net.SocketException: Broken pipe
+        at java.net.SocketOutputStream.socketWrite0(Native Method)
+        at java.net.SocketOutputStream.socketWrite(SocketOutputStream.java:92)
+        at java.net.SocketOutputStream.write(SocketOutputStream.java:136)
+        at java.io.BufferedOutputStream.write(BufferedOutputStream.java:105)
+        at java.io.DataOutputStream.write(DataOutputStream.java:90)
+        at java.io.FilterOutputStream.write(FilterOutputStream.java:80)
+        at org.apache.jute.BinaryOutputArchive.writeBuffer(BinaryOutputArchive.java:122)
+        at org.apache.zookeeper.server.DataNode.serialize(DataNode.java:126)
+        at org.apache.jute.BinaryOutputArchive.writeRecord(BinaryOutputArchive.java:126)
+        at org.apache.zookeeper.server.DataTree.serializeNode(DataTree.java:878)
+        at org.apache.zookeeper.server.DataTree.serializeNode(DataTree.java:890)
+        at org.apache.zookeeper.server.DataTree.serializeNode(DataTree.java:890)
+        at org.apache.zookeeper.server.DataTree.serializeNode(DataTree.java:890)
+        at org.apache.zookeeper.server.DataTree.serializeNode(DataTree.java:890)
+        at org.apache.zookeeper.server.DataTree.serializeNode(DataTree.java:890)
+        at org.apache.zookeeper.server.DataTree.serialize(DataTree.java:940)
+        at org.apache.zookeeper.server.util.SerializeUtils.serializeSnapshot(SerializeUtils.java:102)
+        at org.apache.zookeeper.server.ZooKeeperServer.serializeSnapshot(ZooKeeperServer.java:269)
+        at org.apache.zookeeper.server.quorum.FollowerHandler.run(FollowerHandler.java:263)
+
+
+
+So the followerhandler got an exception while writing to the socket but the follower was still waiting on the socket for a read and got a read timeout after 60 seconds or so. To just make sure we handle this rightly, we should close the socket at the followerhandler when we get an excpetion, so that the follower immediately recognizes that its disconnected from the leader.

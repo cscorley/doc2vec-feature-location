@@ -1,0 +1,1 @@
+Currently we rely on TCP for reliable delivery of FLE messages. However, as we concurrently drop and create new connections, it is possible that a message is sent but never received. With this patch, cnx manager keeps a list of last messages sent, and resends the last one sent. Receiving multiples copies is harmless. 

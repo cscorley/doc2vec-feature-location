@@ -1,0 +1,13 @@
+It would be good to be able to start converting the store  recovery tests  or at least be able to write new recovery tests in JUnit.   We could start by writing a simple recovery test just to establish the framework.  The test should.
+
+	Connect, create a table, commit and shutdown the database.
+	fork a jvm, add one row, commit, add another row, exit  the jvm.
+	Reconnect with the first jvm and verify that the first row is there and the second is not.
+
+
+
+I guess the main thing to decide is how to spawn the second jvm and check results.    I tend to think the second jvm should actually execute another JUnit test, verify the exit code (assuming a failed test has a non-zero exit code) and then put the output in the fail assertion if it fails so it shows up in the report at the end of the Suite execution.   I think we could create a test runner that takes a class and a specific test to run instead of the whole suite, so we could keep our methods consolidated in a single class for the test, but all pure conjecture at this point.  I'll have to give it a try, but wanted to first see if folks thought this was a reasonable approach.
+
+
+
+

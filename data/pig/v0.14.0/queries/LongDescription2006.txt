@@ -1,0 +1,14 @@
+If a pig script file is empty and supplied as input for Pig (using -f option), an NPE is thrown. Stacktrace:
+
+java.lang.NullPointerException
+        at java.util.regex.Matcher.getTextLength(Matcher.java:1140)
+        at java.util.regex.Matcher.reset(Matcher.java:291)
+        at java.util.regex.Matcher.<init>(Matcher.java:211)
+        at java.util.regex.Pattern.matcher(Pattern.java:888)
+        at org.apache.pig.scripting.ScriptEngine$SupportedScriptLang.accepts(ScriptEngine.java:89)
+        at org.apache.pig.scripting.ScriptEngine.getSupportedScriptLang(ScriptEngine.java:163)
+        at org.apache.pig.Main.determineScriptType(Main.java:892)
+        at org.apache.pig.Main.run(Main.java:378)
+        at org.apache.pig.Main.main(Main.java:108)
+
+This seems related Jython support in 0.9.

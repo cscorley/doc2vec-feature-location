@@ -1,0 +1,29 @@
+Ideally, one should be able to run 'ant openjpac'  (openjpac would be a target defined in the build script that would use the PCEnhancer task) without having to put the openjpa jars on the system classpath or having to pass them into ant vie the '-lib' argument.  Currently this is not possible.  The root of the issue can be seen from by looking at the public static String[] getImplementors(String serviceName, ClassLoader loader) method of the Services class. Basically, the call to 
+
+loader = Thread.currentThread().getContextClassLoader();
+
+returns a ClassLoader with the $ANT_HOME\lib*.jar and $JAVA_HOME\lib\tools.jar in it... which obviously doesn't contain 'META-INF/services/org.apache.openjpa.conf.ProductDerivation'
+
+The exception seen when encountering this issue:
+
+java.lang.ExceptionInInitializerError
+        at org.apache.openjpa.conf.OpenJPAConfigurationImpl.<init>(OpenJPAConfigurationImpl.java:510)
+        at org.apache.openjpa.conf.OpenJPAConfigurationImpl.<init>(OpenJPAConfigurationImpl.java:160)
+        at org.apache.openjpa.conf.OpenJPAConfigurationImpl.<init>(OpenJPAConfigurationImpl.java:151)
+        at org.apache.openjpa.ant.PCEnhancerTask.newConfiguration(PCEnhancerTask.java:77)
+        at org.apache.openjpa.lib.ant.AbstractTask.execute(AbstractTask.java:170)
+        at org.apache.tools.ant.UnknownElement.execute(UnknownElement.java:275)
+        at org.apache.tools.ant.Task.perform(Task.java:364)
+        at org.apache.tools.ant.Target.execute(Target.java:341)
+        at org.apache.tools.ant.Target.performTasks(Target.java:369)
+        at org.apache.tools.ant.Project.executeSortedTargets(Project.java:1216)
+        at org.apache.tools.ant.Project.executeTarget(Project.java:1185)
+        at org.apache.tools.ant.helper.DefaultExecutor.executeTargets(DefaultExecutor.java:40)
+        at org.apache.tools.ant.Project.executeTargets(Project.java:1068)
+        at org.apache.tools.ant.Main.runBuild(Main.java:668)
+        at org.apache.tools.ant.Main.startAnt(Main.java:187)
+        at org.apache.tools.ant.launch.Launcher.run(Launcher.java:251)
+        at org.apache.tools.ant.launch.Launcher.main(Launcher.java:72)
+Caused by: java.util.MissingResourceException: Your system is missing product derivations.  Product derivations provide configuration options for supported data stores and specifications.  You must have a META-INF/services/org.apache.openjpa.conf.ProductDerivation file in your classpath listing the available derivation classes, and some listed class must be instantiable.  Typically this file is bundled as part of the distribution.  Have you unbundled it, or unbundled its listed classes?
+        at org.apache.openjpa.conf.ProductDerivations.<clinit>(ProductDerivations.java:53)
+        ... 17 more

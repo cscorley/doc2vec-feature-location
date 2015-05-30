@@ -1,0 +1,22 @@
+SOME is not allowed in ON-clause:
+
+ij> create table t1 (i integer);
+0 rows inserted/updated/deleted
+ij> create table t2 (i integer);
+0 rows inserted/updated/deleted
+ij> create table t3 (i integer);
+0 rows inserted/updated/deleted
+ij> insert into t1 values (1);
+1 row inserted/updated/deleted
+ij> insert into t2 values (2);
+1 row inserted/updated/deleted
+ij> insert into t3 values 2,3,4;
+3 rows inserted/updated/deleted
+ij> select * from t1 where t1.i = some (select i from t3);
+I          
+-----------
+
+0 rows selected
+ij> select * from t1 inner join t2 on  t1.i = some (select i from t3);
+ERROR 42972: An ON clause associated with a JOIN operator is not valid.
+ij> 

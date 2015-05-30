@@ -1,0 +1,70 @@
+I have 2 tab separated files, "1.txt" and "2.txt"
+
+$ cat 1.txt 
+====================
+1       2
+
+2       3
+
+====================
+$ cat 2.txt 
+
+1       2
+
+2       3
+
+I use COGROUP feature of Pig in the following way:
+
+$java -cp pig.jar:$HADOOP_HOME org.apache.pig.Main
+
+
+
+grunt> A = load '1.txt';            
+grunt> B = load '2.txt' as (b0, b1);
+grunt> C = cogroup A by *, B by *;  
+
+
+
+2009-10-29 12:46:04,150 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1012: Each COGroup input has to have the same number of inner plans
+Details at logfile: pig_1256845224752.log
+==========================================================
+
+If I reverse, the order of the schema's
+
+
+grunt> A = load '1.txt' as (a0, a1);
+grunt> B = load '2.txt';            
+grunt> C = cogroup A by *, B by *;  
+
+
+2009-10-29 12:49:27,869 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1013: Grouping attributes can either be star  or a list of expressions, but not both.
+Details at logfile: pig_1256845224752.log
+
+==========================================================
+Now running without schema??
+
+
+grunt> A = load '1.txt';            
+grunt> B = load '2.txt';            
+grunt> C = cogroup A by *, B by *;
+grunt> dump C; 
+
+
+
+2009-10-29 12:55:37,202 [main] INFO  org.apache.pig.backend.local.executionengine.LocalPigLauncher - Successfully stored result in: "file:/tmp/temp-319926700/tmp-1990275961"
+2009-10-29 12:55:37,202 [main] INFO  org.apache.pig.backend.local.executionengine.LocalPigLauncher - Records written : 2
+2009-10-29 12:55:37,202 [main] INFO  org.apache.pig.backend.local.executionengine.LocalPigLauncher - Bytes written : 154
+2009-10-29 12:55:37,202 [main] INFO  org.apache.pig.backend.local.executionengine.LocalPigLauncher - 100% complete!
+2009-10-29 12:55:37,202 [main] INFO  org.apache.pig.backend.local.executionengine.LocalPigLauncher - Success!!
+
+((1,2),
+{(1,2)},{(1,2)}
+)
+((2,3),
+{(2,3)},{(2,3)}
+)
+==========================================================
+
+Is this a bug or a feature?
+
+Viraj

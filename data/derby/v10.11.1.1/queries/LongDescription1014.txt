@@ -1,0 +1,11 @@
+Some tests are very sensitive to changes in pre-fetching, either
+because they call SYSCS_UTIL.SYSCS_GET_RUNTIMESTATISTICS() which
+displays the number of rows seen, or because a failure that normally
+is exposed when calling ResultSet.next() is exposed when calling
+Statement.execute().
+
+Most of these tests are not testing when or how much data is
+pre-fetched. If we make the tests less sensitive to pre-fetching, it
+is easier to catch the real regressions when changing the way Derby is
+pre-fetching data. Also, patches in that area of the code will be
+smaller (fewer test changes) and easier to review.

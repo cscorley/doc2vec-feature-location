@@ -1,0 +1,15 @@
+There exists the potential for deadlock with the ORM XML processing function.  In an environment
+with multiple threads (such as an application server), operations (such as creating a new
+EntityManagerFactory or transformation Classloader activity) can lead to a point where
+a Xerces SAX Parser (acquired by XMLFactory) is constituted and executed.  Xerces calls 
+Thread.currentThread().getContextClassloader() during its execution to construct the
+SAXParser (via ObjectFactory.createObject()).  This means that within the call to Xerces,
+a ClassLoader lock will be attempted on the Thread's ContextClassLoader.  If there is already
+a lock with a ClassLoader higher in the heirarchy, and another thread with a lock on the
+same ContextClassLoader that is waiting to acquire a lock on a higher level ClassLoader, then
+a deadlock will occur.
+
+A solution to this problem is to temporally set the Thread's ContextClassLoader at the
+point where XML APIs are invoked (such as in XMLFactory, XMLMetaDataParser) to the
+ClassLoader that loaded the OpenJPA implementation classes.  This will prevent Xerces from
+starting with a lower level classloader and avoid this deadlock potential.

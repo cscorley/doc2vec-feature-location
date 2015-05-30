@@ -1,0 +1,9 @@
+While working with Spring Data, we came across a potential bug in OpenJPA.
+
+The bug was provoked by a query lookup module in Spring Data JPA, but it has its roots in AbstractBrokerFactory class, which seems to require transaction existence in order to create EntityManager (which is contrary to JPA spec).
+
+I have already been in touch with Spring Data JPA author (where I filed a bug against Spring Data JPA) who actually pointed me to file a bug here.
+
+I have extensively documented my findings on this thread (http://stackoverflow.com/questions/10688040/spring-data-jpa-fails-to-invoke-jtatransactionmanager), so I'll rather post the link, instead of repeating the whole thing here.
+
+All that being said, I am not entirely sure what actually happened and am no authority whatsoever on JPA spec.

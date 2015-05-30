@@ -1,0 +1,19 @@
+for (int i = 0; i < 2; i ++) 
+{
+    List categories = new LinkedList();
+    categories.add("01");
+    categories.add("02");
+    categories.add("03");
+    Query q = entityManager.createQuery("select v.id from Category v where v.id in (:p) order by v.id asc");
+    q.setParameter("p", categories);
+    List results = q.getResultList();
+    for (Iterator it = results.iterator(); it.hasNext(); )
+         System.out.print(it.next() + ", ");
+    System.out.println();
+}
+
+The above code will produce the following output:
+01, 02, 03,
+02, 03,
+
+"01" is missing when the second time the same query is executed.

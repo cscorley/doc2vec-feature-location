@@ -1,0 +1,106 @@
+Got below error message when running a JDBC prolgram with derby. I use Apache Derby Network Server - 10.4.2.0 - (689064). The same program works fine with another version Apache Derby Network Server - 10.2.2.0 - (485682). It looks like there is a regression between the two versions.
+Exception in thread "main" java.sql.SQLException: You cannot invoke other java.sql.Clob/java.sql.Blob methods after calling the free() method or after the Blob/Clob's transaction has been committed or rolled back.
+	at org.apache.derby.client.am.SQLExceptionFactory40.getSQLException(Unknown Source)
+	at org.apache.derby.client.am.SqlException.getSQLException(Unknown Source)
+	at org.apache.derby.client.am.Lob.checkValidity(Unknown Source)
+	at org.apache.derby.client.am.Clob.length(Unknown Source)
+	at org.apache.derby.client.net.NetStatementRequest.computeProtocolTypesAndLengths(Unknown Source)
+	at org.apache.derby.client.net.NetStatementRequest.buildSQLDTAcommandData(Unknown Source)
+	at org.apache.derby.client.net.NetStatementRequest.writeExecute(Unknown Source)
+	at org.apache.derby.client.net.NetPreparedStatement.writeExecute_(Unknown Source)
+	at org.apache.derby.client.am.PreparedStatement.writeExecute(Unknown Source)
+	at org.apache.derby.client.am.PreparedStatement.flowExecute(Unknown Source)
+	at org.apache.derby.client.am.PreparedStatement.executeX(Unknown Source)
+	at org.apache.derby.client.am.PreparedStatement.execute(Unknown Source)
+	at DerbyTest.test(DerbyTest.java:36)
+	at DerbyTest.main(DerbyTest.java:12)
+Caused by: org.apache.derby.client.am.SqlException: You cannot invoke other java.sql.Clob/java.sql.Blob methods after calling the free() method or after the Blob/Clob's transaction has been committed or rolled back.
+	... 12 more
+
+Below is the test program I used.
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class DerbyTest {
+    public static void main(String[] args) throws SQLException, IOException 
+{
+        new DerbyTest().test();
+    }
+
+    private void test() throws SQLException, IOException {
+        Connection conn = null;
+
+        try 
+{
+            conn = getConnection();
+            Statement stmt = conn.createStatement();
+            dropTable("test1");
+            dropTable("test2");
+            String createStr1 = "CREATE TABLE test1 (col0 VARCHAR(8000))";
+            String createStr2 = "CREATE TABLE test2 (col0 VARCHAR(8000))";
+            stmt.executeUpdate(createStr1);
+            stmt.executeUpdate(createStr2);
+            stmt.close();
+            
+            PreparedStatement pstmt1 = conn.prepareStatement("INSERT INTO test1 VALUES (?)");
+            PreparedStatement pstmt2 = conn.prepareStatement("INSERT INTO test1 VALUES (?)");
+            InputStream in1 = new ByteArrayInputStream("abcdefghijklmnopqrstuvwxyz0123456789".getBytes());
+            InputStream in2 = new ByteArrayInputStream("9876543210ZYXWVUTSRQPONMLKJIHGFEDCBA".getBytes());
+            pstmt1.setAsciiStream(1, in1, in1.available());
+            pstmt2.setAsciiStream(1, in2, in2.available());
+            pstmt1.execute();
+            pstmt2.execute();
+
+            pstmt1.close();
+            pstmt2.close();
+            System.out.println("Successful");
+
+        }
+ finally 
+{
+            if (conn != null)
+                conn.close();
+        }
+    }
+
+    private Connection getDriverConnection() throws SQLException 
+{
+        String connectionURL = "jdbc:derby://localhost:1527/testdb;user=app;password=derby;create=true";
+        return DriverManager.getConnection(connectionURL);
+    }
+
+    private Connection getConnection() throws SQLException 
+{
+        return getDriverConnection();
+    }
+
+    public void dropTable(String tableName) throws SQLException {
+		Connection conn = getConnection();
+		Statement stmt = conn.createStatement();
+		try 
+{
+			stmt.executeUpdate("DROP TABLE " + tableName);
+		}
+ catch (SQLException sqle) 
+{
+			System.out.println("Error occured when drop table: " + sqle.getMessage());
+		}
+ finally {
+			if (stmt != null) 
+{
+				stmt.close();
+			}
+			if (conn != null) 
+{
+				conn.close();
+			}
+		}
+	}
+}

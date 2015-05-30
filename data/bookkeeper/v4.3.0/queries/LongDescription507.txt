@@ -1,0 +1,14 @@
+1) closesub first
+2) sub late
+3) closesub succeed, but response is delayed to client.
+4) since closesub succeed in server side, so sub succeed and tried to deliver message.
+5) sub response is back
+6) client checked and found that there is already a subscriber there.
+7) client failed the subscribe request
+8) but the message would still be delivered to same channel. since the sub state is not be cleared. message is still be received.
+9) closesub response is back.
+10) it clear the subscribe state.
+11) message continue delivering but found there is no subscriber state.
+at step 11) the problem happened.
+
+this race condition is introduced in multiplexed client (BOOKKEEPER-70).

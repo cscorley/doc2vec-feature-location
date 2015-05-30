@@ -1,0 +1,15 @@
+Zab1_0Test fails on windows with: 
+
+
+java.io.IOException: Could not rename temporary file C:\Users\ADMINI~1\AppData\Local\Temp\2\test6831881113551099349dir\version-2\acceptedEpoch.tmp to C:\Users\A
+DMINI~1\AppData\Local\Temp\2\test6831881113551099349dir\version-2\acceptedEpoch
+        at org.apache.zookeeper.common.AtomicFileOutputStream.close(AtomicFileOutputStream.java:82)
+        at org.apache.zookeeper.server.quorum.QuorumPeer.writeLongToFile(QuorumPeer.java:1121)
+        at org.apache.zookeeper.server.quorum.QuorumPeer.setAcceptedEpoch(QuorumPeer.java:1148)
+        at org.apache.zookeeper.server.quorum.Learner.registerWithLeader(Learner.java:281)
+        at org.apache.zookeeper.server.quorum.Follower.followLeader(Follower.java:72)
+        at org.apache.zookeeper.server.quorum.Zab1_0Test$1.run(Zab1_0Test.java:450)
+
+
+
+The file handlers currentEpoch and acceptedEpoch are not closed, so delete fails on windows. 

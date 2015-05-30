@@ -1,0 +1,4 @@
+The default behavior of setting start and rows on distributed solr (SOLR-303) is to set start at 0 across all shards and set rows to start+rows across each shard. This ensures all results are returned for any arbitrary start and rows setting, but during "bulk queries" (where start is incrementally increased and rows is kept consistent) the client would need finer control of the per-shard start and rows parameter as retrieving many thousands of documents becomes intractable as start grows higher.
+
+Attaching a patch that creates a &shards.start and &shards.rows parameter. If used, the logic that sets rows to start+rows per shard is overridden and each shard gets the exact start and rows set in shards.start and shards.rows. The client will receive up to shards.rows * nShards results and should set rows accordingly. This makes bulk queries across distributed solr possible.
+

@@ -1,0 +1,18 @@
+Just seen the peice of code in Jouranl#rollLog 
+
+
+try {
+                    FileOutputStream fos = new FileOutputStream(file);
+                    fos.write(buff);
+                    fos.getChannel().force(true);
+                    fos.close();
+                } catch (IOException e) {
+                    LOG.error("Problems writing to " + file, e);
+                }
+
+
+
+On exception It is just logging and continuing.
+Even though FileOutputStream provides finalize implementation and which will clean streams, I don't think it's a good idea to depend on it as it will not be garanteed.
+
+cleaning with more care would avoid this.

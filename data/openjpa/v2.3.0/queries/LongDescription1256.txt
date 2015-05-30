@@ -1,0 +1,37 @@
+Suppose EntityA and EntityB are defined as follows:
+
+@Entity
+class EntityA 
+{
+   @Id
+    int id;
+  
+   @OneToOne(fetch=fetchType=LAZE)
+   EntityB entityB;
+   
+   ...
+}
+
+@Entity
+@IdClass(BId.class)
+class EntityB {
+
+    @Id
+    int intId;
+
+   @Id
+    BType bType;
+...
+
+    public enum BType 
+{ A1, A2, A3, A4 }
+;
+     ...
+}
+
+
+ClassCast Exception is thrown in the following situation:
+
+    EntityA a = em.find(EntityA.class, 1)
+    EntityB b = a.getEntityB();
+

@@ -1,0 +1,5 @@
+user noted that with the example multicore configs, http://localhost:8983/solr/core1/admin/ping results in a 500 error and logs quite a bit of crap starting with a NullPointerException.
+
+The failing ping is the correct behavior, because the example multicore configs don't define a pingQuery – but the code path of the failure and the exceptions logged are less then ideal.  ping.jsp (which is still used if the PingRequestHandler doesn't get registered) and SolrConfig.getPingQueryRequest should me modified to log an (on topic) error and fail fast when there is no <pingQuery> declaration.
+
+A quick skim of PingRequestHandlers suggests we may also want to add some better logging (specifically: warnings about configuring it with good defaults) if it gets called without any params.

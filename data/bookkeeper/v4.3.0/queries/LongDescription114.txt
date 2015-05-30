@@ -1,0 +1,3 @@
+Currently, if Bookie server is terminated, e.g. CTRL-C, kill -SIGTERM pid, kill pid, the data buffered in BufferedChannel has no chanced to be flushed, which may make files corrupted. 
+
+We should add a shutdown hook to shut down bookie server safely, which will be called when JVM is terminated.

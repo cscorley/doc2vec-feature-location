@@ -1,0 +1,14 @@
+The JavaDoc for FetchPlan defines the following contract:
+
+    /**
+
+	Clears the set of fetch group names to use wen loading
+	data. After this operation is invoked, only those fields in
+	the default fetch group (and any requested field) will be
+	loaded when loading an object.
+     */
+    public FetchPlan clearFetchGroups();
+
+
+
+After calling clearFetchGroups() the default fetch group is indeed active, however getFetchGroups() returns an empty Collection, which is clearly not correct.  This can deceive application developers into thinking that there is no active Fetch Groups (it, everything is lazy loaded) if this Collection's contents is relied upon.

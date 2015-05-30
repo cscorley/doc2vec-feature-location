@@ -1,0 +1,84 @@
+I plan on using Tika to extract text from Excel (both .xls and .xlsx) files for indexing. But, I found that Tika juxtaposes cells on output. The example worksheets are in the attached .zip file.
+I took the time to run Apache POI and it does not have this bug i.e. cells are properly separated.
+
+When I run
+
+-begin-
+java -jar tika-0.3-SNAPSHOT-standalone.jar --text no_cell_separators_when_extracted.xls
+-end-
+
+I get the following output:
+
+-begin-
+Plan1
+    NameEmailSanta Claussanta@claus.org
+    Tooth Fairytooth@fairy.org
+-end-
+
+Same thing with a .xlxs file:
+-begin-
+java -jar tika-0.3-SNAPSHOT-standalone.jar --text no_cell_separators_when_extracted.xlsx
+-end-
+
+The output is:
+
+-begin-
+[Content_Types].xml
+
+
+
+_rels/.rels
+
+
+
+xl/_rels/workbook.xml.rels
+
+
+
+xl/workbook.xml
+
+
+
+xl/theme/theme1.xml
+
+
+
+xl/worksheets/_rels/sheet1.xml.rels
+
+
+
+xl/worksheets/sheet2.xml
+
+
+
+xl/worksheets/sheet3.xml
+
+
+
+xl/sharedStrings.xml
+NameEmailSanta Claussanta@claus.orgTooth Fairytooth@fairy.org
+
+
+xl/styles.xml
+
+
+
+xl/worksheets/sheet1.xml
+012345
+
+
+docProps/core.xml
+GeorgerGeorger2009-01-17T15:29:04Z2009-01-17T15:30:56Z
+
+
+docProps/app.xml
+Microsoft Excel0falsePlanilhas3Plan1Plan2Plan3falsefalsefalse12.0000
+-end-
+
+Also note that the values from docProps/app.xml have been juxtaposed as well.
+
+This way, after indexing these files using the output from Tika, a search engine will only find "Fairy" when substring matching is used, because "Tooth Fairy" becomes "Tooth Fairytooth@fairy.org". This is suboptimal and wrong.
+
+Thanks for your attention. Best regards,
+
+Georger

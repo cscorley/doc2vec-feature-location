@@ -1,0 +1,172 @@
+When testing the fix for bug 4268, ReplicationRun_Local and ReplicationRun_Local_StateTest_part1 failed. This is after revision: 785298. 
+$ cat error-stacktrace.out
+[Error/failure logged at Tue Jun 16 22:15:46 PDT 2009]
+junit.framework.ComparisonFailure: Unexpected SQL state. expected:<...20> but wa
+s:<...07>
+        at junit.framework.Assert.assertEquals(Assert.java:81)
+        at org.apache.derbyTesting.junit.BaseJDBCTestCase.assertSQLState(BaseJDB
+CTestCase.java:762)
+        at org.apache.derbyTesting.junit.BaseJDBCTestCase.assertSQLState(BaseJDB
+CTestCase.java:811)
+        at org.apache.derbyTesting.functionTests.tests.replicationTests.Replicat
+ionRun.failOver_direct(ReplicationRun.java:1381)
+        at org.apache.derbyTesting.functionTests.tests.replicationTests.Replicat
+ionRun.failOver(ReplicationRun.java:1302)
+        at org.apache.derbyTesting.functionTests.tests.replicationTests.Replicat
+ionRun_Local.testReplication_Local_existingTestsAsReplLoad(ReplicationRun_Local.
+java:148)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+        at java.lang.reflect.Method.invoke(Unknown Source)
+        at junit.framework.TestCase.runTest(TestCase.java:154)
+        at junit.framework.TestCase.runBare(TestCase.java:127)
+        at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:
+106)
+        at junit.framework.TestResult$1.protect(TestResult.java:106)
+        at junit.framework.TestResult.runProtected(TestResult.java:124)
+        at junit.framework.TestResult.run(TestResult.java:109)
+        at junit.framework.TestCase.run(TestCase.java:118)
+        at junit.framework.TestSuite.runTest(TestSuite.java:208)
+        at junit.framework.TestSuite.run(TestSuite.java:203)
+        at junit.framework.TestSuite.runTest(TestSuite.java:208)
+        at junit.framework.TestSuite.run(TestSuite.java:203)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+        at junit.framework.TestResult.runProtected(TestResult.java:124)
+        at junit.extensions.TestSetup.run(TestSetup.java:23)
+        at junit.framework.TestSuite.runTest(TestSuite.java:208)
+        at junit.framework.TestSuite.run(TestSuite.java:203)
+        at junit.framework.TestSuite.runTest(TestSuite.java:208)
+        at junit.framework.TestSuite.run(TestSuite.java:203)
+        at junit.textui.TestRunner.doRun(TestRunner.java:116)
+        at junit.textui.TestRunner.start(TestRunner.java:172)
+        at junit.textui.TestRunner.main(TestRunner.java:138)
+Caused by: java.sql.SQLException: DERBY SQL error: SQLCODE: -1, SQLSTATE: XRE07,
+ SQLERRMC: Could not perform operation because the database is not in replicatio
+n master mode.
+        at org.apache.derby.client.am.SQLExceptionFactory40.getSQLException(SQLE
+xceptionFactory40.java:96)
+        at org.apache.derby.client.am.SqlException.getSQLException(SqlException.
+java:358)
+        at org.apache.derby.jdbc.ClientDriver.connect(ClientDriver.java:149)
+        at java.sql.DriverManager.getConnection(Unknown Source)
+        at java.sql.DriverManager.getConnection(Unknown Source)
+        at org.apache.derbyTesting.functionTests.tests.replicationTests.Replicat
+ionRun.failOver_direct(ReplicationRun.java:1368)
+        ... 28 more
+Caused by: org.apache.derby.client.am.SqlException: DERBY SQL error: SQLCODE: -1
+, SQLSTATE: XRE07, SQLERRMC: Could not perform operation because the database is
+ not in replication master mode.
+        at org.apache.derby.client.am.Connection.completeSqlca(Connection.java:2
+075)
+        at org.apache.derby.client.net.NetConnectionReply.parseRdbAccessFailed(N
+etConnectionReply.java:540)
+        at org.apache.derby.client.net.NetConnectionReply.parseAccessRdbError(Ne
+tConnectionReply.java:433)
+        at org.apache.derby.client.net.NetConnectionReply.parseACCRDBreply(NetCo
+nnectionReply.java:297)
+        at org.apache.derby.client.net.NetConnectionReply.readAccessDatabase(Net
+ConnectionReply.java:121)
+        at org.apache.derby.client.net.NetConnection.readSecurityCheckAndAccessR
+db(NetConnection.java:835)
+        at org.apache.derby.client.net.NetConnection.flowSecurityCheckAndAccessR
+db(NetConnection.java:759)
+        at org.apache.derby.client.net.NetConnection.flowUSRIDONLconnect(NetConn
+ection.java:592)
+        at org.apache.derby.client.net.NetConnection.flowConnect(NetConnection.j
+ava:399)
+        at org.apache.derby.client.net.NetConnection.<init>(NetConnection.java:2
+19)
+        at org.apache.derby.client.net.NetConnection40.<init>(NetConnection40.ja
+va:77)
+        at org.apache.derby.client.net.ClientJDBCObjectFactoryImpl40.newNetConne
+ction(ClientJDBCObjectFactoryImpl40.java:269)
+        at org.apache.derby.jdbc.ClientDriver.connect(ClientDriver.java:140)
+        ... 31 more
+
+=====Trace for ReplicationRun_Local_StateTest_part1===========
+[Error/failure logged at Tue Jun 16 22:19:28 PDT 2009]
+junit.framework.ComparisonFailure: Unexpected SQL state. expected:<...20> but wa
+s:<...07>
+        at junit.framework.Assert.assertEquals(Assert.java:81)
+        at org.apache.derbyTesting.junit.BaseJDBCTestCase.assertSQLState(BaseJDB
+CTestCase.java:762)
+        at org.apache.derbyTesting.junit.BaseJDBCTestCase.assertSQLState(BaseJDB
+CTestCase.java:811)
+        at org.apache.derbyTesting.functionTests.tests.replicationTests.Replicat
+ionRun.failOver_direct(ReplicationRun.java:1381)
+        at org.apache.derbyTesting.functionTests.tests.replicationTests.Replicat
+ionRun.failOver(ReplicationRun.java:1302)
+        at org.apache.derbyTesting.functionTests.tests.replicationTests.Replicat
+ionRun_Local_StateTest_part1.testReplication_Local_StateTest_part1(ReplicationRu
+n_Local_StateTest_part1.java:160)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+        at java.lang.reflect.Method.invoke(Unknown Source)
+        at junit.framework.TestCase.runTest(TestCase.java:154)
+        at junit.framework.TestCase.runBare(TestCase.java:127)
+        at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:
+106)
+        at junit.framework.TestResult$1.protect(TestResult.java:106)
+        at junit.framework.TestResult.runProtected(TestResult.java:124)
+        at junit.framework.TestResult.run(TestResult.java:109)
+        at junit.framework.TestCase.run(TestCase.java:118)
+        at junit.framework.TestSuite.runTest(TestSuite.java:208)
+        at junit.framework.TestSuite.run(TestSuite.java:203)
+        at junit.framework.TestSuite.runTest(TestSuite.java:208)
+        at junit.framework.TestSuite.run(TestSuite.java:203)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+        at junit.framework.TestResult.runProtected(TestResult.java:124)
+        at junit.extensions.TestSetup.run(TestSetup.java:23)
+        at junit.framework.TestSuite.runTest(TestSuite.java:208)
+        at junit.framework.TestSuite.run(TestSuite.java:203)
+        at junit.framework.TestSuite.runTest(TestSuite.java:208)
+        at junit.framework.TestSuite.run(TestSuite.java:203)
+        at junit.textui.TestRunner.doRun(TestRunner.java:116)
+        at junit.textui.TestRunner.start(TestRunner.java:172)
+        at junit.textui.TestRunner.main(TestRunner.java:138)
+Caused by: java.sql.SQLException: DERBY SQL error: SQLCODE: -1, SQLSTATE: XRE07,
+ SQLERRMC: Could not perform operation because the database is not in replicatio
+n master mode.
+        at org.apache.derby.client.am.SQLExceptionFactory40.getSQLException(SQLE
+xceptionFactory40.java:96)
+        at org.apache.derby.client.am.SqlException.getSQLException(SqlException.
+java:358)
+        at org.apache.derby.jdbc.ClientDriver.connect(ClientDriver.java:149)
+        at java.sql.DriverManager.getConnection(Unknown Source)
+        at java.sql.DriverManager.getConnection(Unknown Source)
+        at org.apache.derbyTesting.functionTests.tests.replicationTests.Replicat
+ionRun.failOver_direct(ReplicationRun.java:1368)
+        ... 28 more
+Caused by: org.apache.derby.client.am.SqlException: DERBY SQL error: SQLCODE: -1
+, SQLSTATE: XRE07, SQLERRMC: Could not perform operation because the database is
+ not in replication master mode.
+        at org.apache.derby.client.am.Connection.completeSqlca(Connection.java:2
+075)
+        at org.apache.derby.client.net.NetConnectionReply.parseRdbAccessFailed(N
+etConnectionReply.java:540)
+        at org.apache.derby.client.net.NetConnectionReply.parseAccessRdbError(Ne
+tConnectionReply.java:433)
+        at org.apache.derby.client.net.NetConnectionReply.parseACCRDBreply(NetCo
+nnectionReply.java:297)
+        at org.apache.derby.client.net.NetConnectionReply.readAccessDatabase(Net
+ConnectionReply.java:121)
+        at org.apache.derby.client.net.NetConnection.readSecurityCheckAndAccessR
+db(NetConnection.java:835)
+        at org.apache.derby.client.net.NetConnection.flowSecurityCheckAndAccessR
+db(NetConnection.java:759)
+        at org.apache.derby.client.net.NetConnection.flowUSRIDONLconnect(NetConn
+ection.java:592)
+        at org.apache.derby.client.net.NetConnection.flowConnect(NetConnection.j
+ava:399)
+        at org.apache.derby.client.net.NetConnection.<init>(NetConnection.java:2
+19)
+        at org.apache.derby.client.net.NetConnection40.<init>(NetConnection40.ja
+va:77)
+        at org.apache.derby.client.net.ClientJDBCObjectFactoryImpl40.newNetConne
+ction(ClientJDBCObjectFactoryImpl40.java:269)
+        at org.apache.derby.jdbc.ClientDriver.connect(ClientDriver.java:140)
+        ... 31 more

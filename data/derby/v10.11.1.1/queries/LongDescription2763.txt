@@ -1,0 +1,37 @@
+Currently the Embedded and Network Client would differ 
+in behaviour when the following series of steps is 
+followed.
+
+a) Create an empty Blob
+b) get an InputStream using Blob.getBinaryStream()
+c) write data into this Blob
+   c.1) Get an OutputStream
+   c.2) Use OutputStream.write(byte [] b) to write
+        into this Blob.
+d) Now read from the InputStream obtained in step b)
+   and print the number of bytes read as output.
+
+The output of step d) differs in the client and in the Embedded side.
+
+
+In the Client
+-------------
+
+The number of bytes read would always be -1.
+
+In the Embedded
+---------------
+
+The number of bytes would be the number of bytes we
+reflected.
+
+The above behaviour in the NetworkClient is because
+the length of the Blob is read once and stored in the 
+constructor of the locator Stream returned (in the 
+attribute maxPos).
+
+This instead should be read each time we use the streams.
+
+A similar issue exists for Clobs also.
+
+I will raise a seperate JIRA issue for this.

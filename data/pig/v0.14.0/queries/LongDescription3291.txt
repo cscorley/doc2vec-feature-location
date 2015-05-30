@@ -1,0 +1,16 @@
+On Windows, all tests fail with an exception like this:
+Testcase: testFilterGroupCountStore took 0.022 sec
+	Caused an ERROR
+Error during parsing. <line 1, column 228>  Unexpected character 'S'
+org.apache.pig.impl.logicalLayer.FrontendException: ERROR 1000: Error during parsing. <line 1, column 228>  Unexpected character 'S'
+	at org.apache.pig.PigServer$Graph.parseQuery(PigServer.java:1669)
+	at org.apache.pig.PigServer$Graph.registerQuery(PigServer.java:1607)
+	at org.apache.pig.PigServer.registerQuery(PigServer.java:563)
+	at org.apache.pig.PigServer.registerQuery(PigServer.java:576)
+	at org.apache.pig.test.TestExampleGenerator.testFilterGroupCountStore(TestExampleGenerator.java:394)
+Caused by: Failed to parse: <line 1, column 228>  Unexpected character 'S'
+	at org.apache.pig.parser.QueryParserDriver.parse(QueryParserDriver.java:235)
+	at org.apache.pig.parser.QueryParserDriver.parse(QueryParserDriver.java:174)
+	at org.apache.pig.PigServer$Graph.parseQuery(PigServer.java:1660)
+
+Looks like a change in https://issues.apache.org/jira/browse/PIG-2170 caused the file names to stop being escaped properly.

@@ -1,0 +1,44 @@
+MySQL has many improvements since version 4.1. We should update default values of MySQLDictionary properties to reflect these changes. Ideally we should be able to set these properties correctly based on MySQL version, so the users don't need override "openjpa.jdbc.DBDictionary" property in persistence.xml.
+
+These properties include:
+1) DriverDeserializesBlobs (current default value: true) 
+We added this flag to MySQLDictionary in Kodo4.1 since most MySQL drivers then automatically deserialized BLOBs on calls to ResultSet.getObject. This is actually a bug in MySQL, and that bug(#25328 in MySQL bug database) is already fixed in 5.x driver. Please see http://dev.mysql.com/doc/refman/5.1/en/cj-news-5-0-6.html for details.
+
+2) SupportSubselect (current default value: false)
+MySQL supports sub-select since version 4.1. 
+
+3) AllowsAliasInBulkClause (current default value: false)
+This property is only used in DBDictionary.toBulkOperation():
+line 1874:
+        // if there is only a single table in the select, then we can
+        // just issue a single DELETE FROM TABLE WHERE <conditions>
+        // statement; otherwise, since SQL doesn't allow deleting
+        // from one of a multi-table select, we need to issue a subselect
+        // like DELETE FROM TABLE WHERE EXISTS
+        // (SELECT 1 FROM TABLE t0 WHERE t0.ID = TABLE.ID); also, some
+        // databases do not allow aliases in delete statements, which
+        // also causes us to use a subselect
+        if (sel.getTableAliases().size() == 1 && supportsSubselect
+            && allowsAliasInBulkClause) {
+            SQLBuffer from;
+            if (sel.getFromSelect() != null)
+                from = getFromSelect(sel, false);
+            else
+                from = getFrom(sel, false);
+
+            sql.append(from);
+            appendUpdates(sel, store, sql, params, updateParams,
+                allowsAliasInBulkClause);
+
+            SQLBuffer where = sel.getWhere();
+            if (where != null && !where.isEmpty()) 
+{
+                sql.append(" WHERE ");
+                sql.append(where);
+            }
+            return sql;
+        }  
+
+It confuses me why we need this property (and supportsSubselect) as conditions for single table update/delete. I believe we can set this property to true if we use MySQL version 4.1 or later. Otherwise If we set  supportSubselect to true, we will run into problems described in
+http://issues.apache.org/jira/browse/OPENJPA-459. Note Patrick had a comment for that issue:
+"I believe that the first query (which only involves one table) is due to a fairly trivial-to-resolve limitation of DBDIctionary: currently, if SupportsSubselect is true and AllowsAliasInBulkClause is false, OpenJPA always uses a subselect, even when it would be valid to just omit the aliases."

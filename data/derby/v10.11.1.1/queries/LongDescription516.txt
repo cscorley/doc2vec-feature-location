@@ -1,0 +1,19 @@
+Need to incorporate client backward/forward  compatibility testing into testing procedures.
+
+New versions of the Derby network server should work with old versions of the network client.  New versions of the Derby network client should work with old versions of the server.  Currently that means that the 10.1 client should be tested on the trunk.     The 10.2 client definitely needs to be tested with the 10.1  server before release, but it would be good to start testing snapshots of 10.2 client on the 10.1 branch earlier.
+
+
+Note:
+
+Bug fixes may mean that the canons differ for different versions.
+The test harness I think is set up to allow different masters for different versions.  It at least has that functionality for the DerbyNet framework
+ and it could  be expanded to cover DerbyNetClient.  The way it works is that
+the harness checks for a masters in the following order:
+
+functionTests/master/<framework>/ver<version>  
+functionTests/master/<framework>/
+functionTests/master/
+
+
+
+

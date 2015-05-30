@@ -1,0 +1,33 @@
+when the number of open ledgers reaches more than openFileLimit, a file info will be closed and removed from opened ledgers list. And after BOOKKEEPER-137, the ledger index file creation delayed until necessary.
+
+suppose ledger l is removed from opened ledger list, and its index file haven't been created.
+new add entries operations of other ledgers came into bookie server, a new page need to be grab for them. so bookie server may need to flush the dirty pages of ledger l(when page cache is full). and the flush would fail due to NoLedgerException (no index file found).
+
+actually the ledger l isn't lost, it could be recovered if restarting bookie server, but the bookie server would not work well on adding entries. 
+
+a proposal solution is that we need to force index creation when the ledger is evicted from open ledgers list.
+
+
+
+2012-03-21 14:00:42,989 - DEBUG - [NIOServerFactory-5000:LedgerCache@235] - New ledger index file created for ledgerId: 4
+2012-03-21 14:00:42,990 - INFO  - [NIOServerFactory-5000:LedgerCache@241] - Ledger 2 is evicted from file info cache.
+2012-03-21 14:00:42,990 - DEBUG - [New I/O client worker #1-1:PerChannelBookieClient$2@255] - Successfully wrote request for adding entry: 0 ledger-id: 4 bookie: /10.82.129.173:5000 entry length: 70
+2012-03-21 14:00:42,990 - ERROR - [NIOServerFactory-5000:BookieServer@361] - Error writing 0@4
+org.apache.bookkeeper.bookie.Bookie$NoLedgerException: Ledger 2 not found
+        at org.apache.bookkeeper.bookie.LedgerCache.getFileInfo(LedgerCache.java:228)
+        at org.apache.bookkeeper.bookie.LedgerCache.flushLedger(LedgerCache.java:359)
+        at org.apache.bookkeeper.bookie.LedgerCache.flushLedger(LedgerCache.java:292)
+        at org.apache.bookkeeper.bookie.LedgerCache.grabCleanPage(LedgerCache.java:447)
+        at org.apache.bookkeeper.bookie.LedgerCache.putEntryOffset(LedgerCache.java:157)
+        at org.apache.bookkeeper.bookie.LedgerDescriptor.addEntry(LedgerDescriptor.java:130)
+        at org.apache.bookkeeper.bookie.Bookie.addEntryInternal(Bookie.java:1059)
+        at org.apache.bookkeeper.bookie.Bookie.addEntry(Bookie.java:1099)
+        at org.apache.bookkeeper.proto.BookieServer.processPacket(BookieServer.java:357)
+        at org.apache.bookkeeper.proto.NIOServerFactory$Cnxn.readRequest(NIOServerFactory.java:315)
+        at org.apache.bookkeeper.proto.NIOServerFactory$Cnxn.doIO(NIOServerFactory.java:213)
+        at org.apache.bookkeeper.proto.NIOServerFactory.run(NIOServerFactory.java:124)
+2012-03-21 14:00:42,991 - DEBUG - [pool-3-thread-1:PerChannelBookieClient@576] - Got response for add request from bookie: /10.82.129.173:5000 for ledger: 4 entry: 0 rc: 101
+2012-03-21 14:00:42,991 - ERROR - [pool-3-thread-1:PerChannelBookieClient@594] - Add for ledger: 4, entry: 0 failed on bookie: /10.82.129.173:5000 with code: 101
+2012-03-21 14:00:42,991 - WARN  - [pool-3-thread-1:PendingAddOp@142] - Write did not succeed: 4, 0
+
+

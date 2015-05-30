@@ -1,0 +1,16 @@
+Reported by Agnonchik:
+
+Seems that I have found a discrepancy of this implementation from the original Yehuda Koren's SVD++ algorithm.
+
+line 140:
+double denominator = Math.sqrt(itemsByUser.size());
+should be
+double denominator = Math.sqrt(itemsByUser.get(u).size());
+line 164:
+double denominator = Math.sqrt(itemsByUser.size());
+should be
+double denominator = Math.sqrt(itemsByUser.get(u).size());
+
+
+The sum of y parameters should be normalized by square root of number of items for which user u provided implicit feedback. Am I right?
+Currently, it is normalized by square root of number of users not items.

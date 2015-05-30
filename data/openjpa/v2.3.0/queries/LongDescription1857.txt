@@ -1,0 +1,41 @@
+Consider the following scenario. Note that the referencedColumnName in Dependent5a.java does not exist in the target table. Currently OpenJPA throws PersistenceException. The correct exception should be ArgumentException indicating that         "org.apache.openjpa.persistence.enhance.identity.Dependent5a.emp" defines a target of "xFIRSTNAME" for column "FIRSTNAME", but that target does not exist in table "Employee5".
+
+@Entity
+@IdClass(DependentId5.class)
+public class Dependent5a implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+    @Id
+    String name;
+
+    @Id
+    @JoinColumns(
+{
+       @JoinColumn(name="FIRSTNAME", referencedColumnName="xFIRSTNAME"),
+       @JoinColumn(name="LASTNAME", referencedColumnName="yLASTNAME")
+    }
+)
+    @ManyToOne
+    Employee5 emp;
+...
+}
+
+@Entity
+public class Employee5 implements Serializable 
+{
+
+    private static final long serialVersionUID = 1L;
+
+    @EmbeddedId 
+    EmployeeId5 empId;
+...
+}
+
+@Embeddable
+public class EmployeeId5 implements java.io.Serializable 
+{
+
+    String firstName;
+    String lastName;
+...
+}

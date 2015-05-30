@@ -1,0 +1,27 @@
+With this JDBC connection url is : jdbc:derby:directory:db_name;territory=fr_FR;collation=TERRITORY_BASED:PRIMARY;create=true
+I get a NullPointerException in index-stat-thread
+
+Sun Dec 11 19:33:11 CET 2011 Thread[pool-3-thread-1,5,main] 
+{istat} "PROXIFLEX"."IDAXX_RES": update scheduled, reason=[no stats, row-estimate=375] (queueSize=1)
+Sun Dec 11 19:33:11 CET 2011 Thread[index-stat-thread,5,main] {istat,trace@26130360} worker thread started (xid=12049) [q/p/s=1/0/1,err:k/u/c=0/0/0,rej:f/d/o=0/0/0]
+Sun Dec 11 19:33:11 CET 2011 Thread[index-stat-thread,5,main] {istat,trace@26130360}     processing "PROXIFLEX"."IDAXX_RES" 
+Sun Dec 11 19:33:11 CET 2011 Thread[index-stat-thread,5,main] {istat}
+ runtime exception during normal operation
+java.lang.NullPointerException
+	at org.apache.derby.iapi.types.SQLChar.getCollationKey(Unknown Source)
+	at org.apache.derby.iapi.types.WorkHorseForCollatorDatatypes.stringCompare(Unknown Source)
+	at org.apache.derby.iapi.types.CollatorSQLVarchar.stringCompare(Unknown Source)
+	at org.apache.derby.iapi.types.SQLChar.compare(Unknown Source)
+	at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl$KeyComparator.compareWithPrevKey(Unknown Source)
+	at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.updateIndexStatsMinion(Unknown Source)
+	at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.generateStatistics(Unknown Source)
+	at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.processingLoop(Unknown Source)
+	at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.run(Unknown Source)
+	at java.lang.Thread.run(Thread.java:662)
+Sun Dec 11 19:33:11 CET 2011 Thread[index-stat-thread,5,main] 
+{istat,trace@26130360}
+ worker thread exit [q/p/s=0/0/1,err:k/u/c=0/0/0,rej:f/d/o=0/0/0]
+
+If I remove territory and collation parameters I don't have the exception.
+
+In case you want to disable automatic statistics, set derby property : derby.storage.indexStats.auto to false.

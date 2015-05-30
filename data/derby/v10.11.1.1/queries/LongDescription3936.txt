@@ -1,0 +1,23 @@
+A set of state information is required about byte streams representing characters to be able to handle them properly.
+
+The basic pieces of information are:
+
+	is bufferable
+	is position aware
+	data offset
+	current byte position
+	current char position
+	byte length
+	char length
+
+
+
+Additional info:
+
+	encoding
+	max allowed length
+	bytes per char information
+
+
+
+The information is chosen with UTF8Reader in mind, and the plan is to pass a CharacterStreamDescriptor instance to the constructor to allow the reader to configure itself appropriately. The information is expected to be valid only at a specific point in time, as some of it will change as soon as the reader starts working with the underlying stream.

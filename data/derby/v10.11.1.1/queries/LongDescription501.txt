@@ -1,0 +1,23 @@
+It is possible to invoke a stored procedure that returns a single dynamic result using CallableStatement.executeQuery using Derby Client. The embedded JDBC driver, however, throws an exception like:
+
+Test starting ...url = jdbc:derby:tdb
+Exception in thread "main" ERROR X0Y78: Statement.executeQuery() cannot be called with a statement that returns a row count.
+        at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:301)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:434)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1142)
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeStatement(EmbedPreparedStatement.java:1323)
+        at org.apache.derby.impl.jdbc.EmbedCallableStatement.executeStatement(EmbedCallableStatement.java:109)
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeQuery(EmbedPreparedStatement.java:241)
+        at Test1.main(Test1.java:26)
+
+I think the embedded driver behavior is incorrect here, though I would double check that the JDBC spec says. 
+
+To reproduce the problem,
+
+1) Create a database called 'tdb' and a table called COMPANY as create table COMPANY(name char(10));
+2) Insert two rows as: insert into COMPANY values 'IBM', 'SUN';
+3) register a procedure as:
+CREATE PROCEDURE GETALLCOMPANIES() PARAMETER STYLE JAVA LANGUAGE JAVA READS SQL DATA DYNAMIC RESULT SETS 1 EXTERNAL NAME 'Test.getAllCompanies'
+4) Set server classpath
+5) Compile two attached java programs, Test and Test1
+6) Execute 'java Test1 1' to run as a client program and 'java Test1 2' to run as an embedded program.

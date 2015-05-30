@@ -1,0 +1,5 @@
+The platformSpeedTest method is used to get a rough estimate of how fast the system is and from that determine how long we need to wait when running lock manager tests. It seems unlikely that this will change dramatically between test methods within a single class so it'd be better to find a way to cache the value without re-running the test.
+
+The test appears to be quick, but it's still largely wasted cycles. 
+
+Unfortunately this is one of the areas where junit3 is limited - it's very tricky to initialize once per class (junit4 and testNG appear to be better at this), but we should be able to execute it only once per class. 

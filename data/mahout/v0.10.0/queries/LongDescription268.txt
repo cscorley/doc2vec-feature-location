@@ -1,0 +1,9 @@
+I'm pretty sure that getDistanceSquared() should just return as if an optimized implementation of:
+
+
+
+  public double getDistanceSquared(Vector v) { return this.minus(v).getLengthSquared(); }
+
+
+
+In which case if some vector elements are negative, both SequentialAccessSparseVector (my fault!) and RandomAccessSparseVector return the wrong thing.  Very easy to write a failing unit test for this one.

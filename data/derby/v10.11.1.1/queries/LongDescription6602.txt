@@ -1,0 +1,36 @@
+If there's an integer key column with a NULL value, the Lucene query will return a fake key value (0) rather than NULL. The document id and score will be correct. Example:
+
+
+ij> create table t1(x int, c clob);
+0 rows inserted/updated/deleted
+ij> insert into t1 values (null, 'abc'), (null, 'def');
+2 rows inserted/updated/deleted
+ij> call lucenesupport.createindex('app', 't1', 'c', null, 'x');
+0 rows inserted/updated/deleted
+ij> select * from table(t1__c('abc or def', null, 3, null)) tc;
+X          |DOCUMENTID |SCORE          
+---------------------------------------
+0          |0          |0.35355338     
+0          |1          |0.35355338     
+
+2 rows selected
+
+
+
+If the key column is a string type, the returned key is correct (NULL). The document id is sometimes correct and sometimes NULL, and the score seems to be NULL always. Example:
+
+
+ij> create table t2(x varchar(10), c clob);
+0 rows inserted/updated/deleted
+ij> insert into t2 values (null, 'abc'), (null, 'def');
+2 rows inserted/updated/deleted
+ij> call lucenesupport.createindex('app', 't2', 'c', null, 'x');
+0 rows inserted/updated/deleted
+ij> select * from table(t2__c('abc or def', null, 3, null)) tc;
+X         |DOCUMENTID |SCORE          
+--------------------------------------
+NULL      |NULL       |NULL           
+NULL      |1          |NULL           
+
+2 rows selected
+

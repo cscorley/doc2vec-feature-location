@@ -1,0 +1,7 @@
+The fix for DERBY-5680 currently requires hard upgrade.  A soft upgrade database with an orphaned stat row, that can be caused by something like DERBY-5681, will cause DERBY to spin eating up 100% of a cpu and possibly all the disk bandwith of the disk where the database is located.
+
+We should implement a fix that can be applied to soft upgraded databases if at all possible.
+
+In soft upgraded databases we can no use the work around of dropping the statistics as it is not available
+to soft upgraded db's with version < 10.9.  The only current workaround is to disable background stats
+completely.  Dropping and recreating the suspect table may also work.

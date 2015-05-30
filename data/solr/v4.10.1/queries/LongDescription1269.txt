@@ -1,0 +1,31 @@
+When setting up a new JDBC datasource and the SQL isn't right yet, we are getting a stack trace that says ClassNotFoundException, but that is misleading.  
+
+A cleaner stack trace is warranted, indicating the actual error.
+
+[actual SQL statement omitted]
+
+org.apache.solr.handler.dataimport.DataImportHandlerException: Unable to execute query: SELECT     .....  Processing Document # 1
+	at org.apache.solr.handler.dataimport.JdbcDataSource$ResultSetIterator.<init>(JdbcDataSource.java:250)
+	at org.apache.solr.handler.dataimport.JdbcDataSource.getData(JdbcDataSource.java:207)
+	at org.apache.solr.handler.dataimport.JdbcDataSource.getData(JdbcDataSource.java:40)
+	at org.apache.solr.handler.dataimport.SqlEntityProcessor.initQuery(SqlEntityProcessor.java:58)
+	at org.apache.solr.handler.dataimport.SqlEntityProcessor.nextRow(SqlEntityProcessor.java:71)
+	at org.apache.solr.handler.dataimport.EntityProcessorWrapper.nextRow(EntityProcessorWrapper.java:237)
+	at org.apache.solr.handler.dataimport.DocBuilder.buildDocument(DocBuilder.java:343)
+	at org.apache.solr.handler.dataimport.DocBuilder.doFullDump(DocBuilder.java:224)
+	at org.apache.solr.handler.dataimport.DocBuilder.execute(DocBuilder.java:167)
+	at org.apache.solr.handler.dataimport.DataImporter.doFullImport(DataImporter.java:333)
+	at org.apache.solr.handler.dataimport.DataImporter.runCmd(DataImporter.java:393)
+	at org.apache.solr.handler.dataimport.DataImporter$1.run(DataImporter.java:372)
+Caused by: java.lang.ClassNotFoundException: Unable to load null or org.apache.solr.handler.dataimport.null
+	at org.apache.solr.handler.dataimport.DocBuilder.loadClass(DocBuilder.java:723)
+	at org.apache.solr.handler.dataimport.JdbcDataSource$1.call(JdbcDataSource.java:188)
+	at org.apache.solr.handler.dataimport.JdbcDataSource$1.call(JdbcDataSource.java:127)
+	at org.apache.solr.handler.dataimport.JdbcDataSource.getConnection(JdbcDataSource.java:362)
+	at org.apache.solr.handler.dataimport.JdbcDataSource.access$300(JdbcDataSource.java:40)
+	at org.apache.solr.handler.dataimport.JdbcDataSource$ResultSetIterator.<init>(JdbcDataSource.java:237)
+	... 11 more
+Caused by: java.lang.NullPointerException
+	at java.util.concurrent.ConcurrentHashMap.get(ConcurrentHashMap.java:768)
+	at org.apache.solr.core.SolrResourceLoader.findClass(SolrResourceLoader.java:280)
+	at org.apache.solr.handler.dataimport.DocBuilder.loadClass(DocBuilder.java:713)

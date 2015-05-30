@@ -1,0 +1,29 @@
+Derby 10.2 runs on the phoneME small device platform. However, on that platform Derby 10.3 fails to boot databases, complaining that Derby cannot find an appropriate implementation of DataValueFactory.
+
+For details on how to install and run the phoneME platform, please see http://blogs.sun.com/wittyman/entry/javadb_on_sun_javame_cdc These are great instructions but I needed to adjust them as follows:
+
+1) I had to use 10.2 because 10.3 and the development mainline would not run on this platform
+
+2) I needed to to set LD_LIBRARY_PATH so that the vm could find the necessary shared libraries.
+
+Here is the phoneME startup script which worked for me:
+
+#! /bin/bash
+#
+
+	Run an ij script in the phoneME vm
+#
+	$1 is the script to run
+
+
+
+export LD_LIBRARY_PATH=$CDC_HOME/lib
+
+cd ~/demo/tearoffToPhone/data
+
+$CDC_HOME/bin/cvm -Xbootclasspath/a:$JSR169_HOME/lib/jsr169.jar \
+  -cp $DERBYJARS/derby.jar:$DERBYJARS/derbytools.jar \
+  -Dij.dataSource=org.apache.derby.jdbc.EmbeddedSimpleDataSource \
+  -Dij.dataSource.databaseName=sample  \
+  -Dij.dataSource.createDatabase=create \
+  org.apache.derby.tools.ij $1

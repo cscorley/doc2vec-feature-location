@@ -1,0 +1,17 @@
+One got the following exception when calling compareTo method on AvroBagWrapper with an AvroBagWrapper object:
+
+
+
+java.lang.ClassCastException: org.apache.pig.impl.util.avro.AvroBagWrapper incompatible with java.util.Collection
+        at org.apache.avro.generic.GenericData.compare(GenericData.java:786)
+        at org.apache.avro.generic.GenericData.compare(GenericData.java:760)
+        at org.apache.pig.impl.util.avro.AvroBagWrapper.compareTo(AvroBagWrapper.java:78)
+
+
+
+Looking at the code, it compares objects with different types:
+
+
+
+return GenericData.get().compare(theArray, o, theArray.getSchema());
+

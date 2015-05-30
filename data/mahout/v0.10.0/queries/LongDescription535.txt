@@ -1,0 +1,20 @@
+It seems as if seqdirectory only reads from the local filesystem, though it writes correctly to the HDFS.
+
+Consider 'myurls-local' and 'myurls-dfs', the former existing in the working directory and the latter existing on the home directory of the HDFS.
+
+Running:
+MAHOUT_HOME=. ./bin/mahout seqdirectory -i myurls-local -o myurls-seqdir -c UTF-8 -chunk 
+
+acts as expected (myurls-seqdir is created on the local filesystem)
+
+
+Running:
+MAHOUT_HOME=. HADOOP_HOME=/usr/lib/hadoop-0.20 HADOOP_CONF_DIR=/etc/hadoop-0.20/conf ./bin/mahout seqdirectory -i myurls-dfs -o myurls-seqdir -c UTF-8 -chunk 
+
+creates a 12kb myurls-seqdir directory on the DFS.  Presumably, it couldn't read myurls-dfs from the DFS and ended up creating a nearly-empty sequence directory.
+
+
+Running:
+MAHOUT_HOME=. HADOOP_HOME=/usr/lib/hadoop-0.20 HADOOP_CONF_DIR=/etc/hadoop-0.20/conf ./bin/mahout seqdirectory -i myurls-local -o myurls-seqdir -c UTF-8 -chunk 
+
+acts as expected, creating a substantial myurls-seqdir on the DFS.

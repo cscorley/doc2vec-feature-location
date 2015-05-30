@@ -1,0 +1,27 @@
+If you define a trigger in another schema than the current schema, and the trigger action references tables in the current schema without explicit schema names, ALTER TABLE DROP COLUMN may get confused when checking dependencies.
+
+For example:
+
+ij> create table s1.t1(x int, y int);
+0 rows inserted/updated/deleted
+ij> create table s1.t2(x int, y int);
+0 rows inserted/updated/deleted
+ij> set schema s1;
+0 rows inserted/updated/deleted
+ij> create trigger s2.tr after update of x on t1 for each row insert into t2 select x from t1;
+0 rows inserted/updated/deleted
+ij> alter table s1.t1 drop column y restrict;
+ERROR X0Y25: Operation 'DROP COLUMN' cannot be performed on object 'Y' because TRIGGER 'TR' is dependent on that object.
+
+The ALTER TABLE statement should have succeeded, because the trigger does not depend on column Y.
+
+If you create dummy tables in S2 with the same names as those in S1, the same ALTER TABLE statement succeeds:
+
+ij> create table s2.t1(x int);
+0 rows inserted/updated/deleted
+ij> create table s2.t2(x int);
+0 rows inserted/updated/deleted
+ij> alter table s1.t1 drop column y restrict;
+0 rows inserted/updated/deleted
+
+The existence of these unrelated tables should not affect whether you're allowed to drop the column.

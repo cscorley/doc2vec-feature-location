@@ -1,0 +1,42 @@
+I have a table with 2 columns one is BIGINT which is Generated always starting with 1 and increment by1 and the other one is timestamp
+
+
+ ij> select id,date from inbox where id = 0<3;
+ID                  |DATE
+-----------------------------------------------
+25                  |2006-01-26 14:35:46.584
+34                  |2006-01-26 14:36:16.588
+21                  |2006-01-26 14:34:46.455
+22                  |2006-01-26 14:34:47.176
+27                  |2006-01-26 14:35:47.054
+24                  |2006-01-26 14:35:16.58
+28                  |2006-01-26 14:35:47.305
+35                  |2006-01-26 14:36:18.771
+31                  |2006-01-26 14:35:48.496
+32                  |2006-01-26 14:35:48.887
+33                  |2006-01-26 14:35:49.308
+
+11 rows selected
+ij> select id,date from inbox where id = true;
+ID                  |DATE
+-----------------------------------------------
+21                  |2006-01-26 14:34:46.455
+
+1 row selected
+
+Both queries should return same number of rows
+
+Also If I delete the first row from the table then select id,date from inbox where id = true; returns the second row
+ij> delete from inbox where id=21;
+
+1 row inserted/updated/deleted
+
+Then again run
+ij> select id ,date from inbox where id=true;
+ID                  |DATE
+-----------------------------------------------
+22                 |2006-01-26 14:35:16.58
+
+
+Which indicates that the select returns only the first row and then is getting closed
+

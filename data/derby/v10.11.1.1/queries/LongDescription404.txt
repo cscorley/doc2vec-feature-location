@@ -1,0 +1,5 @@
+isRowEmpty() has a bug where if a colum list is passed in it will return true rather than false for a non-empty row. However the method is never called with a non-null column list.
+
+One fix would be to remove the parameter columnList, but that leaves a method that is reallt just a check for the array reference being null  or of zero length [then the method could be generalized to any array type].
+
+An alternate fix would be change the api for the methods that call this utility to only accept non-null references. Callers that previously passed in null would pass in the constant RowUtil.EMPTY_ROW. This would remove the need to call isEmptyRow and remove the amount of branching. Sanity checks could be added for passing in null, or will just implicity be there as the array will be referenced and throw an NPE.

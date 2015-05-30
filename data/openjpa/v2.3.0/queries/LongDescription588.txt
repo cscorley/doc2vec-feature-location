@@ -1,0 +1,64 @@
+We have a JDO metadata test which checks for the absolute index positions for the entity fields that are returned by the getIndex method of the FieldMetaData.
+
+In this test ,we have an entity class MetaTest1
+public class MetaTest1 {
+
+    // these should not be persistent
+    private static int staticField;
+    private final String finalField = null;
+    private transient char transientField;
+    private MetaTest4 metaTest4Field;
+    private MetaTest4[] metaTest4ArrayField;
+    private Object objectField;
+    private Long longWrapperField;
+    private double doubleField;
+
+    // persistent fields – see metadata
+    private String stringField;
+    private Integer intWrapperField;
+    private int intField;
+    private MetaTest2 metaTest2Field;
+    private MetaTest2[] metaTest2ArrayField;
+    private int[] intArrayField;
+
+    public static class Inner 
+{
+
+        private long longField;
+    }
+}
+
+In the test, we get the MetaDataRepository and from it the ClassMetaData, 
+then the FieldMetaData and so on.
+
+The test fails at the line:
+
+        assertEquals(6, _metaTest1.getField('stringField').getIndex());
+
+Failure is :
+[testlogic] junit.framework.AssertionFailedError: expected:<6> but was:<8>
+[testlogic] 	at kodo.meta.TestClassMetaData.testAbsoluteFieldNumbering(TestClassMetaData.java:217)
+[testlogic] 	at com.solarmetric.test.AbstractTestCase.run(AbstractTestCase.java:132)
+
+The persistence mapping is defined in the JDO file
+
+<jdo>
+    <package name="kodo.meta">
+        <!-- class MetaTest1 -->
+        <class name="MetaTest1">
+            <!-- field longWrapperField -->
+            <field name="longWrapperField" persistence-modifier="none">
+                <!-- comment1 on comment-test extension -->
+                <!-- comment2 on comment-test extension -->
+                <extension vendor-name="test" key="comment-test" value="test"/>
+            </field>
+            <field name="objectField" persistence-modifier="none"/>
+            <field name="transientField" persistence-modifier="none"/>
+            <field name="doubleField" persistence-modifier="transactional"/>
+            <field name="intField" embedded="false" default-fetch-group="false" null-value="exception"/>
+            <field name="intWrapperField" null-value="default"/>
+        </class>
+    </package>
+</jdo>
+
+There is no metadata mapping available for the MetaTest2 class. Initially the metadata is populated using reflection and assigns index positions to metaTest2Field and metaTest4ArrayField fields. During resolution the FieldMetaData[] _fields is reset and when ClassMetadata.getDeclaredIndex() is called later it is reinitialized but we dont set the index value on the FieldMetadata once assigned and this fails the test as it does not get the expected value for the index for the stringField.

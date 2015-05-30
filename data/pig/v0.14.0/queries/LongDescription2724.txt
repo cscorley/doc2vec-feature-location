@@ -1,0 +1,36 @@
+Seriously, is there a more annoying pattern than the following?
+
+
+for (int i = 0; i < t.size(); i++) {
+    try {
+        doStuff(t.get(i));
+    } catch (ExecException e) {
+        throw new RuntimeException("BUT I THOUGHT PIG WAS SINGLETHREADED", e);
+    }
+}
+
+
+
+I mean yeah, you can do the following:
+
+
+
+for (Object o : t.getAll()) {
+    doStuff(o);
+}
+
+
+
+But I don't even think that should be necessary. I think the following should work:
+
+
+
+for (Object o : t) {
+    doStuff(o);
+}
+
+
+
+It's a shame we can't give a default implementation (I either shake my fist that this won't be possible until Java 8 OR that Tuple is an interface and not an abstract class). Either way, I even added test! WOAH.
+
+Thoughts?

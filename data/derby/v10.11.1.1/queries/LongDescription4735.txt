@@ -1,0 +1,16 @@
+An ASSERT while attempting to do a prepare on a readonly XA transaction that has done
+work with an a declare global temporary table.
+
+ java ReproXATempTableAssert
+ot 1rows from session.t1 before commit
+Exception in thread "main" org.apache.derby.shared.common.sanity.AssertFailure:
+ASSERT FAILED real connection should have been idle at this point
+       at org.apache.derby.shared.common.sanity.SanityManager.ASSERT(SanityMana
+er.java:120)
+       at org.apache.derby.jdbc.EmbedXAResource.prepare(EmbedXAResource.java:29
+)
+       at ReproXATempTableAssert.tempTableInXA(ReproXATEmpTableAssert.java:54)
+       at ReproXATempTableAssert.main(ReproXATEmpTableAssert.java:14)
+--------------
+tack traces for all live threads:
+[snip thread dump]

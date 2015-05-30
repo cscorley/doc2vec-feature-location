@@ -1,0 +1,69 @@
+From  Jason Lowe:
+
+Our integration tests with a recent version of Hadoop 2.2 and pig were failing with these kinds of stacktraces for replicated join:
+
+2014-01-17 17:20:41,811 [main] ERROR
+org.apache.pig.tools.pigstats.SimplePigStats - ERROR 2997: Unable to recreate
+exception from backed error: AttemptID:attempt_1389973251957_0127_m_000000_3
+Info:Error: org.apache.pig.backend.executionengine.ExecException: ERROR 2081:
+Unable to setup the load function.
+    at
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLoad.getNext(POLoad.java:125)
+    at
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:308)
+    at
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLocalRearrange.getNext(POLocalRearrange.java:263)
+    at
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POFRJoin.setUpHashMap(POFRJoin.java:398)
+    at
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POFRJoin.getNext(POFRJoin.java:231)
+    at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.runPipeline(PigGenericMapBase.java:286)
+    at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.map(PigGenericMapBase.java:281)
+    at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.map(PigGenericMapBase.java:64)
+    at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:145)
+    at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:764)
+    at org.apache.hadoop.mapred.MapTask.run(MapTask.java:340)
+    at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:165)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at javax.security.auth.Subject.doAs(Subject.java:415)
+    at
+org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1562)
+    at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:160)
+Caused by: org.apache.hadoop.mapreduce.lib.input.InvalidInputException: Input
+path does not exist:
+hdfs://cluster-nn1.yahoo.com:8020/user/hitusr_1/pigrepl_scope-24_21617961_1389979200720_1
+    at
+org.apache.hadoop.mapreduce.lib.input.FileInputFormat.listStatus(FileInputFormat.java:285)
+    at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigFileInputFormat.listStatus(PigFileInputFormat.java:37)
+    at
+org.apache.hadoop.mapreduce.lib.input.FileInputFormat.getSplits(FileInputFormat.java:340)
+    at org.apache.pig.impl.io.ReadToEndLoader.init(ReadToEndLoader.java:190)
+    at org.apache.pig.impl.io.ReadToEndLoader.<init>(ReadToEndLoader.java:146)
+    at
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLoad.setUp(POLoad.java:93)
+    at
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLoad.getNext(POLoad.java:121)
+    ... 15 more
+
+
+Debugged this to find that ConfigurationUtil.getLocalFSProperties can return a
+property set where fs.default.name=file:/// but fs.defaultFS was
+hdfs://cluster-nn1.yahoo.com:8020.  Pig is bypassing
+Configuration.set(), so deprecated names aren't being handled properly.  Later
+when we try to take these properties and poke them into a Configuration object,
+if we try to set fs.defaultFS after fs.default.name then both will end up as
+hdfs://... and it breaks.
+
+We could have pig also set fs.defaultFS.  Problem is that if fs.default.name
+gets yet another alias or is itself deprecated later then pig will have to
+change or we can break again.  In that sense, another fix is to assert that
+Configuration.isDeprecated("fs.default.name") is false and then filter out any
+property where Configuration.isDeprecated() is true.  Then we're left with
+settings that won't clobber each other when we go to build the configuration
+later.
+
+Thanks Jason Lowe for helping with debugging this. We had a hard time figuring this out as it failed with only 2.2 version of hadoop(+ few patches) and we don't have an answer to how we did not encounter this issue long ago with hadoop 0.23 and earlier versions of 2.x.

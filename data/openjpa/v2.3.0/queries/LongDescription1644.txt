@@ -1,0 +1,22 @@
+Fields of an entity instance are nulled after calling EntityManager.remove() on an instance.
+
+For example, I have an entity class named User. I persist and then remove an instance of User.
+
+//
+// EntityManager em is initialized before the following code
+//
+
+em.getTransaction().begin();
+User user = new User();
+user.setName("name1");
+em.persist(user);
+em.getTransaction().commit();
+System.out.println(user.getName); // will print out name1
+em.getTransaction().begin();
+em.remove(user);
+em.getTransaction().commit();
+System.out.println(user.getName); // will print out null (oh no!) 
+
+After I persist and remove the same instance of User, it's fields became null. I believe this shouldn't be the case as Section "3.2.3 Removal" of the 2.0 spec states:
+
+"After an entity has been removed, its state (except for generated state) will be that of the entity at the point at which the remove operation was called."

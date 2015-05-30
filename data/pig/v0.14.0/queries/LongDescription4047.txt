@@ -1,0 +1,50 @@
+pig-withouthadoop jar is packaging pig core and pig core dependencies. But this jar should be removed due to following items:
+1. the name is confusing. User did not know what the jar is used for at a glance.
+2. it is not absolutely clear for user what the core dependencies are.
+3. it is hard to maintain dependencies, like dependencies version update. Maybe user want to try different version avro without repackaging.
+
+It is better to not use pig-withouthadoop jar, instead:
+1. devided without hadoop jar into pig core and pig core dependencies.
+2. save jars in 1# in lib directory
+3. in pig script, always add all the jars in lib directory into classpath and add pig core jar into classpath.
+I used pig in this way since version 0.8.1 via launching pig grunt. No issue found yet.
+
+Current branch-0.13 is packaging following jars into pig-withouhadoop jar:
+             <include name="antlr-runtime-$
+{antlr.version}
+.jar"/>
+             <include name="ST4-$
+{stringtemplate.version}
+.jar"/>
+             <include name="jline-$
+{jline.version}
+.jar"/>
+             <include name="jackson-mapper-asl-$
+{jackson.version}.jar"/>
+             <include name="jackson-core-asl-${jackson.version}
+.jar"/>
+             <include name="joda-time-$
+{joda-time.version}
+.jar"/>
+             <include name="guava-$
+{guava.version}
+.jar"/>
+             <include name="automaton-$
+{automaton.version}
+.jar"/>
+             <include name="jansi-$
+{jansi.version}
+.jar"/>
+             <include name="avro-$
+{avro.version}.jar"/>
+             <include name="avro-mapred-${avro.version}
+.jar"/>
+             <include name="trevni-core-$
+{avro.version}.jar"/>
+            <include name="trevni-avro-${avro.version}
+.jar"/>
+            <include name="snappy-java-$
+{snappy. version}
+.jar"/>
+
+We could save upper jars and pig-core jar into lib directory.

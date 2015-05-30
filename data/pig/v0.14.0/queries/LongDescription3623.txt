@@ -1,0 +1,11 @@
+The documentation for HBaseStorage (http://pig.apache.org/docs/r0.12.0/func.html#HBaseStorage)
+
+says -loadKey=(true|false) Load the row key as the first value in every tuple returned from HBase (default=false)
+
+However, looking at the source (http://svn.apache.org/repos/asf/pig/trunk/src/org/apache/pig/backend/hadoop/hbase/HBaseStorage.java)
+
+it is just doing a check for the existence of this option
+
+loadRowKey_ = configuredOptions_.hasOption("loadKey");
+
+So setting -loadKey=false in the options string, still results in a true value

@@ -1,0 +1,5 @@
+org.apache.zookeeper.server.PurgeTxnLog deletes old data logs and snapshots, keeping the newest N snapshots and any data logs that have been written since the snapshot.
+
+It does this by listing the available snapshots & logs and creates a blacklist of snapshots and logs that should not be deleted.  Then, it searches for and deletes all logs and snapshots that are not in this list.
+
+It appears that if logs are rolling or a new snapshot is created during this process, then these newer files will be unintentionally deleted.

@@ -1,0 +1,22 @@
+When trying to transpose a matrix of tfidf vectors created from text documents (ASF mail archives in this case), there is a bottleneck in the TransposeJob's reducer when Mahout creates a new SequentialAccessSparseVector from a RandomAccessSparseVector after the while loop completes:
+
+      SequentialAccessSparseVector outVector = new SequentialAccessSparseVector(tmp);
+
+For high-frequency terms (some of which occur over ~1M times in my data), the code to create a SequentialAccessSparseVector from a RandomAccessSparseVector bogs down completely .... 
+
+From Jake Mannix:
+"Suspicion confirmed:
+
+  public SequentialAccessSparseVector(Vector other) {
+    this(other.size(), other.getNumNondefaultElements());
+    Iterator<Element> it = other.iterateNonZero();
+    Element e;
+    while (it.hasNext() && (e = it.next()) != null) 
+{
+      set(e.index(), e.get());
+    }
+  }
+
+we iterate over the other vector (which is in random/hashed order), adding it to the sequential access vector (which always tries to stay in sequential order).  So actually, this may be worse than O(n^2), but I'd prefer to just not know how much worse, and instead we should fix it.
+
+Should be fairly straightforward: make an array of structs (essentially) with the index and the double, of size other.getNumNonDefaultElements() (what a horrible method name), fill it up on one iteration over the other vector, sort it in place, then make your new OrderedIntDoubleMapping out of the indexes and values (unless someone has a cleverer idea to sort a pair of two arrays at the same time, shuffling one based on the ordering criterion of the other)."

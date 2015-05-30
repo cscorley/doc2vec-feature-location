@@ -1,0 +1,4 @@
+Robin's profiling indicated that a large portion of a run was spent in readFields() in Gram due to the deserialization occuring as a part of Gram comparions for sorting. He pointed me to BinaryComparable and the implementation in Text.
+
+Like Text, in this new implementation, Gram stores its string in binary form. When encoding the string at construction time we allocate an extra character's worth of data to hold the Gram type information. When sorting Grams, the binary arrays are compared instead of deserializing and comparing fields.
+

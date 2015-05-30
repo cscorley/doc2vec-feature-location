@@ -1,0 +1,18 @@
+The following script fail:
+
+
+a = load '1.txt' as (a0, a1);
+b = filter a by (a0 is not null or a1 is not null) and IsEmpty(a0);
+explain b;
+
+
+
+Error message:
+Caused by: java.lang.ClassCastException: org.apache.pig.newplan.logical.expression.UserFuncExpression cannot be cast to org.apache.pig.newplan.logical.expression.BinaryExpression
+        at org.apache.pig.newplan.logical.rules.LogicalExpressionSimplifier$LogicalExpressionSimplifierTransformer.handleBinary(LogicalExpressionSimplifier.java:561)
+        at org.apache.pig.newplan.logical.rules.LogicalExpressionSimplifier$LogicalExpressionSimplifierTransformer.handleAnd(LogicalExpressionSimplifier.java:429)
+        at org.apache.pig.newplan.logical.rules.LogicalExpressionSimplifier$LogicalExpressionSimplifierTransformer.inferRelationship(LogicalExpressionSimplifier.java:397)
+        at org.apache.pig.newplan.logical.rules.LogicalExpressionSimplifier$LogicalExpressionSimplifierTransformer.handleDNFOr(LogicalExpressionSimplifier.java:281)
+        at org.apache.pig.newplan.logical.rules.LogicalExpressionSimplifier$LogicalExpressionSimplifierTransformer.checkDNFLeaves(LogicalExpressionSimplifier.java:192)
+        at org.apache.pig.newplan.logical.rules.LogicalExpressionSimplifier$LogicalExpressionSimplifierTransformer.transform(LogicalExpressionSimplifier.java:108)
+        at org.apache.pig.newplan.optimizer.PlanOptimizer.optimize(PlanOptimizer.java:110)

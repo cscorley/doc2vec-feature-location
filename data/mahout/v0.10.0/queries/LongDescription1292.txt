@@ -1,0 +1,5 @@
+Lucene2seq creates only one sequencefile, rather than a file for each document in the index.
+
+Running lucene2seq on my Solr (4.3) index produces a file with a header and, it seems, the field I specified from the index, concatenated for all the documents. After running this through seq2sparse and rowid (to prepare for cvb), the resulting matrix has only one row, though it should create one row per document.
+
+This issue prevents, at least, data from a lucene index from being easily used as input for cvb. Lucene.vector is also currently inadequate: the keys to its sequence files are LongWriteable, and rowid will not convert only Text to IntWriteable, as is necessary for the keys in cvb.

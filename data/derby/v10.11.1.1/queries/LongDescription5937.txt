@@ -1,0 +1,3 @@
+As part of our use of derby replication, we shut the slave down if we detect reachability issues with the master. Normally we shut it down, and bring it back up as a regular database in read-only mode.  Then when the master can, it tries to push a fresh copy back to the slave system. However, during the failover=true shutdown on the slave, the log file  ".../name/log/log1.dat" is still open. 
+
+Because of this open file, at least on Windows, it's impossible to move the database file out of the way, and to install a fresh copy from the master.

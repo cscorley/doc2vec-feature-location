@@ -1,0 +1,100 @@
+It would be nice if Tika had support for prt CAD files.
+A preliminary prt text extractor has been created.
+Any assistance further developing this code is appreciated.
+
+
+PRTParser.java
+
+package org.apache.tika.parser.prt;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.Set;
+
+import org.apache.poi.util.IOUtils;
+import org.apache.tika.exception.TikaException;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.mime.MediaType;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.parser.Parser;
+import org.apache.tika.sax.XHTMLContentHandler;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+
+/**
+ * Description: PRT (CAD Drawing) parser. This is a very basic parser.   
+ * Searches for specific byte prefix, and outputs text from note entities.
+ * Does not support special characters.
+ */
+ 
+
+public class PRTParser implements Parser {
+
+    private static final Set<MediaType> SUPPORTED_TYPES = Collections.singleton(MediaType.application("prt"));
+    public static final String PRT_MIME_TYPE = "application/prt";
+        	
+    public Set<MediaType> getSupportedTypes(ParseContext context) {
+        return SUPPORTED_TYPES;
+        }
+		
+    public void parse(
+		InputStream stream, ContentHandler handler,
+		Metadata metadata, ParseContext context)
+		throws IOException, SAXException, TikaException {
+		XHTMLContentHandler xhtml = new XHTMLContentHandler(handler, metadata);
+		
+		int[] prefix = new int[] {227, 63};  				//Looking for a prefix set of bytes {E3, 3F} 
+		int pos = 0;										//position inside the prefix
+		int read;
+		while( (read = stream.read()) > -1) {					// stream.read() moves to the next byte, and returns an integer value of the byte.  a value of -1 signals the EOF
+			if(read == prefix[pos]) {								// is the last byte read the same as the first byte in the prefix?
+				pos++;													
+					if(pos == prefix.length) {								//Are we at the last position of the prefix?
+						stream.skip(11);										// skip the 11 bytes of the prefix which can vary.
+						int lengthbyte = stream.read();							// Set the next byte equal to the length of text in the user input field, see PRT schema
+						stream.skip(1);											
+						byte[] text = new byte[lengthbyte];						// a new byte array called text is created.  It should contain an array of integer values of the user inputted text.
+						IOUtils.readFully(stream, text);						
+						String str = new String(text, 0, text.length, "Cp437");	// Cp437 turn it into a string, but does not remove null termination, assumes it's found to be MS-DOS Encoding
+						str = str.replace("\u03C6","\u00D8");					// Note: Substitute CP437's lowercase "phi" for Nordic "O with slash" to represent diameter symbol. 
+						metadata.add("Content",str);
+						xhtml.startElement("p");	
+						xhtml.characters(str);
+						xhtml.endElement("p");
+						pos = 0; 							
+					}
+			} 
+			else {
+				//Did not find the prefix. Reset the position counter.
+				pos = 0;
+			}
+		}
+	//Reached the end of file
+	//System.out.println("Finished searching the file");	
+	}
+
+
+		
+	/**
+    * @deprecated This method will be removed in Apache Tika 1.0.
+    */
+    public void parse(
+                   InputStream stream, ContentHandler handler, Metadata metadata)
+                   throws IOException, SAXException, TikaException {
+                parse(stream, handler, metadata, new ParseContext());
+    }
+}
+   
+
+
+
+
+
+

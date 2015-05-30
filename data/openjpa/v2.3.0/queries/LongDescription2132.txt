@@ -1,0 +1,9 @@
+I will include a test, named 'OneManyJoinableTest.test' which recreates the issue of this JIRA.  Basically though, the test consists of a parent class defined with '@Inheritance(strategy=InheritanceType.JOINED)'.  One of the subclasses in the hierarchy contains a (bidirectional) OneToMany relationship.  When traversing the ManyToOne side of the relations, all works well.  But when traversing the OneToMany side an empty list is returned.  When running the test, it can be seen that OpenJPA generate incorrect SQL, as follows:
+
+SELECT t1.id, t0.id, t2.id, t3.id, t1.name FROM UMLType t0, UMLNamed t1, UMLClass t2, UMLPrimitiveType t3 WHERE t0.OWNERPACKAGE_ID = ? AND t2.id IS NULL AND t3.id IS NULL AND t0.id = t1.id AND t0.id = t2.id AND t0.id = t3.id
+
+Note that the 't2.id IS NULL AND t3.id IS NULL' seems suspect.
+
+This same test passes on OpenJPA 1.2.x but fails on OpenJPA 2.0.x on wards.  
+
+

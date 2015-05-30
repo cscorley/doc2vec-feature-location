@@ -1,0 +1,23 @@
+Consider following:-
+
+create table person (
+  id varchar(20) not null,
+  name varchar(100) not null
+);
+
+create table car (
+  id varchar(20) not null,
+  person_id varchar(20) not null,
+  model varchar(100) not null,
+  plat_no varchar(100) not null
+);
+
+When select :-
+select
+p.name,
+c.model,
+c.plat_no
+from person p
+left join car c on (p.id = c.person_id);
+
+From the ResultSet, get the ResultSetMetaData and inspect each column's isNullable() value, which is always = 1 (always nullable).  Expected : column 'p.name' isNullable = 0 (not nullable), but I get 'p.name' isNullable = 1 (nullable)

@@ -1,0 +1,119 @@
+For a given scenario, which will be described in detail below, an UnsupportedOperationException occurs as follows:
+
+[main] openjpa.Runtime - An exception occurred while ending the transaction.  This exception will be re-thrown.
+<openjpa-1.2.3-SNAPSHOT-r422266:955388M nonfatal store error> org.apache.openjpa.util.StoreException: null
+	at org.apache.openjpa.kernel.BrokerImpl.beforeCompletion(BrokerImpl.java:1853)
+	at org.apache.openjpa.kernel.LocalManagedRuntime.commit(LocalManagedRuntime.java:81)
+	at org.apache.openjpa.kernel.BrokerImpl.commit(BrokerImpl.java:1369)
+	at org.apache.openjpa.kernel.DelegatingBroker.commit(DelegatingBroker.java:877)
+	at org.apache.openjpa.persistence.EntityManagerImpl.commit(EntityManagerImpl.java:513)
+	at hat.tests.TestUnsupportedOp.commitTx(TestUnsupportedOp.java:44)
+	at hat.tests.TestUnsupportedOp.test(TestUnsupportedOp.java:90)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:592)
+	at junit.framework.TestCase.runTest(TestCase.java:164)
+	at junit.framework.TestCase.runBare(TestCase.java:130)
+	at junit.framework.TestResult$1.protect(TestResult.java:110)
+	at junit.framework.TestResult.runProtected(TestResult.java:128)
+	at junit.framework.TestResult.run(TestResult.java:113)
+	at junit.framework.TestCase.run(TestCase.java:120)
+	at junit.framework.TestSuite.runTest(TestSuite.java:228)
+	at junit.framework.TestSuite.run(TestSuite.java:223)
+	at org.junit.internal.runners.OldTestClassRunner.run(OldTestClassRunner.java:35)
+	at org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:46)
+	at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:467)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:683)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:390)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:197)
+Caused by: java.lang.UnsupportedOperationException
+	at java.util.AbstractCollection.add(AbstractCollection.java:216)
+	at java.util.AbstractCollection.addAll(AbstractCollection.java:318)
+	at org.apache.openjpa.kernel.BrokerImpl.flushTransAdditions(BrokerImpl.java:2103)
+	at org.apache.openjpa.kernel.BrokerImpl.flushAdditions(BrokerImpl.java:2086)
+	at org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:2000)
+	at org.apache.openjpa.kernel.BrokerImpl.flushSafe(BrokerImpl.java:1927)
+	at org.apache.openjpa.kernel.BrokerImpl.beforeCompletion(BrokerImpl.java:1845)
+	... 25 more
+
+
+
+Using the stack trace, and some particulars about the code path, I've been able to recreate the UnsupportedOperationException.  Let me first summarize what my test does, and then let me go into great details on how the issue occurs.  My test does the following:
+
+1) My "main" code simply begins a tran, performs a query, and commits the tran.
+2) I've created a 'tran listener' (i.e. an impl of org.apache.openjpa.event.TransactionListener) and in that 'listener', method 'beforeCommit', I dirty the entity queried/found in #1.
+3) After my 'beforeCommit' method returns, the UnsupportedOperationException is thrown.
+
+
+OK, that was the brief summary, for anyone else who cares to hear the gory details, lets dig in.....first, the exception stack shows the exception is hit here:
+
+
+Caused by: java.lang.UnsupportedOperationException
+   at java.util.AbstractCollection.add(AbstractCollection.java:68)
+   at java.util.AbstractCollection.addAll(AbstractCollection.java:87)
+   at
+org.apache.openjpa.kernel.BrokerImpl.flushTransAdditions(BrokerImpl.java:2099) 
+   at
+org.apache.openjpa.kernel.BrokerImpl.flushAdditions(BrokerImpl.java:2086)
+   at org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:2000) 
+
+
+So, lets look at the code around 'flush(BrokerImpl.java:2000)'.  To follow is line 2000 (the last line) and a number of lines proceeding it:
+
+
+               if ((_transEventManager.hasFlushListeners()
+                    || _transEventManager.hasEndListeners())
+                    && (flush || reason == FLUSH_COMMIT)) {
+                    // fire events
+                    mobjs = new ManagedObjectCollection(transactional);
+                    if (reason == FLUSH_COMMIT
+                        && _transEventManager.hasEndListeners()) {
+                        fireTransactionEvent(new TransactionEvent(this, 
+                            TransactionEvent.BEFORE_COMMIT, mobjs,
+                            _persistedClss, _updatedClss, _deletedClss));
+
+                        flushAdditions(transactional, reason);    <----- line 2000
+
+
+So, in order to get to this 'flushAdditions', you must have a 'listener' (i.e. an impl of org.apache.openjpa.event.TransactionListener).  OK, with that said, keep this 'listener' idea in mind as we will come back to it.
+
+Continue to dig into the stack and going up two levels, we see that 'flushTransAdditions(BrokerImpl.java:2099)' looks like this:
+
+    private boolean flushTransAdditions(Collection transactional, int reason) {
+        if (_transAdditions == null || _transAdditions.isEmpty())
+            return false;
+
+        // keep local transactional list copy up to date
+        transactional.addAll(_transAdditions);   <----- line 2099
+
+There are two important things to note here:
+1) 'transactional' is a 'Collection'.
+2) the addAll will only be called depending on the state of '_transAdditions'.
+
+For #1, lets visit the javadoc for Collection.addAll and see why/when it throws the UnsupportedOperationException.....its states:
+
+    * @throws UnsupportedOperationException if this collection does not
+     *         support the <tt>addAll</tt> method.
+
+So, we know that the 'Collection' is of a type which must not support addAll.  This offers a clue and we should look to see at which points 'transactional' could be defined as a 'Collection' which doesn't support 'addAll'.  'transactional' is set in BrokerImpl at line 1946 which is here:
+
+        Collection transactional = getTransactionalStates();
+
+If we look at 'getTransactionalStates()', we can see that the method could return a Collections.EMPTY_SET ('EmptySet'):
+
+    protected Collection getTransactionalStates() 
+{
+        if (!hasTransactionalObjects())
+            return Collections.EMPTY_SET;
+        return _transCache.copy();
+    }
+
+An 'EmptySet.addAll' eventually calls 'AbstractCollection.add' which blatantly throws an UnsupportedOperationException (plus, and Collections.EMPTY_SET is immutable, so we should be adding to it anyway).  So, we know we must have a case where 'transactional' is an EmtpySet.  One way this may occur is to only query objects as I've done in step #1 of my test (i.e. I never dirty anything in step #1).
+
+Next, #2 offers another clue in that we need to look at the case where '_transAdditions' is not null and not empty.  If we look in BorkerImpl at the places where '_transAdditions' is set, we can see things are added to it in the 'setDirty' method.  But, as we previously found, we are only querying objects, not making them dirty.  So, how can we have 'transactional' be an EmptySet, yet '_transAdditions' not null or empty?  One way is to go back to the 'listener' we discussed earlier and when the 'listener' is called, have it dirty an entity.  In so doing, the 'setDirty' method will be called which will add elements to '_transAdditions' such that conditions are met to cause 'transactional.addAll' to be called in 'flushTransAdditions'.  The ordering is basically like this:
+
+1) 'transactional' is set to an EmptySet and the beginning of flush.
+2) The 'listener' is called later on in flush which dirties an entity.  This causes '_transAdditions' to not be null or empty.
+3) After the 'listener' is called, flushTransAdditions is called where at which time 'addAll', and then 'add', is called on an EmptySet/AbstractCollection which returns the exception.

@@ -1,0 +1,87 @@
+It seems that only the owner of a database may create tempoary tables in that db.
+This is not helpful as many other users may want to run a query on that db that relies upon the creation of temporary tables.
+
+I would expect non-db-owners to be able create temporay tables.
+
+The problem is demonstrated with:
+
+derby.properties like this:
+
+derby.connection.requireAuthentication=true
+derby.authentication.provider=BUILTIN
+derby.database.sqlAuthorization=TRUE
+derby.user.usera=pwd
+derby.fullAccessUsers=usera
+derby.drda.host=192.168.1.50
+
+Start the network server and run up 'ij'.
+ij>connect 'jdbc:derby://192.168.1.50:1527/TEST1;user=usera;password=pwd;create=true;';
+ij> declare global temporary table t11(a int) on commit preserve rows
+not logged;
+0 rows inserted/updated/deleted
+
+All good so far.
+
+Now try this (while still connected as usera):
+ij> call SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY('derby.user.userb','pwd');
+Statement executed.
+ij>  call SYSCS_UTIL.SYSCS_SET_USER_ACCESS('userb','FULLACCESS');
+Statement executed.
+ij> disconnect;
+ij> connect 'jdbc:derby://192.168.1.50:1527/TEST1;user=userb;password=pwd;';
+ij> declare global temporary table t1(a int) on commit preserve rows not logged;
+ERROR 42507: User 'USERB' can not perform the operation in schema 'SESSION'.
+
+SYSINFO:
+========
+
+------------------ Java Information ------------------
+Java Version:    1.6.0_02-ea
+Java Vendor:     Sun Microsystems Inc.
+Java home:       /usr/java/jdk1.6.0_02/jre
+Java classpath:  /home/ajvok/derby/db-derby-10.3.1.4-bin/lib/derby.jar:/home/ajvok/derby/db-derby-10.3.1.4-bin/lib/derbynet.jar:/home/ajvok/derby/db-derby-
+10.3.1.4-bin/lib/derbytools.jar:/home/ajvok/derby/db-derby-10.3.1.4-bin/lib/derbyclient.jar:/home/ajvok/derby/local/sp1.jar
+OS name:         Linux
+OS architecture: i386
+OS version:      2.6.17-5mdv
+Java user name:  ajvok
+Java user home:  /home/ajvok
+Java user dir:   /home/ajvok/derby/local
+java.specification.name: Java Platform API Specification
+java.specification.version: 1.6
+--------- Derby Information --------
+JRE - JDBC: Java SE 6 - JDBC 4.0
+[/home/ajvok/derby/db-derby-10.3.1.4-bin/lib/derby.jar] 10.3.1.4 - (561794)
+[/home/ajvok/derby/db-derby-10.3.1.4-bin/lib/derbytools.jar] 10.3.1.4 - (561794)
+[/home/ajvok/derby/db-derby-10.3.1.4-bin/lib/derbynet.jar] 10.3.1.4 - (561794)
+[/home/ajvok/derby/db-derby-10.3.1.4-bin/lib/derbyclient.jar] 10.3.1.4 - (561794)
+------------------------------------------------------
+----------------- Locale Information -----------------
+Current Locale :  [English/United Kingdom [en_GB]]
+Found support for locale: [cs]
+         version: 10.3.1.4 - (561794)
+Found support for locale: [de_DE]
+         version: 10.3.1.4 - (561794)
+Found support for locale: [es]
+         version: 10.3.1.4 - (561794)
+Found support for locale: [fr]
+         version: 10.3.1.4 - (561794)
+Found support for locale: [hu]
+         version: 10.3.1.4 - (561794)
+Found support for locale: [it]
+         version: 10.3.1.4 - (561794)
+Found support for locale: [ja_JP]
+         version: 10.3.1.4 - (561794)
+Found support for locale: [ko_KR]
+         version: 10.3.1.4 - (561794)
+Found support for locale: [pl]
+         version: 10.3.1.4 - (561794)
+Found support for locale: [pt_BR]
+         version: 10.3.1.4 - (561794)
+Found support for locale: [ru]
+         version: 10.3.1.4 - (561794)
+Found support for locale: [zh_CN]
+         version: 10.3.1.4 - (561794)
+Found support for locale: [zh_TW]
+         version: 10.3.1.4 - (561794)
+------------------------------------------------------

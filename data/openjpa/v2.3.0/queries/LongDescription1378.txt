@@ -1,0 +1,30 @@
+Default data cache operation when it is full is to randomly toss an entity.  For queries that return >1 entity, this means the most recent query is not guaranteed to be cached in its entirety.
+
+Jeremy provided this code to me which certainly works, and should be integrated into the base data cache support...
+
+1) Create a new plugin class:  (bundle it with your test app)
+
+package test;
+
+import org.apache.openjpa.datacache.AbstractDataCache;
+import org.apache.openjpa.datacache.ConcurrentDataCache;
+import org.apache.openjpa.util.CacheMap;
+
+public class TomsCache extends ConcurrentDataCache {
+
+    protected CacheMap newCacheMap() {
+        return new CacheMap(true, 1000) {
+            protected void entryRemoved(Object key, Object value,
+                boolean expired) 
+{
+                keyRemoved(key, expired);
+            }
+        };
+    }
+}
+
+2) Enable your plugin using a persistence property.
+
+  <property name="openjpa.DataCache" value="test.TomsCache(CacheSize=5, SoftReferenceSize=0)"/>
+
+The oldest entry should get evicted first.

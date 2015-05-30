@@ -1,0 +1,35 @@
+In the following example, the @Version annotated field 'version' does have a wrong type (none of the supported ones).
+
+@Entity
+@Table(name = "PARTNER", schema = "PART")
+public class Partner
+{
+    @Id
+    @Column(name = "PART_KEY")
+    private BigDecimal partKey;
+
+    @OneToMany(mappedBy = "partner", fetch = FetchType.LAZY)
+    private List<PartnerRolle> rollen;
+}
+
+@Entity
+@Table(name = "PARTNERROLLE")
+public class PartnerRolle
+{
+    @EmbeddedId
+    private PartnerRolleKey key;
+
+    @Version
+    @Column(name = "VERSION")
+    private BigDecimal version;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PART_KEY")
+    private Partner partner;
+}
+
+This does NOT lead to an error but silently omits the column in any query statements. The prepared statement (prepstmt) simply omitts the column. If the @Version is removed or a supported type like 'long' is used, the behaviour is correct.
+
+Best regards,
+
+Heiko

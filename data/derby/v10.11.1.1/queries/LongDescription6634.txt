@@ -1,0 +1,20 @@
+The test coverage report for SqlXmlUtil indicates that we don't have tests for:
+
+
+	recompilation of XML queries used in triggers (the code looks dead, and can probably be removed)
+
+
+
+
+	serialization of sequences of atomic values returned by an XPath query (as far as I can see, we only support single atomic values and sequences of documents, so probably that's also code that can be removed, possibly replaced by an assert)
+
+
+
+
+	XMLEXISTS operations where the XPath query returns a scalar (after DERBY-6624, it will take the same code path as a query that returns a non-empty sequence, so it won't show up in the report anymore, but it's still useful to have a test case for it)
+
+
+
+
+	XMLQUERY operations where the XPath query returns a boolean (after DERBY-6624, the same code path will be taken for all data types, so it won't show up in the report anymore, but it's still useful to have a test case for it)
+

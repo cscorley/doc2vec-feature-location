@@ -1,0 +1,27 @@
+Dumping term vectors with a dictionary using:
+
+mahout vectordump -s vector-output/chunk-0 -dt sequencefile -d dictionary-output
+
+gives me output like the following with no values, just the indexes expanded into their dictionary entries:
+
+
+
+
+Name: 0001-11055 elts: {513:discard, 7199:empty,...
+
+
+
+While dumping the same vector without a dictionary using
+
+mahout vectordump -s vector-output/chunk-0
+
+gives me output that includes indexes and values:
+
+
+
+Name: 0001-11055 elts: {513:1.0, 7199:1.0...
+
+
+
+
+Would it make sense for the dictionary based output to include values as well? Anyone opposed to modifying VectorHelper.vectorToString(Vector, String[]) to do so?

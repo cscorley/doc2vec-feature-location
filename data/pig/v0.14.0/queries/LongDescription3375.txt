@@ -1,0 +1,25 @@
+Currently CASE expression builds nested BinCond expressions in the following order: from top to bottom when branches => from in to out bin conds.
+
+This can be confusing if non-mutually exclusive conditions are used in when branches. For example,
+
+
+CASE 
+    WHEN x > 100 THEN 'a'
+    WHEN x > 50  THEN 'b'
+    ELSE 'c'
+END
+
+
+is converted to
+
+
+x > 50 ? 'b' : ( x > 100 ? 'a' : 'c' )
+
+
+Now if x is 1000, the result is 'b', which is not quite expected.
+
+Instead, we should construct nested BinCond expressions in the same order as that of when branches, i.e.
+
+
+x > 100 ? 'a' : ( x > 50 ? 'b' : 'c' )
+

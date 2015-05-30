@@ -1,0 +1,10 @@
+Avoid this pattern everywhere:
+
+		}catch(SQLException se)
+{
+			//issue a rollback on any errors
+			conn.rollback();
+			throw  se;
+		}
+
+because an error in rollback will shadow the original exception.

@@ -1,0 +1,85 @@
+When running full set of upgrade tests from 10.0 to current trunk  I get the following error.  This looks like a test problem to me, as the error seems to
+be correctly saying that XML cannot be used in a 10.0 db.  
+
+1) testGetTablesModify(org.apache.derbyTesting.functionTests.tests.jdbcapi.Datab
+aseMetaDataTest)java.sql.SQLException: Use of 'XML' requires database to be upgr
+aded from version 10.0 to version 10.1 or later.
+    at org.apache.derby.iapi.error.StandardException.newException(StandardExcept
+ion.java:356)
+    at org.apache.derby.impl.sql.catalog.DD_Version.checkVersion(DD_Version.java
+:788)
+    at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.checkVersion(DataDic
+tionaryImpl.java:8487)
+    at org.apache.derby.impl.sql.compile.SQLParser.checkVersion(SQLParser.java:3
+00)
+    at org.apache.derby.impl.sql.compile.SQLParser.XMLType(SQLParser.java:4181)
+    at org.apache.derby.impl.sql.compile.SQLParser.dataTypeCommon(SQLParser.java
+:3607)
+    at org.apache.derby.impl.sql.compile.SQLParser.dataTypeDDL(SQLParser.java:35
+37)
+    at org.apache.derby.impl.sql.compile.SQLParser.columnDefinition(SQLParser.ja
+va:3400)
+    at org.apache.derby.impl.sql.compile.SQLParser.tableElement(SQLParser.java:3
+368)
+    at org.apache.derby.impl.sql.compile.SQLParser.tableElementList(SQLParser.ja
+va:3209)
+    at org.apache.derby.impl.sql.compile.SQLParser.tableDefinition(SQLParser.jav
+a:10992)
+    at org.apache.derby.impl.sql.compile.SQLParser.createStatements(SQLParser.ja
+va:1811)
+    at org.apache.derby.impl.sql.compile.SQLParser.StatementPart(SQLParser.java:
+1718)
+    at org.apache.derby.impl.sql.compile.SQLParser.Statement(SQLParser.java:1636
+)
+    at org.apache.derby.impl.sql.compile.ParserImpl.parseStatement(ParserImpl.ja
+va:151)
+    at org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatement.ja
+va:280)
+    at org.apache.derby.impl.sql.GenericStatement.prepare(GenericStatement.java:
+88)
+    at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareIn
+ternalStatement(GenericLanguageConnectionContext.java:742)
+    at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:567
+)
+    at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:516
+)
+    at org.apache.derbyTesting.functionTests.tests.jdbcapi.DatabaseMetaDataTest.
+createTablesForTest(DatabaseMetaDataTest.java:1123)
+    at org.apache.derbyTesting.functionTests.tests.jdbcapi.DatabaseMetaDataTest.
+testGetTablesModify(DatabaseMetaDataTest.java:912)
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java
+:64)
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorI
+mpl.java:43)
+    at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:88)
+    at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+    at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+    at junit.extensions.TestSetup.run(TestSetup.java:23)
+    at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+    at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+    at junit.extensions.TestSetup.run(TestSetup.java:23)
+    at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+    at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+    at junit.extensions.TestSetup.run(TestSetup.java:23)
+    at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+    at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+    at junit.extensions.TestSetup.run(TestSetup.java:23)
+    at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+    at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+    at junit.extensions.TestSetup.run(TestSetup.java:23)
+    at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+    at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+    at junit.extensions.TestSetup.run(TestSetup.java:23)
+    at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+    at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+    at junit.extensions.TestSetup.run(TestSetup.java:23)
+    at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+    at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+    at junit.extensions.TestSetup.run(TestSetup.java:23)
+    at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+    at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+    at junit.extensions.TestSetup.run(TestSetup.java:23)
+    at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+    at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+    at junit.extensions.TestSetup.run(TestSetup.java:23)

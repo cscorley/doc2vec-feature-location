@@ -1,0 +1,15 @@
+PigLineRecordReader bails out with an exception when it encounters an empty line in a compressed file
+
+java.lang.ArrayIndexOutOfBoundsException: -1
+       at org.apache.pig.impl.io.PigLineRecordReader$LineReader.getNext(PigLineRecordReader.java:136)
+        at org.apache.pig.impl.io.PigLineRecordReader.next(PigLineRecordReader.java:57)
+        at org.apache.pig.builtin.PigStorage.getNext(PigStorage.java:121)
+        at org.apache.pig.backend.executionengine.PigSlice.next(PigSlice.java:139)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.SliceWrapper$1.next(SliceWrapper.java:164)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.SliceWrapper$1.next(SliceWrapper.java:140)
+        at org.apache.hadoop.mapred.MapTask$TrackedRecordReader.moveToNext(MapTask.java:192)
+        at org.apache.hadoop.mapred.MapTask$TrackedRecordReader.next(MapTask.java:176)
+        at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:48)
+        at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:358)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:307)
+

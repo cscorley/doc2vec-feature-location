@@ -1,0 +1,44 @@
+With the following entities:
+
+@Entity
+public class EntityA 
+{
+	@Id
+	int id;
+	int age;
+	String name;
+}
+
+@Entity
+public class EntityB 
+{
+	@Id
+	int id;
+	int age;
+       @PersistentCollection(fetch=FetchType.LAZY)
+	String[] nickNames;
+}
+
+OpenJPA generates wrong SQL for the JPQL:
+        String jpql = "SELECT a.name FROM EntityA a WHERE a.id not in " + 
+        "(select b.id FROM EntityB b where ?1 MEMBER OF b.nickNames)";
+
+SELECT t0.name FROM EntityA t0 
+WHERE (0 = (SELECT COUNT FROM  
+     WHERE (t0.id IN (
+          SELECT t1.id 
+	       FROM EntityB t1 
+	       INNER JOIN EntityB_nickNames t2 ON t1.id = t2.ENTITYB_ID 
+	       WHERE (t2.element = ?) )) ))  [params=(String) token1]
+
+Note that if the JPQL is:
+        String jpql = "SELECT a.name FROM EntityA a WHERE a.id in " + 
+        "(select b.id FROM EntityB b where ?1 MEMBER OF b.nickNames)";
+
+The push-down sql is correct:
+SELECT t0.name FROM EntityA t0 
+      WHERE (t0.id IN 
+          (SELECT t1.id 
+	        FROM EntityB t1 
+		INNER JOIN EntityB_nickNames t2 ON t1.id = t2.ENTITYB_ID 
+		WHERE (t2.element = ?) ));

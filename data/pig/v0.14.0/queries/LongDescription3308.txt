@@ -1,0 +1,25 @@
+I've coded HiveColumnarStorage that can store Pig structures as a Hive Columnar RC tables. Code is based on Elephant-bird RCFilePigStorage. The difference is that data are stored in Hive friendly format, so file can be read from Hive. 
+
+Example Pig schema:
+
+
+f1:tuple (f11: chararray,f12: chararray),f2:map[]
+
+
+
+Hive schema:
+
+
+CREATE TABLE sample_table (f1 struct<f11:string,f12:string>, f2 array<struct<f21:string,f22:string>>)
+PARTITIONED BY (p string) 
+STORED AS RCFILE 
+
+
+
+or as a:
+
+
+CREATE TABLE sample_table (f1 struct<f11:string,f12:string>, f2 MAP <string,string>)
+PARTITIONED BY (p string) 
+STORED AS RCFILE 
+

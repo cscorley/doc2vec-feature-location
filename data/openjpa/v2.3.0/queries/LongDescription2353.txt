@@ -1,0 +1,5 @@
+While trolling through some object allocation profiles I found two places that we can greatly reduce object allocations for most applications. 
+
+The first is in BrokerImpl.initializeOperatingSet(). In this method we ALWAYS create a new IdentityMap, regardless of whether we use it or not. This map is used for cascading operations and isn't used otherwise.
+
+The second improvement comes in when initializing a new Entity. During loading of an Entity, we will allocation three BitSets, one to keep track of clean fields, one for dirty, and another for flushed fields. In the event that we don't dirty / flush anything for a given Entity the dirty and flushed BitSets are a waste.

@@ -1,0 +1,43 @@
+Cf the following test case:
+testFKPlusUnique
+
+    /**
+     * The referenced constraint (in the referenced table) is also a deferred
+     * (unique/ok) constraint.
+     * 
+     * @throws SQLException 
+     */
+    public void testFKPlusUnique() throws SQLException {
+        Statement s = createStatement(
+                ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+        
+        try {
+            s.executeUpdate(
+                "create table ref_t(i int, " +
+                "    constraint ct primary key(i) deferrable initially deferred)");
+            s.executeUpdate(
+                "create table t(i int unique not null, " +
+                "    constraint c foreign key (i) references ref_t(i) " +
+                "    deferrable initially immediate)");
+            
+            s.executeUpdate("insert into ref_t values 1,1");
+            s.executeUpdate("insert into t values 1");
+            
+            // Now, the child (referencing table) is referencing one of the the
+            // rows whose value is 1, so the reference is potentially suspect.
+            
+            // What happens when we delete the one copy before commit?
+            ResultSet rs = s.executeQuery("select * from ref_t");
+            rs.next();
+            
+            // Will this delete blow up? Hopefully not, here is another row
+            // that would satisfy the constraint.
+            rs.deleteRow();
+            
+            // Now there should be only one left, so the referenced table is
+            // OK.
+            commit();
+            :
+
+
+Now, the constraint C throws when we do the "rs.deleteRow" above. But since there is (still) a row satisfying the FK, albeit a duplicate, I believe it should not.

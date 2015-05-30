@@ -1,0 +1,34 @@
+I am intermittently receiving Distributed Protocol Error exceptions in my client code. Simultaneously,
+my derby.log is recording Distributed Protocol Error exceptions on the server side.
+
+I cannot reliably reproduce this problem. 
+
+However, the problem always occurs in the same section of my application, so I can at least
+describe that section of my application. (I'll do so in an attachment).
+
+Here is the error I receive on the server side. Sometimes, the CODPNT is 2116 and the
+Error Code Value is 1d, rather than 2114 and e.
+
+2005-10-05 02:10:23.663 GMT Thread[DRDAConnThread_2,5,main] (DATABASE = BuildFar
+m), (DRDAID = GA0A0026.P7E6-4182154075488704215
+{136532}), Execution failed becau
+se of a Distributed Protocol Error:  DRDA_Proto_SYNTAXRM; CODPNT arg  = 2114; Er
+ror Code Value = e
+Execution failed because of a Distributed Protocol Error:  DRDA_Proto_SYNTAXRM;
+CODPNT arg  = 2114; Error Code Value = e
+2005-10-05 02:10:23.663 GMT Thread[DRDAConnThread_2,5,main] (DATABASE = BuildFar
+m), (DRDAID = GA0A0026.P7E6-4182154075488704215{136532}
+), null
+null
+org.apache.derby.impl.drda.DRDAProtocolException
+        at org.apache.derby.impl.drda.DRDAConnThread.throwSyntaxrm(Unknown Sourc
+e)
+        at org.apache.derby.impl.drda.DRDAConnThread.missingCodePoint(Unknown So
+urce)
+        at org.apache.derby.impl.drda.DRDAConnThread.parseCNTQRY(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.splitQRYDTA(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.writeFDODTA(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.writeQRYDTA(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.processCommands(Unknown Sou
+rce)
+        at org.apache.derby.impl.drda.DRDAConnThread.run(Unknown Source)

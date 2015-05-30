@@ -1,0 +1,25 @@
+I have a database with a large query that's failing in Derby 10.1 with:
+
+  ERROR XSDA7: Restore of a serializable or SQLData object of class , attempted to read more data than was
+  originally stored
+
+The error only occurs if I use a PreparedStatement for the query and if I specify a parameter marker for one particular equality operand.  If I replace the parameter with an actual value, the query runs without error.
+
+I was eventually able to come up with a standalone repro that uses nonsense tables and a nonsense query but still demonstrates the problem.  That said, the error does not occur in Derby 10.2 or main, so it has apparently been fixed in those codelines.
+
+I did some investigating and was eventually able to track the fix down to svn commit # 389202 (DERBY-690).  Before that checkin the query fails against 10.2, but after that it runs without error.  It turns out that there's one uncommented change in svn 389202 that seems to have fixed the problem, namely:
+
+Index: java/engine/org/apache/derby/impl/store/access/heap/HeapRowLocation.java
+===================================================================
+— java/engine/org/apache/derby/impl/store/access/heap/HeapRowLocation.java	(revision 389043)
++++ java/engine/org/apache/derby/impl/store/access/heap/HeapRowLocation.java	(working copy)
+@@ -104,7 +104,7 @@
+    }
+
+     public DataValueDescriptor getNewNull() 
+{
+-        return null;
++        return new HeapRowLocation();
+    }
+
+To confirm I undid this one line change in the 10.3 codeline and then the query started failing there.  Similarly, after I made this one-line change in the latest 10.1 codeline, the query started running successfully.  So apparently this is the fix to the problem...though I don't really know why...?

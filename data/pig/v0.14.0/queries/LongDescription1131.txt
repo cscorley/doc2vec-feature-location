@@ -1,0 +1,40 @@
+I have a simple script, which does a JOIN.
+
+
+
+input1 = load '/user/viraj/junk1.txt' using PigStorage(' ');
+describe input1;
+
+input2 = load '/user/viraj/junk2.txt' using PigStorage('\u0001');
+describe input2;
+
+joineddata = JOIN input1 by $0, input2 by $0;
+
+describe joineddata;
+
+store joineddata into 'result';
+
+
+
+The input data contains empty lines.  
+
+The join fails in the Map phase with the following error in the PRLocalRearrange.java
+
+java.lang.IndexOutOfBoundsException: Index: 1, Size: 1
+	at java.util.ArrayList.RangeCheck(ArrayList.java:547)
+	at java.util.ArrayList.get(ArrayList.java:322)
+	at org.apache.pig.data.DefaultTuple.get(DefaultTuple.java:143)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLocalRearrange.constructLROutput(POLocalRearrange.java:464)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLocalRearrange.getNext(POLocalRearrange.java:360)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POUnion.getNext(POUnion.java:162)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:253)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:244)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapReduce$Map.map(PigMapReduce.java:94)
+	at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:50)
+	at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:358)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:307)
+	at org.apache.hadoop.mapred.Child.main(Child.java:159)
+
+I am surprised that the test cases did not detect this error. Could we add this data which contains empty lines to the testcases?
+
+Viraj

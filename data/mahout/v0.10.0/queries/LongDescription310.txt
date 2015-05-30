@@ -1,0 +1,3 @@
+LanczosSolver calls inputMatrix.timesSquared(Vector) as it's Krylov iteration, but for symmetric inputMatrix, it should chose to instead call inputMatrix.times(Vector).
+
+Similarly for DistributedLanczosSolver, except in this case, DistributedSparseRowMatrix actually needs to properly MapReduce implement times(Vector) for this to work (which it should do anyways, instead of throw UnsupportedOperationException as it does currently).

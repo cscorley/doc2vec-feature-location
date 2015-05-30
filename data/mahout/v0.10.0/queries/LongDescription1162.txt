@@ -1,0 +1,19 @@
+Adding BallKMeans and StreamingKMeans clustering algorithms.
+These both implement Iterable<Centroid> and thus return the resulting centroids after clustering.
+
+BallKMeans implements:
+
+	kmeans++ initialization;
+	a normal k-means pass;
+	a trimming threshold so that points that are too far from the cluster they were assigned to are not used in the new centroid computation.
+
+
+
+StreamingKMeans implements http://books.nips.cc/papers/files/nips24/NIPS2011_1271.pdf:
+
+	an online clustering algorithm that takes each point into account one by one
+	for each point, it computes the distance to the nearest existing cluster
+	if the distance is greater than a set distanceCutoff, it will create a new cluster, otherwise it might be added to the cluster it's closest to (proportional to the value of the distance / distanceCutoff)
+	if there are too many clusters, the clusters will be collapsed (the same method gets called, but the number of clusters is re-adjusted)
+	finally, about as many clusters as requested are returned (not precise!); this represents a sketch of the original points.
+

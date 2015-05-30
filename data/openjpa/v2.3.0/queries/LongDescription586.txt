@@ -1,0 +1,29 @@
+OpenJPA supports a field f of declared type <T> be persisted in database corresponding to a different type <S> when  f specifies a two-way transformation between <S> and <T>. For example, a field f can be declared as java.net.URL but stored in database as String (i.e. VARCHAR). 
+
+Now the question is:
+    When an 'externalized' field f occurs in query predicate and is bound by a parameter p what should be the runtime type of p? 
+
+   The documentation [1] says p can be of either <T> or <S>.
+
+But the code breaks during parameter validation if Class(p) = <T> and with data conversion error if Class(p) = <S>
+
+Example:
+1.   Declare a persistent field f of type java.util.UUID externalized to java.lang.String with a pair of transformer functions
+
+    @Persistent
+    @Externalizer("toString")        
+    @Factory("UUID.fromString")
+    private UUID    uuid;
+
+2. Use the field f in a Query with a binding parameter:
+        String jpql = "SELECT p FROM ExternalValues p WHERE p.uuid=:uuid";
+        Query query = em.createQuery(jpql);
+
+3. Try to set parameter on the query:
+         a) query.setParameter("uuid", new UUID(1,2));  // parameter type equals declared type of f
+or
+         b) query.setParameter(1, new UUID(1,2).toString()); // parameter type equals externalized type of f
+
+4. Either of step 3a or 3b will result in runtime exception
+
+[1] http://openjpa.apache.org/docs/latest/manual/manual.html#ref_guide_pc_extern

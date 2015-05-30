@@ -1,0 +1,37 @@
+Given the script
+
+
+
+A = load 'data' as (a0, a1);
+B = filter A by a0 > 1;
+store B into 'output'; 
+
+
+
+Alias 'A' (instead of 'B') is assigned to the store operator:
+
+
+
+Map Plan
+A: Store(file:///Users/trunk/output:org.apache.pig.builtin.PigStorage) - scope-11
+|
+|---A: New For Each(false,false)[bag] - scope-10
+    |   |
+    |   Project[bytearray][0] - scope-6
+    |   |
+    |   Project[bytearray][1] - scope-8
+    |
+    |---B: Filter[bag] - scope-1
+        |   |
+        |   Greater Than[boolean] - scope-5
+        |   |
+        |   |---Cast[int] - scope-3
+        |   |   |
+        |   |   |---Project[bytearray][0] - scope-2
+        |   |
+        |   |---Constant(1) - scope-4
+        |
+        |---A: Load(file:///Users/trunk/data:org.apache.pig.builtin.PigStorage) - scope-0--------
+
+
+

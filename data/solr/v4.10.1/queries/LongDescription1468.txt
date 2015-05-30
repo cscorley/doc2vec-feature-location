@@ -1,0 +1,26 @@
+Setting queryParams.setMissing("true") or queryParams.set(FacetParams.FACET_MISSING, "true") in Solrj query parameters object results in an exception:
+...
+Caused by: org.apache.solr.common.SolrException: parsing error
+    at org.apache.solr.client.solrj.impl.XMLResponseParser.processResponse(XMLResponseParser.java:139)
+    at org.apache.solr.client.solrj.impl.XMLResponseParser.processResponse(XMLResponseParser.java:100)
+    at org.apache.solr.client.solrj.impl.CommonsHttpSolrServer.request(CommonsHttpSolrServer.java:385)
+    at org.apache.solr.client.solrj.impl.CommonsHttpSolrServer.request(CommonsHttpSolrServer.java:183)
+    at org.apache.solr.client.solrj.request.QueryRequest.process(QueryRequest.java:90)
+    ... 37 more
+Caused by: javax.xml.stream.XMLStreamException: ParseError at [row,col]:[3,788]
+Message: requires 'name' attribute: int
+    at org.apache.solr.client.solrj.impl.XMLResponseParser.readNamedList(XMLResponseParser.java:231)
+    at org.apache.solr.client.solrj.impl.XMLResponseParser.readNamedList(XMLResponseParser.java:236)
+    at org.apache.solr.client.solrj.impl.XMLResponseParser.readNamedList(XMLResponseParser.java:236)
+    at org.apache.solr.client.solrj.impl.XMLResponseParser.readNamedList(XMLResponseParser.java:236)
+    at org.apache.solr.client.solrj.impl.XMLResponseParser.processResponse(XMLResponseParser.java:124)
+    ... 41 more
+
+When "facet.missing" parameter is set to "true" Solr is returning response containing "int" element with no "name", which possibly causes the Solrj parsing problem. Sample server response may look like:
+
+<lst name="genre">
+    <int name="rock">5559</int>
+    <int name="soul">5547</int>
+    <int name="punk">5412</int>
+    <int>0</int>
+</lst>

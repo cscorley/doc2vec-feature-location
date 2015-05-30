@@ -1,0 +1,20 @@
+Error in ij (RN_RADIANS is a function declared as returns null on null input)
+
+ij> VALUES CAST( CALL_COS(RN_RADIANS(90.0)) AS DECIMAL(3,2));
+ERROR XBCM1: Java linkage error thrown during load of generated class org.apache.derby.exe.ace5214067x0105x5e41x7a46xffff855452e375.
+ERROR XJ001: Java exception: '(class: org/apache/derby/exe/ace5214067x0105x5e41x
+7a46xffff855452e375, method: e0 signature: ()Ljava/lang/Object Expecting to find double on stack: java.lang.VerifyError'.
+
+
+extract from derby.log
+
+2005-07-28 16:23:43.836 GMT Thread[main,5,main] Wrote class org.apache.derby.exe
+.ace5214067x0105x5e41x7a46xffff855452e375 to file C:_work\svn_pb\trunk\systest\
+out\functions\ace5214067x0105x5e41x7a46xffff855452e375.class. Please provide sup
+port with the file and the following exception information: java.lang.VerifyErro
+r: (class: org/apache/derby/exe/ace5214067x0105x5e41x7a46xffff855452e375, method
+: e0 signature: ()Ljava/lang/Object Expecting to find double on stack
+
+
+I will add a test case to lang/functions.sql commented with this bug number. Test cases
+that fail will be commented out.

@@ -1,0 +1,17 @@
+The Hits class has several drawbacks as pointed out in LUCENE-954.
+The other search APIs that use TopDocCollector and TopDocs should be used instead.
+
+This patch:
+
+	deprecates org/apache/lucene/search/Hits, Hit, and HitIterator, as well as
+  the Searcher.search( * ) methods which return a Hits Object.
+	removes all references to Hits from the core and uses TopDocs and ScoreDoc
+  instead
+	Changes the demo SearchFiles: adds the two modes 'paging search' and 'streaming search',
+  each of which demonstrating a different way of using the search APIs. The former
+  uses TopDocs and a TopDocCollector, the latter a custom HitCollector implementation.
+	Updates the online tutorial that descibes the demo.
+
+
+
+All tests pass.

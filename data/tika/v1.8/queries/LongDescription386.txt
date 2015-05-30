@@ -1,0 +1,25 @@
+I am receiving the following error when I try to process some rtf documents:
+
+Mar 02 2010 15:17:34 ERROR [Thread-10] (DefaultUncaughtExceptionHandler.java:14) com.sprt.jawen.DefaultUncaughtExceptionHandler  - Thread [Thread-10] will terminal execution due to an uncaught exception:
+java.lang.NoClassDefFoundError: Could not initialize class sun.awt.X11.XToolkit
+        at java.lang.Class.forName0(Native Method)
+        at java.lang.Class.forName(Unknown Source)
+        at java.awt.Toolkit$2.run(Unknown Source)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at java.awt.Toolkit.getDefaultToolkit(Unknown Source)
+        at java.awt.Toolkit.getEventQueue(Unknown Source)
+        at java.awt.EventQueue.isDispatchThread(Unknown Source)
+        at javax.swing.SwingUtilities.isEventDispatchThread(Unknown Source)
+        at javax.swing.text.StyleContext.reclaim(Unknown Source)
+        at javax.swing.text.StyleContext.addAttribute(Unknown Source)
+        at javax.swing.text.StyleContext$NamedStyle.addAttribute(Unknown Source)
+        at javax.swing.text.StyleContext$NamedStyle.setName(Unknown Source)
+        at javax.swing.text.StyleContext$NamedStyle.<init>(Unknown Source)
+        at javax.swing.text.StyleContext.addStyle(Unknown Source)
+        at javax.swing.text.StyleContext.<init>(Unknown Source)
+        at javax.swing.text.DefaultStyledDocument.<init>(Unknown Source)
+        at org.apache.tika.parser.rtf.RTFParser.parse(RTFParser.java:44)
+
+I do not have a gui in this application. Do I have to for the RTF Parser to work? I searched the existing issues and didn't see this one being reported by anyone else.
+
+Googling seems to indicate a possible work around... Adding a JRE parameter of -Djava.awt.headless=true Is this the only way to resolve this?

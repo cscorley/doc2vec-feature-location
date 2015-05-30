@@ -1,0 +1,11 @@
+I'm planning to add some more load types to org.apache.derbyTesting.perf.clients.Runner so that we can run tests whose load is roughly equivalent to the tests run in Olav's nightly performance regression tests - http://home.online.no/~olmsan/derby/perf/. Having such tests available would make it easier to investigate performance regressions reported by those test runs. Currently, we have clients under o.a.dt.perf.clients that generate load that is similar to the single-record select and single-record update operations with primary key and the primary key join operations (in fact, the nightly regression tests have used the tests in derbyTesting.jar for these types of load for about a month now).
+
+For the following types of load, we don't have test clients in derbyTesting.jar:
+
+  1) tests for insert performance
+  2) tests for delete performance
+  3) single-record select + single-record update on secondary index
+  4) single-record select + single-record update on non-indexed column
+  5) TPC-B like transactions (should probably be called something else, but I think it's useful to have a test that uses the same schema and queries as described in the TPC-B spec)
+
+(3) and (4) are just variants over the existing single-record tests.

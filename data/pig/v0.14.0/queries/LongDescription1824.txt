@@ -1,0 +1,14 @@
+Currently, Jython UDF script doesn't support Jython import statement as in the following example:
+
+
+
+#!/usr/bin/python
+
+import re
+@outputSchema("word:chararray")
+def resplit(content, regex, index):
+        return re.compile(regex).split(content)[index]
+
+
+
+Can Pig automatically locate the Jython module file and ship it to the backend? Or should we add a ship clause to let user explicitly specify the module to ship? 

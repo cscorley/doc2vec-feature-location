@@ -1,0 +1,28 @@
+Client allows holdability to be set to HOLD_CURSORS_OVER_COMMIT in a global transaction.
+I am not sure of the impact on the server side.
+
+To reproduce look for this code in checkDataSource30 and take out the return  for client.
+
+if (!TestUtil.isEmbeddedFramework())
+			{
+				// Don't run the rest of the test for client
+				// Network XA BUG: Client allows set HOLD_CURSORS_OVER_COMMIT 
+				// to be set in a a global transaction on the connection and 
+				// statements
+				conn.close();
+				return;
+			}
+
+
+xid = getXid(24, (byte) 21, (byte) 01);
+			xr.start(xid, XAResource.TMNOFLAGS);
+			System.out.println("CONNECTION(xa) HOLDABILITY " + (conn.getHoldability() == ResultSet.HOLD_CURSORS_OVER_COMMIT));
+			try 
+{
+				conn.setHoldability(ResultSet.HOLD_CURSORS_OVER_COMMIT);
+				System.out.println("FAIL allowed to set hold mode in xa transaction");
+			}
+ catch (SQLException sqle) 
+{
+				System.out.println("Expected SQLException(setHoldability) " + sqle.getMessage());
+			}

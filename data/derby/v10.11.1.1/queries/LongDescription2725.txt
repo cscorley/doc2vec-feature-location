@@ -1,0 +1,6 @@
+The collation methods in Derby should follow the rules defined by SQL spec in Section 9.13 Collation determination Syntax Rules 2 and 3e. 
+
+According to those rules, 
+1)***at least one operand*** shall have a declared type collation (that means if the comparison is sysChar1|userChar1 > sysChar2|userChar2, then such a comparison will fail because both sides of > operator have collation derivation of NONE. 
+
+Derby doesn't yet enforce this rule of having atleast one operand with non-NONE collation derivation when working with collation operation. 

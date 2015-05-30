@@ -1,0 +1,7 @@
+I'm looking at the DataImport code as of Solr v1.3 and using it with Postgres and very large data sets and there some improvement suggestions I have.
+
+1. call setReadOnly(true) on the connection.  DIH doesn't change the data so this is obvious.
+
+2. call setAutoCommit(false) on the connection.   (this is needed by Postgres to ensure that the fetchSize hint actually works)
+
+3. call setMaxRows(X) on the statement which is to be used when the dataimport.jsp debugger is only grabbing X rows.  fetchSize is just a hint and alone it isn't sufficient.

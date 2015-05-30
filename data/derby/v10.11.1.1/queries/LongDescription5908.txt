@@ -1,0 +1,28 @@
+As reported by Knut Anders on DERBY-5889:
+—
+But I'm wondering if this might be a product issue and not a test issue. For example, when I try to start the network server on Windows using a derbynet.jar located on a network drive, it refuses to start unless I specify -noSecurityManager: 
+
+C:\cygwin\home\lroot\test> java -jar \\yme\cluwin\usr\local\share\java\derby\lib\10.9.1.0\derbynet.jar start 
+Tue Aug 14 22:23:33 CEST 2012 : Security manager installed using the Basic server security policy. 
+Startup failed due to missing functionality for org.apache.derby.iapi.services.stream.InfoStreams. Please ensure your classpath includes the correct Derby software. 
+ERROR XBM02: Startup failed due to missing functionality for org.apache.derby.iapi.services.stream.InfoStreams. Please ensure your classpath includes the correct Derby software. 
+at org.apache.derby.iapi.error.StandardException.newException(Unknown Source) 
+at org.apache.derby.iapi.services.monitor.Monitor.missingImplementation(Unknown Source) 
+at org.apache.derby.impl.services.monitor.TopService.bootModule(Unknown Source) 
+at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(Unknown Source) 
+at org.apache.derby.iapi.services.monitor.Monitor.startSystemModule(Unknown Source) 
+at org.apache.derby.impl.services.monitor.BaseMonitor.runWithState(Unknown Source) 
+at org.apache.derby.impl.services.monitor.FileMonitor.<init>(Unknown Source) 
+at org.apache.derby.iapi.services.monitor.Monitor.startMonitor(Unknown Source) 
+at org.apache.derby.iapi.jdbc.JDBCBoot.boot(Unknown Source) 
+at org.apache.derby.jdbc.EmbeddedDriver.boot(Unknown Source) 
+at org.apache.derby.jdbc.EmbeddedDriver.<clinit>(Unknown Source) 
+at java.lang.Class.forName0(Native Method) 
+at java.lang.Class.forName(Unknown Source) 
+at org.apache.derby.impl.drda.NetworkServerControlImpl.startNetworkServer(Unknown Source) 
+at org.apache.derby.impl.drda.NetworkServerControlImpl.blockingStart(Unknown Source) 
+at org.apache.derby.impl.drda.NetworkServerControlImpl.executeWork(Unknown Source) 
+at org.apache.derby.drda.NetworkServerControl.main(Unknown Source) 
+—
+
+The workaround is to use "-noSecurityManager", but this is not recommended due to the security implications. A better option is to move the Derby installation off the network drive / share if possible and run the Derby server with the security manager.

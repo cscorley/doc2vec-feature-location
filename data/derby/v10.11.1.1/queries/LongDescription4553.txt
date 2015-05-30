@@ -1,0 +1,8 @@
+In ij, the statement GETCURRENTROWNUMBER directly write its result to output instead of returning it:
+
+Here are the faulty lines in ij.ij, method GetCurrentRowNumber():
+	...
+	LocalizedResource.OutputWriter().println(utilInstance.getCurrentRowNumber(rs));
+	return null;
+
+This interferes with testing - and possibly with any external tool using the ij.ij parser.

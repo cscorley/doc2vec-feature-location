@@ -1,0 +1,37 @@
+Tried to make a quick database backup by freezing the database, performing a ZFS snapshot, and then unfreezing the database.   The database was frozen but then a connection to the database could not be established to unfreeze the database.
+
+Looking at the stack trace of the network server, , I see 3 threads that are trying to process a connection request.   Each of these is waiting on:
+
+                at org.apache.derby.impl.store.access.RAMAccessManager.conglomCacheFind(Unknown Source)
+
+	waiting to lock <0xfffffffd3a7fcc68> (a org.apache.derby.impl.services.cache.ConcurrentCache)
+
+
+
+That object is owned by:
+
+
+	locked <0xfffffffd3a7fcc68> (a org.apache.derby.impl.services.cache.ConcurrentCache)
+                at org.apache.derby.impl.store.access.RAMTransaction.findExistingConglomerate(Unknown Source)
+                at org.apache.derby.impl.store.access.RAMTransaction.openGroupFetchScan(Unknown Source)
+                at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.updateIndexStatsMinion(Unknown Source)
+                at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.runExplicitly(Unknown Source)
+                at org.apache.derby.impl.sql.execute.AlterTableConstantAction.updateStatistics(Unknown Source)
+
+
+
+which itself is waiting for the object:
+
+                at java.lang.Object.wait(Native Method)
+
+	waiting on <0xfffffffd3ac1d608> (a org.apache.derby.impl.store.raw.log.LogToFile)
+                at java.lang.Object.wait(Object.java:485)
+                at org.apache.derby.impl.store.raw.log.LogToFile.flush(Unknown Source)
+	locked <0xfffffffd3ac1d608> (a org.apache.derby.impl.store.raw.log.LogToFile)
+                at org.apache.derby.impl.store.raw.log.LogToFile.flush(Unknown Source)
+                at org.apache.derby.impl.store.raw.data.BaseDataFileFactory.flush(Unknown Source)
+
+
+
+So basically what I think is happening is that the database is frozen, the statistics are being updated on another thread which has the "org.apache.derby.impl.services.cache.ConcurrentCache" locked and then waits for the LogToFile lock and the connecting threads are waiting to lock "org.apache.derby.impl.services.cache.ConcurrentCache" to connect and these are where the database is going to be unfrozen.    Not a deadlock as far as the JVM is concerned but it will never leave this state either.
+

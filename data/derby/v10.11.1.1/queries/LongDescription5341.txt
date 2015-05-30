@@ -1,0 +1,19 @@
+In converting LobLimits.java DERBY-1903 and trying to enable LobLimitsLiteTest with client. I discovered that this  case fails with client:
+       try 
+{
+            insertClob2("ClobTest #9.1 ", conn, insertClob2,
+                    MORE_DATA_THAN_COL_WIDTH, 4, 1,
+                       MORE_DATA_THAN_COL_WIDTH, CHARDATAFILE);
+            fail("ClobTest #9.1 " + "should have thrown XSDA4"); 
+        }
+ catch (SQLException sqle) 
+{
+            assertSQLState("XSDA4", sqle);
+        }
+        // no row must be retrieved.
+        selectClob2("ClobTest #9.2 ", conn, selectClob2, BIG_LOB_SZ, 4, 0,
+                   CHARDATAFILE);
+
+If I omit the fail assertion, the row actually does get inserted and has presumably been truncated.
+I will check in LobLimits.java soon with this bug number in the comments.
+To reproduce, remove the if(!usingDerbyNetClient) condition and run the test largedata.LobLimitsLiteTest to reproduce the problem.

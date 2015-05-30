@@ -1,0 +1,3 @@
+Recent changes to the Observer and Follower Request Processors switch on the request opcode, but create2 is left out. This leads to a condition where the create2 request is passed to the CommitProcessor, but the leader never gets the request, the CommitProcessor can't find a matching request, so the client gets disconnected.
+
+Added tests as well.

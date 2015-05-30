@@ -1,0 +1,13 @@
+AvroStorageUtils.containsRecursiveRecord() has a bug and returns true for a record with multiple fields of the same type, e.g.
+
+ { "type":"record", "name":"Event", " +
+    "fields":[{"name":"f1", "type":{ "type":"record","name":"EntityID", ....}}
+              
+{"name":"f2","type":"EntityID"}
+, " +
+              
+{"name":"f3","type":"EntityID"}
+ ]}
+
+
+Patch contains bug fix and unit tests.

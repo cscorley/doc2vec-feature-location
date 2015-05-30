@@ -1,0 +1,31 @@
+I am planning to add a new query by example feature to Criteria Query API.
+
+The proposed new method will appear in CriteriaBuilder to create a predicate.
+Comments welcome (see below for further details). 
+
+    /**
+
+	Create a predicate based upon the attribute values of a given
+	"example" entity instance. The predicate is the conjunction
+	or disjunction of predicates for subset of attribute of the entity.
+	<br>
+	By default, all the singular entity attributes (the basic, embedded
+	and uni-cardinality relations) that have a non-null or non-default
+	value for the example instance and are not an identity or version
+	attribute are included. The comparable attributes can be further
+	pruned by specifying variable list of attributes as the final argument.
+	
+	@param example an instance of an entity class
+	@param style specifies various aspects of comparison such as whether
+	non-null attribute values be included, how string-valued attribute be
+	compared, whether the individual attribute based predicates are ANDed
+	or ORed etc.
+	
+	@return a predicate
+     */
+    public <T> Predicate example(From<?, T> expression, T example, ComparisonStyle style,
+        <Attribute<? super T,?>>... excludes) ;
+========================================================================
+The limitation is that the style is 'global' i.e. applies to all attributes. If we want to tune comparison style
+per attribute, the  API gets somewhat more cumbersome to use. Ideas are welcome.
+

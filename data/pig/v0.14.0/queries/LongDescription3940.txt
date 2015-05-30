@@ -1,0 +1,9 @@
+Pig throws an NPE writing .pig_header for field with null name. Attached patch has it instead write field name as '$i' corresponding to the field's zero-based position – i.e., if the second field is unnamed, its header will be written as $1.
+
+
+
+Caused by: java.lang.NullPointerException
+	at org.apache.pig.builtin.JsonMetadata.storeSchema(JsonMetadata.java:319)
+	at org.apache.pig.builtin.PigStorage.storeSchema(PigStorage.java:578)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigOutputCommitter.storeCleanup(PigOutputCommitter.java:144)
+

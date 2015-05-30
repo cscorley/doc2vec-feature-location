@@ -1,0 +1,73 @@
+A script with both RANK and RANK BY will crash with a Null Pointer Exception in JobControlCompiler.java when multiquery is enabled.
+
+The following script will work for any combination of the RANK BY operations; or if there is one RANK operation only (i.e. no other RANK or RANK BY operation). Non-BY-RANKS will perish together but succeed alone.
+
+Disabling multiquery execution makes everything work again.
+
+I am using Hadoop 2.4.0 with Pig Trunk (d24d06a48, after PIG-3739). The error occurs in local or mapreduce mode.
+
+
+
+-- disable multiquery and you can rank all day long
+-- SET opt.multiquery false
+
+citypops = LOAD 'us_city_pops.tsv' AS (city:chararray, state:chararray, pop_2011:int);
+citypops_o = ORDER citypops BY city;
+
+--
+-- if you have one non-by RANK you may not have any other RANKs
+--
+
+citypops_nosort_inplace    = RANK citypops;
+citypops_presorted_inplace = RANK citypops_o;
+citypops_ties_cause_skips  = RANK citypops   BY city;
+citypops_ties_no_skips     = RANK citypops   BY city  DENSE;
+citypops_presorted_ranked  = RANK citypops_o BY city;
+
+STORE citypops_nosort_inplace    INTO '/tmp/citypops_nosort_inplace'    USING PigStorage('\t', '--overwrite true');
+-- STORE citypops_presorted_inplace INTO '/tmp/citypops_presorted_inplace' USING PigStorage('\t', '--overwrite true');
+
+STORE citypops_ties_cause_skips  INTO '/tmp/citypops_ties_cause_skips'  USING PigStorage('\t', '--overwrite true');
+-- STORE citypops_ties_no_skips     INTO '/tmp/citypops_ties_no_skips'     USING PigStorage('\t', '--overwrite true');
+-- STORE citypops_presorted_ranked  INTO '/tmp/citypops_presorted_ranked'  USING PigStorage('\t', '--overwrite true');
+
+
+
+
+
+Pig Stack Trace
+---------------
+ERROR 2017: Internal error creating job configuration.
+
+org.apache.pig.backend.hadoop.executionengine.JobCreationException: ERROR 2017: Internal error creating job configuration.
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler.getJob(JobControlCompiler.java:946)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler.compile(JobControlCompiler.java:322)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher.launchPig(MapReduceLauncher.java:200)
+     --- SNIP ----
+Caused by: java.lang.NullPointerException
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler.getJob(JobControlCompiler.java:886)
+        ... 19 more
+
+
+
+The proximate offense seems to be that globalCounters.get(operationID) returns null:
+
+
+
+            if(mro.isRankOperation()) {
+                Iterator<String> operationIDs = mro.getRankOperationId().iterator();
+
+                while(operationIDs.hasNext()) {
+                    String operationID = operationIDs.next();
+                    Iterator<Pair<String, Long>> itPairs = globalCounters.get(operationID).iterator();
+                    Pair<String,Long> pair = null;
+                    while(itPairs.hasNext()) {
+                        pair = itPairs.next();
+                        conf.setLong(pair.first, pair.second);
+                    }
+                }
+            }
+
+
+
+PORank.java line 184 seems to need a counter value, and so this part does need to happen.

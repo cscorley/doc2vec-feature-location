@@ -1,0 +1,10 @@
+The following block in Leader.getEpochToPropose:
+
+
+if (lastAcceptedEpoch > epoch) {
+	epoch = lastAcceptedEpoch+1;
+}
+
+
+
+needs to be fixed, since it doesn't increment the epoch variable in the case epoch != -1 (initial value) and lastAcceptedEpoch is equal. The fix trivial and corresponds to changing > with >=. 

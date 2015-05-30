@@ -1,0 +1,16 @@
+I think a NPE was created in the fix for https://issues.apache.org/jira/browse/ZOOKEEPER-1269
+
+Looking in DataTree.processTxn(TxnHeader header, Record txn) it seems likely that if rc.err != Code.OK then rc.path will be null. 
+
+I'm currently working on a minimal test case for the bug, I'll attach it to this issue when it's ready.
+
+java.lang.NullPointerException
+	at org.apache.zookeeper.server.persistence.FileTxnSnapLog.processTransaction(FileTxnSnapLog.java:203)
+	at org.apache.zookeeper.server.persistence.FileTxnSnapLog.restore(FileTxnSnapLog.java:150)
+	at org.apache.zookeeper.server.ZKDatabase.loadDataBase(ZKDatabase.java:223)
+	at org.apache.zookeeper.server.quorum.QuorumPeer.loadDataBase(QuorumPeer.java:418)
+	at org.apache.zookeeper.server.quorum.QuorumPeer.start(QuorumPeer.java:410)
+	at org.apache.zookeeper.server.quorum.QuorumPeerMain.runFromConfig(QuorumPeerMain.java:151)
+	at org.apache.zookeeper.server.quorum.QuorumPeerMain.initializeAndRun(QuorumPeerMain.java:111)
+	at org.apache.zookeeper.server.quorum.QuorumPeerMain.main(QuorumPeerMain.java:78)
+

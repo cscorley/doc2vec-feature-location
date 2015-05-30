@@ -1,0 +1,25 @@
+The below script fails with Pig 0.9 / Pig 0.10 but works fine for Pig 0.8.
+
+
+A = load 'i1' as (a,b,c:chararray);
+B = load 'i2' as (d,e,f:chararray);
+C = cogroup A by a, B by d;
+D = foreach C { 
+  tmp = B.d;
+  tmp_dis = distinct tmp;
+  generate A,B,tmp_dis ; } ;
+E = foreach D generate B.(d,e) as v;
+dump E;
+
+
+
+The script fails with the below exception. Looks like DereferenceExpression is using wrong schema to build inner schema.
+
+java.lang.IndexOutOfBoundsException: Index: 1, Size: 1
+	at java.util.ArrayList.RangeCheck(ArrayList.java:547)
+	at java.util.ArrayList.get(ArrayList.java:322)
+	at org.apache.pig.newplan.logical.relational.LogicalSchema.getField(LogicalSchema.java:653)
+	at org.apache.pig.newplan.logical.expression.DereferenceExpression.getFieldSchema(DereferenceExpression.java:167)
+	at org.apache.pig.newplan.logical.relational.LOGenerate.getSchema(LOGenerate.java:88)
+	at org.apache.pig.newplan.logical.visitor.TypeCheckingRelVisitor.visit(TypeCheckingRelVisitor.java:160)
+	at org.apache.pig.newplan.logical.relational.LOGenerate.accept(LOGenerate.java:242)

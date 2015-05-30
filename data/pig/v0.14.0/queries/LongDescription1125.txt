@@ -1,0 +1,16 @@
+We plan to modify Zebra's M/R interface to use typed APIs, i.e., APIs taking object arguments, instead of String arguments.
+
+Take TableInputFormat as an example:
+
+setSchema(jobConf conf, String schema) is changing to setSchema(jobConf conf, ZebraSchemaInfo schemaInfo)
+setProjection(jobConf conf, String projection) is changing to setProjection(jobConf conf, ZebraProjectionInfo projectionInfo)
+
+and so on.
+
+Benefits: 1) Typed APIs make it easier to detect usage mistakes earlier and 2) Typed APIs are richer and hide things better.
+
+In the meanwhile, we plan to make the old APIs deprecated, instead of removing them, for the sake of safety.
+
+
+
+

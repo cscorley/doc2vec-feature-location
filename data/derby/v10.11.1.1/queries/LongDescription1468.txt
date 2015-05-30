@@ -1,0 +1,17 @@
+When a client sends a QRYROWSET value of zero to the server, DRDA indicates that the server should not return any rows.  But the current Derby Server treats a qryrowset value of 0 (zero) the same as it does a value of 1 (one) and thus performs pre-fetching (as of DERBY-822), which it shouldn't do.
+
+As a result, clients that send a QRYROWSET of 0 and do not expect data could see unexpected results--for example, the DB2 ODBC driver will return the first row of data twice for scrollable cursors because of this issue.
+
+Relevant discussion:
+
+http://article.gmane.org/gmane.comp.apache.db.derby.devel/22659
+
+Some quotes from DRDA manuals:
+
+1) DRDA Manual v3 for OPNQRY:
+
+The qryrowset parameter specifies whether a rowset of rows is to be returned with the command.  This is only honored for non-dynamic scrollable cursors (QRYATTSNS not equal to QRYSNSDYN) and for non-scrollable cursors conforming to the limited block query protocol.  The target server fetches no more than the requested number of rows. It may fetch fewer rows if it is restricted by extra query block limits, or if a fetch operation results in a negative SQLSTATE or an SQLSTATE of 02000.
+
+2) Page 698 of V.3 says:
+
+A QRYROWSET value of zero on the OPNQRY and EXCSQLSTT commands instructs the server to return no rows with the OPNQRYRM for the cursor or result set. A QRYROWSET value of zero on the CNTQRY command is invalid for non-rowset cursors and results in the application server generating a SYNTAXRM with a SYNERRCD value of '15'x (reserved value not allowed).

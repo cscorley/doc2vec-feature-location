@@ -1,0 +1,72 @@
+I am getting a deadlock in SYSTABLE. When I turn on Dderby.locks.deadlockTrace=true, I get a StackOverflowException
+
+Derby version The Apache Software Foundation - Apache Derby - 10.3.2.2
+
+	(618335): instance 80220011-0119-f93f-b912-00000000bced
+on database directory /db/domains/geoff  
+
+
+
+Database Class Loader started - derby.database.classpath=''
+2008-05-17 23:44:36.380
+GMT Thread[btpool0-2,5,main] (XID = 7556), (SESSIONID = 4), (DATABASE =
+domains/geoff), (DRDAID = null), Cleanup action starting
+java.lang.StackOverflowError
+        at org.apache.derby.impl.sql.execute.GenericExecutionFactory.getValueRow(Unknown Source)
+        at org.apache.derby.impl.sql.catalog.SYSCONGLOMERATESRowFactory.makeRow(Unknown Source)
+        at org.apache.derby.impl.sql.catalog.SYSCONGLOMERATESRowFactory.makeEmptyRow(Unknown
+Source)
+        at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.hashAllConglomerateDescriptorsByNumber(Unknown
+Source)
+        at org.apache.derby.impl.services.locks.TableNameInfo.<init>(Unknown Source)
+        at org.apache.derby.impl.services.locks.Timeout.buildLockTableString(Unknown Source)
+        at org.apache.derby.impl.services.locks.Timeout.createException(Unknown Source)
+        at org.apache.derby.impl.services.locks.Timeout.buildException(Unknown Source)
+        at org.apache.derby.impl.services.locks.ConcurrentLockSet.lockObject(Unknown Source)
+        at org.apache.derby.impl.services.locks.AbstractPool.lockObject(Unknown Source)
+        at org.apache.derby.impl.services.locks.ConcurrentPool.lockObject(Unknown Source)
+        at org.apache.derby.impl.store.raw.xact.RowLocking3.lockRecordForRead(Unknown Source)
+        at org.apache.derby.impl.store.access.heap.HeapController.lockRow(Unknown Source)
+        at org.apache.derby.impl.store.access.heap.HeapController.lockRow(Unknown Source)
+        at org.apache.derby.impl.store.access.btree.index.B2IRowLocking3.lockRowOnPage(Unknown
+Source)
+        at org.apache.derby.impl.store.access.btree.index.B2IRowLocking3._lockScanRow(Unknown
+Source)
+        at org.apache.derby.impl.store.access.btree.index.B2IRowLockingRR.lockScanRow(Unknown
+Source)
+        at org.apache.derby.impl.store.access.btree.BTreeForwardScan.fetchRows(Unknown Source)
+        at org.apache.derby.impl.store.access.btree.BTreeScan.next(Unknown Source)
+        at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.getDescriptorViaIndex(Unknown
+Source)
+        at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.locateSchemaRow(Unknown Source)
+        at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.getSchemaDescriptor(Unknown
+Source)
+        at org.apache.derby.impl.sql.catalog.SYSTABLESRowFactory.buildDescriptor(Unknown Source)
+        at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.hashAllTableDescriptorsByTableId(Unknown
+Source)
+        at org.apache.derby.impl.services.locks.TableNameInfo.<init>(Unknown Source)
+        at org.apache.derby.impl.services.locks.Timeout.buildLockTableString(Unknown Source)
+        at org.apache.derby.impl.services.locks.Timeout.createException(Unknown Source)
+        at org.apache.derby.impl.services.locks.Timeout.buildException(Unknown Source)
+        at org.apache.derby.impl.services.locks.ConcurrentLockSet.lockObject(Unknown Source)
+        at org.apache.derby.impl.services.locks.AbstractPool.lockObject(Unknown Source)
+        at org.apache.derby.impl.services.locks.ConcurrentPool.lockObject(Unknown Source)
+        at org.apache.derby.impl.store.raw.xact.RowLocking3.lockRecordForRead(Unknown Source)
+        at org.apache.derby.impl.store.access.heap.HeapController.lockRow(Unknown Source)
+        at org.apache.derby.impl.store.access.heap.HeapController.lockRow(Unknown Source)
+        at org.apache.derby.impl.store.access.btree.index.B2IRowLocking3.lockRowOnPage(Unknown
+Source)
+        at org.apache.derby.impl.store.access.btree.index.B2IRowLocking3._lockScanRow(Unknown
+Source)
+        at org.apache.derby.impl.store.access.btree.index.B2IRowLockingRR.lockScanRow(Unknown
+Source)
+        at org.apache.derby.impl.store.access.btree.BTreeForwardScan.fetchRows(Unknown Source)
+        at org.apache.derby.impl.store.access.btree.BTreeScan.next(Unknown Source)
+        at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.getDescriptorViaIndex(Unknown
+Source)
+        at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.locateSchemaRow(Unknown Source)
+        at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.getSchemaDescriptor(Unknown
+Source)
+        at org.apache.derby.impl.sql.catalog.SYSTABLESRowFactory.buildDescriptor(Unknown Source)
+        at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.hashAllTableDescriptorsByTableId(Unknown
+Source)

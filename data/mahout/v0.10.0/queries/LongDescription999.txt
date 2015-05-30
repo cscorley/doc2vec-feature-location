@@ -1,0 +1,29 @@
+Jenkins has been complaining about the cluster-reuters.sh example for a while and the issue appears to be due to trying to write a file to a directory that doesn't exist due to the fact that it is a file, not a directory.
+
+
+
+
+Exception in thread "main" java.io.IOException: Mkdirs failed to create /tmp/mahout-work-grantingersoll/reuters-kmeans-clusters/part-randomSeed/clusters-0
+	at org.apache.hadoop.fs.ChecksumFileSystem.create(ChecksumFileSystem.java:366)
+	at org.apache.hadoop.fs.FileSystem.create(FileSystem.java:528)
+	at org.apache.hadoop.io.SequenceFile$Writer.<init>(SequenceFile.java:843)
+	at org.apache.hadoop.io.SequenceFile$Writer.<init>(SequenceFile.java:831)
+	at org.apache.hadoop.io.SequenceFile$Writer.<init>(SequenceFile.java:823)
+	at org.apache.mahout.clustering.classify.ClusterClassifier.writePolicy(ClusterClassifier.java:232)
+	at org.apache.mahout.clustering.classify.ClusterClassifier.writeToSeqFiles(ClusterClassifier.java:185)
+	at org.apache.mahout.clustering.kmeans.KMeansDriver.buildClusters(KMeansDriver.java:254)
+	at org.apache.mahout.clustering.kmeans.KMeansDriver.run(KMeansDriver.java:154)
+	at org.apache.mahout.clustering.kmeans.KMeansDriver.run(KMeansDriver.java:104)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:65)
+	at org.apache.mahout.clustering.kmeans.KMeansDriver.main(KMeansDriver.java:48)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.apache.hadoop.util.ProgramDriver$ProgramDescription.invoke(ProgramDriver.java:68)
+	at org.apache.hadoop.util.ProgramDriver.driver(ProgramDriver.java:139)
+	at org.apache.mahout.driver.MahoutDriver.main(MahoutDriver.java:188)
+
+
+
+Run examples/bin/cluster-reuters.sh and choose 1 (KMeans) to see the error.

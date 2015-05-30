@@ -1,0 +1,8 @@
+Running Random Forest with Ignored features fails when loading feature descriptor from JSON file.
+
+in Dataset.java , fromJSON(String json) function
+line 400
+original: ------  nominalValues[i] = array; 
+should be change to 
+ nominalValues[i - ignored.size()] = array;
+// put array in ignore-feature filtered index

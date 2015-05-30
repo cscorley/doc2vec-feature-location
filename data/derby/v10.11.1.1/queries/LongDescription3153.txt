@@ -1,0 +1,26 @@
+The following AccessControlException occurs on junit tests run under the ant harness if the ant version is 1.7.0:
+
+    [junit] Running org.apache.derbyTesting.functionTests.tests.jdbcapi.AutoloadTest
+    [junit] Tests run: 3, Failures: 0, Errors: 1, Time elapsed: 1.029 sec
+    [junit] Exception in thread "main" java.security.AccessControlException: access denied (java.io.FilePermission /Users/rh161140/derby/mainline/trunk/junitvmwatcher520156310.properties write)
+    [junit] 	at java.security.AccessControlContext.checkPermission(AccessControlContext.java:264)
+    [junit] 	at java.security.AccessController.checkPermission(AccessController.java:427)
+    [junit] 	at java.lang.SecurityManager.checkPermission(SecurityManager.java:532)
+    [junit] 	at java.lang.SecurityManager.checkWrite(SecurityManager.java:962)
+    [junit] 	at java.io.FileOutputStream.<init>(FileOutputStream.java:169)
+    [junit] 	at java.io.FileOutputStream.<init>(FileOutputStream.java:70)
+    [junit] 	at java.io.FileWriter.<init>(FileWriter.java:46)
+    [junit] 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.registerNonCrash(JUnitTestRunner.java:924)
+    [junit] 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:772)
+    [junit] Running org.apache.derbyTesting.functionTests.tests.jdbcapi.AutoloadTest
+    [junit] Tests run: 1, Failures: 0, Errors: 1, Time elapsed: 0 sec
+
+I haven't looked at the ant source, but here is my theory about what is going on:
+
+1) Ant 1.7.0 is trying to write a file to the directory where the ant script lives
+
+2) The write is not wrapped in a privileged block
+
+3) So all code domains above it on the stack need to be granted write permission on the directory where the ant script lives
+
+I will attach a modified version of derby_tests.policy which allows me to start up the tests without tripping across this security exception.

@@ -1,0 +1,13 @@
+An encrypted database cannot be booted when using the jar subprotocol.
+
+The problem lies in the method run from JCECipherFactory. The call to getRandomAccessFile returns null when the verifyKeyFile is an instance of InputStreamFile and the key verification therefore fails.
+
+The implementation of getRandomAccessFile for InputStreamFile states that its code cannot be reached which is untrue.
+
+The provided patch does two things, it provides a new class InputStreamRandomAccessFile in package org.apache.derby.impl.io. This class provides simple implementations of readInt and readFully so the key verification process succeeds. A quick scan of the derby source tree showed no problem or possible impact of this simple implementation.
+
+The second thing the patch does is to modify org/apache/derby/impl/io/InputStreamFile.java so the getRandomAccessFile creates an instance of InputStreamRandomAccessFile instead of returning null.
+
+This patch has been tested against trunk 410361. It solves the problem at least under the jar subprotocol.
+
+The patch has not been tested against http/https/classpath.

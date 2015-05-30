@@ -1,0 +1,5 @@
+POI provides two ways to open OPCPackage - via InputStream and via File. Creating OPCPackage from InputStream casuses creation of ZipInputStreamZipEntrySource, that buffers all uncompressed data in memory. This takes a lot of memory and it is not needed when we are reading files from disk or when we already copied stream into temporary file.
+
+This patch removes usage of ZipInputStreamZipEntrySource in this case.
+
+Unfortunately, it breaks ZIP-bomb prevention for OOXML parser (and other parsers that uses TikaInputStream.getFile()). I think that ZIP-bomb prevention should be additionally implemented for that formats before committing this to SVN.

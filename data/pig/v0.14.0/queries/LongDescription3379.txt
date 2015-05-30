@@ -1,0 +1,28 @@
+The following script fails:
+temp.pig
+
+Events = LOAD 'x' AS (eventTime:long, deviceId:chararray, eventName:chararray);
+Events = FOREACH Events GENERATE eventTime, deviceId, eventName;
+EventsPerMinute = GROUP Events BY (eventTime / 60000);
+EventsPerMinute = FOREACH EventsPerMinute {
+  DistinctDevices = DISTINCT Events.deviceId;
+  nbDevices = SIZE(DistinctDevices);
+
+  DistinctDevices = FILTER Events BY eventName == 'xuaHeartBeat';
+  nbDevicesWatching = SIZE(DistinctDevices);
+
+  GENERATE $0*60000 as timeStamp, nbDevices as nbDevices, nbDevicesWatching as nbDevicesWatching;
+}
+EventsPerMinute = FILTER EventsPerMinute BY timeStamp >= 0  AND timeStamp < 100000;
+A = FOREACH EventsPerMinute GENERATE timeStamp;
+describe A;
+
+
+With the error:
+
+
+2013-07-16 11:31:20,450 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1025: 
+<file /home/xzhang/Documents/temp.pig, line 14, column 37> Invalid field projection. Projected field [timeStamp] does not exist in schema: deviceId:chararray.
+
+
+Using distinct alias name for the 2nd "DistinctDevices" fixes the problem. As an observation, removing the last filter statement also fixes the problem.

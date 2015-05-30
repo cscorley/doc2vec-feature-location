@@ -1,0 +1,6 @@
+Current Mahout-376 patch requries 'new' hadoop API.  Certain elements of that API (namely, multiple outputs) are not available in standard hadoop 0.20.2 release. As such, that may work only with either CDH or 0.21 distributions. 
+
+ In order to bring it into sync with current Mahout dependencies, a backport of the patch to 'old' API is needed. 
+Also, some work is needed to resolve math dependencies. Existing patch relies on apache commons-math 2.1 for eigen decomposition of small matrices. This dependency is not currently set up in the mahout core. So, certain snippets of code are either required to go to mahout-math or use Colt eigen decompositon (last time i tried, my results were mixed with that one. It seems to produce results inconsistent with those from mahout-math eigensolver, at the very least, it doesn't produce singular values in sorted order).
+
+So this patch is mainly moing some Mahout-376 code around.

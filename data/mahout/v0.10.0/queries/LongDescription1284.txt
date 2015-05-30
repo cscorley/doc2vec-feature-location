@@ -1,0 +1,1 @@
+It is a recommended practice to reuse the Writable objects. DummyRecordWriter, which is used for testing in Mahout, however keeps the same Writable instance in a map: next time that the user reuses the Writable object, the internal map of DummyRecordWriter changes as well. This makes DummyRecordWriter fail for testing the MapReduce jobs that reuse the Writables.

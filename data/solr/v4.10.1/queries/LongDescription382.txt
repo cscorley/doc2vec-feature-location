@@ -1,0 +1,7 @@
+The onlyMorePopular member does not have its value changed to meet the parameter when it is passed in.  On top of that, even when it is passed in, the suggestSimilar method on SpellChecker will ignore it anyway because the ir and field parameters are passed in as null.
+
+This patch sets onlyMorePopular according to the request, and passes in a non-null IndexReader and the search field we've already initialized.
+
+Because the IndexReader currently being used is named nullReader, I may be missing a reason it is disabled on purpose.
+
+This patch is working well for us so far.

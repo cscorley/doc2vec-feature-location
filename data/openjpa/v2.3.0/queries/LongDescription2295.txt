@@ -1,0 +1,6 @@
+I noticed right now the queryKey is used as the map key for metadataRepository._queries, but when it goes to look up, it always uses query name. The query metadata lookup would be faster if we switch to query name as the key.
+
+I double checked the JPA Spec and OPENJPA menu, it seems only support the named query creation using query name, which means the query name should be unique in one EntityManager. It doesn't matter in which entity the query is defined. So using name as the map look up key should be good enough.
+
+when there are two queries with the same name defined in the different entities, it will only keep the query metadata for the first loaded named query and ignore the rest plus log a warning message like this:
+ WARN   [main] openjpa.MetaData - Ignoring duplicate query "X" in "class org.apache.openjpa.A". A query with the same name been already declared in "class org.apache.openjpa.B".

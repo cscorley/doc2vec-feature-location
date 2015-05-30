@@ -1,0 +1,37 @@
+I observe a strange diff when running metadata.java under 1.6 and
+NetworkServer.
+
+Some expected SQLExceptions that are printed in the output have ' : '
+appended to them, and this causes a diff.
+
+After some debugging and poking around I discovered that this is
+because
+
+DRDAConnThread::buildSqlerrmc(SQLException se) 
+
+assumes that if 'se' is NOT an EmbedSQLException it should not build a
+tokenized sqlerrmc:
+
+		if (se instanceof EmbedSQLException  && ! severe)
+			sqlerrmc = buildTokenizedSqlerrmc((EmbedSQLException) se);
+		else 
+{
+		    System.out.println("using preformatted..."); 
+			// If this is not an EmbedSQLException or is a severe excecption where
+			// we have no hope of succussfully calling the SYSIBM.SQLCAMESSAGE send
+			// preformatted message using the server locale
+			sqlerrmc = buildPreformattedSqlerrmc(se);
+			}
+
+But in Java 1.6 'se' can indeed be something else, e.g.
+java.sql.SQLSyntaxErrorException
+
+in this case the NetworkServer will build a preformatted message, and
+SYSIBM.SQLCAMESSAGE will be called on this. Unfortunately  the input
+is not checked very well so it ends up trying to use the preformatted
+message as a real messageId and try to look up a localized version of
+the message. This obviously doesn't work and in the bail-out process we end up
+with the preformatted message with ' : ' appended to it...
+
+So I think DRDAConnThread::buildSqlerrmc(SQLException se) must be able
+to handle all the new SQLException types.

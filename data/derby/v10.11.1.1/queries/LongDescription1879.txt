@@ -1,0 +1,7 @@
+EmbedResultSet creates and holds references to information that logically is at the plan level, the same for all ResultSet's that use the same prepared plan. Holding this information at the EmbedResultSet hurts performance and memory usage as ResultSet objects are short lived.
+
+Saving the ResultSetMetaData object in the ResultDescription object means a single creation for the lifetime of the plan (shared across connections), rather than once per ResultSet object as needed.
+
+Saving the column name to position mapping added in DERBY-1862 in the ResultDescription has a similar benefit, the map is set up once per prepared plan, not once per executeQuery().
+
+With test changes (will attach patch soon), the performance of the derby1862 test in DERBY-1876 improves by around 15%

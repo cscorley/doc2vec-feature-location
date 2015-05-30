@@ -1,0 +1,14 @@
+Expand the work of DERBY-571 to support the remaining diagnostic tables that take parameters.
+
+Syntax would use the table constructor, like (not sure if an 'AS' clause will be required:
+
+select * from TABLE(SYSCS_DIAG.SPACE_TABLE(?, ?))
+
+Diagnostic VTIs that could be handled this way are:
+
+ErrorLogReader(String log file name)
+SpaceTable(String tableName)
+SpaceTable(String schemaName, String tableName)
+StatementDuration(String inputFileName)
+
+This is the second stage mentioned in DERBY-571

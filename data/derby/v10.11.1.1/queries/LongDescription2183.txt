@@ -1,0 +1,40 @@
+Trigger recompilation problem when trigger action has its table not qualified with a schema.
+
+SPSs in SYS.SYSSTATEMENTS get invalidated for recompilation when sqlj.install_jar, sqlj.remove_jar, sqlj.replace_jar are called, or when a database upgrade is performed.  The problem arises when the trigger action statement does not qualify the table with an explicit schema name.  During recompilation it uses the default schema instead of using the original schema that was persisted in SYS.SYSSTATEMENTS causing an exception to occur.  e.g.:
+
+C:\derby\trunk>java -classpath classes;. org.apache.derby.tools.ij
+ij version 10.3
+
+ij> connect 'jdbc:derby:wombat;create=true';
+
+ij> create table app.t1 (i int, j int);
+0 rows inserted/updated/deleted
+
+ij> insert into app.t1 values (1,10);
+1 row inserted/updated/deleted
+
+– notice trigger action's update statement did not qualify table t1 with a schema name
+ij> create trigger app.tr1 after update of i on app.t1 update t1 set j = 1;
+0 rows inserted/updated/deleted
+
+ij> update app.t1 set i=i+1;
+1 row inserted/updated/deleted
+
+ij> select * from app.t1;
+I          |J
+-----------------------
+2          |1
+
+1 row selected
+
+– this action invalidates the SPS and mark for recompilation
+ij> call sqlj.install_jar('c:/derby/procs/Procs.jar', 'APP.Procs', 0);
+0 rows inserted/updated/deleted
+ij> disconnect;
+
+ij> connect 'jdbc:derby:wombat' user 'user1';
+
+– recompilation occurs but uses 'USER1' as the schema to compile instead of 'APP', resulting in error
+ij> update app.t1 set i=i+1;
+ERROR 42Y07: Schema 'USER1' does not exist
+ij>

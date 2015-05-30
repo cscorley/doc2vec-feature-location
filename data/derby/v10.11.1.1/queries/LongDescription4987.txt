@@ -1,0 +1,180 @@
+Dag reported in this thread that he saw a BootLockTest hang:
+http://mail-archives.apache.org/mod_mbox/db-derby-dev/201012.mbox/%3Cx6lj3zhlwh.fsf@oracle.com%3E
+with trace:
+
+java.lang.Thread.State: RUNNABLE
+	at java.io.FileInputStream.readBytes(Native Method)
+	at java.io.FileInputStream.read(FileInputStream.java:199)
+	at java.lang.UNIXProcess$DeferredCloseInputStream.read(UNIXProcess.java:227)
+	at sun.nio.cs.StreamDecoder.readBytes(StreamDecoder.java:264)
+	at sun.nio.cs.StreamDecoder.implRead(StreamDecoder.java:306)
+	at sun.nio.cs.StreamDecoder.read(StreamDecoder.java:158)
+
+	locked <0xc16a42d0> (a java.io.InputStreamReader)
+	at java.io.InputStreamReader.read(InputStreamReader.java:167)
+	at java.io.BufferedReader.fill(BufferedReader.java:136)
+	at java.io.BufferedReader.readLine(BufferedReader.java:299)
+	locked <0xc16a42d0> (a java.io.InputStreamReader)
+	at java.io.BufferedReader.readLine(BufferedReader.java:362)
+	at org.apache.derbyTesting.functionTests.tests.store.BootLockTest.waitForMinionBoot(BootLockTest.java:209)
+	at org.apache.derbyTesting.functionTests.tests.store.BootLockTest.testBootLock(BootLockTest.java:131)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at junit.framework.TestCase.runTest(TestCase.java:164)
+	at junit.framework.TestCase.runBare(TestCase.java:130)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:109)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:120)
+	at junit.framework.TestSuite.runTest(TestSuite.java:230)
+	at junit.framework.TestSuite.run(TestSuite.java:225)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at junit.framework.TestSuite.runTest(TestSuite.java:230)
+	at junit.framework.TestSuite.run(TestSuite.java:225)
+	at junit.framework.TestSuite.runTest(TestSuite.java:230)
+	at junit.framework.TestSuite.run(TestSuite.java:225)
+	at kah.TestRunner.main(TestRunner.java:77)
+
+
+
+
+
+I had a recent report of a hang in BootLockTest with a prereleaseJVM with a slightly different trace.
+XMTHREADINFO      "main" J9VMThread:0x08077400, 
+j9thread_t:0x08059C94, java/lang/Thread:0xD64B3CB0, state:CW, 
+prio=5
+3XMTHREADINFO1            (native thread ID:0x43F6, native 
+priority:0x5, native policy:UNKNOWN)
+3XMTHREADINFO2            (native stack address range 
+from:0xF6C9B000, to:0xF749C000, size:0x801000)
+3XMTHREADINFO3           Java callstack:
+4XESTACKTRACE                at java/lang/Object.wait(Native 
+Method)
+4XESTACKTRACE                at 
+java/lang/Object.wait(Object.java:196(Compiled Code))
+4XESTACKTRACE                at 
+java/io/PipedInputStream.read(PipedInputStream.java:288(Compiled
+ Code))
+4XESTACKTRACE                at 
+java/lang/ProcessPipedInputStream.read(UNIXProcess.java:403)
+4XESTACKTRACE                at 
+java/io/PipedInputStream.read(PipedInputStream.java:361(Compiled
+ Code))
+4XESTACKTRACE                at 
+java/lang/ProcessInputStream.read(UNIXProcess.java:484)
+4XESTACKTRACE                at 
+sun/nio/cs/StreamDecoder$CharsetSD.readBytes(StreamDecoder.java:
+452)
+4XESTACKTRACE                at 
+sun/nio/cs/StreamDecoder$CharsetSD.implRead(StreamDecoder.java:4
+94(Compiled Code))
+4XESTACKTRACE                at 
+sun/nio/cs/StreamDecoder.read(StreamDecoder.java:222)
+4XESTACKTRACE                at 
+java/io/InputStreamReader.read(InputStreamReader.java:177)
+4XESTACKTRACE                at 
+java/io/BufferedReader.fill(BufferedReader.java:136(Compiled 
+Code))
+4XESTACKTRACE                at 
+java/io/BufferedReader.readLine(BufferedReader.java:299(Compiled
+ Code))
+4XESTACKTRACE                at 
+java/io/BufferedReader.readLine(BufferedReader.java:362(Compiled
+ Code))
+4XESTACKTRACE                at 
+org/apache/derbyTesting/functionTests/tests/store/BootLockTest.w
+aitForMinionBoot(BootLockTest.java:175(Compiled Code))
+4XESTACKTRACE                at 
+org/apache/derbyTesting/functionTests/tests/store/BootLockTest.t
+estBootLock(BootLockTest.java:131)
+4XESTACKTRACE                at 
+sun/reflect/NativeMethodAccessorImpl.invoke0(Native Method)
+4XESTACKTRACE                at 
+sun/reflect/NativeMethodAccessorImpl.invoke(NativeMethodAccessor
+Impl.java:48)
+4XESTACKTRACE                at 
+sun/reflect/DelegatingMethodAccessorImpl.invoke(DelegatingMethod
+AccessorImpl.java:25)
+4XESTACKTRACE                at 
+java/lang/reflect/Method.invoke(Method.java:600)
+4XESTACKTRACE                at 
+junit/framework/TestCase.runTest(TestCase.java:154)
+4XESTACKTRACE                at 
+junit/framework/TestCase.runBare(TestCase.java:127)
+4XESTACKTRACE                at 
+org/apache/derbyTesting/junit/BaseTestCase.runBare(BaseTestCase.
+java:109)
+4XESTACKTRACE                at 
+junit/framework/TestResult$1.protect(TestResult.java:106)
+4XESTACKTRACE                at 
+junit/framework/TestResult.runProtected(TestResult.java:124)
+4XESTACKTRACE                at 
+junit/framework/TestResult.run(TestResult.java:109)
+4XESTACKTRACE                at 
+junit/framework/TestCase.run(TestCase.java:118)
+4XESTACKTRACE                at 
+junit/framework/TestSuite.runTest(TestSuite.java:208(Compiled 
+Code))
+4XESTACKTRACE                at 
+junit/framework/TestSuite.run(TestSuite.java:199(Compiled 
+Code))
+4XESTACKTRACE                at 
+junit/extensions/TestDecorator.basicRun(TestDecorator.java:22)
+4XESTACKTRACE                at 
+junit/extensions/TestSetup$1.protect(TestSetup.java:19)
+4XESTACKTRACE                at 
+junit/framework/TestResult.runProtected(TestResult.java:124)
+4XESTACKTRACE                at 
+junit/extensions/TestSetup.run(TestSetup.java:23)
+4XESTACKTRACE                at 
+org/apache/derbyTesting/junit/BaseTestSetup.run(BaseTestSetup.ja
+va:57)
+4XESTACKTRACE                at 
+junit/extensions/TestDecorator.basicRun(TestDecorator.java:22)
+4XESTACKTRACE                at 
+junit/extensions/TestSetup$1.protect(TestSetup.java:19)
+4XESTACKTRACE                at 
+junit/framework/TestResult.runProtected(TestResult.java:124)
+4XESTACKTRACE                at 
+junit/extensions/TestSetup.run(TestSetup.java:23)
+4XESTACKTRACE                at 
+junit/extensions/TestDecorator.basicRun(TestDecorator.java:22)
+4XESTACKTRACE                at 
+junit/extensions/TestSetup$1.protect(TestSetup.java:19)
+4XESTACKTRACE                at 
+junit/framework/TestResult.runProtected(TestResult.java:124)
+4XESTACKTRACE                at 
+junit/extensions/TestSetup.run(TestSetup.java:23)
+4XESTACKTRACE                at 
+junit/framework/TestSuite.runTest(TestSuite.java:208(Compiled 
+Code))
+4XESTACKTRACE                at 
+junit/framework/TestSuite.run(TestSuite.java:199(Compiled 
+Code))
+4XESTACKTRACE                at 
+junit/textui/TestRunner.doRun(TestRunner.java:116(Compiled 
+Code))
+4XESTACKTRACE                at 
+junit/textui/TestRunner.start(TestRunner.java:157(Compiled 
+Code))
+4XESTACKTRACE                at 
+junit/textui/TestRunner.main(TestRunner.java:138)
+
+
+Need to take a look at the stability of this test regarding reading the process output.
+

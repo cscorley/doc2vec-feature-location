@@ -1,0 +1,14 @@
+As I was testing the Pig Tutorial in preparation for the release, I found that we broke the second script both in local mode and in MR mode. The issue has to do with schema and naming fields.  
+
+Here is what I see:
+
+
+
+java -cp pig.jar org.apache.pig.Main -x local script2-local.pig
+
+
+2009-09-11 12:52:46,961 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1000: Error during parsing. Invalid alias: hour00::group::ngram in 
+{group::ngram: chararray,group::hour: chararray,hour00::count: long,ngram: chararray,hour: chararray,hour12::count: long}
+
+09/09/11 12:52:46 ERROR grunt.Grunt: ERROR 1000: Error during parsing. Invalid alias: hour00::group::ngram in 
+{group::ngram: chararray,group::hour: chararray,hour00::count: long,ngram: chararray,hour: chararray,hour12::count: long}

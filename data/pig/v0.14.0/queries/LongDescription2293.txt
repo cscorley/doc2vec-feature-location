@@ -1,0 +1,20 @@
+The existing PIG merge join has the following limitations:
+   1. It assumes the right side of the table must be accessed sequentially - record by record.
+   2. It does not perform well against large, sparse tables.
+
+The current implementation of the merge join introduced the interface IndexableLoadFunc.  This 'LoadFunc'
+supports the ability to 'seekNear' a given key (before reading the next record).  
+The merge join physical operator only calls 'seekNear' for the first key in each split (effectively eliminating splits
+where the first and subsequent keys will not be found).  Subsequent joins are found by reading sequentially through
+the records on the right table looking for matches from the left table.
+
+While this method works well for dense join tables - it performs poorly against large sparse tables or data sources that support 
+point lookups natively (HBase for example).
+
+The proposed enhancement is to add a new join type - 'merge-sparse' to PIG latin.  When specified in the PIG script, this join type
+will cause the merge join operator to call seekNear on each and every key (rather than just the first in each split).
+
+
+
+
+

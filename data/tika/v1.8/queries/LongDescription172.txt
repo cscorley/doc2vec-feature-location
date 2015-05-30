@@ -1,0 +1,15 @@
+The current Open Document parser is very simplistic. It only creates a paragraph with the whole text content of ODF documents in it. The problem is also, that all whitespace is stripped.
+
+The attached patch is a new and SAX-featured (so low memory capable) parser without using external libraries for ODF. The structure of ODF content.xml files is very clean (and identical for all types of documents) and maps very good to XHTML. It is possible to map paragraphs to <p> tags and headings to <hX>-Tags. Also tables (and so spreadsheets) are identical to HTML rules.
+
+The idea behind this parser is a simple tag mapping approach. A new ContentHandlerDecorator in the o.a.t.sax-Package is able to simple map element names and attributes by a Map<javax.xml.namespace.QName,...). For each mapping a second mapping for the attributes Map<javax.xml.namespace.QName,javax.xml.namespace.QName> is available that maps the attributes. All not mappable attributes are thrown away. Tag names not in the mapping are are also not reported to the delegate.
+
+With this new decorator, it is possible to map all ODF content.xml names to XHTML using a static map in the parser class. In addition to this some extra-handling for special cases in ODF are done in the SAX handler, that receives the parsing events (that extends ElementMappingContentHandler) is done:
+a) only direct content of tags from the text:-namespace are reported to characters(), this excludes style tags and so on.
+b) some tags and all its content are left out (Templates for TOC, additional cells for col/rowspan handling)
+c) mapping of <text:h> to HTML <hX> is done by using the heading level (in ODF in an attribute of <text:h>).
+
+As there are still some OpenOffice version 1.0 documents around (.sxw-files) that use old namespace declarations in meta.xml and content.xml (the current parser fails to parse metadata and content of such documents), an additional ContentHandlerDecorator is used, that maps all old namespaces beginning with "http://openoffice.org/2000/" to the "urn:oasis..." ones.
+If support for such ld document types is not needed, we could simply leave out this additional decorator.
+
+This is a very clean and good working approach for ODF files. In my opinion, this could also be done in a similar way for OpenXML files for MS Office 2007. I looked into the new POI version, that has text extraction support for OpenXML, but this uses a lot of additional XML parser libraries, DOM trees and does not use SAX, and is memory intensive. I think (I will read the specs from Microsoft the next days) and maybe I will create the same infracstruture for OpenXML, too. As POI is for OLE2 document format, it should only be used for this and not the XML based OpenXML.

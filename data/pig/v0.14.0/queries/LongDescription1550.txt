@@ -1,0 +1,21 @@
+I ran the following script:
+
+Input data:
+
+joe     100
+sam     20
+bob     134
+
+Script:
+
+A = load 'user_clicks' as (user: chararray, clicks: int);
+B = group A by user;
+C = foreach A generate group, SUM(A.clicks);
+D = foreach A generate clicks/(double)C.$1;
+dump C;
+
+Since C contains more than 1 tuple, I expected to get an error which I did. However, the error was not very clear. When the job failed, I did see a valid error (however it lacked the error code): 210630 [main] ERROR org.apache.pig.tools.pigstats.PigStats  - ERROR 0: Scalar has more than one row in the output
+ However at the end of processing, I saw a misleading error:
+
+210709 [main] ERROR org.apache.pig.tools.grunt.Grunt  - ERROR 2088: Unable to get results for: hdfs://wilbur20.labs.corp.sp1.yahoo.com:9020/tmp/temp818551960/tmp1063730945:org.apache.pig.impl.io.InterStorage
+10/08/19 17:16:22 ERROR grunt.Grunt: ERROR 2088: Unable to get results for: hdfs://wilbur20.labs.corp.sp1.yahoo.com:9020/tmp/temp818551960/tmp1063730945:org.apache.pig.impl.io.InterStorage

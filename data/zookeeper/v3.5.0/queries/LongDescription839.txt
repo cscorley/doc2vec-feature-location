@@ -1,0 +1,7 @@
+DeleteRecursive has been committed to trunk already as a method to the 
+zookeeper class. So in the API it has the same level as the atomic operations 
+create, delete, getData, setData, etc. The user must get the false impression, 
+that deleteRecursive is also an atomic operation.
+It would be better to have deleteRecursive in some helper class but not that 
+deep in zookeeper's core code. Maybe I'd like to have another policy on how to 
+react if deleteRecursive fails in the middle of its work?

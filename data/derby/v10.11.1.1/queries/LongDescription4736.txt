@@ -1,0 +1,10 @@
+From schema given in DERBY-4712, this query gives an ASSERT with sane Derby:
+
+rs = s.executeQuery("SELECT 1 FROM (T0 LEFT JOIN (T1 LEFT JOIN (T2 LEFT JOIN " +
+                               " (T3 LEFT JOIN T4 ON 1=1) ON T2.X = T3.X) ON 1=1) ON 1=1) " +
+                               " LEFT JOIN " +
+                               " (T5 INNER JOIN T6 ON 1=1) " +
+                               " ON T2.X = 1 ");
+
+Cf the attachments in DERBY-4712 assert-bind-opt-trees.*. 
+From preliminary analysis, this error seems to be unrelated to the NPEs reported in DERBY-4712, so filing this as a sub-issue.

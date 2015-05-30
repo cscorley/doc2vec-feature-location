@@ -1,0 +1,120 @@
+    [junit] Test org.apache.pig.test.TestDataModel FAILED
+Testcase: testTupleToString took 0.004 sec
+        FAILED
+toString expected:<...ad a little lamb)},[hello#world,goodbye#all],42,5000000000,3.14...> but was:<...ad a little lamb)},[goodbye#all,hello#world],42,5000000000,3.14...>
+junit.framework.ComparisonFailure: toString expected:<...ad a little lamb)},[hello#world,goodbye#all],42,5000000000,3.14...> but was:<...ad a little lamb)},[goodbye#all,hello#world],42,5000000000,3.14...>
+         at org.apache.pig.test.TestDataModel.testTupleToString(TestDataModel.java:269
+
+    [junit] Test org.apache.pig.test.TestHBaseStorage FAILED
+Tests run: 18, Failures: 0, Errors: 12, Time elapsed: 188.612 sec
+
+Testcase: testHeterogeneousScans took 0.018 sec
+        Caused an ERROR
+java.io.FileNotFoundException: /root/pigtest/conf/hadoop-site.xml (Too many open files)
+java.lang.RuntimeException: java.io.FileNotFoundException: /root/pigtest/conf/hadoop-site.xml (Too many open files)
+        at org.apache.hadoop.conf.Configuration.loadResource(Configuration.java:1162)
+        at org.apache.hadoop.conf.Configuration.loadResources(Configuration.java:1035)
+        at org.apache.hadoop.conf.Configuration.getProps(Configuration.java:980)
+        at org.apache.hadoop.conf.Configuration.get(Configuration.java:436)
+        at org.apache.hadoop.hbase.client.HConnectionManager$HConnectionImplementation.<init>(HConnectionManager.java:271)
+        at org.apache.hadoop.hbase.client.HConnectionManager.getConnection(HConnectionManager.java:155)
+        at org.apache.hadoop.hbase.client.HTable.<init>(HTable.java:167)
+        at org.apache.hadoop.hbase.client.HTable.<init>(HTable.java:130)
+        at org.apache.pig.test.TestHBaseStorage.prepareTable(TestHBaseStorage.java:809)
+        at org.apache.pig.test.TestHBaseStorage.testHeterogeneousScans(TestHBaseStorage.java:741)
+Caused by: java.io.FileNotFoundException: /root/pigtest/conf/hadoop-site.xml (Too many open files)
+        at java.io.FileInputStream.<init>(FileInputStream.java:112)
+        at java.io.FileInputStream.<init>(FileInputStream.java:72)
+        at sun.net.www.protocol.file.FileURLConnection.connect(FileURLConnection.java:70)
+        at sun.net.www.protocol.file.FileURLConnection.getInputStream(FileURLConnection.java:161)
+        at org.apache.xerces.impl.XMLEntityManager.setupCurrentEntity(Unknown Source)
+        at org.apache.xerces.impl.XMLVersionDetector.determineDocVersion(Unknown Source)
+        at org.apache.xerces.parsers.XML11Configuration.parse(Unknown Source)
+        at org.apache.xerces.parsers.XML11Configuration.parse(Unknown Source)
+        at org.apache.xerces.parsers.XMLParser.parse(Unknown Source)
+        at org.apache.xerces.parsers.DOMParser.parse(Unknown Source)
+        at org.apache.xerces.jaxp.DocumentBuilderImpl.parse(Unknown Source)
+        at javax.xml.parsers.DocumentBuilder.parse(Unknown Source)
+        at org.apache.hadoop.conf.Configuration.loadResource(Configuration.java:1079)
+
+        Caused an ERROR
+Could not resolve the DNS name of hostname:39611
+java.lang.IllegalArgumentException: Could not resolve the DNS name of hostname:39611
+        at org.apache.hadoop.hbase.HServerAddress.checkBindAddressCanBeResolved(HServerAddress.java:105)
+        at org.apache.hadoop.hbase.HServerAddress.<init>(HServerAddress.java:66)
+        at org.apache.hadoop.hbase.client.HConnectionManager$HConnectionImplementation.locateRegionInMeta(HConnectionManager.java:755)
+        at org.apache.hadoop.hbase.client.HConnectionManager$HConnectionImplementation.locateRegion(HConnectionManager.java:590)
+        at org.apache.hadoop.hbase.client.HConnectionManager$HConnectionImplementation.locateRegion(HConnectionManager.java:555)
+        at org.apache.hadoop.hbase.client.HTable.<init>(HTable.java:171)
+        at org.apache.hadoop.hbase.client.HTable.<init>(HTable.java:145)
+        at org.apache.pig.test.TestHBaseStorage.deleteAllRows(TestHBaseStorage.java:120)
+        at org.apache.pig.test.TestHBaseStorage.tearDown(TestHBaseStorage.java:112)
+
+    [junit] Test org.apache.pig.test.TestMRCompiler FAILED
+Testcase: testSortUDF1 took 0.045 sec
+        FAILED
+null expected:<...---MapReduce(20,SUM,[COUNT,TestMRCompiler$WeirdComparator]) - -18:
+
+
+  ...> but was:<...---MapReduce(20,SUM,[TestMRCompiler$WeirdComparator,COUNT]) - -18:
+
+
+  ...>
+junit.framework.ComparisonFailure: null expected:<...---MapReduce(20,SUM,[COUNT,TestMRCompiler$WeirdComparator]) - -18:
+
+
+  ...> but was:<...---MapReduce(20,SUM,[TestMRCompiler$WeirdComparator,COUNT]) - -18:
+
+
+  ...>
+        at org.apache.pig.test.TestMRCompiler.run(TestMRCompiler.java:1080)
+        at org.apache.pig.test.TestMRCompiler.testSortUDF1(TestMRCompiler.java:791
+
+
+
+
+    [junit] Test org.apache.pig.test.TestNewPlanLogToPhyTranslationVisitor FAILED
+(1)
+Testcase: testSimplePlan took 0.675 sec
+        FAILED
+expected:<class org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POProject> but was:<class org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.ConstantExpression>
+junit.framework.AssertionFailedError: expected:<class org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POProject> but was:<class org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.ConstantExpression>
+        at org.apache.pig.test.TestNewPlanLogToPhyTranslationVisitor.testSimplePlan(TestNewPlanLogToPhyTranslationVisitor.java:127)
+(2)
+Testcase: testJoinPlan took 0.064 sec
+        FAILED
+expected:<0> but was:<1>
+junit.framework.AssertionFailedError: expected:<0> but was:<1>
+        at org.apache.pig.test.TestNewPlanLogToPhyTranslationVisitor.testJoinPlan(TestNewPlanLogToPhyTranslationVisitor.java:158)
+(3)
+Testcase: testMultiStore took 0.041 sec
+        FAILED
+expected:<0> but was:<1>
+junit.framework.AssertionFailedError: expected:<0> but was:<1>
+        at org.apache.pig.test.TestNewPlanLogToPhyTranslationVisitor.testMultiStore(TestNewPlanLogToPhyTranslationVisitor.java:239)
+
+    [junit] Test org.apache.pig.test.TestPruneColumn FAILED
+(1)
+Testcase: testMapKey2 took 7.1 sec
+        FAILED
+null
+junit.framework.AssertionFailedError: null
+        at org.apache.pig.test.TestPruneColumn.testMapKey2(TestPruneColumn.java:1206)
+(2)
+Testcase: testMapKey3 took 7.088 sec
+        FAILED
+null
+junit.framework.AssertionFailedError: null
+        at org.apache.pig.test.TestPruneColumn.testMapKey3(TestPruneColumn.java:1222)
+(3)
+Testcase: testMapKeyInSplit1 took 7.1 sec
+        FAILED
+null
+junit.framework.AssertionFailedError: null
+        at org.apache.pig.test.TestPruneColumn.testMapKeyInSplit1(TestPruneColumn.java:1296)
+(4)
+Testcase: testSharedSchemaObject took 7.1 sec
+        FAILED
+null
+junit.framework.AssertionFailedError: null
+        at org.apache.pig.test.TestPruneColumn.testSharedSchemaObject(TestPruneColumn.java:1619)

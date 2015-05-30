@@ -1,0 +1,9 @@
+There is potentially unexpected behaviour of the indexOf method of the DBDictionary class (org.apache.openjpa.jdbc.sql.DBDictionary) when a start index is specified but the search string is not found.
+
+When a start index is specified (say "N"), the search target string has the first N characters removed, the search performed (by INSTR in the default case), this is reduced by 1 to make it 0-indexed and then crucially the start index in added to the result.
+
+In Oracle, if the search term is not found, INSTR returns 0.  If a start index is supplied, this is then added and 1 is taken away, so the "result of indexOf" will be "start index - 1" if the search string is not found.  It may not be obvious whether, once a query is run, a number represents a successful match or not.
+
+I would expect the case where the string is not found to return 0 or -1, depending on the index base.  I think it is misleading for this to return a positive integer if the string is not found.
+
+Since you cannot tell whether the string will be matched at the time the query is constructed, it may be difficult to find a fix for this.

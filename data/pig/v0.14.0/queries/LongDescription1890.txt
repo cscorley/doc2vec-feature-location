@@ -1,0 +1,5 @@
+TestAvroStorage fail on trunk. There are two reasons:
+1. After PIG-1680, we call LoadFunc.setLocation one more time.
+2. The schema for AvroStorage seems to be wrong. For example, in first test case testArrayDefault, the schema for "in" is set to "PIG_WRAPPER: (FIELD: 
+{PIG_WRAPPER: (ARRAY_ELEM: float)}
+)". It seems PIG_WRAPPER is redundant. This issue is hidden until PIG-1188 checked in.

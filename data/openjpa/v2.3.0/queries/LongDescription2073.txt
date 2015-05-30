@@ -1,0 +1,22 @@
+OPENJPA-1975 deferred extraction of default schema name for DB2 from connectedConfiguration() to getDefaultSchemaName(). This change requires a live connection to the DB2 server. As a result, the following exception will be observed if no connection is available and failed the MappingTool -sa action:
+
+517  TestJPA  TRACE  [main] openjpa.MetaData - Clearing metadata repository "org.apache.openjpa.jdbc.meta.MappingRepository@f00301e1".
+Exception in thread "main" <openjpa-2.2.0-SNAPSHOT-r422266:1183674 fatal user error> org.apache.openjpa.util.UserException: A JDBC Driver or
+ DataSource class name must be specified in the ConnectionDriverName property. Available properties in configuration are "org.apache.openjpa
+.jdbc.conf.JDBCConfigurationImpl@79d81a68".
+        at org.apache.openjpa.jdbc.schema.DataSourceFactory.newDataSource(DataSourceFactory.java:74)
+        at org.apache.openjpa.jdbc.conf.JDBCConfigurationImpl.createConnectionFactory(JDBCConfigurationImpl.java:844)
+        at org.apache.openjpa.jdbc.conf.JDBCConfigurationImpl.getConnectionFactory(JDBCConfigurationImpl.java:732)
+        at org.apache.openjpa.jdbc.conf.JDBCConfigurationImpl.getDataSource(JDBCConfigurationImpl.java:872)
+        at org.apache.openjpa.jdbc.sql.DB2Dictionary.getConnection(DB2Dictionary.java:1162)
+        at org.apache.openjpa.jdbc.sql.DB2Dictionary.getDefaultSchemaName(DB2Dictionary.java:1109)
+        at org.apache.openjpa.jdbc.schema.SchemaTool.add(SchemaTool.java:492)
+        at org.apache.openjpa.jdbc.schema.SchemaTool.build(SchemaTool.java:419)
+        at org.apache.openjpa.jdbc.schema.SchemaTool.run(SchemaTool.java:348)
+        at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:505)
+        at org.apache.openjpa.jdbc.meta.MappingTool.run(MappingTool.java:1089)
+        at org.apache.openjpa.jdbc.meta.MappingTool.run(MappingTool.java:1000)
+        at org.apache.openjpa.jdbc.meta.MappingTool$1.run(MappingTool.java:937)
+        at org.apache.openjpa.lib.conf.Configurations.launchRunnable(Configurations.java:741)
+        at org.apache.openjpa.lib.conf.Configurations.runAgainstAllAnchors(Configurations.java:731)
+        at org.apache.openjpa.jdbc.meta.MappingTool.main(MappingTool.java:932)

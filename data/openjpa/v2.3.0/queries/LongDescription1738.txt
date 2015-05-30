@@ -1,0 +1,14 @@
+Patrick Linskey wrote:
+I just ran into what I believe is a bug with the prepared SQL code. In PreparedQueryImpl.reparameterize(), we have the following code:
+
+>             if (ImplHelper.isManageable(val)) 
+{
+>                 setPersistenceCapableParameter(result, val, indices, broker);
+>             }
+ else if (val instanceof Collection) 
+{
+>                 setCollectionValuedParameter(result, (Collection)val, indices,
+>                     key);
+>             }
+
+This does not work if the parameter is a collection of persistence-capable objects, as setCollectionValuedParameter assumes that the values are not PCs.

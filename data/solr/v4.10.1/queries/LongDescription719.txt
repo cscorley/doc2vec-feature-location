@@ -1,0 +1,13 @@
+It seems the code in CoreContainer.persistFile should begin with:
+
+
+  /** Persists the cores config file in a user provided file. */
+  public void persistFile(File file) {
+    if (file != null && !file.isAbsolute())
+        file = new File(configFile.getParentFile(), file.getPath());
+    log.info("Persisting cores config to " + (file==null ? configFile : file));
+...
+
+
+
+The issue today resides in calling file.getName() instead of file.getPath()

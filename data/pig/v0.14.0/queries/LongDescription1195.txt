@@ -1,0 +1,18 @@
+POSort always use ascending order. We shall obey the sort order as specified in the script.
+
+For example, the following script does not do the right thing if we turn off secondary sort (which means, we will rely on POSort to sort):
+
+
+A = load 'input' as (a0:int);
+B = group A ALL;
+C = foreach B {
+    D = order A by a0 desc;
+    generate D;
+};
+dump C;
+
+
+
+If we run it using the command line "java -Xmx512m -Dpig.exec.nosecondarykey=true -jar pig.jar 1.pig".
+
+The sort order for D is ascending.

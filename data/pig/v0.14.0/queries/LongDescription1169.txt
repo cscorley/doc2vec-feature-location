@@ -1,0 +1,15 @@
+We tried to get top N results after a groupby and sort, and got different results with or without storing the full sorted results. Here is a skeleton of our pig script.
+
+
+
+raw_data = Load '<input_files>' AS (f1, f2, ..., fn);
+grouped = group raw_data by (f1, f2);
+data = foreach grouped generate FLATTEN(group). SUM(raw_data.fk) as value;
+ordered = order data by value DESC parallel 10;
+topn = limit ordered 10;
+store ordered into 'outputdir/full';
+store topn into 'outputdir/topn';
+
+
+
+With the statement 'store ordered ...', top N results are incorrect, but without the statement, results are correct. Has anyone seen this before? I know a similar bug has been fixed in the multi-query release. We are on pig .4 and hadoop .20.1.

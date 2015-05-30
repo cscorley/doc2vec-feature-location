@@ -1,0 +1,30 @@
+weme 6.2 tests fail to kick off because of XplainStatisticsTest after the change:
+r982637  DERBY-4587: Add tools for query plan analysis 
+
+The problem seems related to the import and use of 
+
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+
+I am not sure if there are additional jars that I need to use to get these libraries from the weme distribution or if they are available.   After this same checkin the test also fails on CVM/phoneme with the error below but it does not prevent the full suite from kicking off.
+
+ime: 15,558.801
+There was 1 error:
+1) testScanPositions(org.apache.derbyTesting.functionTests.tests.lang.XplainStatisticsTest)java.lang.NoSuchMethodError: java.lang.String: method split(Ljava/lang/String[Ljava/lang/String; not found
+	at org.apache.derby.impl.tools.planexporter.AccessDatabase.replace(Unknown Source)
+	at org.apache.derby.impl.tools.planexporter.AccessDatabase.statement(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.lang.XplainStatisticsTest.disableXplainStyle(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.lang.XplainStatisticsTest.testScanPositions(Unknown Source)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(Unknown Source)
+	at junit.extensions.TestDecorator.basicRun(Unknown Source)
+	at junit.extensions.TestSetup$1.protect(Unknown Source)
+	at junit.extensions.TestSetup.run(Unknown Source)
+	at junit.extensions.TestDecorator.basicRun(Unknown Source)
+	at junit.extensions.TestSetup$1.protect(Unknown Source)
+	at junit.extensions.TestSetup.run(Unknown Source)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(Unknown Source)
+	at sun.misc.CVM.runMain(Unknown Source)
+
+FAILURES!!!
+
+http://dbtg.foundry.sun.com/derby/test/Daily/javaME/testing/testlog/ubuntu/983036-suitesAll_diff.txt

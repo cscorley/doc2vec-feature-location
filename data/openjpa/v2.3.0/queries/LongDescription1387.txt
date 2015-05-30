@@ -1,0 +1,13 @@
+Any unique constraint declared with OpenJPA implicitly sets the respective columns to be non-null. This is a problem if OpenJPA's mapping tool is used to create the database schema. Even if something like @Column(nullable=true) is explicitly stated, the columns will always be created by OpenJPA as not null.
+
+Modifying the database schema manually to make the columns nullable is a possible workaround. It does not seem to cause any problems with either OpenJPA or the databases.
+
+I would suggest to drop the marking of unique columns as not nullable. This is done by removing the corresponding code lines in org.apache.openjpa.jdbc.schema.Unique (trivial patch appended to this issue). If someone wants a unique column to be not nullable, this can be specified explicitly with @Column(nullable=false) as usual.
+
+I can only speculate about the reason this strange coupling of unique and nullable had been introduced into OpenJPA. To my knowledge, it is perfectly legal use to have unique contraints on nullable columns. In effect this means that there may be multiple rows with null values, whilst all rows with non-null values have to be unique. ANSI SQL-92 also explicitly mentions nullable unique columns and states that this is a crucial difference between PRIMARY KEY columns and UNIQUE columns: the former are always not nullable, the latter may be nullable.
+
+This issue also pops up again and again in the user discussions, without (to my knowledge) a single authorative answer to why this behaviour is as it is in OpenJPA. Two examples:
+My question, which remained unanswered:
+http://n2.nabble.com/Unique-colums-automatically-made-NOT-NULL-td2827809.html
+Another users question, about a month later:
+http://n2.nabble.com/Nullable-unique-constraints-td3161182.html

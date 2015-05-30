@@ -1,0 +1,16 @@
+While running reencryt  crash/recovery functional test  with  1000 tables (>2000 containers) , I hit a following boot failire. 
+
+ERROR XJ040: Failed to start database 'wombat_pwd_en', see the next exception fo
+r details.
+ERROR XSTB0: An exception was thrown during transaction abort.
+java.sql.SQLException: Failed to start database 'wombat_pwd_en', see the next ex
+
+============= begin nested exception, level (1) ===========
+
+ERROR XSRS4: Error renaming file (during backup) from E:\suresht\adhoctests\reencryption\dbs\wombat_pwd_en\seg0\c340.dat to E:\suresht\adhoctests\reencryption\dbs\wombat_pwd_en\seg0\n340.dat.
+
+—
+
+After bit of  debugging ; my suspicion  is this problem is happening becuase of more than one log file switch during re-encryption and current 
+re-encryption recovery code does not seem to handle it correctly. 
+

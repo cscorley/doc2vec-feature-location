@@ -1,0 +1,22 @@
+The proposed feature is to accept a URL parameter when using extract-only mode to specify an output format.  This parameter might just overload the existing "ext.extract.only" so that one can optionally specify a format, e.g. false|true|xml|text  where true and xml give the same response (i.e. xml remains the default)
+
+I had been assuming that I could choose among possible tika output
+formats when using the extracting request handler in extract-only mode
+as if from the CLI with the tika jar:
+
+   -x or --xml        Output XHTML content (default)
+   -h or --html       Output HTML content
+   -t or --text       Output plain text content
+   -m or --metadata   Output only metadata
+
+However, looking at the docs and source, it seems that only the xml
+option is available (hard-coded) in ExtractingDocumentLoader.java
+
+
+serializer = new XMLSerializer(writer, new OutputFormat("XML", "UTF-8", true));
+
+
+
+Providing at least a plain-text response seems to work if you change the serializer to a TextSerializer (org.apache.xml.serialize.TextSerializer).
+
+

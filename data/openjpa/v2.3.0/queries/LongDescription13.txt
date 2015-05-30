@@ -1,0 +1,82 @@
+Cannot persist entity with identity column.   To reproduce, create a simple object with identity column
+
+@Entity
+@Table(name="JpaType")
+public class JpaType implements Serializable
+{
+  @Id
+  @GeneratedValue(strategy=GenerationType.IDENTITY)
+  @Column(name="Id")
+  private Integer id = null;
+
+  @Column(name="Name")
+  private String name = null;
+
+  public Integer getId() 
+{ return id; }
+
+  public String getName() 
+{ return name;  }
+  public void setName(String name) 
+{ this.name = name; }
+}
+
+create table JpaType (
+    Id int identity(1, 1) not null
+  , Name varchar(50) null
+  , constraint JpaType_PK primary key (Id)
+)
+
+JpaType jpa = new JpaType();
+jpa.setName("Test 1");
+em.persist(jpa);
+em.flush();
+
+It works OK if I remove identity column (and set ID myself).
+
+Stack trace
+<0|true|0.9.0> org.apache.openjpa.persistence.PersistenceException: java.math.BigDecimal
+	at org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:1576)
+	at org.apache.openjpa.kernel.DelegatingBroker.flush(DelegatingBroker.java:927)
+	at org.apache.openjpa.persistence.EntityManagerImpl.flush(EntityManagerImpl.java:421)
+	at mytest.domain.JpaTest.testJpa(JpaTest.java:30)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:585)
+	at org.junit.internal.runners.TestMethodRunner.executeMethodBody(TestMethodRunner.java:99)
+	at org.junit.internal.runners.TestMethodRunner.runUnprotected(TestMethodRunner.java:81)
+	at org.junit.internal.runners.BeforeAndAfterRunner.runProtected(BeforeAndAfterRunner.java:34)
+	at org.junit.internal.runners.TestMethodRunner.runMethod(TestMethodRunner.java:75)
+	at org.junit.internal.runners.TestMethodRunner.run(TestMethodRunner.java:45)
+	at org.junit.internal.runners.TestClassMethodsRunner.invokeTestMethod(TestClassMethodsRunner.java:71)
+	at org.junit.internal.runners.TestClassMethodsRunner.run(TestClassMethodsRunner.java:35)
+	at org.junit.internal.runners.TestClassRunner$1.runUnprotected(TestClassRunner.java:42)
+	at org.junit.internal.runners.BeforeAndAfterRunner.runProtected(BeforeAndAfterRunner.java:34)
+	at org.junit.internal.runners.TestClassRunner.run(TestClassRunner.java:52)
+	at org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:38)
+	at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:460)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:673)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:386)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:196)
+Caused by: java.lang.ClassCastException: java.math.BigDecimal
+	at mytest.domain.model.JpaType.pcReplaceField(JpaType.java)
+	at org.apache.openjpa.kernel.StateManagerImpl.replaceField(StateManagerImpl.java:2824)
+	at org.apache.openjpa.kernel.StateManagerImpl.storeObjectField(StateManagerImpl.java:2284)
+	at org.apache.openjpa.kernel.StateManagerImpl.storeField(StateManagerImpl.java:2380)
+	at org.apache.openjpa.kernel.StateManagerImpl.storeField(StateManagerImpl.java:723)
+	at org.apache.openjpa.kernel.StateManagerImpl.store(StateManagerImpl.java:719)
+	at org.apache.openjpa.jdbc.meta.strats.HandlerFieldStrategy.setAutoAssignedValue(HandlerFieldStrategy.java:361)
+	at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flushInternal(PreparedStatementManagerImpl.java:119)
+	at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flush(PreparedStatementManagerImpl.java:68)
+	at org.apache.openjpa.jdbc.kernel.OperationOrderUpdateManager.flushPrimaryRow(OperationOrderUpdateManager.java:199)
+	at org.apache.openjpa.jdbc.kernel.OperationOrderUpdateManager.flush(OperationOrderUpdateManager.java:86)
+	at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.flush(AbstractUpdateManager.java:88)
+	at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.flush(AbstractUpdateManager.java:68)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.flush(JDBCStoreManager.java:512)
+	at org.apache.openjpa.kernel.DelegatingStoreManager.flush(DelegatingStoreManager.java:127)
+	at org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:1876)
+	at org.apache.openjpa.kernel.BrokerImpl.flushSafe(BrokerImpl.java:1772)
+	at org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:1567)
+	... 23 more

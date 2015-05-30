@@ -1,0 +1,16 @@
+Several of the doc files include the Windows Ctrl+M chars at the end of lines when checked out to non-Windows platforms (like MacOSX and Linux), due to the committer not using the ASF suggested svn config values - http://www.apache.org/dev/svn-eol-style.txt
+
+
+From http://www.apache.org/dev/version-control.html -
+Configuring the Subversion client
+
+Committers will need to properly configure their svn client. One particular issue is OS-specific line-endings for text files. When you add a new text file, especially when applying patches from Bugzilla, first ensure that the line-endings are appropriate for your system, then do ...
+
+svn add test.txt
+svn propset svn:eol-style native test.txt
+
+Your svn client can be configured to do that automatically for some common file types. Add the contents of the file http://www.apache.org/dev/svn-eol-style.txt to your ~/.subversion/config file. [Note: for Windows this is normally found at C:\Documents and Settings\{username}\Application Data\Subversion\config]
+
+Some files may need additional properties to be set, for example svn:executable=* should be applied to those script files (e.g. .bat, .cgi, .cmd, .sh) that are intended to be executed. Since not all such files are necessarily intended to be executed, the executable property should not be made an automatic default.
+
+However, you should still pay attention to the messages from your svn client when you do 'svn commit'.

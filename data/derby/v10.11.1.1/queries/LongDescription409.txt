@@ -1,0 +1,23 @@
+ClientDataSource setConnectionAttributes("create=true") fails with   "An attempt was made to access a database, mydbcreate=true, which was not found."  The method does not seem to insert a semicolon before the attributes.
+
+
+run attached repro to produce the error below
+
+$java ConnectionAttributes
+embedded setConnectionAttributes
+client setConnectionAttributes
+org.apache.derby.client.am.DisconnectException: The application server rejected establishment of the connection.  An attempt was made to access a database, mydbcreate=true, which was not found.
+        at org.apache.derby.client.net.NetConnectionReply.parseRDBNFNRM(NetConnectionReply.java)
+        at org.apache.derby.client.net.NetConnectionReply.parseAccessRdbError(NetConnectionReply.java)
+        at org.apache.derby.client.net.NetConnectionReply.parseACCRDBreply(NetConnectionReply.java)
+        at org.apache.derby.client.net.NetConnectionReply.readAccessDatabase(NetConnectionReply.java)
+        at org.apache.derby.client.net.NetConnection.readSecurityCheckAndAccessRdb(NetConnection.java)
+        at org.apache.derby.client.net.NetConnection.flowSecurityCheckAndAccessRdb(NetConnection.java)
+        at org.apache.derby.client.net.NetConnection.flowUSRIDPWDconnect(NetConnection.java)
+        at org.apache.derby.client.net.NetConnection.flowConnect(NetConnection.java)
+        at org.apache.derby.client.net.NetConnection.initialize(NetConnection.java)
+        at org.apache.derby.client.net.NetConnection.<init>(NetConnection.java)
+        at org.apache.derby.jdbc.ClientDataSource.getConnection(ClientDataSource.java)
+        at org.apache.derby.jdbc.ClientDataSource.getConnection(ClientDataSource.java)
+        at ConnectionAttributes.main(ConnectionAttributes.java:28)
+$

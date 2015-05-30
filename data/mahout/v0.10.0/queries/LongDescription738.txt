@@ -1,0 +1,29 @@
+org.apache.mahout.vectorizer.collocations.llr.LLRReducer, which is part of the collocation driver, statically casts a long to an int.
+
+private long ngramTotal;
+...
+int k11 = ngram.getFrequency(); /* a&b */
+int k12 = gramFreq[0] - ngram.getFrequency(); /* a&!b */
+int k21 = gramFreq[1] - ngram.getFrequency(); /* !b&a */
+int k22 = (int) (ngramTotal - (gramFreq[0] + gramFreq[1] - ngram.getFrequency())); /* !a&!b */
+
+These numbers are then fed into 
+
+org.apache.mahout.math.stats.LogLikelihood
+
+specifically the function below.
+
+public static double logLikelihoodRatio(int k11, int k12, int k21, int k22) {
+  // note that we have counts here, not probabilities, and that the entropy is not normalized.
+  double rowEntropy = entropy(k11, k12) + entropy(k21, k22);
+  double columnEntropy = entropy(k11, k21) + entropy(k12, k22);
+  double matrixEntropy = entropy(k11, k12, k21, k22);
+  if (rowEntropy + columnEntropy > matrixEntropy) 
+{
+    // round off error
+    return 0.0;
+  }
+  return 2.0 * (matrixEntropy - rowEntropy - columnEntropy);
+}
+
+In short if the long ngramTotal is larger than Integer.MAX_VALUE (which will happen in large datasets), then the driver will either crash or in the case that it casts to a negative int, will continue as usual but produce no output due to error checking.

@@ -1,0 +1,114 @@
+It's impossible to do bulk updates in mySQL. With subqueries enabled
+(<property name="openjpa.jdbc.DBDictionary"
+value="mysql(SupportsSubselect=true)" /> in persistence.xml)
+the updates generated are invalid, their execution ends with
+exception. For example:
+
+the jpql query is:
+UPDATE Token t SET t.token = :tokenValue WHERE t.status = :status
+
+the resulting exception is:
+
+<1.0.0-SNAPSHOT-SNAPSHOT nonfatal general error>
+org.apache.openjpa.persistence.PersistenceException: You can't specify
+target table 'TOKENS' for update in FROM clause 
+{prepstmnt 134
+UPDATE TOKENS
+SET TOKEN = ?
+WHERE ID_TOKEN IN (SELECT DISTINCT t0.ID_TOKEN FROM TOKENS t0 WHERE
+(t0.STATUS = ?))
+[params=(String) token100, (long) 1]} [code=1093, state=HY000]
+FailedObject: org.apache.openjpa.jdbc.kernel.exps.ExpContext@1d94799
+at org.apache.openjpa.jdbc.sql.DBDictionary.newStoreException(DBDictionary.java:3784)
+at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:97)
+at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:67)
+at org.apache.openjpa.jdbc.kernel.JDBCStoreQuery.executeBulkOperation(JDBCStoreQuery.java:508)
+at org.apache.openjpa.jdbc.kernel.JDBCStoreQuery.executeUpdate(JDBCStoreQuery.java:430)
+at org.apache.openjpa.kernel.ExpressionStoreQuery$DataStoreExecutor.executeUpdate(ExpressionStoreQuery.java:690)
+at org.apache.openjpa.datacache.QueryCacheStoreQuery$QueryCacheExecutor.executeUpdate(QueryCacheStoreQuery.java:351)
+at org.apache.openjpa.kernel.QueryImpl.update(QueryImpl.java:1036)
+at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:843)
+at org.apache.openjpa.kernel.QueryImpl.updateAll(QueryImpl.java:879)
+at kodo.kernel.KodoQuery.updateAll(KodoQuery.java:71)
+at org.apache.openjpa.kernel.DelegatingQuery.updateAll(DelegatingQuery.java:581)
+at org.apache.openjpa.persistence.QueryImpl.executeUpdate(QueryImpl.java:313)
+at sample.dao.jpa.TokenDaoImpl.updateByStatus(TokenDaoImpl.java:154)
+... 16 more
+Caused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: You
+can't specify target table 'TOKENS' for update in FROM clause{prepstmnt 134UPDATE TOKENSSET TOKEN = ?WHERE ID_TOKEN IN (SELECT DISTINCT t0.ID_TOKEN FROM TOKENS t0 WHERE(t0.STATUS = ?))[params=(String) token100, (long) 1]}
+ [code=1093, state=HY000]
+at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.wrap(LoggingConnectionDecorator.java:191)
+at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.access$800(LoggingConnectionDecorator.java:56)
+at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection$LoggingPreparedStatement.executeUpdate(LoggingConnectionDecorator.java:857)
+at org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement.executeUpdate(DelegatingPreparedStatement.java:269)
+at org.apache.openjpa.jdbc.kernel.JDBCStoreManager$CancelPreparedStatement.executeUpdate(JDBCStoreManager.java:1363)
+at org.apache.openjpa.jdbc.kernel.JDBCStoreQuery.executeBulkOperation(JDBCStoreQuery.java:501)
+... 26 more
+
+We'd expect the generated sql would look more like:
+UPDATE TOKENS
+SET TOKEN = ?
+WHERE STATUS = ?
+
+
+For the following query:
+UPDATE Token t SET t.token = :tokenValue WHERE t.user.login = :login
+
+we get
+<1.0.0-SNAPSHOT-SNAPSHOT nonfatal general error>
+org.apache.openjpa.persistence.PersistenceException: You can't specify
+target table 'TOKENS' for update in FROM clause 
+{prepstmnt 137
+UPDATE TOKENS
+SET TOKEN = ?
+WHERE ID_TOKEN IN (SELECT DISTINCT t0.ID_TOKEN FROM TOKENS t0 INNER
+JOIN USERS t1 ON t0.ID_USER = t1.ID_USER WHERE (t1.LOGIN = ?))
+[params=(String) token200, (String) noone]} [code=1093, state=HY000]
+FailedObject: org.apache.openjpa.jdbc.kernel.exps.ExpContext@713bd2
+at org.apache.openjpa.jdbc.sql.DBDictionary.newStoreException(DBDictionary.java:3784)
+at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:97)
+at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:67)
+at org.apache.openjpa.jdbc.kernel.JDBCStoreQuery.executeBulkOperation(JDBCStoreQuery.java:508)
+at org.apache.openjpa.jdbc.kernel.JDBCStoreQuery.executeUpdate(JDBCStoreQuery.java:430)
+at org.apache.openjpa.kernel.ExpressionStoreQuery$DataStoreExecutor.executeUpdate(ExpressionStoreQuery.java:690)
+at org.apache.openjpa.datacache.QueryCacheStoreQuery$QueryCacheExecutor.executeUpdate(QueryCacheStoreQuery.java:351)
+at org.apache.openjpa.kernel.QueryImpl.update(QueryImpl.java:1036)
+at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:843)
+at org.apache.openjpa.kernel.QueryImpl.updateAll(QueryImpl.java:879)
+at kodo.kernel.KodoQuery.updateAll(KodoQuery.java:71)
+at org.apache.openjpa.kernel.DelegatingQuery.updateAll(DelegatingQuery.java:581)
+at org.apache.openjpa.persistence.QueryImpl.executeUpdate(QueryImpl.java:313)
+at sample.dao.jpa.TokenDaoImpl.updateByLogin(TokenDaoImpl.java:129)
+... 16 more
+Caused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: You
+can't specify target table 'TOKENS' for update in FROM clause{prepstmnt 137UPDATE TOKENSSET TOKEN = ?WHERE ID_TOKEN IN (SELECT DISTINCT t0.ID_TOKEN FROM TOKENS t0 INNERJOIN USERS t1 ON t0.ID_USER = t1.ID_USER WHERE (t1.LOGIN = ?))[params=(String) token200, (String) noone]}
+ [code=1093, state=HY000]
+at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.wrap(LoggingConnectionDecorator.java:191)
+at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.access$800(LoggingConnectionDecorator.java:56)
+at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection$LoggingPreparedStatement.executeUpdate(LoggingConnectionDecorator.java:857)
+at org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement.executeUpdate(DelegatingPreparedStatement.java:269)
+at org.apache.openjpa.jdbc.kernel.JDBCStoreManager$CancelPreparedStatement.executeUpdate(JDBCStoreManager.java:1363)
+at org.apache.openjpa.jdbc.kernel.JDBCStoreQuery.executeBulkOperation(JDBCStoreQuery.java:501)
+... 26 more
+
+
+where we'd expect following sql:
+UPDATE TOKENS t0
+JOIN USERS t1 ON t0.ID_USER = t1.ID_USER
+SET t0.TOKEN = ?
+WHERE t1.LOGIN = ?
+
+
+If we turn subqueries off
+(<property name="openjpa.jdbc.DBDictionary" value="mysql" /> in persistence.xml)
+instead of generating bulk update queries, openjpa generates a series
+of single row updates like:
+UPDATE TOKENS
+SET TOKEN = ?, VERSION = ?
+WHERE ID_TOKEN = ? AND VERSION = ?
+[params=(String) token200, (int) 5, (long) 5, (int) 4]
+
+UPDATE TOKENS
+SET TOKEN = ?, VERSION = ?
+WHERE ID_TOKEN = ? AND VERSION = ?
+[params=(String) token200, (int) 5, (long) 6, (int) 4

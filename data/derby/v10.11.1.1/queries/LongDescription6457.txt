@@ -1,0 +1,7 @@
+If you pass a non-ascii username/password combination to a NetworkServerControl API command, such as
+
+  java -jar derbynet.jar shutdown -user Bjørn -password Dæhlie
+
+it will hang forever.
+
+The reason is that NetworkServerControlImpl.writeLDString() writes the length of the string in characters, whereas NetworkServerControlImpl.readLDString() expects the length to be in number of bytes.

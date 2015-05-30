@@ -1,0 +1,12 @@
+The server stumbles on the following error if you try to return a null LOB as a procedure output arg:
+
+java.lang.NullPointerException
+	at org.apache.derby.impl.drda.EXTDTAInputStream.length(EXTDTAInputStream.java:280)
+	at org.apache.derby.impl.drda.EXTDTAInputStream.isEmptyStream(EXTDTAInputStream.java:274)
+	at org.apache.derby.impl.drda.DRDAConnThread.writeFdocaVal(DRDAConnThread.java:7930)
+	at org.apache.derby.impl.drda.DRDAConnThread.writeFDODTA(DRDAConnThread.java:7183)
+	at org.apache.derby.impl.drda.DRDAConnThread.parseEXCSQLSTT(DRDAConnThread.java:4179)
+	at org.apache.derby.impl.drda.DRDAConnThread.processCommands(DRDAConnThread.java:1021)
+	at org.apache.derby.impl.drda.DRDAConnThread.run(DRDAConnThread.java:294)
+
+This kills the connection. I will attach a repro.

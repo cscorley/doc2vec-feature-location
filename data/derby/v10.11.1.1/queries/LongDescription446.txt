@@ -1,0 +1,4 @@
+The ClientBaseDataSource code to access the property value fields through reflection throws security exceptions as it trieds to disable security checks. Rather than requiring this somewhat dangerous permission, Derby client code can simply call the public getter and setter methods for the properties, with no security concerns,
+
+Using the test to be added in DERBY-445
+java -Djava.security.manager= org.apache.derbyTesting.functionTests.tests.jdbcapi.dataSourceReference

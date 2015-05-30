@@ -1,0 +1,23 @@
+Compiling the following code example will generate an error that $NOT_A_PARAMETER is an Undefined Parameter.
+
+This is problematic as sometimes you want to comment out parts of your code, including parameters so that you don't have to define them.
+
+This I think it would be really good if parameter substitution was not performed in comments.
+
+
+
+-- $NOT_A_PARAMETER
+
+
+
+
+
+-bash-3.00$ pig -exectype local -latest comment.pig
+USING: /grid/0/gs/pig/current
+java.lang.RuntimeException: Undefined parameter : NOT_A_PARAMETER
+        at org.apache.pig.tools.parameters.PreprocessorContext.substitute(PreprocessorContext.java:221)
+        at org.apache.pig.tools.parameters.ParameterSubstitutionPreprocessor.parsePigFile(ParameterSubstitutionPreprocessor.java:106)
+        at org.apache.pig.tools.parameters.ParameterSubstitutionPreprocessor.genSubstitutedFile(ParameterSubstitutionPreprocessor.java:86)
+        at org.apache.pig.Main.runParamPreprocessor(Main.java:394)
+        at org.apache.pig.Main.main(Main.java:296)
+

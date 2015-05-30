@@ -1,0 +1,29 @@
+Entity is set up in db-data-config.xml as follows
+
+I<entity dataSource="mysqlDS" name="contact" pk="id"
+    query="SELECT o.* FROM Contact o WHERE (o.deleted is null OR o.deleted = 0)"
+    deltaQuery="select id from Contact o where (o.deleted is null OR o.deleted = 0) AND (o.createDate > '$
+{dataimporter.last_index_time}' OR o.updateDate > '${dataimporter.last_index_time}
+')"
+    deletedPkQuery="select id FROM Contact o WHERE o.deleted = 1 AND (o.createDate > '$
+{dataimporter.last_index_time}' OR o.updateDate > '${dataimporter.last_index_time}
+')">
+    ...
+</entity>
+
+If a delta import is trigger which causes only documents to be deleted the index is not commit. 
+
+Problem seems to be in DocBuilder.execute() method checks for deletedDocCount before commiting.
+if (importStatistics.docCount.get() > 0 || importStatistics.deletedDocCount.get() > 0) 
+{
+  commit(lastIndexTimeProps);
+}
+
+doDelta() method sets the count as follows
+importStatistics.deletedDocCount.addAndGet(deletedKeys.size());
+
+but after deleteAll(Set) method removes the each key from iterator
+while (...) ...
+      iter.remove();
+
+Simply remove iter.remove() line should fix the problem. I am not sure what is the point of removing the keys from the iterator.

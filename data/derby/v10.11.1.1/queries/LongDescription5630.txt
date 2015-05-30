@@ -1,0 +1,28 @@
+I've seen this test fail twice recently, once with ibm 1.6, once with 1.4.2, both times on the same machine (which is running 10.8 nightly testing):
+
+The diff is as follows:
+51a52,61
+> ij(C1)> commit;
+> ij(C1)> call SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY('derby.locks.waitTimeout', '180');
+> 0 rows inserted/updated/deleted
+> ij(C1)> commit;
+> ij(C1)> set connection c2 ;
+> ij(C2)> wait for C2S1;
+> 3 rows inserted/updated/deleted
+> ij(C2)> select state from syscs_diag.lock_table order by state;
+> STATE
+> -----
+53,63d62
+< WAIT 
+< ij(C1)> commit;
+< ij(C1)> call SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY('derby.locks.waitTimeout', '180');
+< 0 rows inserted/updated/deleted
+< ij(C1)> commit;
+< ij(C1)> set connection c2 ;
+< ij(C2)> wait for C2S1;
+< 3 rows inserted/updated/deleted
+< ij(C2)> select state from syscs_diag.lock_table order by state;
+< STATE
+< -----
+67d65
+< GRANT

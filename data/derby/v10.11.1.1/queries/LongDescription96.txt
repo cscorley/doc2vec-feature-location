@@ -1,0 +1,35 @@
+Incomplete log record write that occurs because of
+an out of order partial writes gets recognized as complete during
+recovery if the first sector and last sector happens to get written.
+ Current system recognizes incompletely written log records by checking
+the length of the record that is stored in the beginning and end.
+ Format the log records are written to disk is:
+
+  -------------------------------------
+
+
+
+ length     
+  LOG RECORD 
+    length   
+
+
+
+
+  -------------------------------------
+
+
+This mechanism works fine if sectors are written in sequential manner or
+log record size is less than 2 sectors. I  believe on SCSI types disks
+order is not necessarily sequential, SCSI disk drives may sometimes do a
+reordering of the sectors to optimize the performance.  If a log record
+that spans multiple disk sectors is being written to SCISI type of
+devices,  it is possible that first and last sector written before the
+crash; If this occurs recovery system will incorrectly  interpret the
+log records was completely written and replay the record. This could
+lead to recovery errors or data corruption.
+-
+
+
+This problem also will not occur if a disk drive has write cache with a
+battery backup which will make sure I/O request will complete.

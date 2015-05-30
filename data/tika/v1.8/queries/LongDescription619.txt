@@ -1,0 +1,18 @@
+I am getting an exception parsing the following GIF file, which opens OK in firefox, etc. Although since this is a problem in Sun/Oracle code, I would not expect it to be fixed anytime soon!
+
+
+$ java -jar tika-app/target/tika-app-1.0-SNAPSHOT.jar http://sites.google.com/site/keepaesopen/_/rsrc/1271597999559/system/app/images/icon_gadget_tools_dark.gif
+Exception in thread "main" org.apache.tika.exception.TikaException: image/gif parse error
+        at org.apache.tika.parser.image.ImageParser.parse(ImageParser.java:91)
+        at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:197)
+        at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:197)
+        at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:135)
+        at org.apache.tika.cli.TikaCLI$OutputType.process(TikaCLI.java:107)
+        at org.apache.tika.cli.TikaCLI.process(TikaCLI.java:302)
+        at org.apache.tika.cli.TikaCLI.main(TikaCLI.java:91)
+Caused by: javax.imageio.IIOException: Unexpected block type 0!
+        at com.sun.imageio.plugins.gif.GIFImageReader.readMetadata(GIFImageReader.java:722)
+        at com.sun.imageio.plugins.gif.GIFImageReader.getWidth(GIFImageReader.java:167)
+        at org.apache.tika.parser.image.ImageParser.parse(ImageParser.java:75)
+        ... 6 more
+

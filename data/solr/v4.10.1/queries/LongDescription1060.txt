@@ -1,0 +1,30 @@
+I have finished a new DIH EntityProcessor. It is designed around the idea that whatever demon is used to maintain your content store it is likely to drop a report or log file explaining what has changed within your content store. I wish to use this report file to control the indexing of the new or changed content and the removal of old content. The report files, perhaps from un-tar or un-zip, are likely to reference jpegs and directory stubs which need to be ignored. I assumed a file based content repository but this should be expanded to handle URI's as well
+
+I feel that the current FileListEntityProcessor is poorly named. It should be called the dirWalkEntityProcessor or dirCrawlEntityProcessor or such. And this new EntityProcessor should have the name FileListEntityProcessor. However what is done is done. I then came up with manifestEnityProcessor which I thought suited, manifest files are all over the content sets I deal with and the dictionary definition seemed close enough ("ships manifest"). However how about ChangeListEntityProcessor
+
+
+       <entity name="jc"
+               processor="ManifestEntityProcessor"
+               baseDir="/Volumes/Techmore/ts/aaa/schema/data"
+               rootEntity="false"
+               dataSource="null"
+
+               allowRegex="^.*\.xml$"
+               blockRegex="usc2009"
+               manifestFileName="/Volumes/ts/man-find.txt"
+               docAddRegex=".*"
+               >
+
+
+
+The new entity fields are as follows.
+
+   manifestFileName is the required location of the manifest file. If this value is relative, it assumed to be relative to baseDir.
+
+   allowRegex is an optional attribute that if present discards any line which does not match the regExp
+
+   blockRegex is an optional attribute that is applied after any allowRegex and discards any line which matches the regExp
+
+   docAddRegex is a required regex to identify lines which when matched should cause docs to be added to the index. As well as matching the line it should also return the portion of the line which contains the filepath as group(1)
+
+   docDeleteRegex is an optional value of a regex to identify documents which when matched should be deleted from the index. As well as matching the line it should also return the portion of the line which contains the filepath as group(1) *PLANNED*

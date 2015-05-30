@@ -1,0 +1,21 @@
+I see the following exception when running against hadoop 23: (all test-commit tests pass except for these two)
+
+
+org.apache.hadoop.mapreduce.lib.input.InvalidInputException: Input path does not exist: file:/var/lib/hudson/workspace/CDH4-Pig-0.9.2-test-commit/testSFPig-output.txt
+	at org.apache.hadoop.mapreduce.lib.input.FileInputFormat.listStatus(FileInputFormat.java:243)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigTextInputFormat.listStatus(PigTextInputFormat.java:36)
+	at org.apache.hadoop.mapreduce.lib.input.FileInputFormat.getSplits(FileInputFormat.java:269)
+	at org.apache.pig.impl.io.ReadToEndLoader.init(ReadToEndLoader.java:154)
+	at org.apache.pig.impl.io.ReadToEndLoader.<init>(ReadToEndLoader.java:116)
+	at org.apache.pig.test.TestBuiltin.testSFPig(TestBuiltin.java:2177)
+
+
+
+This happens in both testLFText/testSFPig.
+
+Looking at these two tests it seems that toConfiguration is being called improperly, I have a patch (momentarily) that will address this similar to:
+
+
+-                toConfiguration(new Properties()), "testLFTest-input1.txt", 0);
++            toConfiguration(cluster.getProperties()), "testLFTest-input1.txt", 0);
+

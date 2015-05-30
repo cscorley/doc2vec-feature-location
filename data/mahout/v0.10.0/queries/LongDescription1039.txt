@@ -1,0 +1,24 @@
+When trying to run the pseudo.RecommenderJob without a usersFile, there is an IllegalArgumentException:
+
+Exception in thread "main" java.lang.IllegalArgumentException: Can not create a Path from a null string
+        at org.apache.hadoop.fs.Path.checkPathArg(Path.java:78)
+        at org.apache.hadoop.fs.Path.<init>(Path.java:90)
+        at org.apache.mahout.cf.taste.hadoop.pseudo.RecommenderJob.run(RecommenderJob.java:122)
+        at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:65)
+        at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:79)
+        at org.apache.mahout.cf.taste.hadoop.pseudo.RecommenderJob.main(RecommenderJob.java:148)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:601)
+        at org.apache.hadoop.util.RunJar.main(RunJar.java:156)
+
+In addition, providing a usersFile does not appear to cause any filtering to occur.  This can be reproduced running the pseudo.RecommenderJob without a userFile and some basic preferences(I'm happy to provide more specifics here if necessary)
+
+It looks like we're taking the wrong action based on this check at RecommenderJob.java:122
+
+Path usersFile = hasOption("usersFile") ? inputFile : new Path(getOption("usersFile"));
+
+If the usersFile option has been specified, it seems like we should be using that, rather than the inputFile, and vice versa.
+
+I have attached attached a patch, runnable from trunk that swaps the action on line 122.  This appears to fix the issue.

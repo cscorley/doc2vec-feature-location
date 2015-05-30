@@ -1,0 +1,8 @@
+For hadoop 20, if user don't specify the number of reducers, hadoop will use 1 reducer as the default value. It is different from previous of hadoop, in which default reducer number is usually good. 1 reducer is not what user want for sure. Although user can use "parallel" keyword to specify number of reducers for each statement, it is wordy. We need a convenient way for users to express a desired number of reducers. Here is my propose:
+
+1. Add one property "default_parallel" to Pig. User can set default_parallel in script. Eg:
+   set default_parallel 10;
+
+2. default_parallel is a hint to Pig. Pig is free to optimize the number of reducers (unlike parallel keyword). Currently, since we do not have a mechanism to determine the optimal number of reducers, default_parallel will be always granted, unless it is override by "parallel" keyword.
+
+3. If user put multiple default_parallel inside script, the last entry will be taken.

@@ -1,0 +1,50 @@
+The following statements produce an AssertFailure exception:
+
+CREATE TABLE table1 (
+   s VARCHAR(10));
+
+SELECT 1
+   FROM table1 a
+      INNER JOIN table1 b ON
+         a.s =
+            CASE
+               WHEN 1=1 THEN '0'
+               ELSE SUBSTR(b.s,1,1) END;
+
+
+Stack trace:
+
+org.apache.derby.shared.common.sanity.AssertFailure: ASSERT FAILED ByteCode Conditional then/else stack mismatch: then: Lorg/apache/derby/iapi/types/StringDataValue; else: Lorg/apache/derby/iapi/types/ConcatableDataValue;
+        at org.apache.derby.shared.common.sanity.SanityManager.THROWASSERT(SanityManager.java:149)
+        at org.apache.derby.impl.services.bytecode.Conditional.end(Conditional.java:216)
+        at org.apache.derby.impl.services.bytecode.BCMethod.completeConditional(BCMethod.java:1063)
+        at org.apache.derby.impl.sql.compile.ConditionalNode.generateExpression(ConditionalNode.java:468)
+        at org.apache.derby.impl.sql.compile.BinaryRelationalOperatorNode.generateQualMethod(BinaryRelationalOperatorNode.java:708)
+        at org.apache.derby.impl.sql.compile.PredicateList.generateSingleQualifierCode(PredicateList.java:2723)
+        at org.apache.derby.impl.sql.compile.PredicateList.generateQualifiers(PredicateList.java:2905)
+        at org.apache.derby.impl.sql.compile.HashJoinStrategy.getScanArgs(HashJoinStrategy.java:348)
+        at org.apache.derby.impl.sql.compile.FromBaseTable.getScanArguments(FromBaseTable.java:3368)
+        at org.apache.derby.impl.sql.compile.FromBaseTable.generateResultSet(FromBaseTable.java:3059)
+        at org.apache.derby.impl.sql.compile.FromBaseTable.generate(FromBaseTable.java:2986)
+        at org.apache.derby.impl.sql.compile.ProjectRestrictNode.generateMinion(ProjectRestrictNode.java:1352)
+        at org.apache.derby.impl.sql.compile.ProjectRestrictNode.generate(ProjectRestrictNode.java:1303)
+        at org.apache.derby.impl.sql.compile.JoinNode.getJoinArguments(JoinNode.java:1580)
+        at org.apache.derby.impl.sql.compile.JoinNode.generateCore(JoinNode.java:1556)
+        at org.apache.derby.impl.sql.compile.JoinNode.generate(JoinNode.java:1480)
+        at org.apache.derby.impl.sql.compile.ProjectRestrictNode.generateMinion(ProjectRestrictNode.java:1441)
+        at org.apache.derby.impl.sql.compile.ProjectRestrictNode.generate(ProjectRestrictNode.java:1303)
+        at org.apache.derby.impl.sql.compile.ScrollInsensitiveResultSetNode.generate(ScrollInsensitiveResultSetNode.java:110)
+        at org.apache.derby.impl.sql.compile.CursorNode.generate(CursorNode.java:583)
+        at org.apache.derby.impl.sql.compile.StatementNode.generate(StatementNode.java:233)
+        at org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatement.java:478)
+        at org.apache.derby.impl.sql.GenericStatement.prepare(GenericStatement.java:119)
+        at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(GenericLanguageConnectionContext.java:745)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:568)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:517)
+        at org.apache.derby.impl.tools.ij.ij.executeImmediate(Unknown Source)
+        at org.apache.derby.impl.tools.ij.utilMain.doCatch(Unknown Source)
+        at org.apache.derby.impl.tools.ij.utilMain.go(Unknown Source)
+        at org.apache.derby.impl.tools.ij.Main.go(Unknown Source)
+        at org.apache.derby.impl.tools.ij.Main.mainCore(Unknown Source)
+        at org.apache.derby.impl.tools.ij.Main14.main(Unknown Source)
+        at org.apache.derby.tools.ij.main(Unknown Source)

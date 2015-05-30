@@ -1,0 +1,15 @@
+When we are trying to use order-preserving sorted union:
+....
+
+We got the following schema, where the type of 'source_table' is (null) with no column name:
+
+{id: chararray,name: chararray,context: chararray,writer: chararray,rev: chararray,schema: chararray,(null)}
+
+I tried to project the 'source_table' field but failed:
+
+B = FOREACH A GENERATE id, $6; 
+DUMP B;
+
+But then we got exception org.apache.pig.impl.logicalLayer.FrontendException: ERROR 1066: Unable to open iterator for alias B.
+
+Can you guys please let us know how to access this column? Or is the symptom described above is a bug?

@@ -1,0 +1,11 @@
+UDFFinder doesn't look into POCast so it will miss LoadFunc used by POCast for lineage. We could see "class not found" exception in some cases. Here is a sample script:
+
+
+
+a = load '1.txt' using CustomLoader() as (a0, a1, a2);
+b = group a by a0;
+c = foreach b generate flatten(a);
+d = order c by a0;
+e = foreach d generate(a1+a2);  -- use lineage
+dump e;
+

@@ -1,0 +1,2 @@
+I have seen this on restarting the same bookies from same JVM( in one of mey testcase which I was writing for autoRecovery work), i.e, all channels are not getting closed.
+When we restart the same bookie, there are 0.log channel will be a older channel. Since the current code cares about only current logChannel. So, we are not releasing the older channels on EntryLogger shutdown. 

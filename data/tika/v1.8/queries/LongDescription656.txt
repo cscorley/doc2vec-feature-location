@@ -1,0 +1,5 @@
+Currently, the Outlook extractor fetches the "Accepted By Mail Server" date from POI, and then saves this into Metadata.EDIT_TIME and Metadata.LAST_SAVED, neither of which look right, and neither of which are date properties.
+
+The rfc822 parser uses Metadata.CREATION_DATE, which is a Date property. The mbox parser uses Metadata.DATE, another (but different) Date property
+
+All three should probably use the same. I'd suggest that for now, they all output the same value to both CREATION_DATE and DATE

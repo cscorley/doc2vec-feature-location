@@ -1,0 +1,5 @@
+SQL Sequences are independent of the transaction. Therefore the same connection which is used to insert a row can be used to increment the sequence value. 
+
+Currently we treat these native sequences in the same manner as updating a sequence table - ie the work will be done on connection2 (aka the non-jta-data-source). This appears to be unnecessary and requires an additional datasource when running in a managed environment which can't suspend the current transaction 
+
+To resolve the problem I added a nativeSequenceType attribute to the DBDictionary class. This setting will be used to determine the whether the databases sequences are transactional, contiguous or non transactional (Default is contiguous). If the native sequences are transactional or contiguous they will be executed within the current transaction and will not require a second connection factory. 

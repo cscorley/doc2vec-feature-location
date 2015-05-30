@@ -1,0 +1,22 @@
+When submitting a PDF with this information in its XMP metadata:
+...
+      <dc:creator>
+        <rdf:Bag>
+          <rdf:li>Author 1</rdf:li>
+          <rdf:li>Author 2</rdf:li>
+        </rdf:Bag>
+      </dc:creator>
+...
+Only the first one appears in the collection:
+...
+        "author":["Author 1"],
+        "author_s":"Author 1",
+...
+
+In spite of having set the field to multiValued in the Solr schema:
+
+<field name="author" type="text_general" indexed="true" stored="true" multiValued="true"/>
+
+Let me know if there's any further specific information I could provide.
+
+Thanks in advance! 

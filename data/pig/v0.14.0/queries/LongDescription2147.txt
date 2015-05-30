@@ -1,0 +1,36 @@
+Currently xmlloader does not support nested tags with same tag name, ie if i have the below content
+
+
+
+<event>
+ <relatedEvents>
+   <event>x<\event>
+   <event>y<\event>
+   <event>z<\event>
+ <\relatedEvents>
+<\event>
+
+
+
+And I load the above using XMLLoader,
+events = load 'input' using org.apache.pig.piggybank.storage.XMLLoader('event') as (doc:chararray);
+
+
+The output will be,
+
+
+<event>
+ <relatedEvents>
+   <event>x<\event>
+
+
+
+Whereas the desired output is ;
+
+
+ <relatedEvents>
+   <event>x<\event>
+   <event>y<\event>
+   <event>z<\event>
+ <\relatedEvents>
+

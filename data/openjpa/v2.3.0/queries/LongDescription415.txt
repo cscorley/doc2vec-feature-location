@@ -1,0 +1,54 @@
+While investigation a problem, I noticed that garbage collection kicks in on the AbstractResultList's finalize() method.
+        ........
+        at org.apache.openjpa.lib.jdbc.DelegatingConnection.close(DelegatingConnection.java:212)
+        at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection.close(LoggingConnectionDecorator.java:279)
+        at org.apache.openjpa.jdbc.kernel.JDBCStoreManager$RefCountConnection.free(JDBCStoreManager.java:1288)
+        at org.apache.openjpa.jdbc.kernel.JDBCStoreManager$RefCountConnection.close(JDBCStoreManager.java:1273)
+        at org.apache.openjpa.jdbc.sql.ResultSetResult.close(ResultSetResult.java:182)
+        at org.apache.openjpa.jdbc.kernel.SelectResultObjectProvider.close(SelectResultObjectProvider.java:148)
+        at org.apache.openjpa.lib.rop.WindowResultList.free(WindowResultList.java:158)
+        at org.apache.openjpa.lib.rop.WindowResultList.close(WindowResultList.java:78)
+        at org.apache.openjpa.lib.rop.AbstractResultList.finalize(AbstractResultList.java:89)
+        at java.lang.J9VMInternals.runFinalize(J9VMInternals.java:406)
+
+When traversing the call stack to the ResultSetResult.close() method, it is trying to close the result set unconditionally, and then close the associated statement and connection if they exists:
+
+    public void close() {
+        super.close();
+        try 
+{
+            _rs.close();
+        }
+ catch (SQLException se) {
+        }
+        if (_stmnt != null)
+            try 
+{
+                _stmnt.close();
+            }
+ catch (SQLException se) {
+            }
+        if (_closeConn)
+            try 
+{
+                _conn.close();
+            }
+ catch (SQLException se) {
+            }
+    }
+
+Would this be a undesired side-effect and a problem in the following scenario:
+
+1)  appl / openjpa obtains a connection
+2)  create a prepare statement 
+3)  get a result set from the statement
+4)  using the same statement and get another result set. The first result set is not being referenced by any code and ready for gc.
+5)  the connection and statement is active for a long time and gc kicks in to gc the first result set instance
+6)  eventually the ResultSetResult.close() gets call.
+7)  The statement and connection gets closed while it is still being used by appl / openjpa.
+
+Is this a possible scenario? 
+
+According to the JCA architecture, connection that is scoped to a transaction will be closed by the connection manager and all associated statements and result set managed by the connection will be automatically closed. So is the AbstractResultList.finalize() ever be needed at all? 
+
+Albert Lee.

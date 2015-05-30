@@ -1,0 +1,5 @@
+Currently the drda code in server and client assumes that the byte length of ddm parameters is equal to the character length.  In the fix for DERBY-728, ddm parameters such as RDBNAM will be in UTF-8 and the character and byte length may not match.  The code needs to allow for this.
+
+The primary purpose of this Jira is to enforce the DRDA length checking which is in bytes.  For example for RDBNAM (database name), the limit  is 255 bytes in length, not 255 characters.   The limits are somewhat arbitrary and sad in my opinion. Certainly for Derby there should be no problem  removing the limits, except for the DRDA spec constraint. With DERBY-728 and the introduction of UNICODEMGR, characters can take up to 4 bytes, so the calculation is more difficult.
+
+(I actually tried to sneak removing or expanding the limits in the ACR 7007 for UNICODEMGR but was told, rightfully so, that such a proposal needed to be a separate ACR. I am a bit concerned that especially since database names can be full paths we may rapidly exceed the limits) 

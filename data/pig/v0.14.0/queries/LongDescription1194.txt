@@ -1,0 +1,36 @@
+I have a simple Pig script which takes 3 columns out of which one is null. 
+
+
+
+input = load 'inputdata.txt' using PigStorage() as (col1, col2, col3);
+a = GROUP input BY (((double) col3)/((double) col2) > .001 OR col1 < 11 ? col1 : -1);
+b = FOREACH a GENERATE group as col1, SUM(input.col2) as col2, SUM(input.col3) as  col3;
+store b into 'finalresult';
+
+
+
+
+
+When I run this script I get the following error:
+
+ERROR 2055: Received Error while processing the map plan.
+
+org.apache.pig.backend.executionengine.ExecException: ERROR 2055: Received Error while processing the map plan.
+
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:277)
+
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:240)
+
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapReduce$Map.map(PigMapReduce.java:93)
+
+        at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:50)
+
+        at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:358)
+
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:307)
+
+================================================================================
+
+A more useful error message for the purpose of debugging would be helpful.
+
+Viraj

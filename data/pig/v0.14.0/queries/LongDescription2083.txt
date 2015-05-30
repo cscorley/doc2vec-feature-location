@@ -1,0 +1,8 @@
+This is a regression for 9.
+
+a = load '1.txt' as (a0, a1);
+b = foreach a generate (a0==0?null:2);
+explain b;
+
+ERROR 1025:
+Invalid field projection. Projected field [null] does not exist in schema

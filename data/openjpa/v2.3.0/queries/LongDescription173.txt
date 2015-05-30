@@ -1,0 +1,30 @@
+As reported at openjpa-dev [1], the following query generates invalid SQL:
+
+    UPDATE Email e SET e.totalDeliveries = e.totalDeliveries + 1
+    WHERE e.email IN (
+        SELECT m.email FROM MailingList l JOIN l.subscribers m)
+
+OpenJPA (0.9.6) parses this correctly, but can't seems to be missing the JOIN clause or some table names from the generated SQL:
+
+ org.apache.openjpa.lib.jdbc.ReportingSQLException: ERROR: syntax error at or near "WHERE" 
+{prepstmnt 27475707 UPDATE FB_EMAILS SET totalDeliveries = (totalDeliveries + ?) WHERE email IN (SELECT DISTINCT t2.email FROM WHERE (t2.email IN (SELECT t3.email FROM FB_EMAILS t3 WHERE t0.id = t1.id AND t1.subscribers_email = t3.email))) [params=(long) 1]}
+ [code=0, state=42601]
+
+    org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.wrap(LoggingConnectionDecorator.java:188)
+    org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.access$800(LoggingConnectionDecorator.java:53)
+    org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection$LoggingPreparedStatement.executeUpdate(LoggingConnectionDecorator.java:854)
+    org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement.executeUpdate(DelegatingPreparedStatement.java:266)
+    org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement.executeUpdate(DelegatingPreparedStatement.java:266)
+    org.apache.openjpa.jdbc.kernel.JDBCStoreManager$CancelPreparedStatement.executeUpdate(JDBCStoreManager.java:1360)
+    org.apache.openjpa.jdbc.kernel.JDBCStoreQuery.executeBulkOperation(JDBCStoreQuery.java:491)
+    org.apache.openjpa.jdbc.kernel.JDBCStoreQuery.executeUpdate(JDBCStoreQuery.java:420)
+    org.apache.openjpa.kernel.ExpressionStoreQuery$DataStoreExecutor.executeUpdate(ExpressionStoreQuery.java:685)
+     org.apache.openjpa.datacache.QueryCacheStoreQuery$QueryCacheExecutor.executeUpdate(QueryCacheStoreQuery.java:343)
+    org.apache.openjpa.kernel.QueryImpl.update(QueryImpl.java:1028)
+    org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:793)
+    org.apache.openjpa.kernel.QueryImpl.updateAll(QueryImpl.java:868)
+    org.apache.openjpa.kernel.QueryImpl.updateAll(QueryImpl.java:864)
+    org.apache.openjpa.kernel.DelegatingQuery.updateAll(DelegatingQuery.java:560)
+    org.apache.openjpa.persistence.QueryImpl.executeUpdate(QueryImpl.java:304) 
+
+[1] http://www.nabble.com/forum/ViewPost.jtp?post=9450588&framed=y

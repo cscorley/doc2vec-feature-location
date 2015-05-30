@@ -1,0 +1,14 @@
+While reviewing the patch for PIG-3141, I noticed that the following comment is out-of-date:
+PigSplit.java
+
+// package level access because we don't want LoadFunc implementations
+// to get this information - this is to be used only from
+// MergeJoinIndexer
+public int getSplitIndex() {
+    return splitIndex;
+}
+
+
+Looking at the commit history, the public qualifier was added by PIG-1309, but the comment wasn't updated accordingly.
+
+Provided that more and more LoadFunc implementations use this method (e.g. PIG-3141), we should remove this misleading comment to avoid any confusion.

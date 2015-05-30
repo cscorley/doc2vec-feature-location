@@ -1,0 +1,14 @@
+PigStorage's reading of Tuples ( lines ) can be optimized using Hadoop's LineRecordReader.
+
+This can help in following areas
+
+	Improving performance reading of Tuples (lines) in PigStorage
+	Any future improvements in line reading done in Hadoop's LineRecordReader is automatically carried over to Pig
+
+
+
+Issues that are handled by this patch
+
+	BZip uses internal buffers and positioning for determining the number of bytes read. Hence buffering done by LineRecordReader has to be turned off
+	Current implementation of LocalSeekableInputStream does not implement available method. This method has to be implemented.
+

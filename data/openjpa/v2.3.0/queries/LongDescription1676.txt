@@ -1,0 +1,41 @@
+openjpa  WARN   [AWT-EventQueue-0] openjpa.Enhance - An exception was thrown while attempting to perform class file transformation on "null":
+java.lang.NullPointerException
+	at org.apache.openjpa.enhance.PCClassFileTransformer.needsEnhance(PCClassFileTransformer.java:175)
+	at org.apache.openjpa.enhance.PCClassFileTransformer.transform0(PCClassFileTransformer.java:132)
+	at org.apache.openjpa.enhance.PCClassFileTransformer.transform(PCClassFileTransformer.java:120)
+	at sun.instrument.TransformerManager.transform(TransformerManager.java:169)
+	at sun.instrument.InstrumentationImpl.transform(InstrumentationImpl.java:365)
+	at java.lang.ClassLoader.defineClass1(Native Method)
+	at java.lang.ClassLoader.defineClassCond(ClassLoader.java:632)
+	at java.lang.ClassLoader.defineClass(ClassLoader.java:616)
+	at java.lang.ClassLoader.defineClass(ClassLoader.java:466)
+	at com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl$TransletClassLoader.defineClass(TemplatesImpl.java:126)
+	at com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.defineTransletClasses(TemplatesImpl.java:312)
+	at com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.getTransletInstance(TemplatesImpl.java:349)
+	at com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.newTransformer(TemplatesImpl.java:382)
+	at net.sourceforge.jeuclid.DOMBuilder.createTransformer(DOMBuilder.java:95)
+	at net.sourceforge.jeuclid.DOMBuilder.<init>(DOMBuilder.java:75)
+	at net.sourceforge.jeuclid.DOMBuilder$SingletonHolder.<clinit>(DOMBuilder.java:53)
+	at net.sourceforge.jeuclid.DOMBuilder.getInstance(DOMBuilder.java:110)
+	at net.sourceforge.jeuclid.layout.JEuclidView.<init>(JEuclidView.java:75)
+
+
+
+The code causing the error is in the JVM, because defineClass is called with a null class name:
+
+static final class TransletClassLoader extends ClassLoader {
+	TransletClassLoader(ClassLoader parent) 
+{
+	    super(parent);
+	}
+
+        /**
+
+	Access to final protected superclass member from outer class.
+         */
+	Class defineClass(final byte[] b) 
+{
+====>            return defineClass(null, b, 0, b.length);    <=====
+	}
+    }
+

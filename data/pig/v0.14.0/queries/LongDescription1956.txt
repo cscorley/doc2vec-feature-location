@@ -1,0 +1,12 @@
+For the following pig script:
+
+a = load 'x' as (name, age, gpa);
+b = group a by name;
+c = foreach b 
+{ ba = filter a by age < '25'; bb = foreach ba generate gpa; generate group, flatten(bb);}
+
+Parser gives the following error:
+
+ERROR 0: <line 3, column 14> ...
+
+It should give a more meaningful error message.

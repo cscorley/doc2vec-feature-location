@@ -1,0 +1,5 @@
+Currently the TeeContentHandler only branches the incoming SAX event stream to two underlying handlers. There is no reason it couldn't handle any number of underlying handlers, and the most straightforward way to do that is to allow varargs in the constructor:
+
+    public TeeContentHandler(ContentHandler... handlers)
+
+Doing this introduces a minor backwards incompatibility with the 0.1 release, but I think it's worth it especially since we explicitly made no API stability promises in 0.1.

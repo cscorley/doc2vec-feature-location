@@ -1,0 +1,14 @@
+SolrQuery has umpteen no:of setter methods and one needs to invoke a
+lot of them before sending the query. Can we make the 'setter' methods
+return 'this' so that users can chain the method calls and make the
+client code simpler.
+as follows
+
+SolrQuery solrQuery = new  SolrQuery().
+    setQuery("ipod").
+    setFacet(true).
+    setFacetMinCount(1).
+    setFacetLimit(8).
+    addFacetField("category").
+    addFacetField("inStock");
+

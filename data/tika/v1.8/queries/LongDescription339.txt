@@ -1,0 +1,3 @@
+Currently the code used to call CharsetDetector in both TXTParser and HtmlParser is that any incoming language in the metadata map gets replaced if the detector returns a language.
+
+Given the low reliability of this language result, it should only be used in cases where there is no provided language, as typically this is coming in from either the Http response header or (for the HtmlParser) a meta tag or some other tag attribute. In all those cases, the incoming language is more accurate than the guess by the CharsetDetector.

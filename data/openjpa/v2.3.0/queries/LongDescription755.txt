@@ -1,0 +1,46 @@
+I have a CustomerInventory entity that has a reference to an Item entity. The cascade property for Item is set to ALL. I create a new CustomerInventory, and attach to it an Item that was previously found and detached (by closing the em). I add the CustomerInventory to an existing Customer, and merge in the updated Customer. 
+
+At commit time, OpenJPA tries to persist Item, leading to this exception:
+
+<openjpa-2.0.0-SNAPSHOT-runknown fatal store error> org.apache.openjpa.persistence.RollbackException: Attempt to persist detached object "org.apache.openjpa.persistence.detachment.model.DMItem-org.apache.openjpa.persistence.detachment.model.DMItem-1225343083922".  If this is a new instance, make sure any version and/or auto-generated primary key fields are null/default when persisting.
+	at org.apache.openjpa.persistence.EntityManagerImpl.commit(EntityManagerImpl.java:523)
+	at org.apache.openjpa.persistence.detachment.TestDetachedEntityCascadePersist.testDetachedEntityCascadePersist(TestDetachedEntityCascadePersist.java:73)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:585)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at org.apache.openjpa.persistence.test.PersistenceTestCase.run(PersistenceTestCase.java:143)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.eclipse.jdt.internal.junit.runner.junit3.JUnit3TestReference.run(JUnit3TestReference.java:130)
+	at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:460)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:673)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:386)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:196)
+Caused by: <openjpa-2.0.0-SNAPSHOT-runknown nonfatal store error> org.apache.openjpa.persistence.EntityExistsException: Attempt to persist detached object "org.apache.openjpa.persistence.detachment.model.DMItem-org.apache.openjpa.persistence.detachment.model.DMItem-1225343083922".  If this is a new instance, make sure any version and/or auto-generated primary key fields are null/default when persisting.
+FailedObject: org.apache.openjpa.persistence.detachment.model.DMItem-org.apache.openjpa.persistence.detachment.model.DMItem-1225343083922
+	at org.apache.openjpa.kernel.BrokerImpl.persist(BrokerImpl.java:2422)
+	at org.apache.openjpa.kernel.SingleFieldManager.preFlushPC(SingleFieldManager.java:759)
+	at org.apache.openjpa.kernel.SingleFieldManager.preFlush(SingleFieldManager.java:594)
+	at org.apache.openjpa.kernel.SingleFieldManager.preFlush(SingleFieldManager.java:562)
+	at org.apache.openjpa.kernel.SingleFieldManager.preFlush(SingleFieldManager.java:478)
+	at org.apache.openjpa.kernel.StateManagerImpl.preFlush(StateManagerImpl.java:2832)
+	at org.apache.openjpa.kernel.PNewState.beforeFlush(PNewState.java:39)
+	at org.apache.openjpa.kernel.StateManagerImpl.beforeFlush(StateManagerImpl.java:960)
+	at org.apache.openjpa.kernel.BrokerImpl.flushTransAdditions(BrokerImpl.java:2089)
+	at org.apache.openjpa.kernel.BrokerImpl.flushAdditions(BrokerImpl.java:2068)
+	at org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:1950)
+	at org.apache.openjpa.kernel.BrokerImpl.flushSafe(BrokerImpl.java:1909)
+	at org.apache.openjpa.kernel.BrokerImpl.beforeCompletion(BrokerImpl.java:1827)
+	at org.apache.openjpa.kernel.LocalManagedRuntime.commit(LocalManagedRuntime.java:81)
+	at org.apache.openjpa.kernel.BrokerImpl.commit(BrokerImpl.java:1351)
+	at org.apache.openjpa.kernel.DelegatingBroker.commit(DelegatingBroker.java:877)
+	at org.apache.openjpa.persistence.EntityManagerImpl.commit(EntityManagerImpl.java:512)
+	... 20 more

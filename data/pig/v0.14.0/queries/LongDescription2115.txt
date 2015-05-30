@@ -1,0 +1,7 @@
+HBase storage currently configures child MapR jobs assuming that the HBase jars and cluster configuration are present on the hadoop cluster that will run the pig program. In some circumstances, and for some configurations this causes problems with both the configuration suddenly becoming defaulted during a job run as well as ClassNotFound exceptions occurring due to the child MapReduce job being incorrectly configured.
+
+As such, the hbase built in configuration is merged with the job configuration using the inbuilt pig classes for this functionality, this prevents the jobs configuration from being overwritten by defaults.
+
+At the same time this change has been mirrored in the relevant setup methods called when the HBaseStorage is used as a StoreFunc; this means that the StoreFunc also correctly sets up the relevant classpath preventing ClassNotFound exceptions in clusters that are not adding the HBase classes to the HADOOP_CLASSPATH.  
+
+Attached is a patch that hopefully fixes these issues for others.

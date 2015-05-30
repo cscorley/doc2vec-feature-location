@@ -1,0 +1,17 @@
+With the following scenario latest transaction log can be deleted.
+
+1. more than journalMaxBackups txn logs are there in journal dir.
+2. BK machine was up for long time and the latest txn log id is some what huge number
+3. Now reboot the machine.
+4. after reboot BK restarted.
+5. Now, Immediately after startup, One entry is added, due to which Synthread rolled the lastMark in ledger dirs before the lastLogId updated by Journal thread. (this lastMark was having the old logId which was before reboot). 
+6. Now after roll, old journal txn logs were gc'ed. Now latest created the txn log was deleted.
+7. After this Journal thread updated the lastLogMark, also some more rolls happened.
+8. Now BK restarted again. But BK was not able to start because it was not able to find the latest txn log file in journal directory.
+
+
+java.io.IOException: Recovery log 264564 is missing
+        at org.apache.bookkeeper.bookie.Journal.replay(Journal.java:424)
+        at org.apache.bookkeeper.bookie.Bookie.readJournal(Bookie.java:547)
+        at org.apache.bookkeeper.bookie.Bookie.start(Bookie.java:603)
+        at org.apache.bookkeeper.proto.BookieServer.start(BookieServer.java:111)

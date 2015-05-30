@@ -1,0 +1,16 @@
+There are 2 issues with the current jute generated C++ code.
+
+1. Variable declaration for JRecord is incorrect. It looks something like this:
+
+ 
+    Id id;
+
+
+It should be like this instead:
+
+ 
+ org::apache::zookeeper::data::Id mid;
+
+
+
+2. The header file declares all the variables (except for JRecord ones) with "m" prefix, but the .cc file doesn't use the prefix. 

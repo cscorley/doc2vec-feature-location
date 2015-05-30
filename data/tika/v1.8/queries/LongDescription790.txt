@@ -1,0 +1,5 @@
+For historical reasons, we now have two parts of Tika that handle trying to identify the type of an OLE2 based file.
+
+POIFSDocumentType is able to detect a few kinds of files that POIFSContainerDetector is not able to (eg Encrypted and OLE Native), mostly which may not map well onto mimetypes. POIFSDocumentType also lacks some of the logic in the main detector, and only does the office parser supported files
+
+We should probably try to reduce the duplication. One option is to add the extra few types into the Detector some how, the other is to use the detector first and do additional specific checks after

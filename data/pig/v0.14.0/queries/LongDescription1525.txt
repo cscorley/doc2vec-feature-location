@@ -1,0 +1,47 @@
+Given data;
+
+input1:
+
+
+
+id9     0
+
+
+
+input2:
+
+
+
+id8     1
+id9     1
+
+
+
+Pig script
+
+
+
+A = LOAD 'input1' AS (id:chararray, val:long);
+B = LOAD 'input2' AS (id:chararray, val:long);
+C = COGROUP A BY id, B BY id;
+D = FOREACH C GENERATE group, SUM(B.val), SUM(A.val), (SUM(A.val) - SUM(B.val));
+dump D;
+
+
+
+generates incorrect data:
+
+
+
+(id8,1L,,)
+(id9,1L,0L,-2L)
+
+
+
+The workaround is to replace the FOREACH statement with
+
+
+
+D = FOREACH C GENERATE group, SUM(B.val) as b, SUM(A.val) as a;
+E = FOREACH D GENERATE $0, b, a, (a-b);
+

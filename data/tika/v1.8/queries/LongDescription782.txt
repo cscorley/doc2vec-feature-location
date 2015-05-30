@@ -1,0 +1,5 @@
+The current RTF parser doesn't process \bin control words yet. These control words are followed by a specific amount of binary data. Because of this, the RTF parser trips over some of these bytes in a number of (classified) documents.
+
+I've implemented processing of the \bin control word, but it required of the core parsing algorithm. IMHO, it also improved readability of the code. I hope you will accept this patch. Please let me know if the patch requires modifications.
+
+Apart from the \bin code word, this patch also makes the parser stop after reading the document-closing '}' character. In a number of files (again, classified), the parser would include non-readable characters that appeared after this closing brace.

@@ -1,0 +1,15 @@
+                .createQuery("SELECT e FROM MaxQueryEntity e, MaxQueryMapEntity map "
+                    + "WHERE map.selectCriteria = 'B3' AND map.refEntity = e "
+                    + "  AND e.revision = ( SELECT MAX(e_.revision)"
+                    + "                     FROM MaxQueryEntity e_"
+                    + "                     WHERE e_.domainId = e.domainId )"
+                    + "  AND map.revision = ( SELECT MAX(map_.revision)"
+                    + "                       FROM MaxQueryMapEntity map_"
+                    + "                       WHERE map_.refEntity = map.refEntity )");        
+
+
+On Oracle we generate SQL like this on 2.0.x+:
+
+SELECT t1.id, t1.domainId, t1.revision FROM OPENJPA_MAXQUERY_MAPENTITY t0, OPENJPA_MAXQUERY_ENTITY t1, OPENJPA_MAXQUERY_MAPENTITY t4 WHERE (t0.selectCriteria = ? AND t0.refEntity = t1.id AND t1.revision = (SELECT MAX(t2.revision) FROM OPENJPA_MAXQUERY_ENTITY t2 WHERE (t2.domainId = t1.domainId)) AND t0.revision = (SELECT MAX(t3.revision) FROM OPENJPA_MAXQUERY_MAPENTITY t3 WHERE (t3.refEntity = t4.refEntity))) [params=(String) B3]
+
+The additional alias "OPENJPA_MAXQUERY_MAPENTITY t4" caused more unexpected rows to return.

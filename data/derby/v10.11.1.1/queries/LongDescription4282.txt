@@ -1,0 +1,54 @@
+import java.sql.*;
+
+public class cons
+{
+   public static void main(String []args)
+       throws Exception
+   {
+       Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
+       Connection conn =
+           DriverManager.getConnection("jdbc:derby:testdb;create=true");
+       Statement st = conn.createStatement();
+
+       st.executeUpdate(
+           "create table t1(c1 int, c2 int, constraint ck1 "
+           + "check(c1 = c2), constraint ck2 check(c2=c1))");
+
+       st.executeUpdate("insert into t1 values (1, 1),(2, 2),(3, 3),(4, 4)");
+
+       Statement st1=conn.createStatement();
+       st1.setCursorName("c1");
+       ResultSet rs = st1.executeQuery("select * from t1 for update");
+       rs.next();
+       st.executeUpdate("update t1 set c1 = c1 where current of \"c1\"");
+   }
+}
+Exception in thread "main" java.sql.SQLException: Column 'C2' is either not in any 
+table in the FROM list or appears within a join specification and is outside
+the scope of the join specification or appears in a HAVING clause and is not in
+the GROUP BY list. If this is a CREATE or ALTER TABLE  statement then 'C2' is not
+ a column in the target table.
+       at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExc
+eptionFactory.java:45)
+       at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Util.java:201)
+
+       at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException
+(TransactionResourceImpl.java:391)
+       at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Tr
+ansactionResourceImpl.java:346)
+       at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConne
+ction.java:2201)
+       at org.apache.derby.impl.jdbc.ConnectionChild.handleException(Connection
+Child.java:81)
+       at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java
+:614)
+       at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(EmbedStatemen
+t.java:175)
+       at cons.main(cons.java:25)
+
+Caused by: ERROR 42X04: Column 'C2' is either not in any table in the FROM list
+or appears within a join specification and is outside the scope of the join spec
+
+	Show quoted text -
+       ... 2 more
+

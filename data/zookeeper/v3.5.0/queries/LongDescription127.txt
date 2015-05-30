@@ -1,0 +1,11 @@
+In QuorumCnxManager.toSend there is a call to create a connection as follows:
+    channel = SocketChannel.open(new InetSocketAddress(addr, port));
+
+Unfortunately "addr" is the ip address of a remote server while "port" is the electionPort of this server.
+As an example, given this configuration (taken from my zoo.cfg)
+  server.1=10.20.9.254:2881
+  server.2=10.20.9.9:2882
+  server.3=10.20.9.254:2883
+Server 3 was observed trying to make a connection to host 10.20.9.9 on port 2883 and obviously failing.
+
+In tests where all machines use the same electionPort this bug would not manifest itself.

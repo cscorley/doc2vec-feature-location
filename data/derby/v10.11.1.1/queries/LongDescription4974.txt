@@ -1,0 +1,7 @@
+The current test works on Solaris for Sun JDK 1.6 (and 1.7). For IBM VMs it is currently skipped, due to DERBY-4463.
+
+On Solaris with Sun JDK 1.4 and 1.5 it fails. For JDK 1.5 minor release 22 and higher, it can be made to work by supplying the non-interruptible IO option " -XX:-UseVMInterruptibleIO". 
+
+Since on Solaris with Java 1.6, normal IO is still interruptible, it may be plain luck that it works there, so the test should be skipped for Solaris unless this option is used. 
+
+On Solaris with Java 1.7, which reverses the default, and IO is not interruptible, the option is not necessary.

@@ -1,0 +1,46 @@
+Another instance of change in error message from 0.8 to 0.9.This time in group by statement. In 0.8 the error message is proper while 0.9 returns NullPointer
+
+A = LOAD 'i1' as (f1:chararray,f2:chararray);
+B = GROUP B by f1;
+C = foreach B generate group as f1, COUNT(A);
+dump C;
+
+Error message from 0.8
+ ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1000: Error during parsing. Unrecognized alias B
+
+
+Error message from 0.9
+org.apache.pig.impl.logicalLayer.FrontendException: ERROR 1000: Error during parsing. null
+        at org.apache.pig.PigServer$Graph.parseQuery(PigServer.java:1652)
+        at org.apache.pig.PigServer$Graph.registerQuery(PigServer.java:1597)
+        at org.apache.pig.PigServer.registerQuery(PigServer.java:583)
+        at org.apache.pig.tools.grunt.GruntParser.processPig(GruntParser.java:942)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:386)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:188)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:164)
+        at org.apache.pig.tools.grunt.Grunt.exec(Grunt.java:81)
+        at org.apache.pig.Main.run(Main.java:553)
+        at org.apache.pig.Main.main(Main.java:108)
+Caused by: Failed to parse: null
+        at org.apache.pig.parser.QueryParserDriver.parse(QueryParserDriver.java:180)
+        at org.apache.pig.PigServer$Graph.parseQuery(PigServer.java:1644)
+        ... 9 more
+Caused by: java.lang.NullPointerException
+        at org.apache.pig.parser.LogicalPlanGenerator.alias_col_ref(LogicalPlanGenerator.java:12990)
+        at org.apache.pig.parser.LogicalPlanGenerator.col_ref(LogicalPlanGenerator.java:12854)
+        at org.apache.pig.parser.LogicalPlanGenerator.projectable_expr(LogicalPlanGenerator.java:7789)
+        at org.apache.pig.parser.LogicalPlanGenerator.var_expr(LogicalPlanGenerator.java:7549)
+        at org.apache.pig.parser.LogicalPlanGenerator.expr(LogicalPlanGenerator.java:6959)
+        at org.apache.pig.parser.LogicalPlanGenerator.join_group_by_expr(LogicalPlanGenerator.java:10580)
+        at org.apache.pig.parser.LogicalPlanGenerator.join_group_by_clause(LogicalPlanGenerator.java:10416)
+        at org.apache.pig.parser.LogicalPlanGenerator.group_item(LogicalPlanGenerator.java:4727)
+        at org.apache.pig.parser.LogicalPlanGenerator.group_clause(LogicalPlanGenerator.java:4345)
+        at org.apache.pig.parser.LogicalPlanGenerator.op_clause(LogicalPlanGenerator.java:1020)
+        at org.apache.pig.parser.LogicalPlanGenerator.general_statement(LogicalPlanGenerator.java:638)
+        at org.apache.pig.parser.LogicalPlanGenerator.statement(LogicalPlanGenerator.java:459)
+        at org.apache.pig.parser.LogicalPlanGenerator.query(LogicalPlanGenerator.java:357)
+        at org.apache.pig.parser.QueryParserDriver.parse(QueryParserDriver.java:171)
+        ... 10 more
+
+
+Checked this case with latest code in trunk and patch from PIG-2238, the message is still improper.

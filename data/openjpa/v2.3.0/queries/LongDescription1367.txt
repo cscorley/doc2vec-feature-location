@@ -1,0 +1,9 @@
+The documentation says that the H2 database does not support cross joins:
+
+http://openjpa.apache.org/builds/1.2.1/apache-openjpa-1.2.1/docs/manual/dbsupport_h2.html
+http://openjpa.apache.org/builds/2.0.0-M3/apache-openjpa-2.0.0-M3/docs/manual/main.html
+
+H2 does support cross join since a long time (I don't remember what version). See: http://www.h2database.com/html/grammar.html#table_expression (CROSS). A condition is not required for cross join.
+
+I think the documentation should be changed, and probably the H2Dictionary should be changed as well (crossJoinClause = "CROSS JOIN"; requiresConditionForCrossJoin = false.
+

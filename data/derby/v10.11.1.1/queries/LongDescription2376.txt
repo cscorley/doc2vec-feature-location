@@ -1,0 +1,6 @@
+This patch modifies the DerbyUtils class to add variable entries relative to ECLIPSE_HOME as described in the comments below, so that eclipse projects with Derby Nature can be committed to an SCM without causing build path errors. I did not think any of the derby functional tests were applicable to this ui action, so I manually tested the code by trying the following:
+1) Adding Derby Nature to a java project
+2) Starting and stopping a database with the derby nature
+3) Removing the Derby Nature from a java project
+
+The code modification is only required on the add and not on the remove since the current remove looks for any entry that ends with the correct JAR names.

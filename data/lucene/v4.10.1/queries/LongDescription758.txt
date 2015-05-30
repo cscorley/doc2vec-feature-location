@@ -1,0 +1,48 @@
+there is a problem in IndexReader.isCurrent() if using two reader instances where one of them is based on a RAMDirectory. If there is an index and we open two IndexReaders where one is based on a FSDirectory and the other is based on a RAMDirectory, the IndexReader using the RAMDirectory does not recognize when the underlaying index has changed. The method IndexReader.isCurrent() always returns true. The testcase below shows the problem.
+
+I did not find an ideal solution to solve the problem. I think the best way would be to change the IndexReader.isCurrent() implementation from:
+  public boolean isCurrent() throws IOException 
+{
+    return SegmentInfos.readCurrentVersion(directory) == segmentInfos.getVersion();
+  }
+to something like:
+  public boolean isCurrent() throws IOException 
+{
+    return directory.readCurrentVersion() == segmentInfos.getVersion();
+  }
+As far as i can see this would work for FS- and RAMDirectory. But then the implementing Directory classes have to know about "segment" files and there formating details.
+What do others think ?
+
+  /** 
+
+	additional testcase for IndexReaderTest to show the problem when using two different Readers
+   */
+  public void testIsCurrentWithCombined() throws Exception 
+{
+      String tempDir = System.getProperty("tempDir");
+      if (tempDir == null)
+          throw new IOException("tempDir undefined, cannot run test");
+
+      File indexDir = new File(tempDir, "lucenetestiscurrent");
+      Directory fsStore = FSDirectory.getDirectory(indexDir, true);
+      
+      IndexWriter writer = new IndexWriter(fsStore, new SimpleAnalyzer(), true);
+      addDocumentWithFields(writer);
+      writer.close();
+      
+      IndexReader reader1 = IndexReader.open(fsStore);
+      IndexReader reader2 = IndexReader.open(new RAMDirectory(fsStore));
+      
+      assertTrue(reader1.isCurrent());
+      assertTrue(reader2.isCurrent());
+      
+      reader1.deleteDocument(0);
+      reader1.close();
+      
+      // BUG: reader based on the RAMDirectory does not recognize the index change.
+      assertFalse(reader2.isCurrent());
+      
+      reader2.close();
+    }
+
+

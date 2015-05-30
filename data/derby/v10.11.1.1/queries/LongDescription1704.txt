@@ -1,0 +1,8 @@
+I have seen indications of severe monitor contention in SinglePool
+(the current lock manager) when multiple threads access a Derby
+database concurrently. When a thread wants to lock an object, it needs
+to obtain the monitor for both SinglePool and LockSet (both of them
+are global synchronization points). This leads to poor scalability.
+
+We should investigate how to allow more concurrency in the lock
+manager, and either extend SinglePool or implement a new manager.

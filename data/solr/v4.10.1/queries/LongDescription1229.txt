@@ -1,0 +1,29 @@
+Problem doing a delta-import such that records marked as "deleted" in the database are removed from Solr using deletedPkQuery.
+
+Here's a config I'm using against a mocked test database:
+
+
+
+<dataConfig>
+ <dataSource driver="com.mysql.jdbc.Driver" url="jdbc:mysql://localhost/db"/>
+ <document name="tests">
+   <entity name="test"
+           pk="board_id"
+           transformer="TemplateTransformer"
+           deletedPkQuery="select board_id from boards where deleted = 'Y'"
+           query="select * from boards where deleted = 'N'"
+           deltaImportQuery="select * from boards where deleted = 'N'"
+           deltaQuery="select * from boards where deleted = 'N'"
+           preImportDeleteQuery="datasource:board">
+     <field column="id" template="board-${test.board_id}"/>
+     <field column="datasource" template="board"/>
+     <field column="title" />
+   </entity>
+ </document>
+</dataConfig>
+
+
+
+Note that the uniqueKey in Solr is the "id" field.  And its value is a template board-<PK>.
+
+I noticed the javadoc comments in DocBuilder#collectDelta it says "Note: In our definition, unique key of Solr document is the primary key of the top level entity".  This of course isn't really an appropriate assumption.

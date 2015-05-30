@@ -1,0 +1,34 @@
+Looking at the userSimilarity and itemSimilarity methods in AbstractSimilarity, both compute metrics over each User's/Tool's PreferenceArrays, metrics like 'sumX' and 'sumY'. The algorithms go through each PreferenceArray in a single loop, comparing indexes to make sure we don't fall off the end. Eventually, we get to the end of an array, which is caught here:
+
+if (compare <= 0) {
+  if (++xPrefIndex >= xLength) 
+{
+    break;
+  }
+...
+
+The problem is, the metrics may not be correct when the break occurs. Specifically, for the other array, the one that we didn't fall off the end of, the metrics don't reflect the preferences we have not yet visited. In the example above, if yPrefLength<yLength, then sumY2 is too low. One fix is to do something like this:
+
+if (compare <= 0) {
+  if (++xPrefIndex >= xLength) 
+{
+    sumY2 += squareSumRest(yPrefs,yPrefIndex);
+    break;
+  }
+...
+
+private double squareSumRest(Preference[] preferences, int startingFrom) {
+  double squareSum = 0;
+  for(int i = startingFrom; i < preferences.length; i++)
+{
+    double val = preferences[i].getValue();
+    squareSum += val*val;
+  }
+  return squareSum;
+}
+
+I believe that the problem affects the sumX and sumY variables (and probably sumXYdiff2), but not the sumXY, sumX2, or sumY2 variables.
+
+A couple of comments about these two methods:
+1) They're really hard to reason about. Isn't there a simpler implementation?
+2) The two methods are very similar. Can't they be combined somehow?

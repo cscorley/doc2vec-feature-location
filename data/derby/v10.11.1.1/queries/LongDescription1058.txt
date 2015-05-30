@@ -1,0 +1,26 @@
+If the ResultSet is so big that the scrollable resultset needs to back the hashtable to disk, and the resultset is not fully populated before a commit(),
+a call to next() will fail with:
+
+ak136785@khepri35:/<3>db-derby-10.1.2.1-bin/lib> java -cp /home/ak136785/devel/derbytesting/derbytest/build/classes/:./derby.jar derbytest.HoldabilityIssue
+ERROR XSCB8: The btree conglomerate 1,141,037,436,752 is closed.
+        at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+        at org.apache.derby.impl.store.access.btree.BTreeController.insert(Unknown Source)
+        at org.apache.derby.impl.store.access.btree.index.B2IController.insert(Unknown Source)
+        at org.apache.derby.iapi.store.access.DiskHashtable.put(Unknown Source)
+        at org.apache.derby.iapi.store.access.BackingStoreHashtable.spillToDisk(Unknown Source)
+        at org.apache.derby.iapi.store.access.BackingStoreHashtable.add_row_to_hash_table(Unknown Source)
+        at org.apache.derby.iapi.store.access.BackingStoreHashtable.put(Unknown Source)
+        at org.apache.derby.impl.sql.execute.ScrollInsensitiveResultSet.addRowToHashTable(Unknown Source)
+        at org.apache.derby.impl.sql.execute.ScrollInsensitiveResultSet.getNextRowFromSource(Unknown Source)
+        at org.apache.derby.impl.sql.execute.ScrollInsensitiveResultSet.getNextRowCore(Unknown Source)
+        at org.apache.derby.impl.sql.execute.BasicNoPutResultSetImpl.getNextRow(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedResultSet.movePosition(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedResultSet.next(Unknown Source)
+        at derbytest.HoldabilityIssue.runTest1(HoldabilityIssue.java:72)
+        at derbytest.HoldabilityIssue.main(HoldabilityIssue.java:91)
+ak136785@khepri35:/<3>db-derby-10.1.2.1-bin/lib>
+
+The BtreeController is always initialized as non-holdable, and if this is changed, Derby has the following assert in closeForEndTransaction(..):
+   SanityManager.THROWASSERT("There is currently no requirement for a held btree conglomerate controller.");
+
+A simple test program is attached which reproduces this failure. It fails in the trunk and on the 10.1.2.1 release

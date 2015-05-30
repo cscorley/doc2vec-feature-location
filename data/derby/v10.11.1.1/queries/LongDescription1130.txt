@@ -1,0 +1,64 @@
+Per this thread,  setConnectionAttributes should not set databaseName. 
+
+http://www.nabble.com/double-check-on-checkDataSource-t1187602.html#a3128621
+
+Currently this is allowed for client but should be disabled.  I think it is OK to change because we have documented that client will be changed to match embedded for implementation defined behaviour.   Hopefully its use is rare as most folks would use the standard setDatabaseName.  Still there should be a release not when the change is made and it would be better to change it sooner than later:
+
+Below is the repro. 
+
+Here is the output with Client
+D>java DatabaseNameWithSetConnAttr
+ds.setConnectionAttributes(databaseName=wombat;create=true)
+ds.getDatabaseName() = null (should be null)
+FAIL: Should not have been able to set databaseName with connection attributes
+
+Also look for tests  disabled with this bug number in the test checkDataSource30.java
+
+
+
+import java.sql.*;
+import java.lang.reflect.Method;
+
+
+public class DatabaseNameWithSetConnAttr{
+
+	public static void main(String[] args) {
+		try 
+{
+		
+			String attributes = "databaseName=wombat;create=true";
+			org.apache.derby.jdbc.ClientDataSource ds = new
+			org.apache.derby.jdbc.ClientDataSource();
+
+			//org.apache.derby.jdbc.EmbeddedDataSource ds = new
+			//org.apache.derby.jdbc.EmbeddedDataSource();
+			System.out.println("ds.setConnectionAttributes(" + attributes + ")");
+			ds.setConnectionAttributes(attributes);
+			System.out.println("ds.getDatabaseName() = " +
+							   ds.getDatabaseName() + " (should be null)" );
+
+			Connection conn  = ds.getConnection();
+
+			}
+ catch (SQLException e) {
+				String sqlState = e.getSQLState();
+				if (sqlState != null && sqlState.equals("XJ041"))
+				{
+				System.out.println("PASS: An exception was thrown trying to get a connetion from a datasource after setting databaseName with setConnectionAttributes");
+				System.out.println("EXPECTED EXCEPTION: " + e.getSQLState() 
+									   + " - " + e.getMessage());
+				return;
+				}
+				while (e != null)
+				{
+					System.out.println("FAIL - UNEXPECTED EXCEPTION: " + e.getSQLState());
+					e.printStackTrace();
+					e = e.getNextException();
+				}
+				return;
+			}
+		System.out.println("FAIL: Should not have been able to set databaseName with connection attributes");
+
+	}
+
+}

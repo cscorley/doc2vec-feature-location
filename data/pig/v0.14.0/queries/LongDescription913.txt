@@ -1,0 +1,57 @@
+I have a very simple script which fails at parsetime due to the schema I specified in the loader.
+
+
+data = LOAD '/user/viraj/studenttab10k' AS (s:chararray);
+
+dataSmall = limit data 100;
+
+bb = GROUP dataSmall by $0;
+
+dump bb;
+
+
+
+=====================================================================================================================
+2009-08-06 18:47:56,297 [main] INFO  org.apache.pig.Main - Logging error messages to: /homes/viraj/pig-svn/trunk/pig_1249609676296.log
+09/08/06 18:47:56 INFO pig.Main: Logging error messages to: /homes/viraj/pig-svn/trunk/pig_1249609676296.log
+2009-08-06 18:47:56,459 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to hadoop file system at: hdfs://localhost:9000
+09/08/06 18:47:56 INFO executionengine.HExecutionEngine: Connecting to hadoop file system at: hdfs://localhost:9000
+2009-08-06 18:47:56,694 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to map-reduce job tracker at: localhost:9001
+09/08/06 18:47:56 INFO executionengine.HExecutionEngine: Connecting to map-reduce job tracker at: localhost:9001
+2009-08-06 18:47:57,008 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1002: Unable to store alias bb
+09/08/06 18:47:57 ERROR grunt.Grunt: ERROR 1002: Unable to store alias bb
+Details at logfile: /homes/viraj/pig-svn/trunk/pig_1249609676296.log
+=====================================================================================================================
+=====================================================================================================================
+
+Pig Stack Trace
+---------------
+ERROR 1002: Unable to store alias bb
+
+org.apache.pig.impl.logicalLayer.FrontendException: ERROR 1066: Unable to open iterator for alias bb
+        at org.apache.pig.PigServer.openIterator(PigServer.java:481)
+        at org.apache.pig.tools.grunt.GruntParser.processDump(GruntParser.java:531)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:190)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:165)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:141)
+        at org.apache.pig.tools.grunt.Grunt.exec(Grunt.java:89)
+        at org.apache.pig.Main.main(Main.java:397)
+Caused by: org.apache.pig.impl.logicalLayer.FrontendException: ERROR 1002: Unable to store alias bb
+        at org.apache.pig.PigServer.store(PigServer.java:536)
+        at org.apache.pig.PigServer.openIterator(PigServer.java:464)
+        ... 6 more
+Caused by: java.lang.NullPointerException
+        at org.apache.pig.impl.logicalLayer.LOCogroup.unsetSchema(LOCogroup.java:359)
+        at org.apache.pig.impl.logicalLayer.optimizer.SchemaRemover.visit(SchemaRemover.java:64)
+        at org.apache.pig.impl.logicalLayer.LOCogroup.visit(LOCogroup.java:335)
+        at org.apache.pig.impl.logicalLayer.LOCogroup.visit(LOCogroup.java:46)
+        at org.apache.pig.impl.plan.DependencyOrderWalker.walk(DependencyOrderWalker.java:68)
+        at org.apache.pig.impl.plan.PlanVisitor.visit(PlanVisitor.java:51)
+        at org.apache.pig.impl.logicalLayer.optimizer.LogicalTransformer.rebuildSchemas(LogicalTransformer.java:67)
+        at org.apache.pig.impl.logicalLayer.optimizer.LogicalOptimizer.optimize(LogicalOptimizer.java:187)
+        at org.apache.pig.PigServer.compileLp(PigServer.java:854)
+        at org.apache.pig.PigServer.compileLp(PigServer.java:791)
+        at org.apache.pig.PigServer.store(PigServer.java:509)
+        ... 7 more
+
+=====================================================================================================================

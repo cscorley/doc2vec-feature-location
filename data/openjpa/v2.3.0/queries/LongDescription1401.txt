@@ -1,0 +1,39 @@
+Cross joining two entities with join table inheritance strategy may fail in the following test case: Contractor extends from Employee with Join table strategy. A JPQL "SELECT e FROM Department d, Contractor e where d.OID = e.dept.OID and d.description = 'Accounting' will fail with the exception below:
+
+3922  inheritance2  TRACE  [main] openjpa.Query - Executing query: SELECT e FROM Department d, Contractor e where d.OID = e.dept.OID and d.description = 'IT'
+3969  inheritance2  TRACE  [main] openjpa.jdbc.SQL - <t 8970973, conn 12468716> executing prepstmnt 24489446 SELECT t1.OID FROM Department t0 JOIN Contractor t1 ON (1 = 1) WHERE (t0.OID = t1.Dept_No AND t0.description = ?)  [params=(String) IT]
+3969  inheritance2  TRACE  [main] openjpa.jdbc.SQL - <t 8970973, conn 12468716> [0 ms] spent
+3984  inheritance2  TRACE  [main] openjpa.jdbc.JDBC - <t 8970973, conn 0> [0 ms] close
+Exception in thread "main" <openjpa-0.0.0-rnull nonfatal general error> org.apache.openjpa.persistence.PersistenceException: Employee: e (
+{e|Contractor=1, Department=0})
+	at org.apache.openjpa.jdbc.sql.DBDictionary.narrow(DBDictionary.java:4677)
+	at org.apache.openjpa.jdbc.sql.DBDictionary.newStoreException(DBDictionary.java:4630)
+	at org.apache.openjpa.jdbc.sql.DB2Dictionary.newStoreException(DB2Dictionary.java:539)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:138)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:118)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:70)
+	at org.apache.openjpa.jdbc.kernel.SelectResultObjectProvider.handleCheckedException(SelectResultObjectProvider.java:155)
+	at org.apache.openjpa.kernel.QueryImpl$PackingResultObjectProvider.handleCheckedException(QueryImpl.java:2068)
+	at org.apache.openjpa.lib.rop.WindowResultList.getInternal(WindowResultList.java:150)
+	at org.apache.openjpa.lib.rop.AbstractNonSequentialResultList$Itr.hasNext(AbstractNonSequentialResultList.java:171)
+	at org.apache.openjpa.lib.rop.ResultListIterator.hasNext(ResultListIterator.java:53)
+	at org.apache.openjpa.kernel.DelegatingResultList$DelegatingListIterator.hasNext(DelegatingResultList.java:391)
+	at inheritance2.TestInheritance2.main(TestInheritance2.java:71)
+Caused by: java.sql.SQLException: Employee: e ({e|Contractor=1, Department=0}
+)
+	at org.apache.openjpa.jdbc.sql.SelectImpl$SelectResult.findObject(SelectImpl.java:2402)
+	at org.apache.openjpa.jdbc.sql.ResultSetResult.translate(ResultSetResult.java:497)
+	at org.apache.openjpa.jdbc.sql.ResultSetResult.getObjectInternal(ResultSetResult.java:362)
+	at org.apache.openjpa.jdbc.sql.AbstractResult.getObject(AbstractResult.java:696)
+	at org.apache.openjpa.jdbc.meta.strats.PrimitiveFieldStrategy.getPrimaryKeyValue(PrimitiveFieldStrategy.java:300)
+	at org.apache.openjpa.jdbc.meta.ClassMapping.getObjectId(ClassMapping.java:187)
+	at org.apache.openjpa.jdbc.meta.ClassMapping.getObjectId(ClassMapping.java:146)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.load(JDBCStoreManager.java:941)
+	at org.apache.openjpa.jdbc.sql.AbstractResult.load(AbstractResult.java:280)
+	at org.apache.openjpa.jdbc.sql.SelectImpl$SelectResult.load(SelectImpl.java:2328)
+	at org.apache.openjpa.jdbc.kernel.exps.PCPath.load(PCPath.java:890)
+	at org.apache.openjpa.jdbc.kernel.exps.PCPath.load(PCPath.java:873)
+	at org.apache.openjpa.jdbc.kernel.ProjectionResultObjectProvider.getResultObject(ProjectionResultObjectProvider.java:79)
+	at org.apache.openjpa.kernel.QueryImpl$PackingResultObjectProvider.getResultObject(QueryImpl.java:2032)
+	at org.apache.openjpa.lib.rop.WindowResultList.getInternal(WindowResultList.java:131)
+	... 4 more

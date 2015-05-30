@@ -1,0 +1,59 @@
+According to the discussion on DERBY-6429, generation expressions run under the aegis of the table owner and their privileges do not need to be checked when running INSERT/UPDATE statements. However, Derby requires the INSERTer/UPDATEr to have EXECUTE privilege on functions invoked by generation expressions and USAGE privilege on types mentioned by generation expressions.
+
+Hopefully, this bug will be fixed by the work on DERBY-6429.
+
+The following script shows this behavior:
+
+connect 'jdbc:derby:memory:db;user=test_dbo;create=true';
+
+call syscs_util.syscs_create_user( 'TEST_DBO', 'test_dbopassword' );
+call syscs_util.syscs_create_user( 'RUTH', 'ruthpassword' );
+
+– bounce database to turn on authentication and authorization
+connect 'jdbc:derby:memory:db;shutdown=true';
+connect 'jdbc:derby:memory:db;user=test_dbo;password=test_dbopassword' as dbo;
+
+– schema
+create function absoluteValue( inputValue int ) returns int
+language java parameter style java deterministic no sql
+external name 'java.lang.Math.abs';
+
+create type hashmap external name 'java.util.HashMap' language java;
+
+create function makeHashMap() returns hashmap
+language java parameter style java no sql
+external name 'org.apache.derbyTesting.functionTests.tests.lang.UDTTest.makeHashMap';
+
+create table t1_generated_function
+(
+    a int,
+    b int generated always as ( absoluteValue( a ) )
+);
+
+create table t1_generated_type
+(
+    a hashmap,
+    b boolean generated always as ( a is null )
+);
+
+– data
+insert into t1_generated_function( a ) values -101;
+
+insert into t1_generated_type( a ) values ( makeHashMap() );
+
+– privileges
+grant insert on t1_generated_function to ruth;
+grant update on t1_generated_function to ruth;
+
+grant insert on t1_generated_type to ruth;
+grant update on t1_generated_type to ruth;
+
+connect 'jdbc:derby:memory:db;user=ruth;password=ruthpassword' as ruth;
+
+– incorrectly fails because ruth does not have EXECUTE privilege on absoluteValue()
+insert into test_dbo.t1_generated_function( a ) values ( -102 );
+update test_dbo.t1_generated_function set a = -103;
+
+– incorrectly fails because ruth does not have USAGE privilege on hashmap
+insert into test_dbo.t1_generated_type( a ) values ( null );
+update test_dbo.t1_generated_type set a = null;

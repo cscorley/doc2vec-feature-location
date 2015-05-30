@@ -1,0 +1,13 @@
+Per the JPA 2.0 specification, a TraversableResolver must be provided in order to meet the validation criteria outlined in section 3.6.1.2 of the 3/13/09 draft.
+
+The validator instance that is used for automatic validation upon lifecycle events must use a TraversableResolver
+that has the following behavior:
+• Attributes that have not been loaded must not be loaded.
+• Entity associations (single-valued or multi-valued) must not be traversed.
+
+These requirements guarantee that no unloaded attribute or association will be loaded by side effect and
+that no entity will be validated more than once.
+Embeddable attributes must be validated only if the Valid annotation has been specified on them.
+It is the responsibility of the persistence provider to pass an instance implementing the javax.validation.
+TraversableResolver interface to the Bean Validation provider by calling ValidatorFactory.
+usingContext().traversableResolver(

@@ -1,0 +1,7 @@
+Disallowing routines from accessing Derby code directly stops the potential of remote code exploiting any security holes in Derby.
+
+Derby code can be seen as a special case since it is known that the Derby code will be on the classpath.
+
+Disallowing such routines makes security analysis easier and safer rather than trying to guarantee every public static method in Derby can not expose secured information.
+
+Routines in existing applications (in upgraded databases) that map to such Derby methods will fail at execute time.

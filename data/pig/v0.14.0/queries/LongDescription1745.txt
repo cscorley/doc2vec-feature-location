@@ -1,0 +1,17 @@
+If we load bytes from BinStorage, we don't actually know how we get these bytes originally, and we will not have a way to cast those bytes. Ideally we shall encode caster into BinStorage data file, but we are not there yet. Currrently bytesToXXX methods for BinStorage is wrong and it results unexpected errors. Eg.
+
+
+
+a = load '1.txt' as (a0, a1, a2);
+store a into '1.bin' as BinStorage();
+
+a = load '1.bin' using BinStorage as (a0, a1, a2);
+b = foreach a generate (long)a0;
+dump b;
+
+
+
+The code will run but produce wrong data. It's less confusing if we throw an exception in this case.
+
+Release Notes:
+Pig will throw exception in the case we want to convert bytes loading from BinStorage

@@ -1,0 +1,14 @@
+This is stopping my platform testing on winvista with ibm 1.6 SR5.
+
+During the initial run of suites.All, I got:
+--------------------------------
+		testNetworkServerSecurityMechanism java.net.SocketException: Connection reset by peer: setsockopt
+	at java.net.PlainSocketImpl.socketSetOption(Native Method)
+	at java.net.PlainSocketImpl.setOption(PlainSocketImpl.java:283)
+	at java.net.Socket.setKeepAlive(Socket.java:1171)
+	at org.apache.derby.impl.drda.ClientThread.run(Unknown Source)
+--------------------------------
+Rerunning suites.All gave the same error.
+There is only 1 java process active & hanging.
+
+Running just the test itself also results in a hang but there was (so far - it's been sitting unchanged for 4 hours) java.net.SocketException.

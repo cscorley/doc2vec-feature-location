@@ -1,0 +1,38 @@
+jdbc4.StatementEventsTest cannot be run individually in a clean environment because the test database is not created if it does not exist.
+
+Excerpt of output from JUnit:
+32) testErrorEventOnClosedConnection_pooled_prepared(org.apache.derbyTesting.functionTests.tests.jdbc4.StatementEventsTest)java.sql.SQLNonTransientConnectionException: The connection was refused because the database wombat was not found.
+        at org.apache.derby.client.am.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:70)
+        at org.apache.derby.client.am.SqlException.getSQLException(SqlException.java:362)
+        at org.apache.derby.client.ClientPooledConnection.<init>(ClientPooledConnection.java:89)
+        at org.apache.derby.client.ClientPooledConnection40.<init>(ClientPooledConnection40.java:47)
+        at org.apache.derby.client.net.ClientJDBCObjectFactoryImpl40.newClientPooledConnection(ClientJDBCObjectFactoryImpl40.java:73)
+        at org.apache.derby.jdbc.ClientConnectionPoolDataSource.getPooledConnectionX(ClientConnectionPoolDataSource.java:100)
+        at org.apache.derby.jdbc.ClientConnectionPoolDataSource.getPooledConnection(ClientConnectionPoolDataSource.java:63)
+        at org.apache.derbyTesting.functionTests.tests.jdbc4.StatementEventsTest.setUp(StatementEventsTest.java:125)
+        at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:96)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+        at junit.extensions.TestSetup.run(TestSetup.java:25)
+        at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+        at junit.extensions.TestSetup.run(TestSetup.java:25)
+Caused by: org.apache.derby.client.am.DisconnectException: The connection was refused because the database wombat was not found.
+        at org.apache.derby.client.net.NetConnectionReply.parseRDBNFNRM(NetConnectionReply.java:1022)
+        at org.apache.derby.client.net.NetConnectionReply.parseAccessRdbError(NetConnectionReply.java:448)
+        at org.apache.derby.client.net.NetConnectionReply.parseACCRDBreply(NetConnectionReply.java:306)
+        at org.apache.derby.client.net.NetConnectionReply.readAccessDatabase(NetConnectionReply.java:133)
+        at org.apache.derby.client.net.NetConnection.readSecurityCheckAndAccessRdb(NetConnection.java:887)
+        at org.apache.derby.client.net.NetConnection.flowSecurityCheckAndAccessRdb(NetConnection.java:799)
+        at org.apache.derby.client.net.NetConnection.flowUSRIDPWDconnect(NetConnection.java:620)
+        at org.apache.derby.client.net.NetConnection.flowConnect(NetConnection.java:435)
+        at org.apache.derby.client.net.NetConnection.initialize(NetConnection.java:296)
+        at org.apache.derby.client.net.NetConnection.<init>(NetConnection.java:280)
+        at org.apache.derby.client.net.NetConnection40.<init>(NetConnection40.java:125)
+        at org.apache.derby.client.net.ClientJDBCObjectFactoryImpl40.newNetConnection(ClientJDBCObjectFactoryImpl40.java:260)
+        at org.apache.derby.client.ClientPooledConnection.<init>(ClientPooledConnection.java:75)
+        ... 29 more
+
+FAILURES!!!
+Tests run: 32,  Failures: 0,  Errors: 32

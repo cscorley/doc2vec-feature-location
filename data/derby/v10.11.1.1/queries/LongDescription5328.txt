@@ -1,0 +1,7 @@
+At the beginning of the NetServlet class, there are a number of private fields. These fields can be inspected and changed by any thread running inside NetServlet.doGet(). Due to the way that app servers dispatch servlet requests, this means that multiple threads can be operating inside doGet() at the same time, clobbering one another's work. The weirdest instance of this is the shared PrintWriter (called "out") which is used to produce the response web page sent back by the servlet. Multiple threads all writing to the same PrintWriter will create a very bizarre response page. The following improvements should be made:
+
+1) The "server" field should be set by a synchronized method.
+
+2) Every run through doGet() should create its own PrintWriter which is passed to other methods. The instance-wide "out" field should be removed.
+
+3) Various other fields should be re-coded using the Atomic classes introduced by Java 5. These fields include "logStatus" and "traceStatus". This solution can be implemented if the community votes to approve the sunsetting of JVM 1.4 (currently at the polls).

@@ -1,0 +1,20 @@
+I accidentally stumbled into a rather awkward bit of error handling.
+
+On an IJ session running client/server, I tried:
+
+ij> connect 'jdbc:derby://localhost:1527/brydb';
+ij> prepare seeMenu as '';
+ERROR 08006: A network protocol error was encountered and the connection has been terminated: A PROTOCOL Data Stream Syntax Error was detected.  Reason: 0x9,236. Plaintext connection attempt to an SSL enabled server?
+
+On the Network Server side, I see:
+
+Sat Jun 09 09:28:51 PDT 2012 : Execution failed because of a Distributed Protocol Error:  DRDA_Proto_SYNTAXRM; CODPNT arg  = 2414; Error Code Value = e. Plaintext connection attempt from an SSL enabled client?
+org.apache.derby.impl.drda.DRDAProtocolException: Execution failed because of a Distributed Protocol Error:  DRDA_Proto_SYNTAXRM; CODPNT arg  = 2414; Error Code Value = e. Plaintext connection attempt from an SSL enabled client?
+	at org.apache.derby.impl.drda.DRDAConnThread.throwSyntaxrm(DRDAConnThread.java:537)
+	at org.apache.derby.impl.drda.DRDAConnThread.missingCodePoint(DRDAConnThread.java:567)
+	at org.apache.derby.impl.drda.DRDAConnThread.parsePRPSQLSTTobjects(DRDAConnThread.java:3858)
+	at org.apache.derby.impl.drda.DRDAConnThread.parsePRPSQLSTT(DRDAConnThread.java:3788)
+	at org.apache.derby.impl.drda.DRDAConnThread.processCommands(DRDAConnThread.java:831)
+	at org.apache.derby.impl.drda.DRDAConnThread.run(DRDAConnThread.java:295)
+
+It seems like the error handling could be improved here, for what is essentially a syntax error on my part.

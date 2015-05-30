@@ -1,0 +1,65 @@
+The replicated join query was running out of memory because the order of relations got switched during logical plan optimization and it was attempting to load the larger (left) relation into memory.
+
+
+
+cat replj.pig
+l1 = load 'x' as (a);
+l2 = load 'y' as (b);
+l3 = load 'z' as (a1,b1,c1,d1);
+f1 = foreach l3 generate a1 as a, b1 as b, c1 as c, d1 as d;
+f2 = foreach f1 generate a,b,c; 
+j1 = join f2 by a, l1 by a using 'replicated';
+j2 = join j1 by b, l2 by b using 'replicated';
+explain j2;
+
+
+Note that in the MR plan printed below, the Load in the MR job with join operations has 'x' as the input instead of 'z' .
+
+#--------------------------------------------------
+# Map Reduce Plan                                  
+#--------------------------------------------------
+MapReduce node scope-30
+Map Plan
+Store(file:/tmp/temp101387354/tmp-125684214:org.apache.pig.impl.io.InterStorage) - scope-31
+|
+|---l2: Load(file:///Users/tejas/pig-0.8/branch-0.8/y:org.apache.pig.builtin.PigStorage) - scope-17--------
+Global sort: false
+----------------
+
+MapReduce node scope-27
+Map Plan
+j2: Store(fakefile:org.apache.pig.builtin.PigStorage) - scope-26
+|
+|---j2: FRJoin[tuple] - scope-20
+    |   |
+    |   Project[bytearray][1] - scope-18
+    |   |
+    |   Project[bytearray][0] - scope-19
+    |
+    |---j1: FRJoin[tuple] - scope-11
+        |   |
+        |   Project[bytearray][0] - scope-9
+        |   |
+        |   Project[bytearray][0] - scope-10
+        |
+        |---l1: Load(file:///Users/tejas/pig-0.8/branch-0.8/x:org.apache.pig.builtin.PigStorage) - scope-0--------
+Global sort: false
+----------------
+
+MapReduce node scope-28
+Map Plan
+Store(file:/tmp/temp101387354/tmp-890864787:org.apache.pig.impl.io.InterStorage) - scope-29
+|
+|---f2: New For Each(false,false,false)[bag] - scope-8
+    |   |
+    |   Project[bytearray][0] - scope-2
+    |   |
+    |   Project[bytearray][1] - scope-4
+    |   |
+    |   Project[bytearray][2] - scope-6
+    |
+    |---l3: Load(file:///Users/tejas/pig-0.8/branch-0.8/z:org.apache.pig.builtin.PigStorage) - scope-1--------
+Global sort: false
+----------------
+
+

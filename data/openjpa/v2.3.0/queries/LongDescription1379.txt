@@ -1,0 +1,3 @@
+I ran into a bug in AbstractQueryCache when using the timestamp QueryCache eviction policy. This is only a problem when running in a multithreaded environment.
+
+The net of the problem is that in AbstractQueryCache.onTypesChanged(TypesChangedEvent ev) we call writeLock(), but when using the non-default eviction policy we never call writeUnlock(). As a result, any other threads requesting a writeLock on the cache will block indefinitely.

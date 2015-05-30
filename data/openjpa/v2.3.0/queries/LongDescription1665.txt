@@ -1,0 +1,5 @@
+This issue was reported on the users mailing list[1].
+
+The issue is that it is possible when using auto generated ids that there is a current entity in the persistence context that has an id of zero, and by default when a new entity is created it also has an id of zero. When persisting the second entity, OpenJPA incorrectly detects that there are multiple entities with the same id in the context even though the new id doesn't have an id from the database yet.
+
+[1]http://openjpa.208410.n2.nabble.com/An-object-of-type-src-StatusUpdate-with-oid-0-already-exists-in-this-context-another-cannot-be-persi-td5030272.html#a5030272

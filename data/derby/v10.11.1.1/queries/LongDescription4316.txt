@@ -1,0 +1,22 @@
+If an error happens in Statement.executeBatch(), the embedded driver
+will stop executing the batch, and
+BatchUpdateException.getUpdateCounts() will return an array whose
+length equals to the number of statements successfully executed. The
+client driver will continue executing the rest of the statements in
+the batch, and BatchUpdateException.getUpdateCounts() will return an
+array whose length is equal to the number of statements in the batch
+(including the failed ones).
+
+The JDBC specification allows both of the behaviours, but it requires
+that the behaviour is consistent within one DBMS. See the javadoc for
+java.sql.Statement.executeBatch() -
+http://java.sun.com/javase/6/docs/api/java/sql/Statement.html#executeBatch%28%29:
+
+> If one of the commands in a batch update fails to execute properly,
+> this method throws a BatchUpdateException, and a JDBC driver may or
+> may not continue to process the remaining commands in the
+> batch. However, the driver's behavior must be consistent with a
+> particular DBMS, either always continuing to process commands or
+> never continuing to process commands.
+
+I will add a test case to BatchUpdateTest that shows the difference.

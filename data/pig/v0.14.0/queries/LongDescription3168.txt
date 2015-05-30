@@ -1,0 +1,10 @@
+PIG-2994 made explain with no alias be equivalent to explain on the previous alias. This breaks TestMultiQueryBasic.testMultiQueryWithSplitInMapAndMultiMerge because the previous alias is an auto-generated alias not a user-defined alias.
+
+The following fixes the test:
+
+
+         "I = GROUP F2 BY (f7, f8);" +
+         "STORE I into 'foo4'  using BinStorage();" +
+-        "explain;";
++        "explain I;";
+

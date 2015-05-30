@@ -1,0 +1,12 @@
+The DateFormatTransformer assumes the default locale for date transformations. 
+If your computer or server has its language set to 'es' and the input file has "November 30, 2009", it'll throw an exception.
+
+Here's a reproducible test case:
+Define an XML file:
+<awardlist><award><expirationdate>November 30,  2009</expirationdate></award></awardlist>
+
+Define the data-config.xml with:
+<field column="expirationdate_dt" xpath="/awardslist/award/expirationdate" dateTimeFormat="MMMMM dd, yyyy"  /> 
+
+It'll throw:
+Exception in thread "main" java.text.ParseException: Unparseable date: "November 30, 2009"

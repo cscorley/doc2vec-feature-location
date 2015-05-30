@@ -1,0 +1,12 @@
+When calling Query.getSingleResult() on a query that either has no result or multiple results, either a NoResultException and NonUniqueResultException (respectively) should be thrown in accordance with section 3.6.1 of the JPA spec. Instead, we appear to throw a org.apache.openjpa.persistence.InvalidStateException:
+
+org.apache.openjpa.persistence.InvalidStateException: The query on candidate type "class com.sun.ts.tests.ejb30.persistence.query.apitests.Department" with filter "select d.name from Department d where d.id > 1" was configured to have a unique result, but more than one instance matched the query.
+     at org.apache.openjpa.kernel.QueryImpl.singleResult(QueryImpl.java:1282)
+     at org.apache.openjpa.kernel.QueryImpl.toResult(QueryImpl.java:1207)
+     at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:982)
+     at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:791)
+     at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:761)
+     at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:757)
+     at org.apache.openjpa.kernel.DelegatingQuery.execute(DelegatingQuery.java:514)
+     at org.apache.openjpa.persistence.QueryImpl.execute(QueryImpl.java:225)
+     at org.apache.openjpa.persistence.QueryImpl.getSingleResult(QueryImpl.java:287)

@@ -1,0 +1,9 @@
+Seen when running the Java EE CTS on Derby 10.7.1.1. The following code results in "1" being printed, whereas the expected result is "true":
+
+        PreparedStatement ps = c.prepareStatement("values cast(? as char(10))");
+        ps.setObject(1, Boolean.TRUE, Types.CHAR);
+        ResultSet rs = ps.executeQuery();
+        rs.next();
+        System.out.println(rs.getString(1));
+
+Same seen when using VARCHAR or LONGVARCHAR instead of CHAR, and when using setBoolean() instead of setObject().

@@ -1,0 +1,45 @@
+Throws exception when initializing a timestamp evicting QueryCache if no classes are specified.
+
+104  test  INFO   [main] openjpa.Enhance - You have enabled runtime enhancement, but have not specified the set of persistent classes.  OpenJPA must look for metadata for every loaded class, which might increase class load times significantly.
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+212  test  INFO   [main] openjpa.Runtime - OpenJPA dynamically loaded a validation provider.
+292  test  INFO   [main] openjpa.Runtime - Starting OpenJPA 2.2.0
+410  test  INFO   [main] openjpa.jdbc.JDBC - Using dictionary class "org.apache.openjpa.jdbc.sql.MySQLDictionary".
+Exception in thread "main" <openjpa-2.2.0-r422266:1244990 nonfatal general error> org.apache.openjpa.persistence.PersistenceException: null
+	at org.apache.openjpa.kernel.AbstractBrokerFactory.newBroker(AbstractBrokerFactory.java:218)
+	at org.apache.openjpa.kernel.DelegatingBrokerFactory.newBroker(DelegatingBrokerFactory.java:156)
+	at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:227)
+	at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:154)
+	at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:60)
+	at org.ea.test.TestAdd.main(TestAdd.java:20)
+Caused by: java.lang.NullPointerException
+	at org.apache.openjpa.datacache.AbstractQueryCache.initialize(AbstractQueryCache.java:112)
+	at org.apache.openjpa.datacache.ConcurrentQueryCache.initialize(ConcurrentQueryCache.java:95)
+	at org.apache.openjpa.datacache.DataCacheManagerImpl.initialize(DataCacheManagerImpl.java:64)
+	at org.apache.openjpa.conf.OpenJPAConfigurationImpl.getDataCacheManagerInstance(OpenJPAConfigurationImpl.java:725)
+	at org.apache.openjpa.kernel.AbstractBrokerFactory.createDelegatingStoreManager(AbstractBrokerFactory.java:843)
+	at org.apache.openjpa.kernel.AbstractBrokerFactory.initializeBroker(AbstractBrokerFactory.java:226)
+	at org.apache.openjpa.kernel.AbstractBrokerFactory.newBroker(AbstractBrokerFactory.java:212)
+	... 5 more
+
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
+	<persistence-unit name="test" transaction-type="RESOURCE_LOCAL">
+	    <properties>
+	        <property name="openjpa.ConnectionURL" value="jdbc:mysql://localhost:3306/test"/>
+	        <property name="openjpa.ConnectionUserName" value="root"/>
+	        <property name="openjpa.ConnectionPassword" value="password"/>
+	        <property name="openjpa.ConnectionDriverName" value="com.mysql.jdbc.Driver"/>
+	        <property name="openjpa.Log" value="DefaultLevel=INFO, Runtime=INFO, Tool=INFO, SQL=INFO"/>
+	        <property name="openjpa.ConnectionFactoryProperties" value="MaxActive=10,MaxIdle=5,MinIdle=2,MaxWait=1800000"/>
+	        <property name="openjpa.jdbc.DBDictionary" value="org.apache.openjpa.jdbc.sql.MySQLDictionary"/>
+			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+	        <property name="openjpa.DataCache" value="true(CacheSize=1000, SoftReferenceSize=0)"/>
+	        <property name="openjpa.QueryCache" value="true(CacheSize=1000, SoftReferenceSize=0, EvictPolicy='timestamp')"/>
+ 	        <property name="openjpa.DetachState" value="fetch-groups(DetachedStateField=true)"/>
+	        <property name="openjpa.jdbc.UpdateManager" value="operation-order"/>       		
+	    </properties>
+	</persistence-unit>
+</persistence>

@@ -1,0 +1,3 @@
+I'm not a committer, but I'd like to suggest the attached patch to handle loading hbase rows containing null cell values (since hbase is all about sparsly populated data rows). As it stands, a DataByteArray can be created with a null mData if a cell has no value, which causes NPEs by simply attempting to load a row containing the null cell in question.
+
+PS: the attached patch also contains a slight change to the bin/pig executable to point to the build/pig-*-SNAPSHOT.jar and not the build/pig-*-dev.jar (the latter no longer seems to exist). If you prefer a separate patch for this, I'll be happy to submit it.

@@ -1,0 +1,28 @@
+Consider the following code:
+
+
+
+tfidf_all = LOAD '$TFIDF' AS (doc_id:chararray, token:chararray, weight:double);
+grouped   = GROUP tfidf_all BY doc_id;
+vectors   = FOREACH grouped GENERATE group AS doc_id, tfidf_all.(token, weight) AS vector;
+DUMP vectors;
+
+
+
+This, of course, runs just fine. In a real example, tfidf_all contains 1,428,280 records. The reduce output records should be exactly the number of documents, which turn out to be 18,863 in this case. All well and good.
+
+The strangeness comes when you add a SAMPLE command:
+
+
+
+sampled = SAMPLE vectors 0.0012;
+DUMP sampled;
+
+
+
+Running this results in 1,513 reduce output records. The reduce output records be much much closer to 22 or 23 records (eg. 0.0012*18863).
+
+Evidently, Pig rewrites SAMPLE into filter, and then pushes that filter in front of the group. It shouldn't push that filter  
+since the UDF is non-deterministic.  
+
+Quick fix: If you add "-t PushUpFilter" to your command line when invoking pig this won't happen.

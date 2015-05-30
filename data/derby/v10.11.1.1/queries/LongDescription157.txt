@@ -1,0 +1,57 @@
+NOTE: This bug is NOT the same as DERBY-149, although the two bugs reproduce in the same kind of scenario.  DERBY-149 describes a problem that occurs when an invalid date/time string is specified using the Universal Driver (JDBC); this bug describes a problem that occurs when a date/time string is deemed as "valid" by an ODBC driver (in this case, the DB2 Runtime Client) but as "invalid" by the server.
+
+BACKGROUND:
+
+When a client program passes a datetime string value to Derby Network Server, the driver first does a check of the string to see if it's valid.  For JDBC programs using the Universal Driver (JCC), the JCC driver appears to base it's check on the java.sql.Date/Time/Timestamp specifications, which only allow specific forms of the strings.  For example, the JDBC spec for "java.sql.Date.valueOf" says that the string value must represent a date in the format "yyyy-mm-dd".
+
+Derby Network Server assumes that the java.sql.Date/Time/Timestamp specifications in this regard will hold true for the value in question, and so <b> it does NOT have logic to see if the received string causes an error </b>.  This is fine when using the JCC driver because the formats rejected by Network Server are also the formats rejected by the JCC driver, and so invalid datetime strings shouldn't ever make it to the server (they'll be caught by the driver).
+
+PROBLEM:
+
+Other drivers-and in particular, ODBC drivers-can have different notions about what a valid datetime string is.  In the particular case that prompted this bug, the DB2 Runtime Client allows a date string of the format "yyyy/mm/dd", and so if it sees a string with this format, it will pass it on to Network Server.  However, since Network Server only recognizes the form "yyyy-mm-dd" (per JDBC spec), it will throw a java.lang.IllegalArgumentException.  
+
+Currently, Derby Network Server doesn't catch this exception (because it assumes the datetime is either valid or else caught by the driver, as is the case with JCC), and so the exception is interpreted by the server as "unexpected".  This causes the server to throw a generic protocol exception and deallocate the connection.
+
+REPRO:
+
+Here is a fragment of a C++ program that shows how to recreate the problem, assuming that 1) table "u.tt1" has been created as "u.tt1(d date)", 2) "hstmt" has been properly initalized as a statement on a connection to a Derby database, and 3) the DB2 Runtime Client is being used.
+
+
+
+SQLRETURN RetCode = SQL_SUCCESS;
+SQLCHAR SQLStmt[255];
+SQLCHAR dateObj[10];
+
+strcpy((char *) SQLStmt, "insert into u.tt1 values ");
+RetCode = SQLPrepare(hstmt, SQLStmt, SQL_NTS);
+
+// Bind the parameter marker used in the SQL statement to
+// an application variable
+RetCode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, 
+	SQL_DATE, sizeof(dateObj), 
+	0, dateObj, sizeof(dateObj), NULL);
+
+// Populate the bound variable with a datetime value that will
+// pass the ODBC driver check but that is NOT recognized by the
+// Derby Network Server.
+strcpy(dateObj, "1948/04/08");
+
+// Execute the SQL statement
+RetCode = SQLExecute(hstmt);
+if (RetCode == SQL_SUCCESS) {
+	printf("OK, all good.\n");
+}
+else {
+	printf("Error executing insert statement:\n");
+	(error-handling-code)
+}
+
+
+
+The result of this fragment will be:
+
+[IBM][CLI Driver] SQL30020N  Execution failed because of a Distributed Protocol Error that will affect the successful execution of subsequent commands and SQL statements:  Reason Code "0x124C"("011D")"".  SQLSTATE=58009
+
+NOTES:
+
+The fix for this problem is straightforward; one just needs to add "try-catch" logic to catch the IllegalArgumentException in the server and then re-throw it as a valid SQLException.

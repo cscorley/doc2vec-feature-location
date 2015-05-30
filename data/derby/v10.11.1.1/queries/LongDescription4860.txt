@@ -1,0 +1,28 @@
+-Djvmflags works fine when run RunTest or with RunSuite and derbyall,  but with derbylang, derbtools and other subsuites it fails as  follows, because it prepends ^ inappropriately to the options when launching the process.
+
+
+
+java -Dverbose=true -Djvmflags="-Xgcpolicy:optthruput^-Xjit:count=0"  
+org.apache.derbyTesting.functionTests.harness.RunSuite derbylang
+
+
+With the second command I see the following in derbylang.sum
+ > Exception in thread "main" java.lang.NoClassDefFoundError:
+-Xgcpolicy:optthruput-Xjit:count=0
+ > Caused by: java.lang.ClassNotFoundException:
+-Xgcpolicy:optthruput-Xjit:count=0
+ > Could not find the main class: -Xgcpolicy:optthruput-Xjit:count=0.  
+Program will exit.
+Test Failed.
+
+	
+	
+		
+		
+			End:   checkConstraint jdk1.6.0 derbylang:derbylang 2010-10-19
+16:58:24 ***
+		
+		
+	
+	
+

@@ -1,0 +1,7 @@
+SynonymFilter can mix up options from different synonyms, sometimes inserting the wrong word, sometimes using the wrong offset.  Issue appears to be use of the matched arraylist in SynonymFilter
+
+To reproduce: add "best buy,bestbuy,bb" to the example's synonym list.  Then view verbose analysis of the query analyzer output for "Best buy - Acer Aspire AS5610-2273 - $599. Windows vista, 1 GB RAM"
+
+"gigabytes" becomes a synonym of "Best buy", and the offsets of the remainder of the "GB" synonyms are incorrect.
+
+Assigning to Yonik as this code is too hairy for me to fix without further study.

@@ -1,0 +1,20 @@
+There is a particular case where I was running with the latest trunk of Pig.
+
+
+
+$java -cp pig.jar:/home/path/hadoop20cluster org.apache.pig.Main testcase.pig
+
+[main] INFO  org.apache.pig.Main - Logging error messages to: /homes/viraj/pig_1263420012601.log
+
+$ls -l pig_1263420012601.log
+ls: pig_1263420012601.log: No such file or directory
+
+
+
+The job failed and the log file did not contain anything, the only way to debug was to look into the Jobtracker logs.
+
+Here are some reasons which would have caused this behavior:
+1) The underlying filer/NFS had some issues. In that case do we not error on stdout?
+2) There are some errors from the backend which are not being captured
+
+Viraj

@@ -1,0 +1,31 @@
+If a get method is annotated with @Factory then the method cannot be overridden with a method which take different parameters. The system randomly selects one of the several methods with the same name which may or may not take the type which will be provided.
+
+For example:
+        @Persistent(optional = false)
+	@Column(name = "STATUS")
+	@Externalizer("getName")
+	@Factory("valueOf")
+	public OrderStatus getStatus() 
+{
+		return this.status;
+	}
+
+public class OrderStatus {
+   public static OrderStatus valueOf(final int ordinal) 
+{
+        return valueOf(ordinal, OrderStatus.class);
+    }
+
+    public static OrderStatus valueOf(final String name) 
+{
+        return valueOf(name, OrderStatus.class);
+    }
+}
+
+Actual results:
+valueOf(String) may or may not be selected.
+
+Expected results:
+valueOf(String) should always be selected.
+
+The provided patches fix this defect by applying the method invocation conversion rules from the Java Language Specification, 3rd Ed. This means that widening primitive, boxing and unboxing conversions are all respected.

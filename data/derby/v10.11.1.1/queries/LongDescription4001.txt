@@ -1,0 +1,10 @@
+A query involving "< ALL" does not yield the right results for decimal datatype. "< ANY" works, though.
+
+To reproduce the issue:
+
+% create table t1(col1 decimal(10,5));
+% insert into t1 values (-21483.64800);
+% insert into t1 values (74837.00000);
+% select col1 from t1 where col1 < ALL (select 0.0 from t1);
+
+The above yields no results whereas it should return the first row.

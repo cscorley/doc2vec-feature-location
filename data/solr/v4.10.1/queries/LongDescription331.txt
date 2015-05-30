@@ -1,0 +1,43 @@
+When searching index using highlighting and synonyms we get the following exception:
+
+java.lang.StringIndexOutOfBoundsException: String index out of range: 42
+	at java.lang.String.substring(String.java:1935)
+	at org.apache.lucene.search.highlight.Highlighter.getBestTextFragments(Highlighter.java:271)
+	at org.apache.solr.util.HighlightingUtils.doHighlighting(HighlightingUtils.java:266)
+	at org.apache.solr.request.StandardRequestHandler.handleRequest(StandardRequestHandler.java:164)
+	at org.apache.solr.core.SolrCore.execute(SolrCore.java:595)
+	at org.apache.solr.servlet.SolrServlet.doGet(SolrServlet.java:92)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:697)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:810)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:252)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:173)
+	at org.jboss.web.tomcat.filters.ReplyHeaderFilter.doFilter(ReplyHeaderFilter.java:96)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:202)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:173)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:213)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:178)
+	at org.jboss.web.tomcat.security.SecurityAssociationValve.invoke(SecurityAssociationValve.java:175)
+	at org.jboss.web.tomcat.security.JaccContextValve.invoke(JaccContextValve.java:74)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:126)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:105)
+	at org.jboss.web.tomcat.tc5.jca.CachedConnectionValve.invoke(CachedConnectionValve.java:156)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:107)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:148)
+	at org.apache.coyote.http11.Http11Processor.process(Http11Processor.java:869)
+	at org.apache.coyote.http11.Http11BaseProtocol$Http11ConnectionHandler.processConnection(Http11BaseProtocol.java:664)
+	at org.apache.tomcat.util.net.PoolTcpEndpoint.processSocket(PoolTcpEndpoint.java:527)
+	at org.apache.tomcat.util.net.MasterSlaveWorkerThread.run(MasterSlaveWorkerThread.java:112)
+	at java.lang.Thread.run(Thread.java:619)
+
+the problem is reproduceable and permanent with the attached files to this issue. Just use SOLR internal 
+"Make a Query[Full Interface]" Admin Interface option and search for:
+Statement: adhs
+Enable Highlighting: X
+Fields to Highlight: content
+
+e.g.
+http://127.0.0.1:8080/solr/select?indent=on&version=2.2&q=adhs&start=0&rows=10&fl=*%2Cscore&qt=standard&wt=standard&explainOther=&hl=on&hl.fl=content
+
+Thank you in advance!
+
+Oliver

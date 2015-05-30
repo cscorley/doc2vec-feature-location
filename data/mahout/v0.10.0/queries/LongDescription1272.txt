@@ -1,0 +1,10 @@
+a parallel factorizer based on MAHOUT-1089 may achieve better performance on multicore processor.
+
+existing code is single-thread and perhaps may still be outperformed by the default ALS-WR.
+
+In addition, its hardcoded online-to-batch-conversion prevents it to be used by an online recommender. An online SGD implementation may help build high-performance online recommender as a replacement of the outdated slope-one.
+
+The new factorizer can implement either DSGD (http://www.mpi-inf.mpg.de/~rgemulla/publications/gemulla11dsgd.pdf) or hogwild! (www.cs.wisc.edu/~brecht/papers/hogwildTR.pdf).
+
+Related discussion has been carried on for a while but remain inconclusive:
+http://web.archiveorange.com/archive/v/z6zxQUSahofuPKEzZkzl

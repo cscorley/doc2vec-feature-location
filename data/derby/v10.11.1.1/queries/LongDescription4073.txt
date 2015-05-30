@@ -1,0 +1,17 @@
+Applications using reflection (and JavaBean conventions) have problems configuring the Derby client data sources.
+Depending on how things are done, the user may or may not see the problems.
+For instance, some applications obtain all valid data source properties and list them with their default settings. In the case of SSL, this will be "Ssl" with value "off". When the application is trying to call setSsl("off") through reflection it may invoke setSsl(int) instead of setSsl(String), failing because "off" cannot be converted to an integer. In some implementations both methods will be invoked.
+
+There are two ways to look at this, and I don't know which one is correct:
+  o the reflection code of the third-party applications using Derby isn't written well enough.
+  o Derby is to blame for the problem by providing two setSsl-methods.
+
+I don't know if providing overloading setters violates the JavaBean spec, or any other relevant spec we should follow.
+
+The easiest technical solution is to rename one of the methods or possibly making one of them private. Both of these will break existing applications using that method to configure a Derby client data source.
+Is doing this, and providing a release note, sufficient?
+Does anyone see any other solutions?
+
+It should be noted that in some applications, it is impossible to configure ClientConnectionPoolDataSource or ClientXADataSource to use SSL. The reasons are the problem described here and DERBY-4067. One typical class of software with this problem is application servers. A workaround is to avoid setting the SSL property, which isn't doable if you need SSL of course...
+
+A related issue is whether it should be allowed to set the SSL property both through the setter method(s) and as a connection attribute.

@@ -1,0 +1,17 @@
+EmbedPooledConnection has the unsafe synchronization as follow.
+
+private static int idCounter = 0;
+
+private synchronized int nextId()
+    {
+        return idCounter++;
+    }
+
+idCounter is a static shared data, and it is not proper to use a instance lock to protect it, especially when two instance of the class are created.
+
+it would be more safer to write this instead:
+
+private static synchronized int nextId()
+    {
+        return idCounter++;
+    }

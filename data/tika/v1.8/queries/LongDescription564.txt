@@ -1,0 +1,7 @@
+Currently the BoilerpipeContentHandler emits all non-boilerplate text (as defined by Boilerpipe) as a series of <p>xxx</p> text blocks, without any markup.
+
+But if you need to find URLs in these blocks, or section headers, then the original markup has to be preserved.
+
+Unfortunately Boilerpipe currently assumes that you have the ability to replay the input stream, and parse it a second time to match up text with what's been extracted (e.g. see HTMLHighlighter), but with Tika that's not easy to do - the interface is a ContentHandler, so you don't have the original inputstream to spool out.
+
+Instead I plan to record the minimum SAX events, and replay those.

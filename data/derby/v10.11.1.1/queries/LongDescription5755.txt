@@ -1,0 +1,10 @@
+I noticed two small possibilities for improvement in DataDictionaryImpl.getRoutineList() when I worked on DERBY-5730:
+
+
+	The method always returns a list of one or zero items. Instead of creating an ArrayList, it should use Collections.singletonList() and Collections.EMPTY_LIST, which are more memory-efficient.
+
+
+
+
+	It loops through the entire SYSFUN_FUNCTIONS array, even if the matching function is found in the first cell of the array. It should break out of the loop once a match is found.
+

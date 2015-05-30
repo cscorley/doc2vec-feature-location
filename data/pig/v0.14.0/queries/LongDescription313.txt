@@ -1,0 +1,22 @@
+Query which fails:
+
+
+
+a = load ':INPATH:/singlefile/studenttab10k' as (name:chararray, age:int, gpa:double);
+b = group a by name;
+c = foreach b generate group, SUM(a.age*a.gpa);                            
+store c into ':OUTPATH:';\,
+
+
+
+Error output:
+
+2008-07-14 16:34:08,684 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to hadoop file system at: testhost.com:8020
+2008-07-14 16:34:08,741 [main] WARN  org.apache.hadoop.fs.FileSystem - "testhost.com:8020" is a deprecated filesystem name. Use "hdfs://testhost:8020/" instead.
+2008-07-14 16:34:08,995 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to map-reduce job tracker at: testhost.com:50020
+2008-07-14 16:34:09,251 [main] WARN  org.apache.hadoop.fs.FileSystem - "testhost.com:8020" is a deprecated filesystem name. Use "hdfs://testhost:8020/" instead.
+2008-07-14 16:34:09,559 [main] ERROR org.apache.pig.PigServer - Cannot evaluate output type of Mul/Div Operator
+2008-07-14 16:34:09,559 [main] ERROR org.apache.pig.PigServer - Problem resolving LOForEach schema
+2008-07-14 16:34:09,559 [main] ERROR org.apache.pig.PigServer - Severe problem found during validation org.apache.pig.impl.plan.PlanValidationException: An unexpected exception caused the validation to stop 
+2008-07-14 16:34:09,560 [main] ERROR org.apache.pig.tools.grunt.Grunt - java.io.IOException: Unable to store for alias: c
+2008-07-14 16:34:09,560 [main] ERROR org.apache.pig.Main - java.io.IOException: Unable to store for alias: c

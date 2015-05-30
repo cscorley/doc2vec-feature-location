@@ -1,0 +1,9 @@
+Setting output compression using "SET" in the script does not work:
+SET mapred.output.compress true;
+SET mapred.output.compression.codec org.apache.hadoop.io.compress.GzipCodec;
+
+We did some trick to make individual compression setting for multistore work. Instead of the above parameter, using the following works:
+SET output.compression.enabled true;
+SET output.compression.codec org.apache.hadoop.io.compress.GzipCodec;
+
+However, this is against intuition. We should use mapred.output.compress/mapred.output.compression.codec.

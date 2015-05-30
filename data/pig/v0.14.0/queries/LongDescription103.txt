@@ -1,0 +1,10 @@
+Hello,
+
+I'm investigating running pig in an environment where various parts of the file:// filesystem are available on all nodes. I can tell hadoop to use a file:// file system location for it's default, by seting fs.default.name=file://path/to/shared/folder
+
+However, this creates issues for Pig, as Pig writes it's job information in a folder that it assumes is a shared FS (eg DFS). However, in this scenario /tmp is not shared on each machine.
+
+So /tmp should either be configurable, or Hadoop should tell you the actual full location set in fs.default.name?
+
+Straightforward solution is to make "/tmp/" a property in src/org/apache/pig/impl/io/FileLocalizer.java init(PigContext)
+Any suggestions of property names?

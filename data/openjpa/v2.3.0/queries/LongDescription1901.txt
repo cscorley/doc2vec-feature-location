@@ -1,0 +1,24 @@
+In OpenJPA 2.0, OpenJPA tries to put the query result from JOIN query into query cache, in addition to put entities into data cache.
+However, the QueryResult containes Object[] of org.apache.openjpa.datacache.QueryCacheStoreQuery$CachedObjectId that is not Serializable and cause this issue.
+OpenJPA need to be fixed to make org.apache.openjpa.datacache.QueryCacheStoreQuery$CachedObjectId serializable.
+
+Currently,  manually adding Serializable to the code works for measuring the performance, but we need a more permanent fix.
+
+I also have a concern whether this type of fix has a ripple effect.  The CachedObjectId can easily be fixed to be Serializable, but it looks like other inner classes of QueryCacheStoreQuery are not Serializable either.  Do these (and potentially other attributes) need to be Serializable as well?  Do we need a Unit Test to verify this Serializable capability?
+
+Final portion of call stack when the Exception happens:
+
+Caused by: java.io.NotSerializableException: org.apache.openjpa.datacache.QueryCacheStoreQuery$CachedObjectId
+	at java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1113)
+	at java.io.ObjectOutputStream.writeArray(ObjectOutputStream.java:1343)
+	at java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1107)
+	at java.io.ObjectOutputStream.writeObject(ObjectOutputStream.java:325)
+	at java.util.ArrayList.writeObject(ArrayList.java:595)
+	at sun.reflect.GeneratedMethodAccessor20.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:618)
+	at java.io.ObjectStreamClass.invokeWriteObject(ObjectStreamClass.java:972)
+	at java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1431)
+	at java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1382)
+	at java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1111)
+	at java.io.ObjectOutputStream.writeObject(ObjectOutputStream.java:325)

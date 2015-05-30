@@ -1,0 +1,22 @@
+SystemPrivilegesPermissionTest.testSystemPermission failed on weme6.1 at svn # 636947 with a NoClassDefFoundError:
+
+testSystemPermission(org.apache.derbyTesting.unitTests.junit.SystemPrivilegesPermissionTest)
+  java.lang.NoClassDefFoundError: javax.security.auth.Subject
+  at ...SystemPrivilegesPermissionTest$RunAsPrivilegedUserAction.run(SystemPrivilegesPermissionTest.java:737)
+  at java.security.AccessController.doPrivileged(AccessController.java:191)
+  at ...SystemPrivilegesPermissionTest.execute(SystemPrivilegesPermissionTest.java:531)
+  at ...SystemPrivilegesPermissionTest.testSystemPermission(SystemPrivilegesPermissionTest.java:318)
+  at java.lang.reflect.AccessibleObject.invokeV(AccessibleObject.java:205)
+  at <unknown class>.<unknown method>(Unknown Source)
+  at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:101)
+  at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+  at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+  at junit.extensions.TestSetup.run(TestSetup.java:23)
+
+The following lines showed up in sysout or syserr a total of 3 times:
+
+  Parsing policy file:
+  jar:file:[...]classes/derbyTesting.jar!/org/apache/derbyTesting/unitTests/junit/SystemPrivilegesPermissionTest.policy,
+  found unexpected: principal
+
+I assume that's related, but do not know for sure...

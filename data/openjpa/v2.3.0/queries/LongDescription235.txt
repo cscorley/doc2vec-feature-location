@@ -1,0 +1,13 @@
+OpenJPA does not do any SQL statement re-ordering in order to resolve foreign key constraints. Instead, objects are always inserted in the order in which the user persists the instances.  When you persist in an order that would violate foreign key constraints, OpenJPA attempts to insert null and then update the foreign key value in a separate statement. If you use non-nullable constraints, though, you must persist your objects in the correct order.
+
+This improvement re-orders SQL statements as follows:
+
+1. First, all insert statements execute. Inserts which have foreign keys with non-nullable constraints execute AFTER the foreign keys which they depend on have been inserted since no deferred update is possible.
+
+2. Next, all update statements execute. No reordering is necessary.
+
+3.  Finally, all delete statements execute. Like inserts, deletes execute in an order which does not violate non-nullable foreign key constraints.
+
+If a circular foreign key reference is found during the re-ordering process then re-ordering halts and the remaining unordered statements are left as is. There is nothing that can be done about the circular reference (other than fixing the schema) and the resulting SQL statements will not succeed.
+
+The net effect is that users do not need to worry about the persistence order of their objects regardless of non-nullable foreign key constraints. The only class modified was org.apache.openjpa.jdbc.kernel.OperationOrderUpdateManager. I have included a patch which includes my modifications to OperationOrderUpdateManager and test cases. The test cases I have provided fail on the current trunk but pass with my modifications. I have also verified that I did not break anything by using maven to run all test cases with my modifications in place.

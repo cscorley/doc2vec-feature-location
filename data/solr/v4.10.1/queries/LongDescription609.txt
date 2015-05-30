@@ -1,0 +1,18 @@
+solrconfig.xml contains :
+
+[...]
+<searchComponent name="ArtistSpellCheck"
+		class="org.apache.solr.handler.component.SpellCheckComponent">
+		<lst name="defaults">
+			<!-- omp = Only More Popular -->
+			<str name="spellcheck.onlyMorePopular">false</str>
+			<!-- exr = Extended Results -->
+			<str name="spellcheck.extendedResults">true</str>
+			<!--  The number of suggestions to return -->
+			<str name="spellcheck.count">1</str>
+			<!--  collate ther results for providing an easier 'correctly spelt query' -->
+			<str name="spellcheck.collate">true</str>
+		</lst>
+[... all default options after this]
+
+confirmed options .count , collate , extendedResults set in solrconfig.xml take no effect on the query . They work as intended if added to the URL.

@@ -1,0 +1,19 @@
+This was reported by "James Ricci" <james@riccinursery.com> at:
+http://nagoya.apache.org/eyebrowse/ReadMsg?listName=lucene-user@jakarta.apache.org&msgNo=1835
+
+
+When you create a ranged query and omit the lower term, my expectation 
+would be that I would find everything less than the upper term. Now if I pass
+false for the inclusive term, then I would expect that I would find all
+terms less than the upper term excluding the upper term itself.
+
+What is happening in the case of lower_term=null, upper_term=x,
+inclusive=false is that empty strings are being excluded because 
+inclusive is set false, and the implementation of RangedQuery creates a default 
+lower term of Term(fieldName, ""). Since it's not inclusive, it excludes "". 
+This isn't what I intended, and I don't think it's what most people would 
+imagine RangedQuery would do in the case I've mentioned.
+
+I equate lower=null, upper=x, inclusive=false to Field < x. lower=null,
+upper=x, inclusive=true would be Field <= x. In both cases, the only
+difference should be whether or not Field = x is true for the query.

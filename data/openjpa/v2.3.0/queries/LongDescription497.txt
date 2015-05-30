@@ -1,0 +1,25 @@
+The entity:
+For an entity:
+@Entity
+class Log{
+	protected Timestamp startTime;
+}
+given the query
+SELECT al FROM Log al WHERE al.startTime BETWEEN :start AND :end ORDER BY al.id ASC
+If the query is used as:
+query.setParameter("start", start, TemporalType.TIMESTAMP);
+query.setParameter("end", end, TemporalType.TIMESTAMP);
+where start and end are of type java.util.Date, an exception will be thrown:
+
+org.apache.openjpa.persistence.ArgumentException: The parameter
+"start" is of type "java.util.Date", but the declaration in the query
+is for type "java.sql.Timestamp".
+	at org.apache.openjpa.persistence.QueryImpl.validateParameter(QueryImpl.java:270)
+	at org.apache.openjpa.persistence.QueryImpl.validateParameters(QueryImpl.java:257)
+
+OpenJPA appears to ignore the temporal indications in setParameter because QueryImpl is as this:
+public OpenJPAQuery setParameter(int position, Date value,
+   TemporalType type) {
+   return setParameter(position, value);
+}
+The Date parameter should be converted to Timestamp inside setParameter method.

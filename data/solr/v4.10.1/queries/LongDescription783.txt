@@ -1,0 +1,11 @@
+Currently there is no way to perform a delta import per entity because $
+{dataimporter.last_index_time}
+ really represents the entire delta-import for all entities and is only a single dataimport.properties file.
+
+A delta-import w/ dataimport?command=delta-import&entity=a and dataimport?command=delta-import&entity=b should result in:
+
+$
+{dataimporter.[name of entity].last_index_time}
+${dataimporter.[name of entity].last_index_time}
+
+I do this now because I have a single multicore representing different docs coming from different entities.  

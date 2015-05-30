@@ -1,0 +1,5 @@
+The DataImportHandler's  XPathEntityProcessor throws a NullPointerException when it tries to process a row from an XML data source during a "full-import", both in the dataimport.jsp debugger and when started as a normal request. The null pointer is thrown when a <field> tag in the <fields><field ... /> ... </fields> section of data-config.xml has no "column" attribute.
+
+Example:
+
+<field name="entity_id" ... /> which should have been <field column="entity_id" .../>

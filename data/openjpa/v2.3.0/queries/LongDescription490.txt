@@ -1,0 +1,5 @@
+JPQL only allows state fields in ORDER BY clauses. It is useful to order by aggregates when doing a GROUP BY as well. Example:
+
+select sum(o.shortField) from AllFieldTypes o
+    group by o.intField 
+    order by sum(o.shortField) asc

@@ -1,0 +1,42 @@
+When deciding whether or not to choose a particular access path as the "best one so far", the optimizer tries to guess what the memory usage for the path will be and, if it's prohibitive, it (the optimizer) will reject the plan.  Currently this only applies to hash joins in Derby.
+
+The call that starts the check for excessive memory exists in two places in OptimizerImpl.java: costBasedCostOptimizable() and considerCost().  There we have the following:
+
+  /*
+
+	
+	
+		Skip this access path if it takes too much memory.
+  **
+		NOTE: The default assumption here is that the number of rows in
+		a single scan is the total number of rows divided by the number
+		of outer rows.  The optimizable may over-ride this assumption.
+  */
+  if( ! optimizable.memoryUsageOK(estimatedCost.rowCount() / outerCost.rowCount(), maxMemoryPerTable))
+  Unknown macro: {    if (optimizerTrace)    {
+      trace(SKIPPING_DUE_TO_EXCESS_MEMORY, 0, 0, 0.0, null);
+    }    return;  } 
+	
+	
+
+
+
+However, if the outerCost has an estimated row count of Double.POSITIVE_INFINITY, which can happen if the query is very deeply nested and/or has a lot of FROM tables/expressions, the division of estimatedCost.rowCount() by outerCost.rowCount() will result in a "NaN" value.  If that value is then passed to FromTable (which is the base implementation of an Optimizable), the memoryUsageOK method looks like this:
+
+    public boolean memoryUsageOK( double rowCount, int maxMemoryPerTable)
+      throws StandardException
+    {
+      /*
+      ** Don't enforce maximum memory usage for a user-specified join
+      ** strategy.
+      */
+      if( userSpecifiedJoinStrategy != null)
+            return true;
+
+        int intRowCount = (rowCount > Integer.MAX_VALUE) ? Integer.MAX_VALUE : (int) rowCount;
+        return intRowCount <= maxCapacity( getCurrentAccessPath().getJoinStrategy(), maxMemoryPerTable);
+    }
+
+If rowCount is "NaN", the comparison to see if it's greater than MAX_VALUE will return false, which means that intRowCount gets set to "(int)rowCount".  But when we cast rowCount, which is "NaN" represented by a double, to an int the result is 0.  The final check then becomes "0 <= maxCapacity(...)", which will always return true.  Thus regardless of what the estimated cost for the optimizable is, the "memoryUsageOK" check will always return true if the outer cost is infinity, and thus the optimizer could very well decide to choose a path that it should have rejected because of excessive memory requirements (where "should" means based on the estimates; the accuracy of the estimates in this case is another issue altogether).
+
+That said, I went in and made a small change to the above code to cause the Optimizer to reject a plan if it's cost was infinity, and the result was that some queries-esp. those seen in DERBY-1205-actually ended up running more slowly.  The reason is that "infinity" is obviously not an accurate cost estimate for the hash joins, and in the case of DERBY-1205 the hash joins, while expensive, still end up being cheaper than nested loop joins.  So the result of "fixing" the logic with a small change ended up making the queries run more slowly.  Thus more investigation is required regarding to how to best approach this.

@@ -1,0 +1,7 @@
+Running the test jdbcapi/secureUsers1.sql with a security manager results in:
+
+> ERROR 08004: Connection refused : javax.naming.CommunicationException: noSuchMachine:389 [Root exception is java.security.AccessControlException: access denied (java.net.SocketPermission noSuchMachine resolve)]
+
+
+Adding this permission to the policy file has no effect. which means a priv block is required around the LDAP call.
+permission java.net.SocketPermission "noSuchMachine", "resolve";

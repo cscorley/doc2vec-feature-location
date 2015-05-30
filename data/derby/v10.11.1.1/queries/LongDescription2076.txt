@@ -1,0 +1,5 @@
+The test org.apache.derbyTesting.functionTests.tests.junitTests.DerbyNet.CompatibilityTest has been failing in the nightlies because it needs to be run in the old test harness, and for some reason the property which grants permission to read $
+{user.home}/junit.properties is not being picked up properly in the old harness. 
+
+I am able to resolve the problem by granting permission to read ${user.home}
+/junit.properties to all, but the test should be refactored so that it can run with the rest of the junit tests without needing the old harness.

@@ -1,0 +1,20 @@
+Myrna van Lunteren commented on DERBY-244:
+
+The one remark I have is that I still cannot get the LocalizedDisplay.sql and LocalizedConnectionAttribute.sql test from the i18n directory to behave the same under windows and Linux (with sun jdk 1.4.2.).
+For windows, I had to update the masters for these tests, but running them on Linux still failed for me.
+With jdk131, ibm131 and ibm142 the LocalizedDisplay.sql test hung, and LocalizedConnectionAttribute exits with a MalformedInputException.
+It would be nice if we could figure out a way to add these tests to the suites...
+
+— stack of LocalizedConnectionAttribute on Linux —
+Exception in thread "main" sun.io.MalformedInputException
+        at sun.io.ByteToCharUTF8.convert(ByteToCharUTF8.java(Compiled Code))
+        at sun.nio.cs.StreamDecoder$ConverterSD.convertInto(StreamDecoder.java:287)
+        at sun.nio.cs.StreamDecoder$ConverterSD.implRead(StreamDecoder.java:337)
+        at sun.nio.cs.StreamDecoder.read(StreamDecoder.java:223)
+        at java.io.InputStreamReader.read(InputStreamReader.java:208)
+        at java.io.BufferedReader.fill(BufferedReader.java:153)
+        at java.io.BufferedReader.readLine(BufferedReader.java:316)
+        at java.io.BufferedReader.readLine(BufferedReader.java:379)
+        at org.apache.derbyTesting.functionTests.harness.RunTest.setDirectories(RunTest.java:729)
+        at org.apache.derbyTesting.functionTests.harness.RunTest.main(RunTest.java:262)
+---------------------------------------------------------------------------- 

@@ -1,0 +1,18 @@
+Nobody overrides this implementation:
+[code]
+  @Override
+  public Matrix cross(Vector other) {
+    Matrix result = matrixLike(size, other.size());
+    for (int row = 0; row < size; row++) 
+{
+      result.assignRow(row, other.times(getQuick(row)));
+    }
+    return result;
+  }
+[code]
+
+I think you can imagine what kind of performance this has on sparse vectors (k non-zeroes) with high cardinality (N) - scales as O(N^2) instead of O(k^2).
+
+I think the right approach is to not implement this in AbstractVector at all, and force concrete implementations to properly implement it performantly.
+
+Alternatively, killing this method entirely might be appropriate.  If anyone was using it (and uses sparse vectors), they'd have complained about this by now.

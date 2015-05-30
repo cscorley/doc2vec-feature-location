@@ -1,0 +1,13 @@
+This example has a correct behavior. 
+
+in = LOAD '$INFILE' USING AvroStorage('','-f schema.avsc');
+out = FOREACH in GENERATE *;
+
+But if we try to pick and project specific fields like the following example,
+
+in = LOAD '$INFILE' USING AvroStorage('','-f schema.avsc');
+out = FOREACH in GENERATE $0,$1,$7;
+
+Actual result is "$0, $1, $2" not "$0,$1,$7"
+
+This bug is always reproducible.

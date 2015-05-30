@@ -1,0 +1,35 @@
+The symptom of the problem is an InternalException is thrown from ProxySetupStateManager.provide*Field method due to mismatched routing to a PersistenceCapable object: The stack will look like something similar to this:
+
+Exception in thread "main" <openjpa-1.0.3-SNAPSHOT-r420667:649224M fatal user error> org.apache.openjpa.persistence.ArgumentException: Errors encountered while resolving metadata.  See nested exceptions for details.
+        at org.apache.openjpa.meta.MetaDataRepository.resolve(MetaDataRepository.java:522)
+        at org.apache.openjpa.meta.MetaDataRepository.getMetaData(MetaDataRepository.java:302)
+        at org.apache.openjpa.kernel.BrokerImpl.newObjectId(BrokerImpl.java:1060)
+        at org.apache.openjpa.kernel.DelegatingBroker.newObjectId(DelegatingBroker.java:252)
+        at org.apache.openjpa.persistence.EntityManagerImpl.find(EntityManagerImpl.java:347)
+        at test.Main.main(Main.java:16)
+Caused by: <openjpa-1.0.3-SNAPSHOT-r420667:649224M fatal general error> org.apache.openjpa.persistence.PersistenceException: null
+        at org.apache.openjpa.meta.ProxySetupStateManager.providedBooleanField(ProxySetupStateManager.java:206)
+        at test.BaseNonVersionEntity.pcProvideField(BaseNonVersionEntity.java)
+        at test.BaseVersionEntity.pcProvideField(BaseVersionEntity.java)
+        at test.EntityVersionedA.pcProvideField(EntityVersionedA.java)
+        at org.apache.openjpa.meta.ProxySetupStateManager.setProxyData(ProxySetupStateManager.java:62)
+        at org.apache.openjpa.meta.ClassMetaData.resolveMeta(ClassMetaData.java:1731)
+        at org.apache.openjpa.meta.ClassMetaData.resolve(ClassMetaData.java:1613)
+        at org.apache.openjpa.meta.MetaDataRepository.processBuffer(MetaDataRepository.java:675)
+        at org.apache.openjpa.meta.MetaDataRepository.resolveMeta(MetaDataRepository.java:575)
+        at org.apache.openjpa.meta.MetaDataRepository.resolve(MetaDataRepository.java:500)
+        ... 5 more
+NestedThrowables:
+<openjpa-1.0.3-SNAPSHOT-r420667:649224M fatal user error> org.apache.openjpa.persistence.ArgumentException: Unable to resolve type "test.EntityNonVersionedM" due to previous errors resolving related type "test.EntityVersionedA".
+        at org.apache.openjpa.meta.MetaDataRepository.processBuffer(MetaDataRepository.java:689)
+        at org.apache.openjpa.meta.MetaDataRepository.resolveMeta(MetaDataRepository.java:575)
+        at org.apache.openjpa.meta.MetaDataRepository.resolve(MetaDataRepository.java:500)
+        at org.apache.openjpa.meta.MetaDataRepository.getMetaData(MetaDataRepository.java:302)
+        at org.apache.openjpa.kernel.BrokerImpl.newObjectId(BrokerImpl.java:1060)
+        at org.apache.openjpa.kernel.DelegatingBroker.newObjectId(DelegatingBroker.java:252)
+        at org.apache.openjpa.persistence.EntityManagerImpl.find(EntityManagerImpl.java:347)
+        at test.Main.main(Main.java:16)
+
+I shall attach a test case later.
+
+Albert Lee.

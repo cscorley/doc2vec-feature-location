@@ -1,0 +1,27 @@
+I have a PIG statement similar to:
+summary = foreach (group data ALL) generate 
+COUNT(data.col1), SUM(data.col2), SUM(data.col2)
+, Moments(col3)
+, Moments(data.col4)
+
+There are a couple of hundred columns.
+
+I set the following:
+SET pig.exec.mapPartAgg true;
+SET pig.exec.mapPartAgg.minReduction 3;
+SET pig.cachedbag.memusage 0.05;
+
+I found that when I ran this on a JVM with insufficient memory, the process eventually timed out because of an infinite garbage collection loop.
+
+The problem was invariant to the memusage setting.
+
+I solved the problem by making changes to:
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperator.POPartialAgg.java
+
+Rather than reading in 10000 records to establish an estimate of the reduction, I make an estimate after reading in enough tuples to fill pig.cachedbag.memusage percent of Runtime.getRuntime().maxMemory().
+
+I also made a change to guarantee at least one record allowed in second tier storage. In the current implementation, if the reduction is very high 1000:1, space in second tier storage is zero.
+
+With these changes, I can summarize large data sets with small JVMs. I also find that setting pig.cachedbag.memusage to a small number such as 0.05 results in much better garbage collection performance without reducing throughput. I suppose tuning GC would also solve a problem with excessive garbage collection.
+
+The performance is sweet. 

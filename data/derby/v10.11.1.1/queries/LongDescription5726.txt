@@ -1,0 +1,32 @@
+Many of the classes that extend BaseJDBCTestCase and override the tearDown() method, forget to call super.tearDown(), and thereby prevent resources from being freed after completion. We should add a mechanism that enforces the correct behaviour.
+
+If we were starting from scratch, we might have made BaseJDBCTestCase.tearDown() final and added a new overridable method that was called from BaseJDBCTestCase.tearDown() before it freed the statements and connections. Then there would be no way to prevent BaseJDBCTestCase.tearDown() from running in the subclasses. That would however require us to change all existing overrides of BaseJDBCTestCase.tearDown() (current count: 131), which would be a chunk of work.
+
+I'd rather suggest that we add an override of runBare() in BaseJDBCTestCase that asserts that the connection has been cleared out when a test case has completed successfully. Something like this:
+
+    public void runBare() throws Throwable 
+{
+        super.runBare();
+        // It's quite common to forget to call super.tearDown() when
+        // overriding tearDown() in sub-classes.
+        assertNull(
+            "Connection should be null by now. " +
+            "Missing call to super.tearDown()?", conn);
+    }
+
+Then it would still be possible to forget to call super.tearDown(), but it would be discovered when trying to run the test.
+
+Adding the above method to BaseJDBCTestCase and running InternationalConnectTest gave this result:
+
+.....F.F....F
+Time: 5,748
+There were 3 failures:
+1) testDriverManagerConnect(org.apache.derbyTesting.functionTests.tests.jdbcapi.InternationalConnectTest)junit.framework.AssertionFailedError: Connection should be null by now. Missing call to super.tearDown()?
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.runBare(BaseJDBCTestCase.java:431)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+2) testBoundaries(org.apache.derbyTesting.functionTests.tests.jdbcapi.InternationalConnectTest)junit.framework.AssertionFailedError: Connection should be null by now. Missing call to super.tearDown()?
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.runBare(BaseJDBCTestCase.java:431)
+(...)

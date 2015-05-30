@@ -1,0 +1,19 @@
+b = FILTER a by (( f1 > 1) AND (1 == 1))
+
+or 
+
+b = FILTER a by ((f1 > 1) OR ( 1==0))
+
+should be simplified to
+
+b = FILTER a by f1 > 1;
+
+Regarding ordering change, an example is that 
+
+b = filter a by ((f1 is not null) AND (f2 is not null));
+
+Even without possible simplification, the expression is changed to
+
+b = filter a by ((f2 is not null) AND (f1 is not null));
+
+Even though the ordering change in this case, and probably in most other cases, does not create any difference, but for two reasons some users might care about the ordering: if stateful UDFs are used as operands of AND or OR; and if the ordering is intended by the application designer to maximize the chances to shortcut the composite boolean evaluation. 

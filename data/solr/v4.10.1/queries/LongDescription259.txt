@@ -1,0 +1,58 @@
+when solr/home is set improperly, tomcat (and other containers) fail to log any useful error messages because everything goes to SolrConfig.severeErrors instead of some basic container level logs.  the soon to be attached 1.5 line patch adds a simple log message to the standard container logs to tell you to check your settings and tell you what solr/home is currently set to.  
+
+Before the patch if solr/home is improperly set you get:
+
+Jun 11, 2007 2:21:13 PM org.apache.solr.servlet.SolrDispatchFilter init
+INFO: SolrDispatchFilter.init()
+Jun 11, 2007 2:21:13 PM org.apache.solr.core.Config getInstanceDir
+INFO: Using JNDI solr.home: C:\data\workspace\gciTrunk\infrastructure\gciSolr\build\solr
+Jun 11, 2007 2:21:13 PM org.apache.solr.core.Config setInstanceDir
+INFO: Solr home set to 'C:\data\workspace\gciTrunk\infrastructure\gciSolr\build\solr/'
+Jun 11, 2007 2:21:13 PM org.apache.catalina.core.StandardContext start
+SEVERE: Error filterStart
+Jun 11, 2007 2:21:13 PM org.apache.catalina.core.StandardContext start
+SEVERE: Context [/solr] startup failed due to previous errors
+
+After the patch you get:
+
+un 11, 2007 2:30:37 PM org.apache.solr.servlet.SolrDispatchFilter init
+INFO: SolrDispatchFilter.init()
+Jun 11, 2007 2:30:37 PM org.apache.solr.core.Config getInstanceDir
+INFO: Using JNDI solr.home: C:\data\workspace\gciTrunk\infrastructure\gciSolr\build\solr
+Jun 11, 2007 2:30:37 PM org.apache.solr.core.Config setInstanceDir
+INFO: Solr home set to 'C:\data\workspace\gciTrunk\infrastructure\gciSolr\build\solr/'
+Jun 11, 2007 2:30:37 PM org.apache.solr.servlet.SolrDispatchFilter init
+SEVERE: Could not start SOLR. Check solr/home property
+java.lang.ExceptionInInitializerError
+	at org.apache.solr.servlet.SolrDispatchFilter.init(SolrDispatchFilter.java:66)
+	at org.apache.catalina.core.ApplicationFilterConfig.getFilter(ApplicationFilterConfig.java:275)
+	at org.apache.catalina.core.ApplicationFilterConfig.setFilterDef(ApplicationFilterConfig.java:397)
+	at org.apache.catalina.core.ApplicationFilterConfig.<init>(ApplicationFilterConfig.java:108)
+	at org.apache.catalina.core.StandardContext.filterStart(StandardContext.java:3693)
+	at org.apache.catalina.core.StandardContext.start(StandardContext.java:4340)
+	at org.apache.catalina.core.ContainerBase.addChildInternal(ContainerBase.java:791)
+	at org.apache.catalina.core.ContainerBase.addChild(ContainerBase.java:771)
+	at org.apache.catalina.core.StandardHost.addChild(StandardHost.java:525)
+	at org.apache.catalina.startup.HostConfig.deployDescriptor(HostConfig.java:626)
+	at org.apache.catalina.startup.HostConfig.deployDescriptors(HostConfig.java:553)
+	at org.apache.catalina.startup.HostConfig.deployApps(HostConfig.java:488)
+	at org.apache.catalina.startup.HostConfig.check(HostConfig.java:1206)
+	at org.apache.catalina.startup.HostConfig.lifecycleEvent(HostConfig.java:293)
+	at org.apache.catalina.util.LifecycleSupport.fireLifecycleEvent(LifecycleSupport.java:117)
+	at org.apache.catalina.core.ContainerBase.backgroundProcess(ContainerBase.java:1337)
+	at org.apache.catalina.core.ContainerBase$ContainerBackgroundProcessor.processChildren(ContainerBase.java:1601)
+	at org.apache.catalina.core.ContainerBase$ContainerBackgroundProcessor.processChildren(ContainerBase.java:1610)
+	at org.apache.catalina.core.ContainerBase$ContainerBackgroundProcessor.run(ContainerBase.java:1590)
+	at java.lang.Thread.run(Thread.java:619)
+Caused by: java.lang.RuntimeException: Error in solrconfig.xml
+	at org.apache.solr.core.SolrConfig.<clinit>(SolrConfig.java:90)
+	... 20 more
+Caused by: java.lang.RuntimeException: Can't find resource 'solrconfig.xml' in classpath or 'C:\data\workspace\gciTrunk\infrastructure\gciSolr\build\solr/conf/', cwd=C:\data\apps\tomcat6.0.13\bin
+	at org.apache.solr.core.Config.openResource(Config.java:357)
+	at org.apache.solr.core.SolrConfig.initConfig(SolrConfig.java:79)
+	at org.apache.solr.core.SolrConfig.<clinit>(SolrConfig.java:87)
+	... 20 more
+Jun 11, 2007 2:30:37 PM org.apache.catalina.core.StandardContext start
+SEVERE: Error filterStart
+Jun 11, 2007 2:30:37 PM org.apache.catalina.core.StandardContext start
+SEVERE: Context [/solr] startup failed due to previous errors

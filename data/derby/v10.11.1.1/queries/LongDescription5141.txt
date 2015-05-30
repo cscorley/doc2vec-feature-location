@@ -1,0 +1,64 @@
+With the latest upgrade to the ibm 1.4.2 jvm (SR13FP8) I see this failure with the SSLTest: 
+
+START-SPAWNED:SpawnedNetworkServer STANDARD OUTPUT: exit code=1
+Thu Mar 17 09:52:31 PDT 2011 : Security manager installed using the Basic server security policy.
+Thu Mar 17 09:52:31 PDT 2011 : Could not listen on port 1527 on host localhost:
+ java.net.SocketException: Default SSL context init failed: null
+END-SPAWNED  :SpawnedNetworkServer STANDARD OUTPUT:
+FSTART-SPAWNED:SpawnedNetworkServer STANDARD OUTPUT: exit code=1
+Thu Mar 17 09:53:11 PDT 2011 : Security manager installed using the Basic server security policy.
+Thu Mar 17 09:53:12 PDT 2011 : Could not listen on port 1527 on host localhost:
+ java.net.SocketException: Default SSL context init failed: null
+END-SPAWNED  :SpawnedNetworkServer STANDARD OUTPUT:
+F
+Time: 82.419
+There were 2 failures:
+1) testSSLBasicDSConnect(org.apache.derbyTesting.functionTests.tests.derbynet.SSLTest) junit.framework.AssertionFailedError: Timed out waiting for network server to start:Spawned SpawnedNetworkServer exitCode=1
+STDOUT:
+Thu Mar 17 09:52:31 PDT 2011 : Security manager installed using the Basic server security policy.
+Thu Mar 17 09:52:31 PDT 2011 : Could not listen on port 1527 on host localhost:
+ java.net.SocketException: Default SSL context init failed: null
+
+        at org.apache.derbyTesting.junit.NetworkServerTestSetup.setUp(NetworkServerTestSetup.java:204)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:18)
+        at junit.extensions.TestSetup.run(TestSetup.java:23)
+        at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+        at junit.extensions.TestSetup.run(TestSetup.java:23)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+        at junit.extensions.TestSetup.run(TestSetup.java:23)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+        at junit.extensions.TestSetup.run(TestSetup.java:23)
+2) testSSLBasicDSPlainConnect(org.apache.derbyTesting.functionTests.tests.derbynet.SSLTest) junit.framework.AssertionFailedError: Timed out waiting for network server to start:Spawned SpawnedNetworkServer exitCode=1
+STDOUT:
+Thu Mar 17 09:53:11 PDT 2011 : Security manager installed using the Basic server security policy.
+Thu Mar 17 09:53:12 PDT 2011 : Could not listen on port 1527 on host localhost:
+ java.net.SocketException: Default SSL context init failed: null
+
+        at org.apache.derbyTesting.junit.NetworkServerTestSetup.setUp(NetworkServerTestSetup.java:204)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:18)
+        at junit.extensions.TestSetup.run(TestSetup.java:23)
+        at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+        at junit.extensions.TestSetup.run(TestSetup.java:23)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+        at junit.extensions.TestSetup.run(TestSetup.java:23)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+        at junit.extensions.TestSetup.run(TestSetup.java:23)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+        at junit.extensions.TestSetup.run(TestSetup.java:23)
+
+derby.log only has: 
+Thu Mar 17 09:53:12 PDT 2011 : Could not listen on port 1527 on host localhost:
+ java.net.SocketException: Default SSL context init failed: null
+
+There are no other files.
+
+This worked fine with the latest ibm 1.5 version (sr12 fp4), and with ibm 1.4.2. sr13 fp4 (I don't know about fpt5, 6, or 7), so it could be a jvm issue.

@@ -1,0 +1,26 @@
+The following script fails with the exception shown below. Passing -t LimitOptimizer makes it work, as does adding an ORDER clause before the limit.
+
+
+A = LOAD 'data1.txt' AS (owner:chararray,pet:chararray,age:int,phone:chararray);
+B = group A all; 
+C = foreach B generate SUM(A.age) as total; 
+D = foreach A generate owner, age/(double)C.total AS percentAge; 
+F = LIMIT D C.total/8;
+DUMP F;
+
+
+
+
+Caused by: org.apache.pig.impl.logicalLayer.FrontendException: ERROR 2000: Error processing rule LimitOptimizer. Try -t LimitOptimizer
+	at org.apache.pig.newplan.optimizer.PlanOptimizer.optimize(PlanOptimizer.java:122)
+	at org.apache.pig.backend.hadoop.executionengine.HExecutionEngine.compile(HExecutionEngine.java:287)
+	at org.apache.pig.PigServer.compilePp(PigServer.java:1317)
+	at org.apache.pig.PigServer.executeCompiledLogicalPlan(PigServer.java:1254)
+	at org.apache.pig.PigServer.storeEx(PigServer.java:953)
+	... 14 more
+Caused by: org.apache.pig.impl.logicalLayer.FrontendException: ERROR 2243: Attempt to remove operator LOLimit that is still softly connected in the plan
+	at org.apache.pig.newplan.BaseOperatorPlan.remove(BaseOperatorPlan.java:174)
+	at org.apache.pig.newplan.BaseOperatorPlan.removeAndReconnect(BaseOperatorPlan.java:449)
+	at org.apache.pig.newplan.logical.rules.LimitOptimizer$OptimizeLimitTransformer.transform(LimitOptimizer.java:124)
+	at org.apache.pig.newplan.optimizer.PlanOptimizer.optimize(PlanOptimizer.java:110)
+

@@ -1,0 +1,49 @@
+Derby can bind a function invocation to a method which returns int but not to a method which returns Integer. I think that both of these resolutions should succeed given the rules in the SQL Standard, part 13, section 8.6, syntax rule 5, case a, item ii. Here is some code which shows this problem. First a class to declare the methods:
+
+public class zz
+{
+    public  static  int returnsInt()
+    {
+        return 1;
+    }
+
+    public  static  Integer returnsInteger()
+    {
+        return new Integer( 2 );
+    }
+
+}
+
+The following ij script shows that the int-returning method is resolved but not the Integer-returning method:
+
+ij version 10.4
+ij> connect 'jdbc:derby:derby10.4;create=true';
+WARNING 01J01: Database 'derby10.4' not created, connection made to existing database instead.
+ij> drop function returnsInt;
+0 rows inserted/updated/deleted
+ij> drop function returnsInteger;
+0 rows inserted/updated/deleted
+ij> create function returnsInt()
+returns int
+language java
+parameter style java
+no sql
+external name 'zz.returnsInt'
+;
+0 rows inserted/updated/deleted
+ij> create function returnsInteger()
+returns int
+language java
+parameter style java
+no sql
+external name 'zz.returnsInteger'
+;
+0 rows inserted/updated/deleted
+ij> values ( returnsInt() );
+1          
+-----------
+1          
+
+1 row selected
+ij> values ( returnsInteger() );
+ERROR 42X50: No method was found that matched the method call int zz.returnsInteger(), tried all combinations of object and primitive types and any possible type conversion for any  parameters the method call may have. The method might exist but it is not public and/or static, or the parameter types are not method invocation convertible.

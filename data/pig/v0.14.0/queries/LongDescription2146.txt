@@ -1,0 +1,21 @@
+The below is my script;
+
+
+register piggybank.jar;
+a = load 'myinput' using PigStorage(',') as (f1:chararray,f2:chararray,f3:chararray);
+b = distinct a;
+c = limit b 2;
+store c into 'pss001' using org.apache.pig.piggybank.storage.PigStorageSchema();
+
+
+
+Input
+-------
+a,1,aa
+b,2,bb
+c,3,cc
+
+
+For this script , PigStorageSchema is not generating  .pig_headers and .pig_schema files. While debugging I could see that storeSchema(..) method itself is not invoked.The schema object for the store is returned as  null (POStore.getSchema()) because of which PigOutputCommitter is not invoking the storSchema.
+
+The same schema object is valid when I run it in local mode. This issue is happening for Pig 0.9 also.

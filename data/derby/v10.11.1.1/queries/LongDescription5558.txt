@@ -1,0 +1,69 @@
+Since November 27 the weme 6.2 tests have reported the following failure and error:
+
+1) testBasicRecovery(org.apache.derbyTesting.functionTests.tests.store.RecoveryTest)junit.framework.AssertionFailedError: expectedExitValue:0 does not match exitValue:1
+expected output strings:
+	[0]OK (1 test)
+ actual output:<STDOUT> .E
+Time: 0.156
+There was 1 error:
+1) launchRecoveryInsert(org.apache.derbyTesting.functionTests.tests.store.RecoveryTest)java.lang.NullPointerException
+	at com.ibm.oti.util.DefaultPolicy.addGrant(DefaultPolicy.java:619)
+	at com.ibm.oti.util.DefaultPolicy.readPolicy(DefaultPolicy.java:608)
+	at com.ibm.oti.util.DefaultPolicy.getSystemPolicy(DefaultPolicy.java:922)
+	at com.ibm.oti.util.DefaultPolicy.getPermissionsImpl(DefaultPolicy.java:114)
+	at com.ibm.oti.util.DefaultPolicy$1.run(DefaultPolicy.java:67)
+	at java.security.AccessController.doPrivileged(AccessController.java:204)
+	at com.ibm.oti.util.DefaultPolicy.privateGetPermissions(DefaultPolicy.java:65)
+	at com.ibm.oti.util.DefaultPolicy.getPermissions(DefaultPolicy.java:53)
+	at java.security.Policy.getPermissions(Policy.java:131)
+	at java.security.ProtectionDomain.implies(ProtectionDomain.java:177)
+	at java.security.AccessController.checkPermission(AccessController.java:99)
+	at java.lang.SecurityManager.checkPermission(SecurityManager.java:534)
+	at java.security.Policy.getPolicy(Policy.java:49)
+	at org.apache.derbyTesting.junit.SecurityManagerSetup$1.run(SecurityManagerSetup.java:191)
+	at java.security.AccessController.doPrivileged(AccessController.java:204)
+	at org.apache.derbyTesting.junit.SecurityManagerSetup.installSecurityManager(SecurityManagerSetup.java:185)
+	at org.apache.derbyTesting.junit.SecurityManagerSetup.installSecurityManager(SecurityManagerSetup.java:145)
+	at org.apache.derbyTesting.junit.TestConfiguration.defaultSecurityManagerSetup(TestConfiguration.java:1904)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:109)
+
+FAILURES!!!
+Tests run: 1,  Failures: 0,  Errors: 1
+
+<END STDOUT>
+<STDERR><END STDERR>
+ expected:<0> but was:<1>
+	at junit.framework.AssertionFailedError.<init>(AssertionFailedError.java:13)
+	at org.apache.derbyTesting.junit.BaseTestCase.assertExecJavaCmdAsExpected(BaseTestCase.java:516)
+	at org.apache.derbyTesting.junit.BaseTestCase.assertLaunchedJUnitTestMethod(BaseTestCase.java:855)
+	at org.apache.derbyTesting.functionTests.tests.store.RecoveryTest.testBasicRecovery(RecoveryTest.java:89)
+	at java.lang.reflect.AccessibleObject.invokeV(AccessibleObject.java:195)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:116)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+
+FAILURES!!!
+Tests run: 6526,  Failures: 1,  Errors: 0
+
+
+---------------
+This started occurring with revision 1206656.
+
+The change since the revision previous to that was:
+SUBVERSION LOG FROM 1206392 TO 1206656:
+------------------------------------------------------------------------
+r1206409 | kahatlen | 2011-11-26 00:11:10 -0800 (Sat, 26 Nov 2011) | 4 lines
+
+DERBY-5514: SecureServerTest (and others) don't play nice with EMMA: AccessControlException
+
+Grant permissions to write coverage data to all code bases, to work
+around EMMA's lack of doPrivileged blocks.
+------------------------------------------------------------------------
+
+I assume this is because we run weme6.2 with the following emma flag:
+-Demma.active=""
+
+We've been running with this set for a very long time, I cannot remember why.
+I'll see if I can find that out, at least.

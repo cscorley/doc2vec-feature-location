@@ -1,0 +1,39 @@
+I've run across an RTF documents which tika is failing to convert on 64bit platforms (Windows and Linux) using the Java 7 early access version. The same document is successfully converted on 32bit Windows and Linux, and using Java 6.
+
+
+java -jar tika-app-0.9.jar -t full.rtf 
+Exception in thread "main" org.apache.tika.exception.TikaException: Unexpected RuntimeException from org.apache.tika.parser.rtf.RTFParser@1fa78298
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:199)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:197)
+	at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:135)
+	at org.apache.tika.cli.TikaCLI$OutputType.process(TikaCLI.java:107)
+	at org.apache.tika.cli.TikaCLI.process(TikaCLI.java:302)
+	at org.apache.tika.cli.TikaCLI.main(TikaCLI.java:91)
+Caused by: java.lang.NullPointerException
+	at javax.swing.text.GapContent.compare(Unknown Source)
+	at javax.swing.text.GapContent.findSortIndex(Unknown Source)
+	at javax.swing.text.GapContent.createPosition(Unknown Source)
+	at javax.swing.text.AbstractDocument.createPosition(Unknown Source)
+	at javax.swing.text.AbstractDocument$LeafElement.<init>(Unknown Source)
+	at javax.swing.text.AbstractDocument.createLeafElement(Unknown Source)
+	at javax.swing.text.DefaultStyledDocument$ElementBuffer.insertElement(Unknown Source)
+	at javax.swing.text.DefaultStyledDocument$ElementBuffer.insertUpdate(Unknown Source)
+	at javax.swing.text.DefaultStyledDocument$ElementBuffer.insert(Unknown Source)
+	at javax.swing.text.DefaultStyledDocument.insertUpdate(Unknown Source)
+	at javax.swing.text.AbstractDocument.handleInsertString(Unknown Source)
+	at javax.swing.text.AbstractDocument.insertString(Unknown Source)
+	at org.apache.tika.parser.rtf.RTFParser$CustomStyledDocument.insertString(RTFParser.java:376)
+	at javax.swing.text.rtf.RTFReader$DocumentDestination.deliverText(Unknown Source)
+	at javax.swing.text.rtf.RTFReader$TextHandlingDestination.handleText(Unknown Source)
+	at javax.swing.text.rtf.RTFReader.handleText(Unknown Source)
+	at javax.swing.text.rtf.RTFParser.write(Unknown Source)
+	at javax.swing.text.rtf.AbstractFilter.write(Unknown Source)
+	at javax.swing.text.rtf.AbstractFilter.readFromStream(Unknown Source)
+	at javax.swing.text.rtf.RTFEditorKit.read(Unknown Source)
+	at org.apache.tika.parser.rtf.RTFParser.parse(RTFParser.java:112)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:197)
+	... 5 more
+
+
+
+The document in question is available at http://public.funnelback.com/full.rtf

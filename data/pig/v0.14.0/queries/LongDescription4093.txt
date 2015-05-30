@@ -1,0 +1,3 @@
+   It is possible for the loaders to evaluate the pushed filter conditions. In that case it is not necessary to retain the filter conditions in the pig plan. So need to support two modes :
+    1) filter conditions are pushed into loader but also retained in pig plan as loader might do only best effort filtering based on block metadata
+    2) filter conditions are pushed into loader and removed from pig plan when the loader can evaluate the expression itself and filter out records. In this case, loader can do lazy deserialization adn avoid deserialization of the full record.

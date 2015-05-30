@@ -1,0 +1,3 @@
+By overriding CleanDatabaseTestSetup.decorateSQL you are allowed to perform tasks as part of the test setup / decorator. The connection obtainable through the passed in statement is configured with auto-commit off. If decorateSQL fails the connection may be left active in the middle of a transaction, which again may cause subsequent tests to fails. I've observed subsequent tests fail due to locks helds by the statement / connection passed to decorateSQL.
+
+CleanDatabaseTestSetup.setUp should ensure the transaction is ended regardless of whether decorateSQL throws an exception or not.

@@ -1,0 +1,51 @@
+The new parser gives better error messages than the old parser (especially with the line numbers). But there are still some places where the error messages can be improved.
+
+Example:
+
+
+
+ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1025: Invalid field projection. Projected field [E::v] does not exist in schema: A::v#28:long,A::u#29:chararray,A::w#30:bytearray,B::v#31:long,B::u#32:chararray,B::w#33:bytearray.
+
+
+
+In this case the #num should be removed from the schema.
+
+Example:
+
+
+
+ERROR org.apache.pig.tools.grunt.Grunt - ERROR 0: line 5:34 mismatched input [''reg''] expecting set null
+
+
+
+In this case the parser detects the error early and gives the line number, but missing the reason part from the old parser message:
+
+
+
+ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1000: Error during parsing. Only COLLECTED, REGULAR or MERGE are valid GROUP modifiers.
+
+
+
+Example:
+
+
+
+grunt> C = join A by v, B by A.t;
+2011-03-18 14:04:38,441 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 0: Invalid scalar projection: A
+
+
+
+In this case the real reason is t is not a field of A : 
+{v: int, u:int}
+. So the message should be: Invalid scalar projection: A.t
+
+Example:
+
+
+
+C = join A by v, B by B::A.v;
+2011-03-18 14:40:11,590 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1000: Invalid field reference. Referenced field [v] does not exist in schema: null.
+
+
+
+The message here is not clear and the schema shouldn't be null.

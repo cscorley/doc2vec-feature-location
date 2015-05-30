@@ -1,0 +1,10 @@
+Mahout does not recommend items which are already consumed by the user.
+
+For example,
+In the getAllOtherItems method of GenericUserBasedRecommender class there is the following line
+
+possibleItemIDs.removeAll(dataModel.getItemIDsFromUser(theUserID));  
+
+which removes user's items from the possibleItemIDs to prevent these items from being recommended to the user. This is ok for many recommendation cases but for many other cases it is not. 
+
+The Recommender classes  (I mean all of them, NN-based and SVD-based as well as hadoop and non-hadoop versions) might have a parameter for this for excluding or not excluding user items in the returned recommendations.

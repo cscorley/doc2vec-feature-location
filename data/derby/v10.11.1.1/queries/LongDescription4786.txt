@@ -1,0 +1,3 @@
+DERBY-2109 introduced optional parameters username and password to the shutdown command. But with this fix, the existing shutdown command which does not use username and password stopped working from client with DERBY-2109 changes against a network server without DERBY-2109 changes.
+
+This jira is to ensure that existing shutdown command without user name and password still works fine between different releases of client and network server(with or without DERBY-2109). The new shutdown command introduced by DERBY-2109 will work obviosuly only on client and server with DERBY-2109 changes. For client/server not with DERBY-2109 changes attempting to user use name and password will get an error.

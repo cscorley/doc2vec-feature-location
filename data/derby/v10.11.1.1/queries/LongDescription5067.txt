@@ -1,0 +1,3 @@
+I've noticed that the results from some of the performance regression tests have become more unstable the last two weeks. See for example here: http://home.online.no/~olmsan/derby/perf/select_30d.html
+
+I suspect it's because the automatic index statistics thread is running (the instability started at about the same time as it was enabled). We should make the test clients create indexes after the tables have been populated so that the statistics will be up to date and no work in the background is needed.

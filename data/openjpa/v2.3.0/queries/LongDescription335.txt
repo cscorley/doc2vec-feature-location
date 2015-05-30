@@ -1,0 +1,71 @@
+If a getter had any logic in it (i.e., does not simply return the entity's member), the PCEnhancer will hang when trying to enhance it (both with build-time and run-time enhancement). This can be easily reproduced by changing /examples/hellojpa/Message.java in the OpenJPA distribution to using property access, and changing getMessage() to look like the following:
+
+    @Basic
+    public String getMessage() 
+{
+        if (Math.abs(1) == 1)
+            return message;
+        else
+            return message;
+    }
+
+One thread dump of the hang looks like:
+
+     [java] "main" prio=5 tid=0x00501830 nid=0x1804c00 runnable [0xb07fe000..0xb08000dc]
+     [java]     at java.lang.Class.forName0(Native Method)
+     [java]     at java.lang.Class.forName(Class.java:242)
+     [java]     at serp.util.Strings.toClass(Strings.java:162)
+     [java]     at serp.util.Strings.toClass(Strings.java:108)
+     [java]     at serp.bytecode.TypedInstruction.getType(TypedInstruction.java:76)
+     [java]     at serp.bytecode.LoadInstruction.isThis(LoadInstruction.java:164)
+     [java]     at org.apache.openjpa.enhance.PCEnhancer.findField(PCEnhancer.java:718)
+     [java]     at org.apache.openjpa.enhance.PCEnhancer.getReturnedField(PCEnhancer.java:665)
+     [java]     at org.apache.openjpa.enhance.PCEnhancer.validateProperties(PCEnhancer.java:566)
+     [java]     at org.apache.openjpa.enhance.PCEnhancer.run(PCEnhancer.java:444)
+     [java]     at org.apache.openjpa.enhance.PCClassFileTransformer.transform(PCClassFileTransformer.java:134)
+     [java]     at sun.instrument.TransformerManager.transform(TransformerManager.java:122)
+     [java]     at sun.instrument.InstrumentationImpl.transform(InstrumentationImpl.java:155)
+     [java]     at java.lang.ClassLoader.defineClass1(Native Method)
+     [java]     at java.lang.ClassLoader.defineClass(ClassLoader.java:620)
+     [java]     at java.security.SecureClassLoader.defineClass(SecureClassLoader.java:124)
+     [java]     at java.net.URLClassLoader.defineClass(URLClassLoader.java:260)
+     [java]     at java.net.URLClassLoader.access$100(URLClassLoader.java:56)
+     [java]     at java.net.URLClassLoader$1.run(URLClassLoader.java:195)
+     [java]     at java.security.AccessController.doPrivileged(Native Method)
+     [java]     at java.net.URLClassLoader.findClass(URLClassLoader.java:188)
+     [java]     at java.lang.ClassLoader.loadClass(ClassLoader.java:306)
+     [java]     - locked <0x06a75a30> (a sun.misc.Launcher$AppClassLoader)
+     [java]     at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:268)
+     [java]     - locked <0x06a75a30> (a sun.misc.Launcher$AppClassLoader)
+     [java]     at java.lang.ClassLoader.loadClass(ClassLoader.java:251)
+     [java]     at java.lang.ClassLoader.loadClassInternal(ClassLoader.java:319)
+     [java]     - locked <0x06a75a30> (a sun.misc.Launcher$AppClassLoader)
+     [java]     at java.lang.Class.forName0(Native Method)
+     [java]     at java.lang.Class.forName(Class.java:242)
+     [java]     at org.apache.openjpa.meta.MetaDataRepository.classForName(MetaDataRepository.java:1253)
+     [java]     at org.apache.openjpa.meta.MetaDataRepository.loadPersistentTypes(MetaDataRepository.java:1241)
+     [java]     - locked <0x06b14900> (a org.apache.openjpa.jdbc.meta.MappingRepository)
+     [java]     at org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.synchronizeMappings(JDBCBrokerFactory.java:148)
+     [java]     at org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.newBrokerImpl(JDBCBrokerFactory.java:130)
+     [java]     at org.apache.openjpa.kernel.AbstractBrokerFactory.newBroker(AbstractBrokerFactory.java:186)
+     [java]     at org.apache.openjpa.kernel.DelegatingBrokerFactory.newBroker(DelegatingBrokerFactory.java:142)
+     [java]     at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:192)
+     [java]     at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:145)
+     [java]     at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:56)
+     [java]     at hellojpa.Main.main(Main.java:43)
+
+The bug appears to have been introduced in svn revision 560016 with the following change to PCEnhancer.findField:
+
+
+	code.next();
+	code.next();
+	code.next();
++            while (backupCount > 0) 
+{
++                code.next();
++                backupCount--;
++            }
+
+
+
+Reverting back to the three subsequent code.next() calls appears to fix the problem.

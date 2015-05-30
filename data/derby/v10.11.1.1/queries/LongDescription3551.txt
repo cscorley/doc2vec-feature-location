@@ -1,0 +1,11 @@
+Jorgen says-
+
+I suggest that the replication step in which the master database is frozen is replaced by a new system procedure to solve index and import:
+
+Old: SYSCS_UTIL.SYSCS_FREEZE_DATABASE()
+New: SYSCS_UTIL.SYSCS_PREPARE_REPLICATION()
+
+The new system procedure should:
+1) Freeze the database
+2) Check if there are any ongoing transactions with unlogged operations. If so - unfreeze and abort. Otherwise:
+3) Enable logging of unlogged operations 

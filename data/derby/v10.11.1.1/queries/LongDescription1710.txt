@@ -1,0 +1,15 @@
+Since Derby doesn't raise EmbedSQLExceptions when running Java SE 6 or later, casts from SQLException to EmbedSQLException fail with a ClassCastException.
+
+To reproduce, start a network server with Java SE 6, and with derby.drda.debug enabled:
+  java -Dderby.drda.debug=true org.apache.derby.drda.NetworkServerControl start
+
+In another terminal, stop the server with this command:
+  java org.apache.derby.drda.NetworkServerControl shutdown
+
+When the server stops, it will print
+
+java.sql.SQLException cannot be cast to org.apache.derby.impl.jdbc.EmbedSQLException
+java.lang.ClassCastException: java.sql.SQLException cannot be cast to org.apache.derby.impl.jdbc.EmbedSQLException
+        at org.apache.derby.impl.drda.NetworkServerControlImpl.blockingStart(NetworkServerControlImpl.java:665)
+        at org.apache.derby.impl.drda.NetworkServerControlImpl.executeWork(NetworkServerControlImpl.java:1739)
+        at org.apache.derby.drda.NetworkServerControl.main(NetworkServerControl.java:239)

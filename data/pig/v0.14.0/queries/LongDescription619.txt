@@ -1,0 +1,35 @@
+Following pig script stores empty filter results into  'emptyfilteredlogs' HDFS dir. It later reloads this data from an empty HDFS dir for additional grouping and counting. It has been observed that this script, succeeds on a single node hadoop installation with the following message as the alias COUNT_EMPTYFILTERED_LOGS contains empty data.
+==============================================================================================================
+2009-01-13 21:47:08,988 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - Success!
+==============================================================================================================
+But on a multi-node Hadoop installation, the script fails with the following error:
+==============================================================================================================
+2009-01-13 13:48:34,602 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - Success!
+java.io.IOException: Unable to open iterator for alias: COUNT_EMPTYFILTERED_LOGS [Unable to get results for /tmp/temp-1964806069/tmp256878619:org.apache.pig.builtin.BinStorage]
+        at org.apache.pig.backend.hadoop.executionengine.HJob.getResults(HJob.java:74)
+        at org.apache.pig.PigServer.openIterator(PigServer.java:408)
+        at org.apache.pig.tools.grunt.GruntParser.processDump(GruntParser.java:269)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:178)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:84)
+        at org.apache.pig.tools.grunt.Grunt.exec(Grunt.java:64)
+        at org.apache.pig.Main.main(Main.java:306)
+Caused by: org.apache.pig.backend.executionengine.ExecException: Unable to get results for /tmp/temp-1964806069/tmp256878619:org.apache.pig.builtin.BinStorage
+        ... 7 more
+Caused by: java.io.IOException: /tmp/temp-1964806069/tmp256878619 does not exist
+        at org.apache.pig.impl.io.FileLocalizer.openDFSFile(FileLocalizer.java:188)
+        at org.apache.pig.impl.io.FileLocalizer.open(FileLocalizer.java:291)
+        at org.apache.pig.backend.hadoop.executionengine.HJob.getResults(HJob.java:69)
+        ... 6 more
+==============================================================================================================
+
+RAW_LOGS = load 'mydata.txt' as (url:chararray, numvisits:int);
+RAW_LOGS = limit RAW_LOGS 2;
+FILTERED_LOGS = filter RAW_LOGS by numvisits < 0;
+store FILTERED_LOGS into 'emptyfilteredlogs' using PigStorage();
+EMPTY_FILTERED_LOGS = load 'emptyfilteredlogs' as (url:chararray, numvisits:int);
+GROUP_EMPTYFILTERED_LOGS = group EMPTY_FILTERED_LOGS by numvisits;
+COUNT_EMPTYFILTERED_LOGS = foreach GROUP_EMPTYFILTERED_LOGS generate
+                             group, COUNT(EMPTY_FILTERED_LOGS);
+explain COUNT_EMPTYFILTERED_LOGS;
+dump COUNT_EMPTYFILTERED_LOGS;
+

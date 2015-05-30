@@ -1,0 +1,13 @@
+This problem only happens if you have an Entity with a Generated id that also has the annotation @Basic(optional = false). If you create a new Entity and then try to persist it via EntityManager.merge(...) call, you'll get the following stack :
+
+<openjpa-0.0.0-rnull fatal user error> org.apache.openjpa.persistence.InvalidStateException: The field "id" of instance "org.apache.openjpa.persistence.jdbc.auto.AutoIncrementEntity@99883308" contained a null value; the metadata for this field specifies that nulls are illegal.
+	at org.apache.openjpa.kernel.SingleFieldManager.preFlush(SingleFieldManager.java:567)
+	at org.apache.openjpa.kernel.SingleFieldManager.preFlush(SingleFieldManager.java:511)
+	at org.apache.openjpa.kernel.StateManagerImpl.preFlush(StateManagerImpl.java:3019)
+	at org.apache.openjpa.kernel.PNewState.beforeFlush(PNewState.java:44)
+	at org.apache.openjpa.kernel.StateManagerImpl.beforeFlush(StateManagerImpl.java:1035)
+	at org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:2141)
+	at org.apache.openjpa.kernel.BrokerImpl.flushSafe(BrokerImpl.java:2101)
+	at org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:1872)
+	at org.apache.openjpa.kernel.DelegatingBroker.flush(DelegatingBroker.java:1045)
+	at org.apache.openjpa.persistence.EntityManagerImpl.flush(EntityManagerImpl.java:663)

@@ -1,0 +1,24 @@
+Slice currently only allows URL based configuration. In managed environment, Slice should allow configuration via a JNDI-named data source. For example, the following configuration
+should be possible. The basic conditions are
+  a) Specify the master slice as <jta-data-source>
+  b) Specify each slice datasource (including the master) with openjpa.ConnectionFactoryName
+  c) Specify usual 'managed' modes if the slices participate in a JTA transaction
+
+The example below shows three slices named 'slice1', 'slice2' and 'slice3' connected to three configured data sources.
+
+        <persistence-unit name="Slice" transaction-type="JTA">
+
+    	    <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
+    	    <jta-data-source>jdbc/slice-ds1</jta-data-source>
+
+           <properties>
+                <property name="openjpa.BrokerFactory" value="slice"/>
+                <property name="openjpa.slice.Names" value="slice1,slice2,slice3"/>
+                <property name="openjpa.slice.Master" value="slice1"/>
+                <property name="openjpa.slice.slice1.ConnectionFactoryName" value="jdbc/slice-ds1"/>
+                <property name="openjpa.slice.slice2.ConnectionFactoryName" value="jdbc/slice-ds2"/>
+                <property name="openjpa.slice.slice3.ConnectionFactoryName" value="jdbc/slice-ds3"/>
+                <property name="openjpa.TransactionMode" value="managed" />
+               <property name="openjpa.ConnectionFactoryMode" value="managed" /> 
+        </properties>
+    </persistence-unit>

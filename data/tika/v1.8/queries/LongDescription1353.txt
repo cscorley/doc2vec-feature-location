@@ -1,0 +1,41 @@
+When using OpenDocumentParser, the metadata isn't set correctly. When using it to write an html file, the only metadata that it knows about is content type because it is set ahead of time.
+
+The problem is that when iterating over the zip contents, meta.xml isn't processed before content.xml. The metadata set on the parse object is correct after parse() returns, however the contents of the resulting html file is missing all of the metadata.
+
+Changing the code to be 
+
+boolean parsedMetaData = false;
+boolean delayLoadContent = false;
+while (entry != null) 
+{
+...
+}
+ else if (entry.getName().equals("meta.xml")) {
+                meta.parse(zip, new DefaultHandler(), metadata, context);
+                parsedMetaData = true;
+
+                if (delayLoadContent) {
+                    if (content instanceof OpenDocumentContentParser) 
+{
+                        ((OpenDocumentContentParser) content).parseInternal(zip, handler, metadata, context);
+                    } else {
+                        // Foreign content parser was set:
+                        content.parse(zip, handler, metadata, context);
+                    }
+                }
+            } else if (entry.getName().endsWith("content.xml")) {
+                if (!parsedMetaData) {
+                    delayLoadContent = true;
+                } else {
+                    if (content instanceof OpenDocumentContentParser) {
+                        ((OpenDocumentContentParser) content).parseInternal(zip, handler, metadata, context);
+                    }
+ else 
+{
+                        // Foreign content parser was set:
+                        content.parse(zip, handler, metadata, context);
+                    }
+                }
+            }
+
+works as expected.

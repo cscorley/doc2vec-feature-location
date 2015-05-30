@@ -1,0 +1,3 @@
+Currently the nonZero iterator does not guarantee nonZero iteration for certain vectors (RASV, SASV) for performance reason. However vector view iterator adds a zero check.. To be correct we have to either remove the check or do correct non zero serialization everywhere. However this means going over the vectors in two passes. Given that is pretty fast already, I am fixing the logic bug. We can tackle the speed up for the next release.
+
+This also adds a randomized test for serialization that catches all such bugs.

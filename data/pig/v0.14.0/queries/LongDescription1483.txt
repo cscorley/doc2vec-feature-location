@@ -1,0 +1,44 @@
+PIG-1333 added many script-related entries to the MR job xml file and thus it's now possible to use Pig for querying Hadoop job history/xml files to get script-level usage statistics. What we need is a Pig loader that can parse these files and generate corresponding data objects.
+
+The goal of this jira is to create a HadoopJobHistoryLoader in piggybank.
+
+Here is an example that shows the intended usage:
+
+Find all the jobs grouped by script and user:
+
+
+
+a = load '/mapred/history/_logs/history/' using HadoopJobHistoryLoader() as (j:map[], m:map[], r:map[]);
+b = foreach a generate (Chararray) j#'PIG_SCRIPT_ID' as id, (Chararray) j#'USER' as user, (Chararray) j#'JOBID' as job; 
+c = filter b by not (id is null);
+d = group c by (id, user);
+e = foreach d generate flatten(group), c.job;
+dump e;
+
+
+
+A couple more examples:
+
+Find scripts that use only the default parallelism:
+
+
+
+a = load '/mapred/history/done' using HadoopJobHistoryLoader() as (j:map[], m:map[], r:map[]);
+b = foreach a generate j#'PIG_SCRIPT_ID' as id, j#'USER' as user, j#'JOBNAME' as script_name, (Long) r#'NUMBER_REDUCES' as reduces;
+c = group b by (id, user, script_name) parallel 10;
+d = foreach c generate group.user, group.script_name, MAX(b.reduces) as max_reduces;
+e = filter d by max_reduces == 1;
+dump e;
+
+
+
+Find the running time of each script (in seconds):
+
+
+
+a = load '/mapred/history/done' using HadoopJobHistoryLoader() as (j:map[], m:map[], r:map[]);
+b = foreach a generate j#'PIG_SCRIPT_ID' as id, j#'USER' as user, j#'JOBNAME' as script_name, (Long) j#'SUBMIT_TIME' as start, (Long) j#'FINISH_TIME' as end;
+c = group b by (id, user, script_name)
+d = foreach c generate group.user, group.script_name, (MAX(b.end) - MIN(b.start)/1000;
+dump d;
+

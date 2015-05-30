@@ -1,0 +1,12 @@
+The default policy file installed has this stanza:
+  :
+  permission java.net.SocketPermission "$
+{derby.drda.host}
+:*", "accept"; 
+  :
+
+Normally, specifying -h 0.0.0.0 to NetworkServerControl lets clients connect
+from any host, but with the default policy file installed
+connecting fails even from localhost.
+
+I think this is because SocketPermission only recognizes "*" as a catch-all.

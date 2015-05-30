@@ -1,0 +1,19 @@
+This is a regression from PIG-2492.
+
+When a glob pattern such as '*' matches not only files but also directories, AvroStorage does not load files in the directories. This is a bug in getAllSubDirs() that can be fixed as follows:
+
+
+
+static boolean getAllSubDirs(Path path, Job job, Set<Path> paths)
+...
+FileStatus[] matchedFiles = fs.globStatus(path, PATH_FILTER);
+...
+for (FileStatus file : matchedFiles) {
+    if (file.isDir()) {
+-        for (FileStatus sub : fs.listStatus(path)) {
++        for (FileStatus sub : fs.listStatus(file.getPath())) {
+            getAllSubDirs(sub.getPath(), job, paths);
+        }
+    }
+}
+

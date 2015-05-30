@@ -1,0 +1,9 @@
+Accessing a database created using encryptionAlgorithm: AES/CBC/NoPadding, and encryptionKeyLength=192 after it's been shutdown fails like so:
+-----------------------
+ERROR XJ040: Failed to start database 'encdbcbc_192', see the next exception for details.
+ERROR XBM06: Startup failed. An encrypted database cannot be accessed without the correct boot password.
+----------------------
+
+This does not occur when you use encryptionKeyLength=128 (does not require unrestricted jars) nor encryptionKeyLength=256 (does require unrestricted policy jars).
+
+Note: our test (in derbyall): store/aes.sql does not test this, firstly it doesn't test the larger sizes (because it would diff & fail unless you have been able to adjust your jvm's policy jars), and secondly it doesn't shutdown before reconnecting.

@@ -1,0 +1,6 @@
+Transactions accessing index statistics can deadlock if one of them inserts new entries and the other selects from the system table. Inserts happens for instance when update of index statistics are perform manually, or when a table is compressed (given that the table has indexes and contains some rows). This issue may be more problematic when automatic update of index statistics is implemented.
+Issue discovered when writing a regression tests for DERBY-4849, see discussion there. The bug is timing dependent, but has been observed on a variety of JVMs and platform architectures.
+
+To sum up:
+  o using NO_WAIT + retry was suggested, but turned out to be an infeasible solution
+  o current approach is to allow using read uncommitted isolation level when accessing statistics in the system table (take no locks)

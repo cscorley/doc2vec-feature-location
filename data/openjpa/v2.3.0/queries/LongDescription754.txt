@@ -1,0 +1,46 @@
+In some use case, an unexpected pre/postUpdate callback event will be fired. 
+
+The following operations demonstrate the scenario:
+
+			em.getTransaction().begin();
+			// Create and persist a new Message entity
+			Message message = new Message("Hello Persistence!");
+			message.setId(1);
+			em.persist(message);
+			em.flush();
+			// Create and persist another new Message entity
+			message = new Message("Hello Persistence 2!");
+			message.setId(2);
+			em.persist(message);
+			em.getTransaction().commit();
+
+			em.getTransaction().begin();
+			message.setMessage("Mutated 2!!");
+			em.getTransaction().commit();
+
+
+
+	
+	
+		PrePersist - Message: id=1, m=Hello Persistence!, create=null, updated=null, v=null
+		PostPersist - Message: id=1, m=Hello Persistence!, create=null, updated=null, v=1
+		PrePersist - Message: id=2, m=Hello Persistence 2!, create=null, updated=null, v=null
+		PreUpdate - Message: id=1, m=Hello Persistence!, create=null, updated=null, v=1
+		PostPersist - Message: id=2, m=Hello Persistence 2!, create=null, updated=null, v=1
+		PostUpdate - Message: id=1, m=Hello Persistence!, create=null, updated=null, v=1
+	
+	
+
+
+
+
+	
+	
+		PreUpdate - Message: id=2, m=Mutated 2!!, create=null, updated=null, v=1
+		PostUpdate - Message: id=2, m=Mutated 2!!, create=null, updated=null, v=2
+	
+	
+
+
+
+Albert Lee.

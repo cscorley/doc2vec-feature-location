@@ -1,0 +1,46 @@
+If openjpa.DetachState =fetch-groups is used, the enhancer will add a 'implements Externalizable' + writeExternal + readExternal.
+
+The problem is, that writeExternal and readExternal will also try to externalize the private members of any given superclass. Thus we get a runtime Exception that we are not allowed to access those fields.
+
+Example:
+
+@Entity
+public abstract class AbstractGroup 
+{
+   ...
+    @Temporal(TemporalType.TIMESTAMP)
+    @TrackChanges
+    private Date applicationBegin;
+ ...
+}
+
+and 
+
+@Entity
+public class Group extends AbstractGroup 
+{
+...
+}
+
+will result in the following code (decompiled with jad):
+
+    public void writeExternal(ObjectOutput objectoutput)
+        throws IOException
+    {
+        pcWriteUnmanaged(objectoutput);
+        if(pcStateManager != null)
+        
+{
+            if(pcStateManager.writeDetached(objectoutput))
+                return;
+        }
+ else
+        {
+            objectoutput.writeObject(pcGetDetachedState());
+            objectoutput.writeObject(null);
+        }
+        objectoutput.writeObject(applicationBegin);
+        objectoutput.writeObject(applicationEnd);
+        objectoutput.writeObject(applicationLocked);
+        objectoutput.writeObject(approvalRequired);
+ ...

@@ -1,0 +1,28 @@
+With an old client (10.1.1, 10.1.2) accessing a new (10.2) server,
+some metadata calls will return the wrong value for both the JCC and
+the Derby clients:
+
+	 deletesAreDetected(TYPE_SCROLL_INSENSITIVE) -> true
+	 updatedAreDetected(TYPE_SCROLL_INSENSITIVE) -> true
+	 ownDeletesAreVisible(TYPE_SCROLL_INSENSITIVE) -> true
+	 ownUpdatesAreVisible(TYPE_SCROLL_INSENSITIVE) -> true
+
+This happens because these values were changed for the 10.2 with
+the addition of updatable scrollable insensitive result sets (DERBY-775),
+combined with a weakness in the way the client and the server 
+cooperates to answer these metadata calls.
+
+Presently, when the client application invokes these methods, the
+results will be returned by the server without regard to the identity
+of the client, i.e. the 2-tuple 
+{JCC or Derby client, client version}
+.
+The values to be returned for the methods in question are based solely
+on the values found in the file metadata_net.properties, which is part
+of the server.
+
+In general, some database metadata is dependent on the combination of
+the capabilities in the client and the server and the returned values
+should reflect this, which in general implies negotiating (down) to
+values which are correct for the actual combination of client and
+server.

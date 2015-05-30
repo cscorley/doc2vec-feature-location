@@ -1,0 +1,39 @@
+The order in which triggers fire, is partly determined by the order in which they are created.
+
+See here:
+
+http://db.apache.org/derby/docs/10.10/ref/rrefsqlj43125.html
+
+
+
+   When multiple triggers are defined for the same database event for
+
+
+   the same table for the same trigger time (before or after), triggers
+
+
+   are fired in the order in which they were created.
+
+
+
+
+And here:
+
+SQL:2003, part 2, section 4.38.1 General description of triggers:
+
+
+
+   The order of execution of a set of triggers is ascending by value of
+
+
+   their timestamp of creation in their descriptors, such that the
+
+
+   oldest trigger executes first.
+
+
+
+
+Since the order of creation matters, dblook should generate CREATE TRIGGER statements in an order that preserves the original order of execution.
+
+dblook currently generates CREATE TRIGGER statements in the order returned by a SELECT query against SYS.SYSTRIGGERS. The SELECT query does not have an ORDER BY clause, so it is not guaranteed to return the rows in a specific order.

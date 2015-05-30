@@ -1,0 +1,12 @@
+Given that TOP is basically always used with FLATTEN, now that FLATTEN prepends the bag name, the output is suboptimal.
+
+a = load 'thing' as (x:int, y:int, z:int);
+b = group a all;
+c = foreach b generate flatten(TOP(10,1,a));
+describe c;
+--currently: c: 
+{null::x: int,null::y: int,null::z: int}
+--without a one line change could be: c: 
+{a::x: int,a::y: int,a::z: int}
+
+The current implementation actually throws away this info, so it's just a matter of not doing that. Patch attached.

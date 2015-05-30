@@ -1,0 +1,13 @@
+There is an inconsistency in the way exceptions are thrown from MetaDataRepository.resolve(ClassMetaData).
+If there are more than one error encountered while resolving metadata then all these exceptions are wrapped inside MetaDataException 
+and the MetaDataException is thrown. If there is only single exception thrown then that exception is thrown without wrapping inside MetaDataException.
+
+So, in case of single error encountered any exception ( need not be MetaDataException) is thrown 
+but in case of multiple errors encountered MetaDataException is thrown.
+
+Now, there is a method loadRegisteredClassMetaData() inside same class which calls the above resolve method ( via other method calls).
+This loadRegisteredClassMetaData() catches MetaDataException and logs a warning, which is an expected behavior.
+But as resolve(), in case of a single error , throws an exception other than MetaDataException loadRegisteredClassMetaData() is not
+able to catch this Exception.
+
+I think this inconsistence behavior has to be fixed inside MetaDataRepository.resolve().

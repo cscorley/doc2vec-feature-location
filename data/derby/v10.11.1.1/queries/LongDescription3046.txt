@@ -1,0 +1,30 @@
+Change WwdClientExample so that there are no parameters, e.g.
+
+psInsert = conn.prepareStatement("insert into WISH_LIST(WISH_ITEM) values ('?')");
+
+Now change 
+   psInsert.setString(1,answer);
+to
+  psInsert.setObject(1,answer);
+
+and the error is OK:
+
+SQLState:   XCL14
+Severity: 20000
+Message:  The column position '1' is out of range.  The number of columns for this ResultSet is '0'.
+java.sql.SQLException: The column position '1' is out of range.  The number of columns for this ResultSet is '0'.
+[...]
+
+However, using:
+
+psInsert.setObject(1,answer,java.sql.Types.VARCHAR);
+
+causes an NPE:
+
+java.lang.NullPointerException
+        at org.apache.derby.client.am.PreparedStatement.checkForValidParameterIndex(Unknown Source)
+        at org.apache.derby.client.am.PreparedStatement.setObjectX(Unknown Source)
+        at org.apache.derby.client.am.PreparedStatement.setObject(Unknown Source)
+        at WwdClientExample.main(WwdClientExample.java:93)
+
+Surely it should behave the same as the previous method call - i.e. return an SQLException?

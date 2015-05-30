@@ -1,0 +1,50 @@
+Found this bug while converting the test lang/ShutdownDatabase.java to junit. Here is the stack trace I got
+
+There was 1 error:
+1) testOnlyTransactionWasCommited(org.apache.derbyTesting.functionTests.tests.la
+ng.ShutdownDatabaseTest)java.sql.SQLException: A network protocol error was enco
+untered and the connection has been terminated: the requested command encountere
+d an unarchitected and implementation-specific condition for which there was no
+architected message
+        at org.apache.derby.client.am.SQLExceptionFactory.getSQLException(Unknow
+n Source)
+        at org.apache.derby.client.am.SqlException.getSQLException(Unknown Sourc
+e)
+        at org.apache.derby.client.am.Statement.execute(Unknown Source)
+        at org.apache.derbyTesting.functionTests.tests.lang.ShutdownDatabaseTest
+.tearDown(ShutdownDatabaseTest.java:77)
+        at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:
+80)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+        at junit.extensions.TestSetup.run(TestSetup.java:23)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+        at junit.extensions.TestSetup.run(TestSetup.java:23)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+        at junit.extensions.TestSetup.run(TestSetup.java:23)
+Caused by: org.apache.derby.client.am.DisconnectException: A network protocol er
+ror was encountered and the connection has been terminated: the requested comman
+d encountered an unarchitected and implementation-specific condition for which t
+here was no architected message
+        at org.apache.derby.client.net.NetConnectionReply.parseCMDCHKRM(Unknown
+Source)
+        at org.apache.derby.client.net.NetStatementReply.parseExecuteImmediateEr
+ror(Unknown Source)
+        at org.apache.derby.client.net.NetStatementReply.parseEXCSQLIMMreply(Unk
+nown Source)
+        at org.apache.derby.client.net.NetStatementReply.readExecuteImmediate(Un
+known Source)
+        at org.apache.derby.client.net.StatementReply.readExecuteImmediate(Unkno
+wn Source)
+        at org.apache.derby.client.net.NetStatement.readExecuteImmediate_(Unknow
+n Source)
+        at org.apache.derby.client.am.Statement.readExecuteImmediate(Unknown Sou
+rce)
+        at org.apache.derby.client.am.Statement.flowExecute(Unknown Source)
+        at org.apache.derby.client.am.Statement.executeX(Unknown Source)
+        ... 27 more
+
+
+Note : The old harness has the same test running under n/w server. But in the original test, the test was creating different databases for individual test cases, while in this case we are using one database.

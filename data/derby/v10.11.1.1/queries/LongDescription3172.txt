@@ -1,0 +1,46 @@
+The attached program demonstrates the problem.  Using the ClientConnectionPoolDataSource40 with a connectionEventListener the defined method connectionErrorOccurred is not executed after the Network Server is shutdown and activity is performed on a previously established pooled connection.
+
+Program also demonstrates that the connectionClosed method is executed when the connection is closed.
+
+To run the reproduction:
+1) start network server (listening on default host/port and  -noSecurityManager specified)
+2) run the program
+
+Output is:
+ > java DerbyNotification2
+10.3.1.5 - (579866)
+
+Apache Derby
+ .got connection...check if connectionClosed method is called
+EVENT CALLED: Connection closed happened
+ . . .
+ . . .Get connection and issue test SQL statement
+ . . .AS EXPECTED: no table exists
+ . SHUTDOWN Network server and check if connectionErrorOccurred is called
+now try to use the connection after the NS is STOPPED
+SQLState is: 08006
+Error is: -4499
+Message is: Insufficient data while reading from the network - expected a minimum of 6 bytes and received only -1 bytes.  The connection has been terminated.
+Exception in thread "main" java.sql.SQLNonTransientConnectionException: Insufficient data while reading from the network - expected a minimum of 6 bytes and received only -1 bytes.  The connection has
+ been terminated.
+        at org.apache.derby.client.am.SQLExceptionFactory40.getSQLException(Unknown Source)
+        at org.apache.derby.client.am.SqlException.getSQLException(Unknown Source)
+        at org.apache.derby.client.am.Connection.prepareStatement(Unknown Source)
+        at org.apache.derby.client.am.LogicalConnection.prepareStatement(Unknown Source)
+        at DerbyNotification2.runTest(DerbyNotification2.java:64)
+        at DerbyNotification2.main(DerbyNotification2.java:87)
+Caused by: org.apache.derby.client.am.DisconnectException: Insufficient data while reading from the network - expected a minimum of 6 bytes and received only -1 bytes.  The connection has been termina
+ted.
+        at org.apache.derby.client.net.Reply.fill(Unknown Source)
+        at org.apache.derby.client.net.Reply.ensureALayerDataInBuffer(Unknown Source)
+        at org.apache.derby.client.net.Reply.readDssHeader(Unknown Source)
+        at org.apache.derby.client.net.Reply.startSameIdChainParse(Unknown Source)
+        at org.apache.derby.client.net.NetStatementReply.readPrepareDescribeOutput(Unknown Source)
+        at org.apache.derby.client.net.StatementReply.readPrepareDescribeOutput(Unknown Source)
+        at org.apache.derby.client.net.NetStatement.readPrepareDescribeOutput_(Unknown Source)
+        at org.apache.derby.client.am.Statement.readPrepareDescribeOutput(Unknown Source)
+        at org.apache.derby.client.am.PreparedStatement.readPrepareDescribeInputOutput(Unknown Source)
+        at org.apache.derby.client.am.PreparedStatement.flowPrepareDescribeInputOutput(Unknown Source)
+        at org.apache.derby.client.am.PreparedStatement.prepare(Unknown Source)
+        at org.apache.derby.client.am.Connection.prepareStatementX(Unknown Source)
+        ... 4 more

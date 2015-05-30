@@ -1,0 +1,16 @@
+The script:
+
+
+
+A = load 'data' as (s, m);
+B = order A by s parallel 2;
+C = limit B 20;
+store C into 'output' using org.apache.pig.piggybank.storage.PigStorageSchema('\t')
+
+
+
+where piggybank jar is in the classpath.
+
+The script, however,  fails since the piggybank jar isn't shipped to the backend with the additional job created by the LimitAdjuster.
+
+The workaround is to explicitly register the piggybank jar in the script. 

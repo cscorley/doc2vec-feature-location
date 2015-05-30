@@ -1,0 +1,7 @@
+I've found an inaccurate detection with the attached xls file. POIFSContainerDetector is unable to determine the exact mimetype (vnd.ms-excel) and returns the generic "x-tika-msoffice". This is due to the fact this file's root names are :[Book, �DocumentSummaryInformation, �SummaryInformation]. POIFSContainerDetector checks only that names contains "WorkBook".
+Could it be possible to add a further or-check like this:
+
+if (names.contains("Workbook") || names.contains("Book"))
+
+Thank you,
+Marco

@@ -1,0 +1,7 @@
+With the following table definition and query
+
+CREATE TABLE T (X VARCHAR(10) NOT NULL);
+INSERT INTO T VALUES 'true', 'false', 'unknown';
+SELECT CAST(X AS BOOLEAN) FROM T;
+
+the meta-data for the returned result will say that the column is not nullable, although it will contain a NULL value in the third row.

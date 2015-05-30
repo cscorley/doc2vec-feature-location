@@ -1,0 +1,7 @@
+Following discussion in SOLR-272
+
+This implementation stores fields as a Map<String,Object> rather then a Map<String,Collection<Object>>.  The API changes slightly in that:
+
+ getFieldValue( name ) returns a Collection if there are more then one fields and a Object if there is only one.
+
+getFirstValue( name ) returns a single value for the field.  This is intended to make things easier for client applications.

@@ -1,0 +1,11 @@
+Get a ClassNotFoundException: org.apache.openjpa.util.CacheMap.
+
+I think the java.util.Map in Line 1405 
+
+queryCompilationCachePlugin.instantiate(Map.class, this); 
+
+of OpenJPAConfigurationImpl cause the error.
+
+The classloader in this enviroment is a sun.misc.Launcher$AppClassLoader for java.util.Map not a WebAppClassLoader.
+
+Changing the Map.class to CacheMap.class solves the problem (the right ClassLoader is used)

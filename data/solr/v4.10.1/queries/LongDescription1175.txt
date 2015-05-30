@@ -1,0 +1,23 @@
+In an environment where one master and several slaves are deployed, it usually takes more effort to discover all the slaves and disable replication on slave side (which is available right now), and it would be much easier to disable it on master instance (when, for example, there is a need to rebuild the index, yet search has to continue). The following is the original email describing a scenario when this feature is needed.
+
+Hi,
+
+Occasionally, we want to build our indexes from scratch, and during this period we want our search continue to work. Here are the steps that I think will do it
+
+1. on all slaves: disable replication
+2. on master: stop the server
+3. on master: delete all the documents
+4. on master: restart the server
+5. on master: index all documents
+6. on slaves: enable replication
+
+The only problem is: step 1 and 6. We may schedule any time to rebuild indexes and it is an automated process. It is possible to let the master to disable replication on all slaves, but then we have to discover all the slaves automatically, also exceptions may happen, e.g. a slave may be down at the time and then restarted later on. Anyhow it becomes an unreliable process. So I am thinking of somehow disabling replication on the master side during reindex, i.e. set a state on master so that any request for replication will be ignored. That all the steps described above will be on master side only.
+
+Is that possible?
+
+By the way, I am talking about solr 1.4. I looked at how 1.3 works, and noticed that in 1.3 there is a way to disable replication on master side: shutdown rsyncd, so I guess it would be nice to have something equivalent in solr 1.4.
+
+
+Thanks,
+
+Jianhan

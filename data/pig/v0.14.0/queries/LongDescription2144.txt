@@ -1,0 +1,69 @@
+I have following input <name>:<nickname>, for which I want to find records where name is different from nickname.
+input/name_nickname.txt
+
+Bharat:Bharat
+Amita:Amita
+Mitesh:Mitesh
+Reenu:Anshu
+Shikha:Shikhu
+Shilpa:Shilpi
+
+
+
+I have following script to find records where name is different from nickname.
+isEmpty_diff.pig
+
+
+A = LOAD 'input/name_nickname.txt' using PigStorage(':');
+
+B = FILTER A BY NOT IsEmpty(DIFF($0, $1));
+
+DUMP B;
+
+
+
+
+The above pig script works with older pig versions (e.g. 0.8.0 (r1043805)) and gives following output
+output of isEmpty_diff.pig
+
+(Reenu,Anshu)
+(Shikha,Shikhu)
+(Shilpa,Shilpi)
+
+
+
+
+However, the above pig script (isEmpty_diff.pig) fails on Pig 0.9 (e.g. 0.9.0.xx (r1127671)) and newer version of Pig 0.8 (e.g. version 0.8.0.xx (r1102885)) , with ClassCastException
+ClassCastException
+
+java.lang.ClassCastException: org.apache.pig.data.DefaultDataBag cannot be cast to java.lang.Boolean
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.PONot.getNext(PONot.java:75)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.getNext(PhysicalOperator.java:318)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POUserFunc.processInput(POUserFunc.java:159)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POUserFunc.getNext(POUserFunc.java:184)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POUserFunc.getNext(POUserFunc.java:269)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.PONot.getNext(PONot.java:71)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POFilter.getNext(POFilter.java:148)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:261)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:256)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:58)
+        at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144)
+        at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:676)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:336)
+        at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:210)
+
+
+
+
+As a workaround, I used the following pig script.
+
+
+A = LOAD 'input/name_nickname.txt' using PigStorage(':');
+
+--B = FILTER A BY NOT IsEmpty(DIFF($0, $1));
+B1 = FOREACH A GENERATE $0, $1, DIFF($0, $1);
+B2 = FILTER B1 BY NOT IsEmpty($2);
+B = FOREACH B2 GENERATE $0, $1;
+
+DUMP B;
+

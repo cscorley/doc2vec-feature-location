@@ -1,0 +1,18 @@
+% in like predicates does not seem to match tab character.  In the following example all whitespace in character literals is the tab character:
+
+
+ij> create table t4(i integer primary key, j integer, c varchar(10));
+0 rows inserted/updated/deleted
+ij> insert into t4 values (1, 1, 'abc	def');
+1 row inserted/updated/deleted
+ij> select * from t4 where c like 'abc%';
+I          |J          |C         
+----------------------------------
+
+0 rows selected
+ij> select * from t4 where c like 'abc	%';
+I          |J          |C         
+----------------------------------
+1          |1          |abc    def   
+
+1 row selected

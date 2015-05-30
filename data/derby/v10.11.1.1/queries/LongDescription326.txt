@@ -1,0 +1,11 @@
+Currently the stream writing  methods in network server and client require a  length parameter. This means that we have to get the length of the stream before sending it. For example in network server in EXTDTAInputStream we have to use getString and getbytes() instead of getCharacterStream and getBinaryStream so that we can get the  length.
+
+
+SQLAM Level 7 provides for the enhanced LOB processing to allow streaming without indicating the length, so, the writeScalarStream methods in
+network server DDMWriter.java and network client Request.java can be changed to not require a length.
+
+Code inspection of these methods seems to indicate that while the length is never written it is used heavily in generating the DSS. One strange thing is that it appears on error, the stream is padded out to full length with zeros, but an actual exception is never sent.  Basically I think perhaps these methods need to be rewritten from scratch based on the spec requirements for lobs.
+
+After the writeScalarStream methods have been changed, then EXTDAInputStream can be changed to properly stream LOBS. See TODO tags in this file for more info.  I am guessing similar optimizations available in the client as well, but am not sure where that code is.
+
+

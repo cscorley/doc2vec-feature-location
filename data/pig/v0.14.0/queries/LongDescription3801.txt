@@ -1,0 +1,9 @@
+https://github.com/apache/pig/blob/trunk/src/org/apache/pig/backend/hadoop/executionengine/mapReduceLayer/MapReduceLauncher.java#L481
+
+Pig code explicitly runs PigOutputCommitter.storeCleanup for local jobs. We also need to add this for auto-local jobs.
+
+To repro this problem, run-
+>  a = load '2.txt' as (a0:chararray, a1:int);
+>  store a into 'a' using PigStorage(',','-schema');
+
+This creates .pig_schema file in pig -x local mode, but does not create .pig_schema file in auto-local mode.

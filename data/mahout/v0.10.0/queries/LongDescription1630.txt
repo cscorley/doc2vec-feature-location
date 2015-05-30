@@ -1,0 +1,16 @@
+SparseColumnMatrix overrides the numSlices() method incorrectly: it returns numCols() instead of numRows(). 
+As a result, AbstractMaxtrix.toString() for wide matrices throws an exception.
+For example, this code:
+
+    Matrix matrix = new SparseColumnMatrix(1, 2);
+    matrix.toString();
+causes
+
+org.apache.mahout.math.IndexException: Index 1 is outside allowable range of [0,1)
+        at org.apache.mahout.math.MatrixVectorView.<init>(MatrixVectorView.java:42)
+        at org.apache.mahout.math.AbstractMatrix.viewRow(AbstractMatrix.java:290)
+        at org.apache.mahout.math.AbstractMatrix$1.computeNext(AbstractMatrix.java:68)
+        at org.apache.mahout.math.AbstractMatrix$1.computeNext(AbstractMatrix.java:59)
+        at com.google.common.collect.AbstractIterator.tryToComputeNext(AbstractIterator.java:143)
+        at com.google.common.collect.AbstractIterator.hasNext(AbstractIterator.java:138)
+        at org.apache.mahout.math.AbstractMatrix.toString(AbstractMatrix.java:787)

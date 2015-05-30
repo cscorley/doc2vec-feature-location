@@ -1,0 +1,61 @@
+There are data consistency issues when modifying more number of elements in a collection Vs less number of elements.
+
+Following is a detailed explanation about the issue with example:
+
+
+	Entity A has a collection of Entities AItems with cascade ALL.
+	Test case :
+  Clear all the data inside tables representing Entity A and AItems.  
+  Create 3 entity managers em1,em2 and em3.
+
+
+
+  em1.begin()
+      create A on em1 with id "1"
+      add 10 elements of AItems (id's from 0-9) to the created A(id 1).
+      persist A.
+  em1.commit()
+
+  em1.begin()
+      merge A ( created in the previous step)
+      Remove 3 elements of AItems from the merged A.
+      Add 3 elements of AItems ( id's 10,11,12) to the merged A (id 1).
+
+With out committing em1
+
+  em2.begin()
+      query database to fetch A and construct object result2 of entity A.
+      Add 3 elements of AItems ( id's 13,14,15) to fetched A ( result2)      
+
+   em2.commit ()
+   em1.commit()
+
+  em3.begin()
+     query database to check the size of AItems that are related to A ( id 1)
+  em3.commit()
+
+  The result on em3's query for AItems related to A, returns 13 as expected.
+  13 ( Initial 10 - em1's 3 + em1's 3 + em2's 3).
+
+When the same test case is repeated with removing and adding 10 elements instead of 3 as before then I get wrong results.
+
+    Add initial 10 AItems (id's 0-9) for A.
+    commit()
+
+    em1 will remove 10 AItems from the collection of A.
+    em1 will add 10 AItems (id's 10-19) to collection of A.
+
+    em2 will add 10 AItems (id's 20-29) to collection of A.
+
+    Commit em2.
+    Commit em1.
+
+    Then instead of 20 elements ( Initial 10 - em1's 10 + em1's 10 + em2's 10), I see only 10 elements.
+
+    The 10 elements that I see are from em1's added AItems ( id's 10-19).
+
+
+I think the cause of the issue is that, when more number of elements (compared to initial element count of collection) in a collection are modified then collection tracking is disabled and openJPA tries to do the following:
+ – Delete every thing from the collection
+ – Insert data back to collection.
+While Inserting the data back it does not consider adding the dirty records ( em2's 10 added elements ) because the collection tracking is disabled.

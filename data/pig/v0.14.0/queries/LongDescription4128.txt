@@ -1,0 +1,5 @@
+Pig used to have a LogicExpressionSimplifier to simplify expression which also calculates constant expression. The optimizer rule is buggy and we disable it by default in PIG-2316.
+
+However, we do need this feature especially in partition/predicate push down, since both does not deal with complex constant expression, we'd like to replace the expression with constant before the actual push down. Yes, user may manually do the calculation and rewrite the query, but even rewrite is sometimes not possible. Consider the case user want to push a datetime predicate, user have to write a ToDate udf since Pig does not have datetime constant.
+
+In this Jira, I provide a new rule: ConstantCalculator, which is much simpler and much less error prone, to replace LogicExpressionSimplifier.

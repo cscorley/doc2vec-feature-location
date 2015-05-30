@@ -1,0 +1,6 @@
+If you invoke a table function as a scalar function, Derby instantiates the ResultSet returned by the table function and returns that ResultSet. This behavior looks wrong. Derby should raise an error if you invoke a table function as a scalar function. Here is an example of the problem:
+
+ij> values ( badVTI( 'foo' ) );
+1              
+---------------
+BadVTI@1ef69   

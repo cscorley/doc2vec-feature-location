@@ -1,0 +1,40 @@
+PIG-1333 added PigRunner API to allow Pig users and tools to get a status/stats object back after executing a Pig script. The new API, however, is synchronous (blocking). It's known that a Pig script can spawn tens (even hundreds) MR jobs and take hours to complete. Therefore it'll be nice to give progress feedback to the callers during the execution.
+
+The proposal is to add an optional parameter to the API:
+
+
+
+public abstract class PigRunner {
+    public static PigStats run(String[] args, PigProgressNotificationListener listener) {...}
+}
+
+ 
+
+The new listener is defined as following:
+
+
+
+package org.apache.pig.tools.pigstats;
+
+public interface PigProgressNotificationListener extends java.util.EventListener {
+    // just before the launch of MR jobs for the script
+    public void LaunchStartedNotification(int numJobsToLaunch);
+    // number of jobs submitted in a batch
+    public void jobsSubmittedNotification(int numJobsSubmitted);
+    // a job is started
+    public void jobStartedNotification(String assignedJobId);
+    // a job is completed successfully
+    public void jobFinishedNotification(JobStats jobStats);
+    // a job is failed
+    public void jobFailedNotification(JobStats jobStats);
+    // a user output is completed successfully
+    public void outputCompletedNotification(OutputStats outputStats);
+    // updates the progress as percentage
+    public void progressUpdatedNotification(int progress);
+    // the script execution is done
+    public void launchCompletedNotification(int numJobsSucceeded);
+}
+
+
+
+Any thoughts?

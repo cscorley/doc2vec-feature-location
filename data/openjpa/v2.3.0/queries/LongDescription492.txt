@@ -1,0 +1,6 @@
+JPQL does not allow scalar functions to be used in SELECT clauses. This can be useful in and of itself. Additionally, relational databases typically require that any functions used in a GROUP BY or ORDER BY clause are also used in the SELECT clause; paralleling this in JPQL seems to make sense.
+
+Example:
+
+select substring(o.stringField, 1, 1), count(o) from AllFieldTypes o
+    group by substring(o.stringField, 1, 1)

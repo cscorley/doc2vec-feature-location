@@ -1,0 +1,5 @@
+I have a PPNL that is forked off the main thread so that its operations does not block pig from continuing to run. This PPNL needs the ScriptState, but is not able to get it in pig13 because the ScriptState is ThreadLocal.
+
+In pig12, this worked because there was logic to start a new ScriptState on ScriptState.get() which was removed in PIG-3525 (https://reviews.apache.org/r/15634).
+
+My proposal is to change ScriptState to be InheritableThreadLocal, so that any new child threads that are spawned will have a copy of it. I have a pretty limited understanding of pig, but I do not see anything that this proposed change would break.

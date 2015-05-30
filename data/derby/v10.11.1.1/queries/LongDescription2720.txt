@@ -1,0 +1,9 @@
+Derby still has some untested, unused code relating to a non-standard implementation of a Nationa Char type.  The current code can be removed.  
+I believe the interesting functionality associated with this is now provided by DERBY-1478 (territory based collation) .  If  Derby ever implements a
+National Char type it should do so differently than the existing code, collation should not be tied to the National Char type.    
+
+I believe a future National char type might have to maintain a separate type id for compatibility with jdbc interface, but actual implmentation should be
+the same code as the char types.  Collating of the the national char type should be supported in exactly same way as regular char types.
+
+If anyone is really intested in the national char code, it's history will always be available in svn, and a consistent version is available by looking at 10.0, 10.1,
+and 10.2 codelines.  I would propose any removal of code only take place in trunk and not be backported to a released codeline.

@@ -1,0 +1,9 @@
+I ran into this problem with Lipstick after deploying ASSERT. When ASSERT is not given any comment, LogicalPlanBuilder constructs ConstantExpression with null. Later tools like Lipstick try to convert it to a String resulting in NPE.
+
+Although it's possible to handle this case in Lipstick, I feel ConstantExpression shouldn't be constructed with null in the first place.
+
+Here is the code in LogicalPlanBuilder-
+
+
+ConstantExpression constExpr = new ConstantExpression(exprPlan, comment);
+

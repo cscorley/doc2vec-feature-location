@@ -1,0 +1,193 @@
+I've been having a problem inserting the result of a join into a table with a generated column. If I rephrase the join clause into a where clause, the problem goes away. And it only seems to happen if the target table has a generated column. Unfortunately, the join that I want to do in my application is pretty complex so I don't think I can rephrase it. But here's a very simplified example of what I'm talking about:
+
+ij version 10.1
+ij> connect 'jdbc:derby:test;create=true';
+ij> create table source (
+source_id int not null primary key
+);
+0 rows inserted/updated/deleted
+ij> insert into source values (0);
+insert into source values (1);
+insert into source values (2);
+insert into source values (3);
+insert into source values (4);
+insert into source values (5);
+insert into source values (6);
+insert into source values (7);
+insert into source values (8);
+insert into source values (9);
+1 row inserted/updated/deleted
+ij> 1 row inserted/updated/deleted
+ij> 1 row inserted/updated/deleted
+ij> 1 row inserted/updated/deleted
+ij> 1 row inserted/updated/deleted
+ij> 1 row inserted/updated/deleted
+ij> 1 row inserted/updated/deleted
+ij> 1 row inserted/updated/deleted
+ij> 1 row inserted/updated/deleted
+ij> 1 row inserted/updated/deleted
+ij> create table dest (
+dest_id int not null primary key
+   generated always as identity,
+source_id_1 int not null,
+source_id_2 int not null
+);
+0 rows inserted/updated/deleted
+ij> select s1.source_id, s2.source_id
+from source as s1
+join source as s2
+on 1 = 1;
+SOURCE_ID  |SOURCE_ID
+-----------------------
+0          |0
+0          |1
+0          |2
+0          |3
+0          |4
+0          |5
+0          |6
+0          |7
+0          |8
+0          |9
+1          |0
+1          |1
+1          |2
+1          |3
+1          |4
+1          |5
+1          |6
+1          |7
+1          |8
+1          |9
+2          |0
+2          |1
+2          |2
+2          |3
+2          |4
+2          |5
+2          |6
+2          |7
+2          |8
+2          |9
+3          |0
+3          |1
+3          |2
+3          |3
+3          |4
+3          |5
+3          |6
+3          |7
+3          |8
+3          |9
+4          |0
+4          |1
+4          |2
+4          |3
+4          |4
+4          |5
+4          |6
+4          |7
+4          |8
+4          |9
+5          |0
+5          |1
+5          |2
+5          |3
+5          |4
+5          |5
+5          |6
+5          |7
+5          |8
+5          |9
+6          |0
+6          |1
+6          |2
+6          |3
+6          |4
+6          |5
+6          |6
+6          |7
+6          |8
+6          |9
+7          |0
+7          |1
+7          |2
+7          |3
+7          |4
+7          |5
+7          |6
+7          |7
+7          |8
+7          |9
+8          |0
+8          |1
+8          |2
+8          |3
+8          |4
+8          |5
+8          |6
+8          |7
+8          |8
+8          |9
+9          |0
+9          |1
+9          |2
+9          |3
+9          |4
+9          |5
+9          |6
+9          |7
+9          |8
+9          |9
+
+100 rows selected
+ij> insert into dest (source_id_1, source_id_2)
+select s1.source_id, s2.source_id
+from source as s1
+join source as s2
+on 1 = 1;
+
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+ij>
+
+
+
+derby.log:
+
+----------------------------------------------------------------
+2006-03-07 20:01:12.152 GMT:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.1.2.1 - (330608): instance c013800d-0109-d64c-5067-000000172958
+on database directory D:\Documents and Settings***\My Documents\test
+
+Database Class Loader started - derby.database.classpath=''
+2006-03-07 20:01:52.671 GMT Thread[main,5,main] (XID = 124), (SESSIONID = 0), (DATABASE = test), (DRDAID = null), Cleanup action starting
+2006-03-07 20:01:52.671 GMT Thread[main,5,main] (XID = 124), (SESSIONID = 0), (DATABASE = test), (DRDAID = null), Failed Statement is: insert into dest (source_id_1, source_id_2)
+select s1.source_id, s2.source_id
+from source as s1
+join source as s2
+on 1 = 1
+java.lang.NullPointerException
+at org.apache.derby.impl.sql.compile.ResultColumnList.remapColumnReferencesToExpressions(Unknown Source)
+at org.apache.derby.impl.sql.compile.JoinNode.flatten(Unknown Source)
+at org.apache.derby.impl.sql.compile.FromList.flattenFromTables(Unknown Source)
+at org.apache.derby.impl.sql.compile.SelectNode.preprocess(Unknown Source)
+at org.apache.derby.impl.sql.compile.SingleChildResultSetNode.preprocess(Unknown Source)
+at org.apache.derby.impl.sql.compile.DMLStatementNode.optimize(Unknown Source)
+at org.apache.derby.impl.sql.compile.DMLModStatementNode.optimize(Unknown Source)
+at org.apache.derby.impl.sql.GenericStatement.prepMinion(Unknown Source)
+at org.apache.derby.impl.sql.GenericStatement.prepare(Unknown Source)
+at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(Unknown Source)
+at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+at org.apache.derby.impl.tools.ij.ij.executeImmediate(Unknown Source)
+at org.apache.derby.impl.tools.ij.utilMain.doCatch(Unknown Source)
+at org.apache.derby.impl.tools.ij.utilMain.go(Unknown Source)
+at org.apache.derby.impl.tools.ij.Main.go(Unknown Source)
+at org.apache.derby.impl.tools.ij.Main.mainCore(Unknown Source)
+at org.apache.derby.impl.tools.ij.Main14.main(Unknown Source)
+at org.apache.derby.tools.ij.main(Unknown Source)
+Cleanup action completed
+
+2006-03-07 20:43:03.759 GMT:
+Shutting down instance c013800d-0109-d64c-5067-000000172958
+----------------------------------------------------------------

@@ -1,0 +1,13 @@
+This problem was reported by Frank Schwarz on the user forum[1].  It appeared to be related to the use of the new element-collection element in XML, but is actually are result of not having all persistent fields defined in XML.  If all fields are defined - or the entity is simply annotated with @Entity no exception is thrown.
+
+Based on the JPA spec:
+
+2.1.1 - If the entity has field-based access, the persistence provider runtime accesses instance variables
+directly. All non-transient instance variables that are not annotated with the Transient
+annotation are persistent. When field-based access is used, the object/relational mapping annotations
+for the entity class annotate the instance variables.
+
+In addition, the <entity> xsd documentation states:  [entity] Defines the settings and mappings for an entity. Is allowed to be
+sparsely populated and used in conjunction with the annotations.
+
+[1] http://n2.nabble.com/orm.xml---element-collection---trunk-tp2142331p2142331.html

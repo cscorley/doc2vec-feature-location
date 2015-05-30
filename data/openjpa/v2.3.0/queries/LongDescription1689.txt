@@ -1,0 +1,40 @@
+As reported on the users forum:
+
+<Christopher Schmidt>
+Hi all, using OpenJPA 2.0.0 with Postgresql 8.4 JDBC4
+
+I want to create the schema with the following property:
+<property name="openjpa.jdbc.SynchronizeMappings"
+value="buildSchema(SchemaAction='drop,add')"/>
+
+The entity is defined as follows:
+
+@Entity
+@Table(name = "obj_item")
+@Inheritance(strategy = InheritanceType.JOINED)
+@SequenceGenerator(name = "obj_item_id_seq", sequenceName =
+"obj_item_id_seq", allocationSize = 1)
+class ObjectItem ...
+
+it seems that the sequence will not be dropped - so I get the
+following exception:
+org.apache.openjpa.persistence.PersistenceException: ERROR: relation
+"obj_item_id_seq" already exists 
+{stmnt 1834517285 CREATE SEQUENCE
+obj_item_id_seq START WITH 1}
+ [code=0, state=42P07]
+       at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:556)...
+</Christopher Schmidt>
+
+<Jeremy Bauer>
+As it turns out, I don't think this problem is the same as OPENJPA-1259.  There is special code in the PostgresDictionary that treats sequences suffixed with "_SEQ" as system managed sequences.  The comment in PostgresDictionary.isSystemSequence reads:
+
+        // filter out generated sequences used for bigserial cols, which are
+        // of the form <table>_<col>_seq
+
+This explains why the same code worked for me on DB2.  Are you able to modify the sequence name?  (ex. sequenceName = "seq_obj_item_id")  If not, please file a new JIRA.   It may/should be possible to make the code a bit smarter by actually verifying _seq suffixed sequences are for a bigserial column[1] instead of just making the assumption.
+
+[1] http://www.postgresql.org/docs/8.4/static/datatype-numeric.html#DATATYPE-SERIAL
+</Jeremy Bauer>
+
+I have a simple testcase that demonstrates the problem and only spent a very brief amount of time looking into a fix.  Ideally, OpenJPA should be able to identify user created vs. system created sequences with suffix "_seq" and behave appropriately.

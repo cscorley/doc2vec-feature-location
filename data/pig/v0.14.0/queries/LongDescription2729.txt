@@ -1,0 +1,5 @@
+org.apache.pig.test.TestMacroExpansion, in function importUsingSearchPathTest the import statement is provided with the full path to /tmp/mytest2.pig so the pig.import.search.path is never used. I changed the import to 
+
+import 'mytest2.pig';
+
+and ran the UnitTest again. This time the test failed as expected from my experience from earlier this day trying in vain to get pig eat my pig.import.search.path property! Other properties in the same custom properties file (provided via -propertyFile command line option) like udf.import.list get read without any problem.

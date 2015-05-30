@@ -1,0 +1,13 @@
+WorkHorseForCollatorDatatypes.java has a method getCollationElementsForString() which currently gets
+called when processing like clauses in databases that have been created with territory based collation, this is
+not an issue in pre-10.3 databases or post 10.3 default databases.
+getCollationElementsForString gets the collation elements for the entire  value of the String held by
+the datatype using the class.
+
+If you take the case of pattern 'A%' and the value of datatype is 'BXXXXXXXXXXXXXXXXXXXXXXX', 
+then it would have been better to  better to get collation elements one character of the String value at a time
+to avoid the  process of getting collation elements for the entire string when we don't really need it 
+One could imagine this might have a huge performance impact on running like against a long clob where
+the like pattern has leading fixed-length pattern to match.
+
+Comments on this from Dan and Dag can be found in DERBY-2416.

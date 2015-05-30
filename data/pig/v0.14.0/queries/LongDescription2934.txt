@@ -1,0 +1,6 @@
+Our HBase pal/guru Gary Helmling was kind enough to do a code review of HBaseStorage. He suggested some good filter optimizations:
+
+
+	when using the "lt*" and "gt*" options, set the start/stop rows on the Scan instance, at least in addition to the RowFilters. Without this you're doing a full table scan, regardless of the RowFilters.
+	when selecting specific columns or entire families to return, it would be more efficient to set the family + columns on the Scan object (addFamily(), addColumn()), instead of using a FilterList. I'm not familiar with the family:prefix handling you mention, but that would still seem to require filters. But if that's not being used, it would be better to avoid the FilterList for columns. At minimum, we should probably call Scan.addFamily() with the distinct families, so we can skip entire column families that are not being used. In the case of a table with 4 CFs, if, say, only 1 is being used, this could be a big gain.
+

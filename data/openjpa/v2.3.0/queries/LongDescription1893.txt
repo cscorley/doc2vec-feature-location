@@ -1,0 +1,27 @@
+Considering the following mapping:
+
+	<entity class="Feature">
+		<table name="features" />
+		<attributes>
+			<embedded-id name="id" />
+			<element-collection name="attributes">
+				<collection-table name="qualifiers" />
+			</element-collection>
+		</attributes>
+	</entity>
+
+Without specifying any JoinColumn element in the CollectionTable element, I got the query:
+
+(...) INNER JOIN qualifiers t3 ON t0.index = t3.FEATURE_INDEX AND t0.oid = t3.FEATURE_OID (...)
+
+but changing the mapping by:
+				<collection-table name="qualifiers">
+					<join-column name="oid" />
+					<join-column name="index" />
+				</collection-table>
+
+I got:
+
+(...) INNER JOIN qualifiers t3 ON t0.index = t3.index (...)
+
+where is missing the first JoinColumn.

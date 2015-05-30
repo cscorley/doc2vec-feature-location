@@ -1,0 +1,70 @@
+We are using openjpa inside an OSGi container together with
+
+   openjpa.MetaDataRepository" value="Preload=true"
+
+We pass the appliation class loeader as part of our PersistenceUnitInfo implementation by returning it from PersistenceUnitInfo.getClassLoader().
+
+However, the code in MetaDataRepository.preload() only uses the context class loader and not the class loader from PersistenceUnitInfo, which leades to ClassNotFoundExpcetions like mentioned at the end of this report.
+
+A fix might be quite easily establihed by appending the return value of PersistenceUnitInfo.getClassLoader() to the list of claas loaders participating in the MultiClassLoader set up in
+
+  MetaDataRepository.java:310ff
+
+In the meanwhile, we are additionally setting our classloader as context loader during the creation of the EntityManagerFactory by PersistenceProvider.createContainerEntityManagerFactory(), but a fix in MetaDatRepository.preload() is highly appreciated.
+
+  TIA for fixing this,
+
+   Wolfgang
+
+Stack trace:
+
+org.osgi.service.blueprint.container.ComponentDefinitionException: Error when instantiating bean entityManagerFactory of class null
+	at org.apache.aries.blueprint.container.BeanRecipe.getInstance(BeanRecipe.java:233)[7:org.apache.aries.blueprint:0.3.0.incubating-SNAPSHOT]
+	at org.apache.aries.blueprint.container.BeanRecipe.internalCreate(BeanRecipe.java:726)[7:org.apache.aries.blueprint:0.3.0.incubating-SNAPSHOT]
+	at org.apache.aries.blueprint.di.AbstractRecipe.create(AbstractRecipe.java:64)[7:org.apache.aries.blueprint:0.3.0.incubating-SNAPSHOT]
+	at org.apache.aries.blueprint.container.BlueprintRepository.createInstances(BlueprintRepository.java:219)[7:org.apache.aries.blueprint:0.3.0.incubating-SNAPSHOT]
+	at org.apache.aries.blueprint.container.BlueprintRepository.createAll(BlueprintRepository.java:147)[7:org.apache.aries.blueprint:0.3.0.incubating-SNAPSHOT]
+	at org.apache.aries.blueprint.container.BlueprintContainerImpl.instantiateEagerComponents(BlueprintContainerImpl.java:624)[7:org.apache.aries.blueprint:0.3.0.incubating-SNAPSHOT]
+	at org.apache.aries.blueprint.container.BlueprintContainerImpl.doRun(BlueprintContainerImpl.java:315)[7:org.apache.aries.blueprint:0.3.0.incubating-SNAPSHOT]
+	at org.apache.aries.blueprint.container.BlueprintContainerImpl.run(BlueprintContainerImpl.java:213)[7:org.apache.aries.blueprint:0.3.0.incubating-SNAPSHOT]
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)[:1.6.0_20]
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:334)[:1.6.0_20]
+	at java.util.concurrent.FutureTask.run(FutureTask.java:166)[:1.6.0_20]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$101(ScheduledThreadPoolExecutor.java:165)[:1.6.0_20]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:266)[:1.6.0_20]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1110)[:1.6.0_20]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:603)[:1.6.0_20]
+	at java.lang.Thread.run(Thread.java:636)[:1.6.0_20]
+Caused by: <openjpa-2.0.1-r422266:989424 fatal user error> org.apache.openjpa.persistence.ArgumentException: Unexpected error during early loading of entity metadata during initialization. See nested stacktrace for details.	  
+	at org.apache.openjpa.meta.MetaDataRepository.preload(MetaDataRepository.java:331)
+	at org.apache.openjpa.persistence.PersistenceProviderImpl.preloadMetaDataRepository(PersistenceProviderImpl.java:280)
+	at org.apache.openjpa.persistence.PersistenceProviderImpl.createContainerEntityManagerFactory(PersistenceProviderImpl.java:211)
+	at org.apache.openjpa.persistence.PersistenceProviderImpl.createContainerEntityManagerFactory(PersistenceProviderImpl.java:65)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)[:1.6.0_20]
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)[:1.6.0_20]
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)[:1.6.0_20]
+	at java.lang.reflect.Method.invoke(Method.java:616)[:1.6.0_20]
+	at org.apache.aries.blueprint.container.AbstractServiceReferenceRecipe$JdkProxyFactory$1.invoke(AbstractServiceReferenceRecipe.java:632)
+	at $Proxy67.createContainerEntityManagerFactory(Unknown Source)
+	at org.clazzes.util.jpa.provider.EntityManagerFactoryFactory.newEntityManagerFactory(EntityManagerFactoryFactory.java:108)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)[:1.6.0_20]
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)[:1.6.0_20]
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)[:1.6.0_20]
+	at java.lang.reflect.Method.invoke(Method.java:616)[:1.6.0_20]
+	at org.apache.aries.blueprint.utils.ReflectionUtils.invoke(ReflectionUtils.java:221)[7:org.apache.aries.blueprint:0.3.0.incubating-SNAPSHOT]
+	at org.apache.aries.blueprint.container.BeanRecipe.invoke(BeanRecipe.java:844)[7:org.apache.aries.blueprint:0.3.0.incubating-SNAPSHOT]
+	at org.apache.aries.blueprint.container.BeanRecipe.getInstance(BeanRecipe.java:231)[7:org.apache.aries.blueprint:0.3.0.incubating-SNAPSHOT]
+	... 15 more
+Caused by: java.security.PrivilegedActionException: java.lang.ClassNotFoundException: org.clazzes.fancymail.server.entities.EMail
+	at java.security.AccessController.doPrivileged(Native Method)[:1.6.0_20]
+	at org.apache.openjpa.meta.MetaDataRepository.preload(MetaDataRepository.java:326)
+	... 32 more
+Caused by: java.lang.ClassNotFoundException: org.clazzes.fancymail.server.entities.EMail
+	at org.apache.openjpa.lib.util.MultiClassLoader.findClass(MultiClassLoader.java:216)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:321)[:1.6.0_20]
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:266)[:1.6.0_20]
+	at java.lang.Class.forName0(Native Method)[:1.6.0_20]
+	at java.lang.Class.forName(Class.java:264)[:1.6.0_20]
+	at org.apache.openjpa.lib.util.J2DoPrivHelper$4.run(J2DoPrivHelper.java:233)
+	at org.apache.openjpa.lib.util.J2DoPrivHelper$4.run(J2DoPrivHelper.java:231)
+	... 34 more

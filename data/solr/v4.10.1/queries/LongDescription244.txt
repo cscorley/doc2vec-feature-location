@@ -1,0 +1,14 @@
+The existing ways to change parameters at runtime are awkward, this is a class I have been using in SOLR-20.  It is a solr params implementation with two nice additions:
+
+  public void set( String name, String ... val ) 
+{
+   ... 
+  }
+
+  public void add( String name, String ... val ) 
+{
+  ...
+  }
+
+Rather then have a new class, it may be better to augment MultiMapSolrParams to include a default constructor and use set/add to modify the final Map<String,String[]>
+

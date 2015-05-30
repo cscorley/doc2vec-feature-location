@@ -1,0 +1,11 @@
+Suppose we have an interface, A.
+
+Suppose we have a JPA-compliant entity class, B, that implements A.
+
+This construction will fail at runtime:
+
+final TypedQuery<A> q = em.createNamedQuery("someNamedQuery", A.class);
+
+Hibernate and EclipseLink both accept this construction.
+
+I don't see anywhere in the JPA specification that the class parameter must denote an entity type.

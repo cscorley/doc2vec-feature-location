@@ -1,0 +1,66 @@
+[ Issue title edited to reflect the discussion about how to clarify the use of this interface. ]
+
+I believe the problem involves o.a.d.iapi.types.DataValueFactory.
+This interface defines dozens and dozens of overloads of the method
+getDataValue(), for lots of different combinations of datatypes.
+
+For most of the Java "boxed" types (Short, Long, Float, Double, etc.),
+DataValueFactory defines a pair of getDataValue() methods. For example,
+here are the method pair that the interface defines for Short:
+
+        /**
+
+	Get a SQL smallint with the given value.  A null argument means get
+	a SQL null value.  The second form uses the previous value (if non-null)
+	to hold the return value.
+         *
+         */
+        NumberDataValue         getDataValue(Short value);
+        NumberDataValue         getDataValue(Short value, NumberDataValue previous)
+                                                        throws StandardException;
+
+
+
+HOWEVER, for the Integer type, DataValueFactory doesn't define both overloads,
+but only defines the 'previous'-style overload:
+
+        /**
+
+	Get a SQL int with the given value.  A null argument means get
+	a SQL null value.  Uses the previous value (if non-null)
+	to hold the return value.
+         *
+         */
+        NumberDataValue         getDataValue(Integer value, NumberDataValue previous)
+                                                        throws StandardException;
+
+
+
+The actual implementation, in o.a.d.iapi.types.DataValueFactoryImpl, though,
+does implement both the Integer overloads. But this method is NOT present
+in the DataValueFactory interface:
+
+        NumberDataValue         getDataValue(Integer value);
+
+ Because this method is not present in the interface, code such as
+
+   row.setColumn(SYSXPLAIN_RESULTSET_NO_OPENS, dvf.getDataValue(no_opens));
+
+which the code anticipates will invoke the above method, instead calls the method
+
+   public UserDataValue getDataValue(Object value); 
+
+which has a very different behavior (instead of returning a SQLInteger, it returns a UserType).
+
+This accidental invocation of the wrong implementation method was causing data corruption
+errors in regression tests for the DERBY-2487 patch, which uses the above setColumn call.
+Instead of inserting SQLInteger values into the system table, the code was inserting
+java.lang.Integer UserType values; since those values don't match the defined type of
+the column(s) in the system catalog, the table appeared to be corrupt.
+
+I believe that this problem never affects external Derby applications, but only internal Derby code,
+as the DataValueFactory interface is an internal interface only. Still, since it appeared to
+cause data corruption and invalid query results, it is potentially a quite serious problem.
+
+See this thread in the derby-dev archives for a bit more discussion:
+http://mail-archives.apache.org/mod_mbox/db-derby-dev/200902.mbox/%3C4997818E.3080007@amberpoint.com%3E

@@ -1,0 +1,23 @@
+I have a pig script like this :
+--Load data, process it and store to two outputs
+
+
+a = load 'dummy.txt' as (cookie: chararray,timestamp: long,url: chararray);
+b = group a by (cookie);
+c = foreach b generate group, COUNT_STAR(a);
+store c into '$COUNT_OUTPUT' using PigStorage();
+store b into '$GRID_OUTPUT' using PigStorage();
+--Remove local file, copy to local and remove processed file from grid
+sh rm -rf '$LOCAL_OUTPUT';
+fs -getmerge '$GRID_OUTPUT' '$LOCAL_OUTPUT';
+fs -rmr '$GRID_OUTPUT';
+
+
+
+Pig does not guarantee the order of command execution in the above script i.e. the "store" "sh rm...", "fs -getmerge ..." and "fs -rmr ..." will not be executed in the written order.
+
+Pig guarantees that "fs" commands and pig "store" commands will be executed in sequence. But "sh" commands will get executed before anything else (in normal multi-query mode) because "sh"  commands are executed when the parser sees them. They go through a different code path within Pig. This behavior needs to be changed.
+
+
+Thanks
+Viraj

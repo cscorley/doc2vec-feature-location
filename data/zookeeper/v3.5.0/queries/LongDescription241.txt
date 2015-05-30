@@ -1,0 +1,19 @@
+When the ZooKeeper distro is downloaded, if the clean target is run, it deletes the .revision file:
+
+
+clean:
+  [delete] Deleting directory /home/foo/zookeeper-3.0.1/build
+  [delete] Deleting directory /home/foo/zookeeper-3.0.1/src/java/generated
+  [delete] Deleting directory /home/foo/zookeeper-3.0.1/src/c/generated
+  [delete] Deleting directory /home/foo/zookeeper-3.0.1/.revision
+
+This causes subsequent builds in the distro to fail with:
+
+
+compile-main:
+   [javac] Compiling 73 source files to /home/foo/zookeeper-3.0.1/build/classes
+   [javac] /home/foo/zookeeper-3.0.1/src/java/main/org/apache/zookeeper/Version.java:21: package org.apache.zookeeper.version does not exist
+   [javac] public class Version implements org.apache.zookeeper.version.Info{
+   [javac]                                                             ^
+   ...
+

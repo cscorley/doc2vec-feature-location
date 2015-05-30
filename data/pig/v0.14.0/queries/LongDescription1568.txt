@@ -1,0 +1,13 @@
+FilterAboveForeach rule is to optimize the plan by pushing up filter above previous foreach operator. However, during code review, two major problems were found:
+
+1. Current implementation assumes that if no projection is found in the filter condition then all columns from foreach are projected. This issue prevents the following optimization:
+    	A = LOAD 'file.txt' AS (a(u,v), b, c);
+    	B = FOREACH A GENERATE $0, b;
+    	C = FILTER B BY 8 > 5;
+    	STORE C INTO 'empty';
+
+2. Current implementation doesn't handle * probjection, which means project all columns. As a result, it wasn't able to optimize the following:
+    	A = LOAD 'file.txt' AS (a(u,v), b, c);
+    	B = FOREACH A GENERATE $0, b;
+    	C = FILTER B BY Identity.class.getName > 5;
+    	STORE C INTO 'empty';

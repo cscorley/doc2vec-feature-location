@@ -1,0 +1,44 @@
+The following test cases fail, which iterates through the elements of the SequentialAccessSparseVector, because not every value is given back.
+SequentialAccessSparseVector.iterator() skips the last element, while the SequentialAccessSparseVector.iterateNonZero() skips the first element.
+
+
+int [] index = new int[] 
+{ 0, 1, 2, 3, 4, 5 };
+int [] values = new int[] { 0, 1, 2, 3, 4, 5 }
+;
+
+SequentialAccessSparseVector vector;
+
+@Before
+public void setUp() {
+	vector = new SequentialAccessSparseVector(6);
+	for(int i = 0; i < Math.min(index.length, values.length); i++ ) 
+{
+		vector.set(index[i], values[i]);
+	}
+}
+
+@Test
+public void testIteratorAll() {
+	int elements = 0;
+	Iterator<Element> it = vector.iterator();
+	while (it.hasNext()) 
+{
+		System.out.println(it.next().get());
+		elements++;
+	}
+	assertEquals((int)vector.get(Math.min(index.length,values.length)-1),values[Math.min(index.length, values.length)-1]);
+	assertEquals(Math.min(index.length, values.length),elements);
+}
+
+@Test
+public void testIteratorNonNull() {
+	int elements = 0;
+	Iterator<Element> it = vector.iterateNonZero();
+	while (it.hasNext()) {
+		System.out.println(it.next().get());
+		elements++;
+	}
+	assertEquals((int)vector.get(Math.min(index.length,values.length)-1),values[Math.min(index.length, values.length)-1]);
+	assertEquals(Math.min(index.length,values.length),elements);  
+}

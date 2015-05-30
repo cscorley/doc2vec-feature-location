@@ -1,0 +1,26 @@
+With xa setTransactionIsolation can cause a statement closed exception when calling 
+setTransactionIsolation
+
+Client tries to reuse a statement for sending SET CURRENT ISOLATION statements to the server.  There must be some problems with this logic where it is trying to use a closed statement.  Perhaps an overall better strategy would be to use an EXCSQLSET to send the set commands to the server and then invoke the embedded JDBC setTransactionIsolation call on the server as Oyvind did for setQueryTimeout.  Using the SET ISOLATION statements on the client has caused a variety of problems.
+
+
+// setTransactionIsolation in some contexts used in this test is 
+	// causing  java.sql.SQLException: Invalid operation: statement closed
+	// error on client. These cases are omitted for now where they cause the
+	// statement closed error
+	private static boolean  causesStmtClosedOnSetTransactionIsolation = TestUtil.isDerbyNetClientFramework();
+
+java.sql.SQLException: Invalid operation: statement closed
+        at org.apache.derby.client.am.SqlException.getSQLException(SqlException.java:280)
+        at org.apache.derby.client.am.Statement.executeUpdate(Statement.java:437)
+        at org.apache.derby.client.am.Connection.setTransactionIsolation(Connection.java:911)
+        at org.apache.derby.client.am.LogicalConnection.setTransactionIsolation(LogicalConnection.java:184)
+        at org.apache.derbyTesting.functionTests.tests.jdbcapi.checkDataSource.runTest(checkDataSource.java:404)
+        at org.apache.derbyTesting.functionTests.tests.jdbcapi.checkDataSource.main(checkDataSource.java:119)
+Caused by: org.apache.derby.client.am.SqlException: Invalid operation: statement closed
+        at org.apache.derby.client.am.Statement.checkForClosedStatement(Statement.java:2231)
+        at org.apache.derby.client.am.Statement.flowExecute(Statement.java:1737)
+        at org.apache.derby.client.am.Statement.executeUpdateX(Statement.java:442)
+        at org.apache.derby.client.am.Statement.executeUpdate(Statement.java:428)
+        ... 4 more
+Exception in thread "main" D>

@@ -1,0 +1,18 @@
+
+
+    private class AcquireOp extends TopicOpQueuer.AsynchronousOp<Void> {
+        public AcquireOp(ByteString topic, Callback<Void> callback, Object ctx) {
+            queuer.super(topic, callback, ctx);
+        }   
+
+        @Override
+        public void run() {
+            if (top2sub2seq.containsKey(topic)) {
+                cb.operationFinished(ctx, null);
+            }   
+
+            readSubscriptions(topic, new Callback<Map<ByteString, InMemorySubscriptionState>>() {
+
+
+
+it doesn't return after it found subscriptions and callback.

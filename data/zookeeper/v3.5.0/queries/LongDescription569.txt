@@ -1,0 +1,15 @@
+It is possible for basic LeaderElection to enter a situation where it never terminates. 
+
+As an example, consider a three node cluster A, B and C.
+
+1. In the first round, A votes for A, B votes for B and C votes for C
+2. Since C > B > A, all nodes resolve to vote for C in the second round as there is no first round winner
+3. A, B vote for C, but C fails.
+4. C is not elected because neither A nor B hear from it, and so votes for it are discarded
+5. A and B never reset their votes, despite not hearing from C, so continue to vote for it ad infinitum. 
+
+Step 5 is the bug. If A and B reset their votes to themselves in the case where the heard-from vote set is empty, leader election will continue.
+
+I do not know if this affects running ZK clusters, as it is possible that the out-of-band failure detection protocols may cause leader election to be restarted anyhow, but I've certainly seen this in tests. 
+
+I have a trivial patch which fixes it, but it needs a test (and tests for race conditions are hard to write!)

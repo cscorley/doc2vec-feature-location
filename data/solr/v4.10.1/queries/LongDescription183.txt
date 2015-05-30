@@ -1,0 +1,11 @@
+I find myself including this with every patch, so i'll just separate it out.  This simply adds a utilty function to SolrParams that throws a 400 if the parameter is missing:
+
+/** returns the value of the param, or throws a 400 exception if missing */
+  public String getRequiredParameter(String param) throws SolrException {
+    String val = get(param);
+    if( val == null ) 
+{
+      throw new SolrException( 400, "Missing parameter: "+param );
+    }
+    return val;
+  }

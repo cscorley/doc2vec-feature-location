@@ -1,0 +1,27 @@
+Since J2ME support was added to the simple demo (bin-releases: demo/programs/simple/SimpleApp.java) in DERBY-2216 (first available in 10.3.1.4), the demo has not worked in a pure client setting as described in the documentation (bin-releases: demo/programs/simple/example.html). This is a regression from 10.2.2.0.
+
+$ export CLASSPATH=.:$DERBY_INSTALL/lib/derbyclient.jar
+$ cd $DERBY_INSTALL/demo/programs/simple
+
+10.2.2.0:
+
+$ java SimpleApp derbyclient
+SimpleApp starting in derbyclient mode.
+Loaded the appropriate driver.
+Connected to and created database derbyDB
+Created table derbyDB
+Inserted 1956 Webster
+Inserted 1910 Union
+Updated 1956 Webster to 180 Grand
+Updated 180 Grand to 300 Lakeshore
+Verified the rows
+Dropped table derbyDB
+Closed result set and statement
+Committed transaction and closed connection
+SimpleApp finished
+
+
+10.3.1.4:
+
+$ java SimpleApp derbyclient
+Exception in thread "main" java.lang.NoClassDefFoundError: org/apache/derby/jdbc/EmbeddedSimpleDataSource

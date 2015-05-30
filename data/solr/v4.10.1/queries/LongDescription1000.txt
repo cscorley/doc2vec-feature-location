@@ -1,0 +1,5 @@
+I have been trying to find out why DIH in FileListEntityProcessor mode did not appear to be recursing into subdirectories. Going through FileListEntityProcessor.java I eventually tumbled to the fact that my filename filter setting from data-config.xml also applied to directory names.
+
+Now, I feel that the fieldName filter should be applied to files fed into the parser, it should not be applied to the directory names we are recursing through. I bodged the code to adjust the behavior so that the "FileName" and "excludes" attributes of "entity" only apply to filenames and not directory names. It now recurses though my directory tree only indexing the appropriate files! I think the new behavior is more standard.
+
+I will submit the a patch once I have constructed one!

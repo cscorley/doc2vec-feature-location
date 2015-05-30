@@ -1,0 +1,12 @@
+Looking through the SlopeOne code in order to make some changes, I am having some doubts about how MemoryDiffStorage handles things.
+
+It looks to me like buildAverageDiffs(), or rather processOneUser() inserts the item pairs in the order they appear in userPreferences, as obtained from dataModel.getPreferencesFromUser(userID).
+
+So if user A has items (X,Y,Z) we obtain the pairs (X,Y),(X,Z),(Y,Z) and update their averages,
+if user B has items (Z,X,Y) we obtain (Z,X),(Z,Y),(X,Y).
+
+When using getDiff for (Y,Z) it will not look for the (Z,Y) average that user B contributes to, as the average for (Y,Z) is not null.
+
+Unless we know that preferences are always ordered, e.g. by itemID, this seems like a bug.  I have not found any mention of it being ordered in the documentation of DataModel or PreferenceArray.  If the items are ordered it would seem to be easier to check the order in getDiff(x,y) instead of trying one, then the other.
+
+P.s.: I tried to ask on mahout-users, but my message never appeared on the list. There might be some kind of filter rejecting the plus sign in my address or something like that, but it's the one where I receive the list messages.

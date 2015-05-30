@@ -1,0 +1,8 @@
+A field f can have multiple recursion depth specified under different fetch groups.
+Give:
+ f is a member of three fetch groups A,B and C with d1, d2, d3 being its recursion depth in these groups respectively.
+
+Assertion:
+if A and B are active and C is inactive then effective recursion depth of f should be max(d1,d2) and not max(d1,d2,d3).
+
+Currently recursion depth of f does not account for the active groups and is computed over all the groups f is a member of.

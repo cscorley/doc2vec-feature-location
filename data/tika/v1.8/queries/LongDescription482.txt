@@ -1,0 +1,15 @@
+When I added support for more image metadata in TIKA-472, i realized
+the current design had some restrictions:
+
+	I could not access the typed getters from Metadata Extractor, such
+as getDate (to format iso date) and getStringArray (for keywords).
+	The handler function was called one field at a time which prevents
+logic where one field depends on the value of another (there is for
+example record versions and fields that specify encoding)
+
+
+
+See attached patch. It refactors TiffExtractor to MetadataExtractorExtractor.
+The patch also includes the date fix, see https://issues.apache.org/jira/browse/TIKA-451#action_12898794
+
+We can later add more Extractors using other libraries, and map to parsers based on format. For example we already use ImageIO in ImageParser so maybe there should be an ImageIOExtractor.

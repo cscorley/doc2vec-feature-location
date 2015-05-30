@@ -1,0 +1,10 @@
+StringSlicer is a class that is basically implementing String.substring() with an optional trim in an inefficient manner.
+It creates a char array from the original string and uses this new array to create sub strings. This means one allocation
+and copy for the original char array and another allocation and copy for every subsequent slice operation.
+
+String.substring performs the same functionality but it can create sub-strings without the character array allocation
+and copy by re-using the character arrray hidden within the original string.
+
+I've been running tests with a additional code in StringSlicer that compares its output with that of String.substring with
+no differences. One minor annoyance is that StringSlicer uses an inclusive end offset while String.substring uses an
+exclusive end offset.

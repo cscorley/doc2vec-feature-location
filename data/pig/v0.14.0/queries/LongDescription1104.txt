@@ -1,0 +1,13 @@
+Hadoop streaming is very popular among Hadoop users. The main attraction is the simplicity of use. A user can write the application logic in any language and process large amounts of data using Hadoop framework. As more people start to use Zebra to store their data, we expect users would like to run Hadoop streaming scripts to easily process Zebra tables. 
+
+The following lists a simple example of using Hadoop streaming to access Zebra data. It loads data from foo table using Zebra's TableInputFormat and then writes the data into output using default TextOutputFormat. 
+
+$ hadoop jar hadoop-streaming.jar -D mapred.reduce.tasks=0 -input foo -output output -mapper 'cat' -inputformat org.apache.hadoop.zebra.mapred.TableInputFormat 
+
+More detailed, Zebra uses Pig DefaultTuple implementation of Tuple for its records. Currently, when Zebra's TableInputFormat is used for input, the user script sees each line containing " key_if_any\tTuple.toString() ". We plan to generate CSV format representation of our Pig tuples. To this end, we plan to do the following: 
+
+1) Derive a sub class ZupleTuple from pig's DefaultTuple class and override its toString() method to present the data into CSV format. 
+
+2) On Zebra side, the tuple factory should be changed to create ZebraTuple objects, instead of DefaultTuple objects. 
+
+Note that we can only support streaming on the input side - ability to use streaming to read data from Zebra tables. For the output side, the streaming support is not feasible, since the streaming mapper or reducer only emits "Text\tText", the output collector has no way of knowing how to convert this to (BytesWritable,Tuple).

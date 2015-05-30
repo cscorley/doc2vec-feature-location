@@ -1,0 +1,21 @@
+I've made allot improvements on the HiveColumnarLoader:
+-> Added support for LoadMetadata and data path Partitioning 
+-> Improved and simplefied column loading
+
+Data Path Partitioning:
+
+Hive stores partitions as folders like to /mytable/partition1=[value]/partition2=[value]. That is the table mytable contains 2 partitions [partition1, partition2].
+The HiveColumnarLoader will scan the inputpath /mytable and add to the PigSchema the columns partition2 and partition2. 
+These columns can then be used in filtering. 
+For example: We've got year,month,day,hour partitions in our data uploads.
+So a table might look like mytable/year=2010/month=02/day=01.
+Loading with the HiveColumnarLoader allows our pig scripts do filter by date using the standard pig Filter operator.
+
+I've added 2 classes for this:
+-> PathPartitioner
+-> PathPartitionHelper
+
+These classes are not hive dependent and could be used by any other loader that wants to support partitioning and helps with implementing the LoadMetadata interface.
+For this reason I though it best to put it into the package org.apache.pig.piggybank.storage.partition.
+What would be nice is in the future have the PigStorage also use these 2 classes to provide automatic path partitioning support. 
+

@@ -1,0 +1,11 @@
+this issue is introduced in providing netty server for bookie.
+
+in BOOKKEEPER-294, we agreed on the start sequence of bookie:
+
+1) bind bookie port first (to avoid two processes running at the same host).
+2) start bookie (e.g initialize bookie storage and replaying journals)
+3) start nio server to accept incoming requests.
+
+but after refactoring for netty server, step 1) is combined to be executed in step 3), so two processes could have chance to run at the same time replaying journals. this is pretty bad.
+
+we need to change the code to stick on the sequence described above.

@@ -1,0 +1,20 @@
+OpenJPA: 5 files to be donated to OpenJPA: (changed, no new file)
+There are changes to the following 5 files which will be donated to OpenJPA to be able to leverage ObjectGrid map agent to improve the performance on getting the relationship loaded.
+(the donation is upon the approval of OpenJPA committee)
+
+
+	org.apache.openjpa.datacache:
+o	AbstractPCData:
+	toField: calling toNestedFields(new) instead of looping thru all elements in the field
+(Implements the Collection only for now, may need to apply it to Map and Array)
+	toNestedFields: (new)
+	toRelationFields: (new) calls findAll()
+	org.apache.openjpa.datacache:
+o	DataCacheStoreManager: enhance loadAll() to issue getAll() instead get()
+o	AbstractDataCache: add getAll() to abstract as default
+o	DataCache: add getAll() to interface
+o	DelegatingDataCache: add getAll() delegation
+
+
+
+(Please see detail information in the attached Word document.)

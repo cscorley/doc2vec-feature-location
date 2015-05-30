@@ -1,0 +1,66 @@
+After at least 65638 updates to an indexed column have been done via an updateable holdable resultset and the transaction is committed ResultSet.next() returns false even if more rows exist to be returned.
+
+The following program should output "Total: 100000" but instead outputs "Total: 65638".
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class DerbyBug {
+	public static void main(String[] args) throws ClassNotFoundException, SQLException {
+		Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+		Connection conn = DriverManager.getConnection("jdbc:derby:TestDB;create=true");
+
+		conn.setAutoCommit(false);
+
+		Statement createStmt = conn.createStatement();
+		createStmt.executeUpdate("CREATE TABLE test (a INT)");
+		createStmt.executeUpdate("CREATE INDEX idxa ON test(a)");
+		createStmt.close();
+
+		PreparedStatement insertStmt = conn.prepareStatement("INSERT INTO test(a) VALUES ");
+
+		for (int i = 0; i < 100000; ++i) 
+{
+			insertStmt.setInt(1, i);
+			insertStmt.executeUpdate();
+		}
+		insertStmt.close();
+
+		conn.commit();
+
+		Statement selectStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE, ResultSet.HOLD_CURSORS_OVER_COMMIT);
+		ResultSet rs = selectStmt.executeQuery("SELECT a FROM test FOR UPDATE");
+
+		int count = 0;
+		while (rs.next()) 
+{
+			rs.updateInt(1, count);
+			rs.updateRow();
+			count++;
+			
+			conn.commit();
+		}
+
+		rs.close();
+		selectStmt.close();
+		conn.commit();
+		conn.close();
+
+		System.out.println("Total: " + count);
+
+		try 
+{
+			DriverManager.getConnection("jdbc:derby:;shutdown=true");
+		}
+ catch (SQLException e) {
+			if (!e.getSQLState().equals("XJ015")) 
+{
+				throw e;
+			}
+		}
+	}
+}

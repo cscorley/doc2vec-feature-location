@@ -1,0 +1,11 @@
+Adding workflow properties to the job configuration would enable logging and analysis of workflows in addition to individual MapReduce jobs.  Suggested properties include a workflow ID, workflow name, adjacency list connecting nodes in the workflow, and the name of the current node in the workflow.
+
+mapreduce.workflow.id - a unique ID for the workflow, ideally prepended with the application name
+e.g. pig_<pigScriptId>
+
+mapreduce.workflow.name - a name for the workflow, to distinguish this workflow from other workflows and to group different runs of the same workflow
+e.g. pig command line
+
+mapreduce.workflow.adjacency - an adjacency list for the workflow graph, encoded as mapreduce.workflow.adjacency.<source node> = <comma-separated list of target nodes>
+
+mapreduce.workflow.node.name - the name of the node corresponding to this MapReduce job in the workflow adjacency list

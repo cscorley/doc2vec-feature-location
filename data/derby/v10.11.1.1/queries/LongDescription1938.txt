@@ -1,0 +1,15 @@
+Derby presently does not implement support for the method
+PreparedStatement.setObject (and similarly for CallableStatement.setObject) 
+when the supplied value is null, unless a type argument (3rd arg) is also present. 
+That is, in:
+    void setObject(int parameterIndex,
+                              Object x)
+                              throws SQLException
+x can not be null. 
+
+Derby will presently throw an SQLException (client: XJ021, embedded: 22005)
+if x is null when calling this method on a preparedStatement.
+
+Porting some applications may be made easier if this restriction is lifted.
+See also discussion in DERBY-1904.
+

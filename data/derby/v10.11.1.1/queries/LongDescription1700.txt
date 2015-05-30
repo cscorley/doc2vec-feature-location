@@ -1,0 +1,15 @@
+A UNION node will generate byte code to call this method:
+
+NoPutResultSet getUnionResultSet(NoPutResultSet source1,
+NoPutResultSet source2,
+Activation activation,
+int resultSetNumber,
+double optimizerEstimatedRowCount,
+double optimizerEstimatedCost,
+GeneratedMethod closeCleanup)
+
+The closeCleanup method is passed in as null for all result sets in a tree except the top one. Instead of passing it on each new result set, it would be much more efficient to have a setCloseMethod() that is only called once for the top result set.  Could also look at having an closeCleanup method in the interface and call it directly, rather than through reflection.
+
+This applies to any node that takes a closeCleanup method.
+
+Split out from DERBY-766

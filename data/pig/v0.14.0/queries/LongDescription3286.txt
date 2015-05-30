@@ -1,0 +1,19 @@
+To reproduce, run ant clean test -Dtestcase=TestPigContext. It fails with the following error:
+
+
+junit.framework.AssertionFailedError: expected:<5> but was:<6>
+	at org.apache.pig.test.TestPigContext.testImportList(TestPigContext.java:157)
+
+
+This is a regression from PIG-3198 that added "java.lang." to the default import list. Here is relevant code:
+
+
+@@ -739,6 +739,7 @@ public class PigContext implements Serializable {
+         if (packageImportList.get() == null) {
+             ArrayList<String> importlist = new ArrayList<String>();
+             importlist.add("");
++            importlist.add("java.lang.");
+             importlist.add("org.apache.pig.builtin.");
+             importlist.add("org.apache.pig.impl.builtin.");
+             packageImportList.set(importlist);
+

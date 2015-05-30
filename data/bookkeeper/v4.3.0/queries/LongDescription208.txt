@@ -1,0 +1,5 @@
+There are use cases for bookkeeper that may require submitting add requests to a write set and returning upon receiving a confirmation from an ack set. The ack set must be a subset of the write set. An important special case is writing to all and returning upon hearing from a majority. Another important use case is avoiding s slow disks by writing to f + s + 1 and returning upon receiving f + 1 responses.
+
+Currently, the write set and the ack set are the same for a ledger. Internal changes to support these cases include changes to LedgerHandle and PendingAddOp. We also need to add a call to the client API to accept different sizes for the write set and the ack set upon ledger creation.
+
+It is also open for the discussion the need to implement a new distribution schedule. So far it looks like we can reuse the round robin implementation we currently have. We would need to implement a new one if, for example, the initial bookie of an add operation must be always the same.

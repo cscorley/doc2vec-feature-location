@@ -1,0 +1,5 @@
+In xaHelper the method handleException returns nothing (void), but it always throws an exception. Typically used inside a catch-block, this pattern confuses (static) code analyzers and reduces code readability.
+
+In this case it is possible to make the method return SQLException and write "throw handleException(t)", which makes it clear that the flow will stop if it reaches the catch block. Note that the method may still throw a RuntimeException, which I will document in the method Javadoc.
+
+The latter pattern is other places in the Derby code base, but I haven't checked for consistency. One specific case worth mentioning is the one in DRDAConnThread. This one is different in that it only takes correct actions, but doesn't actually throw an exception since we wan't the server thread to keep processing/executing after having cleaned up and informed the client.

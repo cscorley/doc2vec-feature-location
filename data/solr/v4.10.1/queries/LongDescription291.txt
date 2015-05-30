@@ -1,0 +1,14 @@
+WHAT:
+A flag "noCacheIfLarger" is added to <queryResultWindowSize/> tag, i.e. <queryResultWindowSize noCacheIfLarger="true">50</queryResultWindowSize>. The flag can be omitted and the default is false.
+
+If this flag is set to true and user requires more results (in this case, start>=50), SolrIndexSearcher doesn't put the docList into queryResultCache.
+
+WHY(USE CASE):
+The Solr administrator can calculate max memory consumption for filterCache and documentCache as follows:
+
+filterCache: BitDocSet size * max size (cache entries)
+documentCache: average document size * max size (cache entries)
+
+however, the memory consumtion for queryResultCache is unpredictable.
+
+With this patch, if the administrator wants to control memory consumtion more strict, he can set queryResultWindowSize with noCacheIfLarger="true".

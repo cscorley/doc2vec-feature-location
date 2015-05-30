@@ -1,0 +1,4 @@
+In order to prepare for the locator-based implementation, I want to restructure the code for getting the length of LOBs. 
+Currently, the LOB class has a protected field sqlLength_ that will contain the length of the LOB, if known.  Currently, it is always known as long as the LOB has been materialized.  However, when locators are introduced, the length may have to be fetched from the server the first time it is needed.   With the current implementation, where sqlLength_ is accessed directly by many classes in the package, it will become very difficult to keep track of whether one needs to fetch the length from the server or not.
+
+I will change the implementation to make Lob.sqlLength_ private and add access methods to get and set its value.  (A good thing in itself IMHO).  If the length is unknown, the LOB will be materialized to get the length. 

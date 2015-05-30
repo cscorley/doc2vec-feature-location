@@ -1,0 +1,17 @@
+Had a user hitting 
+"Caused by: java.lang.IndexOutOfBoundsException: Index: 1, Size: 1" error when he had multiple stores and limit in his code.
+
+I couldn't reproduce this with short pig code (due to ColumnPruning somehow not happening when shortened), but here's a snippet. 
+
+
+...
+G3 = FOREACH G2 GENERATE sortCol, FLATTEN(group) as label, (long)COUNT(G1) as cnt;
+G4 = ORDER G3 BY cnt DESC PARALLEL 25;
+ONEROW = LIMIT G4 1;
+U1 = FOREACH ONEROW GENERATE 3 as sortcol, 'somelabel' as label, cnt;
+store U1 into 'u1' using PigStorage();
+store G4 into 'g4' using PigStorage();
+
+
+
+With '-t ColumnMapKeyPrune', job didn't hit the error.

@@ -1,0 +1,23 @@
+While I was working on extracting full texts out of a bunch of pdf documents, I realized an odd behaviour of Tika when processing encrypted documents (those documents that restrict the execution of specific actions, e.g. editing or printing). To extract content from an encrypted pdf document you do not have to decrypt the document in every case. For instance, when creating an (encrypted) pdf document the author can decide to allow content extraction without the need of providing a password. Unfortunately, Tika's pdf parser isn't aware of this at the moment. Therefore, I suggest a minor change inside the parse method in class org.apache.tika.parser.pdf.PDFParser by introducing an additional check ("is copying allowed") before trying to decrypt the document.
+
+To be more precise, I'll provide a code snippet:
+
+public void parse(...) throws ... {
+  PDDocument pdfDocument = PDDocument.load(stream);
+  try {
+    //decrypt document only if copying is not allowed
+    if (!pdfDocument.getCurrentAccessPermission().canExtractContent()) {
+      if (pdfDocument.isEncrypted()) {
+        try 
+{
+          pdfDocument.decrypt("");
+        }
+ catch (Exception e) 
+{
+          // Ignore
+        }
+      }
+    }
+    ...
+
+Another solution to this problem would be to eliminate the "isEncrypted" check since PDFBox seems to handle the extraction of content out of encrypted documents correctly (and throws an IOException in case of failure).

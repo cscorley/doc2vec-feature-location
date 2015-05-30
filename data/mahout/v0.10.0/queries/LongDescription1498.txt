@@ -1,0 +1,44 @@
+Hi, I get exception 
+
+
+<<< Invocation of Main class completed <<<
+
+Failing Oozie Launcher, Main class [org.apache.mahout.vectorizer.SparseVectorsFromSequenceFiles], main() threw exception, Job failed!
+java.lang.IllegalStateException: Job failed!
+at org.apache.mahout.vectorizer.DictionaryVectorizer.makePartialVectors(DictionaryVectorizer.java:329)
+at org.apache.mahout.vectorizer.DictionaryVectorizer.createTermFrequencyVectors(DictionaryVectorizer.java:199)
+at org.apache.mahout.vectorizer.SparseVectorsFromSequenceFiles.run(SparseVectorsFromSequenceFiles.java:271)
+
+
+
+The root cause is:
+
+
+Error: java.lang.ClassNotFoundException: org.apache.mahout.math.Vector
+at java.net.URLClassLoader$1.run(URLClassLoader.java:202)
+at java.security.AccessController.doPrivileged(Native Method)
+at java.net.URLClassLoader.findClass(URLClassLoader.java:190)
+at java.lang.ClassLoader.loadClass(ClassLoader.java:306)
+at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:301)
+at java.lang.ClassLoader.loadClass(ClassLoader.java:247)
+at java.lang.Class.forName0(Native Method)
+at java.lang.Class.forName(Class.java:247
+
+
+
+Looks like it happens because of 
+DictionaryVectorizer.makePartialVectors method.
+It has code:
+
+
+DistributedCache.setCacheFiles(new URI[] {dictionaryFilePath.toUri()}, conf);
+
+
+which overrides jars pushed with job by oozie:
+
+
+public static void More ...setCacheFiles(URI[] files, Configuration conf) {
+         String sfiles = StringUtils.uriToString(files);
+         conf.set("mapred.cache.files", sfiles);
+}
+

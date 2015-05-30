@@ -1,0 +1,42 @@
+Hello,
+
+REGEX_EXTRACT is using Matcher.find() instead of Matcher.matches() and so does not work with some non greedy regular expression.
+
+Is it the wanted behavior?
+
+Thanks,
+
+Romain
+
+
+http://docs.oracle.com/javase/1.4.2/docs/api/java/util/regex/Matcher.html
+
+
+The matches method attempts to match the entire input sequence against the pattern.
+
+The find method scans the input sequence looking for the next subsequence that matches the pattern.
+
+
+
+    System.out.println("Pig's way with m.find()");
+    String a = "hdfs://mygrid.com/projects/";
+    Matcher m = Pattern.compile("(.+?)/?").matcher(a);
+    System.out.println(m.find());
+    System.out.println(m.group(1));
+    System.out.println(m.start());
+    System.out.println(m.end());
+
+    System.out.println("\nm.matches()");
+    a = "hdfs://mygrid.com/projects/";
+    m = Pattern.compile("(.+?)/?").matcher(a);
+    System.out.println(m.matches());
+    System.out.println(m.group(1));
+    System.out.println(m.start());
+    System.out.println(m.end());
+
+    System.out.println("\nREGEX_EXTRACT m.find()");
+    Tuple t = TupleFactory.getInstance().newTuple();
+    t.append(a);
+    t.append("(.+?)/?");
+    t.append(1);
+    System.out.println(new TestPigExtractAll().new REGEX_EXTRACT().exec(t));

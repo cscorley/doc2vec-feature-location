@@ -1,0 +1,79 @@
+Consider the following Pig Script
+
+
+register myudf.jar;
+
+A = load 'one.txt' using PigStorage() as ( one: int ); --use this dummy file to start execution
+
+B = foreach A {
+        dec = myudf.URLDECODE('hello');
+        str1 = myudf.REPLACEALL(dec, '[\\u0000-\\u0020]', ' '); -- ERROR
+        str2 = myudf.REPLACEALL('hello', '[\\u0000-\\u0020]', ' ');
+        generate
+                dec,
+                str1,
+                str2;
+        };
+describe B;
+
+dump B;
+
+
+
+
+where one.txt is a file which contains number one (1) for starting execution of the Pig script!!
+
+
+describe B; 
+
+
+ returns the following:
+
+B: 
+{urldecode_9: chararray,replaceall_urldecode_10_11: chararray,replaceall_12: chararray}
+
+
+
+dump B;
+
+
+
+returns 
+
+(hello,[\u0000-\u0020],hello)
+
+The result should be:
+
+
+
+There is a workaround for the same, 
+
+
+
+register myudf.jar;
+
+A = load 'one.txt' using PigStorage() as ( one: int );
+
+B = foreach A {
+        dec = myudf.URLDECODE('hello');
+        generate
+                dec as dec,
+                myudf.REPLACEALL(dec, '[\\u0000-\\u0020]', ' ') as str1,
+                myudf.REPLACEALL('hello', '[\\u0000-\\u0020]', ' ') as str2;
+        };
+describe B;
+
+dump B;
+
+
+
+
+where 
+
+
+
+dump B;
+
+
+
+returns (hello,hello,hello)

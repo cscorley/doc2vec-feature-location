@@ -1,0 +1,3 @@
+As pointed out by Pinaki and confirmed by Jeremy, we don't need an EMF for the isLoaded() call.
+
+From Pinaki - We can answer isLoaded() without really asking every broker to llok up in its cache or something. If the given instance pc is PersitenceCapable and has a non-null StateManager – it is managed by us. If the question is: is pc managed by a specific EMF e, then also we can navigate from pc->sm->broker->brokerfactory->emf and compare by reference with e.

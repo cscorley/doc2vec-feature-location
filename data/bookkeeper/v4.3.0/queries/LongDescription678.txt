@@ -1,0 +1,22 @@
+BookieFailureTest testcase hangs randomly in my environment(Windows 7), when I checked the threaddump, its waiting at NIO's releaseExternalResources. Please have a look at the following threaddump.
+
+
+
+"Thread-6" prio=6 tid=0x0000000007676800 nid=0x19ac waiting on condition [0x000000000b1ae000]
+   java.lang.Thread.State: TIMED_WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  <0x00000000c3278068> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:196)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(AbstractQueuedSynchronizer.java:2025)
+	at java.util.concurrent.ThreadPoolExecutor.awaitTermination(ThreadPoolExecutor.java:1261)
+	at org.jboss.netty.util.internal.ExecutorUtil.terminate(ExecutorUtil.java:107)
+	at org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory.releaseExternalResources(NioServerSocketChannelFactory.java:146)
+	at org.apache.bookkeeper.proto.BookieNettyServer.shutdown(BookieNettyServer.java:149)
+	at org.apache.bookkeeper.proto.BookieServer.shutdown(BookieServer.java:138)
+	- locked <0x00000000c3277ca8> (a org.apache.bookkeeper.proto.BookieServer)
+	at org.apache.bookkeeper.test.BookieFailureTest.auxTestReadWriteAsyncSingleClient(BookieFailureTest.java:177)
+	at org.apache.bookkeeper.test.BookieFailureTest.testAsyncBK3(BookieFailureTest.java:114)
+
+
+
+Also, full threaddump is attached to this JIRA.

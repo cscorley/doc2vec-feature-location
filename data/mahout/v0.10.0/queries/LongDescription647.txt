@@ -1,0 +1,30 @@
+From Vasil on the mailing list:
+
+1. the minLLR parameter is not taken into account. The problem is that in
+the CollocDriver class
+Job job = new Job(conf);
+
+is executed before
+
+conf.setFloat(LLRReducer.MIN_LLR, minLLRValue);
+
+see CollocDriver.computeNGramsPruneByLLR method
+
+2. maxDFPercent is not taken into account. The problem is that in
+TFIDFPartialVectorReducer.reduce the check is
+
+if (df / vectorCount > maxDfPercent) {
+         if (log.isInfoEnabled()) {
+               log.info("ommiting {}", e.index());
+             }
+       continue;
+     }
+
+and should be:
+
+if (df*100 / vectorCount > maxDfPercent) {
+         if (log.isInfoEnabled()) {
+               log.info("ommiting {}", e.index());
+             }
+       continue;
+     }

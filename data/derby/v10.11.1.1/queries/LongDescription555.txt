@@ -1,0 +1,13 @@
+1. Inserted data into the database until the disk was full. (5 clients inserting into 5 different tables in parallel.)
+2. Shut down the server
+3. Start the database again without freeing any disk space.
+
+When I try to start the database again, I get Null-pointer-exception, regardless of how I connect (have tried embedded, client server, ij, jdbc applications).  I have not tried to free some space on the disk before starting.  
+
+The call stack is not available right now (the computer I used had to be shut down due to problems with our cooling system), but the exception comes from the following line in RawStore.java:
+     properties.put(Attribute.LOG_DEVICE, logFactory.getCanonicalLogPath());
+
+getCanonicalLogPath() returns null which results in a NPE in the hash table.
+A quick debug before the computer was stopped, showed that the logFactory was an instance of org.apache.derby.impl.store.raw.log.ReadOnly which always returns null in its  getCanonicalLogPath().
+
+I suspect this may be related to the fact that I ran with the log in a non-default location.

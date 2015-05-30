@@ -1,0 +1,8 @@
+updateBlob(int columnIndex, Blob x), updateClob(int columnIndex, Clob x) can be implemented by forwarding calls to  setObject(int targetType, Blob source), setObject(int targetType, Clob source). If this this done then
+
+1) updateClob on a CHAR/VARCHAR/LONG VARCHAR column throws an exception on the Embedded Driver but not on the NetworkClient
+2) updateBlob works on a CHAR/VARCHAR/LONG VARCHAR FOR BIT DATA throws an exception on the Embedded Driver but not on the NetworkClient
+
+From what the JDBC 4.0 spec says (pg 198 table b-5) the Embedded behaviour seems to be correct.
+
+This can be fixed by Matching Embedded behaviour. This would involve throwing an exception in the cases mentioned above

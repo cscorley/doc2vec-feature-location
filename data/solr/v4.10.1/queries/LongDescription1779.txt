@@ -1,0 +1,30 @@
+As the title says.  Here's the fix:
+
+
+
+Index: DistanceUtils.java
+===================================================================
+--- DistanceUtils.java  (revision 911529)
++++ DistanceUtils.java  (working copy)
+@@ -140,7 +140,7 @@
+         while (start < end && externalVal.charAt(start) == ' ') start++;
+         while (end > start && externalVal.charAt(end - 1) == ' ') end--;
+         out[i] = externalVal.substring(start, end);
+-        start = idx + 1;
++        start = end + 1;
+         end = externalVal.indexOf(',', start);
+         if (end == -1) {
+           end = externalVal.length();
+@@ -180,7 +180,7 @@
+         while (start < end && externalVal.charAt(start) == ' ') start++;
+         while (end > start && externalVal.charAt(end - 1) == ' ') end--;
+         out[i] = Double.parseDouble(externalVal.substring(start, end));
+-        start = idx + 1;
++        start = end + 1;
+         end = externalVal.indexOf(',', start);
+         if (end == -1) {
+           end = externalVal.length();
+
+
+
+Will commit now, but am going to check in a test as part of SOLR-1568, which I have open w/ lots of other changes.

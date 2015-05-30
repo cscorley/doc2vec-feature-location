@@ -1,0 +1,23 @@
+Query strings that contain a single quote, properly escaped, break as soon as you add a sort field.
+
+For example,
+If  I want to search for the word ----   jam's   ---- 
+including the single quote, I can.  But as soon as I add a sort criteria to the URL, it breaks.
+
+Note: %27 is a single quote encoded for URI's
+
+Here's the examples....
+http://10.0.101.11:8080/forsale/select/?q=jam%27s    – this works (i get ~20 hits back)
+http://10.0.101.11:8080/forsale/select/?q=jam%27s;score%20desc — this doesn't (get 0 hits back)
+
+Seems that if the first query works, it shouldn't be breakable just by telling it explicitly to sort on score??  All other sorts break in this scenario as well ( i.e., price, etc).
+
+email rsp from Yonik:
+Hmmm, Solr tries to be smart about splitting the query from the sort
+specification.
+If it sees a semicolon inside quotes (single or double), or backslash
+escaped, then it will treat it as part of the query.
+
+An immediate workaround would be to query for "jam's" or jam\'s
+
+It would be helpful if you could open a JIRA issue for this.

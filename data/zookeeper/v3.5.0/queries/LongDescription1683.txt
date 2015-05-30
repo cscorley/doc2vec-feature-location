@@ -1,0 +1,16 @@
+2013-04-04 22:16:15,872 ERROR [pool-4-thread-1] com.netflix.curator.ConnectionState.getZooKeeper (ConnectionState.java:84) - Background exception caught
+java.lang.NullPointerException
+        at org.apache.zookeeper.client.StaticHostProvider.updateServerList(StaticHostProvider.java:161) ~[zookeeper-3.5.0.jar:3.5.0--1]
+        at org.apache.zookeeper.ZooKeeper.updateServerList(ZooKeeper.java:183) ~[zookeeper-3.5.0.jar:3.5.0--1]
+        at com.netflix.curator.HandleHolder$1$1.setConnectionString(HandleHolder.java:121) ~[curator-client-1.3.5-SNAPSHOT.jar:?]
+
+
+The duff code is this:
+
+ClientCnxnSocket clientCnxnSocket = cnxn.sendThread.getClientCnxnSocket();
+InetSocketAddress currentHost = (InetSocketAddress) clientCnxnSocket.getRemoteSocketAddress();
+boolean reconfigMode = hostProvider.updateServerList(serverAddresses, currentHost);
+
+Now, currentHost might be null, if we're not yet connected. But StaticHostProvider.updateServerList indirects on it unconditionally.
+
+This would be caught by findbugs.

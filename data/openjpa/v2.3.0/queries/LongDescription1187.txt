@@ -1,0 +1,49 @@
+Where to write the canonical metamodel source code a.b.PC_.java for a.b.PC.java?
+
+   This is a typical usability issue that does not seem to have unique answer. I have listed some possible options and current state of affair in OpenJPA implementaion.
+
+   Let us hear your comments.
+
+
+ A. in the same directory where original source code  a.b.PC.java  resides?
+ B. in package path relative to a directory as specified by the user? Say some/user/dir/a/b/PC_.java
+ C. in the same directory where the classes are being generated? (i.e. value of the javac -d option)
+ D. some other place?
+
+The opinion seems to be divided on these choices. Some pros and cons of the above choices
+
+  Choice A:   in the same directory where original source code  a.b.PC.java  resides
+    pros: somewhat natural. May be even helpful when the source code files being compiled reside relative to multiple roots.
+    cons: some may object to auto-generated files in the same directory of the user-written files. 
+    The original Annotation Processor expert thinks it is bad idea.[1]
+
+  Choice B: in package path relative to a directory as specified by the user? Say some/user/dir/a/b/PC_.java
+    pros: Gives the choice to user. 
+    cons: to support the positive use case of choice A (i.e. where the source files are relative to multiple roots. (This is reported during "user field trial") can be messy.
+
+   Choice C: in the same directory where the classes are being generated? (i.e. value of the javac -d option)
+    pros: annotation processor is free of output path details. The generated files are some sort of derived artifacts as and equivalent to *.class files.
+    cons: *.java files with *.class files in the same directory can cause packaging script headache
+
+ D. some other place?
+
+
+  The current implementation:
+     If the user specifies a output directory
+      $ javac -processor org.apache.openjpa.persistence.meta.AnnotationProcessor6 -Aout=/mycanonical/meta/model  a/b/PC.java
+     the output will be at /mycanonical/meta/model/a/b/PC_.java
+
+    The default case is if the user user does not specify -Aout option or the specified directory is invalid, then the files are generated relative to the 'current directory' i.e. the directory from which javac was invoked. 
+
+
+   The proposed change:
+     The -Aout=xyz option remains as it is.
+     The default case will generate PC_.java in the same directory of PC.java.
+     If that is not feasible for some reason (see Note below), write relative to 'current directory'. 
+
+   Note: Implementation-wise the proposed change is bit tricky. Because there is no "standard compliant" way to know the exact file system location of source code for a type a.b.PC that is being compiled [2] (i.e. the context in which Annotation Processor is being invoked and all the above funky file-writing is to happen). There are non-standard way to get the file system location of the source code file using Sun's javac and tools.jar. So this feature of writing to the same directory of original *.java file is infeasible for other compilers or even for Sun's javac if tools.jar is not in compiler's classpath. 
+
+
+
+[1] http://forums.sun.com/post!reply.jspa?messageID=10770788
+[2] Personal communication with Annotation Processing authors

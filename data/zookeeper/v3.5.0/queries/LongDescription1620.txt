@@ -1,0 +1,22 @@
+New code (committed in ZK-1504) opens selectors but doesn't close them.
+Specifically AbstractSelectThread in its constructor does 
+
+this.selector = Selector.open();
+
+But possibly also elsewhere. Tests fail for me with the following message:
+
+java.io.IOException: Too many open files
+	at sun.nio.ch.EPollArrayWrapper.epollCreate(Native Method)
+	at sun.nio.ch.EPollArrayWrapper.<init>(EPollArrayWrapper.java:69)
+	at sun.nio.ch.EPollSelectorImpl.<init>(EPollSelectorImpl.java:52)
+	at sun.nio.ch.EPollSelectorProvider.openSelector(EPollSelectorProvider.java:18)
+	at java.nio.channels.Selector.open(Selector.java:209)
+	at org.apache.zookeeper.server.NIOServerCnxnFactory$AbstractSelectThread.<init>(NIOServerCnxnFactory.java:128)
+	at org.apache.zookeeper.server.NIOServerCnxnFactory$AcceptThread.<init>(NIOServerCnxnFactory.java:177)
+	at org.apache.zookeeper.server.NIOServerCnxnFactory.configure(NIOServerCnxnFactory.java:663)
+	at org.apache.zookeeper.server.ServerCnxnFactory.createFactory(ServerCnxnFactory.java:127)
+	at org.apache.zookeeper.server.quorum.QuorumPeer.<init>(QuorumPeer.java:709)
+	at org.apache.zookeeper.test.QuorumBase.startServers(QuorumBase.java:177)
+	at org.apache.zookeeper.test.QuorumBase.setUp(QuorumBase.java:113)
+	at org.apache.zookeeper.test.QuorumBase.setUp(QuorumBase.java:71)
+	at org.apache.zookeeper.test.ReconfigTest.setUp(ReconfigTest.java:56)

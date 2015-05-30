@@ -1,0 +1,16 @@
+Look at KMeansDriver.isConverged() – we have...
+
+boolean converged = true;
+while (converged && ...) {
+  converged = converged && ...;
+}
+
+converged is never false in the loop so the right side's "converged &&" could be removed.
+
+I'm comparing to KMeansDriver.isConverged() which doesn't use "converged &&" in the while condition and wondering if it's worth a double-check that the logic is in fact different between the two. This came up during some more code inspection.
+
+
+
+Also let me tack on this tiny observation:
+
+WeightedDistanceMeasure.configure(): weightsPathName is never null and doesn't need to be checked

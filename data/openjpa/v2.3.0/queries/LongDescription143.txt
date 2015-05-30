@@ -1,0 +1,9 @@
+Using the @DiscriminatorType of Integer with Single Table Inheritance, I've come across two problems...
+
+o  The @DiscriminatorValue seems to be required on abstract classes in the hierarchy.  This should not be required.  Actually, according to section 9.1.31 of the spec, this annotation should only be required on concrete classes.  But, without this annotation, I am getting an exception about not being able to cast a String to an Int.
+
+o  This exception that I am receiving with a "missing" @DiscriminatorValue would indicate that the default value being provided by OpenJPA is a String all the time instead of basing the default the value off of the DiscriminatorType of Integer.  This is further described in Table 21 of section 9.1.31 of the spec.
+
+As described, I have a workaround by specifying a @DiscriminatorValue on the abstract class, but these seem to be real problems that need to be addressed.  Thus, this defect.
+
+Kevin

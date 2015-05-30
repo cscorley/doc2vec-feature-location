@@ -1,0 +1,10 @@
+The code in net.Request.writeEncryptedScalarStream() is in a bad state, for instance:
+
+	it materializes the stream
+	it doesn't support streams longer than Integer.MAX_VALUE
+   (this is fine for BLOB since Derby limits the LOB size to 2G-1, but for CLOBs the data stream may be longer since the length is expressed in characters)
+	in some error situations it causes a disconnect
+
+
+
+Since the security mechanisms required to run this code (SECMEC_EUSRIDDTA and  SECMEC_EUSRPWDDTA) are apparently supported in the client but not in the network server, deleting it seems like a good option considering its state.

@@ -1,0 +1,33 @@
+Updated the problem description to reflect the actual issue [Stan 4/5/07]:  EmbeddedConnectionPoolDataSource is not returning a JDBC 4 compliant PooledConnection object
+
+When loaded using JVM 1.6 the JDBC 3.0 data source (org.apache.derby.jdbc.EmbeddedConnectionPoolDataSource) is reporting a JDBC spec compliance level of 4.  The DatabaseMetaData.getJDBCMajorVersion method should return the
+correct spec compliance level (3) for the JDBC 3.0 data source.  The application server that relies on the reported spec compliance level to determine if a statement event listener should be registered will encounter a failure when  attemptting to register  an event listener with the JDBC 3.0 driver.
+
+Note that the JDBC 4.0 metadata call ..getMetaData().supportsStoredFunctionsUsingCallSyntax() is executed by the JDBC 3.0 driver.  This doesn't bother me but seems curious that this is supported by a JDBC 3.0 driver.
+
+Attached is a test case based on the test code from DERBY-8862 (JDBC 4 driver reports incorrect spec complieance level).
+
+Running the test:
+set JAVA_HOME to a 1.6 JVM
+Compile program
+run command:   $
+{JAVA_HOME}
+/java showJDBCdsMetaDataLis <path-to-database> 3.0 
+
+Using JAVA 6.0
+
+> "%JAVA_HOME%\bin\java" showJDBCdsMetaDataLis "c:\tstdb102" 3.0
+ . . JDBC 3 or less: Using jdbc.EmbeddedConnectionPoolDataSource
+Database product: Apache Derby
+Database version: 10.2.2.0 - (485682)
+Driver name:      Apache Derby Embedded JDBC Driver
+Driver version:   10.2.2.0 - (485682)
+JDBC driver major version: 4
+JDBC driver minor version: 0
+JDBC 4.0 metaData - SFusingCall: true
+ >> exception thrown:
+A non SQL error occured.
+java.lang.AbstractMethodError: org.apache.derby.jdbc.EmbedPooledConnection.addStatementEventListener(Ljavax/sql/Statemen
+tEventListener;)V
+        at showJDBCdsMetaDataLis.main(showJDBCdsMetaDataLis.java:103)
+

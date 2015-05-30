@@ -1,0 +1,45 @@
+refresh with PESSIMISTIC_* lock on an entity with eagerly fetched relationship may cause an OptimisticLockException to be thrown. For example
+
+    org.apache.openjpa.persistence.OptimisticLockException:This operation failed for some instances.  See the nested exceptions array for details.
+FailedObject: suite.jpafvt.commonentities.hr.Manager-1 [java.lang.String]
+	at org.apache.openjpa.kernel.BrokerImpl.throwNestedExceptions(BrokerImpl.java:2514)
+	at org.apache.openjpa.kernel.BrokerImpl.refreshInternal(BrokerImpl.java:3064)
+	at org.apache.openjpa.kernel.BrokerImpl.refresh(BrokerImpl.java:2953)
+	at org.apache.openjpa.kernel.DelegatingBroker.refresh(DelegatingBroker.java:1126)
+	at org.apache.openjpa.persistence.EntityManagerImpl.refresh(EntityManagerImpl.java:770)
+	at org.apache.openjpa.persistence.EntityManagerImpl.refresh(EntityManagerImpl.java:752)
+	at suite.r80.base.jpaspec.entitymanager.testlogic.RefreshLockTestLogic.testScenarioL001(RefreshLockTestLogic.java:188)
+	...........
+Caused by:  org.apache.openjpa.persistence.OptimisticLockException: An optimistic lock violation was detected when flushing object instance "An optimistic lock violation was detected when locking object instance. [java.lang.String]" to the data store.  This indicates that the object was concurrently modified in another transaction.
+FailedObject: 234 [java.lang.Long]
+	at org.apache.openjpa.jdbc.kernel.MixedLockManager.optimisticLockInternal(MixedLockManager.java:116)
+	at org.apache.openjpa.jdbc.kernel.PessimisticLockManager.lockInternal(PessimisticLockManager.java:111)
+	at org.apache.openjpa.jdbc.kernel.MixedLockManager.lockInternal(MixedLockManager.java:72)
+	at org.apache.openjpa.kernel.VersionLockManager.lock(VersionLockManager.java:84)
+	at org.apache.openjpa.kernel.VersionLockManager.lock(VersionLockManager.java:70)
+	at org.apache.openjpa.kernel.BrokerImpl.find(BrokerImpl.java:966)
+	at org.apache.openjpa.kernel.BrokerImpl.find(BrokerImpl.java:902)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.load(JDBCStoreManager.java:1041)
+	at com.ibm.ws.persistence.jdbc.kernel.WsJpaJDBCStoreManager.load(WsJpaJDBCStoreManager.java:114)
+	at org.apache.openjpa.jdbc.sql.AbstractResult.load(AbstractResult.java:280)
+	at org.apache.openjpa.jdbc.sql.SelectImpl$SelectResult.load(SelectImpl.java:2380)
+	at org.apache.openjpa.jdbc.meta.strats.RelationFieldStrategy.loadEagerJoin(RelationFieldStrategy.java:706)
+	at org.apache.openjpa.jdbc.meta.FieldMapping.loadEagerJoin(FieldMapping.java:922)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.load(JDBCStoreManager.java:1111)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.load(JDBCStoreManager.java:1092)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.load(JDBCStoreManager.java:1092)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.load(JDBCStoreManager.java:1067)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.load(JDBCStoreManager.java:688)
+	at com.ibm.ws.persistence.jdbc.kernel.WsJpaJDBCStoreManager.load(WsJpaJDBCStoreManager.java:132)
+	at org.apache.openjpa.kernel.DelegatingStoreManager.load(DelegatingStoreManager.java:117)
+	at org.apache.openjpa.kernel.ROPStoreManager.load(ROPStoreManager.java:78)
+	at org.apache.openjpa.kernel.StateManagerImpl.loadFields(StateManagerImpl.java:3045)
+	at org.apache.openjpa.kernel.StateManagerImpl.load(StateManagerImpl.java:451)
+	at org.apache.openjpa.kernel.BrokerImpl.transactional(BrokerImpl.java:3608)
+	at org.apache.openjpa.kernel.VersionLockManager.optimisticLockInternal(VersionLockManager.java:111)
+	at org.apache.openjpa.jdbc.kernel.MixedLockManager.optimisticLockInternal(MixedLockManager.java:108)
+	at org.apache.openjpa.jdbc.kernel.PessimisticLockManager.lockInternal(PessimisticLockManager.java:111)
+	at org.apache.openjpa.jdbc.kernel.MixedLockManager.lockInternal(MixedLockManager.java:72)
+	at org.apache.openjpa.kernel.VersionLockManager.lock(VersionLockManager.java:84)
+	at org.apache.openjpa.kernel.BrokerImpl.refreshInternal(BrokerImpl.java:3014)
+	... 36 more

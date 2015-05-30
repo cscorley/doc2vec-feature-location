@@ -1,0 +1,9 @@
+BrokeredConnection has a method called getJDBCLevel() whose only purpose is to provide a value that can be stored in BrokeredStatement.jdbcLevel. This field is only used once, in BrokeredStatement.createDuplicateStatement():
+
+		if (jdbcLevel == 2)
+			newStatement = conn.createStatement(resultSetType, resultSetConcurrency);
+		else
+			newStatement = conn.createStatement(resultSetType, resultSetConcurrency,
+                    resultSetHoldability);
+
+Since getJDBCLevel() only returns 2 if Java version 1.3 is used, and Derby doesn't support Java 1.3 any more, BrokeredConnection.getJDBCLevel() and BrokeredStatement.jdbcLevel could be removed.

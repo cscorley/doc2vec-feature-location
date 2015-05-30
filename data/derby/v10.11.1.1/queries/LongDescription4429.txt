@@ -1,0 +1,12 @@
+Allow StressMultiTest to read System Property "derby.tests.ThreadsMinutes" to set the number of threads and minutes testStressMulti should run.
+Example: '-Dderby.tests.ThreadsMinutes=33x3'.
+This will set 
+StressMultiTest.THREADS to 33 and
+StressMultiTest.MINUTES to 3.
+
+This can be utilized to for example
+reduce the time StressMultiTest is run in a tinderbox test: '-Dderby.tests.ThreadsMinutes=33x3' and
+increase the load for a specific test: '-Dderby.tests.ThreadsMinutes=200x60'.
+The StressMultiTest defaults are as set with '-Dderby.tests.ThreadsMinutes=10x10'.
+
+By default the test suite for StressMultiTest is set to  run in embedded, client and encryption mode, i.e. 3 x the Minutes specified.

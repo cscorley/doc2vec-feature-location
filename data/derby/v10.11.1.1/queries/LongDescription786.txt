@@ -1,0 +1,14 @@
+ij> values cast(cast ('123456' as varchar(5)) as varchar(10));
+1
+----------
+12345
+
+1 row selected
+ij> values cast(cast ('123456' as clob(5)) as varchar(10));
+1
+----------
+123456
+
+I think caused by CLOB not returning true for TypeId.variableLength() not returning true for CLOB.
+Comments in code indicate some confusion, will add comments indicating the method is for types where
+the length is application defined. Will also remove XML as a variable type.

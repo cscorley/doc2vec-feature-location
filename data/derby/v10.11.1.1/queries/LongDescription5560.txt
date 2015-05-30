@@ -1,0 +1,18 @@
+There is a Java deadlock between LogicalConnection40 and ClientXAConnection40.  The order of calls that cause the deadlock are:
+
+Thread 1
+
+LogicalConnection.close
+ClientPooledConnection.recycleConnection
+
+Thread 2
+
+ClientPooledConnection.close
+LogicalConnection.nullPhysicalConnection
+
+
+
+Thread 1 acquires a lock on the LogicalConnection and attempts to acquire a lock on the ClientPooledConnection
+Thread 2 acquires a lock on the ClientPooledConnection and attempts to acquire a lock on the LogicalConnection
+
+In production this occurs when one thread is committing a transaction and another thread is trying to close the connection.  This occurred because the Glassfish connection pool is setup to close all connections on any error on any connection and an error has been detected on another connection in the pool.

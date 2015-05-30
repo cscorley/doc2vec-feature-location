@@ -1,0 +1,33 @@
+The StandardAnalyzer from Lucene no longer has a no-args constructor.  Our code uses reflection to create this class, but looks for a no-args constructor and that causes this:
+
+
+
+./bin/mahout prepare20newsgroups -p 20news-bydate-train/ -o 20news-train/ -a org.apache.lucene.analysis.standard.StandardAnalyzer -c UTF-8  
+MAHOUT_LOCAL is not set; adding HADOOP_CONF_DIR to classpath.
+no HADOOP_HOME set, running locally
+Unable to find a $JAVA_HOME at "/usr", continuing with system-provided Java...
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/Users/hadoop/mahout/examples/target/mahout-examples-0.7-SNAPSHOT-job.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/Users/hadoop/mahout/examples/target/dependency/slf4j-jcl-1.6.1.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/Users/hadoop/mahout/examples/target/dependency/slf4j-log4j12-1.6.1.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+Exception in thread "main" java.lang.IllegalStateException: java.lang.NoSuchMethodException: org.apache.lucene.analysis.standard.StandardAnalyzer.<init>()
+	at org.apache.mahout.common.ClassUtils.instantiateAs(ClassUtils.java:68)
+	at org.apache.mahout.common.ClassUtils.instantiateAs(ClassUtils.java:28)
+	at org.apache.mahout.classifier.bayes.PrepareTwentyNewsgroups.main(PrepareTwentyNewsgroups.java:89)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.apache.hadoop.util.ProgramDriver$ProgramDescription.invoke(ProgramDriver.java:68)
+	at org.apache.hadoop.util.ProgramDriver.driver(ProgramDriver.java:139)
+	at org.apache.mahout.driver.MahoutDriver.main(MahoutDriver.java:188)
+Caused by: java.lang.NoSuchMethodException: org.apache.lucene.analysis.standard.StandardAnalyzer.<init>()
+	at java.lang.Class.getConstructor0(Class.java:2706)
+	at java.lang.Class.getConstructor(Class.java:1657)
+	at org.apache.mahout.common.ClassUtils.instantiateAs(ClassUtils.java:62)
+	... 9 more
+
+
+
+This is really bad.

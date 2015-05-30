@@ -1,0 +1,13 @@
+currently, due to the messy scan mechanism deployed by garbage collector thread. following noise error message would be printed when scanning those entry log files has been garbage collected.
+
+
+2012-05-09 15:58:52,742 - INFO  [GarbageCollectorThread:GarbageCollectorThread@466] - Extracting entry log meta from entryLogId: 0
+2012-05-09 15:58:52,743 - WARN  [GarbageCollectorThread:EntryLogger@386] - Failed to get channel to scan entry log: 0.log
+2012-05-09 15:58:52,743 - WARN  [GarbageCollectorThread:GarbageCollectorThread@473] - Premature exception when processing 0recovery will take care of the problem
+java.io.FileNotFoundException: No file for log 0
+        at org.apache.bookkeeper.bookie.EntryLogger.findFile(EntryLogger.java:366)
+        at org.apache.bookkeeper.bookie.EntryLogger.getChannelForLogId(EntryLogger.java:340)
+        at org.apache.bookkeeper.bookie.EntryLogger.scanEntryLog(EntryLogger.java:384)
+        at org.apache.bookkeeper.bookie.GarbageCollectorThread.extractMetaFromEntryLog(GarbageCollectorThread.java:485)
+        at org.apache.bookkeeper.bookie.GarbageCollectorThread.extractMetaFromEntryLogs(GarbageCollectorThread.java:470)
+        at org.apache.bookkeeper.bookie.GarbageCollectorThread.run(GarbageCollectorThread.java:189)

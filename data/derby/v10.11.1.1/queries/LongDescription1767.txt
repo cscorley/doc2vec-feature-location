@@ -1,0 +1,16 @@
+ResultSet.insertRow(), ResultSet.updateRow() and ResultSet.deleteRow() fail with syntax error if the table name or a column name contains a double quote character. The attached repro gives this stack trace:
+
+Exception in thread "main" java.sql.SQLSyntaxErrorException: Syntax error: Encountered "quoted" at line 1, column 24.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(SQLExceptionFactory40.java:137)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:72)
+        at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Util.java:203)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:380)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:345)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:1378)
+        at org.apache.derby.impl.jdbc.ConnectionChild.handleException(ConnectionChild.java:81)
+        at org.apache.derby.impl.jdbc.EmbedResultSet.closeOnTransactionError(EmbedResultSet.java:4342)
+        at org.apache.derby.impl.jdbc.EmbedResultSet.insertRow(EmbedResultSet.java:3678)
+        at QuotesInNames.main(QuotesInNames.java:15)
+Caused by: java.sql.SQLException: Syntax error: Encountered "quoted" at line 1, column 24.
+        ... 11 more

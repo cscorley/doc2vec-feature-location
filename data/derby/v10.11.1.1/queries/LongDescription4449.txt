@@ -1,0 +1,10 @@
+When inserting rows into a table, with just a subset of the table's columns in the target column list, an ArrayIndexOutOfBoundsException is raised if the table constructor contains the same number of columns as the target table, and the extra columns are specified as DEFAULT:
+
+ij> create table t (a int, b int);
+0 rows inserted/updated/deleted
+ij> insert into t(a) values (1,default);
+ERROR XJ001: Java exception: '1 >= 1: java.lang.ArrayIndexOutOfBoundsException'.
+
+The insert statement should have failed with this error:
+
+ERROR 42802: The number of values assigned is not the same as the number of specified or implied columns.

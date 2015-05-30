@@ -1,0 +1,24 @@
+The TesseractOCRParser and PDFParser provide different configuration options via their dedicated config classes (TesseractOCRConfig and PDFParserConfig). The settings these provide can be configured by creating an instance of the class and setting on the ParseContext used during parsing.
+
+Whilst these can be set globally in configuration files via the classpath, it would also be good to allow these to be overridden for individual requests using custom HTTP Headers.
+
+It is proposed these are essentially made up of the following:
+
+	X-Tika-OCR<Property Name> for TesseractOCRConfig
+	X-Tika-PDF<Property Name> for PDFParserConfig
+
+
+
+For example, to set the language for the OCR parser you could send:
+
+curl -T /path/to/somefile.pdf http://localhost:9998/tika --header "X-Tika-OCRLanguage: fra"
+
+
+
+Or to ask the PDF Parser to extract inline images you could send:
+
+curl -T /path/to/somefile.pdf http://localhost:9998/tika --header "X-Tika-PDFExtractInlineImages: true"
+
+
+
+Properties set that do not exist would raise an HTTP 500 error.

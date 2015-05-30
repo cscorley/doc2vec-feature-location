@@ -1,0 +1,3 @@
+every class that is loaded through SolrResourceLoader does a Class.forName() and when if it is not found a ClassNotFoundExcepton is thrown
+
+Then , it looks up with the various packages and finds the right class if the name starts with solr. Considering the fact that we usually use this solr.<classname> format we pay too much of a price for this. After every lookup the result can be cached in a static Map<String, String> with short name as keys and fully qualified name as values and can be shared across all the cores and this Map can be stored at the CoreContainer level.

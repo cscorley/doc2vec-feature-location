@@ -1,0 +1,5 @@
+In process of configuring plugins in JDBCConfiguration, a javax.sql.DataSource is examined for the custom properties defined on the data source.
+ public DataSource getDataSource() has undesired side effects that instantiates DBDictionary.
+
+ DecoratingDataSource createConnectionFactory() does not have the side effects.
+This private method is changed to public to be visible to the extended JDBCConfigurationImpl.

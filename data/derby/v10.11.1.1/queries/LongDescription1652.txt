@@ -1,0 +1,45 @@
+Execution  of  an update trigger that updates the same row  as the original update will  recurse forever and exceed the maximum nesting level of 16 so should throw the exception:
+ERROR 54038: "Maximum depth of nested triggers was exceeded"
+
+However, it  does not always throw the exception.   For example:
+
+
+CREATE TABLE "TEST" (                                           
+
+ "TESTID" INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START 
+ WITH 1,
+ INCREMENT BY 1),                                                
+
+ "INFO" INTEGER NOT NULL,                                        
+
+ "TIMESTAMP" TIMESTAMP NOT NULL DEFAULT 
+ '1980-01-01-00.00.00.000000'  
+ );                                                              
+
+ CREATE TRIGGER UPDATE_TEST                            
+  AFTER UPDATE ON TEST                                 
+  REFERENCING OLD AS OLD                               
+  FOR EACH ROW MODE DB2SQL                             
+  UPDATE TEST SET TIMESTAMP = CURRENT_TIMESTAMP WHERE  
+  TESTID = OLD.TESTID;                                 
+ INSERT INTO TEST (INFO) VALUES  
+ (1),                            
+ (2),                            
+ (3); 
+
+ UPDATE TEST SET INFO = 1 WHERE TESTID = 2; 
+
+Does not throw an exception:
+
+However, If the derby jars are updated to a new version, the correct exception is thrown.
+
+ Replace derby jars with  new version
+ Execute the following in ij:
+ UPDATE TEST SET INFO = 1 WHERE TESTID = 2; 
+ ERROR 54038: Maximum depth of nested triggers was exceeded.
+
+
+Note: This issue stemmed from the Invalid issue,  DERBY-1603, because a user hit the exception after upgrade and thought the exception after upgrade, not the lack of exception before upgrade was the problem. This may be a common user error, so  we need a release note to help mitigate the issue.    I will add one shortly after confirming the correct trigger syntax. 
+
+
+

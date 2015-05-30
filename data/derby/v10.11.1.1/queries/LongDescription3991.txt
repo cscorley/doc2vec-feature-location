@@ -1,0 +1,6 @@
+Truncating a Clob to zero length is allowed according to the JDBC specification, which says the following about the len argument (in the @throws tag):
+"SQLException - if there is an error accessing the CLOB value or if len is less than 0 "
+
+Derby throws an exception if zero is passed to truncate.
+
+A quick inspection of the code suggests that truncating a Clob to the empty string is easy to support.

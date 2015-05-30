@@ -1,0 +1,43 @@
+To reproduce the issue, please do the following:
+
+
+	Parameterize the address of name node in core-site.xml.
+
+
+  <property>
+    <name>fs.default.name</name>
+    <value>hdfs://${foo}:8020</value>
+  </property>
+
+
+	Set the value of "foo" via -D option.
+
+
+export PIG_OPTS="-Dfoo=mr1-0.cheolsoo.com"
+
+
+	Pig fails with the following error.
+
+
+2013-01-28 18:54:02,786 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to hadoop file system at: hdfs://${foo}:8020
+2013-01-28 18:54:02,805 [main] ERROR org.apache.pig.Main - ERROR 2999: Unexpected internal error. null
+Details at logfile: /home/cheolsoo/pig-cdh/pig_1359428042522.log
+
+
+Note that the parameter ${foo} in core-site.xml is not expanded. This is because the addresses of name node and job tracker are read directly from core-site.xml instead of reading via Configuration.get().
+HExecutionEngine.java
+
+// properties is Java Properties
+cluster = properties.getProperty(JOB_TRACKER_LOCATION);
+nameNode = properties.getProperty(FILE_SYSTEM_LOCATION);
+
+
+Replacing these lines with Configuration.get() fixes the issue.
+HExecutionEngine.java
+
+// jc is Hadoop Configuration
+cluster = jc.get(JOB_TRACKER_LOCATION);
+nameNode = jc.get(FILE_SYSTEM_LOCATION);
+
+
+

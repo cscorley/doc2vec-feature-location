@@ -1,0 +1,11 @@
+Attempting to connect to network server if  derby.drda.traceAll is set to true and  derby.drda.traceDirectory is set to a non-existent directory causes the following exception on the console when the client attempts to connect and causes the client to hang.
+java.lang.Exception: DRDA_UnableToAccept.S:Unable to accept connections.
+        at org.apache.derby.impl.drda.NetworkServerControlImpl.consolePropertyMessageWork(NetworkServerControlImpl.java:
+3172)
+        at org.apache.derby.impl.drda.NetworkServerControlImpl.consolePropertyMessage(NetworkServerControlImpl.java:1829
+)
+        at org.apache.derby.impl.drda.ClientThread.run(ClientThread.java:116)
+
+
+See attached program DerbyIssue.java for reproducible test case.
+This is a regression. It did not occur with 10.3.1.4.

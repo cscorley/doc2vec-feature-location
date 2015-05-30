@@ -1,0 +1,62 @@
+UPDATE statements confuse SELECT and UPDATE privileges. Consider the following SET clause:
+
+   SET updateColumn = selectColumn
+
+According to part 2 of the 2011 edition of the SQL Standard, that SET clause requires the following privileges:
+
+1) UPDATE privilege on updateColumn. Privileges for the left side of a SET clause are described by section 14.14 (update statement: searched), access rule 1b.
+
+2) SELECT privilege on selectColumn. Privileges for the right side of a SET clause are described by section 14.15 (set clause list) and the various productions underneath value expression. In this case, we have a column reference, whose privileges are governed by section 6.7 (column reference), access rule 2.
+
+However, Derby requires the following:
+
+1') UPDATE privilege on both updateColumn and selectColumn
+
+When we address this bug, we should make corresponding changes to the MERGE statement.
+
+The following script shows the current behavior:
+
+connect 'jdbc:derby:memory:db;user=test_dbo;create=true';
+
+call syscs_util.syscs_create_user( 'TEST_DBO', 'test_dbopassword' );
+call syscs_util.syscs_create_user( 'RUTH', 'ruthpassword' );
+
+connect 'jdbc:derby:memory:db;shutdown=true';
+
+connect 'jdbc:derby:memory:db;user=test_dbo;password=test_dbopassword' as dbo;
+
+create table t1_025
+(
+    a int primary key,
+    updateColumn int,
+    selectColumn int,
+    privateColumn int
+);
+
+grant update ( updateColumn ) on t1_025 to ruth;
+grant select ( selectColumn ) on t1_025 to ruth;
+
+insert into t1_025 values ( 1, 100, 1000, 10000 );
+
+connect 'jdbc:derby:memory:db;user=ruth;password=ruthpassword' as ruth;
+
+– correctly succeeds because ruth has UPDATE privilege on updateColumn
+update test_dbo.t1_025 set updateColumn = 17;
+
+– the error message incorrectly states that the missing privilege
+– is UPDATE privilege on privateColumn
+update test_dbo.t1_025 set updateColumn = privateColumn;
+
+– incorrectly fails.
+– ruth does have UPDATE privilege on updateColumn
+– and SELECT privilege on selectColumn, which should be good enough.
+– however, the error message incorrectly states that the missing privilege
+– is UPDATE privilege on selectColumn.
+update test_dbo.t1_025 set updateColumn = selectColumn;
+
+– incorrectly succeeds even though ruth does not have SELECT privilege on updateColumn
+update test_dbo.t1_025 set updateColumn = 2 * updateColumn;
+
+set connection dbo;
+
+select * from t1_025 order by a;

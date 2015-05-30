@@ -1,0 +1,8 @@
+A bug in java.net.URLClassLoader causes the underlying jar file to be held open once a resource has been fetched and opened.
+Loading a class or just accessing the URL for the resource does not keep the jar open. Reported the bug to Sun, it is similar to the existing bug Java bug 4950148 but in this case no amount of garbage collection will close the jar.
+
+Derby exposes this as all containers/files are opened using as resources when loading the database from the classpath.
+
+On windows this is seen as the inability to delete the jar file, seen by the fixture testDatabaseInClasspath in DatabaseClassLoadingTest.
+
+Similar to DERBY-2083 but due to a different cause.

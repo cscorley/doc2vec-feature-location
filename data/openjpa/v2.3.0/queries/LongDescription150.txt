@@ -1,0 +1,66 @@
+I have the following scenario mapping entity to 2 tables:
+
+
+	a mapped super class that has a field
+	a subclass with a pk and a field.
+	trying to map all the fields (except the pk (id) ) to a secondary table (SEC_TABLE2MSC)
+	use @Column in the sub-class to override (name) to the secondary table
+	use @AttributeOverride to override the field (street) in the mapped super class to the secondary table.
+
+
+
+===============
+@MappedSuperclass
+public abstract class AnnMSCMultiTable
+implements IMultiTableEntity
+{
+    // @Column(table="SEC_TABLE2MSC")
+    private String street;
+    public String getStreet() 
+{
+        return street;
+    }
+   public void setStreet(String street) 
+{
+        this.street = street;
+    }
+}
+===============
+@Entity
+@SecondaryTable(name="SEC_TABLE2MSC", pkJoinColumns=@PrimaryKeyJoinColumn(name="id"))
+@AttributeOverrides(
+        
+{
+            @AttributeOverride(name="street", column=@Column(name="street", table="SEC_TABLE2MSC")),
+        }
+)
+public class AnnMSCMultiTableEnt
+extends AnnMSCMultiTable
+{
+    @Id
+    private int id;
+
+    @Column(name="name2", table="SEC_TABLE2MSC")
+    private String name;
+}
+===============
+
+From examining JPA spec, there is no specific in the @Column and @AttributeOverride that this should not be allow. So I believe this is a valid scenario.
+
+Using the MappingTool, the attribute override does not map the street field to the SEC_TABLE2MSC as I would expect:
+
+CREATE TABLE AnnMSCMultiTableEnt (id INTEGER NOT NULL, street VARCHAR(254), PRIMARY KEY (id));
+CREATE TABLE SEC_TABLE2MSC (id INTEGER, name2 VARCHAR(254));
+CREATE INDEX I_SC_TMSC_ID ON SEC_TABLE2MSC (id);
+
+I experiment this a little bit and the only way I can map the street field to SEC_TABLE2MSC is
+to add the @Column against the "street" attribute in the super class. (the commented @Column in the example).
+The expected SQL are:
+
+CREATE TABLE AnnMSCMultiTableEnt (id INTEGER NOT NULL, PRIMARY KEY (id));
+CREATE TABLE SEC_TABLE2MSC (id INTEGER, street VARCHAR(254), name2 VARCHAR(254));
+CREATE INDEX I_SC_TMSC_ID ON SEC_TABLE2MSC (id);
+
+I tried to create the tables manually using the expected layout, but the runtime still using the incorrect tables structure. I would suspect the MappingTool and the runtime are using the same mapping strategy.
+
+Albert Lee,

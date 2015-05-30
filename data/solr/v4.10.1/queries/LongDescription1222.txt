@@ -1,0 +1,7 @@
+I have a patch to add methods to SolrServer.java and UpdateRequest.java to accept a list of Strings for deleteById. 
+
+Internally, UpdateRequest uses a list for the single api, but SolrServer calls process immediately after the single so it would send all my deletes to the server one by one. This change adds a method to UpdateRequest to add a List to the internal list, SolrServer calls this method then process immediately after.
+
+Would be nice if you can get this in for 1.4.
+
+Thanks 

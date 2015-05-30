@@ -1,0 +1,31 @@
+Observed with Solr trunk.  Posting any empty or whitespace-only string to a field using the 
+
+<filter class="solr.TrimFilterFactory" />
+
+
+Causes a java exception:
+
+
+Sep 1, 2009 4:58:09 PM org.apache.solr.common.SolrException log
+SEVERE: java.lang.ArrayIndexOutOfBoundsException: -1
+	at org.apache.solr.analysis.TrimFilter.incrementToken(TrimFilter.java:63)
+	at org.apache.solr.analysis.PatternReplaceFilter.incrementToken(PatternReplaceFilter.java:74)
+	at org.apache.lucene.index.DocInverterPerField.processFields(DocInverterPerField.java:138)
+	at org.apache.lucene.index.DocFieldProcessorPerThread.processDocument(DocFieldProcessorPerThread.java:244)
+	at org.apache.lucene.index.DocumentsWriter.updateDocument(DocumentsWriter.java:772)
+	at org.apache.lucene.index.DocumentsWriter.updateDocument(DocumentsWriter.java:755)
+	at org.apache.lucene.index.IndexWriter.updateDocument(IndexWriter.java:2611)
+	at org.apache.lucene.index.IndexWriter.updateDocument(IndexWriter.java:2583)
+	at org.apache.solr.update.DirectUpdateHandler2.addDoc(DirectUpdateHandler2.java:241)
+	at org.apache.solr.update.processor.RunUpdateProcessor.processAdd(RunUpdateProcessorFactory.java:61)
+	at org.apache.solr.handler.XMLLoader.processUpdate(XMLLoader.java:140)
+	at org.apache.solr.handler.XMLLoader.load(XMLLoader.java:69)
+	at org.apache.solr.handler.ContentStreamHandlerBase.handleRequestBody(ContentStreamHandlerBase.java:54)
+	at org.apache.solr.handler.RequestHandlerBase.handleRequest(RequestHandlerBase.java:131)
+	at org.apache.solr.core.SolrCore.execute(SolrCore.java:1299)
+	at org.apache.solr.servlet.SolrDispatchFilter.execute(SolrDispatchFilter.java:338)
+	at org.apache.solr.servlet.SolrDispatchFilter.doFilter(SolrDispatchFilter.java:241)
+
+
+
+Trim of an empty or WS-only string should not fail.

@@ -1,0 +1,5 @@
+DataImportHandler catches only 'Exception' types but not 'Error' sub-classes, therefore, errors like StackOverflowError and others silently slip by and are not logged anywhere. Even though DataImportHandler does not commit documents in such case, in the absence of an entry in the log, it becomes very difficult to track down the cause.
+
+Look at http://markmail.org/message/mhqae66p262d5mcc for discussion on solr-user.
+
+DataImportHandler should catch Throwable and log all errors/exceptions.

@@ -1,0 +1,9 @@
+A number of pig scripts follow the pattern:
+
+File tempFile = File.createTempFile("this", ".txt");
+copyFromLocalToCluster (tempFile.to_string(), tempFile.to_string());
+tempFile.delete();
+
+The goal, here, seems to be to generate a temp filename to avoid issues on the next run if the file doesn't get cleaned up.  The problem is that File.createTempFile on Windows creates files with names like C:\users\myuser\App data\local\temp\file.txt.  The problem is that ":" is not a valid DFS character and so the put fails.
+
+The easy fix on this is to remove colons from the path before upload.  Then we get something like C\users\myuser\App data\local\temp\file.txt which is a valid DFS pathname with minimal impact to the tests.

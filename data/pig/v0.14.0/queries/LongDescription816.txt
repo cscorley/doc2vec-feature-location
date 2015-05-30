@@ -1,0 +1,15 @@
+Simple Pig script which uses Unicode characters in the PigStorage() constructor fails with the following error:
+
+
+
+studenttab = LOAD '/user/viraj/studenttab10k' AS (name:chararray, age:int,gpa:float);
+X2 = GROUP studenttab by age;
+Y2 = FOREACH X2 GENERATE group, COUNT(studenttab);
+store Y2 into '/user/viraj/y2' using PigStorage('\u0001');
+
+
+
+========================================================================================
+ERROR org.apache.pig.tools.grunt.GruntParser - ERROR 2997: Unable to recreate exception from backend error: org.apache.hadoop.ipc.RemoteException: java.io.IOException: java.lang.RuntimeException: org.xml.sax.SAXParseException: Character reference "&#1" is an invalid XML character.
+========================================================================================
+Attaching log file.

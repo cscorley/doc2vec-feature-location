@@ -1,0 +1,16 @@
+Currently, the client driver does not pre-fetch data when
+executeQuery() is called, but it does on the first call to
+ResultSet.next(). Pre-fetching data on executeQuery() would reduce
+network traffic and improve performance.
+
+The DRDA protocol supports this. From the description of OPNQRY (open
+query):
+
+  The qryrowset parameter specifies whether a rowset of rows is to be
+  returned with the command.  This is only honored for non-dynamic
+  scrollable cursors (QRYATTSNS not equal to QRYSNSDYN) and for
+  non-scrollable cursors conforming to the limited block query
+  protocol.  The target server fetches no more than the requested
+  number of rows. It may fetch fewer rows if it is restricted by extra
+  query block limits, or if a fetch operation results in a negative
+  SQLSTATE or an SQLSTATE of 02000.

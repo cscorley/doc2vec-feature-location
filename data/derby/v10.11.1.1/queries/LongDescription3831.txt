@@ -1,0 +1,5 @@
+RuntimeStatisticsParser can not distinguish names of table or index well and truly.
+
+i.e. there are two indexes t1_c1c2 and t1_c1 on table t1. Execute "select * from t1 --DeRbY-pRoPeRtIeS index = t1_c1c2"  on t1. Then,RuntimeStatisticsParser.usedSpecificIndexForIndexScan("T1","T1_C1C2") will return true, while RuntimeStatisticsParser.usedSpecificIndexForIndexScan("T1","T1_C1") will return true too. It's not correct.
+
+The similar errors also exist on usedIndexScan(), usedIndexRowToBaseRow(), usedDistinctScan() and usedTableScan() in the class of  RuntimeStatisticsParser.

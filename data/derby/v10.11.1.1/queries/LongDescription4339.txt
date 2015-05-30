@@ -1,0 +1,15 @@
+Not all sort avoidance paths are recognized by the optimizer.  Here is an example of the class targeted by this issue, from 
+the wisc tests :
+
+select * from --DERBY-PROPERTIES joinOrder=FIXED
+TENKTUP2, TENKTUP1
+where TENKTUP1.unique1 = TENKTUP2.unique1
+and TENKTUP2.unique1 < 2500
+order by TENKTUP1.unique1';
+
+There is a unique index on TENKTUP1.unique1 and TENKTUP2.unique1.  To exercise the path, the plan
+forces  TENKTUP2 as outermost join, knows that query result is sorted on TENKTUP2.unique1, but does not
+recognize that because "TENKTUP1.unique1 = TENKTUP2.unique1" that query is also sorted on TENKTUP1.unique1 and could avoid a sort.
+
+Note without the fixed join order a sort avoidance plan is picked by choosing the plan where TENKTUP1.unique1 is the
+outermost node.

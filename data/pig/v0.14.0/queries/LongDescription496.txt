@@ -1,0 +1,16 @@
+A = load 'complex data' as (x: bag{});
+B = foreach A generate x.($1, $2);
+
+produces stack trace:
+
+2008-10-14 15:11:07,639 [main] ERROR org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.Launcher - Error message from task (reduce) task_200809241441_9923_r_000000java.lang.NullPointerException
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POProject.getNext(POProject.java:183)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.processPlan(POForEach.java:215)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.getNext(POForEach.java:166)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapReduce$Reduce.runPipeline(PigMapReduce.java:252)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapReduce$Reduce.reduce(PigMapReduce.java:222)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapReduce$Reduce.reduce(PigMapReduce.java:134)
+        at org.apache.hadoop.mapred.ReduceTask.run(ReduceTask.java:318)
+        at org.apache.hadoop.mapred.TaskTracker$Child.main(TaskTracker.java:2207)
+
+Pradeep suspects that the problem is in src/org/apache/pig/backend/hadoop/executionengine/physicalLayer/expressionOperators/POProject.java; line 374

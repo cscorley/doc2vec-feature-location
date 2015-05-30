@@ -1,0 +1,13 @@
+An extension to the default QueryParser that overrides the parsing of PhraseQueries to allow more complex syntax e.g. wildcards in phrase queries.
+
+The implementation feels a little hacky - this is arguably better handled in QueryParser itself. This works as a proof of concept  for much of the query parser syntax. Examples from the Junit test include:
+
+		checkMatches("\"j*   smyth~\"", "1,2"); //wildcards and fuzzies are OK in phrases
+		checkMatches("\"(jo* -john)  smith\"", "2"); // boolean logic works
+		checkMatches("\"jo*  smith\"~2", "1,2,3"); // position logic works.
+
+		checkBadQuery("\"jo*  id:1 smith\""); //mixing fields in a phrase is bad
+		checkBadQuery("\"jo* \"smith\" \""); //phrases inside phrases is bad
+		checkBadQuery("\"jo* [sma TO smZ]\" \""); //range queries inside phrases not supported
+
+Code plus Junit test to follow...

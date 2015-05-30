@@ -1,0 +1,19 @@
+jline returns null when CTRL-D is given as input. This results in NPE in grunt because StringReader constructor throws NPE.
+
+
+String line = super.readLine();
+String paramSubLine = pc.doParamSubstitution(new BufferedReader(new StringReader(line)));
+return paramSubLine;
+
+
+
+
+java.lang.NullPointerException
+        at java.io.StringReader.<init>(StringReader.java:33)
+        at org.apache.pig.Main$ConsoleReaderWithParamSub.readLine(Main.java:1057)
+        at jline.ConsoleReaderInputStream$ConsoleLineInputStream.read(ConsoleReaderInputStream.java:92)
+        at java.io.InputStream.read(InputStream.java:154)
+        at java.io.SequenceInputStream.read(SequenceInputStream.java:191)
+        at java.io.SequenceInputStream.read(SequenceInputStream.java:194)
+        at sun.nio.cs.StreamDecoder.readBytes(StreamDecoder.java:264)
+

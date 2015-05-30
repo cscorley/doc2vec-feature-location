@@ -1,0 +1,28 @@
+By default MySQL is case insensitive in its string comparisons, as you can see from the MySQL docs shown below. Similar functionality is available in Sybase iAnywhere and in SQLServer. I'd like the same to be true for Derby.
+
+What, I wonder, are chances of that?
+
+I am aware that functions could be used to force comparisons in upper case but that subverts the indexes and makes searches unacceptably long.
+
+If you were to ask people you might find that this is a feature whose abscence is causing many to look elsewhere.
+
+thanks for all the great work,
+
+Terry
+
+The MySQL Docs say:
+
+-------- start quote
+
+ By default, MySQL searches are not case sensitive (although there are some character sets that are never case insensitive, such as czech). This means that if you search with col_name LIKE 'a%', you get all column values that start with A or a. If you want to make this search case sensitive, make sure that one of the operands has a case sensitive or binary collation. For example, if you are comparing a column and a string that both have the latin1 character set, you can use the COLLATE operator to cause either operand to have the latin1_general_cs or latin1_bin collation. For example:
+
+col_name COLLATE latin1_general_cs LIKE 'a%'
+col_name LIKE 'a%' COLLATE latin1_general_cs
+col_name COLLATE latin1_bin LIKE 'a%'
+col_name LIKE 'a%' COLLATE latin1_bin
+
+If you want a column always to be treated in case-sensitive fashion, declare it with a case sensitive or binary collation. See Section 13.1.5, "CREATE TABLE Syntax". 
+
+    By default, the search is performed in case-insensitive fashion. In MySQL 4.1 and up, you can make a full-text search by using a binary collation for the indexed columns. For example, a column that has a character set of latin1 can be assigned a collation of latin1_bin to make it case sensitive for full-text searches.
+
+--------------- end quote

@@ -1,0 +1,17 @@
+In Pig 0.12.1 PiggyBank DBStorage (contrib/piggybank/java/src/main/java/org/apache/pig/piggybank/storage/DBStorage.java), the code uses the wrong setter and Java data type for the SQL DATETIME datatype.
+
+DATETIME has both date and time, so should use java.sql.Timestamp instead of java.sql.Date (which zeros the time fields).
+
+replace line 121
+          case DataType.DATETIME:
+
+	ps.setDate(sqlPos, new Date(((DateTime) field).getMillis()));
+            sqlPos++;
+            break;
+with
+          case DataType.DATETIME:
++            ps.setTimestamp(sqlPos, new Timestamp(((DateTime) field).getMillis(
+)));
+            sqlPos++;
+            break;
+

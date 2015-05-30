@@ -1,0 +1,10 @@
+Found this during review of conversion of declareGlobalTempTableJavaJDBC30 to junit (DERBY-2895) - when I tried to run the test with network server:
+
+We define a statement like so:
+        Statement s1 = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY,
+                    ResultSet.HOLD_CURSORS_OVER_COMMIT );
+and global temp table like so:
+            s1.executeUpdate("declare global temporary table SESSION.t1(c11 int, c12 int) on commit delete rows not logged");
+
+Then, we insert 2 rows, open a result set that selects *, then do commit.
+With a new resultset, we do another select, which with network server gives 0 rows, but with embedded, 2.

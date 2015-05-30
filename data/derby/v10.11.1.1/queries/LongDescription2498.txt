@@ -1,0 +1,26 @@
+The following code snippet:
+               ClientDataSource ds = 
+                    (ClientDataSource)JDBCDataSource.getDataSource();
+                // invalid database string
+                ds.setDatabaseName("jdbc:derby:wombat");
+                ds.getConnection();
+results (with jdk14) in this stack trace:
+
+java.lang.NullPointerException
+	at org.apache.derby.client.am.ProductLevel.<init>(ProductLevel.java:41)
+	at org.apache.derby.client.net.NetDatabaseMetaData.<init>(NetDatabaseMetaData.java:40)
+	at org.apache.derby.client.net.ClientJDBCObjectFactoryImpl.newNetDatabaseMetaData(ClientJDBCObjectFactoryImpl.java:276)
+	at org.apache.derby.client.net.NetConnection.newDatabaseMetaData_(NetConnection.java:1144)
+	at org.apache.derby.client.am.Connection.completeConnect(Connection.java:1803)
+	at org.apache.derby.client.net.NetConnection.completeConnect(NetConnection.java:412)
+	at org.apache.derby.client.net.NetConnection.initialize(NetConnection.java:297)
+	at org.apache.derby.client.net.NetConnection.<init>(NetConnection.java:231)
+	at org.apache.derby.client.net.ClientJDBCObjectFactoryImpl.newNetConnection(ClientJDBCObjectFactoryImpl.java:213)
+	at org.apache.derby.jdbc.ClientDataSource.getConnection(ClientDataSource.java:186)
+	at org.apache.derby.jdbc.ClientDataSource.getConnection(ClientDataSource.java:163)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.DataSourceTest.testJira95ds(DataSourceTest.java:808)
+
+This is a similar situation as described for EmbeddedDataSource in DERBY-95.
+This bug was found when converting the test for DERBY-95 to junit - the old test was explicitly creating an EmbeddedDataSource, so, this was never tested for Client (even when running with network server).
+Note, that the similar test for XADataSource, even for client, does not result in an NPE. 
+I have not tested PooledDataSource, but it should be checked.

@@ -1,0 +1,33 @@
+There's an on-going discussion on the dev mailing list concerning this problem (http://www.nabble.com/Eager-fetching-not-working-with-enums-and-lobs-tf4037105.html).  Since I've gotten agreement on at least one aspect of the problem, I decided to open this JIRA Issue to document the problem.
+
+Here's a summary of the problem:
+
+I am finding that the supposed default action of Eager fetching is not happening with @Enumerated and @Lob fields.  If I explicitly specify the @Basic annotation, then the fields are eagerly fetched.  But, without this extraneous @Basic, these fields are lazily loaded.  This action does not seem to be consistent with the spec.  Nor, can I find any mention of this alternate behavior in our OpenJPA manual.  Sounds like a bug to me.  Any other insights?
+
+This works (eager loading kicks in):
+
+    @Basic @Enumerated(EnumType.STRING)
+    private Gender gender;
+
+This does not work (lazy loading kicks in):
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
+I have also tried to use defaults (without any annotations), and lazy loading still kicks in:
+
+    private Gender gender;
+
+The JPA spec attempts to address this situation in section 9.1.18...  Section 9.1.8 of the JPA spec indicates that @Basic is optional and applies to the following types: 
+
+"..Java primitive types, wrappers of the primitive types, java.lang.String, java.math.BigInteger,
+java.math.BigDecimal, java.util.Date, java.util.Calendar, java.sql.Date,
+java.sql.Time, java.sql.Timestamp, byte[], Byte[], char[], Character[],
+enums, and any other type that implements Serializable."
+
+And, since the default fetch type for @Basic is EAGER, it looks like we need to do eager fetching for both @Enumerated and @Lob fields unless otherwise overridden by a LAZY fetch type (ie. @Basic(fetch=LAZY)).  Agree?
+
+We're still working on the agreement...  
+
+Thanks,
+Kevin

@@ -1,0 +1,39 @@
+One of the tests in jdbc40/StatementTest.junit fails with the following message:
+
+"Attempt to shutdown framework: DerbyNetClient
+0 add
+> ....F.
+> There was 1 failure:
+> 1) testIsClosedWhenClosingConnectionInInvalidState(org.apache.derbyTesting.functionTests.tests.jdbc4.StatementTest)junit.framework.ComparisonFailure: Unexpected exception thrown: Cannot close a connection while a global transaction is still active. expected:<java.sql.Connection.close() requested while a transaction is in progress on the connection.The transaction remains active, and the connection cannot be closed...> but was:<Cannot close a connection while a global transaction is still active...>
+> FAILURES!!!
+> Tests run: 5,  Failures: 1,  Errors: 0
+Test Failed.
+
+	
+	
+		
+		
+			End:   StatementTest jdk1.6.0-beta2 DerbyNetClient 2006-03-24 12:53:22 ***"
+		
+		
+	
+	
+
+
+
+The reason is that the exception message text has been changed. This comparison is only done when running DerbyNetClient, because SQLState was not implemented there.
+The checkin that caused the error:
+"Author: davidvc
+Date: Thu Mar 23 16:55:44 2006
+New Revision: 388309
+
+URL: http://svn.apache.org/viewcvs?rev=388309&view=rev
+Log:
+DERBY-839 (Partial).  Internationalize Connection.java.  Also upgraded
+the "i18n lint" test to be a little more intelligent, and to not exit
+on the first failure.
+
+Passes derbynetclientmats.  All changes are client-specific so derbyall
+was not run."
+
+A

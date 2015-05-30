@@ -1,0 +1,6 @@
+The test TestParsers has the same problem like some Lucene tests in the past and also SolrInfoMBeanTest:
+If you want to get a File instance from the classpath and you use Class.getResource(), the return value is URL. If you call getFile() or getPath() on this URL, the returned String is just the File/Path part of the URL, which may contain url escaping ("%20" for spaces).
+
+The correct way to get File instances from getResource() URLs is to cast it to an URI and use the File ctor that takes URIs. This is the "official" way as described in Java docs and various forums.
+
+Attached is a trivial patch.

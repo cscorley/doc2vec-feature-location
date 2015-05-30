@@ -1,0 +1,46 @@
+If a default schema name is specified (either as a mapping file default or a persistence unit default) it will only be applied if a table name is also included in the same xml descriptor. 
+
+For example if the xml file looks like this 
+
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistence/orm_1_0.xsd"
+	version="1.0">
+	<persistence-unit-metadata>
+		<persistence-unit-defaults>
+			<schema>DefSchema</schema>
+		</persistence-unit-defaults>
+	</persistence-unit-metadata>
+	<entity class="mdd.MyEntity">
+		<attributes>
+			<id name="id"></id>
+			<basic name="name"></basic>
+		</attributes>
+	</entity>
+	<entity class="mdd.MyEntityWithTable">
+		<table name="MyEntityWithTable"/>
+		<attributes>
+			<id name="id"></id>
+			<basic name="name"></basic>
+		</attributes>
+	</entity>
+</entity-mappings>
+
+The default schema will be applied to MyEntityWithTable, but will not be applied to MyEntity. The same applies if the xml looks like this : 
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistence/orm_1_0.xsd"
+	version="1.0">
+	<schema>DefSchema</schema>
+         . . .
+</entity-mappings>
+
+I think there are two problems here : 
+
+1. The mapping file default schema (example 2) should apply to every entity in the xml mapping file (except where it's overridden by another entry or an annotation). 
+
+2. A schema defined in the <persistence-unit-defaults> tag should apply to all entities in the persistence unit, not just the ones defined or overridden in the xml file. This default is overridden my the mapping file default schema, other xml schema entries and annotations. 
+
+I'll attach a simple sample of the problem, in case I'm missing something. 

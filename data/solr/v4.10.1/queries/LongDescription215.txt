@@ -1,0 +1,92 @@
+WHAT:
+As of 1.2, Solr only instantiates one SolrCore which handles one Lucene index.
+This patch is intended to allow multiple cores in Solr which also brings multiple indexes capability.
+The patch file to grab is solr-215.patch.zip (see MISC session below).
+
+WHY:
+The current Solr practical wisdom is that one schema - thus one index - is most likely to accomodate your indexing needs, using a filter to segregate documents if needed. If you really need multiple indexes, deploy multiple web applications.
+There are a some use cases however where having multiple indexes or multiple cores through Solr itself may make sense.
+Multiple cores:
+Deployment issues within some organizations where IT will resist deploying multiple web applications.
+Seamless schema update where you can create a new core and switch to it without starting/stopping servers.
+Embedding Solr in your own application (instead of 'raw' Lucene) and functionally need to segregate schemas & collections.
+Multiple indexes:
+Multiple language collections where each document exists in different languages, analysis being language dependant.
+Having document types that have nothing (or very little) in common with respect to their schema, their lifetime/update frequencies or even collection sizes.
+
+HOW:
+The best analogy is to consider that instead of deploying multiple web-application, you can have one web-application that hosts more than one Solr core. The patch does not change any of the core logic (nor the core code); each core is configured & behaves exactly as the one core in 1.2; the various caches are per-core & so is the info-bean-registry.
+What the patch does is replace the SolrCore singleton by a collection of cores; all the code modifications are driven by the removal of the different singletons (the config, the schema & the core).
+Each core is 'named' and a static map (keyed by name) allows to easily manage them.
+You declare one servlet filter mapping per core you want to expose in the web.xml; this allows easy to access each core through a different url. 
+
+USAGE (example web deployment, patch installed):
+Step0
+java -Durl='http://localhost:8983/solr/core0/update' -jar post.jar solr.xml monitor.ml
+Will index the 2 documents in solr.xml & monitor.xml
+Step1:
+http://localhost:8983/solr/core0/admin/stats.jsp
+Will produce the statistics page from the admin servlet on core0 index; 2 documents
+Step2:
+http://localhost:8983/solr/core1/admin/stats.jsp
+Will produce the statistics page from the admin servlet on core1 index; no documents
+Step3:
+java -Durl='http://localhost:8983/solr/core0/update' -jar post.jar ipod*.xml
+java -Durl='http://localhost:8983/solr/core1/update' -jar post.jar mon*.xml
+Adds the ipod*.xml to index of core0 and the mon*.xml to the index of core1;
+running queries from the admin interface, you can verify indexes have different content. 
+
+USAGE (Java code):
+//create a configuration
+SolrConfig config = new SolrConfig("solrconfig.xml");
+//create a schema
+IndexSchema schema = new IndexSchema(config, "schema0.xml");
+//create a core from the 2 other.
+SolrCore core = new SolrCore("core0", "/path/to/index", config, schema);
+//Accessing a core:
+SolrCore core = SolrCore.getCore("core0"); 
+
+PATCH MODIFICATIONS DETAILS (per package):
+org.apache.solr.core:
+The heaviest modifications are in SolrCore & SolrConfig.
+SolrCore is the most obvious modification; instead of a singleton, there is a static map of cores keyed by names and assorted methods. To retain some compatibility, the 'null' named core replaces the singleton for the relevant methods, for instance SolrCore.getCore(). One small constraint on the core name is they can't contain '/' or '\' avoiding potential url & file path problems.
+SolrConfig (& SolrIndexConfig) are now used to persist all configuration options that need to be quickly accessible to the various components. Most of these variables were static like those found in SolrIndexSearcher. Mimicking the intent of these static variables, SolrConfig & SolrIndexConfig use public final members to expose them.
+SolrConfig inherits from Config which has been modified; Config is now more strictly a dom document (filled from some resource) and methods to evaluate xpath expressions. Config also continues to be the classloader singleton that allows to easily instantiate classes located in the Solr installation directory.
+
+org.apache.solr.analysis:
+TokenizerFactory & FilterFactory now get the SolrConfig passed as a parameter to init; one might want to read some resources to initialize the factory and the config dir is in the config. This is partially redundant with the argument map though.
+
+org.apache.solr.handler:
+RequestHandlerBase takes the core as a constructor parameter.
+
+org.apache.solr.util:
+The test harness has been modified to expose the core it instantiates.
+
+org.apache.solr.servlet:
+SolrDispatchFilter is now instantiating a core configured at init time; the web.xml must contain one filter declaration and one filter mapping per core you want to expose.  Wherever some admin or servlet or page was referring to the SolrCore singleton or SolrConfig, they now check for the request attribute 'org.apache.solr.SolrCore' first; the filters set this attribute before forwarding to the other parts.
+
+Admin/servlet:
+Has been modified to use the core exposed through the request attribute 'org.apache.solr.SolrCore'.
+
+REPLICATION:
+The feature has not been implemented yet; the starting point is that instead of having just one index directory 'index/', the naming scheme for the index data directories is 'index*/'. Have to investigate. 
+
+FUTURE:
+Uploading new schema/conf would be nice, allowing Solr to create cores dynamically; the upload mechanism itself is easy, the servlet dispatch filter needs to be modified.
+Having replication embedded in the Solr application itself using an http based version of the rsync algorithm; some of the core code of jarsync might be handy.
+
+MISC:
+The patch production process (not as easy as I thought it was with a Windows/Netbeans/cygwin/TortoiseSVN).
+0/ Initial point is to have the modified code running in a local patch branch, all tests ok.
+1/ Have one 'clean version' of the trunk aside the local patch branch; you'll need to verify that your patch can be applied to the last clean trunk version and that various tests still work from there. Creating the patch is key.
+2/ If you used some IDE and forgot to set the auto-indentation corrrectly, you most likely need working around the space/indentation patch clutter that results. I could not find a way to get TortoiseSVN create a patch with the proper options (ignore spaces & al) and could not find a way to get NetbeansSVN generate one either. Thus I create the patch from the local trunk root through cygwin (with svn+patchutils); svn diff --diff-cmd /usr/bin/diff -x "-w -B -b -E -d -N -u" > ~/solr-215.patch.
+Before generating the patch, it is important to issue an 'svn add ...' for each file you might have added; a quick "svn status | grep '?'" allows to verify nothing will be missing. Not elegant, but you can even follow with: svn status | grep '?' | awk '
+{print $2}
+' | xargs svn add
+3/ Apply the patch to the 'clean trunk'.
+TortoiseSVN 'apply patch' command only understands 'unified diff' thus the '-u' option.
+Alternatively, you can apply the patch through cygwin: patch -p0 -u < solr-215.patch.
+
+I've updated the 'dev' environment to an x86 Solaris 10 box which now generates the zipped patch( solr-215.patch.zip , same patch production method).
+For Solaris 10 users, patch must be "gnu" patch: /usr/local/bin/patch is its usual location (not to be confused with /bin/patch...)
+For x86, you can find it at ftp://ftp.sunfreeware.com/pub/freeware/intel/10/patch-2.5.4-sol10-x86-local.gz ; I don't know about diff but I'm using the version located at ftp://ftp.sunfreeware.com/pub/freeware/intel/10/diffutils-2.8.1-sol10-intel-local.gz

@@ -1,0 +1,12 @@
+TaggedIOException can contain tags. It's used to contain TaggedInputStream which isn't serializable.
+
+This can cause the ForkServer to fail when trying to report issues. See TIKA-827
+
+2 solutions
+
+	make the tag transient
+	replace the InputStream instance in the tag by a serializable object specific to the input stream.
+
+
+
+I opt for the first one as I really don't think we need more complexity

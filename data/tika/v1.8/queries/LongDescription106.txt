@@ -1,0 +1,8 @@
+Jakarta ORO is only used in one place in Tika - the RegexUtils's extract() method (which is only called in one place in ParserPostProcessor). JDK 1.4 introduced built in regular expression support and changing the RegexUtils to use this would remove the need for Jakarta ORO as a dependency.
+
+From the comments in RegexUtils it apears that this code was copied from Nutch's OutlinkExtractor[1] - there seems to have been a similar move in Nutch back in March in r516754[2] - however it was reverted the next day in r517015[3] - I couldn't really see anything on the Nutch dev list to explain this, except possibly this post http://tinyurl.com/2s2y9r
+
+
+[1] http://svn.apache.org/repos/asf/lucene/nutch/trunk/src/java/org/apache/nutch/parse/OutlinkExtractor.java
+[2] http://svn.apache.org/viewvc?view=rev&revision=516754
+[3] http://svn.apache.org/viewvc?view=rev&revision=517015

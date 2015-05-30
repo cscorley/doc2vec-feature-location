@@ -1,0 +1,95 @@
+ Network Server is not honoring local 
+transaction rollback using ClientXADataSource.  Run the following standalone JDBC code.  
+The output shows that after rolling back the local transaction, 
+the inserted data is still present.
+
+        final org.apache.derby.jdbc.ClientXADataSource ds =
+            new org.apache.derby.jdbc.ClientXADataSource();
+        ds.setServerName("localhost");
+        ds.setPortNumber(1527);
+
+ds.setDatabaseName("WOMBAT");
+        ds.setTraceLevel(-1);
+
+ds.setSecurityMechanism(ds.CLEAR_TEXT_PASSWORD_SECURITY);
+        ds.setUser("dbuser1");
+        ds.setPassword("dbpwd1");
+        //ds.setLogWriter(new 
+java.io.PrintWriter(System.out));
+
+        XAConnection xaConn = ds.getXAConnection();
+        Connection conn = xaConn.getConnection();
+
+
+conn.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_R
+EAD);
+
+        conn.setAutoCommit(true);
+
+        System.out.println("Database product: " + 
+conn.getMetaData().getDatabaseProductName());
+        System.out.println("Database version: " + 
+conn.getMetaData().getDatabaseProductVersion());
+        System.out.println("Driver name:      " + 
+conn.getMetaData().getDriverName());
+        System.out.println("Driver version:   " + 
+conn.getMetaData().getDriverVersion());
+
+        Statement stmt = conn.createStatement();
+
+        try 
+{ stmt.execute("drop table cmtest"); }
+        catch (SQLException sqlX) {} // ok, didn't exist
+
+        stmt.execute("CREATE TABLE cmtest (id integer not null 
+primary key, name varchar(60))");
+        stmt.close();
+
+        conn.setAutoCommit(false);
+
+        PreparedStatement pstmt = conn.prepareStatement(
+            "INSERT INTO cmtest (id, name) VALUES(?,?)",
+            ResultSet.TYPE_FORWARD_ONLY,
+            ResultSet.CONCUR_READ_ONLY);
+
+        pstmt.setInt(1, 13);
+        pstmt.setString(2, "blah1");
+        pstmt.executeUpdate();
+
+        pstmt.setInt(1, 2);
+        pstmt.setString(2, "blah2");
+        pstmt.executeUpdate();
+
+        conn.rollback();
+
+        PreparedStatement pstmt2 = conn.prepareStatement(
+            "SELECT * FROM cmtest WHERE id = ?",
+            ResultSet.TYPE_FORWARD_ONLY,
+            ResultSet.CONCUR_READ_ONLY);
+
+        pstmt2.setInt(1, 13);
+
+        ResultSet rset = pstmt2.executeQuery();
+
+        if (rset.next())
+        {
+            System.out.println("Test fails. First insert was 
+not rolled back.");
+            System.out.println("The data is still present. It 
+is: " + rset.getObject(1) +
+                               ", " + rset.getObject(2));
+        }
+        else
+            System.out.println("Test passes. First insert was 
+rolled back.");
+
+Here's the output,
+
+    Database product: Apache Derby
+    Database version: 10.1.2.2
+    Driver name:      Apache Derby Network Client JDBC Driver
+    Driver version:   10.1.2.2
+    Test fails. First insert was not rolled back.
+    The data is still present. It is: 13, blah1
+
+On some brief investigation I see that the Network Server embedded connection is  in autocomit mode so is autocommitting the transaction before the rollback.   Network server should always have autocommit false and let the client drive the commit.  

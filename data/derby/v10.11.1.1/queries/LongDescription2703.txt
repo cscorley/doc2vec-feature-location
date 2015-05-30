@@ -1,0 +1,10 @@
+calling DatabaseMetaData.getColumns(null, "APP", "CUSTOMER", "%") returns no rows for a valid APP.CUSTOMER table
+in ibm142 and sun142 jvms, for databases created with territory based collation, fails in all 3 cases we test in the 
+CollationTest2.java junit test.
+
+Since this is a system catalog query I am surprised the result is affected at all by collation, so there may be a derby bug 
+in the metadata routines, or elsewhere.  Mamta, could you comment if you believe this should work already - or if there
+is more work to do in this area.
+
+I will soon checkin a test case into the CollationTest2.java unit test that shows this.  For now I will either comment out the
+entire test, or if I can figure out how to not run it on 142 I will do that.

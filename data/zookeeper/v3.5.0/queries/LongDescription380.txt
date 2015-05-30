@@ -1,0 +1,11 @@
+currently, bookkeeper api allows just a bytes interface which is 
+ld.write(bytes).
+
+We should have an interface like 
+
+Stream s = ledger.createStream() (I am not very sure of the interface right now but will post a more concrete one after giving it a little more thought)
+
+now this stream can be used to wirte checkpoints as 
+s.write(bytes)
+and then closed to s.close() to close the snapshot. 
+This api could use the current api to implement snapshots as chunks of bytes (buffered by stream s) that can be written via ld.write(bytes).

@@ -1,0 +1,11 @@
+The following script fail due to TableLoader class not found (If the jar is in classpath):
+
+
+a = load '/user/pig/tests/data/zebra/singlefile/studentsortedtab10k' using org.apache.hadoop.zebra.pig.TableLoader('', 'sorted');
+b = load '/user/pig/tests/data/zebra/singlefile/votersortedtab10k' using org.apache.hadoop.zebra.pig.TableLoader('', 'sorted');
+g = cogroup a by $0, b by $0 using 'merge';
+store g into '/user/pig/out/jianyong.1304374720/ZebraMapCogrp_1.out';
+
+
+
+If we use register, the error goes away. However, Pig always ship jars containing LoadFunc automatically. It should be the same for merged cogroup/join.

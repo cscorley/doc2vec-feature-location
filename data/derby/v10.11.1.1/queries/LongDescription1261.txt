@@ -1,0 +1,77 @@
+Two triggers on same table may lead to self-recursion:
+
+ij> create table t3(i integer primary key, j integer, t timestamp);
+0 rows inserted/updated/deleted
+ij> create trigger tr3i after insert on t3 referencing new as new for each row mode db2sql update t3 set t = current_timestamp where i = new.i;
+0 rows inserted/updated/deleted
+ij> insert into t3 values (1, 1, NULL);
+1 row inserted/updated/deleted
+ij> create trigger tr3u after update on t3 referencing old as old for each row mode db2sql update t3 set t = current_timestamp where i = old.i;
+0 rows inserted/updated/deleted
+ij> insert into t3 values (2, 1, NULL);
+ERROR 54038: Maximum depth of nested triggers was exceeded.
+ij> update t3 set j=j+1;
+1 row inserted/updated/deleted
+ij> create trigger tr3u2 after update on t3 referencing old as old for each row mode db2sql update t3 set j = 0 where i = old.i and j > 2;
+0 rows inserted/updated/deleted
+ij> update t3 set j=j+1;
+ERROR 54038: Maximum depth of nested triggers was exceeded.
+
+
+From derby.log:
+2006-04-27 10:03:54.792 GMT Thread[main,5,main] (XID = 1274), (SESSIONID = 0), (DATABASE = testDB), (DRDAID = null), Cleanup action starting
+2006-04-27 10:03:54.792 GMT Thread[main,5,main] (XID = 1274), (SESSIONID = 0), (DATABASE = testDB), (DRDAID = null), Failed Statement is: insert into t3 values (2, 1, NULL)
+ERROR 54038: Maximum depth of nested triggers was exceeded.
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:301)
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.pushTriggerExecutionContext(GenericLanguageConnectionContext.java:2104)
+	at org.apache.derby.impl.sql.execute.InternalTriggerExecutionContext.<init>(InternalTriggerExecutionContext.java:179)
+	at org.apache.derby.impl.sql.execute.GenericExecutionFactory.getTriggerExecutionContext(GenericExecutionFactory.java:302)
+	at org.apache.derby.impl.sql.execute.TriggerEventActivator.<init>(TriggerEventActivator.java:105)
+	at org.apache.derby.impl.sql.execute.UpdateResultSet.fireBeforeTriggers(UpdateResultSet.java:798)
+	at org.apache.derby.impl.sql.execute.UpdateResultSet.open(UpdateResultSet.java:283)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:361)
+	at org.apache.derby.impl.sql.execute.GenericTriggerExecutor.executeSPS(GenericTriggerExecutor.java:169)
+	at org.apache.derby.impl.sql.execute.RowTriggerExecutor.fireTrigger(RowTriggerExecutor.java:110)
+	at org.apache.derby.impl.sql.execute.TriggerEventActivator.notifyEvent(TriggerEventActivator.java:277)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.normalInsertCore(InsertResultSet.java:1134)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.open(InsertResultSet.java:522)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:361)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1161)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:567)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:497)
+	at org.apache.derby.impl.tools.ij.ij.executeImmediate(ij.java:313)
+	at org.apache.derby.impl.tools.ij.utilMain.doCatch(utilMain.java:433)
+	at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:310)
+	at org.apache.derby.impl.tools.ij.Main.go(Main.java:203)
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:169)
+	at org.apache.derby.impl.tools.ij.Main14.main(Main14.java:55)
+	at org.apache.derby.tools.ij.main(ij.java:60)
+Cleanup action completed
+2006-04-27 10:06:18.589 GMT Thread[main,5,main] (XID = 1293), (SESSIONID = 0), (DATABASE = testDB), (DRDAID = null), Cleanup action starting
+2006-04-27 10:06:18.589 GMT Thread[main,5,main] (XID = 1293), (SESSIONID = 0), (DATABASE = testDB), (DRDAID = null), Failed Statement is: update t3 set j=j+1
+ERROR 54038: Maximum depth of nested triggers was exceeded.
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:301)
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.pushTriggerExecutionContext(GenericLanguageConnectionContext.java:2104)
+	at org.apache.derby.impl.sql.execute.InternalTriggerExecutionContext.<init>(InternalTriggerExecutionContext.java:179)
+	at org.apache.derby.impl.sql.execute.GenericExecutionFactory.getTriggerExecutionContext(GenericExecutionFactory.java:302)
+	at org.apache.derby.impl.sql.execute.TriggerEventActivator.<init>(TriggerEventActivator.java:105)
+	at org.apache.derby.impl.sql.execute.UpdateResultSet.fireBeforeTriggers(UpdateResultSet.java:798)
+	at org.apache.derby.impl.sql.execute.UpdateResultSet.open(UpdateResultSet.java:283)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:361)
+	at org.apache.derby.impl.sql.execute.GenericTriggerExecutor.executeSPS(GenericTriggerExecutor.java:169)
+	at org.apache.derby.impl.sql.execute.RowTriggerExecutor.fireTrigger(RowTriggerExecutor.java:110)
+	at org.apache.derby.impl.sql.execute.TriggerEventActivator.notifyEvent(TriggerEventActivator.java:277)
+	at org.apache.derby.impl.sql.execute.UpdateResultSet.fireAfterTriggers(UpdateResultSet.java:825)
+	at org.apache.derby.impl.sql.execute.UpdateResultSet.open(UpdateResultSet.java:288)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:361)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1161)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:567)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:497)
+	at org.apache.derby.impl.tools.ij.ij.executeImmediate(ij.java:313)
+	at org.apache.derby.impl.tools.ij.utilMain.doCatch(utilMain.java:433)
+	at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:310)
+	at org.apache.derby.impl.tools.ij.Main.go(Main.java:203)
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:169)
+	at org.apache.derby.impl.tools.ij.Main14.main(Main14.java:55)
+	at org.apache.derby.tools.ij.main(ij.java:60)
+Cleanup action completed

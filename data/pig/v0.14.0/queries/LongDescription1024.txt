@@ -1,0 +1,14 @@
+The following script fail: 
+
+a = load '1.txt' as (a0:int, a1:int, a2:int);
+b = group a by a0;
+c = foreach b 
+{ c1 = limit a 10;
+c2 = (c1.a0/c1.a1);
+c3 = (c1.a0/c1.a2);
+generate c2, c3;}
+
+Error message:
+
+ERROR org.apache.pig.impl.plan.OperatorPlan - Attempt to give operator of type
+org.apache.pig.impl.logicalLayer.LOLimit multiple outputs.  This operator does not support multiple outputs.

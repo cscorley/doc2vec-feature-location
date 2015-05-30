@@ -1,0 +1,9 @@
+BinStorage/PigStorageSchema cannot load data from a different namenode. The main reason for this is that, in the getSchema method , they use org.apache.pig.impl.io.FileLocalizer to check whether the exists, but the filesystem in HDataStorage refers to the natively configured dfs.
+
+The test case is simple :
+a = load 'hdfs://<nn2>/input' using BinStorage();
+dump a;
+
+Here if I specify -Dmapreduce.job.hdfs-servers, it should have worked , by pig still takes the fs from fs.default.name so to make it work i had to override  fs.default.name in pig command line.
+
+Raising this as a bug since the same scenario works with PigStorage.

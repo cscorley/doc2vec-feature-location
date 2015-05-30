@@ -1,0 +1,5 @@
+Right now, several tests don't seem to pass when run with Java 8 (at least on Java 8). The failures are benign, and just due to tests looking for too-specific values or expecting things like a certain ordering of hashmaps. 
+
+The tests can easily be made to pass both Java 8 and Java 6/7 at the same time by either relaxing the tests in a principled way, or accepting either output of two equally valid ones as correct.
+
+(There's also one curious compilation failure in Java 8, related to generics. It is fixable by changing to a more explicit declaration that should be equivalent. It should be entirely equivalent at compile time, and of course, at run time. I am not sure it's not just a javac bug, but, might as well work around when it's so easy.)

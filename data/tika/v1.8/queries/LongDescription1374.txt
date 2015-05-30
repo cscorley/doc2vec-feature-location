@@ -1,0 +1,7 @@
+Embedded files in PDFs can be found by the general all purpose key we  currently use via PDFBox:  "F".  However, embedded documents can also be stored under OS specific keys: "DOS", "Mac" and "Unix".
+
+Andreas Lehmkühler confirmed on the PDFBox users list that we might be missing embedded documents if we're not trying the OS specific keys as well.  As Andreas points out, according to the spec the OS specific keys shouldn't be used any more, but I think we should support extraction for them.
+
+My proposal is to pull all documents that are available by any of the four keys (well, via getEmbeddedFile<OS>() in PDFBox).  This has the downside of potentially extracting basically duplicate documents, but I'd prefer to err on the side of extracting everything.
+
+The code fix is trivial, and I'll try to commit it today.  However, it will take me a bit of time to generate a test file that stores files under the OS specific keys.  So, if anyone has an ASF-friendly file available or wants to take the task of generating one, please do.

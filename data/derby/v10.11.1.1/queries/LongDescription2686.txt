@@ -1,0 +1,6 @@
+The Java API docs for InputStream.skip and Reader.skip seem to indicate that returning a negative value is breaking the contract.
+The contract for Reader.skip is the more clear one, while I have taken the assumption that all Derby InputStreams will return 0 only when EOF has been reached or 0 is passed in as the amount of bytes to skip.
+
+Bad checking in a skip method also caused Derby to enter an infinite loop in a skip method.
+
+It should also be noted that skipping bytes/characters should be done in a loop, as skip  is free to skip a smaller amount of bytes than requested. This is true even if EOF is not reached.

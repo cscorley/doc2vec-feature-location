@@ -1,0 +1,13 @@
+If an application uses DiscriminatorType.CHAR and storeCharsAsNumbers is set to true in the DBDictionary they'll see an error similar to this one when the row is fetched from the database. 
+
+Caused by: java.lang.ClassNotFoundException: Could not map disciminator value "99" to any known subclasses of the requested class "org.apache.openjpa.persistence.discriminator.CharAbstractEntity" (known discriminator values: [C, R, c]).
+        at org.apache.openjpa.jdbc.meta.strats.ValueMapDiscriminatorStrategy.getClass(ValueMapDiscriminatorStrategy.java:98)
+        at org.apache.openjpa.jdbc.meta.strats.InValueDiscriminatorStrategy.getClass(InValueDiscriminatorStrategy.java:117)
+        at org.apache.openjpa.jdbc.meta.Discriminator.getClass(Discriminator.java:398)
+        at org.apache.openjpa.jdbc.meta.strats.SuperclassDiscriminatorStrategy.getClass(SuperclassDiscriminatorStrategy.java:63)
+        at org.apache.openjpa.jdbc.meta.Discriminator.getClass(Discriminator.java:398)
+        at org.apache.openjpa.jdbc.meta.strats.SuperclassDiscriminatorStrategy.getClass(SuperclassDiscriminatorStrategy.java:63)
+        at org.apache.openjpa.jdbc.meta.Discriminator.getClass(Discriminator.java:398)
+        at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.initializeState(JDBCStoreManager.java:320)
+        at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.initialize(JDBCStoreManager.java:255)
+        ... 34 more

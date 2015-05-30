@@ -1,0 +1,19 @@
+the problem is in this block:
+
+    public void addedDocument() {
+      docsSinceCommit++;
+      lastAddedTime = System.currentTimeMillis();
+      if( pending == null ) {  // Don't start a new event if one is already waiting 
+        if( timeUpperBound > 0 ) 
+{ 
+          pending = scheduler.schedule( this, timeUpperBound, TimeUnit.MILLISECONDS );
+        }
+        else if( docsUpperBound > 0 && (docsSinceCommit > docsUpperBound) ) 
+{
+          // 1/4 second seems fast enough for anyone using maxDocs
+          pending = scheduler.schedule( this, 250, TimeUnit.MILLISECONDS );
+        }
+      }
+    }
+
+the docSinceCommit block is not triggered as a (long waiting) pending commit scheduled for maxTime.

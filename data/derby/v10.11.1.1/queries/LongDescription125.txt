@@ -1,0 +1,21 @@
+BACKGROUND:
+
+DRDA protocol, which is the protocol used by Derby Network Server, dictates that all DSS objects "with data greater than 32,763 bytes" should be broken down into multiple "continuation" DSSes.
+
+PROBLEM:
+
+When Network Server receives a "prepareStatement" call that has a very large number of parameters, it can end up sending a reply DSS that is greater than 32K long to the client; doing so breaks DRDA protocol.
+
+REPRODUCTION:
+
+Note that this reproduction does NOT cause a protocol exception against the JCC driver--without further investigation, it would appear JCC doesn't mind that the DSS is too long.  However, other DRDA clients (such as the DB2 ODBC client) will see that the data is too long and will fail because of it.
+
+To reproduce, one can create a simple table and then prepare a statement such as:
+
+SELECT id FROM t1 WHERE id in ( ?, ?, [ ... lots and lots of param markers ... ], ?)
+
+Note that JCC uses deferred prepare by default; when connecting, one must append the "deferPrepares=false" attribute to the end of the URL in order to reproduce the problem (that or just try to execute the statement, since preparation will be done at execution time).  When doing the prepare, I added a line in the "flush" method of org.apache.derby.impl.drda.DDMWriter.java to see how large the reply DSS was, and for cases where the number of parameter markers was high, the number of bytes in the single DSS would surpass 32K, and thus break protocol.
+
+NOTES:
+
+Network Server correctly uses continuation DSSes for LOBs and for result set data (data returned as the result of a query) that is greater than 32K.  The problem appears to be in "other" cases, such as for the prepareStatement call described above.

@@ -1,0 +1,19 @@
+This happens only when secondary sort is not being used for the order-by. 
+For example -
+
+
+a1 = load 'fruits.txt' as (f1:int,f2);
+a2 = load 'fruits.txt' as (f1:int,f2);
+
+b = cogroup a1 by f1, a2 by f1;
+
+d = foreach b {
+   sort1 = order a1 by f2;
+   sort2 = order a2 by f2; -- secondary sort not getting used here, MYCONCATBAG gets results in wrong order
+   generate group, MYCONCATBAG(sort1.f1), MYCONCATBAG(sort2.f2);
+}
+
+-- explain d;
+dump d;
+
+

@@ -1,0 +1,24 @@
+This jira is to implement a simplified version of the functionality described in https://issues.apache.org/jira/browse/PIG-801.
+
+The proposal is to allow casting relations to scalar types in foreach.
+
+Example:
+
+A = load 'data' as (x, y, z);
+B = group A all;
+C = foreach B generate COUNT(A);
+.....
+X = ....
+Y = foreach X generate $1/(long) C;
+
+Couple of additional comments:
+
+(1) You can only cast relations including a single value or an error will be reported
+(2) Name resolution is needed since relation X might have field named C in which case that field takes precedence.
+(3) Y will look for C closest to it.
+
+Implementation thoughts:
+
+The idea is to store C into a file and then convert it into scalar via a UDF. I believe we already have a UDF that Ben Reed contributed for this purpose. Most of the work would be to update the logical plan to
+(1) Store C
+(2) convert the cast to the UDF

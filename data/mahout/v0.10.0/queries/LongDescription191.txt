@@ -1,0 +1,22 @@
+(based on the message from here: http://www.nabble.com/Creating-Vectors-from-Text-tt24298643.html#a26090263)
+
+I checked out mahout from trunk and tried to create term frequency vector from a lucene index and ran into this..
+
+09/10/27 17:36:10 INFO lucene.Driver: Output File: /Users/shoeseal/DATA/luc2tvec.out
+09/10/27 17:36:11 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+09/10/27 17:36:11 INFO compress.CodecPool: Got brand-new compressor
+Exception in thread "main" java.lang.NullPointerException
+        at org.apache.mahout.utils.vectors.lucene.LuceneIterable$TDIterator.next(LuceneIterable.java:109)
+        at org.apache.mahout.utils.vectors.lucene.LuceneIterable$TDIterator.next(LuceneIterable.java:1)
+        at org.apache.mahout.utils.vectors.io.SequenceFileVectorWriter.write(SequenceFileVectorWriter.java:40)
+        at org.apache.mahout.utils.vectors.lucene.Driver.main(Driver.java:200)
+
+I am running this from Eclipse (snow leopard with JDK 6), on an index that has field with stored term vectors..
+
+my input parameters for Driver are:
+--dir <path>/smallidx/ --output <path>/luc2tvec.out --idField id_field
+ --field field_with_TV --dictOut <path>/luc2tvec.dict --max 50  --weight tf
+
+Luke shows the following info on the fields I am using:
+ id_field is indexed, stored, omit norms
+ field_with_TV is indexed, tokenized, stored, term vector 

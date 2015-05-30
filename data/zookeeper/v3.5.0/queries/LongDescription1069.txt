@@ -1,0 +1,78 @@
+I've only seen this happen once.  In order to restart Zookeeper with a new set of servers, we have a wrapper class that calls shutdown() on an existing QuorumPeer, and then starts a new one with a new set of servers.  Specifically, our shutdown code looks like this:
+
+
+
+  synchronized(_quorum_peer) {
+    _quorum_peer.shutdown();
+    FastLeaderElection fle = (FastLeaderElection) _quorum_peer.getElectionAlg();
+    fle.shutdown();  // I think this is unnecessary
+    try {
+      _quorum_peer.getTxnFactory().commit();
+    } catch (java.nio.channels.ClosedChannelException e) {
+      // ignore
+    }
+  }
+
+
+
+One time, our wrapper class started one QuorumPeer, and then had to shut it down and start a new one very soon after the QuorumPeer transitioned into a FOLLOWING state.  When the new QuorumPeer tried to read in the latest log from disk, it encountered a bogus magic number of all zeroes:
+
+
+2011-05-18 22:42:29,823 10467 [pool-1-thread-2] FATAL org.apache.zookeeper.server.quorum.QuorumPeer  - Unable to load database on disk
+java.io.IOException: Transaction log: /var/cloudnet/data/zookeeper/version-2/log.700000001 has invalid magic number 0 != 1514884167
+        at org.apache.zookeeper.server.persistence.FileTxnLog$FileTxnIterator.inStreamCreated(FileTxnLog.java:510)
+        at org.apache.zookeeper.server.persistence.FileTxnLog$FileTxnIterator.createInputArchive(FileTxnLog.java:527)
+        at org.apache.zookeeper.server.persistence.FileTxnLog$FileTxnIterator.goToNextLog(FileTxnLog.java:493)
+        at org.apache.zookeeper.server.persistence.FileTxnLog$FileTxnIterator.next(FileTxnLog.java:576)
+        at org.apache.zookeeper.server.persistence.FileTxnLog$FileTxnIterator.init(FileTxnLog.java:479)
+        at org.apache.zookeeper.server.persistence.FileTxnLog$FileTxnIterator.<init>(FileTxnLog.java:454)
+        at org.apache.zookeeper.server.persistence.FileTxnLog.read(FileTxnLog.java:325)
+        at org.apache.zookeeper.server.persistence.FileTxnSnapLog.restore(FileTxnSnapLog.java:126)
+        at org.apache.zookeeper.server.ZKDatabase.loadDataBase(ZKDatabase.java:222)
+        at org.apache.zookeeper.server.quorum.QuorumPeer.start(QuorumPeer.java:398)
+...
+2011-05-18 22:42:29,823 10467 [pool-1-thread-2] ERROR com.nicira.onix.zookeeper.Zookeeper  - Unexpected exception
+java.lang.RuntimeException: Unable to run quorum server 
+        at org.apache.zookeeper.server.quorum.QuorumPeer.start(QuorumPeer.java:401)
+        at com.nicira.onix.zookeeper.Zookeeper.StartZookeeper(Zookeeper.java:198)
+        at com.nicira.onix.zookeeper.Zookeeper.RestartZookeeper(Zookeeper.java:277)
+        at com.nicira.onix.zookeeper.ZKRPCService.setServers(ZKRPC.java:83)
+        at com.nicira.onix.zookeeper.Zkrpc$ZKRPCService.callMethod(Zkrpc.java:8198)
+        at com.nicira.onix.rpc.RPC$10.run(RPC.java:534)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+        at java.lang.Thread.run(Thread.java:662)
+Caused by: java.io.IOException: Transaction log: /var/cloudnet/data/zookeeper/version-2/log.700000001 has invalid magic number 0 != 1514884167
+        at org.apache.zookeeper.server.persistence.FileTxnLog$FileTxnIterator.inStreamCreated(FileTxnLog.java:510)
+        at org.apache.zookeeper.server.persistence.FileTxnLog$FileTxnIterator.createInputArchive(FileTxnLog.java:527)
+        at org.apache.zookeeper.server.persistence.FileTxnLog$FileTxnIterator.goToNextLog(FileTxnLog.java:493)
+        at org.apache.zookeeper.server.persistence.FileTxnLog$FileTxnIterator.next(FileTxnLog.java:576)
+        at org.apache.zookeeper.server.persistence.FileTxnLog$FileTxnIterator.init(FileTxnLog.java:479)
+        at org.apache.zookeeper.server.persistence.FileTxnLog$FileTxnIterator.<init>(FileTxnLog.java:454)
+        at org.apache.zookeeper.server.persistence.FileTxnLog.read(FileTxnLog.java:325)
+        at org.apache.zookeeper.server.persistence.FileTxnSnapLog.restore(FileTxnSnapLog.java:126)
+        at org.apache.zookeeper.server.ZKDatabase.loadDataBase(ZKDatabase.java:222)
+        at org.apache.zookeeper.server.quorum.QuorumPeer.start(QuorumPeer.java:398)
+        ... 8 more
+
+
+
+I looked into the code a bit, and I believe the problem comes from the fact that QuorumPeer.shutdown() does not join() on this before returning.  Here's the scenario I think can happen:
+
+
+	QuorumPeer.run() notices it is in the FOLLOWING state, makes a new Follower, and calls Follower.followLeader(), which starts connecting to the leader.
+	In the main program thread, QuorumPeer.shutdown() is called.
+	Through a complicated series of calls, this eventually leads to FollowerZooKeeperServer.shutdown() being called.
+	This method calls SyncRequestProcess.shutdown(), which joins on this and returns.  However, it's possible that the SyncRequestProcessor thread hasn't yet been started because followLeader() hasn't yet called Learner.syncWithLeader(), which hasn't yet called ZooKeeperServer.startup(), which actually starts the thread.  Thus, the join would have no request, though a requestOfDeath is added to the queued requests list (possibly behind other requests).
+	Back in the main thread, FileTxnSnapLog.commit() is called, which doesn't do much because the processor hasn't processed anything yet.
+	Finally, ZooKeeperServer.startup is called in the QuorumPeer.run() thread, starting up the SyncRequestProcessor thread.
+	That thread appends some request to the log.  The log doesn't exist yet, so it creates a new one, padding it with zeroes.
+	Now either the SyncRequestProcessor hits the requestOfDeath or the whole QuorumPeer object is deleted.  It exits that thread without ever committing the log to disk (or the new QuorumPeer tries to read the log before the old thread gets to commit anything), and the log ends up with all zeroes instead of a proper magic number.
+
+
+
+I haven't yet looked into whether there's an easy way to join() on the QuorumPeer thread from shutdown(), so that it won't go on to start the processor threads after it's been shutdown.  I wanted to check with the group first and see if anyone else agrees this could be a problem.
+
+I marked this as minor since I think almost no one else uses Zookeeper this way, but it's pretty important to me personally.
+
+I will upload a log file showing this behavior shortly.

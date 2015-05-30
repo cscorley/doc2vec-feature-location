@@ -1,0 +1,5 @@
+The method getDependents(Provider) in BasicDependencyManager isn't using proper synchronization in cases where a list has to be compiled by combining in-memory and on-disk dependencies. Returning a reference to the list obtained from the shared map is also a bug.
+The test lang.XplainStatisticsTest.testSimpleQueryMultiWithInvalidation failed due to this issue (see [1]).
+
+
+[1] http://dbtg.foundry.sun.com/derby/test/Daily/jvm1.5/testing/testlog/lin/1050670-suitesAll_diff.txt

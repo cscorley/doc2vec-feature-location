@@ -1,0 +1,67 @@
+I found this phenomena at my environment.
+
+naka@rufelza:~/derby/test/20061001_2$ runNetClientTest.sh jdbcapi/_Suite.junit
+/home/naka/derby/dev/trunk/jars/sane/derby.jar:
+/home/naka/derby/dev/trunk/jars/sane/derbytools.jar:
+/home/naka/derby/dev/trunk/jars/sane/derbynet.jar:
+/home/naka/derby/dev/trunk/jars/sane/derbyclient.jar:
+/home/naka/derby/dev/trunk/jars/sane/derbyrun.jar:
+/home/naka/derby/dev/trunk/jars/sane/derbyTesting.jar:
+/home/naka/derby/dev/trunk/tools/java/jakarta-oro-2.0.8.jar:
+/home/naka/derby/dev/trunk/jars/sane/derbyLocale_de_DE.jar:
+/home/naka/derby/dev/trunk/jars/sane/derbyLocale_es.jar:
+/home/naka/derby/dev/trunk/jars/sane/derbyLocale_fr.jar:
+/home/naka/derby/dev/trunk/jars/sane/derbyLocale_it.jar:
+/home/naka/derby/dev/trunk/jars/sane/derbyLocale_ja_JP.jar:
+/home/naka/derby/dev/trunk/jars/sane/derbyLocale_ko_KR.jar:
+/home/naka/derby/dev/trunk/jars/sane/derbyLocale_pt_BR.jar:
+/home/naka/derby/dev/trunk/jars/sane/derbyLocale_zh_CN.jar:
+/home/naka/derby/dev/trunk/jars/sane/derbyLocale_zh_TW.jar:
+/home/naka/derby/dev/trunk/tools/java/junit.jar:
+/home/naka/derby/dev/trunk/tools/java/db2jcc.jar:
+/home/naka/derby/dev/trunk/tools/java/db2jcc_license_c.jar:.
+console.encoding:null file.encoding:ISO-8859-1 derby.ui.codeset: null
+
+	
+	
+		
+		
+			Start: _Suite jdk1.4.2_10 DerbyNetClient 2006-10-01 14:19:52 ***
+Initialize for framework: DerbyNetClient
+startServer = false. Bypass server startup
+java -Duser.language=en -Duser.country=US -Dderby.system.home=/home/naka/derby/test/20061001_2/DerbyNetClient/_Suite -Dderby.infolog.append=true -Dframework=DerbyNetClient -Djava.security.manager -Djava.security.policy=/home/naka/derby/test/20061001_2/derby_tests.policy -DderbyTesting.clientjar=file:/home/naka/derby/dev/trunk/jars/sane/ -DderbyTesting.codejar=file:/home/naka/derby/dev/trunk/jars/sane/ -DderbyTesting.testjar=file:/home/naka/derby/dev/trunk/jars/sane/ -DderbyTesting.codedir=/home/naka/derby/dev/trunk/jars/sane -DderbyTesting.serverhost=localhost -DderbyTesting.clienthost=localhost junit.textui.TestRunner org.apache.derbyTesting.functionTests.tests.jdbcapi._Suite 
+The test should be running...
+About to execute: diff.exec( outName = /home/naka/derby/test/20061001_2/DerbyNetClient/_Suite.out,outDir = /home/naka/derby/test/20061001_2/DerbyNetClient,pwDiff = java.io.PrintWriter@12f0999,testOutName = _Suite,frameworkMaster = DerbyNetClient,jvmName = jdk14,iminor = 4,useprocess = true,systemdiff = false,canondir = null,canonpath = null)
+		
+		
+	
+	
+
+
+
+0 add
+> .......................E....
+> There was 1 error:
+> 1) testClobAsciiWrite3Param(org.apache.derbyTesting.functionTests.tests.jdbcapi.LobStreamsTest)java.lang.OutOfMemoryError
+> FAILURES!!!
+> Tests run: 847,  Failures: 0,  Errors: 1
+Test Failed.
+
+	
+	
+		
+		
+			End:   _Suite jdk1.4.2_10 DerbyNetClient 2006-10-01 14:22:01 ***
+		
+		
+	
+	
+
+
+
+
+This seems to be same as the error which was recorded in next test result.
+http://www.multinet.no/~solberg/public/Apache/DerbyJvm1.4/Limited/testSummary-451360.html
+
+Comparing results at http://www.multinet.no/~solberg/public/Apache/index.html, 
+this phenomena seems to happen when test was executed with jvm 1.4.2.

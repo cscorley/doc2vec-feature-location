@@ -1,0 +1,48 @@
+WHAT:
+Currently, SynonymFilterFactory works very well with N-gram tokenizer (CJKTokenizer, for example).
+But we have to take care of the statement in synonyms.txt.
+For example, if I use CJKTokenizer (work as bi-gram for CJK chars) and want C1C2C3 maps to C4C5C6,
+I have to write the rule as follows:
+
+C1C2 C2C3 => C4C5 C5C6
+
+But I want to write it "C1C2C3=>C4C5C6". This patch allows it. It is also helpful for sharing synonyms.txt.
+
+HOW:
+tokenFactory attribute is added to <filter class="solr.SynonymFilterFactory"/>.
+If the attribute is specified, SynonymFilterFactory uses the TokenizerFactory to create Tokenizer.
+Then SynonymFilterFactory uses the Tokenizer to get tokens from the rules in synonyms.txt file.
+
+sample-1: CJKTokenizer
+
+    <fieldtype name="text_cjk" class="solr.TextField" positionIncrementGap="100">
+      <analyzer type="index">
+        <tokenizer class="solr.CJKTokenizerFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="ngram_synonym_test_ja.txt"
+        		ignoreCase="true" expand="true" tokenFactory="solr.CJKTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.CJKTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+      </analyzer>
+    </fieldtype>
+
+sample-2: NGramTokenizer
+
+    <fieldtype name="text_ngram" class="solr.TextField" positionIncrementGap="100">
+      <analyzer type="index">
+        <tokenizer class="solr.NGramTokenizerFactory" minGramSize="2" maxGramSize="2"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.NGramTokenizerFactory" minGramSize="2" maxGramSize="2"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="ngram_synonym_test_ngram.txt"
+        		ignoreCase="true" expand="true"
+        		tokenFactory="solr.NGramTokenizerFactory" minGramSize="2" maxGramSize="2"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+      </analyzer>
+    </fieldtype>
+
+backward compatibility:
+Yes. If you omit tokenFactory attribute from <filter class="solr.SynonymFilterFactory"/> tag, it works as usual.

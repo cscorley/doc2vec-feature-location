@@ -1,0 +1,13 @@
+Note: Is a blocker for the audit facility, removing audit lets us continue (obviously without any audit 
+
+We are getting major memory leaks from an OSGi application using OpenJPA with auditing (and with a custom auditor).
+
+Mail thread with problem identified by Rick Curtis:
+http://mail-archives.apache.org/mod_mbox/openjpa-users/201208.mbox/browser
+
+Quote: I think the problem is that in
+AuditManager<eclipse-javadoc:%E2%98%82=openjpa-kernel/src%5C/main%5C/java%3Corg.apache.openjpa.kernel%7BAuditManager.java%E2%98%83AuditManager>.afterBegin(...)
+we register a listener (Broker.addLifecycleListener), but we fail to
+deregister this listener.
+
+I've stopped auditing my large objects but the problem persists: any @Auditable object accessed remains in memory forever.

@@ -1,0 +1,13 @@
+The format of timestamps in Derby logs seems to have changed. As a result, the ErrorLogReader vti can't parse the text of derby.log. That vti is looking for the literal string "GMT" in order to locate timestamps.
+
+To reproduce the problem, run ij with -Dderby.language.logStatementText=true and issue the following query:
+
+  select * from table (syscs_diag.error_log_reader( )) as t1;
+
+You will get an empty result.
+
+This regression was not caught by our tests because SysDiagVTIMappingTest uses a hardcoded derby.log created by version "10.3.0.0 alpha".
+
+The same problem seems to have broken the statement duration vti too. The following query returns an empty result from 10.7 onward:
+
+  select * from table (syscs_diag.statement_duration()) as t1;

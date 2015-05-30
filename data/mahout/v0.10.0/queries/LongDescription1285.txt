@@ -1,0 +1,17 @@
+Have successfully loaded numerous ARFF files with Mahout (originally generated via WEKA). The files contain randomly generated data. For a specific random seed, the following exception is thrown:
+
+java.lang.NumberFormatException: For input string: "b1shkt70694difsmmmdv0ikmoh"
+	at sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+	at java.lang.Double.parseDouble(Double.java:540)
+	at org.apache.mahout.utils.vectors.arff.MapBackedARFFModel.processNumeric(MapBackedARFFModel.java:146)
+	at org.apache.mahout.utils.vectors.arff.MapBackedARFFModel.getValue(MapBackedARFFModel.java:97)
+	at org.apache.mahout.utils.vectors.arff.ARFFIterator.computeNext(ARFFIterator.java:77)
+	at org.apache.mahout.utils.vectors.arff.ARFFIterator.computeNext(ARFFIterator.java:30)
+	at com.google.common.collect.AbstractIterator.tryToComputeNext(AbstractIterator.java:143)
+	at com.google.common.collect.AbstractIterator.hasNext(AbstractIterator.java:138)
+	at org.apache.mahout.utils.vectors.io.SequenceFileVectorWriter.write(SequenceFileVectorWriter.java:44)
+	at org.apache.mahout.utils.vectors.arff.Driver.writeFile(Driver.java:251)
+	at org.apache.mahout.utils.vectors.arff.Driver.main(Driver.java:145)
+	at libInterfaces.MahoutTraceBuilder.generateMahoutFile(MahoutTraceBuilder.java:38)
+	at libInterfaces.MahoutTraceBuilder.generateMahoutReader(MahoutTraceBuilder.java:42)
+	at tests.InputTester.testMahoutMeansShift(InputTester.java:111)

@@ -1,0 +1,1 @@
+Retrieving from a large table with lobs gives an OutOfMemoryException, even if free() is explictly called on the lob.   I believe this is because EmbedConnection.addLobMapping is called for every lob creation but is never cleared until commit or rollback, even if the lob is freed.

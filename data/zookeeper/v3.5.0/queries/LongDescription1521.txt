@@ -1,0 +1,3 @@
+branch 3.3: The leader is expecting the follower to initialize in syncLimit time rather than initLimit. In LearnerHandler run line 395 (branch33) we look for the ack from the follower with a timeout of syncLimit.
+
+branch 3.4+: seems like ZOOKEEPER-1136 introduced a regression while attempting to fix the problem. It sets the timeout as initLimit however it never sets the timeout to syncLimit once the ack is received.

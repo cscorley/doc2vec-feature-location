@@ -1,0 +1,19 @@
+In looking at the checkDataSource test for DERBY-435, I hit an issue that the test fails with an exception  for duplicate cursor name because it sets the cursor name for  two statements to the same thing.
+
+Embedded seems to allow this, but it seems to me that client might be right here.  How could embedded differentiate the two for positioned updates?    There is risk to existing applications if  embedded is changed to throw the error that should be considered if we decide we need to change the embedded behaviour.
+
+Below are some details from checkDataSource where I hit this. I will change the  names for now as it does not seem relevant to what is being tested.
+
+PreparedStatement psruState = createFloatStatementForStateChecking(cs1, "select i from ru where i = ?");
+        CallableStatement csruState = createFloatCallForStateChecking(cs1, "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(?,?)");
+
+Both of these methods set the cursor name to the same thing:
+s.setCursorName("StokeNewington");
+
+For embedded it succeeds for client it throws the exception.
+java.sql.SQLException: Duplicate cursor names are not allowed.
+	at org.apache.derby.client.am.SqlException.getSQLException(Unknown Source)
+	at org.apache.derby.client.am.Statement.setCursorName(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.checkDataSource.createFloatStatementForStateChecking(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.checkDataSource.runTest(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.checkDataSource.main(Unknown Source)

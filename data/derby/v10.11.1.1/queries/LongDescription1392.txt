@@ -1,0 +1,19 @@
+java/engine/org/apache/derby/impl/store/raw/data/RAFContainer.java#writePage(...) will
+attempt to retry a write if an IOException is thrown on the first attempt. However, the next 
+attempt does not add container header data to the first page, nor does it encrypt the data 
+if the database is encrypted.
+
+I'd expect this bug to be case silent corruption of encrypted databases if the code path 
+was actually exercised. The fact that this bug still lives and nobody has discovered it is
+possibly an indication of how uncommon this code path is. Since the comment in the code
+says nothing about exactly what platforms the workaround was intended for, I don't know if
+these platforms are still supported for Derby. There's also a workaround for an EPOC Java
+bug earlier in the code - EPOC only had a Java 1.1 VM, which is no longer supported.
+
+I'll attach a patch for the issue, but I wonder if we might as well remove the "retry code path"
+if it is never used?
+
+(If you're paranoid, this could also be considered a security issue. If someone could
+cause IO errors for Derby at will, they could make Derby write the database without 
+encryption - but there are far easier ways to attack Derby if you've got that kind of 
+access, so I'm discounting that. =)

@@ -1,0 +1,9 @@
+Attn Nick:
+
+Changes made to POI(v1221126) for POI-52349 causes the ExcelParserTest.testExcelParserFormatting() junit test case to go out to lunch within POI's DataFormatter.FractionFormat().  Specifically within the nested for loops at line 1000.  These nested loops both have extremely high values that cause the test case to hang for an extremely long duration during the new OfficeParser().parse(input, handler, metadata, context); call at line 73.  This appears to happen due to the Custom Date value in the test file not being identified as a date.
+
+I'm not sure if the proper resolution lies in modifying TIKA's test case or if a new bug needs to be opened on POI's side, but I wanted to bring this issue to light.
+
+Regards,
+
+Jeremy  

@@ -1,0 +1,13 @@
+running a "getAcl" on the root znode "/" fails with the following:
+
+Fri Jun  5 10:21:17 2009: 2009-06-05 10:21:17,072 - ERROR [CommitProcessor:3:FinalRequestProcessor@243] - Failed to process sessionid:0x321b16868f40003 ty
+pe:getACL cxid:0x3 zxid:0xfffffffffffffffe txntype:unknown n/a 
+Fri Jun  5 10:21:17 2009: java.lang.NullPointerException
+Fri Jun  5 10:21:17 2009:       at java.util.ArrayList.<init>(ArrayList.java:131)
+Fri Jun  5 10:21:17 2009:       at org.apache.zookeeper.server.DataTree.getACL(DataTree.java:622)
+Fri Jun  5 10:21:17 2009:       at org.apache.zookeeper.server.FinalRequestProcessor.processRequest(FinalRequestProcessor.java:216)
+Fri Jun  5 10:21:17 2009:       at org.apache.zookeeper.server.quorum.CommitProcessor.run(CommitProcessor.java:74)
+Fri Jun  5 10:21:17 2009: 2009-06-05 10:21:17,073 - ERROR [CommitProcessor:3:FinalRequestProcessor@250] - Dumping request buffer: 0x00012f
+
+
+We need to support getting/setting the root acl in particular – not being able to control acls on this node makes multi-tenancy a non-starter.

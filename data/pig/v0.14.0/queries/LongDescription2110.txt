@@ -1,0 +1,22 @@
+When processing a large log file, I get an exception in SearchTermExtractor.exec
+
+I don't have a specific log line with a repro yet, but I assume the error occurs when the input URL is null, or maybe just has no query string:
+
+I think a fix would be to be add a guard after creating queryString:
+
+        String queryString = urlObject.getQuery();
+        if (queryString == null) 
+{ return null; }
+
+Stack Trace:
+<code>
+Caused by: java.io.IOException: Caught exception processing input row
+        at org.apache.pig.piggybank.evaluation.util.apachelogparser.SearchTermExtractor.exec(SearchTermExtractor.java:195)
+        at org.apache.pig.piggybank.evaluation.util.apachelogparser.SearchTermExtractor.exec(SearchTermExtractor.java:64)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POUserFunc.getNext(POUserFunc.java:229)
+Caused by: java.lang.NullPointerException
+        at java.util.regex.Matcher.getTextLength(Matcher.java:1140)
+        at java.util.regex.Matcher.reset(Matcher.java:291)
+        at java.util.regex.Matcher.reset(Matcher.java:311)
+        at org.apache.pig.piggybank.evaluation.util.apachelogparser.SearchTermExtractor.exec(SearchTermExtractor.java:170)
+</code>

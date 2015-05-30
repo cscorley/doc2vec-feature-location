@@ -1,0 +1,12 @@
+Permit is not releasing in the case when there is no quorum available and the readEntries operation failed from all replicas.
+
+Following is the condition where it checks the failure in quorum and invoking ReadCallback:
+
+void sendRead(ArrayList<InetSocketAddress> ensemble, LedgerEntry entry, int lastErrorCode) {
+   if (entry.nextReplicaIndexToReadFrom >= lh.metadata.quorumSize) {
+      // we are done, the read has failed from all replicas, just fail the
+      // read
+      submitCallback(lastErrorCode);
+      return;
+   }
+

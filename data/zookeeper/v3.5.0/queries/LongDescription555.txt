@@ -1,0 +1,11 @@
+GetChildren() is the only non-create/delete API which does not include the node stat information. I propose that the definition of GetChildren() should be:
+
+    class GetChildrenResponse 
+{
+        vector<ustring> children;
+        org.apache.zookeeper.data.Stat stat;
+    }
+
+There is a trivial fix to the server (FinalRequestProcessor.java): rsp = new GetChildrenResponse(children, stat);
+
+And something similar to the  client library.

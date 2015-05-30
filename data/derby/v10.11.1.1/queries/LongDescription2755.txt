@@ -1,0 +1,32 @@
+Here is the assertion running 10.1.2.6 derbytesting.jar store/logChecksumSetup against 10.3 server. Several other tests failed because of the setup failure.
+
+
+Assertion failure
+Exception in thread "main" java.sql.SQLException: Java exception: 'ASSERT FAILED csf:C:\test\derbyall\storeall\storerecovery\storerecovery\wombat: org.apache.derby.shared.common.sanity.AssertFailure'.
+at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Util.java:88)
+at org.apache.derby.impl.jdbc.Util.javaException(Util.java:245)
+at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:403)
+at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:346)
+at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:1549)
+at org.apache.derby.impl.jdbc.EmbedConnection.<init>(EmbedConnection.java:373)
+at org.apache.derby.jdbc.Driver30.getNewEmbedConnection(Driver30.java:80)
+at org.apache.derby.jdbc.InternalDriver.connect(InternalDriver.java:209)
+at org.apache.derby.jdbc.AutoloadedDriver.connect(AutoloadedDriver.java:117)
+at java.sql.DriverManager.getConnection(DriverManager.java:562)
+at java.sql.DriverManager.getConnection(DriverManager.java:155)
+at org.apache.derby.impl.tools.ij.util.startJBMS(util.java:505)
+at org.apache.derby.impl.tools.ij.util.startJBMS(util.java:585)
+at org.apache.derby.impl.tools.ij.util.startJBMS(util.java:566)
+at org.apache.derby.tools.ij.startJBMS(ij.java:143)
+at org.apache.derbyTesting.functionTests.tests.store.LogChecksumSetup.main(Unknown Source)
+Caused by: org.apache.derby.shared.common.sanity.AssertFailure: ASSERT FAILED csf:C:\test\derbyall\storeall\storerecovery\storerecovery\wombat
+at org.apache.derby.shared.common.sanity.SanityManager.ASSERT(SanityManager.java:120)
+at org.apache.derby.impl.services.monitor.StorageFactoryService$10.run(StorageFactoryService.java:739)
+at java.security.AccessController.doPrivileged(AccessController.java:242)
+at org.apache.derby.impl.services.monitor.StorageFactoryService.removeServiceRoot(StorageFactoryService.java:729)
+at org.apache.derby.impl.services.monitor.BaseMonitor.bootService(BaseMonitor.java:1865)
+at org.apache.derby.impl.services.monitor.BaseMonitor.createPersistentService(BaseMonitor.java:1017)
+at org.apache.derby.iapi.services.monitor.Monitor.createPersistentService(Monitor.java:588)
+at org.apache.derby.impl.jdbc.EmbedConnection.createDatabase(EmbedConnection.java:1773)
+at org.apache.derby.impl.jdbc.EmbedConnection.<init>(EmbedConnection.java:281)

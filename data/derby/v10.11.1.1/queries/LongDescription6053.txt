@@ -1,0 +1,145 @@
+o.a.d.client.am.Connection setTransactionIsolation() uses a Statement which  it builds up each time for setTransactionIsolation()  is called.
+
+private Statement setTransactionIsolationStmt = null;
+...
+setTransactionIsolationStmt =
+                    createStatementX(java.sql.ResultSet.TYPE_FORWARD_ONLY,
+                            java.sql.ResultSet.CONCUR_READ_ONLY,
+                            holdability());
+....
+ private void setTransactionIsolationX(int level)
+...
+            setTransactionIsolationStmt.executeUpdate(
+                "SET CURRENT ISOLATION = " + levelString);
+
+
+It would be better for performance and also for avoid possible garbage collection issues, to have a single prepared statement with a parameter marker. 
+
+The program below shows repeated calls to setTransactionIsolation.
+
+import java.sql.*;
+import java.net.*;
+import java.io.*;
+import org.apache.derby.drda.NetworkServerControl;
+
+/**
+
+	Client template starts its own NetworkServer and runs some SQL against it.
+	The SQL or JDBC API calls can be modified to reproduce issues
+	 */public class SetTransactionIsolation {
+    public static Statement s;
+
+
+
+    public static void main(String[] args) throws Exception {
+        try {
+            // Load the driver. Not needed for network server.
+
+            Class.forName("org.apache.derby.jdbc.ClientDriver");
+            // Start Network Server
+            startNetworkServer();
+            // If connecting to a customer database. Change the URL
+            Connection conn = DriverManager
+                    .getConnection("jdbc:derby://localhost:1527/wombat;create=true");
+            // clean up from a previous run
+            s = conn.createStatement();
+            try 
+{
+                s.executeUpdate("DROP TABLE T");
+            }
+ catch (SQLException se) 
+{
+                if (!se.getSQLState().equals("42Y55"))
+                    throw se;
+            }
+
+            for (int i = 0; i < 50000; i++) 
+{
+		conn.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+		conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+	    }
+
+            // rs.close();
+            // ps.close();
+            runtimeInfo();
+            conn.close();
+            // Shutdown the server
+            shutdownServer();
+        } catch (SQLException se) {
+            while (se != null) 
+{
+                System.out.println("SQLState=" + se.getSQLState()
+                        + se.getMessage());
+                se.printStackTrace();
+                se = se.getNextException();
+            }
+        }
+    }
+
+    /**
+
+	starts the Network server
+	     */
+    public static void startNetworkServer() throws SQLException {
+        Exception failException = null;
+        try {
+
+
+
+            NetworkServerControl networkServer = new NetworkServerControl(
+                    InetAddress.getByName("localhost"), 1527);
+
+            networkServer.start(new PrintWriter(System.out));
+
+            // Wait for the network server to start
+            boolean started = false;
+            int retries = 10; // Max retries = max seconds to wait
+
+            while (!started && retries > 0) {
+                try 
+{
+                    // Sleep 1 second and then ping the network server
+                    Thread.sleep(1000);
+                    networkServer.ping();
+                    
+                    // If ping does not throw an exception the server has
+                    // started
+                    started = true;
+                }
+ catch (Exception e) 
+{
+                    retries--;
+                    failException = e;
+                }
+
+            }
+
+            // Check if we got a reply on ping
+            if (!started) 
+{
+                throw failException;
+            }
+        } catch (Exception e) 
+{
+            SQLException se = new SQLException("Error starting network  server");
+            se.initCause(failException);
+            throw se;
+        }
+    }
+
+    public static void shutdownServer() throws Exception 
+{
+        NetworkServerControl networkServer = new NetworkServerControl(
+                InetAddress.getByName("localhost"), 1527);
+        networkServer.shutdown();
+    }
+
+    public static void runtimeInfo() throws Exception 
+{
+        NetworkServerControl networkServer = new NetworkServerControl(
+                InetAddress.getByName("localhost"), 1527);
+        System.out.println(networkServer.getRuntimeInfo());
+    }
+
+}

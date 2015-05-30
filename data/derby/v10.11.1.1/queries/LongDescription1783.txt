@@ -1,0 +1,21 @@
+There is a logical error in the following function in DirFile4.java
+for determining which mode to use when opening a new log file:
+
+    public StorageRandomAccessFile getRandomAccessFile( String mode) throws FileNotFoundException
+    
+{
+        // Assume that modes "rws" and "rwd" are not supported.
+        if(!rwsOK && "rws".equals( mode) || "rwd".equals( mode))
+            mode = "rw";
+        return new DirRandomAccessFile4( (File) this, mode);
+    }
+ // end of getRandomAccessFile
+
+The expression in the if test is missing parentheses around the OR
+expression making it return the wrong value for one case. If "rwd"
+mode is requested for the file (and this is supported by the JVM), the
+file is opened with "rw" instead of "rwd".
+
+NOTE: this bug does not effect any current Derby versions since as far
+as I know "rwd" is never used for log files. I came across it when
+experimenting with using "rwd" for the log.

@@ -1,0 +1,29 @@
+In certain cases when compression of temporary files is on Pig scripts fail with following exception:
+
+
+
+java.io.IOException: Stream closed at java.io.BufferedInputStream.getBufIfOpen(BufferedInputStream.java:145) at
+java.io.BufferedInputStream.fill(BufferedInputStream.java:189) at
+java.io.BufferedInputStream.read(BufferedInputStream.java:237) at
+java.io.DataInputStream.readByte(DataInputStream.java:248) at
+org.apache.hadoop.io.file.tfile.Utils.readVLong(Utils.java:196) at
+org.apache.hadoop.io.file.tfile.Utils.readVInt(Utils.java:168) at
+org.apache.hadoop.io.file.tfile.Chunk$ChunkDecoder.readLength(Chunk.java:103) at
+org.apache.hadoop.io.file.tfile.Chunk$ChunkDecoder.checkEOF(Chunk.java:124) at
+org.apache.hadoop.io.file.tfile.Chunk$ChunkDecoder.close(Chunk.java:190) at
+java.io.FilterInputStream.close(FilterInputStream.java:155) at
+org.apache.pig.impl.io.TFileRecordReader.nextKeyValue(TFileRecordReader.java:85) at
+org.apache.pig.impl.io.TFileStorage.getNext(TFileStorage.java:76) at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigRecordReader.nextKeyValue(PigRecordReader.java:187) at
+org.apache.hadoop.mapred.MapTask$NewTrackingRecordReader.nextKeyValue(MapTask.java:474) at
+org.apache.hadoop.mapreduce.MapContext.nextKeyValue(MapContext.java:67) at
+org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:143) at
+org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:676) at
+org.apache.hadoop.mapred.MapTask.run(MapTask.java:336) at org.apache.hadoop.mapred.Child$4.run(Child.java:242) at
+java.security.AccessController.doPrivileged(Native Method) at javax.security.auth.Subject.doAs(Subject.java:396) at
+org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1059) at
+org.apache.hadoop.mapred.Child.main(Child.java:236)
+
+
+
+The workaround is to turn off the compression (pig.tmpfilecompression=false).

@@ -1,0 +1,40 @@
+This happens when we do a union on two relations, if one column comes from a loader, the other matching column comes from a constant, and this column get pruned. We prune for the one from loader and did not prune the constant. Thus leaves union an inconsistent state. Here is a script:
+
+
+
+a = load '1.txt' as (a0, a1:chararray, a2);
+b = load '2.txt' as (b0, b2);
+c = foreach b generate b0, 'hello', b2;
+d = union a, c;
+e = foreach d generate $0, $2;
+dump e;
+
+
+
+1.txt: 
+
+
+ulysses thompson        64      1.90
+katie carson    25      3.65
+
+
+
+2.txt:
+
+
+luke king       0.73
+holly davidson  2.43
+
+
+
+expected output:
+(ulysses thompson,1.90)
+(katie carson,3.65)
+(luke king,0.73)
+(holly davidson,2.43)
+
+real output:
+(ulysses thompson,)
+(katie carson,)
+(luke king,0.73)
+(holly davidson,2.43)

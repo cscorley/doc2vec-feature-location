@@ -1,0 +1,26 @@
+connect 'jdbc:derby:wombat;create=true';
+create table t1(a int ) ;
+create table "t2"(a int ) ;
+– this should fail. 
+create table foo (a int ,  \"YEAR\" int ) ;
+– but this should not fail. But failing
+create table t4 ( b int ) ;
+
+FYI:
+$ java org.apache.derby.tools.ij
+ij version 10.3
+ij> run 'weird1.sql';
+ij> connect 'jdbc:derby:wombat;create=true';
+ij> create table t1(a int ) ;
+0 rows inserted/updated/deleted
+ij> create table "t2"(a int ) ;
+0 rows inserted/updated/deleted
+ij> – this should fail.
+create table foo (a int ,  \"YEAR\" int ) ;
+ERROR 42X02: Lexical error at line 2, column 28.  Encountered: "" (92), after
+: "".
+ij> – but this should not fail. But failing
+create table t4 ( b int ) ;
+ERROR 42X01: Syntax error: Encountered "" at line 2, column 21.
+ij>
+

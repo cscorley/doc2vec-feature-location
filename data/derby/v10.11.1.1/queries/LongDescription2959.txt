@@ -1,0 +1,13 @@
+Following query should fail because we are trying to create a user table with UCS_BASIC character columns when the user schema has collation of territory based.
+CREATE TABLE T AS SELECT TABLENAME FROM SYS.SYSTABLES WITH NO DATA
+
+But the following query should not fail because there are no character string columns involved. This jira entry is to fix the exception that is getting thrown for the query below
+CREATE TABLE T AS SELECT COLUMNNUMBER FROM SYS.SYSCOLUMNS WITH NO DATA
+
+I have put in a fix for this in main using revision 557693. The commit comments were as follows 
+
+This commit has 2 simple fixes (DERBY-2951 which gives assert failure and DERBY-2656 The table will have collation type UCS_BASIC which is different than the collation of the schema TERRITORY_BASED hence this operation is not supported.) 
+
+The failure in DERBY-2951 is because in store, we were not using correct format id and hence collation information was not getting written out and read from disk. Added a test case for this in CollationTest. 
+
+The failure in DERBY-2656 was because of the bug that we were comparing collation type for non-character types. Collation is only applicable to character types and hence we should check for character types before comparing the collation info. Added a test case for this one too. 

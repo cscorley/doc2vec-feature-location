@@ -1,0 +1,6 @@
+A follower/leader should block in Leader.waitForEpochAck() until either electingFollowers contains a quorum and electionFinished=true or until a timeout occurs. A timeout means that a quorum of followers didn't ack the epoch on time, which is an error. 
+
+But the check in Leader.waitForEpochAck() is "if (waitingForNewEpoch) throw..." and this will never be triggered, even if the wait statement just timed out,  because Leader.getEpochToPropose() completes and sets waitingForNewEpoch to false before Leader.waitForEpochAck() is invoked.
+
+Instead of "if (waitingForNewEpoch) throw" the condition in Leader.waitForEpochAck() should be "if (!electionFinished) throw".
+The guarded block introduced in ZK-1191 should be checking !electionFinished.

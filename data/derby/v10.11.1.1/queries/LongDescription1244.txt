@@ -1,0 +1,28 @@
+ij no longer resolves derby.ui.locale after checkin of revision 395088 (for ij --help)
+
+Before this change one could get the following:
+-----------------
+java -Dderby.ui.locale=de_DE org.apache.derby.tools.ij
+IJ Version 10.2
+ij> connect 'jdbc:derby:bladb';
+ij> create table t(c1 int);
+0 Zeilen eingef..gt/aktualisiert/gel..scht
+ij> select x;
+FEHLER 42X01: Syntax error: Encountered "<EOF>" at line 1, column 8.
+ij>
+------------------
+(I replaced the on my system funkily displayed u- and o-umlaut with .. ). 
+Now, the same process goes like this:
+------------------
+$ >java -Dderby.ui.locale=de_DE org.apache.derby.tools.ij
+ij version 10.2
+ij> connect 'jdbc:derby:bladb';
+ij> create table t(c1 int);
+0 rows inserted/updated/deleted
+ij> select x;
+ERROR 42X01: Syntax error: Encountered "<EOF>" at line 1, column 8.
+ij>
+--------------------
+(I'm a little puzzled why even when things apparently worked ok, there is the English 'Syntax error', but that's another issue).
+
+I svn-updated back until the German showed up again, and with revision 395014 all is ok, with 395088 it's wrong.

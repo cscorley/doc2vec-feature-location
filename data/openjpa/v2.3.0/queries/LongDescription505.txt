@@ -1,0 +1,60 @@
+Since the fix for 455, I've found a problem. Oracle has a NUMBER 
+column type, which may be specified with sizes, eg:  NUMBER(7),
+or NUMBER(9,3), but may also be unsized,  eg: NUMBER. Since the
+fix for 455, the new code is failing to  process the "NUMBER
+{0}" template
+for non-sized  columns, so the DDL sent to the DBMS is like: 
+
+CREATE TABLE ABSTRACTMAPPEDAPPIDSUPER ( ..., VERSN NUMBER{0}
+, ... 
+
+which needless to say, dies. 
+
+A change I made to DBDictionary, that fixed this for me is: 
+
+    protected String insertSize(String typeName, String size) { 
+        if(StringUtils.isEmpty(size)) { 
+
+          int idx = typeName.indexOf("
+{0}"); // remove the size token if not needed... 
+          if (idx != -1) { 
+            return typeName.substring(0,idx); 
+          } 
+          return typeName; 
+        } 
+
+        int idx = typeName.indexOf("{0}
+"); 
+... 
+
+
+ie: 
+
+Index: openjpa-jdbc/src/main/java/org/apache/openjpa/jdbc/sql/DBDictionary.java 
+=================================================================== 
+— openjpa-jdbc/src/main/java/org/apache/openjpa/jdbc/sql/DBDictionary.java (revision 610999) 
++++ openjpa-jdbc/src/main/java/org/apache/openjpa/jdbc/sql/DBDictionary.java (working copy) 
+@@ -1648,8 +1648,13 @@ 
+      */ 
+     protected String insertSize(String typeName, String size) { 
+        if(StringUtils.isEmpty(size)) 
+{ 
+- return typeName; 
+- }
+ 
++ 
++ int idx = typeName.indexOf("
+{0}"); 
++ if (idx != -1) { 
++ return typeName.substring(0,idx); 
++ } 
++ return typeName; 
++ } 
+
+         int idx = typeName.indexOf("{0}
+"); 
+         if (idx != -1) { 
+
+Please let me know what you think, and how to absorb this 
+change, or it's purpose. thanks, 
+Joe Weinstein at BEA Systems 

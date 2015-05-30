@@ -1,0 +1,6 @@
+Pig changed LoadCaster interface in 0.9 for typed map (PIG-1876). We change
+bytesToMap(byte[] b, ResourceFieldSchema fieldSchema)
+to
+bytesToMap(byte[] b)
+
+We should provide backward compatibility for old LoadCaster. If we don't find the new bytesToMap, we use the old bytesToMap to convert bytes to map with bytearray value. It is still wrong but at least matching the ability of old behavior.

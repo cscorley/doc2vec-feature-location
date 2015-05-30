@@ -1,0 +1,47 @@
+Copying from email thread.
+
+
+We found our ZK server in a state where an ephemeral node still exists after
+a client session is long gone. I used the cons command on each ZK host to
+list all connections and couldn't find the ephemeralOwner id. We are using
+ZK 3.3.3. Has anyone seen this problem?
+
+I got the following information from the logs.
+
+The node that still exists is /kafka-tracking/consumers/UserPerformanceEvent-<host>/owners/UserPerformanceEvent/529-7
+
+I saw that the ephemeral owner is 86167322861045079 which is session id 0x13220b93e610550.
+
+After searching in the transaction log of one of the ZK servers found that session expired
+
+9/22/11 12:17:57 PM PDT session 0x13220b93e610550 cxid 0x74 zxid 0x601bd36f7 closeSession null
+
+On digging further into the logs I found that there were multiple sessions created in quick succession and every session tried to create the same node. But i verified that the sessions were closed and opened in order
+9/22/11 12:17:56 PM PDT session 0x13220b93e610550 cxid 0x0 zxid 0x601bd36b5 createSession 6000
+9/22/11 12:17:57 PM PDT session 0x13220b93e610550 cxid 0x74 zxid 0x601bd36f7 closeSession null
+9/22/11 12:17:58 PM PDT session 0x13220b93e610551 cxid 0x0 zxid 0x601bd36f8 createSession 6000
+9/22/11 12:17:59 PM PDT session 0x13220b93e610551 cxid 0x74 zxid 0x601bd373a closeSession null
+9/22/11 12:18:00 PM PDT session 0x13220b93e610552 cxid 0x0 zxid 0x601bd373e createSession 6000
+9/22/11 12:18:01 PM PDT session 0x13220b93e610552 cxid 0x6c zxid 0x601bd37a0 closeSession null
+9/22/11 12:18:02 PM PDT session 0x13220b93e610553 cxid 0x0 zxid 0x601bd37e9 createSession 6000
+9/22/11 12:18:03 PM PDT session 0x13220b93e610553 cxid 0x74 zxid 0x601bd382b closeSession null
+9/22/11 12:18:04 PM PDT session 0x13220b93e610554 cxid 0x0 zxid 0x601bd383c createSession 6000
+9/22/11 12:18:05 PM PDT session 0x13220b93e610554 cxid 0x6a zxid 0x601bd388f closeSession null
+9/22/11 12:18:06 PM PDT session 0x13220b93e610555 cxid 0x0 zxid 0x601bd3895 createSession 6000
+9/22/11 12:18:07 PM PDT session 0x13220b93e610555 cxid 0x6a zxid 0x601bd38cd closeSession null
+9/22/11 12:18:10 PM PDT session 0x13220b93e610556 cxid 0x0 zxid 0x601bd38d1 createSession 6000
+9/22/11 12:18:11 PM PDT session 0x13220b93e610557 cxid 0x0 zxid 0x601bd38f2 createSession 6000
+9/22/11 12:18:11 PM PDT session 0x13220b93e610557 cxid 0x51 zxid 0x601bd396a closeSession null
+
+Here is the log output for the sessions that tried creating the same node
+
+9/22/11 12:17:54 PM PDT session 0x13220b93e61054f cxid 0x42 zxid 0x601bd366b create '/kafka-tracking/consumers/UserPerformanceEvent-<hostname>/owners/UserPerformanceEvent/529-7
+9/22/11 12:17:56 PM PDT session 0x13220b93e610550 cxid 0x42 zxid 0x601bd36ce create '/kafka-tracking/consumers/UserPerformanceEvent-<hostname>/owners/UserPerformanceEvent/529-7
+9/22/11 12:17:58 PM PDT session 0x13220b93e610551 cxid 0x42 zxid 0x601bd3711 create '/kafka-tracking/consumers/UserPerformanceEvent-<hostname>/owners/UserPerformanceEvent/529-7
+9/22/11 12:18:00 PM PDT session 0x13220b93e610552 cxid 0x42 zxid 0x601bd3777 create '/kafka-tracking/consumers/UserPerformanceEvent-<hostname>/owners/UserPerformanceEvent/529-7
+9/22/11 12:18:02 PM PDT session 0x13220b93e610553 cxid 0x42 zxid 0x601bd3802 create '/kafka-tracking/consumers/UserPerformanceEvent-<hostname>/owners/UserPerformanceEvent/529-7
+9/22/11 12:18:05 PM PDT session 0x13220b93e610554 cxid 0x44 zxid 0x601bd385d create '/kafka-tracking/consumers/UserPerformanceEvent-<hostname>/owners/UserPerformanceEvent/529-7
+9/22/11 12:18:07 PM PDT session 0x13220b93e610555 cxid 0x44 zxid 0x601bd38b0 create '/kafka-tracking/consumers/UserPerformanceEvent-<hostname>/owners/UserPerformanceEvent/529-7
+9/22/11 12:18:11 PM PDT session 0x13220b93e610557 cxid 0x52 zxid 0x601bd396b create '/kafka-tracking/consumers/UserPerformanceEvent-<hostname>/owners/UserPerformanceEvent/529-7
+
+Let me know if you need additional information.

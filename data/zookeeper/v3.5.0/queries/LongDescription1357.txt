@@ -1,0 +1,40 @@
+Here's what I get:
+
+
+Testcase: testLeaderInConnectingFollowers took 34.117 sec
+Testcase: testLastAcceptedEpoch took 0.047 sec                    <----- new test added in ZK-1343
+Testcase: testLeaderInElectingFollowers took 0.004 sec
+        Caused an ERROR
+Address already in use
+java.net.BindException: Address already in use
+        at java.net.PlainSocketImpl.socketBind(Native Method)
+        at java.net.PlainSocketImpl.bind(PlainSocketImpl.java:383)
+        at java.net.ServerSocket.bind(ServerSocket.java:328)
+        at java.net.ServerSocket.<init>(ServerSocket.java:194)
+        at java.net.ServerSocket.<init>(ServerSocket.java:106)
+        at org.apache.zookeeper.server.quorum.Leader.<init>(Leader.java:220)
+        at org.apache.zookeeper.server.quorum.Zab1_0Test.createLeader(Zab1_0Test.java:711)
+        at org.apache.zookeeper.server.quorum.Zab1_0Test.testLeaderInElectingFollowers(Zab1_0Test.java:225)
+
+Testcase: testNormalFollowerRun took 29.128 sec
+Testcase: testNormalRun took 25.158 sec
+Testcase: testLeaderBehind took 25.148 sec
+Testcase: testAbandonBeforeACKEpoch took 34.029 sec
+
+
+My guess is that testLastAcceptedEpoch doesn't properly close the connection before testLeaderInElectingFollowers starts.
+I propose to add 
+
+if (leadThread != null) 
+{
+                leadThread.interrupt();
+                leadThread.join();
+}
+       
+
+to the test.
+
+
+In addition, I propose to change the hard-wired ports in Zab1_0Test to use Portassignment.unique() as done in other tests. If I understand correctly the static counter used in unique() to assign ports is initialized once per test file, so it would also prevent the problem I'm seeing here of two tests in the same file trying to use the same port. 
+
+The error can be reproduced using the attached patch (for some reason I don't see the problem in the trunk).

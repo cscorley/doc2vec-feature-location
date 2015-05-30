@@ -1,0 +1,12 @@
+After upgrading to Tika 0.10, began having OOM errors processing large amounts of PDFs in parallel. The heap dump indicated that all the memory was getting used up by PDFBox RandomAccessBuffers. After digging around, it looks like PDFBox now defaults to using RAM vs temporary files for PDF extraction. This can be overridden to use RandomAccessFiless. 
+
+I propose that Tika controls file vs buffer based on the inputstream type received. If the TikaInputStream is a file, RandomAccessFile should be used and for other stream types, RandomAccessBuffer can be used. 
+
+I believe the code to control this is here:
+https://github.com/apache/tika/blob/trunk/tika-parsers/src/main/java/org/apache/tika/parser/pdf/PDFParser.java
+
+At ~line 87:
+PDDocument pdfDocument =
+            PDDocument.load(new CloseShieldInputStream(stream), true);
+
+Not sure if this is the best approach and am curious if there are other ideas on how to control this and keep the interface clean. 

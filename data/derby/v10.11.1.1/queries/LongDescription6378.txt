@@ -1,0 +1,22 @@
+ij version 10.10
+ij> connect 'jdbc:derby:memory:db;create=true';
+ij> create table t(x int);
+0 rows inserted/updated/deleted
+ij> insert into t values 1,2,3;
+3 rows inserted/updated/deleted
+ij> select * from t offset 1 row fetch first 1 row only;
+X          
+-----------
+2          
+
+1 row selected
+ij> (select * from t offset 1 row fetch first 1 row only);
+X          
+-----------
+1          
+2          
+3          
+
+3 rows selected
+
+I would have expected that both of the queries had returned a single row.

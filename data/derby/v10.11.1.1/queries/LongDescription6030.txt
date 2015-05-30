@@ -1,0 +1,17 @@
+When an ESCAPE clause contains multiple characters, but only a single collation element, they are accepted as long as it's not a literal:
+
+ij> connect 'jdbc:derby:memory:nodb;create=true;territory=no;collation=TERRITORY_BASED';
+ij> create table t(x varchar(20), y varchar(20), z varchar(20));
+0 rows inserted/updated/deleted
+ij> insert into t values ('abc', 'def', 'aa');
+1 row inserted/updated/deleted
+ij> select * from t where x like y escape z;
+X                   |Y                   |Z                   
+--------------------------------------------------------------
+
+0 rows selected
+
+If the same query is performed with a literal in the ESCAPE clause, the problem is detected and correctly reported:
+
+ij> select * from t where x like y escape 'aa';
+ERROR 22019: Invalid escape sequence, 'aa'. The escape string must be exactly one character. It cannot be a null or more than one character.

@@ -1,0 +1,5 @@
+once the log archive mode that is required for roll-forward recoveryis enabled all the operations are logged including the operations that are not logged normally like create index.But I think the currently derby does not handle the case where  correctly . non-logged operations  that were started before log archive mode is enabled 
+
+This issue was discussed  along with real time online backup  (derby-239) on the list.   Conclusing was to block the existing system procedure  if the non-logged opeation were in progress while enabling the log archive mode.  and  add a new system procedures that will take  extra parameters to deceide whethere to block /fail. 
+
+

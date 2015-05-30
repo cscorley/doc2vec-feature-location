@@ -1,0 +1,23 @@
+currently, we encountered such case: ledger is garbage collected by mistake, and following requests would fail due to NoLedgerException.
+
+
+
+2012-03-23 19:10:47,403 - INFO  [GarbageCollectorThread:GarbageCollectorThread@234] - Garbage collecting deleted ledger index files.
+
+2012-03-23 19:10:48,702 - INFO  [GarbageCollectorThread:LedgerCache@544] - Deleting ledgerId: 89408
+2012-03-23 19:10:48,703 - INFO  [GarbageCollectorThread:LedgerCache@577] - Deleted ledger : 89408
+
+2012-03-23 19:11:10,013 - ERROR [NIOServerFactory-3181:BookieServer@361] - Error writing 1@89408
+org.apache.bookkeeper.bookie.Bookie$NoLedgerException: Ledger 89408 not found
+        at org.apache.bookkeeper.bookie.LedgerCache.getFileInfo(LedgerCache.java:228)
+        at org.apache.bookkeeper.bookie.LedgerCache.updatePage(LedgerCache.java:260)
+        at org.apache.bookkeeper.bookie.LedgerCache.putEntryOffset(LedgerCache.java:158)
+        at org.apache.bookkeeper.bookie.LedgerDescriptor.addEntry(LedgerDescriptor.java:135)
+        at org.apache.bookkeeper.bookie.Bookie.addEntryInternal(Bookie.java:1059)
+        at org.apache.bookkeeper.bookie.Bookie.addEntry(Bookie.java:1099)
+        at org.apache.bookkeeper.proto.BookieServer.processPacket(BookieServer.java:357)
+        at org.apache.bookkeeper.proto.NIOServerFactory$Cnxn.readRequest(NIOServerFactory.java:315)
+        at org.apache.bookkeeper.proto.NIOServerFactory$Cnxn.doIO(NIOServerFactory.java:213)
+        at org.apache.bookkeeper.proto.NIOServerFactory.run(NIOServerFactory.java:124)
+
+

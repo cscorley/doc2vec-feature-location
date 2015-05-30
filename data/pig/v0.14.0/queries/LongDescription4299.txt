@@ -1,0 +1,32 @@
+
+
+for (MemoryPoolMXBean b: mpbeans) {
+            log.debug("Found heap (" + b.getName() +
+                ") of type " + b.getType());
+            if (b.getType() == MemoryType.HEAP) {
+                /* Here we are making the leap of faith that the biggest
+                 * heap is the tenured heap
+                 */
+                long size = b.getUsage().getMax();
+                totalSize += size;
+                if (size > biggestSize) {
+                    biggestSize = size;
+                    biggestHeap = b;
+                }
+            }
+        }
+
+
+
+A memory pool being the biggest MemoryType.HEAP does not guarantee it being tenured. Moreover, we must check whether usage threshold is supported by heap before trying to set usage threshold on it.
+
+Here is the stacktrace that resulted from this bug
+
+java.lang.UnsupportedOperationException: Usage threshold is not supported
+at sun.management.MemoryPoolImpl.setUsageThreshold(MemoryPoolImpl.java:114)
+at org.apache.pig.impl.util.SpillableMemoryManager.<init>(SpillableMemoryManager.java:130)
+at org.apache.pig.impl.util.SpillableMemoryManager.getInstance(SpillableMemoryManager.java:135)
+at org.apache.pig.data.BagFactory.<init>(BagFactory.java:123)
+at org.apache.pig.data.DefaultBagFactory.<init>(DefaultBagFactory.java:69)
+at org.apache.pig.data.BagFactory.getInstance(BagFactory.java:81)
+at search.dashboard.VariableLengthTupleToBag.<clinit>(VariableLengthTupleToBag.java:27)

@@ -1,0 +1,7 @@
+The following script should fail. However, it passed type checking, resulting a backend failure.
+
+A =LOAD 'x' USING PigStorage() AS ( Fint:int, Flong:long, Fdouble:double, Ffloat:float, Fchar:chararray, Fchararray:chararray, Fbytearray:bytearray, Fmap:map[], Fbag:BAG
+{ t:tuple( name, age, avg ) }
+, Ftuple name:chararray, age:int, avg:float) );
+B= FILTER A BY ( Ftuple gte ( 1, 2, 3 ));
+STORE B INTO 'y' USING PigStorage();

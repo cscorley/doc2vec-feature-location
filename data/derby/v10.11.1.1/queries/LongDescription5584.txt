@@ -1,0 +1,48 @@
+Steps to reproduce:
+
+1. Create database, connect to database with any JDBC client
+
+2. create two tables:
+
+CREATE TABLE TEST_5 (
+       profile_id INTEGER NOT NULL,
+       group_ref INTEGER NOT NULL,
+       matched_count INTEGER NOT NULL
+   );
+
+
+   CREATE TABLE TEST_6 (
+       profile_id INTEGER NOT NULL,
+       group_ref INTEGER NOT NULL,
+       matched_count INTEGER NOT NULL
+   );
+
+3. Insert two records for each table:
+
+insert into test_5 values (1, 10000,1);
+insert into test_5 values (2, 10000, 2);
+
+insert into test_6 values (1, 10000,1);
+insert into test_6 values (2, 10000, 2);
+
+4. Run following statement
+
+SELECT *
+FROM
+ (SELECT ps1.group_ref,
+   COUNT(DISTINCT ps1.matched_count) AS matched_count
+ FROM test_5 ps1
+ GROUP BY ps1.group_ref,
+   ps1.profile_id
+ ) a,
+ (SELECT ps2.group_ref,
+   COUNT( DISTINCT ps2.matched_count) AS matched_count
+ FROM test_6 ps2
+ GROUP BY ps2.group_ref,
+   ps2.profile_id
+ ) b
+
+
+As a result I've got 3 records instead of 4 - at least Oracle 10g
+returns 4 records for this statement. Maybe i'm doing something wrong.
+Do you have any suggestions / possible workarounds for this problem

@@ -1,0 +1,12 @@
+You currently can't use a correlation ID in an UPDATE/DELETE statement. This makes it cumbersome to do the following:
+
+UPDATE EMPLOYEE_BONUS
+  SET BONUS = (SELECT SUM(BONUSES.BONUS) FROM BONUSES WHERE 
+          EMPLOYEE_BONUS.EMPL_ID = BONUSES.EMPL_ID);
+
+The use of a correlation ID makes this easier to code.
+
+UPDATE EMPLOYEE E
+  SET BONUS = (SELECT SUM(B.BONUS) FROM BONUSES B WHERE B.EMPL_ID = E.EMPL_ID);
+
+This is particularly important if you get carried away with long SCHEMA and TABLE names!

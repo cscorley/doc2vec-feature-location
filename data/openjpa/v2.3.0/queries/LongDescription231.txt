@@ -1,0 +1,43 @@
+As posted on open-jpa-dev mailing list:
+
+
+
+I'm having a problem merging an entity, here's the simplified structure:
+
+Class A {     @OneToMany(cascade=CascadeType.ALL, mappedBy="parent")
+   Set<B> b_set;
+   ...
+}
+
+Class B {
+   @ManyToOne
+   A parent;
+
+   @OneToMany(cascade=CascadeType.ALL, mappedBy="parent")
+   Set<C> c_set;
+   ...
+}
+
+Class C {
+   @ManyToOne
+   B parent;
+   ...
+}
+
+New instances of A,B,C are persisted correctly. However when I retrieve A, add some entries to A.b_set (with some of the new B entries have attached C's), em.merge(A) fails:
+
+
+	If A is detached:
+
+
+
+    org.apache.openjpa.persistence.ArgumentException: Encountered new object "B@..." in persistent field "C.parent" of managed object "C@..." during attach.  However, this field does not allow cascade attach.  You cannot attach a reference to a new object without cascading.
+
+
+	If A is not detached:
+                 C instances are inserted before B instances, resulting in a foreign key violation.
+
+
+
+Setting openjpa.jdbc.SchemaFactory to 'native(ForeignKeys=true)' does not seem to have an effect.
+

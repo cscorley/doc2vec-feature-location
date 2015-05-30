@@ -1,0 +1,19 @@
+The XHTMLContentHandler utility class is used by many Tika parsers to generate XHTML output. Among other things, the XHTMLContentHandler automatically generates the following XHTML skeleton:
+
+    <html xmlns="http://www.w3.org/1999/xhtml">
+      <head>
+        <title>...</title>
+      </head>
+      <body>
+        ...
+      </body>
+    </html>
+
+The <title/> tag (and potentially other metadata in future) is based on the Metadata.TITLE property of the document being parsed. Unfortunately that metadata is often not yet available when the XHTML generation is started, as a typical usage pattern is:
+
+    XHTMLContentHandler xhtml = new XHTMLContentHandler(handler, metadata);
+    xhtml.startDocument();
+    // parse the document
+    xhtml.endDocument();
+
+We can avoid the problem in many cases by postponing the XHTML prefix generation to when the parser actually starts to produce some SAX events.

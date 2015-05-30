@@ -1,0 +1,14 @@
+Given this "ordinary" Java JAR file
+https://maven.atlassian.com/content/groups/public/com/atlassian/support/healthcheck/support-healthcheck-plugin/1.0.3/support-healthcheck-plugin-1.0.3.jar
+
+Manually inspected and tested it, it is a Jar file and is valid one.
+
+Still, Tika Core's Detector detects it as type application/x-msdownload; format=pe. Tthe detection is "hinted" with file name, hence "jar" hint is present, still it's not detected as desired application/java-archive.
+
+IMO, this happens due to the problem with priority of application/x-msdownload; format=pe, which is 55. If it would be 50, the "mediation" would kick in, see TIKA-1292. 
+
+Changing/overriding magic priority is not possible using custom-mimetypes.xml is also not possible.
+
+Unsure what the correct solution is here, nor how to circumvent this without patching Tika.
+
+The problem affects versions 1.5 but also 1.6, but we target 1.6.

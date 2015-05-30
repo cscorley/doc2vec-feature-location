@@ -1,0 +1,8 @@
+Consider the following commandline:
+
+java -cp /tmp/svncheckout/pig.jar:udf.jar:clusterdir org.apache.pig.Main -e "a = load 'studenttab' using udf.MyPigStorage(); b = order a by $0; dump b;"
+
+
+
+Notice there is no "register udf.jar", instead udf.jar (which contains udf.MyPigStorage) is in the classpath. Pig handles this case by shipping udf.jar to the backend. However the above script with order by triggers the bug with the following error message:
+ ERROR 2997: Unable to recreate exception from backed error: java.lang.RuntimeException: could not instantiate 'org.apache.pig.impl.builtin.RandomSampleLoader' with arguments '[udf.MyPigStorage, 100]'

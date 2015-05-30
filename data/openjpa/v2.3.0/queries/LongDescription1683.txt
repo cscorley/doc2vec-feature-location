@@ -1,0 +1,52 @@
+How the built-in classes for persistent identity value encodes as itself as a String is critical/significant – because 
+a) the encoded string often is decoded to extract the original value for instance look up
+b) for untyped persistence capable instances, the encoded string carries the actual class name – and hence is important to instantiate the actual instance during loading from database
+
+Unfortunately, this important decision about encoding-decoding of identity value is not emphasized with methods such as encode()/decode() on OpenJPAId but encoding is done with ubiquitous Object.toString() and decoding is burried in code lines.  
+
+While it is perhaps important to review this scheme, the immediate issue at hand is somewhat narrower and as follows:
+
+  The root abstract class OpenJPAId has the following toString() implementation
+    public String toString() 
+{
+        return type.getName() + "-" + getIdObject();
+    }
+
+   The concrete implementation such as IntId or FloatId overwrites this behavior as follows:
+
+    IntId.java:
+           private final int key;
+
+    public String toString() 
+{
+        return String.valueOf(key);
+    }
+
+   FloatId.java:
+           private final float key;
+    public String toString() 
+{
+        return Float.toString(key);
+    }
+
+  Apart from the subtle difference (but why), they look to be following the same principle, i.e. just stringify the value.
+
+  But the interesting part is LongId does not have a toString() method.
+  Hence its toString() form is dictated by its abstract super class OpenJPAId which appends the class name with a dash character to the actual long value of the identity.
+
+  I can not figure out the reason of this anomaly  for long identifier as opposed to other Short/Integer or Float etc.
+  The risk  of simply adding a toString() to LongId that is in line with other id types, of course, a) breaking any existing application that may be assuming the previous  encoding
+b) the unknown original reason behind not overwriting LongId.toString() method
+
+   Can someone please, please answer/shed some light? 
+
+   It is critical for some direction I am pursuing to support generic/templated types where exact types are not determinable at compile/design time.
+
+   Without an answer, I will commit the change on LongId to have a toString() method. 
++
++    public String toString() 
+{
++        return String.valueOf(key);
++    }
+
+

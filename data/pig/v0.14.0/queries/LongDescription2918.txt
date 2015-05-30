@@ -1,0 +1,2 @@
+We use BagFactory.newDefaultBag() liberally, and pay a price – each such bag registers with the spillable memory manager, and if we allocate a lot of tiny bags, we wind up paying for maintaining and cleaning up the internal linked list of weak references. 
+In many cases, we know a-priori that the bags are smal, and should probably be creating non-spillable bags for those cases.

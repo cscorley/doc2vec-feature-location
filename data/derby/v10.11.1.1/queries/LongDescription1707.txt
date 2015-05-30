@@ -1,0 +1,77 @@
+After we get the NPE, any other operation gives:
+ERROR 40XT0: An internal error was identified by RawStore module.
+
+Specifying constraint=null as an optimizer override is actually a usage error. I tried this thinking it is allowed like index=null which can be used to force a table scan. But specifying constraint=null gives a NPE and other operations give the above error. I am attaching a repro 'illegal_overrides.sql'. 
+
+Found this when testing with 10.2.1.0 beta. Stack traces below:
+
+ij> — specifying null value for constraint gives NPE
+SELECT * FROM t1 --DERBY-PROPERTIES constraint=null
+;
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+java.lang.NullPointerException
+        at org.apache.derby.impl.sql.compile.FromBaseTable.verifyProperties(Unknown Source)
+        at org.apache.derby.impl.sql.compile.ProjectRestrictNode.verifyProperties(Unknown Source)
+        at org.apache.derby.impl.sql.compile.FromList.verifyProperties(Unknown Source)
+        at org.apache.derby.impl.sql.compile.OptimizerImpl.<init>(Unknown Source)
+        at org.apache.derby.impl.sql.compile.Level2OptimizerImpl.<init>(Unknown Source)
+        at org.apache.derby.impl.sql.compile.Level2OptimizerFactoryImpl.getOptimizerImpl(Unknown Sou
+rce)
+        at org.apache.derby.impl.sql.compile.OptimizerFactoryImpl.getOptimizer(Unknown Source)
+        at org.apache.derby.impl.sql.compile.ResultSetNode.getOptimizer(Unknown Source)
+        at org.apache.derby.impl.sql.compile.SelectNode.optimize(Unknown Source)
+        at org.apache.derby.impl.sql.compile.DMLStatementNode.optimize(Unknown Source)
+        at org.apache.derby.impl.sql.compile.CursorNode.optimize(Unknown Source)
+        at org.apache.derby.impl.sql.GenericStatement.prepMinion(Unknown Source)
+        at org.apache.derby.impl.sql.GenericStatement.prepare(Unknown Source)
+        at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(
+Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+        at org.apache.derby.impl.tools.ij.ij.executeImmediate(Unknown Source)
+        at org.apache.derby.impl.tools.ij.utilMain.doCatch(Unknown Source)
+        at org.apache.derby.impl.tools.ij.utilMain.runScriptGuts(Unknown Source)
+        at org.apache.derby.impl.tools.ij.utilMain.go(Unknown Source)
+        at org.apache.derby.impl.tools.ij.Main.go(Unknown Source)
+        at org.apache.derby.impl.tools.ij.Main.mainCore(Unknown Source)
+        at org.apache.derby.impl.tools.ij.Main14.main(Unknown Source)
+        at org.apache.derby.tools.ij.main(Unknown Source)
+ij> — something goes wrong in validation of properties after we get the NPE
+SELECT * FROM t1 --DERBY-PROPERTIES constrant=cons1
+;
+ERROR 40XT0: An internal error was identified by RawStore module.
+ERROR 40XT0: An internal error was identified by RawStore module.
+        at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+        at org.apache.derby.impl.store.raw.xact.Xact.setActiveState(Unknown Source)
+        at org.apache.derby.impl.store.raw.xact.Xact.openContainer(Unknown Source)
+        at org.apache.derby.impl.store.access.conglomerate.OpenConglomerate.init(Unknown Source)
+        at org.apache.derby.impl.store.access.heap.Heap.open(Unknown Source)
+        at org.apache.derby.impl.store.access.RAMTransaction.openConglomerate(Unknown Source)
+        at org.apache.derby.impl.store.access.RAMTransaction.openConglomerate(Unknown Source)
+        at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.getDescriptorViaIndex(Unknown Source
+)
+        at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.locateSchemaRow(Unknown Source)
+        at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.getSchemaDescriptor(Unknown Source)
+        at org.apache.derby.impl.sql.compile.QueryTreeNode.getSchemaDescriptor(Unknown Source)
+        at org.apache.derby.impl.sql.compile.QueryTreeNode.getSchemaDescriptor(Unknown Source)
+        at org.apache.derby.impl.sql.compile.FromBaseTable.bindTableDescriptor(Unknown Source)
+        at org.apache.derby.impl.sql.compile.FromBaseTable.bindNonVTITables(Unknown Source)
+        at org.apache.derby.impl.sql.compile.FromList.bindTables(Unknown Source)
+        at org.apache.derby.impl.sql.compile.SelectNode.bindNonVTITables(Unknown Source)
+        at org.apache.derby.impl.sql.compile.DMLStatementNode.bindTables(Unknown Source)
+        at org.apache.derby.impl.sql.compile.DMLStatementNode.bind(Unknown Source)
+        at org.apache.derby.impl.sql.compile.CursorNode.bind(Unknown Source)
+        at org.apache.derby.impl.sql.GenericStatement.prepMinion(Unknown Source)
+        at org.apache.derby.impl.sql.GenericStatement.prepare(Unknown Source)
+        at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(
+Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+        at org.apache.derby.impl.tools.ij.ij.executeImmediate(Unknown Source)
+        at org.apache.derby.impl.tools.ij.utilMain.doCatch(Unknown Source)
+        at org.apache.derby.impl.tools.ij.utilMain.runScriptGuts(Unknown Source)
+        at org.apache.derby.impl.tools.ij.utilMain.go(Unknown Source)
+        at org.apache.derby.impl.tools.ij.Main.go(Unknown Source)
+        at org.apache.derby.impl.tools.ij.Main.mainCore(Unknown Source)
+        at org.apache.derby.impl.tools.ij.Main14.main(Unknown Source)
+        at org.apache.derby.tools.ij.main(Unknown Source)

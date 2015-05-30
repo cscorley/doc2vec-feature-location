@@ -1,0 +1,16 @@
+The implementations of CatalogRowFactory.buildColumnList() can be simplified in a number of ways:
+  1) precision & scale are always passed in as zero and can be removed
+   2) adding static factory methods to SystemColumnImpl would ease the building of the arrays by not requiring the additional redundant arguments the constructor call forces today, e.g. max length i snot required to create an INTEGER column.
+    3) The column's position is not required to be stored in the SytstemColumn class, it's defined by the position in the array
+
+4) arrays can be built using
+          new SystemColumn[] 
+{ ... }
+     syntax instead of the existing
+            columnList[0] = ...
+            columnList[1] = ...
+
+      or
+
+            columnList[index++] = ...
+            columnList[index++] = ...

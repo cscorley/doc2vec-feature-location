@@ -1,0 +1,35 @@
+The following script fails:
+
+d1 = load 'test_data.txt' USING PigStorage() AS (f1: int, f2: int, f3: int, f4: int);
+d2 = load 'test_data.txt' USING PigStorage() AS (f1: int, f2: int, f3: int, f4: int);
+– the sorting causes the error
+n1 = foreach (group d1 by f1) 
+{
+	sorted = ORDER d1 by f2;
+	generate group, flatten(d1.f3) as x3;
+}
+;
+n2 = foreach (group d2 by f1) 
+{
+	sorted = ORDER d2 by f2;
+	generate group, flatten(d2.f3) as q3;
+}
+;
+describe n1;
+describe n2;
+
+joined = join n1 by (x3), n2 by (q3);
+describe joined;
+final = foreach joined generate n1::x3;
+dump final;
+
+– selected output below
+n1: 
+{group: int,x3: int}
+n2: 
+{group: int,q3: int}
+joined: 
+{n1::group: int,n1::x3: int,n2::group: int,n2::q3: int}
+2014-03-11 19:16:35 ERROR Grunt:125 - ERROR 1025: 
+<file , line 17, column 32> Invalid field projection. Projected field [n1::x3] does not exist in schema: n1::f1:int,n1::f2:int,n1::f3:int,n1::f4:int,n2::f1:int,n2::f2:int,n2::f3:int,n2::f4:int.
+Details at logfile: 

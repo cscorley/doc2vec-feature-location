@@ -1,0 +1,15 @@
+A = LOAD 'job_confs' USING org.apache.hcatalog.pig.HCatLoader();
+B = FILTER A by grid == 'cluster1' and dt < '2012_12_01' and dt > '2012_11_20';
+C = FILTER B by params#'mapreduce.job.user.name' == 'userx';
+D = FOREACH B generate dt, grid, params#'mapreduce.job.user.name' as user,
+params#'mapreduce.job.name' as job_name, job_id,
+params#'mapreduce.job.cache.files';
+dump D;
+
+The query gives the below warning and ends up scanning the whole table instead of pushing the partition key filters grid and dt.
+
+[main] WARN  org.apache.pig.newplan.PColFilterExtractor - No partition filter
+push down: Internal error while processing any partition filter conditions in
+the filter after the load
+
+Works fine if the second filter is on a column with simple datatype like chararray instead of map.

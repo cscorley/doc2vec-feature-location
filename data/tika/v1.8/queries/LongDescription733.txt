@@ -1,0 +1,14 @@
+Parsing some RTF documents attempt to perform a removeLast() on the groupStates() list when the list is empty.  Added a check to not perform the logic when the list is empty, thus causing the restore group state to not be performed. Text extraction now completes without further down-stream errors.
+
+Unable to include sample file due to sensitive nature of file contents.
+
+StackTrace (TIKA-0.9)
+
+Caused by: java.util.NoSuchElementException
+	at java.util.LinkedList.remove(LinkedList.java:788)
+	at java.util.LinkedList.removeLast(LinkedList.java:144)
+	at org.apache.tika.parser.rtf.TextExtractor.processGroupEnd(TextExtractor.java:1010)
+	at org.apache.tika.parser.rtf.TextExtractor.extract(TextExtractor.java:352)
+	at org.apache.tika.parser.rtf.RTFParser.parse(RTFParser.java:53)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+	... 45 more

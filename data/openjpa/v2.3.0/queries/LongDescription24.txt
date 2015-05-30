@@ -1,0 +1,43 @@
+The current OpenJPA architecture is not extendable to other implementations.  For example, if somebody wanted to provide their own PersistenceProvider implementation, simply extending the org.apache.openjpa.PersistenceProviderImpl would not suffice due to the dependencies in the ConfigurationProviderImpl.  The discussion for this improvement was started on the dev mailing list.  Once it was determined that there was more to this request than a simple conditional or two, we decided to open a JIRA report.
+
+The complete history of this request can be found in the OpenJPA dev mailing list.  The first message was posted by me (Kevin Sutter) on August 14, titled "Extending the OpenJPA Implementation".  I will attempt to paraphrase the current state of the problem...
+
+We have three main players in this issue.  The PersistenceProvider, the ConfigurationProvider, and the ProductDerivation (along with the various implementations of these interfaces).  Currently, the ConfigurationProvider is in the lib and is unaware of any specific persistence requirements.  The ProductDerivation is in the kernel and, unfortunately, is aware of persistence requirements, specifically the spec and store types.  Abe's postings have indicated that we need to make these two interfaces more aware of each other and work with each other.  We need to start with either making ConfigurationProvider more persistence-aware and move it into kernel, or make ProductDerivations less persistence-aware and move it into lib.  The latter approach is preferred.
+
+After we get this re-organization of the base framework complete, we still have a couple of other issues ot resolve:
+
+
+	Still need the ability to extend EMF's through a ProductDerivation.  This should be doable by adding a new PluginValue to indicate what class of EMF to load.
+
+
+
+
+	There is still a question as to whether we will need to provide a custom PersistenceProviderImpl and ConfigurationProviderImpl pair.  I still think this will be necessary.   And, one of Abe's posts indicated that this might help with class loading issues when multiple versions of OpenJPA-based implementations are available in the same system.
+
+
+
+I also posted these questions last Friday.  (Abe has responded with some answers, but I wanted to get this JIRA report created before trying to paraphrase his answers.)
+
+
+	You mention in several places about separating away the notion of specs and stores.  In a general sense, I understand what these are.  But, can you elaborate on how these types are used in the ConfigurationProvider and ProductDerivation interfaces?
+
+
+
+
+	I've moved the ProductDerivation interface to the lib and added the "load" methods from the ConfigurationProvider (as described in your previous notes).  And, I've started to clean up the implementations that depend on these interfaces.  But, concerning the implementation of the load methods...  Now that we need to return a ConfigurationProvider, would you expect that we just new up a ConfigurationProviderImpl and then just call across to the "load" methods on the implementation?  Since we want to keep the ProductDerivations stateless, I'm not sure how else you were expecting to create a ConfigurationProvider to return on these "load" methods.
+
+
+
+
+	Now that ConfigurationProvider is bare, the ConfigurationTestConfigurationProvider doesn't have much function.  I'll need to take a look to see if this is even required any longer.
+
+
+
+
+	Can you shed a bit more light on the Configurations class?  It doesn't implement nor extend any interfaces or classes, but it seems to provide many of the same methods as ConfigurationProvider, but as statics.  And, it's dependent on having a Provider.  Can you explain the relationship of this class in the bigger picture and how you think it might be affected by thes changes?
+
+
+
+That's enough for the initial JIRA report.  We will now track this problem here instead of the dev mailing list.  Thanks.
+
+Kevin

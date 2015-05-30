@@ -1,0 +1,32 @@
+When trying to extract an XPI file (Firefox extenstion, which probably is not a best candidate for extract) I got the below exception.
+It was caused by SYSTEM entities refering the chrome:// protocol.
+However, obviously any XML file that contains SYSTEM entities which can not be accessed at the time of extraction will not be extracted properly.
+
+Here is the stack trace:
+
+java.net.MalformedURLException: unknown protocol: chrome
+   at java.net.URL.<init>(URL.java:574)
+   at java.net.URL.<init>(URL.java:464)
+   at java.net.URL.<init>(URL.java:413)
+   at org.apache.xerces.impl.XMLEntityManager.setupCurrentEntity(Unknown Source)
+   at org.apache.xerces.impl.XMLEntityManager.startEntity(Unknown Source)
+   at org.apache.xerces.impl.XMLEntityManager.startEntity(Unknown Source)
+   at org.apache.xerces.impl.XMLDTDScannerImpl.startPE(Unknown Source)
+   at org.apache.xerces.impl.XMLDTDScannerImpl.skipSeparator(Unknown Source)
+   at org.apache.xerces.impl.XMLDTDScannerImpl.scanDecls(Unknown Source)
+   at org.apache.xerces.impl.XMLDTDScannerImpl.scanDTDInternalSubset(Unknown Source)
+   at org.apache.xerces.impl.XMLDocumentScannerImpl$DTDDispatcher.dispatch(Unknown Source)
+   at org.apache.xerces.impl.XMLDocumentFragmentScannerImpl.scanDocument(Unknown Source)
+   at org.apache.xerces.parsers.XML11Configuration.parse(Unknown Source)
+   at org.apache.xerces.parsers.XML11Configuration.parse(Unknown Source)
+   at org.apache.xerces.parsers.XMLParser.parse(Unknown Source)
+   at org.apache.xerces.parsers.AbstractSAXParser.parse(Unknown Source)
+   at javax.xml.parsers.SAXParser.parse(SAXParser.java:395)
+   at javax.xml.parsers.SAXParser.parse(SAXParser.java:198)
+   at org.apache.tika.parser.xml.XMLParser.parse(XMLParser.java:57)
+   at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:108)
+   at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:80)
+   at org.apache.tika.parser.pkg.PackageParser.parseEntry(PackageParser.java:93)
+   at org.apache.tika.parser.pkg.ZipParser.parse(ZipParser.java:56)
+   at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:108)
+   at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:80)

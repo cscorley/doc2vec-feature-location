@@ -1,0 +1,33 @@
+There is a section in the SysInfo tool's output titled "Derby Information", which prints location and version information for the major Derby jars. Here is an example of that output:
+
+--------- Derby Information --------
+JRE - JDBC: J2SE 1.4.2 - JDBC 3.0
+[/home/bpendleton/src/derby-subversion/trunk/jars/insane/derby.jar] 10.2.0.0 alpha - (315052M)
+[/home/bpendleton/src/derby-subversion/trunk/jars/insane/derbytools.jar] 10.2.0.0 alpha - (315052M)
+[/home/bpendleton/src/derby-subversion/trunk/jars/insane/derbynet.jar] 10.2.0.0 alpha - (315052M)
+[/home/bpendleton/src/derby-subversion/trunk/jars/insane/derbyclient.jar] 10.2.0.0 alpha - (315052M)
+[/home/bpendleton/downloads/derby/db2jcc/lib/db2jcc.jar] 2.4 - (17)
+[/home/bpendleton/downloads/derby/db2jcc/lib/db2jcc_license_c.jar] 2.4 - (17)
+
+Unfortunately, this tool can be fooled if you arrange for one of these jar files to be loaded from a magic location like $JAVA_HOME/jre/lib/ext.
+
+For example, I had (accidentally) placed an old version of db2jcc.jar into $JAVA_HOME/jre/lib/ext. When I ran SysInfo, it printed out: 
+
+--------- Derby Information --------
+JRE - JDBC: J2SE 1.4.2 - JDBC 3.0
+[/home/bpendleton/src/derby-subversion/trunk/jars/insane/derby.jar] 10.2.0.0 alpha - (315052M)
+[/home/bpendleton/src/derby-subversion/trunk/jars/insane/derbytools.jar] 10.2.0.0 alpha - (315052M)
+[/home/bpendleton/src/derby-subversion/trunk/jars/insane/derbynet.jar] 10.2.0.0 alpha - (315052M)
+[/home/bpendleton/src/derby-subversion/trunk/jars/insane/derbyclient.jar] 10.2.0.0 alpha - (315052M)
+[/home/bpendleton/downloads/derby/db2jcc/lib/db2jcc.jar] 1.0 - (581)
+[/home/bpendleton/downloads/derby/db2jcc/lib/db2jcc_license_c.jar] 1.0 - (581)
+
+However, the "1.0 (581)" information actually came from $JAVA_HOME/jre/lib/ext/db2jcc.jar, NOT from
+/home/bpendleton/downloads/derby/db2jcc/lib/db2jcc.jar.
+
+It would be nice if SysInfo could detect the difference between a jar file being loaded via the application class loader using $CLASSPATH, and a jar file being loaded via the system class loader using JDK library extensions.
+
+To reproduce the problem, simply:
+1) Place an older version of db2jcc.jar into $JAVA_HOME/jre/lib/ext
+2) Place a newer version of db2jcc.jar into your $CLASSPATH
+3) Run SysInfo. You will see that it prints the name of the jarfile from $CLASSPATH, but the version info from the JDK copy.

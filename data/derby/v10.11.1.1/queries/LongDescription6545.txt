@@ -1,0 +1,55 @@
+According to the 2011 edition of the SQL Standard, the only alterations allowed on identity columns are the following:
+
+1) changing the identity properties of the column
+
+2) causing the column to cease to be an identity column
+
+This is described in part 2, section 11.2 (alter column definition), syntax rule 6. However, Derby allows you to add a default to an identity column. It's clear from the CREATE TABLE syntax that a column can't both have a default and be an identity column. A side-effect of using ALTER TABLE to add a default to an identity column is this: the column ceases to be an identity column. The following script output shows this Derby behavior:
+
+
+ij version 10.11
+ij> connect 'jdbc:derby:memory:db;create=true';
+ij> create table t1_01
+(
+    a int generated always as identity ( start with 10, increment by 20 ),
+    b int
+);
+0 rows inserted/updated/deleted
+ij> -- should not succeed but does
+alter table t1_01 alter column a default 99;
+0 rows inserted/updated/deleted
+ij> mainline (1.8) > runsql zzz
+ij version 10.11
+ij> connect 'jdbc:derby:memory:db;create=true';
+ij> create table t1_01
+(
+    a int generated always as identity ( start with 10, increment by 20 )
+);
+0 rows inserted/updated/deleted
+ij> select c.autoincrementvalue, c.autoincrementstart, c.autoincrementinc, c.columndefault
+from sys.syscolumns c, sys.systables t
+where c.referenceid = t.tableid
+and t.tablename = 'T1_01';
+AUTOINCREMENTVALUE  |AUTOINCREMENTSTART  |AUTOINCREMENTINC    |COLUMNDEFAULT  
+------------------------------------------------------------------------------
+10                  |10                  |20                  |NULL           
+
+1 row selected
+ij> -- should not succeed but does
+alter table t1_01 alter column a default 99;
+0 rows inserted/updated/deleted
+ij> select c.autoincrementvalue, c.autoincrementstart, c.autoincrementinc, c.columndefault
+from sys.syscolumns c, sys.systables t
+where c.referenceid = t.tableid
+and t.tablename = 'T1_01';
+AUTOINCREMENTVALUE  |AUTOINCREMENTSTART  |AUTOINCREMENTINC    |COLUMNDEFAULT  
+------------------------------------------------------------------------------
+NULL                |NULL                |NULL                |99             
+
+1 row selected
+
+
+
+Fixing this deviation from the Standard will create a backward incompatibility. However, it is hard to imagine that any production application relies on this deviation. This is the sort of schema evolution which one tests out in the laboratory or resorts to during an application upgrade. A judicious use of RENAME COLUMN and ALTER TABLE should provide a usable workaround.
+
+For that reason, I think that we should correct this deviation.

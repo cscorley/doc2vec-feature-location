@@ -1,0 +1,22 @@
+The following sample code snippet may yield a OptimisticLockException.
+
+    Query tc_query = itemManager.createNamedQuery("TypeCategory.find_tc").setParameter("product_id", new Integer(product_id));		
+    tc_query.setLockMode(LockModeType.PESSIMISTIC_READ);
+    Collection typeCat = tc_query.getResultList();
+
+This is a incorrect behavior per JPA 2.0 spec:
+
+public interface Query {
+  /**
+
+	Execute a SELECT query and return the query results
+	as an untyped List.
+	@return a list of the results
+	@throws IllegalStateException if called for a Java Persistence query language UPDATE or DELETE statement
+	@throws QueryTimeoutException if the query execution exceeds the query timeout value set
+	@throws TransactionRequiredException if a lock mode has been set and there is no transaction
+	@throws PessimisticLockException if pessimistic locking fails and the transaction is rolled back
+	@throws LockTimeoutException if pessimistic locking fails and only the statement is rolled back
+   */
+  List getResultList();
+

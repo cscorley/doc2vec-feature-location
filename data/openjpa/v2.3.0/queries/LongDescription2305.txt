@@ -1,0 +1,6 @@
+The generated source code for canonical metamodel classes mirrored the same inheritance hierarchy of the domain classes. This strategy exposed an error that resulted in wrong target SQL query under the following domain model 
+a) A @MappedSuperClass M defined a primary key field x
+b) The primary key field x is an @EmbeddedId E
+c) An @Entity class D derived from M and navigated to the fields of E via x
+
+The solution is to generate canonical class D_.java as a flattened structure instead of inheriting from M_.java (as is done currently). 

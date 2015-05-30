@@ -1,0 +1,5 @@
+we found that the publish throughput drops down when one bookie server ran out of disk space (due to we don't do log rotation   which exhausts disk space). 
+
+did some investigation, we found that bookie server doesn't quit when encountering no disk space issue. so hub server treat this bookie server as available. The adding requests would be sent to this bookie server, some adding requests are put in journal queue to flush, but the journal flush thread has quit due to no disk space. so these adding requests didn't respond to bookie client until it read timeout and chose other bookie servers.
+
+we did an experiment to shut down the ran-out-of-disk-space bookie, the publish throughput went up again quickly.

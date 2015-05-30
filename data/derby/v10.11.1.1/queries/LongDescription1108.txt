@@ -1,0 +1,3 @@
+The test  jdbcapi/setTransactionIsolation.java fails with ibmjvm15.  I think the cause of this failure is , the jvm is not throwing an exception while trying to change the transaction isolation when there is holdable cursor on  a resultset. Other jvms like sun jdk1.5, ibm142 throws the expected exception. while ibm15 does allow to change the transaction isolation when there is a hold cursor on a result set.
+
+Already reported this issue with the ibmjvm people and they are looking in to it

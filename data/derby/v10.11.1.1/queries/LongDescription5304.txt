@@ -1,0 +1,47 @@
+With trunk I see the following failure:
+
+1) test_derby_4779(org.apache.derbyTesting.functionTests.tests.lang.GeneratedColumnsTest)java.sql.SQLException: No method was found that matched the method call java.lang.Integer.signum(int), tried all combinations of object and primitive types and any possible type conversion for any  parameters the method call may have. The method might exist but it is not public and/or static, or the parameter types are not method invocation convertible.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.ConnectionChild.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.<init>(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement20.<init>(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement30.<init>(Unknown Source)
+	at org.apache.derby.jdbc.Driver30.newEmbedPreparedStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.prepareStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.prepareStatement(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.lang.GeneratedColumnsHelper.chattyPrepare(GeneratedColumnsHelper.java:166)
+	at org.apache.derbyTesting.functionTests.tests.lang.GeneratedColumnsHelper.goodStatement(GeneratedColumnsHelper.java:144)
+	at org.apache.derbyTesting.functionTests.tests.lang.GeneratedColumnsTest.test_derby_4779(GeneratedColumnsTest.java:5496)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java(Compiled Code))
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java(Compiled Code))
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java(Compiled Code))
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java(Compiled Code))
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+Caused by: ERROR 42X50: No method was found that matched the method call java.lang.Integer.signum(int), tried all combinations of object and primitive types and any possible type conversion for any  parameters the method call may have. The method might exist but it is not public and/or static, or the parameter types are not method invocation convertible.
+	at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+	at org.apache.derby.impl.sql.compile.MethodCallNode.throwNoMethodFound(Unknown Source)
+	at org.apache.derby.impl.sql.compile.MethodCallNode.resolveMethodCall(Unknown Source)
+	at org.apache.derby.impl.sql.compile.StaticMethodCallNode.bindExpression(Unknown Source)
+	at org.apache.derby.impl.sql.compile.JavaToSQLValueNode.bindExpression(Unknown Source)
+	at org.apache.derby.impl.sql.compile.GenerationClauseNode.bindExpression(Unknown Source)
+	at org.apache.derby.impl.sql.compile.TableElementList.bindAndValidateGenerationClauses(Unknown Source)
+	at org.apache.derby.impl.sql.compile.CreateTableNode.bindStatement(Unknown Source)
+	at org.apache.derby.impl.sql.GenericStatement.prepMinion(Unknown Source)
+	at org.apache.derby.impl.sql.GenericStatement.prepare(Unknown Source)
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(Unknown Source)
+	... 41 more
+
+I know Rick has been pushing the horse pulling the cart so we longer need to support 1.4.2 with 10.9, but that decision hasn't been made yet, so I have not stopped running the tests with this jvm.
+
+A simple if to prevent this test from running with jdk 1.4.2 is probably ok, considering our intention for 1.4.2.

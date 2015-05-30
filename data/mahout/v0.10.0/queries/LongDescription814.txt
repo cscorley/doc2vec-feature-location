@@ -1,0 +1,35 @@
+Running Mahout in an environment with Jenkins also running and am getting:
+
+java.io.FileNotFoundException: /tmp/q-temp.seq (Permission denied)
+        at java.io.FileOutputStream.open(Native Method)
+        at java.io.FileOutputStream.<init>(FileOutputStream.java:209)
+        at org.apache.hadoop.fs.RawLocalFileSystem$LocalFSFileOutputStream.<init>(RawLocalFileSystem.java:187)
+        at org.apache.hadoop.fs.RawLocalFileSystem$LocalFSFileOutputStream.<init>(RawLocalFileSystem.java:183)
+        at org.apache.hadoop.fs.RawLocalFileSystem.create(RawLocalFileSystem.java:241)
+        at org.apache.hadoop.fs.ChecksumFileSystem$ChecksumFSOutputSummer.<init>(ChecksumFileSystem.java:335)
+        at org.apache.hadoop.fs.ChecksumFileSystem.create(ChecksumFileSystem.java:368)
+        at org.apache.hadoop.fs.FileSystem.create(FileSystem.java:528)
+        at org.apache.hadoop.io.SequenceFile$BlockCompressWriter.<init>(SequenceFile.java:1198)
+        at org.apache.hadoop.io.SequenceFile.createWriter(SequenceFile.java:401)
+        at org.apache.hadoop.io.SequenceFile.createWriter(SequenceFile.java:284)
+        at org.apache.mahout.math.hadoop.stochasticsvd.qr.QRFirstStep.getTempQw(QRFirstStep.java:263)
+        at org.apache.mahout.math.hadoop.stochasticsvd.qr.QRFirstStep.flushSolver(QRFirstStep.java:104)
+        at org.apache.mahout.math.hadoop.stochasticsvd.qr.QRFirstStep.map(QRFirstStep.java:175)
+        at org.apache.mahout.math.hadoop.stochasticsvd.qr.QRFirstStep.collect(QRFirstStep.java:279)
+        at org.apache.mahout.math.hadoop.stochasticsvd.QJob$QMapper.map(QJob.java:142)
+        at org.apache.mahout.math.hadoop.stochasticsvd.QJob$QMapper.map(QJob.java:71)
+        at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144)
+        at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:764)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:370)
+        at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:212)
+
+Also seeing the following tests fail:
+
+
+Tests in error: 
+  testSSVDSolverSparse(org.apache.mahout.math.hadoop.stochasticsvd.LocalSSVDSolverSparseSequentialTest): Q job unsuccessful.
+  testSSVDSolverPowerIterations1(org.apache.mahout.math.hadoop.stochasticsvd.LocalSSVDSolverSparseSequentialTest): Q job unsuccessful.
+  testSSVDSolverPowerIterations1(org.apache.mahout.math.hadoop.stochasticsvd.LocalSSVDSolverDenseTest): Q job unsuccessful.
+  testSSVDSolverDense(org.apache.mahout.math.hadoop.stochasticsvd.LocalSSVDSolverDenseTest): Q job unsuccessful.
+
+I haven't checked all of them, but I suspect they are all due to the same reason.  We should dynamically create a temp area for each test using temporary directories under the main temp dir.

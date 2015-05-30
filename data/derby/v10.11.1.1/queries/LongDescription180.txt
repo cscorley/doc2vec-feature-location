@@ -1,0 +1,19 @@
+In the messages_en.properties file, there are two items that are similar:
+
+XCL47.S=Use of ''
+{0}
+'' requires database to be upgraded from version 
+{1}
+ to version 
+{2}
+ or later.
+XCL478.S=The requested function can not reference tables in SESSION schema.
+
+SQLSTATEs are supposed to be 5 characters long. When I issue a CREATE VIEW on a SESSION table, I receive the proper error message:
+
+ij> declare global temporary table x (a int) not logged;
+0 rows inserted/updated/deleted
+ij> create view z as (select * from session.x);
+ERROR XCL47: The requested function can not reference tables in SESSION schema.
+
+So, was XCL478 truncated to XCL47? Does this mean that if I tried to do something that invokes the other version of XCL47 that I will get the wrong message? I suspect one of the message numbers needs to be changed and that the SQL error be fixed to be 5 characters long instead of 6.

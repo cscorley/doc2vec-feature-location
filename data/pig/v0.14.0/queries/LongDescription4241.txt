@@ -1,0 +1,15 @@
+The current implementation of auto local mode has two severe problems-
+
+	It assumes file-based inputs, and it always converts jobs with non-file-based inputs into local mode unless the LoadMetadata.getStatistics().getSizeInBytes() returns >100M. This is particularly problematic when using Pig with Hive tables with custom LoadFuncs that did not implement LoadMetadata interface.
+	It lists all the files to compute the total size. The algorithm is like this. First, compute the total size. Second, compare it against the configured max bytes. This is very time-consuming when Pig job loads a large number of files. It will list all the files only to compute the total size. Instead, we should stop computing the sum of input sizes as soon as it becomes the max bytes-
+JobControlCompiler.java
+
+long totalInputFileSize = InputSizeReducerEstimator.getTotalInputFileSize(conf, lds, job); // THIS IS BAD!
+long inputByteMax = conf.getLong(PigConfiguration.PIG_AUTO_LOCAL_INPUT_MAXBYTES, 100*1000*1000l);
+log.info("Size of input: " + totalInputFileSize +" bytes. Small job threshold: " + inputByteMax );
+if (totalInputFileSize < 0 || totalInputFileSize > inputByteMax) {
+        return false;
+}
+
+
+

@@ -1,0 +1,15 @@
+1. download datafile from:
+http://archive.ics.uci.edu/ml/databases/synthetic_control/synthetic_control.data
+2. put data file on hdfs:
+hdfs dfs -mkdir testdata
+hdfs dfs -put synthetic_control.data testdata/
+3. run a mahout clustering job:
+mahout org.apache.mahout.clustering.syntheticcontrol.kmeans.Job
+4. run clusterdump with JSON format:
+mahout clusterdump i output/clusters*-final -p output/clusteredPoints -o /tmp/report -of JSON
+
+expected:
+clusterdump with JSON format should succeeded same as CSV and TEXT
+
+actually:
+clusterdump with JSON format throw NullPointerException

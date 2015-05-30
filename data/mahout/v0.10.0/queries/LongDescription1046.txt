@@ -1,0 +1,3 @@
+There are two issues, one benign and one huge.  The benign issue is that all references in MatrixView.viewPart to the constant 0 got incorrectly replaced by ROW.
+
+The big issue is that origin.clone() is used instead of this.origin.clone().  This causes double incrementing and an index error for some args.  I have added a test and will commit shortly.

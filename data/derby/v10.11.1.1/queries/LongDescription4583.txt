@@ -1,0 +1,13 @@
+A SELECT query with a literal boolean value in its WHERE clause results in a syntax error.
+
+How to reproduce:
+
+CREATE TABLE list (value VARCHAR(10));
+
+Given this table, the following queries result in a syntax error.
+
+SELECT * FROM list WHERE TRUE;
+SELECT * FROM list WHERE FALSE;
+SELECT * FROM list WHERE value='A' OR TRUE;
+
+Why is TRUE/FALSE not a boolean expression?

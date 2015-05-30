@@ -1,0 +1,13 @@
+The following jpql fails in MySQL: 
+
+Select e from Employee e where e.name LIKE :name ESCAPE '\'
+
+The exception trace:
+
+You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ''\')' at line 1 
+{prepstmnt 1239002810 SELECT t0.empId, t0.hireDate, t0.hireTime, t0.hireTimestamp, t0.name, t0.someLong, t0.statusId FROM SUBQ_EMPLOYEE t0 WHERE (t0.name LIKE ? ESCAPE '\') [params=(String) M\%%]}
+ [code=1064, state=42000]
+at org.apache.openjpa.jdbc.sql.DBDictionary.narrow(DBDictionary.java:4587)
+at org.apache.openjpa.jdbc.sql.DBDictionary.newStoreException(DBDictionary.java:4540)
+
+The test case is org.apache.openjpa.persistence.query.TestQueryEscapeCharacters.testEscapedQuery  

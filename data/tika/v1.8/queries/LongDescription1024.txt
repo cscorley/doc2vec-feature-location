@@ -1,0 +1,3 @@
+This seems to be a difference between JVMs: on IBM's JVM I incorrectly see the BOM as the value of the tag, while on Oracle's JVM I correctly get the empty string.
+
+I'm not sure if this is a bug in IBM's JVM ... the javadocs are not totally clear how a UTF-16 string containing only the BOM should be decoded by new String(...) ... to fix this I think we should just detect this case and short-circuit empty string return.

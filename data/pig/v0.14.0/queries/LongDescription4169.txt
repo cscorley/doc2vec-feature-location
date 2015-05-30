@@ -1,0 +1,38 @@
+To reproduce the issue, run the following query-
+
+
+a = LOAD 'foo' AS (x:int);
+b = FOREACH a GENERATE TOTUPLE((chararray)null);
+DUMP b;
+
+
+As can be seen, it is calling TOTUPLE with null. This causes a front-end exception with the following stack trace-
+
+
+Caused by: org.apache.pig.impl.logicalLayer.FrontendException: ERROR 0: org.apache.pig.backend.executionengine.ExecException: ERROR 0: Exception while executing [POUserFunc (Name: POUserFunc(org.apache.pig.builtin.TOTUPLE)[tuple] - scope-13 Operator Key: scope-13) children: null at []]: java.lang.NullPointerException
+	at org.apache.pig.newplan.logical.rules.ConstantCalculator$ConstantCalculatorTransformer$ConstantCalculatorExpressionVisitor.execute(ConstantCalculator.java:154)
+	at org.apache.pig.newplan.logical.expression.AllSameExpressionVisitor.visit(AllSameExpressionVisitor.java:143)
+	at org.apache.pig.newplan.logical.expression.UserFuncExpression.accept(UserFuncExpression.java:112)
+	at org.apache.pig.newplan.ReverseDependencyOrderWalkerWOSeenChk.walk(ReverseDependencyOrderWalkerWOSeenChk.java:69)
+	at org.apache.pig.newplan.PlanVisitor.visit(PlanVisitor.java:52)
+	at org.apache.pig.newplan.logical.optimizer.AllExpressionVisitor.visitAll(AllExpressionVisitor.java:72)
+	at org.apache.pig.newplan.logical.optimizer.AllExpressionVisitor.visit(AllExpressionVisitor.java:131)
+	at org.apache.pig.newplan.logical.relational.LOGenerate.accept(LOGenerate.java:245)
+	at org.apache.pig.newplan.DependencyOrderWalker.walk(DependencyOrderWalker.java:75)
+	at org.apache.pig.newplan.logical.optimizer.AllExpressionVisitor.visit(AllExpressionVisitor.java:124)
+	at org.apache.pig.newplan.logical.relational.LOForEach.accept(LOForEach.java:87)
+	at org.apache.pig.newplan.DependencyOrderWalker.walk(DependencyOrderWalker.java:75)
+	at org.apache.pig.newplan.PlanVisitor.visit(PlanVisitor.java:52)
+	at org.apache.pig.newplan.logical.rules.ConstantCalculator$ConstantCalculatorTransformer.transform(ConstantCalculator.java:181)
+	at org.apache.pig.newplan.optimizer.PlanOptimizer.optimize(PlanOptimizer.java:110)
+	... 16 more
+Caused by: org.apache.pig.backend.executionengine.ExecException: ERROR 0: Exception while executing [POUserFunc (Name: POUserFunc(org.apache.pig.builtin.TOTUPLE)[tuple] - scope-13 Operator Key: scope-13) children: null at []]: java.lang.NullPointerException
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.getNext(PhysicalOperator.java:360)
+	at org.apache.pig.newplan.logical.rules.ConstantCalculator$ConstantCalculatorTransformer$ConstantCalculatorExpressionVisitor.execute(ConstantCalculator.java:151)
+	... 30 more
+Caused by: java.lang.NullPointerException
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POUserFunc.getNext(POUserFunc.java:284)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POUserFunc.getNextTuple(POUserFunc.java:383)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.getNext(PhysicalOperator.java:355)
+	... 31 more
+

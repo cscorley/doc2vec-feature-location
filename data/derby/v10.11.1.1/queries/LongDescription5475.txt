@@ -1,0 +1,15 @@
+Some types of tests need old Derby distributions to perform the required actions. Currently this includes the upgrade test and the compatibility test.
+Instead of each test dealing with this in their own way, there should be support for accessing old Derby distributions in the test framework.
+
+I propose to add a Derby distribution repository in the test framework, with the following guidelines and changes:
+ o keep it as simple as possible, which suggests it is the users responsibility to keep the repository updated
+ o compatibility with the existing derbyTesting.oldReleasePath property
+ o make the tests requiring old distributions fail if there are no distributions available
+ o establish a default location where the test framework will look for old distributions if derbyTesting.oldReleasePath is unspecified
+ o the repository should not incur any costs when not used by the test(s) being run
+
+In favor of simplicity the repository will not download releases itself. The user has to keep the repository contents up-to-date, which is as simple as running 'svn up' each time a new Derby release is published. It is unclear if, and what, the repository and/or relevant tests should do if the repository is outdated. It seems useful to allow the user to make available only a subset of the distributions, but maybe printing a warning is helpful to remind developers that their repository is stale.
+
+Another related issue, which will only be relevant some time in the future, is whether a test framework of version X should make available distributions of version X+n. Currently I'm leaning towards not doing that, but haven't really looked into it.
+
+See also thread on derby-dev: http://db.markmail.org/thread/44uyusa726cwjuk2

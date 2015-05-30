@@ -1,0 +1,15 @@
+When executing a stored procedure with executeQuery() and the proc
+doesn't return exactly one result set, the query should fail and the
+statement should be rolled back. Embedded does this correctly.
+
+The client driver, however, does not roll back the statement, so the
+effects of statements executed on nested connections in the stored
+procedure are still visible. The reason for this is that the network
+server executes the statement with execute() instead of
+executeQuery(), so that it succeeds on the server. The client then
+counts the number of result sets, and raises an exception if it is not
+one, but it does not roll back the effects of the stored procedure.
+verified that.)
+
+The same problem exists for executeUpdate(). JCC also has these
+problems.

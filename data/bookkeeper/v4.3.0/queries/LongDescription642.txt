@@ -1,0 +1,12 @@
+When bookie registration fails due to zookeeper exception, its not exiting with ExitCode.ZK_REG_FAIL.
+
+Bookie.java
+
+
+       try {
+            registerBookie(conf);
+        } catch (IOException e) {
+            LOG.error("Couldn't register bookie with zookeeper, shutting down", e);
+            shutdown(ExitCode.ZK_REG_FAIL);
+        }
+

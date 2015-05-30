@@ -1,0 +1,11 @@
+<shared-cache-mode>ALL</shared-cache-mode> doesn't play nicely with em.refresh(...).
+
+The following sequence doesn't work:
+
+
+	Persist an Entity.
+	Start a transaction.
+	Update that Entity via SQL UPDATE.
+	Commit the transaction.
+	Call em.refresh(..) on the persisted entity.
+

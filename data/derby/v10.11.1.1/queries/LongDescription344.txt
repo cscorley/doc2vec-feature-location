@@ -1,0 +1,46 @@
+Performing a 'select distinct' on a database create with v10.0 and running under softupgrademode with v10.1 throws a NPE. 
+
+The ij tool in v10.1 was started using java -Dderby.database.allowPreReleaseUpgrade=true org.apache.derby.tools.ij 
+to allow softupgrades. 
+
+ij> connect 'jdbc:derby:videodb';
+ij> select distinct title from music_titles;
+TITLE
+--------------------------------------------------
+ ACPE_music Blue You Flew Moo Do
+APIH_music  You Flew Moo Do
+ABZC_music  You Flew Moo Do
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+
+Following is the stack trace from the derby.log:
+2005-06-07 23:15:53.921 GMT Thread[main,5,main] (XID = 279297), (SESSIONID = 0), (DATABASE = videodb), (DRDAID = null), Failed Statement is: select distinct title from music_titles
+java.lang.NullPointerException
+	at org.apache.derby.iapi.store.access.BackingStoreHashtable.cloneRow(BackingStoreHashtable.java:326)
+	at org.apache.derby.iapi.store.access.DiskHashtable$ElementEnum.nextElement(DiskHashtable.java:351)
+	at org.apache.derby.iapi.store.access.BackingStoreHashtable$BackingStoreHashtableEnumeration.nextElement(BackingStoreHashtable.java:739)
+	at org.apache.derby.impl.sql.execute.DistinctScanResultSet.getNextRowCore(DistinctScanResultSet.java:140)
+	at org.apache.derby.impl.sql.execute.BasicNoPutResultSetImpl.getNextRow(BasicNoPutResultSetImpl.java:471)
+	at org.apache.derby.impl.jdbc.EmbedResultSet.movePosition(EmbedResultSet.java:346)
+	at org.apache.derby.impl.jdbc.EmbedResultSet.next(EmbedResultSet.java:299)
+	at org.apache.derby.tools.JDBCDisplayUtil.indent_DisplayResults(JDBCDisplayUtil.java:334)
+	at org.apache.derby.tools.JDBCDisplayUtil.indent_DisplayResults(JDBCDisplayUtil.java:271)
+	at org.apache.derby.tools.JDBCDisplayUtil.DisplayResults(JDBCDisplayUtil.java:260)
+	at org.apache.derby.impl.tools.ij.utilMain.displayResult(utilMain.java:381)
+	at org.apache.derby.impl.tools.ij.utilMain.doCatch(utilMain.java:434)
+	at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:310)
+	at org.apache.derby.impl.tools.ij.Main.go(Main.java:203)
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:169)
+	at org.apache.derby.impl.tools.ij.Main14.main(Main14.java:55)
+	at org.apache.derby.tools.ij.main(ij.java:60)
+Cleanup action completed
+
+The schema looks like:
+CREATE TABLE music_titles (
+ title                        varchar (50) NOT NULL,
+ artist                       varchar (50) NOT NULL,
+ artist_more                  varchar (50) not null,
+ distributor                  varchar (50),
+ record_label                 varchar (50),
+ type                         CHARACTER (10),CONSTRAINT music_titles_pk
+ PRIMARY KEY (title, artist, artist_more))
+

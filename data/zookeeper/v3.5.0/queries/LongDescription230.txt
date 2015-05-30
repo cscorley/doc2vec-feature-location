@@ -1,0 +1,5 @@
+I'm about to attach a patch that implements the following modifications:
+
+. Currently, if a server is on leader election and doesn't receive a notification for some amount of time t, then it sends a new set of notifications if at least one server has delivered a message from the previous set. With this patch, the amount of time a server waits for a notification before sending a new set increases exponentially;
+. I have separated connecting to servers and queuing new notification messages. Before they were all in the same message. The advantage is that now I can tell to an instance of QuorumCnxManager to try to connect to other servers without generating new notification messages;
+. I have changed the logging level of several messages on QuorumCnxManager. They were "warn", but they should really be either "info" or "debug". I've changed them to info.

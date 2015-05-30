@@ -1,0 +1,5 @@
+Currently, TezJob extends ControlledJob, and TezLauncher submits TezJob to the cluster via ControlJob. However, there is no reason for this since ControlJob always contains a single job in Tez unlike MR.
+
+There are some operators such as MergeJoin that consists of more than 1 disjoint DAGs. But this case is handled by TezPlanContainer. TezPlanContainer holds multiple DAGs, and TezLauncher compiles and submits them one by one in order.
+
+I propose we should rewrite TezJob and TezLauncher using ExecutorService.

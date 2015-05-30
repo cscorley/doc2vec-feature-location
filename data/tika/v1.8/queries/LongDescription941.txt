@@ -1,0 +1,12 @@
+KML format is subtype of application/xml with a "kml" root node and (an optional?) "http://www.opengis.net/kml/2.2" namespace.
+
+  <mime-type type="application/vnd.google-earth.kml+xml">    
+    <root-XML localName="kml"/>
+    <root-XML namespaceURI="http://www.opengis.net/kml/2.2" localName="kml"/>    
+    <acronym>KML</acronym>
+    <_comment>Keyhole Markup Language</_comment>
+    <glob pattern="*.kml"/>    
+    <sub-class-of type="application/xml"/>
+  </mime-type>	
+
+KMZ files (https://developers.google.com/kml/documentation/kmzarchives) are zip archives with a KML file inside (the file should be called doc.kml) and one or more folder. A naive approach consists in adding a further check in ZipContainerDetector (find attached). 

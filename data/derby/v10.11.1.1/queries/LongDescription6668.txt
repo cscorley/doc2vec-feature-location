@@ -1,0 +1,30 @@
+If you truncate a table which is referenced by a deferred foreign key, orphaned tuples are left in the foreign table. That is, the foreign key is violated but no exception is raised.
+
+Since table truncation involves changing conglomerate ids, this may be another case of derby-6665. Or this may be a new bug.
+
+The following script shows this behavior:
+
+
+connect 'jdbc:derby:memory:db;create=true';
+
+create table tunique
+(
+  a int not null unique
+);
+
+create table tref
+(
+  a int references tunique( a ) initially deferred
+);
+
+insert into tunique values ( 1 );
+insert into tref values ( 1 );
+
+truncate table tunique;
+
+-- the unique table is empty
+select * from tunique;
+
+-- but the table which references it has a row
+select * from tref;
+

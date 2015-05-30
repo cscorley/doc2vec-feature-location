@@ -1,0 +1,33 @@
+Derby Error:
+<openjpa-2.0.0-SNAPSHOT-r422266:883808 nonfatal user error> org.apache.openjpa.persistence.ArgumentException: null
+<openjpa-2.0.0-SNAPSHOT-r422266:883808 nonfatal user error> org.apache.openjpa.persistence.ArgumentException: null
+        at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:822)
+        at org.apache.openjpa.kernel.QueryImpl.updateAll(QueryImpl.java:893)
+        at org.apache.openjpa.kernel.QueryImpl.updateAll(QueryImpl.java:889)
+        at org.apache.openjpa.kernel.DelegatingQuery.updateAll(DelegatingQuery.java:565)
+        at org.apache.openjpa.persistence.QueryImpl.executeUpdate(QueryImpl.java:341)
+        at apitests.Client.queryAPITest22(Client.java:133)
+        at apitests.Client.main(Client.java:77)
+Caused by: java.lang.NullPointerException
+        at org.apache.openjpa.jdbc.kernel.exps.CompareEqualExpression.appendTo(CompareEqualExpression.java:109)
+        at org.apache.openjpa.jdbc.kernel.exps.WhenCondition.appendTo(WhenCondition.java:70)
+        at org.apache.openjpa.jdbc.kernel.exps.GeneralCaseExpression.appendTo(GeneralCaseExpression.java:114)
+        at org.apache.openjpa.jdbc.sql.DBDictionary.appendUpdates(DBDictionary.java:2149)
+        at org.apache.openjpa.jdbc.sql.DBDictionary.toBulkOperation(DBDictionary.java:2017)
+        at org.apache.openjpa.jdbc.sql.DBDictionary.toUpdate(DBDictionary.java:1950)
+        at org.apache.openjpa.jdbc.kernel.JDBCStoreQuery.executeBulkOperation(JDBCStoreQuery.java:511)
+        at org.apache.openjpa.jdbc.kernel.JDBCStoreQuery.executeUpdate(JDBCStoreQuery.java:451)
+        at org.apache.openjpa.kernel.ExpressionStoreQuery$DataStoreExecutor.executeUpdate(ExpressionStoreQuery.java:761)
+        at org.apache.openjpa.kernel.QueryImpl.update(QueryImpl.java:1049)
+        at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:817)
+        ... 6 more
+
+The following fails agsint Derby:
+Query q = em.createQuery(
+                    "update Department d  set d.name= " +
+                    " CASE   WHEN d.id = 1 THEN 'SoilEngineering'" +
+                    "        WHEN d.id = 2 THEN 'Mettalurgy'" +
+                    "        ELSE 'Aero'" +
+                    " END");
+
+result_size = q.executeUpdate();  // <--- Error here

@@ -1,0 +1,39 @@
+
+$ java -jar tika-app-0.9.jar ChateauFrontenacQC.jpg 
+[Fatal Error] :47:39: Character reference "&#x5" is an invalid XML character.
+Exception in thread "main" org.apache.tika.exception.TikaException: TIKA-198: Illegal IOException from org.apache.tika.parser.jpeg.JpegParser@17353249
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:203)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:197)
+	at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:135)
+	at org.apache.tika.cli.TikaCLI$OutputType.process(TikaCLI.java:107)
+	at org.apache.tika.cli.TikaCLI.process(TikaCLI.java:302)
+	at org.apache.tika.cli.TikaCLI.main(TikaCLI.java:91)
+Caused by: java.io.IOException: Character reference "&#x5" is an invalid XML character.
+	at org.apache.jempbox.impl.XMLUtil.parse(XMLUtil.java:100)
+	at org.apache.jempbox.xmp.XMPMetadata.load(XMPMetadata.java:538)
+	at org.apache.tika.parser.image.xmp.JempboxExtractor.parse(JempboxExtractor.java:59)
+	at org.apache.tika.parser.jpeg.JpegParser.parse(JpegParser.java:69)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:197)
+	... 5 more
+
+
+
+Interestingly, accessing via HTTP gives a different error:
+
+$ java -jar tika-app-0.9.jar http://www.aace.org/conf/cities/quebecCity/ChateauFrontenacQC.jpg 
+Exception in thread "main" org.apache.tika.exception.TikaException: Can't read JPEG metadata
+	at org.apache.tika.parser.image.ImageMetadataExtractor.parseJpeg(ImageMetadataExtractor.java:92)
+	at org.apache.tika.parser.jpeg.JpegParser.parse(JpegParser.java:66)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:197)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:197)
+	at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:135)
+	at org.apache.tika.cli.TikaCLI$OutputType.process(TikaCLI.java:107)
+	at org.apache.tika.cli.TikaCLI.process(TikaCLI.java:302)
+	at org.apache.tika.cli.TikaCLI.main(TikaCLI.java:91)
+Caused by: com.drew.imaging.jpeg.JpegProcessingException: segment size would extend beyond file stream length
+	at com.drew.imaging.jpeg.JpegSegmentReader.readSegments(Unknown Source)
+	at com.drew.imaging.jpeg.JpegSegmentReader.<init>(Unknown Source)
+	at com.drew.imaging.jpeg.JpegMetadataReader.readMetadata(Unknown Source)
+	at org.apache.tika.parser.image.ImageMetadataExtractor.parseJpeg(ImageMetadataExtractor.java:87)
+	... 7 more
+

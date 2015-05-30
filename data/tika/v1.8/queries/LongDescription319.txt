@@ -1,0 +1,17 @@
+Encoding hint should be considered only if that encoding is supported.
+
+Diff of my fix:
+
+— HtmlParser.java	(wersja 835302)
++++ HtmlParser.java	(kopia robocza)
+@@ -46,7 +46,7 @@
+         // Prepare the input source using the encoding hint if available
+         InputSource source = new InputSource(stream); 
+         String encoding = metadata.get(Metadata.CONTENT_ENCODING); 
+
+	if (encoding != null) {
++        if (encoding != null && Charset.isSupported(encoding)) 
+{ 
+             source.setEncoding(encoding);
+         }
+

@@ -1,0 +1,65 @@
+Running a simple SQL query containing a having clause causes a NullPointerException.  I originally encountered this in 10.4.2.0, but have also reproduces this in 10.5.3.0 and the latest 10.6.1.0.   I raised this on the mailing list too, and Knut said it also fails on trunk - see http://thread.gmane.org/gmane.comp.apache.db.derby.user/12782
+
+The query (created throw Hibernate) that causes the crash is:
+
+SELECT user0_.user_id         AS col_0_0_,
+       SUM(account2_.balance) AS col_1_0_
+FROM   tbl_user user0_
+       INNER JOIN tbl_user_account accountlin1_
+         ON user0_.user_id = accountlin1_.user_id
+       INNER JOIN tbl_account account2_
+         ON accountlin1_.account_id = account2_.account_id
+WHERE  user0_.deleted = 'N'
+       AND ( account2_.account_type IN ( 'USER-01', 'USER' ) )
+GROUP  BY user0_.user_id
+HAVING SUM(account2_.balance) >= 100.0 
+
+However I simplified it to the following and still caused a crash (though in 10.4.2.0 I found that without the "where" clause is didn't crash but returned no results when it should have).
+
+SELECT u.user_id,
+       SUM(a.balance)
+FROM   tbl_user u
+       INNER JOIN tbl_user_account al
+         ON u.user_id = al.user_id
+       INNER JOIN tbl_account a
+         ON al.account_id = a.account_id
+GROUP BY u.user_id
+HAVING sum(a.balance) >= 10.0 
+
+
+The derby log showed the following stace trace for 10.6.1.0:
+2010-06-14 04:59:24.942 GMT Thread[main,5,main] (XID = 5824013), (SESSIONID = 1), (DATABASE = C:\Development\pc-ng-branch\server\working\data\internal/derby), (DRDAID = null), Failed Statement is: SELECT u.user_id user_id,
+       SUM(a.balance) acct_sum
+FROM   tbl_user u
+       INNER JOIN tbl_user_account al
+         ON u.user_id = al.user_id
+       INNER JOIN tbl_account a
+         ON al.account_id = a.account_id
+GROUP BY u.user_id
+HAVING sum(a.balance) >= 1.0 
+java.lang.NullPointerException
+	at org.apache.derby.impl.sql.compile.ColumnReference.remapColumnReferencesToExpressions(Unknown Source)
+	at org.apache.derby.impl.sql.compile.AggregateNode.getNewExpressionResultColumn(Unknown Source)
+	at org.apache.derby.impl.sql.compile.GroupByNode.addAggregateColumns(Unknown Source)
+	at org.apache.derby.impl.sql.compile.GroupByNode.addNewColumnsForAggregation(Unknown Source)
+	at org.apache.derby.impl.sql.compile.GroupByNode.addAggregates(Unknown Source)
+	at org.apache.derby.impl.sql.compile.GroupByNode.init(Unknown Source)
+	at org.apache.derby.iapi.sql.compile.NodeFactory.getNode(Unknown Source)
+	at org.apache.derby.impl.sql.compile.SelectNode.genProjectRestrict(Unknown Source)
+	at org.apache.derby.impl.sql.compile.SelectNode.modifyAccessPaths(Unknown Source)
+	at org.apache.derby.impl.sql.compile.DMLStatementNode.optimizeStatement(Unknown Source)
+	at org.apache.derby.impl.sql.compile.CursorNode.optimizeStatement(Unknown Source)
+	at org.apache.derby.impl.sql.GenericStatement.prepMinion(Unknown Source)
+	at org.apache.derby.impl.sql.GenericStatement.prepare(Unknown Source)
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+	at org.apache.derby.impl.tools.ij.ij.executeImmediate(Unknown Source)
+	at org.apache.derby.impl.tools.ij.utilMain.doCatch(Unknown Source)
+	at org.apache.derby.impl.tools.ij.utilMain.runScriptGuts(Unknown Source)
+	at org.apache.derby.impl.tools.ij.utilMain.go(Unknown Source)
+	at org.apache.derby.impl.tools.ij.Main.go(Unknown Source)
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Unknown Source)
+	at org.apache.derby.impl.tools.ij.Main.main(Unknown Source)
+	at org.apache.derby.tools.ij.main(Unknown Source)
+Cleanup action completed

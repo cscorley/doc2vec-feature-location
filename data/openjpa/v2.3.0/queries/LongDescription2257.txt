@@ -1,0 +1,20 @@
+A call of EntityManager.getProperties() can lead to NullPointer and ConcurrentModificationException. Issue occurs right after start up of the overlying JEE application if multiple EntityManager instance are created at same time.
+
+Please find the issued stack trace below:
+
+Caused by: java.lang.NullPointerException
+        at java.lang.String.compareTo(String.java:482)
+        at java.lang.String.compareTo(String.java:31)
+        at java.util.TreeMap.cmp(TreeMap.java:4514)
+        at java.util.TreeMap.putImpl(TreeMap.java:4556)
+        at java.util.TreeMap.put(TreeMap.java:4536)
+        at java.util.TreeSet.add(TreeSet.java:122)
+        at
+org.apache.openjpa.lib.conf.ConfigurationImpl.getPropertyKeys(ConfigurationImpl.java:708)
+        at
+org.apache.openjpa.kernel.BrokerImpl.getSupportedProperties(BrokerImpl.java:729)
+        at
+org.apache.openjpa.kernel.DelegatingBroker.getSupportedProperties(DelegatingBroker.java:223)
+        at
+org.apache.openjpa.persistence.EntityManagerImpl.getProperties(EntityManagerImpl.java:1624)
+        ... 33 more

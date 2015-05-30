@@ -1,0 +1,14 @@
+The following scenario:
+
+1.) turn off the database
+2.) perform a query against the database
+3.) turn on the database
+4.) try to re-run the query from 2.)
+
+In 4.) you will get the following Exception:
+
+openjpa-2.2.0-r422266:1244990 nonfatal user error> org.apache.openjpa.persistence.ArgumentException: An error occurred while parsing the query filter "SELECT k FROM DbEnumKey AS k where k.type=:typ ORDER BY k.ordinal". Error message: The name "DbEnumKey" is not a recognized entity or identifier. Known entity names: []
+
+Basically the whole app is stale afterwards!
+
+Solution: caching the entities might only be done if a connection can be established.

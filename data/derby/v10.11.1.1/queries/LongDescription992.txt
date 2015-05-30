@@ -1,0 +1,12 @@
+a) For a scrollable, insensitive result set (read-only) which is
+   empty, ResultSet#afterLast should have no effect, but erroneously
+   sets the internal variable afterLast to true, so that a sunsequent
+   call to ResultSet#isAfterLast will return 'true' in the embedded
+   client. It does not happen on the client driver, because it seems
+   to do some double book-keeping for this case.
+
+b) In ScrollInsensitiveResultSet#getNextRowCore and #getAbsoluteRow,
+   there are missing checks will cause unnecessary read (attempts)
+   from underlying result set even if end has been seen already.
+
+ Both would be nice to fix in preparation for DERBY-690...   

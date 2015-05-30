@@ -1,0 +1,31 @@
+The following script fails:
+
+data = LOAD 'test_data.txt' USING PigStorage() AS (f1: int, f2: int, f3:
+int, f4: int);
+
+nested = FOREACH data GENERATE f1, (f2, f3, f4) AS nested_tuple;
+
+dereferenced = FOREACH nested GENERATE f1, nested_tuple.(f2, f3);
+DESCRIBE dereferenced;
+
+uses_dereferenced = FOREACH dereferenced GENERATE nested_tuple.f3;
+DESCRIBE uses_dereferenced;
+
+The schema of "dereferenced" should be 
+{f1: int, nested_tuple: (f2: int,
+f3: int)}
+. DESCRIBE thinks it is 
+{f1: int, f2: int}
+ instead. When dump is
+used, the data is actually in form of the correct schema however, ex.
+
+(1,(2,3))
+(5,(6,7))
+...
+
+This is not just a problem with DESCRIBE. Because the schema is incorrect,
+the reference to "nested_tuple" in the "uses_dereferenced" statement is
+considered to be invalid, and the script fails to run. The error is:
+
+Invalid field projection. Projected field [nested_tuple] does not exist in
+schema: f1:int,f2:int.

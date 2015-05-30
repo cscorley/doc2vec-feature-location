@@ -1,0 +1,3 @@
+A deadlock in the Java 5 VM hangs connection attempts if you are using NATIVE authentication with a client which runs in the same VM as the server. I will attach a test case which demonstrates this. This bug is implicated in the failures being discussed on https://issues.apache.org/jira/browse/DERBY-5601 and was disclosed by the discussion on this email thread: http://old.nabble.com/-URGENT--Critical-test-situation-on-trunk-to33259629.html#a33259629
+
+The bug arises when NativeAuthenticationServiceImpl attempts a nested connection to the Credentials database during database creation. The nested connection is attempted in order to dertermine whether the user has system-wide privilege to create databases.

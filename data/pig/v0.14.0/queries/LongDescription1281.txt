@@ -1,0 +1,26 @@
+This is more of an enhancement request, where we can detect simple errors during compile time during creation of Logical plan rather than at the backend.
+
+I created a script which contains an error which gets detected in the backend as a cast error when in fact we can detect it in the front end(group is a single element so group.$0 projection operation will not work).
+
+
+
+inputdata = LOAD '/user/viraj/mymapdata' AS (co1, col2, col3, col4);
+
+projdata = FILTER inputdata BY (col1 is not null);
+
+groupprojdata = GROUP projdata BY col1;
+
+cleandata = FOREACH groupprojdata {
+                     bagproj = projdata.col1;
+                     dist_bags = DISTINCT bagproj;
+                     GENERATE group.$0 as newcol1, COUNT(dist_bags) as newcol2;
+                      };
+
+cleandata1 = GROUP cleandata by newcol2;
+
+cleandata2 = FOREACH cleandata1 { GENERATE group.$0 as finalcol1, COUNT(cleandata.newcol1) as finalcol2; };
+
+ordereddata = ORDER cleandata2 by finalcol2;
+
+store into 'finalresult' using PigStorage();
+

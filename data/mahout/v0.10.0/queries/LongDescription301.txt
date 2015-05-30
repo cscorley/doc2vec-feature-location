@@ -1,0 +1,41 @@
+Snippet from javadoc gives the idea:
+
+
+/**
+ * General-purpose driver class for Mahout programs.  Utilizes org.apache.hadoop.util.ProgramDriver to run
+ * main methods of other classes, but first loads up default properties from a properties file.
+ *
+ * Usage: run on Hadoop like so:
+ *
+ * $HADOOP_HOME/bin/hadoop -jar path/to/job org.apache.mahout.driver.MahoutDriver [classes.props file] shortJobName \
+ *   [default.props file for this class] [over-ride options, all specified in long form: --input, --jarFile, etc]
+ *
+ * TODO: set the Main-Class to just be MahoutDriver, so that this option isn't needed?
+ *
+ * (note: using the current shell scipt, this could be modified to be just 
+ * $MAHOUT_HOME/bin/mahout [classes.props file] shortJobName [default.props file] [over-ride options]
+ * )
+ *
+ * Works like this: by default, the file "core/src/main/resources/driver.classes.prop" is loaded, which
+ * defines a mapping between short names like "VectorDumper" and fully qualified class names.  This file may
+ * instead be overridden on the command line by having the first argument be some string of the form *classes.props.
+ *
+ * The next argument to the Driver is supposed to be the short name of the class to be run (as defined in the
+ * driver.classes.props file).  After this, if the next argument ends in ".props" / ".properties", it is taken to
+ * be the file to use as the default properties file for this execution, and key-value pairs are built up from that:
+ * if the file contains
+ *
+ * input=/path/to/my/input
+ * output=/path/to/my/output
+ *
+ * Then the class which will be run will have it's main called with
+ *
+ *   main(new String[] { "--input", "/path/to/my/input", "--output", "/path/to/my/output" });
+ *
+ * After all the "default" properties are loaded from the file, any further command-line arguments are taken in,
+ * and over-ride the defaults.
+ */
+
+
+
+Could be cleaned up, as it's kinda ugly with the whole "file named in .props", but gives the idea.  Really helps cut down on repetitive long command lines, lets defaults be put props files instead of locked into the code also.

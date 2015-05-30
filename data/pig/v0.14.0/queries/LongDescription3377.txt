@@ -1,0 +1,27 @@
+The following example demonstrates the issue:
+
+
+a = LOAD 'foo' AS (m:map[]);
+STORE a INTO 'bar' USING AvroStorage();
+
+
+This fails with the following error:
+
+
+java.lang.NullPointerException
+    at org.apache.pig.impl.util.avro.AvroStorageSchemaConversionUtilities.resourceFieldSchemaToAvroSchema(AvroStorageSchemaConversionUtilities.java:462)
+    at org.apache.pig.impl.util.avro.AvroStorageSchemaConversionUtilities.resourceSchemaToAvroSchema(AvroStorageSchemaConversionUtilities.java:335)
+    at org.apache.pig.builtin.AvroStorage.checkSchema(AvroStorage.java:472)
+
+
+Similarly, untyped bag causes the following error:
+
+
+Caused by: java.lang.NullPointerException
+    at org.apache.avro.Schema$ArraySchema.toJson(Schema.java:722)
+    ...
+    at org.apache.avro.Schema.getElementType(Schema.java:256)
+    at org.apache.pig.builtin.AvroStorage.setOutputAvroSchema(AvroStorage.java:491)
+
+
+The problem is that AvroStorage cannot derive the output schema from untyped map/bag/tuple. When type is not defined, it should be assumed as bytearray.

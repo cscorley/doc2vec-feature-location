@@ -1,0 +1,52 @@
+TestHandlerStrategy was introduced in OPENJPA-2328. This passed in Derby but failed when run against Oracle and yielded the following error.
+
+     73   <testcase time="0.443" classname="org.apache.openjpa.persistence.jdbc.strategy.TestHandlerStrategy" name="testIssue_OPENJPA2328">
+     74     <error message="The transaction has been rolled back.  See the nested exceptions for details on the errors that occurred." type="<openjpa-2.3.0-SNAPSHOT-r422266"><openjpa-2.3.0-SN        APSHOT-r422266:1447955 fatal store error> org.apache.openjpa.persistence.RollbackException: The transaction has been rolled back.  See the nested exceptions for details on the errors tha        t occurred.
+     75 FailedObject: org.apache.openjpa.persistence.jdbc.strategy.MappedEntity@3b5ad1da
+     76   at org.apache.openjpa.persistence.EntityManagerImpl.commit(EntityManagerImpl.java:594)
+     77   at org.apache.openjpa.persistence.jdbc.strategy.TestHandlerStrategy.testIssue_OPENJPA2328(TestHandlerStrategy.java:46)
+     78   at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+ ....
+    108 Caused by: <openjpa-2.3.0-SNAPSHOT-r422266:1447955 fatal general error> org.apache.openjpa.persistence.PersistenceException: The transaction has been rolled back.  See the nested exce        ptions for details on the errors that occurred.
+    109 FailedObject: org.apache.openjpa.persistence.jdbc.strategy.MappedEntity@3b5ad1da
+    110   at org.apache.openjpa.kernel.BrokerImpl.newFlushException(BrokerImpl.java:2341)
+    111   at org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:2178)
+    112   at org.apache.openjpa.kernel.BrokerImpl.flushSafe(BrokerImpl.java:2076)
+    113   at org.apache.openjpa.kernel.BrokerImpl.beforeCompletion(BrokerImpl.java:1994)
+    114   at org.apache.openjpa.kernel.LocalManagedRuntime.commit(LocalManagedRuntime.java:81)
+    115   at org.apache.openjpa.kernel.BrokerImpl.commit(BrokerImpl.java:1518)
+    116   at org.apache.openjpa.kernel.DelegatingBroker.commit(DelegatingBroker.java:933)
+    117   at org.apache.openjpa.persistence.EntityManagerImpl.commit(EntityManagerImpl.java:570)
+    118   ... 31 more
+    119 Caused by: <openjpa-2.3.0-SNAPSHOT-r422266:1447955 fatal store error> org.apache.openjpa.persistence.EntityExistsException: ORA-01400: cannot insert NULL into ("SCOTT".&quot        ;MAPPEDENTITY"."ID")
+    120  
+{prepstmnt 1311769641 INSERT INTO MappedEntity (value) VALUES (?)} [code=1400, state=23000]
+    121 FailedObject: org.apache.openjpa.persistence.jdbc.strategy.MappedEntity@3b5ad1da
+    122   at org.apache.openjpa.jdbc.sql.DBDictionary.narrow(DBDictionary.java:4935)
+    123   at org.apache.openjpa.jdbc.sql.DBDictionary.newStoreException(DBDictionary.java:4910)
+    124   at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:136)
+    125   at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:78)
+    126   at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flushAndUpdate(PreparedStatementManagerImpl.java:144)
+    127   at org.apache.openjpa.jdbc.kernel.BatchingPreparedStatementManagerImpl.flushAndUpdate(BatchingPreparedStatementManagerImpl.java:79)
+    128   at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flushInternal(PreparedStatementManagerImpl.java:100)
+    129   at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flush(PreparedStatementManagerImpl.java:88)
+    130   at org.apache.openjpa.jdbc.kernel.ConstraintUpdateManager.flush(ConstraintUpdateManager.java:550)
+    131   at org.apache.openjpa.jdbc.kernel.ConstraintUpdateManager.flush(ConstraintUpdateManager.java:106)
+    132   at org.apache.openjpa.jdbc.kernel.BatchingConstraintUpdateManager.flush(BatchingConstraintUpdateManager.java:59)
+    133   at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.flush(AbstractUpdateManager.java:105)
+    134   at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.flush(AbstractUpdateManager.java:78)
+    135   at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.flush(JDBCStoreManager.java:732)
+    136   at org.apache.openjpa.kernel.DelegatingStoreManager.flush(DelegatingStoreManager.java:131)
+    137   ... 38 more
+    138 Caused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: ORA-01400: cannot insert NULL into ("SCOTT"."MAPPEDENTITY"."ID")
+    139  {prepstmnt 1311769641 INSERT INTO MappedEntity (value) VALUES (?)}
+ [code=1400, state=23000]
+    140   at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.wrap(LoggingConnectionDecorator.java:219)
+    141   at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.wrap(LoggingConnectionDecorator.java:195)
+    142   at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.access$1000(LoggingConnectionDecorator.java:59)
+    143   at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection$LoggingPreparedStatement.executeUpdate(LoggingConnectionDecorator.java:1134)
+    144   at org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement.executeUpdate(DelegatingPreparedStatement.java:275)
+    145   at org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement.executeUpdate(DelegatingPreparedStatement.java:275)
+    146   at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.executeUpdate(PreparedStatementManagerImpl.java:268)
+    147   at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flushAndUpdate(PreparedStatementManagerImpl.java:119)
+    148   ... 48 more

@@ -1,0 +1,3 @@
+In PIG-3390 we've introduced support for HBase 0.95 that introduced a lot of significant changes to HBase. One of the biggest user facing changes was splitting one uber jar file into multiple independent jars (such as hbase-common, hbase-client, ...).  
+
+HBaseStore have special code for propagating HBase jar files and important dependencies to the backend. This logic has not been altered to take into account the different HBase jars after the split and as a result the HBase integration with 0.95 is not working in fully distributed mode (it is work in local mode thought).

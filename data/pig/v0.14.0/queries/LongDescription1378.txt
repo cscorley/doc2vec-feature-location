@@ -1,0 +1,72 @@
+I am trying to use har (Hadoop Archives) in my Pig script.
+
+I can use them through the HDFS shell
+
+$hadoop fs -ls 'har:///user/viraj/project/subproject/files/size/data'
+Found 1 items
+-rw-------   5 viraj users    1537234 2010-04-14 09:49 user/viraj/project/subproject/files/size/data/part-00001
+
+
+
+Using similar URL's in grunt yields
+
+grunt> a = load 'har:///user/viraj/project/subproject/files/size/data'; 
+grunt> dump a;
+
+
+
+
+
+2010-04-14 22:08:48,814 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 2998: Unhandled internal error. org.apache.pig.impl.logicalLayer.FrontendException: ERROR 0: Incompatible file URI scheme: har : hdfs
+2010-04-14 22:08:48,814 [main] WARN  org.apache.pig.tools.grunt.Grunt - There is no log file to write to.
+2010-04-14 22:08:48,814 [main] ERROR org.apache.pig.tools.grunt.Grunt - java.lang.Error: org.apache.pig.impl.logicalLayer.FrontendException: ERROR 0: Incompatible file URI scheme: har : hdfs
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.LoadClause(QueryParser.java:1483)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.BaseExpr(QueryParser.java:1245)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.Expr(QueryParser.java:911)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.Parse(QueryParser.java:700)
+        at org.apache.pig.impl.logicalLayer.LogicalPlanBuilder.parse(LogicalPlanBuilder.java:63)
+        at org.apache.pig.PigServer$Graph.parseQuery(PigServer.java:1164)
+        at org.apache.pig.PigServer$Graph.registerQuery(PigServer.java:1114)
+        at org.apache.pig.PigServer.registerQuery(PigServer.java:425)
+        at org.apache.pig.tools.grunt.GruntParser.processPig(GruntParser.java:737)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:324)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:162)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:138)
+        at org.apache.pig.tools.grunt.Grunt.run(Grunt.java:75)
+        at org.apache.pig.Main.main(Main.java:357)
+Caused by: org.apache.pig.impl.logicalLayer.FrontendException: ERROR 0: Incompatible file URI scheme: har : hdfs
+        at org.apache.pig.LoadFunc.getAbsolutePath(LoadFunc.java:249)
+        at org.apache.pig.LoadFunc.relativeToAbsolutePath(LoadFunc.java:62)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.LoadClause(QueryParser.java:1472)
+        ... 13 more
+
+
+
+According to Jira http://issues.apache.org/jira/browse/PIG-1234 I try the following as stated in the original description
+
+
+grunt> a = load 'har://namenode-location/user/viraj/project/subproject/files/size/data'; 
+grunt> dump a;
+
+
+
+
+Caused by: org.apache.pig.backend.executionengine.ExecException: ERROR 2118: Unable to create input splits for: har://namenode-location/user/viraj/project/subproject/files/size/data'; 
+        ... 8 more
+Caused by: java.io.IOException: No FileSystem for scheme: namenode-location
+        at .apache.hadoop.fs.FileSystem.createFileSystem(FileSystem.java:1375)
+        at .apache.hadoop.fs.FileSystem.access(200(FileSystem.java:66)
+        at .apache.hadoop.fs.FileSystem$Cache.get(FileSystem.java:1390)
+        at .apache.hadoop.fs.FileSystem.get(FileSystem.java:196)
+        at .apache.hadoop.fs.HarFileSystem.initialize(HarFileSystem.java:104)
+        at .apache.hadoop.fs.FileSystem.createFileSystem(FileSystem.java:1378)
+        at .apache.hadoop.fs.FileSystem.get(FileSystem.java:193)
+        at .apache.hadoop.fs.Path.getFileSystem(Path.java:175)
+        at .apache.hadoop.mapreduce.lib.input.FileInputFormat.listStatus(FileInputFormat.java:208)
+        at .apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigTextInputFormat.listStatus(PigTextInputFormat.java:36)
+        at .apache.hadoop.mapreduce.lib.input.FileInputFormat.getSplits(FileInputFormat.java:246)
+        at .apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigInputFormat.getSplits(PigInputFormat.java:245)
+
+
+
+Viraj

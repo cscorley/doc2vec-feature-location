@@ -1,0 +1,15 @@
+The driver for cvb0_local does not seem to verify whether the caller has specified the required maxIterations command line parameter. This results in an exception much further down which pretty much requires looking at the source to discover the source of the error.
+
+Exception in thread "main" java.lang.ClassCastException: java.lang.Integer cannot be cast to java.lang.String
+	at org.apache.mahout.clustering.lda.cvb.InMemoryCollapsedVariationalBayes0.main2(InMemoryCollapsedVariationalBayes0.java:374)
+	at org.apache.mahout.clustering.lda.cvb.InMemoryCollapsedVariationalBayes0.run(InMemoryCollapsedVariationalBayes0.java:521)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:65)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:79)
+	at org.apache.mahout.clustering.lda.cvb.InMemoryCollapsedVariationalBayes0.main(InMemoryCollapsedVariationalBayes0.java:525)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:601)
+	at org.apache.hadoop.util.ProgramDriver$ProgramDescription.invoke(ProgramDriver.java:68)
+	at org.apache.hadoop.util.ProgramDriver.driver(ProgramDriver.java:139)
+	at org.apache.mahout.driver.MahoutDriver.main(MahoutDriver.java:195)

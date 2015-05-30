@@ -1,0 +1,5 @@
+The constructor LOBStreamControl(EmbedConnection, byte[]) always makes the buffer size equal to the LOB size, effectively creating an extra, fully materialized copy of the LOB in memory.
+
+I think the assumption here is that a LOB that's already materialized is a small one. That is, LOBs that are smaller than 32 KB and fit in a single page are typically materialized when read from store. However, we sometimes materialize LOBs that are a lot bigger than 32 KB. For example, triggers that access LOBs may materialize them regardless of size (see comment in DMLWriteResultSet's constructor for details). For these large LOBs, it sounds unreasonable to allocate a buffer of the same size as the LOB itself.
+
+I'd suggest that we change the constructor so that it never allocates a buffer larger than 32KB. That would mean that the behaviour is preserved for all LOBs fetched directly from store (only LOBs that don't fit in a single page will cause temporary files to be created), whereas we'll prevent large LOBs accessed by triggers from being duplicated in memory by overflowing to temporary files.

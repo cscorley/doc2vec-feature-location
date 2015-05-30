@@ -1,0 +1,8 @@
+In Blob.setBytesX(), when a nonpositive length value (len) is passed in, a SqlException with ClientMessageId of SQLState.BLOB_NONPOSITIVE_LENGTH is created, however, it uses length, a wrong length value, which is still zero here.
+
+if ( len < 0 ) 
+{
+            throw new SqlException(agent_.logWriter_,
+                new ClientMessageId(SQLState.BLOB_NONPOSITIVE_LENGTH),
+                new Integer(length));
+        }

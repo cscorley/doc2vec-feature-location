@@ -1,0 +1,27 @@
+Running the junit tests (suites.All) with junit 3.8.1. as described in 
+http://wiki.apache.org/db-derby/JunitVmIssues#head-0916dd3630b0667e49460439fbd041c720d93eaf
+fails with the following stack trace:
+
+EEEEEEEEEEEEEEEEEEEEEEE.EE.EFEEEEjava.sql.SQLException: org.apache.derby.jdbc.EmbeddedDriver is not registered with the JDBC driver manager
+	at org.apache.derby.jdbc.EmbeddedSimpleDataSource.findDriver(EmbeddedSimpleDataSource.java:435)
+	at org.apache.derby.jdbc.EmbeddedSimpleDataSource.getConnection(EmbeddedSimpleDataSource.java:406)
+	at org.apache.derby.jdbc.EmbeddedSimpleDataSource.getConnection(EmbeddedSimpleDataSource.java:373)
+	at org.apache.derbyTesting.junit.TestConfiguration.getConnection(TestConfiguration.java:626)
+	at org.apache.derbyTesting.junit.TestConfiguration.getDefaultConnection(TestConfiguration.java:592)
+	at org.apache.derbyTesting.junit.TestConfiguration.openDefaultConnection(TestConfiguration.java:566)
+	at org.apache.derbyTesting.junit.BaseJDBCTestSetup.getConnection(BaseJDBCTestSetup.java:74)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.SURDataModelSetup.setUp(SURDataModelSetup.java:137)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:18)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at junit.textui.TestRunner.doRun(TestRunner.java:116)
+	at junit.textui.TestRunner.start(TestRunner.java:172)
+	at junit.textui.TestRunner.main(TestRunner.java:138)

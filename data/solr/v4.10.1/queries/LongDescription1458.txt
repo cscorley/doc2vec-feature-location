@@ -1,0 +1,103 @@
+After finally figuring out the new Java based replication, we have started both the slave and the master and issued optimize to all master Solr instances. This triggered some replication to go through just fine, but it looks like some of it is failing.
+
+Here's what I'm getting in the slave logs, repeatedly for each shard:
+
+
+ 
+SEVERE: SnapPull failed 
+java.lang.NullPointerException
+        at org.apache.solr.handler.SnapPuller.fetchLatestIndex(SnapPuller.java:271)
+        at org.apache.solr.handler.ReplicationHandler.doFetch(ReplicationHandler.java:258)
+        at org.apache.solr.handler.SnapPuller$1.run(SnapPuller.java:159)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)
+        at java.util.concurrent.FutureTask$Sync.innerRunAndReset(FutureTask.java:317)
+        at java.util.concurrent.FutureTask.runAndReset(FutureTask.java:150)
+        at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$101(ScheduledThreadPoolExecutor.java:98)
+        at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.runPeriodic(ScheduledThreadPoolExecutor.java:181)
+        at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:205)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+        at java.lang.Thread.run(Thread.java:619)
+
+ 
+
+If I issue an optimize again on the master to one of the shards, it then triggers a replication and replicates OK. I have a feeling that these SnapPull failures appear later on but right now I don't have enough to form a pattern.
+
+Here's replication.properties on one of the failed slave instances.
+
+
+cat data/replication.properties 
+#Replication details
+#Wed Sep 23 19:35:30 PDT 2009
+replicationFailedAtList=1253759730020,1253759700018,1253759670019,1253759640018,1253759610018,1253759580022,1253759550019,1253759520016,1253759490026,1253759460016
+previousCycleTimeInSeconds=0
+timesFailed=113
+indexReplicatedAtList=1253759730020,1253759700018,1253759670019,1253759640018,1253759610018,1253759580022,1253759550019,1253759520016,1253759490026,1253759460016
+indexReplicatedAt=1253759730020
+replicationFailedAt=1253759730020
+lastCycleBytesDownloaded=0
+timesIndexReplicated=113
+
+
+
+and another
+
+
+cat data/replication.properties 
+#Replication details
+#Wed Sep 23 18:42:01 PDT 2009
+replicationFailedAtList=1253756490034,1253756460169
+previousCycleTimeInSeconds=1
+timesFailed=2
+indexReplicatedAtList=1253756521284,1253756490034,1253756460169
+indexReplicatedAt=1253756521284
+replicationFailedAt=1253756490034
+lastCycleBytesDownloaded=22932293
+timesIndexReplicated=3
+
+
+
+
+Some relevant configs:
+In solrconfig.xml:
+
+
+<!-- For docs see http://wiki.apache.org/solr/SolrReplication -->
+  <requestHandler name="/replication" class="solr.ReplicationHandler" >
+    <lst name="master">
+        <str name="enable">${enable.master:false}</str>
+        <str name="replicateAfter">optimize</str>
+        <str name="backupAfter">optimize</str>
+        <str name="commitReserveDuration">00:00:20</str>
+    </lst>
+    <lst name="slave">
+        <str name="enable">${enable.slave:false}</str>
+
+        <!-- url of master, from properties file -->
+        <str name="masterUrl">${master.url}</str>
+
+        <!-- how often to check master -->
+        <str name="pollInterval">00:00:30</str>
+    </lst>
+  </requestHandler>
+
+
+
+The slave then has this in solrcore.properties:
+
+
+enable.slave=true
+master.url=URLOFMASTER/replication
+
+
+
+and the master has
+
+
+enable.master=true
+
+
+
+I'd be glad to provide more details but I'm not sure what else I can do.  SOLR-926 may be relevant.
+
+Thanks.

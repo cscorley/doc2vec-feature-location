@@ -1,0 +1,21 @@
+(assigning to Alex because this was introduced by ZOOKEEPER-107, but will upload a patch as well.)
+
+I have a 5 participants cluster running what will be 3.5.0 (i.e.: trunk as of today) and an observer running 3.4 (trunk from 3.4 branch). When the observer tries to establish a connection to the participants I get:
+
+
+Thread Thread[10.40.78.121:3888,5,main] died java.lang.NullPointerException at org.apache.zookeeper.server.quorum.QuorumCnxManager.receiveConnection(QuorumCnxManager.java:240)
+        at org.apache.zookeeper.server.quorum.QuorumCnxManager$Listener.run(QuorumCnxManager.java:552)
+
+
+
+Looking at QuorumCnxManager.java:240:
+
+
+            if (protocolVersion >= 0) { // this is a server id and not a protocol version                                                             
+               sid = protocolVersion;
+                electionAddr = self.getVotingView().get(sid).electionAddr;
+            } else {
+
+
+
+and self.getVotingView().get(sid) will be null for Observers.  So this block should cover that case.  

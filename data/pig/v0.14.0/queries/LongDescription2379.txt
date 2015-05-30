@@ -1,0 +1,10 @@
+If you do this:
+Schema s1=Utils.getSchemaFromString("b:bag
+{t:tuple(name:chararray,age:int)}
+");
+Schema s2=Schema.getPigSchema(new ResourceSchema(s1));
+System.out.println(s1.equals(s2)); //false!!
+
+That's super weird! The reason is that getPigSchema was setting two level access to true for bags. I added a test, and deleted the piece that set it. I worked with trunk, but a cursory glance makes it appear that it should be able to work with other versions as well, as I don't think that code has changed for a while. I ran test-commit without issue, but haven't ran the full test suite.
+
+I appreciate any feedback on this!

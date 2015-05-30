@@ -1,0 +1,35 @@
+With 10.5.1.1 and newer, the following ij session fails with a NullPointerException (production jars) or an assert failure (debug jars):
+
+ij version 10.10
+ij> connect 'jdbc:derby:db;create=true';
+ij> create table t(x int);
+0 rows inserted/updated/deleted
+ij> insert into t values 0;
+1 row inserted/updated/deleted
+ij> create trigger tr1 after update on t values 1;
+0 rows inserted/updated/deleted
+ij> create trigger tr2 after update on t for each row update t set x = x + 1 where x < 3;
+0 rows inserted/updated/deleted
+ij> update t set x = x + 1;
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+
+It does not fail on 10.4.2.0:
+
+ij version 10.4
+ij> connect 'jdbc:derby:db;create=true';
+ij> create table t(x int);
+0 rows inserted/updated/deleted
+ij> insert into t values 0;
+1 row inserted/updated/deleted
+ij> create trigger tr1 after update on t values 1;
+0 rows inserted/updated/deleted
+ij> create trigger tr2 after update on t for each row update t set x = x + 1 where x < 3;
+0 rows inserted/updated/deleted
+ij> update t set x = x + 1;
+1 row inserted/updated/deleted
+ij> select * from t;
+X          
+-----------
+3          
+
+1 row selected

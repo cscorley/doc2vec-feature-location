@@ -1,0 +1,26 @@
+getTransactionIsolation() is implemented by means of             
+     rs = getTransactionIsolationStmt.executeQuery("values current isolation");
+
+This will activate a transaction. Thus the code snippet
+
+        Connection conn = 
+            DriverManager.getConnection(url);
+        conn.setAutoCommit(false);
+        int tx = conn.getTransactionIsolation();
+        conn.close();
+
+will fail with
+
+java.sql.SQLException: Cannot close a connection while a transaction is still active.
+        at org.apache.derby.client.am.SQLExceptionFactory.getSQLException(Unknown Source)
+        at org.apache.derby.client.am.SqlException.getSQLException(Unknown Source)
+        at org.apache.derby.client.am.Connection.closeResourcesX(Unknown Source)
+        at org.apache.derby.client.am.Connection.closeX(Unknown Source)
+        at org.apache.derby.client.net.NetConnection.closeX(Unknown Source)
+        at org.apache.derby.client.am.Connection.close(Unknown Source)
+        at org.apache.derby.client.net.NetConnection.close(Unknown Source)
+        at GetTransactionIsolation.test(GetTransactionIsolation.java:12)
+        at GetTransactionIsolation.main(GetTransactionIsolation.java:22)
+Caused by: org.apache.derby.client.am.SqlException: Cannot close a connection while a transaction is still active.
+        at org.apache.derby.client.am.Connection.checkForTransactionInProgress(Unknown Source)
+        ... 7 more

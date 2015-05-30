@@ -1,0 +1,114 @@
+I created a very small test case in which I did the following.
+
+1) Created a UTF-8 file which contained a query string in Chinese and wrote it to HDFS. I used this dfs file as an input for the tests.
+2) Created a parameter file which also contained the same query string as in Step 1.
+3) Created a Pig script which takes in the parametrized query string and hard coded Chinese character.
+================================================================
+Pig script: chinese_data.pig
+================================================================
+
+
+rmf chineseoutput;
+I = load '/user/viraj/chinese.txt' using PigStorage('\u0001');
+
+J = filter I by $0 == '$querystring';
+--J = filter I by $0 == ' 歌手    香港情牽女人心演唱會';
+
+store J into 'chineseoutput';
+dump J;
+
+
+=================================================================
+
+Parameter file: nextgen_paramfile
+=================================================================
+queryid=20090311
+querystring='   歌手    香港情牽女人心演唱會'
+=================================================================
+
+Input file: /user/viraj/chinese.txt
+=================================================================
+shell$ hadoop fs -cat /user/viraj/chinese.txt
+        歌手    香港情牽女人心演唱會
+=================================================================
+
+I ran the above set of inputs in the following ways:
+
+Run 1:
+=================================================================
+
+
+java -cp pig.jar:/home/viraj/hadoop-0.18.0-dev/conf/ -Dhod.server='' org.apache.pig.Main -param_file nextgen_paramfile chinese_data.pig
+
+
+=================================================================
+2009-04-22 01:31:35,703 [Thread-7] WARN  org.apache.hadoop.mapred.JobClient - Use GenericOptionsParser for parsing the
+arguments. Applications should implement Tool for the same.
+2009-04-22 01:31:40,700 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher -
+0% complete
+2009-04-22 01:31:50,720 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher -
+100% complete
+2009-04-22 01:31:50,720 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher -
+Success!
+=================================================================
+
+Run 2: removed the parameter substitution in the Pig script instead used the following statement.
+=================================================================
+
+
+J = filter I by $0 == ' 歌手    香港情牽女人心演唱會';
+
+
+=================================================================
+java -cp pig.jar:/home/viraj/hadoop-0.18.0-dev/conf/ -Dhod.server='' org.apache.pig.Main chinese_data_withoutparam.pig
+=================================================================
+2009-04-22 01:35:22,402 [Thread-7] WARN  org.apache.hadoop.mapred.JobClient - Use GenericOptionsParser for parsing the
+arguments. Applications should implement Tool for the same.
+2009-04-22 01:35:27,399 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher -
+0% complete
+2009-04-22 01:35:32,415 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher -
+100% complete
+2009-04-22 01:35:32,415 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher -
+Success!
+=================================================================
+
+In both cases:
+=================================================================
+
+
+shell $ hadoop fs -ls /user/viraj/chineseoutput
+Found 2 items
+drwxr-xr-x   - viraj supergroup          0 2009-04-22 01:37 /user/viraj/chineseoutput/_logs
+-rw-r--r--   3 viraj supergroup          0 2009-04-22 01:37 /user/viraj/chineseoutput/part-00000
+
+
+=================================================================
+
+Additionally tried the dry-run option to figure out if the parameter substitution was occurring properly.
+=================================================================
+
+
+java -cp pig.jar:/home/viraj/hadoop-0.18.0-dev/conf/ -Dhod.server='' org.apache.pig.Main -param_file nextgen_paramfile -r chinese_data.pig
+
+
+=================================================================
+
+
+shell$ file chinese_data.pig.substituted 
+chinese_data.pig.substituted: ASCII text
+shell$ cat chinese_data.pig.substituted 
+
+
+
+
+
+rmf chineseoutput;
+I = load '/user/viraj/chinese.txt' using PigStorage('\u0001');
+
+J = filter I by $0 == ' ??????  ??????????????????????????????';
+
+store J into 'chineseoutput';
+
+
+=================================================================
+This issue has to do with the parser not handling UTF-8 data. 

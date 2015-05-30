@@ -1,0 +1,15 @@
+The following script, which imports an empty macro file, causes a NPE.
+
+import 'macros.pig';
+A = load 'x';
+B = foreach A generate flatten($0);
+
+Stack trace:
+
+Caused by: java.lang.NullPointerException
+        at org.antlr.runtime.tree.BaseTree.addChildren(BaseTree.java:133)
+        at org.apache.pig.parser.QueryParserUtils.replaceNodeWithNodeList(QueryParserUtils.java:194)
+        at org.apache.pig.parser.QueryParserDriver.macroImport(QueryParserDriver.java:409)
+        at org.apache.pig.parser.QueryParserDriver.expandImport(QueryParserDriver.java:274)
+        at org.apache.pig.parser.QueryParserDriver.expandMacro(QueryParserDriver.java:214)
+        at org.apache.pig.parser.QueryParserDriver.parse(QueryParserDriver.java:86)

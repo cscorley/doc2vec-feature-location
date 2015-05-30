@@ -1,0 +1,9 @@
+The error message XCY05 is rather complex:
+Invalid change of the derby.authentication.provider property. Once set to NATIVE authentication, this property cannot be changed. NATIVE::LOCAL is the only NATIVE value accepted by derby.authentication.provider. This property cannot be set to NATIVE::LOCAL unless credentials for the database owner have been stored in the database using the syscs_util.syscs_create_user procedure.
+
+I'd be in favor of simplifying this error message if possible, especially raising a more specific message for the error condition when the DBO hasn't been added as a user.
+Further, it was not clear to me that the information about derby.authentication.provider applies when setting it as a database property only.
+Is this message trying to describe three problem scenarios?
+ a) Turning off NATIVE authentication is forbidden.
+ b) Specifying an invalid value for derby.authentication.provider when set as a database property.
+ c) Missing credentials for the DBO.

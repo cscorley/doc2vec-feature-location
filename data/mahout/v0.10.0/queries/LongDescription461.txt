@@ -1,0 +1,24 @@
+I ran /mahout svd -Dmapred.input.dir=/tmp/solr-clust-n2/part-out.vec --tempDir /tmp/solr-clust-n2/svdTemp --rank 200 --numCols 62072 --numRows  130103
+
+and got
+
+INFO: Persisting 200 eigenVectors and eigenValues to: null
+Exception in thread "main" java.lang.IllegalArgumentException: Can not create a Path from a null string
+       at org.apache.hadoop.fs.Path.checkPathArg(Path.java:78)
+       at org.apache.hadoop.fs.Path.<init>(Path.java:90)
+       at org.apache.mahout.math.hadoop.decomposer.DistributedLanczosSolver.serializeOutput(DistributedLanczosSolver.java:110)
+       at org.apache.mahout.math.hadoop.decomposer.DistributedLanczosSolver.run(DistributedLanczosSolver.java:97)
+       at org.apache.mahout.math.hadoop.decomposer.DistributedLanczosSolver.run(DistributedLanczosSolver.java:76)
+       at org.apache.mahout.math.hadoop.decomposer.DistributedLanczosSolver$DistributedLanczosSolverJob.run(DistributedLanczosSolver.java:166)
+       at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:65)
+       at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:79)
+       at org.apache.mahout.math.hadoop.decomposer.DistributedLanczosSolver.main(DistributedLanczosSolver.java:172)
+       at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+       at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+       at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+       at java.lang.reflect.Method.invoke(Method.java:597)
+       at org.apache.hadoop.util.ProgramDriver$ProgramDescription.invoke(ProgramDriver.java:68)
+       at org.apache.hadoop.util.ProgramDriver.driver(ProgramDriver.java:139)
+       at org.apache.mahout.driver.MahoutDriver.main(MahoutDriver.java:175)
+
+The solver doesn't ask for nor require the output value and it isn't documented either.

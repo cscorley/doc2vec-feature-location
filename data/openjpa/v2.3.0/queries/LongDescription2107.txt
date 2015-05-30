@@ -1,0 +1,18 @@
+I have a complex query which creates the following error:
+
+<openjpa-2.2.0-tiss-2-rexported nonfatal user error> org.apache.openjpa.persistence.ArgumentException: Cannot load object with id "26301".  Instance "at.ac.tuwien.tiss.curriculum.be.entities.DefaultCourse@6e267b76" with the same id already exists in the L1 cache.  This can occur when you assign an existing id to a new instance, and before flushing attempt to load the existing instance for that id.
+FailedObject: at.ac.tuwien.tiss.curriculum.be.entities.DefaultCourse-26301
+	at org.apache.openjpa.kernel.ManagedCache.add(ManagedCache.java:126)
+	at org.apache.openjpa.kernel.BrokerImpl.setStateManager(BrokerImpl.java:4117)
+	at org.apache.openjpa.kernel.StateManagerImpl.initialize(StateManagerImpl.java:391)
+	at org.apache.openjpa.kernel.StateManagerImpl.initialize(StateManagerImpl.java:340)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.initializeState(JDBCStoreManager.java:378)
+
+It seems that this entity gets loaded from the db twice in the same query.
+
+While hitting the problem, the StateManagers have the following _flags:
+
+orig _flags= 602 = 0010 0101 1010 SAVE LOADED READ_LOCKED OID_ASSIGNED FLUSHED  
+sm   _flags= 16  = 0000 0001 0000 READ_LOCKED
+
+And it is really only 1 instance which makes this problem. If I set the 'orig' variable to null in the debugger, the test runs fine.

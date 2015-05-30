@@ -1,0 +1,22 @@
+We are going to add parsers for ISA-Tab data formats.
+ISA-Tab files are related to ISA Tools which help to manage an increasingly diverse set of life science, environmental and biomedical experiments that employing one or a combination of technologies.
+The ISA tools are built upon Investigation, Study, and Assay tabular format. Therefore, ISA-Tab data format includes three types of file: Investigation file (a_xxxx.txt), Study file (s_xxxx.txt), Assay file (a_xxxx.txt). These files are organized as top-down hierarchy: An Investigation file includes one or more Study files: each Study files includes one or more Assay files.
+Essentially, the Investigation files contains high-level information about the related study, so it provides only metadata about ISA-Tab files.
+More details on file format specification are available online.
+
+The patch in attachment provides a preliminary version of ISA-Tab parsers (there are three parsers; one parser for each ISA-Tab filetype):
+
+	ISATabInvestigationParser.java: parses Investigation files. It extracts only metadata.
+	ISATabStudyParser.java: parses Study files.
+	ISATabAssayParser.java: parses Assay files.
+
+
+
+The most important improvements are:
+
+	Combine these three parsers in order to parse an ISArchive
+	Provide a better mapping of both study and assay data on XHML. Currently, ISATabStudyParser and ISATabAssayParser provide a naive mapping function relying on Apache Commons CSV.
+
+
+
+Thanks for supporting me on this work Chris A. Mattmann. 

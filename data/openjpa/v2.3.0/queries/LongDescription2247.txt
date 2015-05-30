@@ -1,0 +1,27 @@
+The runtime incorrectly ignores @JoinColumn.name when mapping a unidirectional owned OneToOne that is in a SecondaryTable.
+
+This problem only exists when running with a persistence.xml that is set to 2.0 (version="2.0">).
+
+For example:
+
+@Entity
+@SecondaryTable(name = "ParentSecondaryTable", pkJoinColumns = 
+    
+{ @PrimaryKeyJoinColumn(name = "idParent", referencedColumnName = "idParent") }
+)
+public class Parent 
+{
+
+    @Id
+    @GeneratedValue
+    int idParent;
+
+    String child_ref;
+
+    @OneToOne
+    @JoinColumn(name = "CHILD_REF", table = "ParentSecondaryTable", referencedColumnName = "idChild")
+    PChild child;
+
+}
+
+The column "CHILD_REF" will be ignored and the runtime will look for the fk in non-existent column ParentSecondaryTable.CHILD_IDCHILD.

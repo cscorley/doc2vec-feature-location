@@ -1,0 +1,8 @@
+Currently there appear to be issues with embedded pdf's and outlook Msg files contained in MS Word documents. I'll attach a sample for each and my recursive parser (incase the problem lies in there).
+
+From what I see, when these embedded objects are parsed, they're initially identified as vnd.openxmlformats-officedocument.oleObject in the metadata's Content-Type field. After a call to the RecurciveParsers super parse class the Content-Types update to the following:
+
+PDF's: application/vnd.ms-works
+.MSG: application/x-tika-msoffice
+
+The internal AutoDetectParser is unable to properly identify these PDF's and therfore does not call the PDFParser on them.

@@ -1,0 +1,5 @@
+In the default implementation of leader election, there are two undesirable cases that need to be covered:
+
+1- If there is a leader elected and this leader is supported by at least  quorum of peers, then it can happen that one peer disconnects from the leader, and initiates a new leader election. As it is a new leader election, we increment the logical clock of this peer, and according to the current implementation, this peer won't accept any vote from a peer with a lower LE turn (corresponds to the value of the logical clock of the voting peer). The attached patch corrects this problem by allowing a peer to go back to a previous epoch in the case a majority votes for a leader, and the peer also receives a vote from the leader. This feature allows a peer to correct a false suspicion of the current leader;
+
+2- If a peer  advances to a new turn before others, then it may end up voting for a peer that either does not have the highest server id or the the highest zxid. The attached patch fixes this problem by resetting the vote a peer when it updates its logical clock upon receiving a notification with a higher turn value.

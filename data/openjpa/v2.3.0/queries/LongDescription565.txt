@@ -1,0 +1,15 @@
+If duplicate @NameQuery is defined in @NameQueries as in, 
+
+@NamedQueries (
+  {  @NamedQuery(name="findBasicAByBasicBid", query="select t.entitya from BasicB t WHERE t.id = ?1" ),
+     @NamedQuery(name="findBasicAByBasicBid", query="select t.entitya from BasicB t WHERE t.id = ?1"),
+     @NamedQuery(name="findInhAddress",	query="select t from InhAddress t)
+})
+
+a warning  message is posted in the log
+
+openjpa.MetaData - Found duplicate query "findBasicAByBasicBid" in "class com.ibm.ws.query.pdq.entities.TypeTestBean".  Ignoring.
+
+Although the message said the query is ignored, it actually terminates the detection of the remaining NamedQuery definitions.
+
+Albert Lee.

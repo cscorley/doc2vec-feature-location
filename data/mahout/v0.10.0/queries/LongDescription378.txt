@@ -1,0 +1,18 @@
+The  minSupport parameter is never read in
+
+generateFList(Iterator<Pair<List<A>,Long>> transactions, int minSupport) 
+
+One solution is to drop the parameter, i.e.: 
+
+generateFList(Iterator<Pair<List<A>,Long>> transactions)
+
+I guess this would do the filtering:
+
+		List<Pair<A, Long>> fList = new ArrayList<Pair<A, Long>>();
+		for (Entry<A, MutableLong> e : attributeSupport.entrySet()) {
+			if (e.getValue().intValue() >= minSupport) 
+{
+				fList.add(new Pair<A, Long>(e.getKey(), e.getValue()
+						.longValue()));
+			}
+		}

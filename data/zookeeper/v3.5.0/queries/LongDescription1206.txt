@@ -1,0 +1,23 @@
+While I always expect to be able to parse a sequential node by looking for digits, under some locals you end up with non digits - for example: n_००००००००००
+
+It looks like the problem is around line 236 in PrepRequestProcessor:
+
+
+
+                if (createMode.isSequential()) {
+                    path = path + String.format("%010d", parentCVersion);
+                }
+
+
+
+Instead we should pass Locale.ENGLISH to the format call.
+
+
+
+                if (createMode.isSequential()) {
+                    path = path + String.format(Locale.ENGLISH, "%010d", parentCVersion);
+                }
+
+
+
+Lucene/Solr tests with random Locales, and some of my tests that try and inspect the node name and order things expect to find digits - currently my leader election recipe randomly fails when the wrong locale pops up.

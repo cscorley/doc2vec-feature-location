@@ -1,0 +1,13 @@
+Sample script:
+
+register v_udf.jar;
+a = load '2records' as (f1:chararray,f2:chararray);
+b = group a by f1;
+d = foreach b 
+{ sort = order a by f1; 
+  generate org.udfs.MyCOUNT(sort) as something ; }
+dump d;
+
+This causes infinite loop if MyCOUNT implements Accumulator interface.
+
+The workaround is to take the function out of nested foreach into a separate foreach statement.

@@ -1,0 +1,31 @@
+The first test in nist suite (schema1.sql) fails with following exception:
+
+RunIJ --> java.security.AccessControlException: Access denied (java.io.FilePermission C:\deepa\Derby\derby_testing\j9foun_nist\nist\schema1_app.properties read)
+java.security.AccessControlException: Access denied (java.io.FilePermission C:\deepa\Derby\derby_testing\j9foun_nist\nist\schema1_app.properties read)
+	at java.security.AccessController.checkPermission(AccessController.java:74)
+	at java.lang.SecurityManager.checkPermission(SecurityManager.java:612)
+	at java.lang.SecurityManager.checkRead(SecurityManager.java:395)
+	at java.io.FileInputStream.<init>(FileInputStream.java:90)
+	at org.apache.derby.impl.tools.ij.util.getPropertyArg(util.java:120)
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:91)
+	at org.apache.derby.impl.tools.ij.Main.main(Main.java:75)
+	at org.apache.derby.tools.ij.main(ij.java:56)
+	at org.apache.derbyTesting.functionTests.harness.RunIJ.run(RunIJ.java:44)
+	at java.lang.Thread.run(Thread.java:795)
+java.security.AccessControlException: Access denied (java.util.PropertyPermission * read,write)
+	at java.security.AccessController.checkPermission(AccessController.java:74)
+	at java.lang.SecurityManager.checkPermission(SecurityManager.java:612)
+	at java.lang.SecurityManager.checkPropertiesAccess(SecurityManager.java:353)
+	at java.lang.System.getProperties(System.java:252)
+	at org.apache.derbyTesting.functionTests.harness.RunTest.execTestNoProcess(RunTest.java:2324)
+	at org.apache.derbyTesting.functionTests.harness.RunTest.testRun(RunTest.java:442)
+	at org.apache.derbyTesting.functionTests.harness.RunTest.main(RunTest.java:301)
+	at org.apache.derbyTesting.functionTests.harness.RunList.runTests(RunList.java:550)
+	at org.apache.derbyTesting.functionTests.harness.RunList.runSuites(RunList.java:306)
+	at org.apache.derbyTesting.functionTests.harness.RunList.<init>(RunList.java:160)
+	at org.apache.derbyTesting.functionTests.harness.RunSuite.getSuitesList(RunSuite.java:186)
+	at org.apache.derbyTesting.functionTests.harness.RunSuite.main(RunSuite.java:146)
+
+I think this is happening after the change to install a SecurityManager when useprocess=false is specified. This property is specified in the properties file for nist suite. Before this change, security manager was not used when running tests in J2ME.
+
+Since this exception causes the test harness to exit, derbyall cannot be completed in this environment.

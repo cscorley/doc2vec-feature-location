@@ -1,0 +1,9 @@
+SequenceFilesFromMailArchivesTest.testSequential is failing only on ubuntu3 and ubuntu6 Jenkins nodes. Because of that, MahoutQuality and integration job builds either fail or are successful depending on where they get run.
+
+Test fails because it expects entries in chunk-0 SequenceFile to be in specific order, but that order is not guaranteed because of the way the chunk-0 is created/filled - SequenceFilesFromMailArchives traverses input using Java's
+
+File[] java.io.File.listFiles(FileFilter filter)
+
+which does not guarantee order of files/directories.
+
+Unless we want in SequenceFileIterator to guarantee order by sorting, test needs to be changed to verify presence of given files and their content, but not their exact order.

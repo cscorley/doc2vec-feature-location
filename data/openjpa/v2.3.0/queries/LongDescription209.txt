@@ -1,0 +1,58 @@
+Query returning 2 entities w/unidir 1-1 relationship gets openjpa.persistence.ArgumentException: Address with the same id already exists in the L1 cache.
+
+ok if 1-1 relationship is bi-directional.
+
+found with test_1_1relationshipQuery_Winery_Address()
+same behavior with test_1_1relationshipQuery_EmpBean_AddressBean()
+
+Starting getEntityManager()
+60  bugsmall  INFO   [main] openjpa.Runtime - Starting OpenJPA 0.9.7-incubating-SNAPSHOT
+220  bugsmall  INFO   [main] openjpa.jdbc.JDBC - Using dictionary class "org.apache.openjpa.jdbc.sql.DB2Dictionary".
+2423  bugsmall  TRACE  [main] openjpa.jdbc.SQL - <t 1094861122, conn 1207977984> executing prepstmnt 223874392 SELECT SEQSCHEMA AS SEQUENCE_SCHEMA, SEQNAME AS SEQUENCE_NAME FROM SYSCAT.SEQUENCES
+2433  bugsmall  TRACE  [main] openjpa.jdbc.SQL - <t 1094861122, conn 1207977984> [10 ms] spent
+0  bugsmall  INFO   [main] openjpa.Runtime - Starting OpenJPA 0.9.7-incubating-SNAPSHOT
+10  bugsmall  INFO   [main] openjpa.jdbc.JDBC - Using dictionary class "org.apache.openjpa.jdbc.sql.DB2Dictionary".
+Starting getEntityManager()
+741  bugsmall  TRACE  [main] openjpa.jdbc.SQL - <t 1094861122, conn 698362272> executing prepstmnt 223087948 SELECT SEQSCHEMA AS SEQUENCE_SCHEMA, SEQNAME AS SEQUENCE_NAME FROM SYSCAT.SEQUENCES
+741  bugsmall  TRACE  [main] openjpa.jdbc.SQL - <t 1094861122, conn 698362272> [0 ms] spent
+982  bugsmall  TRACE  [main] openjpa.Query - Executing query: [SELECT r.address,r FROM Winery r WHERE r.wineryid = ?1] with parameters: 
+{1=1}
+1082  bugsmall  TRACE  [main] openjpa.jdbc.SQL - <t 1094861122, conn 698362272> executing prepstmnt 1433294190 SELECT t1.phone, t1.city, t1.state, t1.street, t1.zip, t0.wineryid FROM bugsmallWinery t0 LEFT OUTER JOIN bugsmallAddress t1 ON t0.address_phone = t1.phone WHERE (t0.wineryid = ?) [params=(int) 1]
+
+====================================
+Starting test_1_1relationshipQuery_Winery_Address()
+====================================
+Shows a winery and its address
+String sql = "SELECT r.address,r FROM Winery r WHERE r.wineryid = :wineryid "
+Caution: requires _em.find(Winery.class,parm1) to avoid cache exception
+-----------------------------------------------------------------------------
+1092  bugsmall  TRACE  [main] openjpa.jdbc.SQL - <t 1094861122, conn 698362272> [0 ms] spent
+<4|false|0.9.7-incubating-SNAPSHOT> org.apache.openjpa.persistence.ArgumentException: Cannot load object with id "1".  Instance "com.ibm.websphere.ejb3sample.winetour.bugsmall.Address-1" with the same id already exists in the L1 cache.  This can occur when you assign an existing id to a new instance, and before flushing attempt to load the existing instance for that id.
+FailedObject: com.ibm.websphere.ejb3sample.winetour.bugsmall.Address-1
+	at org.apache.openjpa.kernel.BrokerImpl$ManagedCache.add(BrokerImpl.java:4418)
+	at org.apache.openjpa.kernel.BrokerImpl.setStateManager(BrokerImpl.java:3773)
+	at org.apache.openjpa.kernel.StateManagerImpl.initialize(StateManagerImpl.java:297)
+	at org.apache.openjpa.kernel.StateManagerImpl.initialize(StateManagerImpl.java:258)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.initializeState(JDBCStoreManager.java:327)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.initialize(JDBCStoreManager.java:252)
+	at org.apache.openjpa.kernel.DelegatingStoreManager.initialize(DelegatingStoreManager.java:108)
+	at org.apache.openjpa.kernel.ROPStoreManager.initialize(ROPStoreManager.java:54)
+	at org.apache.openjpa.kernel.BrokerImpl.initialize(BrokerImpl.java:873)
+	at org.apache.openjpa.kernel.BrokerImpl.find(BrokerImpl.java:831)
+	at org.apache.openjpa.kernel.BrokerImpl.find(BrokerImpl.java:753)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.load(JDBCStoreManager.java:773)
+	at org.apache.openjpa.jdbc.sql.AbstractResult.load(AbstractResult.java:254)
+	at org.apache.openjpa.jdbc.sql.SelectImpl$SelectResult.load(SelectImpl.java:2115)
+	at org.apache.openjpa.jdbc.kernel.exps.PCPath.load(PCPath.java:684)
+	at org.apache.openjpa.jdbc.kernel.exps.PCPath.load(PCPath.java:672)
+	at org.apache.openjpa.jdbc.kernel.ProjectionResultObjectProvider.getResultObject(ProjectionResultObjectProvider.java:73)
+	at org.apache.openjpa.lib.rop.EagerResultList.<init>(EagerResultList.java:33)
+	at org.apache.openjpa.kernel.QueryImpl.toResult(QueryImpl.java:1214)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:981)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:791)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:761)
+	at org.apache.openjpa.kernel.DelegatingQuery.execute(DelegatingQuery.java:528)
+	at org.apache.openjpa.persistence.QueryImpl.execute(QueryImpl.java:222)
+	at org.apache.openjpa.persistence.QueryImpl.getResultList(QueryImpl.java:264)
+	at com.ibm.websphere.ejb3sample.winetour.bugsmall.BugSmallWineryTest.test_1_1relationshipQuery_Winery_Address(BugSmallWineryTest.java:344)
+	at com.ibm.websphere.ejb3sample.winetour.bugsmall.BugSmallWineryTest.main(BugSmallWineryTest.java:91)

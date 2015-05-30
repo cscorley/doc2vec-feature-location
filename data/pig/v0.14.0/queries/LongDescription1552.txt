@@ -1,0 +1,15 @@
+The following script fail:
+
+
+
+A = load 'studentab10k' as (name, age, gpa);
+B = group A by name;
+C = foreach B {
+    D = distinct A.age;
+    generate group, COUNT(D);
+}
+describe C::D;
+
+
+
+If we remove group from generate statement, then it works

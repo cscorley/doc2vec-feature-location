@@ -1,0 +1,71 @@
+For client, if the cursor name is set with java.sql.Statement.setCursorName() the name set by the user only applies to the first execution.  Subsequent executions use the default cursor name.  To reproduce run the progam below as follows:
+
+D>java -Dframework=DerbyNetClient GetCursorName
+10.2.0.0 alpha
+Apache Derby
+Apache Derby Network Client JDBC Driver
+rs.getCursorName():MyCursor
+rs.getCursorName():SQL_CURLH000C2
+
+
+With embedded it is ok:
+D>java  GetCursorName
+10.2.0.0 alpha
+Apache Derby
+Apache Derby Embedded JDBC Driver
+rs.getCursorName():MyCursor
+rs.getCursorName():MyCursor
+
+
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+
+import org.apache.derbyTesting.functionTests.util.TestUtil;
+
+
+
+class GetCursorName
+{
+
+
+    public static void main (String args [])throws Exception 
+    {
+    	testGetCursorName();
+    }
+
+    public static void testGetCursorName() throws SQLException
+    {
+		
+		Connection conn = TestUtil.getConnection("wombat","create=true");
+		Statement stmt = null;
+		ResultSet rs = null;
+
+		DatabaseMetaData md = conn.getMetaData() ;
+		System.out.println(md.getDatabaseProductVersion());
+        System.out.println(md.getDatabaseProductName());
+        System.out.println(md.getDriverName());
+		
+		stmt = conn.createStatement();
+		// Setting the cursor name works for one execution ok.
+		stmt.setCursorName("MyCursor");
+		rs = stmt.executeQuery("select count(*) from sys.systables");
+		System.out.println("rs.getCursorName():" + rs.getCursorName());
+		rs.close();
+		//Executing another query seems to clears the cursor name.
+		// getCursorName() will print the default cursor name SQLXXX.
+		rs = stmt.executeQuery("select count(*) from sys.systables");
+		System.out.println("rs.getCursorName():" + rs.getCursorName());
+		rs.close();
+		stmt.close();
+        conn.close();
+
+      }
+
+}
+
+I noticed this bug when coverting the checkDataSource test for client.
+I will change that test to set the cursor name for each execution for client.

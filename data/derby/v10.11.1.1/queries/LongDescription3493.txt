@@ -1,0 +1,54 @@
+The diff is:
+7 del
+< ...running last checks via final.sql
+7 add
+ > ...timed out trying to kill all testers,
+ >    skipping last scripts (if any).  NOTE: the
+ >    likely cause of the problem killing testers is
+ >    probably not enough VM memory OR test cases that
+ >    run for very long periods of time (so testers do not
+ >    have a chance to notice stop() requests
+Test Failed.
+
+The testers that are stuck are stuck on the same statement e.g.
+– 
+update main2 set y = 'zzz' where x = 5;
+ERROR 08000: Connection closed by unknown interrupt.
+ERROR XJ001: Java exception: ': java.lang.InterruptedException'.
+
+The interupt exception shows:
+java.lang.InterruptedException
+        at java.lang.Object.wait(Native Method)
+        at java.lang.Object.wait(Object.java:199)
+        at
+org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatement.java:195)
+        at
+org.apache.derby.impl.sql.GenericStatement.prepare(GenericStatement.java:88)
+        at
+org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(GenericLanguageConn
+ctionContext.java:768)
+        at
+org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:606)
+        at
+org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:555)
+        at org.apache.derby.impl.tools.ij.ij.executeImmediate(ij.java:329)
+        at
+org.apache.derby.impl.tools.ij.utilMain.doCatch(utilMain.java:508)
+        at
+org.apache.derby.impl.tools.ij.utilMain.runScriptGuts(utilMain.java:350)
+
+
+The code at line 195 of GenericStatement shows:
+          ....
+                try 
+{
+                    preparedStmt.wait();
+                }
+ catch (InterruptedException ie) 
+{
+                    throw StandardException.interrupt(ie);
+                }
+
+My first guess is that this is perhaps some type of Statement cache
+concurrency bug, but perhaps
+I am reading it wrong.  

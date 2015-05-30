@@ -1,0 +1,73 @@
+OpenJPA doesn't throw standard JPA exceptions in the case of failure to persist or commit. 
+
+For example, the JPA spec states that the EntityExistsException is thrown by the persistence provider when EntityManager.persist(Object) is called and the entity already exists. 
+
+However, the OpenJPA never raises the EntityExistsException, instead raises RollbackException.
+
+In order to produce the issue, just take the hellojpa example comes with the OpenJPA distro. and modify Message.java to make 
+variable message an ID (original Message class uses timestamp as ID, just change the ID to be message variable for the purpose of  reproducing the issue explained here) : 
+   @Id
+    private String message;
+
+Then run the hellojpa after this very simple modification, twice. Second execution fails because of duplicate key. The stack trace is captured below and notice that there is no  EntityExistsException in the stack trace at all. 
+
+Because of this, the caller of the jpa objects cannot differenciate EntityExistsException from any other exception and for example the GUI cleints cannot display meaningful error code to reflect exactly what happend. 
+
+Here is the stack trace :
+
+Buildfile: D:\apache-openjpa-1.0.0\examples\hellojpa\build.xml
+pre-compile:
+compile:
+run:
+     [java] 3063  hellojpa  TRACE  [main] openjpa.jdbc.SQL - <t 26760685, conn 3238031> executing prepstmnt 28409161 INSERT INTO Message (message, created, id) VALUES (?, ?, ?) [params=(String) Hello Persistence!, (Timestamp) 2007-12-03 15:59:24.663, (long) 1196715564663]
+     [java] 3157  hellojpa  TRACE  [main] openjpa.jdbc.SQL - <t 26760685, conn 3238031> [94 ms] spent
+     [java] Exception in thread "main" <openjpa-1.0.0-r420667:568756 fatal store error> org.apache.openjpa.persistence.RollbackException: The transaction has been rolled back.  See the nested exceptions for details on the errors that occurred.
+     [java] 	at org.apache.openjpa.persistence.EntityManagerImpl.commit(EntityManagerImpl.java:419)
+     [java] 	at hellojpa.Main.main(Main.java:53)
+     [java] Caused by: <openjpa-1.0.0-r420667:568756 fatal general error> org.apache.openjpa.persistence.PersistenceException: The transaction has been rolled back.  See the nested exceptions for details on the errors that occurred.
+     [java] 	at org.apache.openjpa.kernel.BrokerImpl.newFlushException(BrokerImpl.java:2099)
+     [java] 	at org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:1946)
+     [java] 	at org.apache.openjpa.kernel.BrokerImpl.flushSafe(BrokerImpl.java:1844)
+     [java] 	at org.apache.openjpa.kernel.BrokerImpl.beforeCompletion(BrokerImpl.java:1762)
+     [java] 	at org.apache.openjpa.kernel.LocalManagedRuntime.commit(LocalManagedRuntime.java:81)
+     [java] 	at org.apache.openjpa.kernel.BrokerImpl.commit(BrokerImpl.java:1292)
+     [java] 	at org.apache.openjpa.kernel.DelegatingBroker.commit(DelegatingBroker.java:861)
+     [java] 	at org.apache.openjpa.persistence.EntityManagerImpl.commit(EntityManagerImpl.java:408)
+     [java] 	... 1 more
+     [java] Caused by: <openjpa-1.0.0-r420667:568756 nonfatal general error> org.apache.openjpa.persistence.PersistenceException: The statement was aborted because it would have caused a duplicate key value in a unique or primary key constraint or unique index identified by 'SQL071203035857400' defined on 'MESSAGE'. 
+{prepstmnt 28409161 INSERT INTO Message (message, created, id) VALUES (?, ?, ?) [params=(String) Hello Persistence!, (Timestamp) 2007-12-03 15:59:24.663, (long) 1196715564663]}
+ [code=20000, state=23505]
+     [java] FailedObject: hellojpa.Message@89e2f1
+     [java] 	at org.apache.openjpa.jdbc.sql.DBDictionary.newStoreException(DBDictionary.java:3849)
+     [java] 	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:97)
+     [java] 	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:67)
+     [java] 	at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flushInternal(PreparedStatementManagerImpl.java:108)
+     [java] 	at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flush(PreparedStatementManagerImpl.java:73)
+     [java] 	at org.apache.openjpa.jdbc.kernel.ConstraintUpdateManager.flush(ConstraintUpdateManager.java:543)
+     [java] 	at org.apache.openjpa.jdbc.kernel.ConstraintUpdateManager.flush(ConstraintUpdateManager.java:105)
+     [java] 	at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.flush(AbstractUpdateManager.java:89)
+     [java] 	at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.flush(AbstractUpdateManager.java:72)
+     [java] 	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.flush(JDBCStoreManager.java:514)
+     [java] 	at org.apache.openjpa.kernel.DelegatingStoreManager.flush(DelegatingStoreManager.java:130)
+     [java] 	... 8 more
+     [java] Caused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: The statement was aborted because it would have caused a duplicate key value in a unique or primary key constraint or unique index identified by 'SQL071203035857400' defined on 'MESSAGE'. 
+{prepstmnt 28409161 INSERT INTO Message (message, created, id) VALUES (?, ?, ?) [params=(String) Hello Persistence!, (Timestamp) 2007-12-03 15:59:24.663, (long) 1196715564663]}
+ [code=20000, state=23505]
+     [java] 	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.wrap(LoggingConnectionDecorator.java:192)
+     [java] 	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.access$800(LoggingConnectionDecorator.java:57)
+     [java] 	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection$LoggingPreparedStatement.executeUpdate(LoggingConnectionDecorator.java:858)
+     [java] 	at org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement.executeUpdate(DelegatingPreparedStatement.java:269)
+     [java] 	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager$CancelPreparedStatement.executeUpdate(JDBCStoreManager.java:1363)
+     [java] 	at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flushInternal(PreparedStatementManagerImpl.java:97)
+     [java] 	... 15 more
+
+BUILD FAILED
+D:\apache-openjpa-1.0.0\examples\build.xml:84: Java returned: 1
+
+Total time: 6 seconds
+
+
+
+
+
+

@@ -1,0 +1,8 @@
+May also be the case for connections obtained from EmbeddedConnectionPoolDataSource.
+
+ResultSet.getStatement() is returning the undetlying "physical" java.sql.Statement object, not the brokered object.
+
+Bug as applications can then get at the underlying "physical" connection and thus continue to
+ use a connection that may have been assigned to someone else. Causes FAIL messages in the
+new jdbcapi/XATest, real checks should be added in checkDataSource to ensure all the possible
+connection objects are checked.

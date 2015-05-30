@@ -1,0 +1,38 @@
+The following script produce wrong result:
+
+
+A = load '1.txt' as (i:int, s:chararray);
+B = group A by i;
+C = group A by s;
+store B into 'ooo1';
+store C into 'ooo2';
+
+
+1.txt:
+
+
+1       h
+1       a
+
+
+Expected: 
+
+
+ooo1:
+1       {(1,a),(1,h)}
+ooo2:
+a       {(1,a)}
+h       {(1,h)}
+
+
+Actual:
+
+
+ooo1:
+1       {((1),a),((1),h)}
+ooo2:
+a       {(1,(a))}
+h       {(1,(h))}
+
+
+This happens after PIG-3591.

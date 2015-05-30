@@ -1,0 +1,11 @@
+Validation of the second parameter on StoreCache.pinAll could be better.  Currently, we assume that the list of oids provided are valid ids for the Class instances being cached.  But, if the collection of Objects passed in are not actual ids, then we end up reserving spots in the cache that never get utilized.
+
+    /**
+
+	Pin the data for the given oids to the cache.
+     */
+    public void pinAll(Class cls, Object... oids);
+
+
+
+Since the Class type is also passed in, we should be able to validate that the oids passed in are valid.  At a minimum, checking if they are oids in the first place would be a good catch.  Currently, we do nothing.

@@ -1,0 +1,53 @@
+dblook doesn't qualify identifiers in the trigger action if they weren't explicitly qualified in the original CREATE TRIGGER statement.
+
+Example:
+
+ij version 10.10
+ij> connect 'jdbc:derby:db;create=true';  
+ij> create table s1.t1(x int);
+0 rows inserted/updated/deleted
+ij> create table s2.t2(x int);
+0 rows inserted/updated/deleted
+ij> set schema s1;
+0 rows inserted/updated/deleted
+ij> create trigger tr1 after insert on t1 insert into s2.t2 select * from t1;
+0 rows inserted/updated/deleted
+ij> set schema s2;
+0 rows inserted/updated/deleted
+ij> create trigger tr2 after insert on s1.t1 insert into t2 select * from s1.t1;
+0 rows inserted/updated/deleted
+ij> exit;
+
+Then run dblook on the created database:
+
+– Timestamp: 2013-10-04 12:46:14.974
+– Source database is: db
+– Connection URL is: jdbc:derby:db
+– appendLogs: false
+
+– ----------------------------------------------
+– DDL Statements for schemas
+– ----------------------------------------------
+
+CREATE SCHEMA "S1";
+
+CREATE SCHEMA "S2";
+
+– ----------------------------------------------
+– DDL Statements for tables
+– ----------------------------------------------
+
+CREATE TABLE "S1"."T1" ("X" INTEGER);
+
+CREATE TABLE "S2"."T2" ("X" INTEGER);
+
+– ----------------------------------------------
+– DDL Statements for triggers
+– ----------------------------------------------
+
+CREATE TRIGGER "S1"."TR1" AFTER INSERT ON "S1"."T1" FOR EACH STATEMENT insert into s2.t2 select * from t1;
+
+CREATE TRIGGER "S2"."TR2" AFTER INSERT ON "S1"."T1" FOR EACH STATEMENT insert into t2 select * from s1.t1;
+
+
+dblook should either qualify all identifiers in the trigger actions, or contain SET SCHEMA statements before each of the CREATE TRIGGER statements to ensure the correct implicit schema is chosen.

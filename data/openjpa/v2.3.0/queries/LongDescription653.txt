@@ -1,0 +1,3 @@
+A Java EE application with query result caching enabled and with many concurrent users is failing with a ConcurrentModificationException in org.apache.openjpa.datacache.QueryCacheStoreQuery.  Specifically, the failure is in the inner class.method CachingResultObjectProvider.checkFinished(Object, boolean) and occurs while iterating the _data TreeMap within the QueryResult constructor.  
+
+Examination of this method showed that the tree map is synchronized in the beginning of the method and then later when the  map is cleared in abortCaching().  It is not synchronized when a new QueryResult is constructed.  This allows a thread to iterate over the map (during the constructor) while another thread is modifying it.  

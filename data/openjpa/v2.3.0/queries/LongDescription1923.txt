@@ -1,0 +1,23 @@
+IN expression in JPQL query is defined in BNF as:
+
+in_expression ::= 
+{state_field_path_expression | type_discriminator}
+ [NOT] IN { ( in_item 
+{, in_item}
+* ) | (subquery) | collection_valued_input_parameter }  
+
+The parentheses are used for comma-separated in_term, but no parentheses around collection_valued_input_parameter. OpenJPA 2.0 adheres to this syntax and hence raises exception for
+String jpql = "select a from Address a where a.zip in ()";
+em.createQuery(jpql).setParameter(p, Array.asList(12345, 23456));
+
+java.lang.IllegalArgumentException:Invalid input parameter "p". A collection valued parameter syntax may incorrectly used in the query string. If the parameter is parenthesized, remove the parentheses and try again.
+
+However, earlier OpenJPA versions supported parentheses around the parameter. 
+
+This issue will reinstate the behavior such that both queries
+"select a from Address a where a.zip in ()";
+"select a from Address a where a.zip in  ";
+
+will be valid when parameter p is bound to a collection or list value.  
+
+The unlikely case of binding a single value to "select a from Address a where a.zip in ()" will be disallowed. 

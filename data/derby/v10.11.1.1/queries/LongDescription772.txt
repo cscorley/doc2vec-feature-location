@@ -1,0 +1,7 @@
+While fix for DERBY-649 allows pushing binary predicates into SELECT statements that are underneath a UNOIN, it would also be good to allow IN operations to be pushed. Derby can rewrite IN operations in a way to allow use of index, if present.
+
+Derby currently rewrites: REF IN (1, 2, 3) to REF >=1 and REF <=3 and hence would allow use of index on REF, if present. Pushing this predicate into Union would allow use of index on REF for queries like:
+
+Select * from 
+     (SELECT REF, NAME from T1 UNION ALL SELECT REF, NAME from t2)
+where REF IN (1,2,3)

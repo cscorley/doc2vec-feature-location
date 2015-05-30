@@ -1,0 +1,80 @@
+When running the replication tests under machines with some load, I
+experience intermittent errors (see also DERBY-4175). The symptom is
+that when one is trying to fail over from the master (or shutting down
+the master which has the same effect), a REPLICATION_CONNECTION_LOST
+(XRE04.U.2) is seen.
+
+The constant ReplicationMessageTransmit.DEFAULT_MESSAGE_RESPONSE_TIMEOUT is
+hardwired to 5 seconds. 
+Cf Javadoc for ReplicationMessageTransmit.sendMessageWaitForReply:
+
+    /**
+
+	Send a replication message to the slave and return the
+	message received as a response. Will only wait
+	DEFAULT_MESSAGE_RESPONSE_TIMEOUT millis for the response
+	message. If not received when the wait times out, no message is
+	returned. ..
+	:
+	@throws StandardException if the response message has not been received
+	after DEFAULT_MESSAGE_RESPONSE_TIMEOUT millis
+     */
+    public synchronized ReplicationMessage
+        sendMessageWaitForReply(ReplicationMessage message)
+
+
+
+If this constant is increased to 10 seconds, I do not this see this
+issue any longer on my machine (a fairly new Lenovo T61p, Intel Core 2
+Duo CPU T9300 @ 2.50GHz).
+
+One concern here is the stability of the tests. Another is for user
+applications. If the tests see this issue, user apps may as well. I am
+unsure whether we should provide a knob to tweak this (user settable
+attribute), or whether it would be sufficient to up the constant to
+say, 10 or 20 seconds. I think one should be able to use Derby
+replication also on machines with some load  What detrimental
+effects could increasing this constant have?
+
+An example (See another example here:
+http://issues.apache.org/jira/browse/DERBY-3417?focusedCommentId=12701731&page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#action_12701731  ):
+
+There was 1 failure:
+1) testReplication_Local_3_p4_StateNegativeTests(org.apache.derbyTesting.functionTests.tests.replicationTests.ReplicationRun_Local_3_p4)junit.framework.ComparisonFailure: Unexpected SQL state. expected:<XRE[20]> but was:<XRE[04]>
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.assertSQLState(BaseJDBCTestCase.java:762)
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.assertSQLState(BaseJDBCTestCase.java:797)
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.assertSQLState(BaseJDBCTestCase.java:811)
+	at org.apache.derbyTesting.functionTests.tests.replicationTests.ReplicationRun.failOver_direct(ReplicationRun.java:1381)
+	at org.apache.derbyTesting.functionTests.tests.replicationTests.ReplicationRun.failOver(ReplicationRun.java:1302)
+	at org.apache.derbyTesting.functionTests.tests.replicationTests.ReplicationRun_Local_3_p4.testReplication_Local_3_p4_StateNegativeTests(ReplicationRun_Local_3_p4.java:155)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:105)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+Caused by: java.sql.SQLNonTransientConnectionException: DERBY SQL error: SQLCODE: 0, SQLSTATE: XRE04, SQLERRMC: nullXRE04.U.2
+	at org.apache.derby.client.am.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:70)
+	at org.apache.derby.client.am.SqlException.getSQLException(SqlException.java:358)
+	at org.apache.derby.client.am.SqlException.getSQLException(SqlException.java:367)
+	at org.apache.derby.jdbc.ClientDriver.connect(ClientDriver.java:149)
+	at java.sql.DriverManager.getConnection(DriverManager.java:582)
+	at java.sql.DriverManager.getConnection(DriverManager.java:207)
+	at org.apache.derbyTesting.functionTests.tests.replicationTests.ReplicationRun.failOver_direct(ReplicationRun.java:1368)
+	... 26 more
+Caused by: org.apache.derby.client.am.SqlException: DERBY SQL error: SQLCODE: 0, SQLSTATE: XRE04, SQLERRMC: nullXRE04.U.2
+	at org.apache.derby.client.am.Connection.completeSqlca(Connection.java:2082)
+	at org.apache.derby.client.net.NetConnectionReply.parseRdbAccessFailed(NetConnectionReply.java:540)
+	at org.apache.derby.client.net.NetConnectionReply.parseAccessRdbError(NetConnectionReply.java:433)
+	at org.apache.derby.client.net.NetConnectionReply.parseACCRDBreply(NetConnectionReply.java:297)
+	at org.apache.derby.client.net.NetConnectionReply.readAccessDatabase(NetConnectionReply.java:121)
+	at org.apache.derby.client.net.NetConnection.readSecurityCheckAndAccessRdb(NetConnection.java:835)
+	at org.apache.derby.client.net.NetConnection.flowSecurityCheckAndAccessRdb(NetConnection.java:759)
+	at org.apache.derby.client.net.NetConnection.flowUSRIDONLconnect(NetConnection.java:592)
+	at org.apache.derby.client.net.NetConnection.flowConnect(NetConnection.java:399)
+	at org.apache.derby.client.net.NetConnection.<init>(NetConnection.java:219)
+	at org.apache.derby.client.net.NetConnection40.<init>(NetConnection40.java:77)
+	at org.apache.derby.client.net.ClientJDBCObjectFactoryImpl40.newNetConnection(ClientJDBCObjectFactoryImpl40.java:269)
+	at org.apache.derby.jdbc.ClientDriver.connect(ClientDriver.java:140)
+	... 29 more

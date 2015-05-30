@@ -1,0 +1,11 @@
+It looks like line 443 in QuorumPeer [1] may need to change from:
+
+writeLongToFile(CURRENT_EPOCH_FILENAME, acceptedEpoch);
+
+to
+
+writeLongToFile(ACCEPTED_EPOCH_FILENAME, acceptedEpoch);
+
+I only noticed this reading the code, so I may be wrong and I don't know yet if/how this affects the runtime.
+
+[1] https://github.com/apache/zookeeper/blob/trunk/src/java/main/org/apache/zookeeper/server/quorum/QuorumPeer.java#L443

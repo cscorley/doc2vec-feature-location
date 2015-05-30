@@ -1,0 +1,7 @@
+This issue is similar to openjpa-134 but occurs in a slightly different manner.
+
+I've got two entities:
+
+Account (LAZY) (one) <--------> (many) (EAGER) Holding
+
+So when I load account nothing is loaded from holdings, but once I load the holding, I observe each holding separately making a database call to load it's eager account.  This is quite alot of overhead, and through a simple conditional check we should be able to avoid it.  Essentially if we're loading an entity from a CMR, and the multiplicity of the field from the bidirectional relationship is one, then we don't need to load the data for that entity.  We did something similar to this in openjpa-134 when everything was eager (essentially avoiding the extra left out joing back into account).  Can we avoid these separate calls?

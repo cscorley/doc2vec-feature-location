@@ -1,0 +1,39 @@
+We are using derby as an embedded DB for our data collection server. During an endurance test when we do around 270 inserts and 9 updates per second, for about a week, I ocasionally see the error below in the deby log (and nothing else beside this).
+
+This is a vanilla installation, we run derby embedded with no extra configuration.  I can confirm that there is no memory problem, the heap usage seems constant over time.
+
+Can somebody provide some more information regarding the effects of this error? By looking at the stacktrace, it looks like a checkpoint operation is aborted due to some inconsistency in the internal data structure. If the error does not repeat immediately, does it mean that the next checkpoint is successful and there is no data loss? 
+
+I can't provide a test case for that, the error happens after about 1-2 day of running our software. I will rerun the test with the debug jars to capture the line numbers in the stacktrace.  Also, I'm starting another test with 10.2.2.0, to see if this problem was introduced in the latest version.
+
+There are another two bugs referring to this error, (https://issues.apache.org/jira/browse/DERBY-2284 and https://issues.apache.org/jira/browse/DERBY-3087) but they seem to happen in response to some client action. This use case is a bit different, the client keeps inserting and updating records for several days in a steady manner and at some point the error pops up.
+
+
+And lastly, here is the exception:
+
+
+Checkpoint Daemon caught standard exception
+
+------------  BEGIN ERROR STACK -------------
+
+ERROR XSDB3: Container information cannot change once written: was 0, now 80
+	at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.AllocPage.WriteContainerInfo(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.FileContainer.writeHeader(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.RAFContainer.writeRAFHeader(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.RAFContainer.clean(Unknown Source)
+	at org.apache.derby.impl.services.cache.CachedItem.clean(Unknown Source)
+	at org.apache.derby.impl.services.cache.Clock.cleanCache(Unknown Source)
+	at org.apache.derby.impl.services.cache.Clock.cleanAll(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.BaseDataFileFactory.checkpoint(Unknown Source)
+	at org.apache.derby.impl.store.raw.log.LogToFile.checkpointWithTran(Unknown Source)
+	at org.apache.derby.impl.store.raw.log.LogToFile.checkpoint(Unknown Source)
+	at org.apache.derby.impl.store.raw.RawStore.checkpoint(Unknown Source)
+	at org.apache.derby.impl.store.raw.log.LogToFile.performWork(Unknown Source)
+	at org.apache.derby.impl.services.daemon.BasicDaemon.serviceClient(Unknown Source)
+	at org.apache.derby.impl.services.daemon.BasicDaemon.work(Unknown Source)
+	at org.apache.derby.impl.services.daemon.BasicDaemon.run(Unknown Source)
+	at java.lang.Thread.run(Thread.java:619)
+
+
+------------  END ERROR STACK -------------

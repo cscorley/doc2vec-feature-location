@@ -1,0 +1,18 @@
+A = load 'foo' as (m) throws the following exception when foo has maps.
+
+java.lang.ClassCastException: org.apache.pig.data.DataByteArray cannot be cast to java.util.Map
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POMapLookUp.getNext(POMapLookUp.java:98)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POMapLookUp.getNext(POMapLookUp.java:115)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POCast.getNext(POCast.java:612)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.processPlan(POForEach.java:278)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.getNext(POForEach.java:204)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:231)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLocalRearrange.getNext(POLocalRearrange.java:240)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:249)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:240)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapReduce$Map.map(PigMapReduce.java:93)
+        at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:47)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:227)
+        at org.apache.hadoop.mapred.TaskTracker$Child.main(TaskTracker.java:2198)
+
+The same works if I explicitly cast m to a map: A = load 'foo' as (m:[])

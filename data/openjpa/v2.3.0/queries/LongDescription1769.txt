@@ -1,0 +1,3 @@
+While investigating test failures for OPENJPA-1469 I found that the test org.apache.openjpa.persistence.detachment.TestDetachNoStateField failed due to a bug in BrokerImpl.getObjectId(). 
+
+The problem with the TestDetachNoStateField is that when we tried to save the relationship from a managed entity to a detached(with no DSM) we failed to get the oid of the detached Entity. In turn we weren't updating the cache properly. I added a new test case to test only the failing part of the broker.

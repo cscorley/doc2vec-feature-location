@@ -1,0 +1,23 @@
+Currently, PPNL assumes the MR plan, and thus, it's not compatible with non-MR execution engine. To support non-MR execution engines, I propose we changed initialPlanNotification() method as follows-
+from
+
+public void initialPlanNotification(String scriptId, MROperPlan plan);
+
+
+to
+
+public void initialPlanNotification(String scriptId, OperatorPlan<?> plan);
+
+
+Since MROperPlan and TezOperPlan are a subclass of OperatorPlan, this method can take both plans. In addition, if we add a new execution engine in the future, it won't break the interface again as long as we build the operator plan as a subclass of OperatorPlan.
+
+With this approach, applications such as Ambrose / Lipstick should be able to dynamically cast OperatorPlan to a concrete subclass depending on the ExecType.
+
+One disadvantage is that this isn't backward compatible with Pig 0.12 and older. But it only requires minor changes, and backward compatibility will be broken one time only.
+
+I also considered an alternative approach, for example, adding a new PPNL for Tez. But this approach has two problems.
+
+	Pig registers PPNL via the Main function, and right now, only one PPNL can be registered. So having more than one PPNLs requires quite a few code changes in Main, ScriptState, and so on.
+	Multiple PPNL interfaces mean multiple PPNL implementations. This results in more (duplicate) code in applications such as Ambrose / Lipstick.
+
+

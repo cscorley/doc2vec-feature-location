@@ -1,0 +1,5 @@
+When evaluating a recommender using RMSRecommenderEvaluator (or some others) on e.g. Netflix data, a recommender gets heavily penalized for predicting values below 1 or above 5 (that are known to be out of the permitted bounds).
+
+It seems to me that it makes no sense to change the recommender to avoid those predictions, since an estimated 6 probably has a greater chance to be highly rated than a predicted 5.1.  I therefore propose to allow truncating predictions to those "legal" values directly in the evaluator and leave the recommenders unchanged, since it is more of a post-processing step than part of the recommender itself.
+
+I added those boundaries to the constructor of RMSRecommenderEvaluator and limit estimatedPreference to the allowed range before calculating "realPref.getValue() - estimatedPreference" and seem to get slightly better scores.

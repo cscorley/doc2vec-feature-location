@@ -1,0 +1,36 @@
+Presently, the Derby syntax is ALTER TABLE ALTER [COLUMN] <col> [WITH] DEFAULT <default>.
+The "SET" keyword is not accepted, only an optional "WITH". It would be good to accept the standard syntax here as well.
+Cf. SQL 2003, section 11.12 <alter column definition> and section 11.13 <set column default clause>.
+
+Also, DROP DEFAULT is standard syntax not supported, so we should add that, too.
+
+Repro on trunk:
+
+$ java org.apache.derby.tools.ij
+ij version 10.5
+ij> connect 'jdbc:derby:wombat;create=true';
+ij> create table t(i int default 0, j int);
+0 rows inserted/updated/deleted
+ij> alter table t alter column j with default 1;
+0 rows inserted/updated/deleted
+ij> insert into t values (default, default);
+1 row inserted/updated/deleted
+ij> select * from t;
+I          |J          
+-----------------------
+0          |1          
+
+1 row selected
+ij> alter table t alter column j default 2;
+0 rows inserted/updated/deleted
+ij> insert into t values (default, default);
+1 row inserted/updated/deleted
+ij> select * from t;
+I          |J          
+-----------------------
+0          |1          
+0          |2          
+
+2 rows selected
+ij> alter table t alter column j set default 3;
+ERROR 42X01: Syntax error: Encountered "set" at line 1, column 30.

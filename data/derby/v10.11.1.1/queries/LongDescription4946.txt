@@ -1,0 +1,107 @@
+Derby 10.7 DatabaseMetaData.getTypeInfo() should not return the BOOLEAN data type with a soft upgraded database as often applications use getTypeInfo() to determine if tables can be created with this type.
+
+To reproduce and see the impact of the problem, first create the database testdb with 10.6
+ij version 10.6
+ij> connect 'jdbc:derby:testdb;create=true';
+ij>
+
+run the attached program UseDBMetaForBool with 10.6  and it runs fine.
+$ java UseDBMetaForBool
+getDriverVersion10.6.2.3 - (1026030M)
+supportsBoolean = false Make my table accordingly
+CREATING SMALLINT TABLE SINCE NO BOOLEAN
+getBoolean=true
+getString=1
+
+Next run the program against 10.7 in soft upgrade mode and it fails with:
+$ java UseDBMetaForBool
+getDriverVersion10.7.1.2 - (1040699M)
+supportsBoolean = true Make my table accordingly
+CREATING BOOLEAN TABLE
+Exception in thread "main" java.sql.SQLException: Use of 'BOOLEAN' requires data
+base to be upgraded from version 10.6 to version 10.7 or later.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLE
+xceptionFactory40.java:95)
+        at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Util.java:256)
+
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException
+(TransactionResourceImpl.java:396)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Tr
+ansactionResourceImpl.java:348)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConne
+ction.java:2284)
+        at org.apache.derby.impl.jdbc.ConnectionChild.handleException(Connection
+Child.java:82)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java
+:616)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(EmbedStatemen
+t.java:176)
+        at UseDBMetaForBool.main(UseDBMetaForBool.java:28)
+Caused by: java.sql.SQLException: Use of 'BOOLEAN' requires database to be upgra
+ded from version 10.6 to version 10.7 or later.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExc
+eptionFactory.java:45)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransport
+AcrossDRDA(SQLExceptionFactory40.java:119)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLE
+xceptionFactory40.java:70)
+        ... 8 more
+Caused by: ERROR XCL47: Use of 'BOOLEAN' requires database to be upgraded from v
+ersion 10.6 to version 10.7 or later.
+        at org.apache.derby.iapi.error.StandardException.newException(StandardEx
+ception.java:343)
+        at org.apache.derby.impl.sql.catalog.DD_Version.checkVersion(DD_Version.
+java:845)
+        at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.checkVersion(Dat
+aDictionaryImpl.java:9662)
+        at org.apache.derby.impl.sql.compile.SQLParser.checkVersion(SQLParser.ja
+va:327)
+        at org.apache.derby.impl.sql.compile.SQLParser.dataTypeCommon(SQLParser.
+java:3336)
+        at org.apache.derby.impl.sql.compile.SQLParser.dataTypeDDL(SQLParser.jav
+a:3260)
+        at org.apache.derby.impl.sql.compile.SQLParser.columnDefinition(SQLParse
+r.java:3125)
+        at org.apache.derby.impl.sql.compile.SQLParser.tableElement(SQLParser.ja
+va:3090)
+        at org.apache.derby.impl.sql.compile.SQLParser.tableElementList(SQLParse
+r.java:3061)
+        at org.apache.derby.impl.sql.compile.SQLParser.tableDefinition(SQLParser
+.java:10204)
+        at org.apache.derby.impl.sql.compile.SQLParser.createStatements(SQLParse
+r.java:2079)
+        at org.apache.derby.impl.sql.compile.SQLParser.StatementPart(SQLParser.j
+ava:1974)
+        at org.apache.derby.impl.sql.compile.SQLParser.Statement(SQLParser.java:
+1892)
+        at org.apache.derby.impl.sql.compile.ParserImpl.parseStatement(ParserImp
+l.java:151)
+        at org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatemen
+t.java:282)
+        at org.apache.derby.impl.sql.GenericStatement.prepare(GenericStatement.j
+ava:90)
+        at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepa
+reInternalStatement(GenericLanguageConnectionContext.java:1101)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java
+:607)
+        ... 2 more
+
+
+Finally, hard upgrade and see it runs again once the upgrade has been performed:
+$ java org.apache.derby.tools.ij
+ij version 10.7
+ij> connect 'jdbc:derby:testdb;upgrade=true';
+ij>
+
+kmarsden@IBM-93AE43E63C0 ~/repro/softUpgr
+$ java UseDBMetaForBool
+getDriverVersion10.7.1.2 - (1040699M)
+supportsBoolean = true Make my table accordingly
+CREATING BOOLEAN TABLE
+getBoolean=true
+getString=true
+
+
+The application  should run in soft upgrade mode and DatabaseMetaData.getTypeInfo() should not return the BOOLEAN type in soft upgrade before it is available to use.
+
+

@@ -1,0 +1,5 @@
+TOP(max, sortField, inputBag) is sensitive to null inputBag arguments.
+
+In some cases it is preferable for a UDF to simply return null for null inputs e.g. to avoid conditional logic in a script.
+
+Most of the UDFs I write act this way, but TOP does not. This patch updates TOP to return null in the case where all input bags are null. Unit tests are included to confirm expected behavior.

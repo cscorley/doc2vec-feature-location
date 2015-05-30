@@ -1,0 +1,30 @@
+I ran into a problem where OpenJPA is unable to persist a relationship from an attached Entity to a detached Entity. The problem occurs if the detached Entity does not have a DetachedState 
+{openjpa.DetachState=loaded(DetachedStateField=false)}
+ and the version is zero. When trying to flush the scenario described, the following exception is thrown by OpenJPA:
+
+<openjpa-2.0.0-SNAPSHOT-r422266:882172M nonfatal user error> org.apache.openjpa.persistence.InvalidStateException: Encountered unmanaged object in persistent field "org.apache.openjpa.persistence.detachment.model.NoDetachedStateEntityFieldAccess.relationship" during flush.  However, this field does not allow cascade persist. Set the cascade attribute for this field to CascadeType.PERSIST or CascadeType.ALL (JPA annotations) or "persist" or "all" (JPA orm.xml), or enable cascade-persist globally, or manually persist the related field value prior to flushing. You cannot flush unmanaged objects or graphs that have persistent associations to unmanaged objects.
+
+This scenario should work, but OpenJPA incorrectly determines that the detached Entity was never actually a part of a persistence context. If version field is anything other than zero the flush of the relationship works as expected. This problem is in the enhanced bytecode we assume that when no StateManager is present a version of zero means that an Entity isn't detached. 
+    // Decompiled Entity bytecode	
+    public Boolean pcIsDetached()
+    {
+        if(pcStateManager != null)
+            if(pcStateManager.isDetached())
+                return Boolean.TRUE;
+            else
+                return Boolean.FALSE;
+        if(pcGetDetachedState() != null && pcGetDetachedState() != PersistenceCapable.DESERIALIZED)
+            return Boolean.TRUE;
+        if(_version != 0)
+            return Boolean.TRUE;
+        else
+            return Boolean.FALSE;
+    }
+
+I will attach a patch which recreates this problem and also provides a solution. My solution to this problem is to add a boolean to the enhanced bytecode to keep track of whether or not the version field has been set. This fixes the problem for most cases, but there are still holes. In addition to the patch, I'll also post two decompiled Entities. One of those is enhanced with the existing code and the other is with my proposed changes.
+
+Notes:
+
+	For the sake of time, I did not fix this problem when using unenhanced classes.
+	This problem still exists if the detached Entity has been serialized at any point.
+

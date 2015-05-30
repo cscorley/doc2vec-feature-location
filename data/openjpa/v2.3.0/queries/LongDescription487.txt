@@ -1,0 +1,1 @@
+When performing a JPQL query with a SUBSTRING clause, OpenJPA converts from one-based index + length parameters to zero-based index + end index for internal handling, and then re-converts back to one-based + length when generating SQL. This conversion is entirely performed in query values, so the generated SQL has a lot of math in it. This extra math is never necessary.

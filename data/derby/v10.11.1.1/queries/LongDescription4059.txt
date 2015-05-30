@@ -1,0 +1,4 @@
+As noted in DERBY-4054 openContainerNW throws an exception if it canno get the container lock and bypasses the retry logic.  See:
+https://issues.apache.org/jira/browse/DERBY-4054?focusedCommentId=12673376#action_12673376
+
+We should catch the exception and retry if we can't get the container lock. This probably won't fix the repro for DERBY-4054, but should be helpful in some user scenarios.

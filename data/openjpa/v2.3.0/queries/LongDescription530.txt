@@ -1,0 +1,8 @@
+BatchingPreparedStatementManagerImpl implements the core SQL statement execution function of the Statement Batching features. 
+
+The current implementation of this class holds a cache that maps SQL prepared statements to a collection of parameters of batched requests for that prepared statement. When update manager finishes batching its requests, BatchingPreparedStatementManagerImpl.flush() method is called to submit the batch elements in the cache to the jdbc driver.
+
+Essentially, this implementation discards all the ordering of statements being dispatched to the statement batching function by the update manager. This caused improper order of SQL statements to be sent to the data store. As a result, the underlying database may throw exception indicates the unexpected data condition. E.g. 
+
+com.ibm.db2.jcc.b.SqlException: Error for batch element #2: DB2 SQL error: SQLCODE: -530, SQLSTATE: 23503, SQLERRMC: LEEALBER.EMPBEAN.SQL080226132752530
+SQL0530N: The insert or update value of the FOREIGN KEY constraint-name is not equal to any value of the parent key of the parent table. 

@@ -1,0 +1,3 @@
+Discussed in this thread on derby-dev: http://mail-archives.apache.org/mod_mbox/db-derby-dev/201107.mbox/%3C4E146309.3000906@gmail.com%3E
+
+After we're done testing an old version in the upgrade tests, its classes are still loaded in the JVM because the old driver is referenced in DriverManager. We should find a way to unload the old drivers so that the memory usage of the upgrade tests is reduced. Now we typically need to run with -XX:MaxPermSize=200M or similar options to work around this issue.

@@ -1,0 +1,5 @@
+Some file formats like MS Office files or specific XML schemas don't have simple magic marker bytes that could be used to easily identify the type of the document. However, it would in many cases be possible to detect such formats with more complex parsing logic.
+
+Also, there are some external libraries (like Sanselan as mentioned in TIKA-92) that contain their own magic header rules. Instead of duplicating such rules in Tika, it would be better if Tika could just invoke the existing external functionality.
+
+To support these cases Tika should provide a mechanism to plug in custom magic header detector components in addition to the traditional configured magic patterns.

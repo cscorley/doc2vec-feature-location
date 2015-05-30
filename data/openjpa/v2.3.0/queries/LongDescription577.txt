@@ -1,0 +1,38 @@
+In current openjpa code, a LoggingConnectionDecorator instance is created only if jdbcLog or sqlLog trace is enabled. This change was made for resolving issue http://issues.apache.org/jira/browse/OPENJPA-407.
+
+$ svn diff -r 589723:590150 DataSourceFactory.java
+
+Index: DataSourceFactory.java
+===================================================================
+— DataSourceFactory.java      (revision 589723)
++++ DataSourceFactory.java      (revision 590150)
+@@ -162,12 +162,15 @@
+                     decorators.addAll(decs);
+             }
+
+
+	// logging decorator
+	LoggingConnectionDecorator lcd = new LoggingConnectionDecorator();
+	Configurations.configureInstance(lcd, conf, opts);
+	lcd.getLogs().setJDBCLog(jdbcLog);
+	lcd.getLogs().setSQLLog(sqlLog);
+	decorators.add(lcd);
++            if (jdbcLog.isTraceEnabled() || sqlLog.isTraceEnabled()) 
+{
++                // logging decorator
++                LoggingConnectionDecorator lcd =
++                    new LoggingConnectionDecorator();
++                Configurations.configureInstance(lcd, conf, opts);
++                lcd.getLogs().setJDBCLog(jdbcLog);
++                lcd.getLogs().setSQLLog(sqlLog);
++                decorators.add(lcd);
++            }
+
+
+
+             dds.addDecorators(decorators);
+             return dds;
+
+With this change, openjpa.ConnectionFactoryProperties options ("PrettyPrint", "PrettyPrintLineLength") and kodo.ConnectionFactoryProperties("TrackParameters") won't take effect unless log trace is enabled. 
+
+Before this change we allow tracking parameters in error reporting when logging is disabled. I believe this is a regresson, and we should revert that change. 

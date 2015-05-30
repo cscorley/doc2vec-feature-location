@@ -1,0 +1,5 @@
+The internal UDF GFCross uses a final static int DEFAULT_PARALLELISM to determine how wide to spread the records in a cross.  It is currently hard wired to 96.  There are no comments in the code on how that value was settled on.  Despite the name, this value is not necessarily related to the reduce parallelism controlled by the parallel clause.  It controls how many artificial join key values are generated and how many times each record is duplicated before going through the join.  The higher it is set the more key values (and thus the less likely the cross will run out of memory) but also the more times each record is duplicated in the map phase before being sent to the reduce.  
+
+We should leave the default value at 96 but allow a property to override this default and change the value.
+
+We cannot use a constructor argument here because the use of the UDF is not exposed to the user, so he has no opportunity to pass a constructor argument to it.

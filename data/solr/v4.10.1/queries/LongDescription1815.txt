@@ -1,0 +1,31 @@
+Using Solrj, I wanted to sort the response of a range query based on some specific labels. For instance, using the query:
+
+
+facet=true
+&facet.query={!key= Less than 100}[* TO 99]
+&facet.query={!key=100 - 200}[100 TO 200]
+&facet.query={!key=200 +}[201 TO *]
+
+
+
+I wanted to display the response in the following order:
+
+
+Less than 100 (x)
+100 - 200 (y)
+201 + (z)
+
+
+
+independently on the values of x, y, z which are the numbers of the retrieved documents for each range.
+
+While Solr itself produces correctly the desired order (as specified in my query), SolrJ doesn't preserve it. 
+
+RE: Yonik, a solution could be just to change
+
+
+_facetQuery = new HashMap<String, Integer>();
+    ...to...
+_facetQuery = new Linked HashMap<String, Integer>();
+
+

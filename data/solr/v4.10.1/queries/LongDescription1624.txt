@@ -1,0 +1,3 @@
+When TermPositions are stored, then DefaultSolrHighlighter.doHighlighting(DocList docs, Query query, SolrQueryRequest req, String[] defaultFields) currently initializes tstream only for the first value of a multi-valued field. (Subsequent times through the loop reinitialization is preempted by tots being non-null.) This means that the 2nd/3rd/etc. values are not considered for highlighting purposes, resulting in missed highlights.
+
+I'm attaching a patch with a test case to demonstrate the problem (testTermVecMultiValuedHighlight2), as well as a proposed fix. All highlighter tests pass with this applied. The patch should apply cleanly against the latest trunk.

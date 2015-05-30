@@ -1,0 +1,9 @@
+I noticed a couple of tiny issues with Derby151Test:
+
+1) baseSuite() generates two TestSuite instances wrapping Derby151Test.class, but throws one of them away.
+
+2) baseSuite() adds the tests if JDBC.vmSupportsJSR169() returns false. I remember we had discussions where it was said that we should express these conditions in positive terms (http://mail-archives.apache.org/mod_mbox/db-derby-dev/200608.mbox/%3C44D78B1F.8060505@apache.org%3E). That is, since this test requires DriverManager, the method should say "add this test if we have a JDBC version that includes DriverManager", not "don't add this test if we have a JDBC version that doesn't support DriverManager".
+
+3) d151() calls Thread.currentThread().interrupted(), which is a static method, so it would be clearer if it said Thread.interrupted().
+
+4) Some unused imports.

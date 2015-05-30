@@ -1,0 +1,102 @@
+updatelocks is failing consistently in tinderbox since checkin 1069598 for DERBY-4939: Enable istat daemon and tests
+
+http://dbtg.foundry.sun.com/derby/test/tinderbox_trunk16/jvm1.6/testing/testlog/SunOS-5.10_i86pc-i386/1070190-derbyall_diff.txt
+
+
+	
+	
+		
+		
+			
+			
+				
+				
+					
+					
+						
+						
+							
+							
+								
+								
+									Diff file derbyall/encryptionAll/storemats/storemats/updatelocks.diff
+								
+								
+							
+							
+						
+						
+					
+					
+				
+				
+			
+			
+			Start: updatelocks jdk1.6.0_18 storemats:storemats 2011-02-13 09:28:29 ***
+2847,2856d2846
+< APP     |UserTran|TABLE   |1   |IX  |A           |Tablelock |GRANT|ACTIVE  
+< ij> next scan_cursor;
+< A          |B          |C                                                                                                                               
+< --------------------------------------------------------------------------------------------------------------------------------------------------------
+< 3          |-30        |-three                                                                                                                          
+< ij> update a set b=30,c='three' where current of scan_cursor;
+< 1 row inserted/updated/deleted
+< ij> select * from lock_table order by tabname, type desc, mode, cnt, lockname;
+< USERNAME|TRANTYPE|TYPE    |CNT |MODE|TABNAME     |LOCKNAME  |STATE|STATUS  
+< ---------------------------------------------------------------------------
+2857a2848,2857
+> ij> next scan_cursor;
+> A          |B          |C                                                                                                                               
+> --------------------------------------------------------------------------------------------------------------------------------------------------------
+> 3          |-30        |-three                                                                                                                          
+> ij> update a set b=30,c='three' where current of scan_cursor;
+> 1 row inserted/updated/deleted
+> ij> select * from lock_table order by tabname, type desc, mode, cnt, lockname;
+> USERNAME|TRANTYPE|TYPE    |CNT |MODE|TABNAME     |LOCKNAME  |STATE|STATUS  
+> ---------------------------------------------------------------------------
+> APP     |UserTran|TABLE   |3   |IX  |A           |Tablelock |GRANT|ACTIVE  
+2867 del
+< APP     |UserTran|TABLE   |2   |IX  |A           |Tablelock |GRANT|ACTIVE  
+2867a2867
+> APP     |UserTran|TABLE   |3   |IX  |A           |Tablelock |GRANT|ACTIVE  
+2874 del
+< APP     |UserTran|TABLE   |2   |IX  |A           |Tablelock |GRANT|ACTIVE  
+2874a2874
+> APP     |UserTran|TABLE   |3   |IX  |A           |Tablelock |GRANT|ACTIVE  
+14688,14697d14687
+< APP     |UserTran|TABLE   |1   |IX  |A           |Tablelock |GRANT|ACTIVE  
+< ij> next scan_cursor;
+< A          |B          |C                                                                                                                               
+< --------------------------------------------------------------------------------------------------------------------------------------------------------
+< 3          |-30        |-three                                                                                                                          
+< ij> update a set b=30,c='three' where current of scan_cursor;
+< 1 row inserted/updated/deleted
+< ij> select * from lock_table order by tabname, type desc, mode, cnt, lockname;
+< USERNAME|TRANTYPE|TYPE    |CNT |MODE|TABNAME     |LOCKNAME  |STATE|STATUS  
+< ---------------------------------------------------------------------------
+14698a14689,14698
+> ij> next scan_cursor;
+> A          |B          |C                                                                                                                               
+> --------------------------------------------------------------------------------------------------------------------------------------------------------
+> 3          |-30        |-three                                                                                                                          
+> ij> update a set b=30,c='three' where current of scan_cursor;
+> 1 row inserted/updated/deleted
+> ij> select * from lock_table order by tabname, type desc, mode, cnt, lockname;
+> USERNAME|TRANTYPE|TYPE    |CNT |MODE|TABNAME     |LOCKNAME  |STATE|STATUS  
+> ---------------------------------------------------------------------------
+> APP     |UserTran|TABLE   |3   |IX  |A           |Tablelock |GRANT|ACTIVE  
+14708 del
+< APP     |UserTran|TABLE   |2   |IX  |A           |Tablelock |GRANT|ACTIVE  
+14708a14708
+> APP     |UserTran|TABLE   |3   |IX  |A           |Tablelock |GRANT|ACTIVE  
+14716 del
+< APP     |UserTran|TABLE   |2   |IX  |A           |Tablelock |GRANT|ACTIVE  
+14716a14716
+> APP     |UserTran|TABLE   |3   |IX  |A           |Tablelock |GRANT|ACTIVE  
+Test Failed.
+			End:   updatelocks jdk1.6.0_18 storemats:storemats 2011-02-13 09:28:40 ***
+		
+		
+	
+	
+

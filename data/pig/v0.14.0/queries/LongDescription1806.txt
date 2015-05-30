@@ -1,0 +1,30 @@
+
+	bind methods. Currently, to explicitly bind variables to parameters, the variable type must be string:
+
+
+
+
+
+public BoundScript bind(Map<String, String> vars) throws IOException {...}
+
+ 
+
+User needs explicitly convert variables to strings before passing them in. We propose to change the method signature so user does not need to do the conversion:
+
+
+
+public BoundScript bind(Map<String, Object> vars) throws IOException {...}
+
+ 
+
+Internally Pig uses toString() method to convert variables to strings.
+
+
+	fs method. Current Pig.fs(...) method doesn't return any value. Since this method just turns around to call FsShell.run() which has a return code, we should pass this return code to the user;
+
+
+
+
+
+public static int fs(String cmd) throws IOException {...}
+

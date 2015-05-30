@@ -1,0 +1,7 @@
+Logical expression simplification, introduced in PIG-1399, can not handle the map key referenced value in such expressions. For instance, the following statement causes exception  thrown:
+
+b = filter (load 'd.txt' as (k1, k2, k3, v1, v2, v3)) by k2#'f1'#'f' is not null and (v2#'f'#'f1' is not null or v2#'f'#'f2' is not null;
+
+The problem is that if the operand of AND/OR is not a terminal, the current use of stack to store the operand's results won't work because the the used AllSameExpressionVisitor is inadequate in that it visits all expressions while we only need to visit both children of AND/OR.
+
+Another problem is that MapLookupExpression.isEqual method only checks for the top level map references. For instance, m#k1 and m#k2 will be regarded equal. We need to check recursively if nested map key reference is present.

@@ -1,0 +1,60 @@
+The attached program ScanPosSaved.java produces the error below, fairly quickly.  
+The program has three threads, one doing inserts into a table with an identity column, one updating the row with the maximum id, one deleting the row with the maximum id.
+
+To reproduce, run >java ScanPosSaved  and <ctrl> <c> out of the program after you get the error.
+
+I saw this 10.5 and trunk sane builds but did not see it on 10.4.  With the insane build of 10.5.1.1 (RC2) I did not see any symptoms right away, so don't know how serious an issue this is for insane builds.
+
+
+org.apache.derby.shared.common.sanity.AssertFailure: ASSERT FAILED Scan position already saved
+
+	at org.apache.derby.shared.common.sanity.SanityManager.ASSERT(SanityManager.java:120)
+
+	at org.apache.derby.impl.store.access.btree.BTreeScan.savePositionAndReleasePage(BTreeScan.java:2148)
+
+	at org.apache.derby.impl.store.access.btree.BTreeScan.savePositionAndReleasePage(BTreeScan.java:2212)
+
+	at org.apache.derby.impl.store.access.btree.BTreeRowPosition.saveMeAndReleasePage(BTreeRowPosition.java:128)
+
+	at org.apache.derby.impl.store.access.btree.index.B2IRowLocking3.lockRowOnPage(B2IRowLocking3.java:295)
+
+	at org.apache.derby.impl.store.access.btree.index.B2IRowLocking3._lockScanRow(B2IRowLocking3.java:599)
+
+	at org.apache.derby.impl.store.access.btree.index.B2IRowLockingRR.lockScanRow(B2IRowLockingRR.java:105)
+
+	at org.apache.derby.impl.store.access.btree.BTreeMaxScan.positionAtStartPosition(BTreeMaxScan.java:347)
+
+	at org.apache.derby.impl.store.access.btree.BTreeMaxScan.fetchMax(BTreeMaxScan.java:434)
+
+	at org.apache.derby.impl.store.access.btree.index.B2I.fetchMaxOnBTree(B2I.java:739)
+
+	at org.apache.derby.impl.store.access.RAMTransaction.fetchMaxOnBtree(RAMTransaction.java:1078)
+
+	at org.apache.derby.impl.sql.execute.LastIndexKeyResultSet.openCore(LastIndexKeyResultSet.java:189)
+
+	at org.apache.derby.impl.sql.execute.ProjectRestrictResultSet.openCore(ProjectRestrictResultSet.java:168)
+
+	at org.apache.derby.impl.sql.execute.ScalarAggregateResultSet.openCore(ScalarAggregateResultSet.java:133)
+
+	at org.apache.derby.impl.sql.execute.ProjectRestrictResultSet.openCore(ProjectRestrictResultSet.java:168)
+
+	at org.apache.derby.impl.sql.execute.BasicNoPutResultSetImpl.open(BasicNoPutResultSetImpl.java:245)
+
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:416)
+
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:297)
+
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1235)
+
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:625)
+
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeQuery(EmbedStatement.java:152)
+
+	at ScanPosSaved.updateOperation(ScanPosSaved.java:62)
+
+	at ScanPosSaved$3.run(ScanPosSaved.java:17)
+
+
+I discovered this when trying to get a smaller repro for DERBY-4181, but I think it is a different issue, because it reproduces on multiple jvms and does not reproduce on 10.4.  The assertion was added with DERBY-2991.  Knut could you perhaps assess how serious this is?
+
+

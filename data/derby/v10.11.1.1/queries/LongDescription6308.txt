@@ -1,0 +1,27 @@
+Using the schema from OptimizerOverridesTest, the following query...
+
+select * from --DERBY-PROPERTIES joinOrder=FIXED
+t1 a, t1 b --DERBY-PROPERTIES joinStrategy=NESTEDLOOP
+where a.c1 = b.c1
+
+...correctly produces this plan: ( T1_C1C2C3 * T1_C1C2C3 )
+
+However, if you omit the joinOrder directive, the resulting query...
+
+select * from
+t1 a, t1 b --DERBY-PROPERTIES joinStrategy=NESTEDLOOP
+where a.c1 = b.c1
+
+...unexpectedly produces a hash join order: ( T1_C1C2C3 # T1_C1C2C3 )
+
+The Tuning Guide says that you should specify the joinOrder directive in order to get optimal results, but the Tuning Guide does not indicate that the joinOrder directive is required in order to activate the joinStrategy directive. See the Tuning Guide section titled "Overriding the default optimizer behavior".
+
+Is this behavior expected? If so, should we change the Tuning Guide to say that the joinOrder directive is required in order to activate the joinStrategy directive?
+
+For reference, here is the same query with a new-style optimizer plan override...
+
+select * from t1 a, t1 b where a.c1 = b.c1--derbyplan (  T1_C1C2C3 * T1_C1C2C3 )
+
+...which produces the expected plan: ( T1_C1C2C3 * T1_C1C2C3 )
+
+I will attach a repro.

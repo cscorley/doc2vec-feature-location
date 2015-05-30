@@ -1,0 +1,18 @@
+Currently, when i try to set ACL with cidr in expression, i get exception:
+
+
+
+[zk: localhost:2181(CONNECTED) 2] setAcl /AS0 ip:127.0.0.1/8:cdrwa
+Exception in thread "main" org.apache.zookeeper.KeeperException$InvalidACLException: KeeperErrorCode = InvalidACL for /AS0
+	at org.apache.zookeeper.KeeperException.create(KeeperException.java:112)
+	at org.apache.zookeeper.KeeperException.create(KeeperException.java:42)
+	at org.apache.zookeeper.ZooKeeper.setACL(ZooKeeper.java:1175)
+	at org.apache.zookeeper.ZooKeeperMain.processZKCmd(ZooKeeperMain.java:716)
+	at org.apache.zookeeper.ZooKeeperMain.processCmd(ZooKeeperMain.java:581)
+	at org.apache.zookeeper.ZooKeeperMain.executeLine(ZooKeeperMain.java:353)
+	at org.apache.zookeeper.ZooKeeperMain.run(ZooKeeperMain.java:311)
+	at org.apache.zookeeper.ZooKeeperMain.main(ZooKeeperMain.java:270)
+
+
+
+Also, there is no support for CIDR in IPAuthenticationProvider.isValid, but IPAuthenticationProvider.matches has it.

@@ -1,0 +1,34 @@
+Hi !
+
+When I run this command : $MAHOUT_HOME/bin/mahout org.apache.mahout.text.wikipedia.WikipediaXmlSplitter -d frwiki-latest-pages-articles.xml.bz2 -o wikipedia-xml-chunks -c 100
+
+I have this error :
+
+MAHOUT-JOB: /home/ollagnier/Documents/tools/mahout-distribution-0.8/bin/trunk/examples/target/mahout-examples-0.9-SNAPSHOT-job.jar
+13/11/29 14:51:08 WARN driver.MahoutDriver: No org.apache.mahout.text.wikipedia.WikipediaXmlSplitter.props found on classpath, will use command-line arguments only
+13/11/29 14:51:08 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Exception in thread "main" java.lang.NullPointerException
+	at org.apache.hadoop.io.compress.bzip2.Bzip2Factory.isNativeBzip2Loaded(Bzip2Factory.java:54)
+	at org.apache.hadoop.io.compress.bzip2.Bzip2Factory.getBzip2Decompressor(Bzip2Factory.java:131)
+	at org.apache.hadoop.io.compress.BZip2Codec.createDecompressor(BZip2Codec.java:250)
+	at org.apache.hadoop.io.compress.BZip2Codec.createInputStream(BZip2Codec.java:156)
+	at org.apache.mahout.text.wikipedia.WikipediaXmlSplitter.main(WikipediaXmlSplitter.java:190)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.util.ProgramDriver$ProgramDescription.invoke(ProgramDriver.java:72)
+	at org.apache.hadoop.util.ProgramDriver.run(ProgramDriver.java:144)
+	at org.apache.hadoop.util.ProgramDriver.driver(ProgramDriver.java:152)
+	at org.apache.mahout.driver.MahoutDriver.main(MahoutDriver.java:195)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:212)
+
+And I have a little trouble seeing where it comes from
+
+Thank you for your help
+
+

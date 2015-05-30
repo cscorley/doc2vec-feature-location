@@ -1,0 +1,3 @@
+The code from SOLR-127 emits HTTP cache headers for all handlers if configured. We should not emit cache related headers for update request handlers. Partial responses (coming from the Timeout request stuff) should not be cached as well.
+
+To solve this problem we can simply add two methods to the SolrQueryResponse class (like void setAvoidHTTPCaching(boolean) and boolean isAvoidHTTPCaching() - the default for the value would be false). The update request handlers should set this to true all the time. The partial response stuff can set this to true as well.

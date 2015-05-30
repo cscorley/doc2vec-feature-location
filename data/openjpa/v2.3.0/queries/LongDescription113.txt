@@ -1,0 +1,50 @@
+when you specify columm table="empbean"  in the xml file entity id or basic type when empbean is the default table name, the mapping tool generates extra foreign key field (eg.EmpBean_empid) in the table produced. This causes a SQL0203 (A reference to column name is ambiguous) on empid when you try to persist this entity.
+
+
+    <entity name="EmpBean" class="EmpBean" access="FIELD">
+        <attributes>
+            <id name="empid">
+               <column name="empid" nullable="false" column-definition="integer" />
+            </id>
+            <basic name="name" fetch="EAGER">
+                <column length="40"/>
+            </basic>
+
+            <basic name="salary" fetch="EAGER" >
+                <column name="salary" table="empbean"/>
+            </basic>
+
+            <basic name="bonus" fetch="EAGER">
+            </basic>
+             <basic name="isManager" fetch="EAGER">
+             </basic>
+             <basic name="execLevel" fetch="EAGER">
+             </basic>
+            <basic name="hireDate" fetch="EAGER">
+             </basic>
+            <basic name="hireTime" fetch="EAGER">
+             </basic>
+            <basic name="hireTimestamp" fetch="EAGER">
+             </basic>
+
+           <many-to-one name="dept" target-entity="com.ibm.ws.query.entities.xml.DeptBean" fetch="EAGER">
+           </many-to-one>
+
+           <one-to-many name="manages" target-entity="DeptBean" fetch="LAZY" mapped-by="mgr">
+                <cascade><cascade-remove/></cascade>
+            </one-to-many>
+
+           <one-to-one name="home" target-entity="AddressBean" fetch="EAGER">
+           </one-to-one>
+
+            <one-to-one name="work" target-entity="AddressBean" fetch="EAGER">
+           </one-to-one>
+
+            <many-to-many name="tasks" target-entity="TaskBean" fetch="LAZY" mapped-by="emps">
+            </many-to-many>
+
+        </attributes>        
+    </entity>
+
+
+4787  mdd  TRACE  [main] openjpa.jdbc.SQL - <t 1094861122, conn 1274432502> executing stmnt 1129857880 CREATE TABLE EmpBean (empid INTEGER NOT NULL, bonus DOUBLE, execLevel INTEGER, hireDate DATE, hireTime TIME, hireTimestamp TIMESTAMP, isManager SMALLINT, name VARCHAR(40), EmpBean_empid INTEGER, salary DOUBLE, dept_deptno INTEGER, home_street VARCHAR(40), work_street VARCHAR(40), PRIMARY KEY (empid))

@@ -1,0 +1,28 @@
+Hi, I'm unable to return multiple values from a macro when values come from a SPLIT. Here is an small example:
+
+
+
+DEFINE my_macro(seq) RETURNS valid, invalid {
+    added = FOREACH $seq GENERATE $0 * 2, $1;
+    SPLIT added INTO $valid IF $1 == true, $invalid OTHERWISE;
+}
+
+data = LOAD 'case.csv' USING PigStorage(',') AS (value: int, valid: boolean);
+P, Q = my_macro(data);
+DUMP P;
+DUMP Q;
+
+
+
+Pig is unable to recognize the OTHERWISE side. Error is: ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1200: <at case.pig, line 3> Invalid macro definition: . Reason: Macro 'my_macro' missing return alias: invalid
+
+Simple workaround is to force $invalid to be returned as FOREACH result:
+
+
+
+SPLIT added INTO $valid IF $1 == true, tmp_invalid OTHERWISE;
+$invalid = FOREACH tmp_invalid GENERATE *;
+
+
+
+Samples and logs attached to the issue.

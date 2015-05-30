@@ -1,0 +1,10 @@
+Fragmented replicated join has a few limitations:
+
+	One of the tables needs to be loaded into memory
+	Join is limited to two tables
+
+
+
+Skewed join partitions the table and joins the records in the reduce phase. It computes a histogram of the key space to account for skewing in the input records. Further, it adjusts the number of reducers depending on the key distribution.
+
+We need to implement the skewed join in pig.

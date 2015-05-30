@@ -1,0 +1,3 @@
+The mapped by field (inverse relation) is not set when the field is contained in a superclass. In my case the problem was with a collection of objects of the same type (i.e. a hierarchy), and using parallel eager fetch mode, but I think the problem may be more general.
+
+I tracked the problem to the setMappedBy() method in JDBCStoreManager, which is calling getDeclaredFieldMappings(), but the result of this call doesn't include superclass field mappings. Changing it to getFieldMappings() fixed the problem.

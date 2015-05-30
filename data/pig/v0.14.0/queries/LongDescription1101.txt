@@ -1,0 +1,29 @@
+I have a Pig script in which I specify the number of records to limit as a long type. 
+
+
+
+A = LOAD '/user/viraj/echo.txt' AS (txt:chararray);
+
+B = LIMIT A 10L;
+
+DUMP B;
+
+
+
+I get a parser error:
+
+2009-11-21 02:25:51,100 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1000: Error during parsing. Encountered " <LONGINTEGER> "10L "" at line 3, column 13.
+Was expecting:
+    <INTEGER> ...
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.generateParseException(QueryParser.java:8963)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.jj_consume_token(QueryParser.java:8839)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.LimitClause(QueryParser.java:1656)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.BaseExpr(QueryParser.java:1280)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.Expr(QueryParser.java:893)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.Parse(QueryParser.java:682)
+        at org.apache.pig.impl.logicalLayer.LogicalPlanBuilder.parse(LogicalPlanBuilder.java:63)
+        at org.apache.pig.PigServer$Graph.parseQuery(PigServer.java:1017)
+
+In fact 10L seems to work in the foreach generate construct.
+
+Viraj    

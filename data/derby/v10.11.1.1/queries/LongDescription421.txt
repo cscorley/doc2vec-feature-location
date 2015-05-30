@@ -1,0 +1,117 @@
+When an XA Transaction is started the isolation level set with SET CURRENT ISOLATION gets reset to CS.
+Embedded setTransactionIsolation  does not have this problem but this problem is the root cause of DERBY-414 because client implements setTransactionIsolation by sending SET CURRENT ISOLATION
+
+$ java TestSetCurrentIsolation
+Database product: Apache Derby
+Database version: 10.2.0.0 alpha
+Driver name:      Apache Derby Embedded JDBC Driver
+Driver version:   10.2.0.0 alpha
+SET CURRENT ISOLATION = UR
+CURRENT ISOLATION: UR
+getTransactionIsolation:TRANSACTION_READ_UNCOMMITTED:1
+Isolation level after xa start
+CURRENT ISOLATION: CS
+getTransactionIsolation:TRANSACTION_READ_COMMITTED:2
+$
+
+
+import java.sql.*;
+
+import javax.sql.*;
+import javax.transaction.xa.*;
+
+public class TestSetCurrentIsolation
+{
+    public static void main(String[] args) throws Throwable
+    {
+        try
+        {
+             final org.apache.derby.jdbc.EmbeddedXADataSource ds =
+             new org.apache.derby.jdbc.EmbeddedXADataSource();
+             ds.setDatabaseName("C:\\drivers\\derby\\databases\\SCHEDDB");
+             ds.setUser("dbuser1");
+             ds.setPassword("******");
+
+
+
+            XAConnection xaConn = ds.getXAConnection();
+            Connection conn = xaConn.getConnection();
+
+            conn.setAutoCommit(true);
+
+            System.out.println("Database product: " + conn.getMetaData().getDatabaseProductName());
+            System.out.println("Database version: " + conn.getMetaData().getDatabaseProductVersion());
+            System.out.println("Driver name:      " + conn.getMetaData().getDriverName());
+            System.out.println("Driver version:   " + conn.getMetaData().getDriverVersion());
+
+            Statement stmt = conn.createStatement();
+            System.out.println("SET CURRENT ISOLATION = UR");
+            stmt.executeUpdate("SET CURRENT ISOLATION = UR");
+            showIsolationLevel(conn);
+            conn.setAutoCommit(false);
+
+            XAResource xaRes = xaConn.getXAResource();
+            Xid xid = new TestXid(1,(byte) 32, (byte) 32);
+
+            xaRes.start(xid, XAResource.TMNOFLAGS);
+            System.out.println("Isolation level after xa start");
+            showIsolationLevel(conn);
+            
+            xaRes.end(xid, XAResource.TMSUCCESS);
+            xaRes.rollback(xid);
+
+
+            conn.close();
+            xaConn.close();
+        }
+        catch (SQLException sqlX)
+        {
+            System.out.println("Error on thread 1.");
+            do sqlX.printStackTrace();
+            while ((sqlX = sqlX.getNextException()) != null);
+        }
+        catch (Throwable th)
+        {
+            System.out.println("Error on thread 1.");
+            do th.printStackTrace();
+            while ((th = th.getCause()) != null);
+        }
+    }
+
+	/**
+
+	@param conn
+	@throws SQLException
+	 */
+	private static void showIsolationLevel(Connection conn) throws SQLException 
+{
+		PreparedStatement ps = conn.prepareStatement("VALUES CURRENT ISOLATION");
+		ResultSet rs = ps.executeQuery();
+		//ResultSet rs = conn.createStatement().executeQuery("VALUES CURRENT ISOLATION");
+		rs.next();
+		System.out.println("CURRENT ISOLATION: " +  rs.getString(1));
+		System.out.println("getTransactionIsolation:" + 
+					getIsoLevelName(conn.getTransactionIsolation()));						
+	}
+
+
+
+	public static String getIsoLevelName(int level)
+	{
+		switch (level) 
+{
+			case java.sql.Connection.TRANSACTION_REPEATABLE_READ:
+				return "TRANSACTION_REAPEATABLE_READ:" + level;
+					
+			case java.sql.Connection.TRANSACTION_READ_COMMITTED:
+				return "TRANSACTION_READ_COMMITTED:" + level;
+			case java.sql.Connection.TRANSACTION_SERIALIZABLE:
+				return "TRANSACTION_SERIALIZABLE:" + level;
+			case java.sql.Connection.TRANSACTION_READ_UNCOMMITTED:
+				return "TRANSACTION_READ_UNCOMMITTED:" + level;
+
+		}
+		return "UNEXPECTED_ISO_LEVEL";
+	}
+
+}

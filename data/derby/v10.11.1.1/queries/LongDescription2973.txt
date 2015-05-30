@@ -1,0 +1,11 @@
+ij(CONNECTION1)> create table d (id int not null, t_bigvarchar varchar(400), unique (id));
+0 rows inserted/updated/deleted
+ij(CONNECTION1)> create index t_bigvarchar_ind on d ( t_bigvarchar);
+0 rows inserted/updated/deleted
+ij(CONNECTION1)> alter table d alter t_bigvarchar set data type varchar(4096);
+0 rows inserted/updated/deleted
+ij(CONNECTION1)> insert into d (id, t_bigvarchar) values (1,'hello');
+ERROR XJ001: Java exception: 'ASSERT FAILED type of inserted column[0] = org.apache.derby.iapi.types.SQLVarchartype of t
+emplate column[0] = org.apache.derby.iapi.types.CollatorSQLVarchar: org.apache.derby.shared.common.sanity.AssertFailure'
+.
+ij(CONNECTION1)>

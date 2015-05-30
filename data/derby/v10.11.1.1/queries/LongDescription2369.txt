@@ -1,0 +1,15 @@
+The shutdown command takes at least 1.5 seconds, broken into two parts:
+
+
+	0.5 seconds is the first sleep after the shutdown request and before the first ping to see if the server is shutdown.
+
+
+
+
+	~1 second is the time trying to obtain a socket in order to perform the ping to see if the server is shutdown. This socket creation fails (correctly) but takes time to do so.
+
+
+
+The socket creation time can be avoided by re-using the socket that was used to send the shutdown request.
+
+The sleep time could be reduced by sleeping on a finer granularity, 0.5secs is a long time for a modern processor.

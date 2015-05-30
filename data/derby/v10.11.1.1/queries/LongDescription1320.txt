@@ -1,0 +1,71 @@
+lang/procedure.java fails on IBM1.5 jvm on linux machine.    I spoke to Manjula who filed DERBY-1108 that this is related to that issue and is a JVM bug. The JVM team has been notified.    Please note: I have marked this as a Regression Test Failure although this test has not passed with IBM 1.5 JVM atleast in our nightly regression test runs,  so it is not a regression of the product. 
+
+diff:
+
+	
+	
+		
+		
+			
+			
+				
+				
+					
+					
+						
+						
+							
+							
+								
+								
+									Diff file derbyall/derbylang/procedure.diff
+								
+								
+							
+							
+						
+						
+					
+					
+				
+				
+			
+			
+			Start: procedure jdk1.5.0 derbyall:derbylang 2006-05-10 22:17:16 ***
+1018 del
+< testImplicitClose(): PASSED
+1018 add
+> testImplicitClose(): FAILED (no exception thrown)
+Test Failed.
+			End:   procedure jdk1.5.0 derbyall:derbylang 2006-05-10 22:17:31 ***
+		
+		
+	
+	
+
+
+
+
+here is machine info.
+------------------ Java Information ------------------
+Java Version:    1.5.0
+Java Vendor:     IBM Corporation
+Java home:       /local1/cloudtst/dev/src/ibm15/jre
+Java classpath:  /local1/cloudtst/dev/src/jars/insane/derby.jar:/local1/cloudtst/dev/src/jars/insane/derbytools.jar:/local1/cloudtst/dev/src/jars/insane/derbynet.jar:/local1/cloudtst/dev/src/jars/insane/derbyclient.jar:/local1/cloudtst/dev/src/jars/insane/derbyTesting.jar:/local1/cloudtst/dev/src/jcc/db2jcc.jar:/local1/cloudtst/dev/src/jcc/db2jcc_license_c.jar:/local1/cloudtst/dev/src/jars/insane/derbyTesting.jar:/local1/cloudtst/dev/src/tools/java/jakarta-oro-2.0.8.jar:/local1/cloudtst/dev/src/tools/java/junit.jar:/local1/cloudtst/dev/src/jars/insane/derbyLocale_de_DE.jar:/local1/cloudtst/dev/src/jars/insane/derbyLocale_es.jar:/local1/cloudtst/dev/src/jars/insane/derbyLocale_fr.jar:/local1/cloudtst/dev/src/jars/insane/derbyLocale_it.jar:/local1/cloudtst/dev/src/jars/insane/derbyLocale_ja_JP.jar:/local1/cloudtst/dev/src/jars/insane/derbyLocale_ko_KR.jar:/local1/cloudtst/dev/src/jars/insane/derbyLocale_pt_BR.jar:/local1/cloudtst/dev/src/jars/insane/derbyLocale_zh_CN.jar:/local1/cloudtst/dev/src/jars/insane/derbyLocale_zh_TW.jar:/local1/cloudtst/dev/src/jars/insane/derbyrun.jar:
+OS name:         Linux
+OS architecture: x86
+OS version:      2.6.5-7.252-bigsmp
+Java user name:  cloudtst
+Java user home:  /u/cloudtst
+Java user dir:   /local1/cloudtst/dev/src/NightlyBuildResults.2006-05-10/ibm15_derbyall
+java.specification.name: Java Platform API Specification
+java.specification.version: 1.5
+--------- Derby Information --------
+JRE - JDBC: J2SE 5.0 - JDBC 3.0
+[/local1/cloudtst/dev/src/jars/insane/derby.jar] 10.2.0.0 alpha - (405653)
+[/local1/cloudtst/dev/src/jars/insane/derbytools.jar] 10.2.0.0 alpha - (405653)
+[/local1/cloudtst/dev/src/jars/insane/derbynet.jar] 10.2.0.0 alpha - (405653)
+[/local1/cloudtst/dev/src/jars/insane/derbyclient.jar] 10.2.0.0 alpha - (405653)
+[/local1/cloudtst/dev/src/jcc/db2jcc.jar] 2.6 - (90)
+[/local1/cloudtst/dev/src/jcc/db2jcc_license_c.jar] 2.6 - (90)
+------------------------------------------------------

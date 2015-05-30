@@ -1,0 +1,20 @@
+When a JSE client requests JPA function via components in an application server, in some combination of client/server operating environment, the client request failed with the following exception even if the client and server are using the same level of OpenJPA code:
+
+java.rmi.MarshalException.  Error Message is:CORBA MARSHAL 0x4942f896 No; nested exception is: 
+	org.omg.CORBA.MARSHAL: Unable to read value from underlying bridge : Mismatched 
+serialization UIDs : Source (RepId RMI:org.apache.openjpa.kernel.DetachedStateManager
+:C7D15E4B35987A3F:766FF0A32408BC7A) = 766FF0A32408BC7A whereas Target (RepId 
+RMI:org.apache.openjpa.kernel.DetachedStateManager:47697E6CFD3BF01F:548BD6248B0927C4)
+ = 548BD6248B0927C4  
+
+One of the test environment combination that we have observed this exception is a Win32 client and a SunOS application server configuration. The client uses IBM JDK and SunOS uses Sun JDK.
+
+From the JavaDoc Serializable class:
+
+"If a serializable class does not explicitly declare a serialVersionUID, then the serialization runtime will calculate a default serialVersionUID value for that class based on various aspects of the class, as described in the Java(TM) Object Serialization Specification. However, it is strongly recommended that all serializable classes explicitly declare serialVersionUID values, since the default serialVersionUID computation is highly sensitive to class details that may vary depending on compiler implementations, and can thus result in unexpected InvalidClassExceptions during deserialization. Therefore, to guarantee a consistent serialVersionUID value across different java compiler implementations, a serializable class must declare an explicit serialVersionUID value. It is also strongly advised that explicit serialVersionUID declarations use the private modifier where possible, since such declarations apply only to the immediately declaring class--serialVersionUID fields are not useful as inherited members."
+
+Adding the following in DetachedStateManager resolved the problem.
+
+    private static final long serialVersionUID = 6092198373388527556L;
+
+Albert Lee.

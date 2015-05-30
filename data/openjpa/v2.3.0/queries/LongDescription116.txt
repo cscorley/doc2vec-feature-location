@@ -1,0 +1,22 @@
+EntityManager.getDelegate() should throw an IllegalStateException if the EntityManager has been closed. 
+
+I noticed then when debugging other problems. According to the javadoc http://java.sun.com/javaee/5/docs/api/javax/persistence/EntityManager.html#getDelegate() we need to throw an exception if the EM has been closed. 
+
+In case I missed anything here's what I did to reproduce the problem. 
+
+
+        EntityManagerFactory _emf = Persistence.createEntityManagerFactory("test");
+
+        EntityManager em = _emf.createEntityManager();
+
+        em.close();
+
+        try 
+{
+            Object o = em.getDelegate();
+            fail();
+        }
+        catch(IllegalStateException ise) 
+{
+            System.out.println("Caught expected exception");
+        }

@@ -1,0 +1,21 @@
+ErrorCodes from returned SQLExceptions are not retained in client.  e.g. in the example below, client reports an errorcode of -1 instead of 30000.    If DRDA allows it would be good for the errorCode to be retained
+
+[C:/test] java -Dij.showErrorCode=true org.apache.derby.tools.ij
+ij version 10.3
+ij> connect 'jdbc:derby:wombat';
+ij> create table t(i nt, s smallint);
+ERROR 42X01: Syntax error: Encountered "" at line 1, column 18. (errorCode = 30000)
+ij> exit;
+[C:/test] ns start -noSecurityManager &
+[2]     5712
+[C:/test] Apache Derby Network Server - 10.3.0.0 alpha - (1) started and ready to accept connections on port 1527 at 200
+7-04-20 17:36:27.188 GMT
+
+[C:/test] java -Dij.showErrorCode=true org.apache.derby.tools.ij
+ij version 10.3
+ij> connect 'jdbc:derby://localhost:1527/wombat';
+ij> create table t(i nt, s smallint);
+ERROR 42X01: Syntax error: Encountered "" at line 1, column 18. (errorCode = -1)
+ij>
+
+Once this has been fixed ErrorCodeTest can be enabled for client.

@@ -1,0 +1,39 @@
+case 1:
+
+grunt> describe f;              
+f: 
+{l1::a: bytearray,l1::b: bytearray}
+grunt> describe l1;
+l1: 
+{a: bytearray,b: bytearray}
+grunt> dump f;
+(1,11)
+(2,22)
+(3,33)
+
+grunt> dump l1;
+(1,11)
+(2,22)
+(3,33)
+
+grunt> u = union onschema f, l1;
+grunt> describe u;
+u: 
+{l1::a: bytearray,l1::b: bytearray}
+
+– the dump u gives incorrect results
+grunt> dump u;     
+(,)
+(,)
+(,)
+(1,11)
+(2,22)
+(3,33)
+
+
+
+case 2:
+grunt> u = union onschema l1, f;
+grunt> describe u;
+2010-09-13 15:11:13,877 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1108: Duplicate schema alias: l1::a
+Details at logfile: /Users/tejas/pig_unions_err2/trunk/pig_1284410413970.log

@@ -1,0 +1,28 @@
+After a commit, the cursor should be positioned before the next row (not on a row). However in Derby 10.2, I now see the following behavior if the table has an index on the selected columns:
+
+ij> create table t (id int primary key);
+ij> commit;
+ij> insert into t values 1,2,3,4,5,6,7,8,9;
+
+9 rows inserted/updated/deleted
+ij> commit;
+ij> get cursor c1 as 'select * from t for update';
+ij> next c1;
+ID         
+-----------
+1          
+ij> commit;
+ij> update t set id=id+1000 where current of c1;
+1 row inserted/updated/deleted
+ij> commit;
+ij> update t set id=id+1000 where current of c1;
+1 row inserted/updated/deleted
+ij> 
+
+The expected behavior is  that the UPDATE .. WHERE CURRENT OF fails with:
+ERROR 24000: Invalid cursor state - no current row.
+
+The problem applies to both scrollable and forward-only updatable cursors.
+
+Note: If the table is created without the index, I do see the expected behavior.
+I am marking this as a regression, since this issue is not reproducible on older, released versions of derby (I have tested with 10.1.2.1).

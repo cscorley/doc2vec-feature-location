@@ -1,0 +1,14 @@
+The HtmlParser will overwrite the value of Content-Type in Metadata with any value of content in an http-equiv=Content-Type header, e.g.
+
+<meta http-equiv=Content-Type content="blah de blah blah">
+
+.
+
+or even worse, perhaps:
+<meta http-equiv=Content-Type content="application/pdf">
+
+Let's capture the content type alleged by the html file in a different key from Content-Type; I'd prefer to reserve Content-Type for "text/html; charset=X".
+
+Candidate key/Property: Content-Type-Meta-HTTP-Equiv?
+
+See TIKA-1514 for example output.

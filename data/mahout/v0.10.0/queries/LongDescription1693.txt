@@ -1,0 +1,7 @@
+FunctionalMatrixView materializes row vectors in scala shell.
+
+Problem first reported by a user Michael Alton, Intel:
+
+"When I first tried to make a large matrix, I got an out of Java heap space error. I increased the memory incrementally until I got it to work. “export MAHOUT_HEAPSIZE=8000” didn’t work, but “export MAHOUT_HEAPSIZE=64000” did. The question is why do we need so much memory? A 5000x5000 matrix of doubles should only take up ~200MB of space?"
+
+Problem has been narrowed down to not override toString() method in FunctionalMatrixView which causes it to materialize all of the row vectors when run in Mahout Spark Shell.

@@ -1,0 +1,45 @@
+Hit NPE in following script:
+
+
+a = load 'table_testBagDereferenceInMiddle2' as (a0:chararray);
+b = foreach a generate MapGenerate(STRSPLIT(a0).$0));
+
+
+
+
+public class MapGenerate extends EvalFunc<Map> {
+    @Override
+    public Map exec(Tuple input) throws IOException {
+        Map m = new HashMap();
+        m.put("key", new Integer(input.size()));
+        return m;
+    }
+    
+    @Override
+    public Schema outputSchema(Schema input) {
+        return new Schema(new Schema.FieldSchema(getSchemaName("parselong", input), DataType.MAP));
+    }
+}
+
+
+
+Error message:
+Caused by: java.lang.NullPointerException
+        at org.apache.pig.EvalFunc.getSchemaName(EvalFunc.java:76)
+        at string.PARSELONG.outputSchema(PARSELONG.java:63)
+        at org.apache.pig.newplan.logical.expression.UserFuncExpression.getFieldSchema(UserFuncExpression.java:154)
+        at org.apache.pig.newplan.logical.optimizer.FieldSchemaResetter.execute(SchemaResetter.java:192)
+        at org.apache.pig.newplan.logical.expression.AllSameExpressionVisitor.visit(AllSameExpressionVisitor.java:143)
+        at org.apache.pig.newplan.logical.expression.UserFuncExpression.accept(UserFuncExpression.java:71)
+        at org.apache.pig.newplan.ReverseDependencyOrderWalker.walk(ReverseDependencyOrderWalker.java:70)
+        at org.apache.pig.newplan.PlanVisitor.visit(PlanVisitor.java:50)
+        at org.apache.pig.newplan.logical.optimizer.SchemaResetter.visit(SchemaResetter.java:104)
+        at org.apache.pig.newplan.logical.relational.LOGenerate.accept(LOGenerate.java:240)
+        at org.apache.pig.newplan.DependencyOrderWalker.walk(DependencyOrderWalker.java:75)
+        at org.apache.pig.newplan.logical.optimizer.SchemaResetter.visit(SchemaResetter.java:93)
+        at org.apache.pig.newplan.logical.relational.LOForEach.accept(LOForEach.java:73)
+        at org.apache.pig.newplan.DependencyOrderWalker.walk(DependencyOrderWalker.java:75)
+        at org.apache.pig.newplan.PlanVisitor.visit(PlanVisitor.java:50)
+        at org.apache.pig.backend.hadoop.executionengine.HExecutionEngine.compile(HExecutionEngine.java:279)
+        at org.apache.pig.PigServer.compilePp(PigServer.java:1480)
+        at org.apache.pig.PigServer.explain(PigServer.java:1042)

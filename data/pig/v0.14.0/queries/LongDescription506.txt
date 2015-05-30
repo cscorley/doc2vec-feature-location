@@ -1,0 +1,17 @@
+Assume a user had a job that broke easily into three pieces.  Further assume that pieces one and three were easily expressible in pig, but that piece two needed to be written in map reduce for whatever reason (performance, something that pig could not easily express, legacy job that was too important to change, etc.).  Today the user would either have to use map reduce for the entire job or manually handle the stitching together of pig and map reduce jobs.  What if instead pig provided a NATIVE keyword that would allow the script to pass off the data stream to the underlying system (in this case map reduce).  The semantics of NATIVE would vary by underlying system.  In the map reduce case, we would assume that this indicated a collection of one or more fully contained map reduce jobs, so that pig would store the data, invoke the map reduce jobs, and then read the resulting data to continue.  It might look something like this:
+
+
+
+A = load 'myfile';
+X = load 'myotherfile';
+B = group A by $0;
+C = foreach B generate group, myudf(B);
+D = native (jar=mymr.jar, infile=frompig outfile=topig);
+E = join D by $0, X by $0;
+...
+
+
+
+This differs from streaming in that it allows the user to insert an arbitrary amount of native processing, whereas streaming allows the insertion of one binary.  It also differs in that, for streaming, data is piped directly into and out of the binary as part of the pig pipeline.  Here the pipeline would be broken, data written to disk, and the native block invoked, then data read back from disk.
+
+Another alternative is to say this is unnecessary because the user can do the coordination from java, using the PIgServer interface to run pig and calling the map reduce job explicitly.  The advantages of the native keyword are that the user need not be worried about coordination between the jobs, pig will take care of it.  Also the user can make use of existing java applications without being a java programmer.

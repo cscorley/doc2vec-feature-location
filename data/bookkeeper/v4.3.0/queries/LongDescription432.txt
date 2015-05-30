@@ -1,0 +1,12 @@
+We observed random I/O reads when some subscribers fall behind (on some topics), as delivery needs to scan the entry logs (thru ledger index), which are interleaved with ledger entries across all ledgers being served.
+
+Essentially, the ledger index is a non-clustered index. It is not effective when a large number of ledger entries need to be served, which tend to be scattered around due to interleaving.
+
+Some possible improvements:
+1. Change the ledger entries buffer to use a SkipList (or other suitable), sorted on (ledger, entry sequence). When the buffer is flushed, the entry log is written out in the already-sorted order. 
+
+The "active" ledger index can point to the entries buffer (SkipList), and fixed up with entry-log position once latter is persisted.
+
+Or, the ledger index can be just rebuilt on demand. The entry log file tail can have index attached (light-weight b-tree, similar with big-table). We need to track per ledger which log files contribute entries to it, so that in-memory index can be rebuilt from the tails of corresponding log files.
+
+2. Use affinity concept to make ensembles of ledgers (belonging to same topic) as identical as possible. This will help above 1. be more effective.

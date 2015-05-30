@@ -1,0 +1,12 @@
+I currently migrate to Tika 1.5, and fall into this behaviour, which leads to double entries in my database for one pdf file as I work directly with the handler.
+
+Here are the two calls:
+
+First call is in PDF2HTML, line 197: handler.endDocument();
+this is part of the PDF2XHTML.process(pdfDocument, handler, context, metadata, localConfig);
+invocation from PDFParser, line 143.
+
+
+The second call is then directly in PDFParser, line 151: handler.endDocument();
+
+Must stay at Tika 1.4 for now - still thanks for good work!

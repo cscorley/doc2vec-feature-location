@@ -1,0 +1,81 @@
+logmirror.ctrl is getting accessed outside the privileged block when the checkpoint instant is invalid  on log factory boot method and cause this failure on boot if  the database was not shutdown cleanly.  The reproduction  (see comment) shows that can happens after database creation. 
+
+This problem was reported on the derby-dev list  by Olav Sandstaa , filing jira entry  for it. 
+
+Olav Sandstaa wrote:
+
+> Rick Hillegas <Richard.Hillegas@Sun.COM> wrote:
+>
+> java.sql.SQLException: Java exception: 'access denied (java.io.FilePermission /export/home/tmp/derbyjdbc4/DerbyNetClient/TestConnectionMethods/wombat/log/logmirror.ctrl read): java.security.AccessControlException'.
+>     at java.security.AccessControlContext.checkPermission(AccessControlContext.java:321)
+>     at java.security.AccessController.checkPermission(AccessController.java:546)
+>     at java.lang.SecurityManager.checkPermission(SecurityManager.java:532)
+>     at java.lang.SecurityManager.checkRead(SecurityManager.java:871)
+>     at java.io.File.exists(File.java:731)
+>     at org.apache.derby.impl.store.raw.log.LogToFile.boot(LogToFile.java:2940)
+>     at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1996)
+>     at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:290)
+>     at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java:542)
+>     at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java:418)
+>     at org.apache.derby.impl.store.raw.data.BaseDataFileFactory.bootLogFactory(BaseDataFileFactory.java:1762)
+>     at org.apache.derby.impl.store.raw.data.BaseDataFileFactory.setRawStoreFactory(BaseDataFileFactory.java:1218)
+>     at org.apache.derby.impl.store.raw.RawStore.boot(RawStore.java:250)
+>     at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1996)
+>     at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:290)
+>     at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java:542)
+>     at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java:418)
+>     at org.apache.derby.impl.store.access.RAMAccessManager.boot(RAMAccessManager.java:987)
+>     at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1996)
+>     at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:290)
+>     at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java:542)
+>     at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java:418)
+>     at org.apache.derby.impl.db.BasicDatabase.bootStore(BasicDatabase.java:738)
+>     at org.apache.derby.impl.db.BasicDatabase.boot(BasicDatabase.java:178)
+>     at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1996)
+>     at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:290)
+>     at org.apache.derby.impl.services.monitor.BaseMonitor.bootService(BaseMonitor.java:1831)
+>     at org.apache.derby.impl.services.monitor.BaseMonitor.startProviderService(BaseMonitor.java:1697)
+>     at org.apache.derby.impl.services.monitor.BaseMonitor.findProviderAndStartService(BaseMonitor.java:1577)
+>     at org.apache.derby.impl.services.monitor.BaseMonitor.startPersistentService(BaseMonitor.java:990)
+>     at org.apache.derby.iapi.services.monitor.Monitor.startPersistentService(Monitor.java:541)
+>     at org.apache.derby.impl.jdbc.EmbedConnection.bootDatabase(EmbedConnection.java:1586)
+>     at org.apache.derby.impl.jdbc.EmbedConnection.<init>(EmbedConnection.java:216)
+>     at org.apache.derby.impl.jdbc.EmbedConnection30.<init>(EmbedConnection30.java:72)
+>     at org.apache.derby.impl.jdbc.EmbedConnection40.<init>(EmbedConnection40.java:48)
+>     at org.apache.derby.jdbc.Driver40.getNewEmbedConnection(Driver40.java:62)
+>     at org.apache.derby.jdbc.InternalDriver.connect(InternalDriver.java:199)
+>     at org.apache.derby.impl.drda.Database.makeConnection(Database.java:231)
+>     at org.apache.derby.impl.drda.DRDAConnThread.getConnFromDatabaseName(DRDAConnThread.java:1147)
+>     at org.apache.derby.impl.drda.DRDAConnThread.verifyUserIdPassword(DRDAConnThread.java:1125)
+>     at org.apache.derby.impl.drda.DRDAConnThread.parseSECCHK(DRDAConnThread.java:2709)
+>     at org.apache.derby.impl.drda.DRDAConnThread.parseDRDAConnection(DRDAConnThread.java:987)
+>     at org.apache.derby.impl.drda.DRDAConnThread.processCommands(DRDAConnThread.java:830)
+>     at org.apache.derby.impl.drda.DRDAConnThread.run(DRDAConnThread.java:236)
+>
+> The security exception is raised when Derby tries to get access to the
+> log/logmirror.ctrl file during the second startup of the database. I
+> would have expected that since this file was created earlier during
+> the initial startup of the test, the test should already have the
+> required security permissions to access it during the second startup?
+>
+> Anyway, the best solution to this problem would be to be able to reuse
+> functionality that already might exist in the test framework. Any
+> suggestions are appreciated.
+>
+> Regards,
+> Olav
+>
+
+By looking at the stack it looks like log/logmirror.ctrl  is not getting accessed in the privileged block at  line 2940 in LogToFile.java.
+if (checkpointInstant == LogCounter.INVALID_LOG_INSTANT &&                     getMirrorControlFileName().exists())
+
+Not sure how you got checkpointInstant to be INVALID , may be your test program might have exited before a first valid checkpoint. Any one fixing this bugs should make sure that is the case.
+
+In any case  call to exists should have been privExists(getMirrorControlFileName()).
+
+
+Please file a Jira entry  with information on how to reproduce this bug.
+
+
+Thanks
+-suresh

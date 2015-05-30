@@ -1,0 +1,14 @@
+If the entity has OneToMany relation and collection is declared as subclass which uses SINGLE_TABLE inheritance strategy, it fetches all rows irrespective of Discriminator value and throws ClassCastException.
+
+There is entity Department (table dept) having OneToMany relation with another entity FullTimeEmployee. 
+
+  @OneToMany (mappedBy="dept", cascade=CascadeType.ALL)
+  private Collection<FullTimeEmployee> fullTimeEmployees;
+
+There is abstract class Employee with
+@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name="TYPE")
+
+There are two entity classes FullTimeEmployee and PartTimeEmployee which extends Employee (table emp) with Discriminator values 'F' and 'P' respectively.
+
+Now, suppose emp table contains 2 rows of PartTimeEmployee and 2 rows of FullTimeEmployee and if test class fetches Department object and calls dept.getFullTimeEmployees(), it throws ClassCastException as it gets 4 rows and doesn't use discriminator and subclass type while generating SQL query.

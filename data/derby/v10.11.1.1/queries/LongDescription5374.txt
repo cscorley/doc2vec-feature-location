@@ -1,0 +1,19 @@
+The newly converted (to junit) test ij5Test fails with weme 6.2:
+
+ij5(org.apache.derbyTesting.functionTests.tests.tools.ij5Test)junit.framework.ComparisonFailure: Output at line 1 expected:<CONNECTION0* - 	jdbc:derby:wombat> but was:<ERROR XJ004: Database '' not found.>
+	at junit.framework.AssertionFailedError.<init>(AssertionFailedError.java:11)
+	at junit.framework.ComparisonFailure.<init>(ComparisonFailure.java:19)
+	at org.apache.derbyTesting.functionTests.util.CanonTestCase.compareCanon(CanonTestCase.java:109)
+	at org.apache.derbyTesting.functionTests.util.ScriptTestCase.runTest(ScriptTestCase.java:204)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:112)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+
+This is likely a similar problem as described in DERBY-5373 (re importExportIJ). 
+
+see also (until cleaned up at some point in the future): http://people.apache.org/~myrnavl/derby_test_results/main/windows/testlog/weme6.2/1152992-suites.All_diff.txt

@@ -1,0 +1,5 @@
+The shutdown() method of JarStorageFactory probably needs to close the zipData file but adding that code changes the behaviour of shutting down such a database to report database not found instead of database shutdown.
+
+Even with the above method changed and the problem fixed there may be a store error in that I couldn't see any store code that calls StorageFactory.shutdown() for the data segement, in this case the database is read only since it is from a jar.
+
+Seen in some new test cases being added to DatabaseClassLoadingTest (in the conversion from dcl.sql)

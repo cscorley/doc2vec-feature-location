@@ -1,0 +1,8 @@
+Server should specify the local address that is used for leader communication and leader election (and not use the default of listening on all interfaces).  This is similar to the clientPortAddress parameter that was added a year ago.  After reviewing the code, we can't think of a reason why only the port would be used with the wildcard interface, when servers are already connecting specifically to that interface anyway.
+
+I have submitted a patch, but it does not account for all leader election algorithms.
+
+Probably should have an option to toggle this, for backwards compatibility, although it seems like it would be a bug if this change broke things.
+
+There is some more information about making it an option here:
+http://mail-archives.apache.org/mod_mbox/hadoop-zookeeper-dev/201008.mbox/%3CAANLkTikkT97Djqt3CU=H2+7Gnj_4p28hgCXjh345HiyN@mail.gmail.com%3E

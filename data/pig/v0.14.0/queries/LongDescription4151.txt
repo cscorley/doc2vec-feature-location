@@ -1,0 +1,43 @@
+Pig is unable to write empty maps to HBase. Instruction for reproduce:
+
+input file pig_data_bad.txt:
+
+
+row1;Homer;Morrison;[1#Silvia,2#Stacy]
+row2;Sheila;Fletcher;[1#Becky,2#Salvador,3#Lois]
+row4;Andre;Morton;[1#Nancy]
+row3;Sonja;Webb;[]
+
+
+
+Create table in hbase:
+create 'test', 'info', 'friends'
+
+Pig script:
+
+
+source = LOAD '/pig_data_bad.txt' USING PigStorage(';') AS (row:chararray, first_name:chararray, last_name:chararray, friends:map[]);
+
+STORE source INTO 'hbase://test' USING org.apache.pig.backend.hadoop.hbase.HBaseStorage('info:fname info:lname friends:*');
+
+
+
+Stack:
+java.lang.NullPointerException
+at org.apache.pig.backend.hadoop.hbase.HBaseStorage.putNext(HBaseStorage.java:880)
+at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigOutputFormat$PigRecordWriter.write(PigOutputFormat.java:139)
+at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigOutputFormat$PigRecordWriter.write(PigOutputFormat.java:98)
+at org.apache.hadoop.mapred.MapTask$NewDirectOutputCollector.write(MapTask.java:635)
+at org.apache.hadoop.mapreduce.task.TaskInputOutputContextImpl.write(TaskInputOutputContextImpl.java:89)
+at org.apache.hadoop.mapreduce.lib.map.WrappedMapper$Context.write(WrappedMapper.java:112)
+at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapOnly$Map.collect(PigMapOnly.java:48)
+at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.runPipeline(PigGenericMapBase.java:284)
+at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.map(PigGenericMapBase.java:277)
+at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.map(PigGenericMapBase.java:64)
+at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:145)
+at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:764)
+at org.apache.hadoop.mapred.MapTask.run(MapTask.java:340)
+at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:167)
+at java.security.AccessController.doPrivileged(Native Method)
+at javax.security.auth.Subject.doAs(Subject.java:415)
+at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1594)

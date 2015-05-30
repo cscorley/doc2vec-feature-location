@@ -1,0 +1,11 @@
+numRows() 
+{ return size()[ROW]; }
+ and numCols() 
+{ return size()[COL]; }
+ are pretty much no-brainer methods, right?  Who wants to deal with a length-two array of ints all the time when getting the number of rows and columns of a matrix?
+
+Those are pretty trivial, but the key feature of a Matrix is to map Vector instances to Vector instances, and while you can do that currently by making a a row Matrix and doing Matrix.times(Matrix), it's silly to have to always do that.  Matrix.times(Vector) is pretty needed.
+
+Even less trivial, for really big sparse Matrices, if you need to get (M'M)v for some matrix M, then this can be computed in one pass through M without ever computing the transpose of M by a simple reordering of the limits of summation.
+
+Attaching a patch with these implementations, including unit tests (as well as an improvement in the Matrix.times(Matrix) unit test to actually check the math).

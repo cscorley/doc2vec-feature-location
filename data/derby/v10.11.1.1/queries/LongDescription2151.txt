@@ -1,0 +1,9 @@
+As part of my work to get the XML tests running in JUnit (DERBY-1758) I had to convert the old ij test lang/xml_general.sql into a JUnit equivalent.  After hand-converting about twenty or so lines of ij "master" output to the corresponding JUnit commands, I became bored with the melancholy of such a task.  So I hastily threw together a small utility to help automate as much of the process as possible.
+
+To be perfectly frank, the utility is a shameful piece of code.  It's poorly-written, non-intuitive, overly complex and not at all well thought-out.  It's also completely UN-commented. I wish I could follow-up with a half-hearted claim that "at least it works", but I'm not even sure that's always true...
+
+My first (and still lingering) inclination is to just bury the utility and never look at it again.  However, I have to admit that, while the code is a nightmare to understand, it did a) prompt me to add some general-purpose JUnit utility methods that can be useful (DERBY-1976), and b) save me a lot of time by providing a rough translation of the ij test to JUnit.  Then instead of piddling away at line-by-conversions of the test I was able to spend my time re-organizing the JUnit version to make it adhere to the JUnit suggestions on the second page of:
+
+  http://www.javaworld.com/jw-12-2000/jw-1221-junit.html
+
+So the utility did save me time.  And for that reason I've decided to choke down my embarassment and post it to a Jira issue for other developers who may find it useful (or perhaps entertaining as an example of bad programming)...

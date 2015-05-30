@@ -1,0 +1,22 @@
+When uploading documents to a jackrabbit 2.1 repository the following exception was received.  It looks like a bug in tagsoup 1.2 (if you search the tagsoup yahoo group you can see that it may be caused by '&' characters in the html being parsed):
+27.05.2010 14:57:18 *WARN * LazyTextExtractorField: Failed to extract text from a binary property (LazyTextExtractorField.java, line 180)
+org.apache.tika.exception.TikaException: TIKA-198: Illegal IOException from org.apache.tika.parser.html.HtmlParser@eba477
+       at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:126)
+       at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:101)
+       at org.apache.jackrabbit.core.query.lucene.LazyTextExtractorField$ParsingTask.run(LazyTextExtractorField.java:174)
+       at java.util.concurrent.Executors$RunnableAdapter.call(Unknown Source)
+       at java.util.concurrent.FutureTask$Sync.innerRun(Unknown Source)
+       at java.util.concurrent.FutureTask.run(Unknown Source)
+       at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$301(Unknown Source)
+       at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(Unknown Source)
+       at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)
+       at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+       at java.lang.Thread.run(Unknown Source)
+Caused by: java.io.IOException: Pushback buffer overflow
+       at java.io.PushbackReader.unread(Unknown Source)
+       at org.ccil.cowan.tagsoup.HTMLScanner.unread(HTMLScanner.java:274)
+       at org.ccil.cowan.tagsoup.HTMLScanner.scan(HTMLScanner.java:487)
+       at org.ccil.cowan.tagsoup.Parser.parse(Parser.java:449)
+       at org.apache.tika.parser.html.HtmlParser.parse(HtmlParser.java:177)
+       at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:120)
+       ... 10 more

@@ -1,0 +1,9 @@
+Some RTFs cause RTFParser to throw a RuntimeException:
+
+Unexpected RuntimeException from org.apache.tika.parser.rtf.RTFParser@425e60f2
+
+When tracing in the debugger (surfaces in CompositeParser.parse() where it catches the RuntimeException, line 244 in my copy), the exception (e) is:
+
+java.lang.ArrayIndexOutOfBoundsException: -1
+
+A committer (Tim Allison) believes that it is being caused by recent list processing changes.

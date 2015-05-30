@@ -1,0 +1,42 @@
+See the following script:
+
+
+ij version 10.11
+ij> connect 'jdbc:derby:memory:db;create=true';
+ij> create table t1(x int primary key);
+0 rows inserted/updated/deleted
+ij> create table t2(x int primary key);
+0 rows inserted/updated/deleted
+ij> create table t3(x int, constraint fk1 foreign key (x) references t1 initially deferred, constraint fk2 foreign key (x) references t2 initially deferred);
+0 rows inserted/updated/deleted
+ij> insert into t1 values 1;
+1 row inserted/updated/deleted
+ij> autocommit off;
+ij> insert into t3 values 1;
+1 row inserted/updated/deleted
+ij> insert into t2 values 1;
+1 row inserted/updated/deleted
+ij> delete from t1;
+1 row inserted/updated/deleted
+ij> commit;
+ij> select * from t1;
+X          
+-----------
+
+0 rows selected
+ij> select * from t2;
+X          
+-----------
+1          
+
+1 row selected
+ij> select * from t3;
+X          
+-----------
+1          
+
+1 row selected
+
+
+
+Since T3.X contains a value (1) that is not present in T1, the foreign key FK1 is violated, and the COMMIT statement should have failed.

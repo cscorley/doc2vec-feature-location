@@ -1,0 +1,5 @@
+When certain types of errors are raised while the network server is processing a client request, the server is left in a semi-degraded state. The problem this issue is concerned with, is that the client socket is kept open even though the server in a kind of degraded state (server JVM still alive). This causes the client to hang, until the server JVM is killed, in a read-call on the socket.
+
+I'm able to reproduce this with an OOME being raised on the server.
+
+In my opinion, hanging when there is no chance of progression is bad behavior. Furthermore, it causes trouble for automated testing.

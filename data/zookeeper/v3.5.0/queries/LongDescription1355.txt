@@ -1,0 +1,6 @@
+When the set of servers changes, we would like to update the server list stored by clients without restarting the clients.
+Moreover, assuming that the number of clients per server is the same (in expectation) in the old configuration (as guaranteed by the current list shuffling for example), we would like to re-balance client connections across the new set of servers in a way that a) the number of clients per server is the same for all servers (in expectation) and b) there is no excessive/unnecessary client migration.
+
+It is simple to achieve (a) without (b) - just re-shuffle the new list of servers at every client. But this would create unnecessary migration, which we'd like to avoid.
+
+We propose a simple probabilistic migration scheme that achieves (a) and (b) - each client locally decides whether and where to migrate when the list of servers changes. The attached document describes the scheme and shows an evaluation of it in Zookeeper. We also implemented re-balancing through a consistent-hashing scheme and show a comparison. We derived the probabilistic migration rules from a simple formula that we can also provide, if someone's interested in the proof.

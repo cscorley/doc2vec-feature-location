@@ -1,0 +1,18 @@
+The FileDataModel constructor checks for a null arg for dataFile, and a few other conditions, but not for an empty file.  If an empty file is passed in, it triggers a NullPointerException when the first line is evaluated.
+
+For an empty file, an NPE is raised when firstLine.length() is called:
+
+    FileLineIterator iterator = new FileLineIterator(dataFile, false);
+    String firstLine = iterator.peek();
+    while ((firstLine.length() == 0) || (firstLine.charAt(0) == COMMENT_CHAR)) {
+
+Proposed fix is to add a check for a zero-length file:
+
+    Preconditions.checkArgument(dataFile != null, "dataFile is null");
+    if (!dataFile.exists() || dataFile.isDirectory()) 
+{
+      throw new FileNotFoundException(dataFile.toString());
+    }
+    Preconditions.checkArgument(dataFile.length() > 0L, "dataFile is empty");
+
+A unit test has been included in the patch.

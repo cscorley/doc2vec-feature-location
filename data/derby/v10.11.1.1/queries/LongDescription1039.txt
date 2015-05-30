@@ -1,0 +1,10 @@
+If a database is created with logDevice pointing to a directory
+containing old log files, one might experience errors during recovery.
+
+  ERROR XSDB4: Page Page(0,Container(0, 768)) is at version 2,657, the
+  log file contains change version 2,715, either there are log records
+  of this page missing, or this page did not get written out to disk
+  properly.
+
+To avoid this problem, database creation should fail if logDevice is
+pointing to an existing directory.

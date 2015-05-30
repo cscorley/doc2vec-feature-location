@@ -1,0 +1,3 @@
+In TF mode, seq2sparse puts the output vectors into <output>/vectors. In TFIDF mode; however, it puts the output vectors into <output>/tfidf/vectors. This happens because the IDF calculation - if it is selected - happens after TF and uses the TF vectors for its input.
+
+Seems like both modes ought to output to a consistent directory structure so changing the switch does not change the final output location: perhaps as simple as changing TF to output to <output>/tf/vectors so that the contents of both directories when present are more obvious from their nomenclature.

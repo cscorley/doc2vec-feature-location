@@ -1,0 +1,5 @@
+The Metadata class is a bit overloaded with both processing and core Tika properties defined in the same place.
+
+Separating the core properties into a TikaCoreProperties class which contains only composite properties which reference other standards like DublinCore will allow the Metadata class to focus on processing and ease the transition from the now deprecated String properties that were directly included in Metadata via the implements clause.
+
+This will also allow us to cherry pick only the properties we want from a standard as Tika core properties rather than having to include all the properties in a standard's interface, some of which may be more specific to a particular content type than we want.

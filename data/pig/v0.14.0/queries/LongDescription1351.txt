@@ -1,0 +1,11 @@
+In Zebra, we do not have any type check when writing to a basic table. 
+
+Say, we have a schema: "f1:int, f2:string",
+however we can write a tuple ("abc", 123) without any problem, which is definitely not desirable.
+
+To overcome this problem, we decide to perform certain amount of type checking in Zebra - We check the first row only for each writer.
+This only serves as a sanity check purpose in cases where users screw up specifying the output schema. We do NOT perform a rigorous type checking for all rows for apparently performance concerns.
+
+
+
+

@@ -1,0 +1,17 @@
+To reproduce the error, register any udf as streaming_python and run it in direct fetch mode.
+
+It fails with the following error in my environment-
+
+
+    sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8])
+  File "/mnt/pig_tmp/prodpig/controller4894777320356829424.py", line 77, in main
+    self.output_stream = open(output_stream_path, 'a')
+IOError: [Errno 13] Permission denied: '/mnt/var/lib/hadoop/tmp/udfOutput/sanitize.out'
+
+
+The problem is that Streaming UDF tries to write out a log, but the user doesn't have write permission to the default location (hadoop.tmp.dir).
+
+In fact, Streaming UDF handles local mode properly by using pig.udf.scripting.log.dir instead of hadoop.log.dir or hadoop.tmp.dir. We should do the same for direct fetch mode.
+
+
+

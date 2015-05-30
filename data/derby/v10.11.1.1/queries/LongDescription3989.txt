@@ -1,0 +1,14 @@
+This will make the build even more flexible. Probably involves the following changes:
+
+1) Relaxing the requirement in PropertySetter that a Java 5 JDK must exist
+
+2) Having PropertySetter look for a Java 6 JDK (and set java16compile.classpath accordingly) just as PropertySetter looks for a Java 5 JDK today
+
+3) Changing the setCompilerProperties target in the master build script so that it
+
+  a) requires that java15compile.classpath or java16compile.classpath is set (it's ok for both to be set)
+
+  b) sets java15compile.classpath to $
+{jdbc3stubs}
+:$
+{java16compile.classpath}

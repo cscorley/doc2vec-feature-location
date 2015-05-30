@@ -1,0 +1,40 @@
+I sent this to the list:
+
+I'm looking at Pig's TupleSize implementation and wondering if it's
+implemented correctly:
+
+   @Override
+   public Long exec(Tuple input) throws IOException {
+       try
+{
+           if (input == null) return null;
+           return Long.valueOf(input.size());
+       }
+catch(Exception e)
+{
+           int errCode = 2106;
+           String msg = "Error while computing size in " +
+this.getClass().getSimpleName();
+           throw new ExecException(msg, errCode, PigException.BUG,
+e);
+       }
+   }
+
+
+I have a script that looks like
+
+A = FOREACH A GENERATE STRSPLIT(value, '\u0001') AS values;
+B = FOREACH B GENERATE values, SIZE(values) AS cnt;
+
+and cnt always ends up as 1.  From the code, it looks like TupleSize
+is intended to only return the number of arguments into the SIZE()
+UDF?  Is that really the intention and I'm using the SIZE() UDF wrong?
+ Or, is it just a bug and it's supposed to be written as "return
+Long.valueOf(((Tuple) input.get(0)).size()))"?
+
+
+I got this response back:
+
+This is definitely a bug. Can you open a Jira ticket?
+
+Done!

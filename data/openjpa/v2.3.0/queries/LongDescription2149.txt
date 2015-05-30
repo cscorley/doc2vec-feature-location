@@ -1,0 +1,48 @@
+Criteria.function will generate an SQL with only the last parameter casted and to the wrong type.
+		Expression<String> stPointFunc = cb.function(
+				"db2gse.st_point", 
+				String.class,
+				cb.literal(0.0),
+				cb.literal(0.0),
+				cb.literal(1003));
+
+		Expression<Double> distanceFunc = cb.function(
+				"db2gse.st_distance", 
+				Double.class, 
+				stPointFunc, 
+				usersLocations.get("location"));
+
+		criteriaQuery.select(usersLocations).where(cb.lessThan(distanceFunc, cb.literal(50.0)));
+
+Will generate the following SQL:
+(db2gse.st_distance(db2gse.st_point(?, ?, CAST(? AS DOUBLE)), t0.LOCATION) < ?)
+
+Notice the 3rd parameter is an Integer and its being cast as Double.
+The problem is in org.apache.openjpa.jdbc.kernel.exps.DatastoreFunction#appendTo
+
+Line 54:  args.appendTo(sel, ctx, state, sql, 0);
+Will append 3 ? to the sql buffer: "(db2gse.st_distance(db2gse.st_point(?, ?, ?"
+
+Then the loop in line 56-58
+            for (int i = 1; i < vals.length; i++) 
+{
+                sql.addCastForParam(getOperator(), vals[i]);
+            }
+It becomes: "(db2gse.st_distance(db2gse.st_point(?, ?, CAST(? AS DOUBLE)"
+
+
+Starts with 1 (second parameter and not the first one), whil sql.addCastForParam only works for the last ? in the sql buffer, meaning the cast for the param at index 1 is added to the last ? and the method will not do anything else.
+
+This issue leaves Criteria.function useless to me, I tried extending my DBDictionary to remove all the cast as a work around but the function became ambiguous.
+
+Thanks in advance.
+
+Found a temporary (working but ugly) workaround:
+		Expression<String> stPointFunc = cb.function(
+				"db2gse.st_point", 
+				String.class,
+				cb.coalesce(cb.literal(0.0), cb.literal(0.0)),
+				cb.coalesce(cb.literal(1.0), cb.literal(1.0)),
+				cb.coalesce(cb.literal(1003), cb.literal(1003)));
+
+coalesce uses raw value instead of parameters and makes it work (the same value twice becuase if I put cb.nullLiteral I get a NullPointerException, might be another bug)

@@ -1,0 +1,12 @@
+SQL Standard (foundation) says:
+
+Section 5.4 SR 20) No <authorization identifier> shall specify "PUBLIC".
+
+This is a syntax rule which implies a 42xxx SQL state but I wonder if 'invalid authorization specification.' (28xxx) makes more sense?
+Maybe it's 28xxx when used in a connection request and 42xxx in a SQL statement?
+
+Needs to be disallowed on:
+  JDBC connection requests
+  GRANT statements, ie. using "PUBLIC" as a delimited identifier.
+
+Existing application impact if the exists a user with an authorization identifier of PUBLIC in an existing system.

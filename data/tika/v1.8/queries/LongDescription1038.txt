@@ -1,0 +1,43 @@
+Tika corrupt with StackOverflowError on some pdf documents:
+http://www.ellipse-labo.com/fiches/1303214351.pdf
+http://downloads.joomlacode.org/frsrelease/5/4/0/54089/handbuch_ckforms-DE-1.3.2.pdf
+
+Code:
+
+
+
+AutoDetectParser parser = new AutoDetectParser(
+                new TypeDetector(),
+                new PDFParser(),
+                new OfficeParser(),
+                new HtmlParser(),
+                new RTFParser(),
+                new OOXMLParser());
+
+WriteOutContentHandler contentHandler = new WriteOutContentHandler();
+Metadata metadata = new Metadata();
+
+parser.parse(contentStream, new BodyContentHandler(contentHandler), metadata, new ParseContext());
+
+
+
+Stack trace:
+
+
+java.lang.StackOverflowError
+	at java.util.LinkedHashMap$LinkedHashIterator.<init>(LinkedHashMap.java:345)
+	at java.util.LinkedHashMap$LinkedHashIterator.<init>(LinkedHashMap.java:345)
+	at java.util.LinkedHashMap$KeyIterator.<init>(LinkedHashMap.java:383)
+	at java.util.LinkedHashMap$KeyIterator.<init>(LinkedHashMap.java:383)
+	at java.util.LinkedHashMap.newKeyIterator(LinkedHashMap.java:396)
+	at java.util.HashMap$KeySet.iterator(HashMap.java:874)
+	at org.apache.pdfbox.cos.COSDictionary.toString(COSDictionary.java:1416)
+	at org.apache.pdfbox.cos.COSDictionary.toString(COSDictionary.java:1421)
+	at org.apache.pdfbox.cos.COSDictionary.toString(COSDictionary.java:1421)
+	at org.apache.pdfbox.cos.COSDictionary.toString(COSDictionary.java:1421)
+	at org.apache.pdfbox.cos.COSDictionary.toString(COSDictionary.java:1421)
+...
+
+
+
+

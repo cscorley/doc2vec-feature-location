@@ -1,0 +1,19 @@
+BACKGROUND:
+
+Derby's implementation of the JDBC class java.sql.DatabaseMetaData returns result sets that are defined by the SQL queries in impl/jdbc/metadata.properties.
+
+PROBLEM:
+
+The current queries in the metadata.properties file are for JDBC 2 only.  The queries do NOT account for the result sets as defined by JDBC 3, and thus even when JDBC 3 result sets should be returned, a user will get metadata correlating to the JDBC 2 standard.
+
+Just for reference, here are a couple of examples of changes that have been made from JDBC 2 to JDBC 3:
+
+1) getColumns(): JDBC 2 specifies 18 columns, JDBC 3 specifies 22 (the four extra columns are SCOPE_CATALOG, SCOPE_SCHEMA, SCOPE_TABLE, and SOURCE_DATA_TYPE).
+
+2) getTables(): JDBC 2 specifics 5 columns, JDBC 3 specifies 10 (the five extra columns are TYPE_CAT, TYPE_SCHEM, TYPE_NAME, SELF_REFERENCING_COL_NAME, and REF_GENERATION).
+
+3) getProcedureColumns(): JDBC 2 specifies that DATA_TYPE is a "short"; JDBC 3 specifies that DATA_TYPE is an "int".
+
+NOTES:
+
+JDBC 3 needs to be backward compatible with JDBC 2, so it should be okay to just modify metadata.properties to return JDBC 3 result sets...

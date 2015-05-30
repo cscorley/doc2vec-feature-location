@@ -1,0 +1,21 @@
+When using 
+
+<property name="openjpa.DetachState" value="fetch-groups(DetachedStateField=true)"/>
+
+serializing an entity leads to the following Exception:
+
+java.lang.ClassCastException: org.apache.openjpa.kernel.StateManagerImpl cannot be cast to org.apache.openjpa.kernel.DetachedStateManager
+	at org.apache.openjpa.util.Proxies.writeReplace(Proxies.java:147)
+	at org.apache.openjpa.util.java$util$Date$proxy.writeReplace(Unknown Source)
+	at sun.reflect.GeneratedMethodAccessor176.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at java.io.ObjectStreamClass.invokeWriteReplace(ObjectStreamClass.java:1032)
+	at java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1107)
+	at java.io.ObjectOutputStream.writeObject(ObjectOutputStream.java:326)
+	at org.apache.openjpa.kernel.SingleFieldManager.serialize(SingleFieldManager.java:545)
+	at org.apache.openjpa.kernel.StateManagerImpl.writeDetached(StateManagerImpl.java:1478)
+	at at.ac.tuwien.tiss.curriculum.be.entities.CurriculumVersion.writeExternal(CurriculumVersion.java)
+	at java.io.ObjectOutputStream.writeExternalData(ObjectOutputStream.java:1421)
+
+This seems related to OPENJPA-1597

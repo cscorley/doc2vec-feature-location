@@ -1,0 +1,18 @@
+Noticed an issue with the Postgres DBDictionary definition after updating Postgres from version 8.4 to 9.1:-
+
+Here's what you get in the Postgres trace file when executing some JPA driven queries where an SQL LIKE is involved:-
+
+2011-09-30 14:29:41 BST ERROR:  invalid escape string
+2011-09-30 14:29:41 BST HINT:  Escape string must be empty or one character.
+2011-09-30 14:29:41 BST STATEMENT:  SELECT t0.id, t0.identificationMask, t0.productName FROM DBTYPE t0 WHERE (t0.identificationMask LIKE $1 ESCAPE '')
+2011-09-30 14:29:41 BST ERROR:  current transaction is aborted, commands ignored until end of transaction block
+
+This appears to be down to a change the Postgres project have made to escape string handling:-
+  http://www.postgresql.org/docs/9.1/static/release-9-1.html (see section E.2.2.1)
+
+You appear to be able to override the default DBDictionary setting for this as follows to get things working again:-
+<property name="openjpa.jdbc.DBDictionary" value="postgres(SearchStringEscape=)"/>
+
+So, does this mean OpenJPA needs a version dependent dictionary definition for Postgres from now on? Anybody got any better solutions or care to confirm what I'm seeing?
+
+I've also posted this to the Postgres JDBC mailing list in case they have any comments. 

@@ -1,0 +1,41 @@
+I am opening this bug, which is probably a duplicate of bug#728 so that other's may find it and save the hours I spent chasing it down.  Feel free to mark this as a duplicate.  However, while related, it may not be a true duplicate of 728.
+
+The exception is similar to 728:
+
+Exception in thread "main" org.apache.derby.client.am.SqlException: Unicode string can't convert to Ebcdic string
+
+(Here is the version of the exception I received – excuse the Japanese characters):
+
+Caused by: org.apache.derby.client.am.SqlException: Unicode ストリングを EBCDIC ストリングに変換することはできません。
+	at org.apache.derby.client.net.EbcdicCcsidManager.convertFromUCS2(Unknown Source)
+	at org.apache.derby.client.net.Request.writeScalarString(Unknown Source)
+	at org.apache.derby.client.net.Request.writeScalarString(Unknown Source)
+	at org.apache.derby.client.net.NetConnectionRequest.buildEXTNAM(Unknown Source)
+	at org.apache.derby.client.net.NetConnectionRequest.buildEXCSAT(Unknown Source)
+	at org.apache.derby.client.net.NetConnectionRequest.writeExchangeServerAttributes(Unknown Source)
+	at org.apache.derby.client.net.NetConnection.writeServerAttributesAndKeyExchange(Unknown Source)
+	at org.apache.derby.client.net.NetConnection.flowServerAttributesAndKeyExchange(Unknown Source)
+	at org.apache.derby.client.net.NetConnection.flowUSRIDPWDconnect(Unknown Source)
+	at org.apache.derby.client.net.NetConnection.flowConnect(Unknown Source)
+	at org.apache.derby.client.net.NetConnection.initialize(Unknown Source)
+	at org.apache.derby.client.net.NetConnection.<init>(Unknown Source)
+	at org.apache.derby.client.net.NetConnection40.<init>(Unknown Source)
+	at org.apache.derby.client.net.ClientJDBCObjectFactoryImpl40.newNetConnection(Unknown Source)
+	at org.apache.derby.client.net.NetXAConnection.createNetConnection(Unknown Source)
+	at org.apache.derby.client.net.NetXAConnection.<init>(Unknown Source)
+	at org.apache.derby.client.ClientPooledConnection.getNetXAConnection(Unknown Source)
+	... 45 more
+
+However, the difference is that the database name (and connection URL) does NOT contain unicode characters.  In this case, the thread name contains Japanese characters.  If the thread performing java.sql.DriverManager.getConnection() has characters that cannot be translated into EBCDIC the above exception is the result.  If the thread name is changed to contain only standard ASCII characters, the connection to the DB is successful.  Note again, in my case, the connection URL is a standard connection URL with no i18n characters, something similar to:
+
+jdbc:derby://localhost/database
+
+It is only the thread-name that contains i18n characters.  I don't know why the client feels it necessary to marshall the client-thread name, but that seems to be the problem.  The fix for this issue is likely easier than 728 if the requirement that the client marshall the thread name can be removed (it seems senseless).
+
+Finally, just for the record, a typical thread name that tickles this bug is:
+
+"Running-2 (MOTDバナーの設定 for 10.0.0.90@Default)"
+
+If the Japanese is removed from the thread names, there is no problem.
+
+The workaround in our case was to change the thread names in our code to not contain Japanese characters.

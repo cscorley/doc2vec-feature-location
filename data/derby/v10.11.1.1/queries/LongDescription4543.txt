@@ -1,0 +1,4 @@
+The logic determining whether CLOB values should be stored using the old (pre 10.5) or the new header format has two bugs, which sometimes causes the old format to be used even though the new one should be used.
+The naming of the relevant methods are also problematic, as we're not really interested in whether we are in soft-upgrade mode or not. If you soft-upgrade from 10.5 to 10.6, the new header format should still be used.
+
+The consequences of these bugs are potential loss of performance for certain operations on CLOB values and in some cases it might cause a crash if the source stream cannot be rewinded/reset.

@@ -1,0 +1,16 @@
+Hi all,
+ I have a Pig script where I set the parallelism using the following set construct: "set default_parallel 100" . I modified the "MRPrinter.java" to printout the parallelism
+
+
+...
+public void visitMROp(MapReduceOper mr)
+mStream.println("MapReduce node " + mr.getOperatorKey().toString() + " Parallelism " + mr.getRequestedParallelism());
+...
+
+
+
+When I run an explain on the script, I see that the last job which does the actual sort, runs as a single reducer job. This can be corrected, by adding the PARALLEL keyword in front of the ORDER BY.
+
+Attaching the script and the explain output
+
+Viraj

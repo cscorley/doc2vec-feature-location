@@ -1,0 +1,23 @@
+TOBAG only reports an output schema beyond {{
+{(NULL)}
+}} when all input field schemas match deeply, including field schema aliases. This seems wrong to me. Shouldn't it just require recursive type equality?
+
+For relevant code, see:
+
+http://svn.apache.org/viewvc/pig/tags/release-0.9.2/src/org/apache/pig/builtin/TOBAG.java?view=markup#l142
+
+
+
+    private boolean nullEquals(Schema currentSchema, Schema newSchema) {
+        if(currentSchema == null){
+            if(newSchema != null){
+                return false;
+            }
+            return true;
+        }
+        return currentSchema.equals(newSchema);
+    }
+
+
+
+The included patch modifies the return line to use Schema.equals(currentSchema, newSchema, false, true) to avoid alias matching requirement.

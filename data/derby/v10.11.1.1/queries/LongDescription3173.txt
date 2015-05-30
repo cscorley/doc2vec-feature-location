@@ -1,0 +1,5 @@
+These type classes save a copy of the value when it is converted to a String (e.g. through a ResultSet.getString()). This complicates the code & increases memory use for little value, in most cases the cached value will never be used. E.g. for any type of scan the String value will be discarded when moving to the next row. In most cases applications do not call getString() twice on a column.
+
+The code has some historical basis in the fact that these types used to be represented by a java.sql.Time/Date/Timestamp object and its conversion to String was slow. Now the conversion of all these types to a String is simple.
+
+In addition I think the getString() will sometimes return a non-normalized form, if the value is set by a non-standard format then the cached String is set to the non-standard format, not the standard format, I believe this is incorrect.

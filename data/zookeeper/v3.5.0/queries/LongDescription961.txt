@@ -1,0 +1,9 @@
+Let's say you're using connection string "127.0.0.1:2182/foo".
+1) put a childrenchanged watch on relative / (that is, on absolute path /foo)
+2) stop the zk server
+3) start the zk server
+4) at this point, the client recovers the connection, and should have put back a watch on relative path /, but instead the client puts a watch on the absolute path /
+
+	if some other client adds or removes a node under /foo, nothing will happen
+	if some other client adds or removes a node under /, then you will get an error from the zk client library (string operation error)
+

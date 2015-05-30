@@ -1,0 +1,10 @@
+In some cases a client is just interested in the parsed metadata and not the extracted text content. It is easy to ignore the text content by just passing a dummy DefaultHandler to the existing parse() method, but many parsers could avoid a lot of work if they knew in advance that the text content is not needed.
+
+Thus I want to add a parse(InputStream, Metadata) signature to the Parser interface. I'll also add an AbstractParser base class with a trivial implementation of that method:
+
+    public abstract AbstractParser implements Parser {
+        public void parse(InputStream stream, Metadata metadata) 
+{
+            parse(stream, new DefaultHandler(), metadata);
+        }
+    }

@@ -1,0 +1,122 @@
+I've found a scenario where upon transaction commit, certain entities which should be persisted via a cascade operation are not present in the database.  To properly describe this issue, let me start by first introducing a few entities, and then list a snippet of a test which uses these entities to recreate an issue with cascading entities.  That said, take the following three entities:
+
+public class Vertex {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long oid;
+
+    @OneToMany(mappedBy = "source", cascade = CascadeType.ALL)
+    private List<Edge> outgoing;
+
+    @OneToMany(mappedBy = "target", cascade = CascadeType.ALL)
+    private List<Edge> incoming;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "TYPE_OID")
+    private VertexType type;
+
+    public Edge newEdge( Vertex target ) 
+{
+        Edge t = new Edge( this );
+        outgoing.add( t );
+        t.setTarget( target );
+        return t;
+    }
+.........
+
+
+public class VertexType {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)    
+    private long oid;
+
+    @OneToMany(mappedBy = "type", cascade = CascadeType.ALL)
+    List<Vertex> instances;
+
+    private String name;
+.........
+
+
+public class Edge {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long oid;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "SOURCE_OID")
+    private Vertex source;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "TARGET_OID")
+    private Vertex target;
+.........
+
+
+
+Before describing the test case, let me point out a couple important things about these entities.  First you will notice that each entity contains a generated id.  Second, notice that there are multiple relationships between these entities. 
+
+Now let me introduce the test: 
+
+EntityManager em = emf.createEntityManager();
+EntityTransaction tx = em.getTransaction();
+
+tx.begin();
+em.flush();
+
+VertexType defaultType = new VertexType( "default" );
+VertexType specialType = new VertexType( "special" );
+
+em.persist(defaultType);
+em.persist(specialType);
+
+Vertex src = new Vertex( defaultType );
+Vertex target = new Vertex( specialType );
+
+Edge t = src.newEdge( target );
+assertNotNull( t );
+
+em.persist(src);
+tx.commit();
+
+
+Notice that one of the first things the test does is to perform a flush.  This may seem slightly odd, however this flush is important to cause the issue.  We could execute a query or some other operation which would cause a flush under the covers, however, calling a flush directly makes it clear that a flush has occurred when looking at the rest of the test.  
+
+With the entities and test case in place, let me now describe the issue.  After this test case executes, there should exist in the database two Vertex, two VertexType, and one Edge given the cascade type defined in the entities.  However, I find that one of the Vertex is missing.  
+
+In working with Rick Curtis on this issue, he found that the 'flush' at the beginning of the test had an effect on the cascade persist at the end of the test.  That is, when 'flush' is called, this causes the '_flags' variable in BrokerImpl to be set to flushed as follows:
+
+_flags |= FLAG_FLUSHED;
+
+This of course effects the return value of the method BrokerImpl.hasFlushed:
+
+    private boolean hasFlushed() 
+{
+        return (_flags & FLAG_FLUSHED) != 0;
+    }
+
+I will now describe how the return value of this method effects the outcome of the test.  However, in an effort of time I am going to skip over some details which I'll leave as an exercise for the reader to figure out (e.g. execute the test in a debugger).  Basically this has an effect on SingleFieldManager.persist when called by StateManagerImpl.cascadePersist.  That is, SingleFieldManager.persist makes a call to method 'isDetached' on the broker here:
+
+ case JavaTypes.PC_UNTYPED:
+     if (!_broker.isDetachedNew() && _broker.isDetached(objval))
+         return; // allow but ignore
+     _broker.persist(objval, true, call);
+     break;
+
+Code within 'isDetached' eventually makes a call to 'hasFlushed'.  Given that 'hasFlushed' returns true, it ultimately effects the result of 'isDetached' and thus causing the persist method in the previously posted code block to be skipped.  Again, I'm glossing over some details, but the code path described is also affected by the fact that the ids in these entities are auto generated.
+
+
+In order to resolve this problem, we feel the best solution is to change the '_flags' variable to indicate a flush has not occurred.  To that end, we propose adding the assignment '_flags &= ~FLAG_FLUSHED'
+to this portion of code in BrokerImpl.setStateManager:
+
+     case STATUS_INIT:
+     	   _flags &= ~FLAG_FLUSHED;
+         _cache.add(sm);
+         break;
+
+
+In addition, this new assignment will be gated by a compatibility property.
+
+I've included a test patch, named 'CascadePersistIssue.test.patch' which replicates the issue.

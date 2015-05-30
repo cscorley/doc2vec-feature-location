@@ -1,0 +1,11 @@
+The test cases in GetCurrentPropertiesTest must run in the order in which they are defined in the source file. If for example the test case testPropertiesTraceOn runs first, the test will fail with the following stack trace:
+
+1) testPropertiesTraceOn(org.apache.derbyTesting.functionTests.tests.derbynet.GetCurrentPropertiesTest)junit.framework.ComparisonFailure: expected:<[tru]e> but was:<[fals]e>
+	at org.apache.derbyTesting.functionTests.tests.derbynet.GetCurrentPropertiesTest.testPropertiesTraceOn(GetCurrentPropertiesTest.java:206)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:112)
+(...)
+
+Seen in the nightly tests, for example here: http://dbtg.foundry.sun.com/derby/test/Daily/jvm1.7/testing/testlog/vista-64/1076682-suitesAll_diff.txt

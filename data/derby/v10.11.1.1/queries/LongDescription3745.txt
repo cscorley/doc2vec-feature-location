@@ -1,0 +1,54 @@
+A user reported potential class loader leaks in Derby
+
+...The first one looks like Derby created a long-running
+thread and copying the context class loader.  To fix, the
+context class loader should be saved/set/restored around the
+creation of the new thread so that it copies some benign class
+loader instead (e.g., null or getClass().getClassLoader()):
+
+ 0x42278e58 java/lang/Thread@302e302e
+  [truncating at running thread LEAK]
+
+Object:  0x42278e58 java/lang/Thread@302e302e
+Children:
+ 0x42278ee0 java/lang/String@303f303f
+ 0x4226e558 java/lang/ThreadGroup@6f2e6f2e
+ 0x42278e40
+org/apache/derby/impl/services/monitor/AntiGC@603a603a
+ 0x419cfac0
+
+The second is another long running thread.  The same applies:
+
+ 0x426fe7a0 java/lang/Thread@19901990
+  [truncating at running thread LEAK]
+
+Object:  0x426fe7a0 java/lang/Thread@19901990
+Parents:
+ 0x4226e5a8 [Ljava/lang/Thread;@6f386f38
+ 0x426fe548
+org/apache/derby/iapi/services/context/ContextManager@19421942
+Children:
+ 0x426fe838 java/lang/String@19a319a3
+ 0x4226e558 java/lang/ThreadGroup@6f2e6f2e
+ 0x426fe4f8
+org/apache/derby/impl/services/daemon/BasicDaemon@19381938
+ 0x419cfac0
+
+The third is a TimerThread owneed , which is created when a
+Timer is created.  The same applies:
+
+ 0x425ac538 java/util/Timer$TimerImpl@6b8a6b8a
+  [truncating at running thread LEAK]
+
+Object:  0x425ac538 java/util/Timer$TimerImpl@6b8a6b8a
+Parents:
+ 0x41faaf58 [Ljava/lang/Thread;@3c583c58
+
+Object:  0x425ac510 java/util/Timer@6b856b85
+Parents:
+ 0x425ac500
+org/apache/derby/impl/services/timer/SingletonTimerFactory@56e25
+6e2
+
+For more info, see thread at:
+http://www.nabble.com/ClassLoader-leaks--td18121374.html

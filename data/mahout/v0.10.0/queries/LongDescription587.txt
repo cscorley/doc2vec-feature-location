@@ -1,0 +1,27 @@
+I revisited this and found the -D problem still remains in seq2sparse... 
+
+$ $MAHOUT_HOME/bin/mahout seq2sparse --input text_output --output seq_output -Dmapred.job.queue.name=unfunded
+Running on hadoop, using HADOOP_HOME=/grid/0/gs/hadoop/current
+HADOOP_CONF_DIR=/grid/0/gs/conf/current
+11/01/21 20:12:39 ERROR vectorizer.SparseVectorsFromSequenceFiles: Exception
+org.apache.commons.cli2.OptionException: Unexpected -Dmapred.job.queue.name=unfunded while processing Options
+	at org.apache.commons.cli2.commandline.Parser.parse(Parser.java:99)
+	at org.apache.mahout.vectorizer.SparseVectorsFromSequenceFiles.main(SparseVectorsFromSequenceFiles.java:137)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.apache.hadoop.util.ProgramDriver$ProgramDescription.invoke(ProgramDriver.java:68)
+	at org.apache.hadoop.util.ProgramDriver.driver(ProgramDriver.java:139)
+	at org.apache.mahout.driver.MahoutDriver.main(MahoutDriver.java:174)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:156)
+Usage:                                                                          
+...
+
+The cause is obvious; as somebody mentioned (as well as I see from source code), ./core/src/main/java/org/apache/mahout/vectorizer/SparseVectorsFromSequenceFiles.java doesn't use ToolRunner, and an appropriate propagation of config object to MR jobs is missing.
+
+Although this may be a known issue, since it is not filed in JIRA, I've done just in case.

@@ -1,0 +1,9 @@
+The Solr HTML stripper is replacing any removed HTML with whitespace. This is to keep offsets correct for highlighting.
+
+However, as was already pointed out in SOLR-42, this means that any token containing an HTML entity will be split into several tokens. That makes the HTML stripper completely unreliable for international text (and any text is potentially interantional).
+
+The current code is actually deficient for BOTH highlighting and indexing, where the previous incarnation (that did not insert spaces) only had problems with highlighting.
+
+The only workaround is to not use entities at all, which is impossible in some situations and inconvenient in most situations. If the client is required to transform entities before handing it to Solr, it might as well be required to also strip tags, and then the HTML stripper would not be needed at all.
+
+Today, we have a better solution that can be used: offset correction. We can then avoid inserting extra whitespace, but still get correct offsets. The attached patch implements just that.

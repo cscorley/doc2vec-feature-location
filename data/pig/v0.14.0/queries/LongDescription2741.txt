@@ -1,0 +1,34 @@
+I have a Python script which writes out data to HDFS
+
+
+from org.apache.hadoop.conf import *
+from org.apache.hadoop.fs import *
+
+config = Configuration()
+hdfs = FileSystem.get(config)
+out = hdfs.create(Path("/user/viraj/junk.txt"))
+out.write("Hello World!")
+
+
+
+When I run this I get the following error:
+
+2012-06-06 01:20:43,101 [main] INFO  org.apache.pig.Main - Logging error messages to: /home/viraj/pig_1338945643097.log
+2012-06-06 01:20:43,502 [main] INFO  org.apache.pig.Main - Run embedded script: jython
+2012-06-06 01:20:43,603 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to hadoop file system at: hdfs://namenode:8020
+2012-06-06 01:20:44,069 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to map-reduce job tracker at: jobtracker:50300
+sys-package-mgr: can't create package cache dir, '/mydir/xx'
+2012-06-06 01:20:45,815 [main] INFO  org.apache.pig.scripting.jython.JythonScriptEngine - created tmp python.cachedir=/tmp/pig_jython_7126458276821733512
+2012-06-06 01:20:45,904 [main] ERROR org.apache.pig.Main - ERROR 1121: Python Error. Traceback (most recent call last):
+  File "/homes/viraj/test.py", line 4, in <module>
+    config = Configuration()
+NameError: name 'Configuration' is not defined
+
+
+I tried to solve it in various ways:
+
+1) Override pig.properties to specify python.cachedir.skip=false but it does not seem to work
+
+2) The only workaround is to: specify: -Dpython.cachedir=/mydirectory/tmp on the command line
+
+Viraj

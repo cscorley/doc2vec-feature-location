@@ -1,0 +1,12 @@
+In the trunk, storeMapping is called always when toLongID() is called. In my opinion storeMapping should been called only in method initialize().
+storeMapping will cost a lot when you use database to store the id mapping. I believe the code should like this:
+
+
+
+  public void initialize(Iterable<String> stringIDs) throws TasteException {
+    for (String stringID : stringIDs) {
+      long longID = hash(stringID);
+      storeMapping(longID, stringID);
+    }
+  }
+

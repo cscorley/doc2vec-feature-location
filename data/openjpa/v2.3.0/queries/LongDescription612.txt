@@ -1,0 +1,7 @@
+Since Informix does not support update with in/exists subquery in the where clause, when doing the bulk update against informix, e.g., 
+
+     "update DeptBeanAno d set d.budget = (d.budget * ?1 + ?2) where d.reportsTo.no = ?3"
+
+we encounter the error of "only-update-primitives" during updateInMemory. 
+
+     The attached patch fixes this problem by beefing up the support for arithmetic calcuation of the update value for updateInMemory.

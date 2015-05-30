@@ -1,0 +1,35 @@
+NsTest contains more occurrences of the broken null checking pattern found in DERBY-5452.
+
+Initializer.java:
+
+		if (e.getMessage().equals(null)) 
+{
+			e.printStackTrace(System.out);
+		}
+
+DbSetup.java:
+
+		if (e.getMessage().equals(null)) 
+{
+			System.out.println("NULL error message detected");
+			System.out.println("Here is the NULL exection - " + e.toString());
+			System.out.println("Stack trace of the NULL exception - ");
+			e.printStackTrace(System.out);
+		}
+
+DbUtil.java:
+
+		if (e.getMessage().equals(null)) 
+{
+			System.out.println(getThreadName()
+					+ " dbUtil --> NULL error message detected");
+			System.out
+			.println(getThreadName()
+					+ " dbUtil --> Here is the NULL exection - "
+					+ e.toString());
+			System.out.println(getThreadName()
+					+ " dbUtil --> Stack trace of the NULL exception - ");
+			e.printStackTrace(System.out);
+		}
+
+If getMessage() returns null, the null checks will throw a NullPointerException instead of evaluating to true.

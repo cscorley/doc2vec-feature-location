@@ -1,0 +1,1 @@
+A hashedWheelTimer can only be stopped once, but in the current implementation, only one HashedWheelTimer is used per PerChannelBookieClient which can connect and disconnect many time. Currently stop the hashWheelTimer any time a channel is disconnected, but only create it once in the constructor. This causes exceptions to be thrown in the netty callback thread.

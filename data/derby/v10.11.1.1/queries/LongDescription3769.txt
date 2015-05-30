@@ -1,0 +1,16 @@
+Derby has a max length for VARBINARY and VARCHAR, which is 32'672 bytes or characters (see Limits.DB2_VARCHAR_MAXWIDTH).
+When working with LOBs represented by locators, using a read buffer larger than the max value causes the server to process far more data than necessary.
+
+Say the read buffer is 33'000 bytes, and these bytes are requested by the client. This requests ends up in LOBStoredProcedure.BLOBGETBYTES.
+Assume the stream position is 64'000, and this is where we want to read from. The following happens:
+ a) BLOBGETBYTES instructs EmbedBlob to read 33'000 bytes, advancing the stream position to 97'000.
+ b) Derby fetches/receives the 33'000 bytes, but can only send 32'672. The rest of the data (328 bytes) is discarded.
+ c) The client receives the 32'672 bytes, recalculates the position and length arguments and sends another request.
+ d) BLOBGETBYTES(locator, 96672, 328) is executed. EmbedBlob detects that the stream position has advanced too far, so it resets the stream to position zero and skips/reads until position 96'672 has been reached.
+ e) The remaining 328 bytes are sent to the client.
+
+This issue deals with points b) and d), by avoiding the need to reset the stream.
+
+Points a) and e) are also problematic if a large number of bytes are going to be read, say hundreds of megabytes, but that's another issue.
+
+It is unfortunate that using 32 K (32 * 1024) as the buffer size is almost the worst case; 32'768 - 32'672 = 96 bytes.

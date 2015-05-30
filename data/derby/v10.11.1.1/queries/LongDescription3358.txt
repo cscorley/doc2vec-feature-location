@@ -1,0 +1,44 @@
+Slave and master servers started.
+
+startSlave:
+CONNECT 'jdbc:derby://atum11:9999/test;startSlave=true;slaveHost=atum11;slavePort=8989';
+ERROR XRE08: DERBY SQL error: SQLCODE: -1, SQLSTATE: XRE08, SQLERRMC: Replication slave mode started successfully for database 'test'. Connection refused because the database is in replication slave mode. 
+
+startMaster without specifying slavePort - will use default?
+CONNECT 'jdbc:derby://atum11:8888/test;startMaster=true;slaveHost=atum11';
+ERROR XRE04: DERBY SQL error: SQLCODE: -1, SQLSTATE: XRE04, SQLERRMC: nullXRE04
+master derby.log:
+2008-01-29 10:02:53.097 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.0.0 alpha - (615841M): instance c013800d-0117-c4fb-9156-000003bf6570
+on database directory /export/home/tmp/os136789/Replication_common_Trunk/master/test  
+
+Database Class Loader started - derby.database.classpath=''
+2008-01-29 10:02:53.256 GMT Thread[DRDAConnThread_2,5,main] (XID = 419), (SESSIONID = 0), (DATABASE = test), (DRDAID = 
+{1}), Cleanup action starting
+java.sql.SQLException: Could not establish a connection to the peer of the replicated database 'null'.
+.
+.
+Cleanup action completed
+2008-01-29 10:02:53.260 GMT Thread[DRDAConnThread_2,5,main] (DATABASE = test), (DRDAID = {1}
+), Could not establish a connection to the peer of the replicated database 'null'.
+
+startMaster specyfying slavePort:
+CONNECT 'jdbc:derby://atum11:8888/test;startMaster=true;slaveHost=atum11;slavePort=8989';
+ERROR XRE04: DERBY SQL error: SQLCODE: -1, SQLSTATE: XRE04, SQLERRMC: nullXRE04
+master derby.log:
+2008-01-29 10:03:38.201 GMT Thread[DRDAConnThread_2,5,main] (XID = 420), (SESSIONID = 1), (DATABASE = test), (DRDAID = 
+{2}), Cleanup action starting
+java.sql.SQLException: Could not establish a connection to the peer of the replicated database 'null'.
+.
+.
+Cleanup action completed
+2008-01-29 10:03:38.205 GMT Thread[DRDAConnThread_2,5,main] (DATABASE = test), (DRDAID = {2}
+), Could not establish a connection to the peer of the replicated database 'null'.
+
+
+
+
+Additional observation/comment:
+----------------------------------------
+It would be helpful for debugging if slaveHost and slavePort were written in error messages and into derby.log.
+

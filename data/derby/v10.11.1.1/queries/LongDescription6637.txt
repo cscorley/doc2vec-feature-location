@@ -1,0 +1,50 @@
+With trunk built at revision 1604994, I see errors and failures like the following:
+1) testXMLQuery(org.apache.derbyTesting.functionTests.tests.lang.XMLTypeAndOpsTest)java.sql.SQLException: Encountered error while evaluating XML query expression for XMLQUERY operator: Could not load any resource bundles.org.apache.xpath.res.XPATHErrorResources
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.seeNextException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.ConnectionChild.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedResultSet.closeOnTransactionError(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedResultSet.movePosition(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedResultSet.next(Unknown Source)
+	at org.apache.derbyTesting.junit.JDBC.assertFullResultSetMinion(JDBC.java:1075)
+	at org.apache.derbyTesting.junit.JDBC.assertFullResultSet(JDBC.java:1025)
+	at org.apache.derbyTesting.junit.JDBC.assertFullResultSet(JDBC.java:982)
+	at org.apache.derbyTesting.functionTests.tests.lang.XMLTypeAndOpsTest.testXMLQuery(XMLTypeAndOpsTest.java:1618)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:60)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:37)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:118)
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.runBareOverridable(BaseJDBCTestCase.java:440)
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.runBare(BaseJDBCTestCase.java:457)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+Caused by: ERROR 10000: Encountered error while evaluating XML query expression for XMLQUERY operator: Could not load any resource bundles.org.apache.xpath.res.XPATHErrorResources
+	at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.wrapArgsForTransportAcrossDRDA(Unknown Source)
+	... 49 more
+Caused by: java.util.MissingResourceException: Could not load any resource bundles.org.apache.xpath.res.XPATHErrorResources
+	at org.apache.xml.res.XMLMessages.loadResourceBundle(XMLMessages.java:189)
+	at org.apache.xpath.res.XPATHMessages.createXPATHMessage(XPATHMessages.java:53)
+	at org.apache.xpath.objects.XObject.error(XObject.java:701)
+	at org.apache.xpath.objects.XObject.nodelist(XObject.java:455)
+	at org.apache.xpath.jaxp.XPathExpressionImpl.getResultAsType(XPathExpressionImpl.java:357)
+	at org.apache.xpath.jaxp.XPathExpressionImpl.eval(XPathExpressionImpl.java:100)
+	at org.apache.xpath.jaxp.XPathExpressionImpl.evaluate(XPathExpressionImpl.java:184)
+	at org.apache.derby.iapi.types.SqlXmlUtil.evaluate(Unknown Source)
+	at org.apache.derby.iapi.types.SqlXmlUtil.evalXQExpression(Unknown Source)
+	at org.apache.derby.iapi.types.XML.XMLQuery(Unknown Source)
+	at org.apache.derby.exe.acf63284d8x0146xcb97x285bx000029929fd62.e0(Unknown Source)
+	at org.apache.derby.impl.services.reflect.DirectCall.invoke(Unknown Source)
+	at org.apache.derby.impl.sql.execute.ProjectRestrictResultSet.doProjection(Unknown Source)
+	at org.apache.derby.impl.sql.execute.ProjectRestrictResultSet.getNextRowCore(Unknown Source)
+	at org.apache.derby.impl.sql.execute.BasicNoPutResultSetImpl.getNextRow(Unknown Source)
+	... 41 more
+
+See for instance this windows/ibm1.6 result: 
+http://people.apache.org/~myrnavl/derby_test_results/main/windows/testlog/ibm16/1604993-suites.All_diff.txt

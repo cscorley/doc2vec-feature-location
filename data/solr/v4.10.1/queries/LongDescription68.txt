@@ -1,0 +1,8 @@
+After beating my head against my desk for a few hours yesterday trying to document how to load custom plugins (ie: Analyzers, RequestHandlers, Similarities, etc...) in the various Servlet Containers – only to discover that it is aparently impossible unless you use Resin, it occured to me in the wee hours of last night that since the only time we ever need to load "pluggable" classes is when explicitly lookup the class by name, we could make out own ClassLoader and use it ... so i whiped together a little patch to Config.java that would load JARs out of $solr.home}/lib and was seriously suprised to discover that it seemed to work.
+
+In the clod light of day, I am again suprised that I still think this might be a good idea, but i'm not very familiar with ClassLoader semantics, so i'm not sure if what i've done is an abomination or not – or if the idea is sound, but the implimentation is crap.  
+
+I'm also not sure if it works in all cases: more testing of various Containers would be good, as well as testing more complex sitautions (ie: what if a class explicitly named as a plugin and loaded by this new classloader then uses reflection to load another class from the same Jar using Thread.currentThread().getContextClassLoader() ... will that fail?)
+
+
+So far I've quick and dirty testing with my apachecon JAR under apache-tomcat-5.5.17, the jetty start.jar we use for the example, resin-3.0.21 and jettyplus-5.1.11-- all of which seemed to work fine except for jettyplus-5.1.11 – but that may have been because of some other configuration problem I had.

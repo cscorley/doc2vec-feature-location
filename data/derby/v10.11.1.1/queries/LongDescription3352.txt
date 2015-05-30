@@ -1,0 +1,47 @@
+Since derby 10.3.2.1, when truncate a table which has index , a java.lang.NullPointerException is throwed;but the same src runs successfully with derby 10.2.2.0。
+
+here's the example source code and stack trace:
+
+Src:
+        public static void main(String[] args)
+	{
+
+		try
+		{
+			Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+			
+			Connection conn = DriverManager.getConnection("jdbc:derby:test;create=true");
+			
+			Statement stat = conn.createStatement();
+			stat.executeUpdate("create table m (uri varchar(256),f int)");
+			stat.executeUpdate("create index aa on m (uri)");
+			stat.executeUpdate("truncate table m");
+			
+			System.out.println("Truncate table m successfully！");
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+		}
+	}
+Error:
+
+java.sql.SQLException: Java Exception:":java.lang.NullPointerException"。
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+	at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Util.java:88)
+	at org.apache.derby.impl.jdbc.Util.javaException(Util.java:245)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:403)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:346)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:1574)
+	at org.apache.derby.impl.jdbc.ConnectionChild.handleException(ConnectionChild.java:81)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1315)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:618)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(EmbedStatement.java:176)
+	at update.UpdateURI.main(UpdateURI.java:34)
+Caused by: java.lang.NullPointerException
+	at org.apache.derby.impl.sql.execute.AlterTableConstantAction.truncateTable(AlterTableConstantAction.java:1462)
+	at org.apache.derby.impl.sql.execute.AlterTableConstantAction.executeConstantAction(AlterTableConstantAction.java:531)
+	at org.apache.derby.impl.sql.execute.MiscResultSet.open(MiscResultSet.java:64)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:370)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1225)
+	... 3 more

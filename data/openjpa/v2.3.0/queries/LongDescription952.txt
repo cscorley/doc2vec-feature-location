@@ -1,0 +1,8 @@
+When running in a JSE environment, OpenJPA could use the Attach API to dynamically load the enhancer agent at runtime. Dynamically loading the enhancer means that an OpenJPA developer doesn't need to configure a -javaagent. Doing this would dramatically improve the out of box performance, and also improve the ease of use. 
+
+This improvement has the following caveats:
+1.) This API is ONLY a part of the 1.6 JDK.
+2.) This API is supported by only the Sun JDK.
+3.) If the agent is loaded from the earliest OpenJPA code, the agent will be laoded when creating an EntityManager in the EntityManagerFactoryImpl. If an Entity class is loaded by the JVM before the enhancer agent is loaded, that class' byte code will not be enhanced. 
+
+Attach API - http://java.sun.com/javase/6/docs/technotes/guides/attach/index.html

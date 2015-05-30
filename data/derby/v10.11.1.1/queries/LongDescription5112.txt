@@ -1,0 +1,10 @@
+Most of the test cases in ImportExportTest call resetTables() as the first thing they do. Some don't, probably because they usually run so early that the tables haven't been modified yet. If one of the test cases that don't call resetTables() doesn't run as early as expected, it may fail.
+
+Seen in the nightly testing:
+
+http://dbtg.foundry.sun.com/derby/test/Daily/jvm1.7/testing/testlog/lin/1078855-suitesAll_diff.txt
+
+14) testEmptyTableWithDelimitedFormat(org.apache.derbyTesting.functionTests.tests.tools.ImportExportTest)junit.framework.AssertionFailedError: expected:<4> but was:<8>
+	at org.apache.derbyTesting.functionTests.tests.tools.ImportExportTest.doImportAndVerify(ImportExportTest.java:402)
+	at org.apache.derbyTesting.functionTests.tests.tools.ImportExportTest.doImportAndExport(ImportExportTest.java:338)
+	at org.apache.derbyTesting.functionTests.tests.tools.ImportExportTest.testEmptyTableWithDelimitedFormat(ImportExportTest.java:126)

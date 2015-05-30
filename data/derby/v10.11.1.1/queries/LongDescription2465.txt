@@ -1,0 +1,10 @@
+Currently clob data is read as String. This can consume lot of memory when lot 
+of rows read from a VTI resultset. I think it would consume less memory if 
+data is read using streams. 
+
+org.apache.derby.iapi.types.SQLClob.java does not implement
+setValueFromResultSet() that is used by the VTI to read the data, it defaults
+to super class SQLChar.java implementation, which reads the data using 
+getString(). 
+
+One case I  noticed  the current implementation  uses lot of memory  is  when doing import of clobs(DERBY-378). 

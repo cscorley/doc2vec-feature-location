@@ -1,0 +1,10 @@
+This the one of the ground works for getting different kinds of collations working for character string types. More information on this project can be found at http://wiki.apache.org/db-derby/BuiltInLanguageBasedOrderingDERBY-1478. Basically, all the types in Derby have a DTD associated with them. For character string types, these DTDs should have valid values for collation derivation and collation type. For other data types, these 2 fields do not apply and should be ignored.
+
+SQL spec talks about character string types having collation type and collation derivation associated with them (SQL spec Section 4.2.2 Comparison of character strings). If collation derivation says explicit or implicit, then it means that there is a valid collation type associated with the charcter string type. If the collation derivation is none, then it means that collation type can't be established for the character string type. 
+
+1)Collation derivation will be explicit if COLLATE clause has been used for character string type (this is not a possibility for Derby 10.3, because we are not planning to support SQL COLLATE clause in this release). 
+
+2)Collation derivation will be implicit if the collation can be determined w/o the COLLATE clause eg CREATE TABLE t1(c11 char(4)) then c11 will have collation of USER character set. Another eg, TRIM(c11) then the result character string of TRIM operation will have collation of the operand, c11. 
+
+3)Collation derivation will be none if the aggregate methods are dealing with character strings with different collations (Section 9.3 Data types of results of aggregations Syntax Rule 3aii). 
+

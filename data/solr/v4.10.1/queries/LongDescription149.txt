@@ -1,0 +1,14 @@
+With a few simple changes, solr can be an easily embedded in a custom jetty app.
+
+With this patch, one can run solr from the jar file using:
+
+  server = new Server( port );    
+
+  // Initalize home (without JNDI)
+  Config.setInstanceDir(home);
+
+  // Initalize the servlets
+  Context root = new Context( server, "/", Context.SESSIONS );
+  root.addServlet( SolrServlet.class, "/select" );
+  root.addServlet( SolrUpdateServlet.class, "/update" );
+  root.addFilter( SolrDispatchFilter.class, "*", Handler.REQUEST );

@@ -1,0 +1,43 @@
+The below is the script :
+
+A = load 'input' ;
+B = group A all;
+C = foreach B generate SUM($1.$0);
+C1 = CROSS A,C;
+D = foreach C1 generate ROUND($0*10000.0/$2)/100.0, $1;
+E = order D by $0 desc; 
+store E  into 'out1';
+
+input (tab separated fields)
+26      AAAAA
+1349595 BBBBB
+235693  CCCCC
+
+
+Exception
+java.lang.ClassCastException: org.apache.pig.impl.io.NullableDoubleWritable cannot be cast to org.apache.pig.impl.io.NullableBytesWritable
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigBytesRawComparator.compare(PigBytesRawComparator.java:94)
+	at java.util.Arrays.binarySearch0(Arrays.java:2105)
+	at java.util.Arrays.binarySearch(Arrays.java:2043)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.partitioners.WeightedRangePartitioner.getPartition(WeightedRangePartitioner.java:72)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.partitioners.WeightedRangePartitioner.getPartition(WeightedRangePartitioner.java:52)
+	at org.apache.hadoop.mapred.MapTask$NewOutputCollector.write(MapTask.java:602)
+	at org.apache.hadoop.mapreduce.TaskInputOutputContext.write(TaskInputOutputContext.java:80)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapReduce$Map.collect(PigMapReduce.java:116)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:238)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:231)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:53)
+	at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144)
+	at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:676)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:336)
+	at org.apache.hadoop.mapred.Child$4.run(Child.java:242)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:396)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1059)
+	at org.apache.hadoop.mapred.Child.main(Child.java:236)
+
+
+The script is failing while doing order by in WeightedRangePartitioner since it considers the quantiles to be NullableBytesWritable but at run time this is NullableDoubleWritable . This is happening because there is no schema defined in the load statement.
+But the same works fine when the  multiquery is turned off.
+
+One more issue worth noting is that if i have a filter statement after relation E, then the above exception is swallowed by Pig. This make debugging really hard. 

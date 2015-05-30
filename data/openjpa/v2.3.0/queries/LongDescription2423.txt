@@ -1,0 +1,30 @@
+Isolation level hint is not properly working on DB2 for JPQL queries with nested sub-queries. It is generating incorrect query.  Please see example below. You will notice that it is adding “WITH UR” suffix to both nested sub-query as well as outer main query. As per SQL syntax, it should be adding “WITH UR” only at outer main query level. 
+
+– Query Hints used:
+query.setHint("openjpa.FetchPlan.Isolation", "read-uncommitted");
+query.setHint("openjpa.FetchPlan.ReadLockMode", "READ");
+
+
+– JPQL Query:
+SELECT m FROM AnEntity m WHERE m.id.memberIdTd = :memberIdTd AND m.id.entryTimestamp IN
+      (SELECT max(b.id.entryTimestamp) FROM AnEntity b WHERE b.id.memberIdTd = :memberIdTd)
+
+
+– Generated Query:
+SELECT t0.ENTRY_TIMESTAMP, t0.MEMBER_ID_TD, t0.CREATED_BY, t0.DEPT_CD,  t0.EVENT_CLASS,t0.EVENT_DT,t0.EVENT_PRIORITY_IND,t0.EVENT_REMARKS,
+t0.EVENT_STATUS,t0.EVENT_TYPE,t0.LAST_MOD_DATE,t0.LAST_MOD_USER,t0.LEGAL_COUNSEL_IND,t0.SYSTEM_CD
+FROM DBA.ANENTITY t0
+WHERE
+( t0.MEMBER_ID_TD = ? AND t0.ENTRY_TIMESTAMP IN
+   ( SELECT MAX(t1.ENTRY_TIMESTAMP) FROM DBA.ANENTITY t1
+      WHERE ( t1.MEMBER_ID_TD = ?
+            ) FOR READ ONLY WITH UR
+   )
+) optimize for 1 row FOR READ ONLY WITH UR
+
+
+I'm attaching a patch, named subqueryURclause.patch.txt, created by Pinaki Poddar.
+
+Thanks,
+
+Heath Thomann

@@ -1,0 +1,48 @@
+When running stress.multi on a machine with 32 hardware execution threads, I observed the following assert failure in two independent runs:
+
+2008-07-18 02:15:14.415 GMT Thread[Thread-8,5,workers] (XID = 94699), (SESSIONID = 16923), (DATABASE = mydb), (DRDAID = null), Failed Statement is: insert into a values (1)
+org.apache.derby.shared.common.sanity.AssertFailure: ASSERT FAILED
+        at org.apache.derby.shared.common.sanity.SanityManager.ASSERT(SanityManager.java:98)
+        at org.apache.derby.impl.services.cache.CacheEntry.unkeepForRemove(CacheEntry.java:217)
+        at org.apache.derby.impl.services.cache.ConcurrentCache.remove(ConcurrentCache.java:446)
+        at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.removeStatement(GenericLanguageConnectionContext.java:898)
+        at org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatement.java:516)
+        at org.apache.derby.impl.sql.GenericStatement.prepare(GenericStatement.java:88)
+        at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(GenericLanguageConnectionContext.java:794)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:606)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:555)
+        at org.apache.derby.impl.tools.ij.ij.executeImmediate(ij.java:329)
+        at org.apache.derby.impl.tools.ij.utilMain.doCatch(utilMain.java:508)
+        at org.apache.derby.impl.tools.ij.utilMain.runScriptGuts(utilMain.java:350)
+        at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:248)
+        at org.apache.derby.impl.tools.ij.mtTestCase.runMe(mtTestCase.java:246)
+        at org.apache.derby.impl.tools.ij.mtTester.run(mtTester.java:91)
+        at java.lang.Thread.run(Thread.java:619)
+Cleanup action completed
+
+
+
+In stress.log:
+
+Tester8: insert2 Fri Jul 18 04:15:12 CEST 2008
+Tester6: TERMINATING due to unexpected error:
+FatalException: XJ001: Java exception: 'ASSERT FAILED: org.apache.derby.shared.common.sanity.AssertFailure'.
+Tester1: SELECT2 Fri Jul 18 04:15:13 CEST 2008
+Tester8: stopping on request after 820 iterations
+Tester10: stopping on request after 859 iterations
+Tester1: stopping on request after 847 iterations
+Tester7: TERMINATING due to unexpected error:
+FatalException: XJ001: Java exception: 'ASSERT FAILED: org.apache.derby.shared.common.sanity.AssertFailure'.
+Tester9: stopping on request after 722 iterations
+Tester3: stopping on request after 880 iterations
+Tester5: stopping on request after 858 iterations
+Tester4: stopping on request after 839 iterations
+WARNING: testers didn't die willingly, so I'm going to kill 'em.
+        This may result in connection resources that aren't cleaned up
+        (e.g. you may see problems in the final script run with deadlocks).
+
+
+A few runs on a similar but slightly slower machine didn't experience the same failure, so the bug is likely timing dependent.
+I'll perform some more runs and see how hard it is to reproduce.
+
+I haven't investigated what will happen in an insane build.

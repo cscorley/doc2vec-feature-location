@@ -1,0 +1,70 @@
+When running zookeeper 3.4.5 I was able to run commands using zkCli such as 
+
+zkCli.sh -server 127.0.0.1:2182 ls /
+zkCli.sh -server 127.0.0.1:2182 get /blah
+
+After upgrading to 3.4.6 these commands no longer work.
+
+I think issue https://issues.apache.org/jira/browse/ZOOKEEPER-1535 was the reason the commands were running in previous versions.
+
+It looks like the client exits when a command is present.
+
+ZooKeeperMain.java
+
+    void run() throws KeeperException, IOException, InterruptedException {
+        if (cl.getCommand() == null) {
+            System.out.println("Welcome to ZooKeeper!");
+
+            boolean jlinemissing = false;
+            // only use jline if it's in the classpath
+            try {
+                Class consoleC = Class.forName("jline.ConsoleReader");
+                Class completorC =
+                    Class.forName("org.apache.zookeeper.JLineZNodeCompletor");
+
+                System.out.println("JLine support is enabled");
+
+                Object console =
+                    consoleC.getConstructor().newInstance();
+
+                Object completor =
+                    completorC.getConstructor(ZooKeeper.class).newInstance(zk);
+                Method addCompletor = consoleC.getMethod("addCompletor",
+                        Class.forName("jline.Completor"));
+                addCompletor.invoke(console, completor);
+
+                String line;
+                Method readLine = consoleC.getMethod("readLine", String.class);
+                while ((line = (String)readLine.invoke(console, getPrompt())) != null) {
+                    executeLine(line);
+                }
+            } catch (ClassNotFoundException e) {
+                LOG.debug("Unable to start jline", e);
+                jlinemissing = true;
+            } catch (NoSuchMethodException e) {
+                LOG.debug("Unable to start jline", e);
+                jlinemissing = true;
+            } catch (InvocationTargetException e) {
+                LOG.debug("Unable to start jline", e);
+                jlinemissing = true;
+            } catch (IllegalAccessException e) {
+                LOG.debug("Unable to start jline", e);
+                jlinemissing = true;
+            } catch (InstantiationException e) {
+                LOG.debug("Unable to start jline", e);
+                jlinemissing = true;
+            }
+
+            if (jlinemissing) {
+                System.out.println("JLine support is disabled");
+                BufferedReader br =
+                    new BufferedReader(new InputStreamReader(System.in));
+
+                String line;
+                while ((line = br.readLine()) != null) {
+                    executeLine(line);
+                }
+            }
+        }
+    }
+

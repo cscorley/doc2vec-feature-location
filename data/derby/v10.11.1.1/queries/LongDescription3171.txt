@@ -1,0 +1,17 @@
+Code like the following:
+       DatabaseMetaData dmd = <a connection>.getMetaData();
+       ResultSet rs = dmd.getAttributes(null,null,null,null);
+       ResultSetMetaData rsmd = rs.getMetaData();
+       int actualCols = rsmd.getColumnCount();
+       for (int i = 0; i < actualCols; i++)
+       {
+            System.out.println(rsmd.getColumnName(i+1));
+            System.out.println(rsmd.isNullable(i+1));
+       }
+
+Will return different values for a number of columns in the resultset for network server/client vs. embedded.
+See test fixture DatabaseMetaData.testUnimplementedSQLObjectAttributes().
+The difference shows up for: DATA_TYPE, ATTR_SIZE, DECIMAL_DIGITS, NUM_PREC_RADIX, NULLABLE, SQL_DATA_TYPE, SQL_DATETIME_SUB, CHAR_OCTET_LENGTH, ORDINAL_POSITION.
+
+It's unlikely that this would ever cause a problem for a user's application, so marking as trivial.
+

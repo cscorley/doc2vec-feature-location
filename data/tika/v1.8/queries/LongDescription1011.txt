@@ -1,0 +1,55 @@
+This small test.mhtml file:
+
+
+From: <Saved by Windows Internet Explorer 8>
+Subject: Index Pages
+Date: Tue, 28 Aug 2012 09:53:28 +0300
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	type="multipart/alternative";
+	boundary="----=_NextPart_000_0000_01CD8502.F991E790"
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.6157
+
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0000_01CD8502.F991E790
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_001_0023_01CD8502.F99DCE70"
+
+
+------=_NextPart_001_0023_01CD8502.F99DCE70
+Content-Type: text/html;
+	charset="x-user-defined"
+Content-Transfer-Encoding: quoted-printable
+
+
+
+Hits this exception when run through TikaCLI:
+
+
+<?xml version="1.0" encoding="UTF-8"?>Exception in thread "main" org.apache.tika.exception.TikaException: Unexpected RuntimeException from org.apache.tika.parser.html.HtmlParser@37e67d34
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:244)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+	at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:120)
+	at org.apache.tika.parser.mail.MailContentHandler.body(MailContentHandler.java:102)
+	at org.apache.james.mime4j.parser.MimeStreamParser.parse(MimeStreamParser.java:133)
+	at org.apache.tika.parser.mail.RFC822Parser.parse(RFC822Parser.java:76)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+	at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:120)
+	at org.apache.tika.cli.TikaCLI$OutputType.process(TikaCLI.java:138)
+	at org.apache.tika.cli.TikaCLI.process(TikaCLI.java:399)
+	at org.apache.tika.cli.TikaCLI.main(TikaCLI.java:121)
+Caused by: java.lang.IllegalArgumentException: Null charset name
+	at java.nio.charset.Charset.lookup(Charset.java:467)
+	at java.nio.charset.Charset.forName(Charset.java:540)
+	at org.apache.tika.parser.txt.CharsetDetector.setCanonicalDeclaredEncoding(CharsetDetector.java:352)
+	at org.apache.tika.parser.txt.CharsetDetector.setDeclaredEncoding(CharsetDetector.java:75)
+	at org.apache.tika.parser.txt.Icu4jEncodingDetector.detect(Icu4jEncodingDetector.java:49)
+	at org.apache.tika.detect.AutoDetectReader.detect(AutoDetectReader.java:51)
+	at org.apache.tika.detect.AutoDetectReader.<init>(AutoDetectReader.java:92)
+	at org.apache.tika.detect.AutoDetectReader.<init>(AutoDetectReader.java:98)
+	at org.apache.tika.parser.html.HtmlParser.parse(HtmlParser.java:74)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+	... 11 more
+

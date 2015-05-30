@@ -1,0 +1,26 @@
+If a trigger action references a transition variable and has whitespace around the period sign that separates the transition variable name from the column name, it fails with a syntax error.
+
+For example:
+
+
+ij> create table t1(x int);
+0 rows inserted/updated/deleted
+ij> create table t2(x int);
+0 rows inserted/updated/deleted
+ij> --fails
+create trigger tr1 after insert on t1 referencing new as new
+for each row insert into t1 select x from t2 where x = new . x;
+ERROR 42X01: Syntax error: Encountered "x" at line 1, column 150.
+Issue the 'help' command for general information on IJ command syntax.
+Any unrecognized commands are treated as potential SQL commands and executed directly.
+Consult your DBMS server reference documentation for details of the SQL syntax supported by your server.
+ij> --succeeds
+create trigger tr2 after insert on t1 referencing new as new
+for each row insert into t1 select x from t2 where x = new.x;
+0 rows inserted/updated/deleted
+
+
+
+The only difference between the failing trigger definition and the successful one, is that the former says "new . x" and the latter "new.x".
+
+Both should succeed.

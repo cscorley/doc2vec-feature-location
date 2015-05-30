@@ -1,0 +1,3 @@
+The 'last_index_time' value in DIH is not thread-safe.
+If data import is executed concurrently (in multiple cores), last_index_time value might be invalid value.
+I think this problem is caused by DataImporter#DATE_TIME_FORMAT. The static instance should not be used in many threads since java.text.SimpleDateFormat is not thread-safe.

@@ -1,0 +1,12 @@
+In PIG-3627, we discover flatten(STRSPLIT) generate null schema. 
+Here is the sample:
+
+
+a = load 'a' as (line:chararray);
+b = foreach a generate flatten(STRSPLIT(line)) as (i0, i1, i2);
+describe b;
+
+b: {i0: NULL,i1: NULL,i2: NULL}
+
+
+PIG-3627 fixed the JsonStorage to deal with null schema. In this ticket, we will fix the null schema generation.

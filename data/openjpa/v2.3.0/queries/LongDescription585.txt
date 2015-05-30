@@ -1,0 +1,28 @@
+I create a new entity object with generated id, enhance it at deployment time and persist it into db by invoking EntityManager.merge().
+Department d = new Department();
+d.setName('qa');
+pc.merge(d);
+
+Got below exception,
+<openjpa-1.1.0-SNAPSHOT-r422266:647033 nonfatal store error> org.apache.openjpa.persistence.EntityExistsException: Attempt to persist detached object 'org.apache.openjpa.enhance.tests$functional$jee$misc$classredefinition$common$apps$appforredefinition$entity$Department$pcsubclass@acb905'. If this is a new instance, make sure any versino and/or auto-generated primary key fields are null/default when persisting.
+FailedObject: 
+org.apache.openjpa.enhance.tests$functional$jee$misc$classredefinition$common$apps$appforredefinition$entity$Department$pcsubclass@acb905
+at org.apache.openjpa.kernel.BrokerImpl.persist(BrokerImpl.java:2403)
+at org.apache.openjpa.kernel.AttachStrategy.persist(AttachStrategy.java:94)
+at org.apache.openjpa.kernel.VersionAttachStrategy.attach(VersionAttachStrategy.java:95)
+at org.apache.openjpa.kernel.AttachManager.attach(AttachManager.java:241)
+at org.apache.openjpa.kernel.AttachManager.attach(AttachManager.java:101)
+at org.apache.openjpa.kernel.BrokerImpl.attach(BrokerImpl.java:3191)
+at kodo.kernel.KodoBroker.attach(KodoBroker.java:251)
+at org.apache.openjpa.kernel.DelegatingBroker.attach(DelegatingBroker.java:1142)
+at org.apache.openjpa.persistence.EntityManagerImpl.merge(EntityManagerImpl.java:740)
+at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+at java.lang.reflect.Method.invoke(Method.java:597)
+at weblogic.deployment.BasePersistenceContextProxyImpl.invoke(BasePersistenceContextProxyImpl.java:90)
+...
+
+This is caused by a bug in VersionAttachStrategy, which creates appId and passes it to persist() call for a new entity whose id is annotated with @GeneratedValue.
+
+Jason

@@ -1,0 +1,23 @@
+The documentation at http://openjpa.apache.org/builds/latest/docs/manual/ch13s04.html talks about an option available in org.apache.openjpa.persistence.meta.AnnotationProcessor6:
+
+-Aopenjpa.header=<url> : A url whose content will appear as comment header to the generated file(s). 
+
+This option does not work.
+
+If I give it a URL - either an http or a file URL - it doesn't put the contents from these URLs into the header of the generated files. It puts something like:
+
+sun.net.www. content.text.PlainTextInputStream@9ea09ea 
+
+in the header instead.
+
+
+I suspect that the AnnotationProcessor is essentially doing:
+
+URL headerurl = new URL(<openjpa.header value>);
+String newHeaderComment = headerurl.getContent().toString();
+
+The getContent() is returning an InputStream - as documented here in the absence of a content handler factory: http://download.oracle.com/javase/6/docs/api/java/net/URLConnection.html#getContent()
+
+Then the toString() call just returns the string representation of the instance of the InputStream object. 
+
+I think the AnnotationProcessor should read from the stream instead?

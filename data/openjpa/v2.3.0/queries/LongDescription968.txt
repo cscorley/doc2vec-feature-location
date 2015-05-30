@@ -1,0 +1,27 @@
+JPA 2.0 specification has introduced a detach() method in EntityManager. OpenJPA already has a detach() method prior to JPA 2.0. There are several major differences between the new method introduced in JPA 2.0 spec versus existing OpenJPA detach method.
+
+1. The method signatures are different
+       JPA 2.0:              void detach(Object entity);
+       OpenJPA 1.x :   <T> T detach(T entity);
+
+2. This signature difference also points to a basic difference in behavior. OpenJPA detach() creates a copy of the given input entity and returns it. While JPA 2.0 specifies in-place detach and hence returns a void.
+
+3. The other basic difference is OpenJPA detach does not remove the input entity from the persistence context. While JPA 2.0 specifies that the input entity be removed from the context.
+
+4. OpenJPA detach flushes a dirty instance before detaching. This implicit flush behavior can be configured but flushing is the default.
+
+5. OpenJPA detach() provides several options on which related instances will become detached. They are 'loaded', 'fetch-group' and 'all'. With 'loaded' being the default.
+    Whereas JPA 2.0 introduces a DEATCH  cascade type and specified that the relationships that are cascaded with DETACH or ALL be traversed during detachment.
+   It is not clear from the spec, however,
+   a)  whether an unloaded relation which has DETACH cascade will get loaded as a side-effect of detach(). 
+   b) whether a relation that is currently loaded but not cascaded for DETACH will be included in the detached graph. 
+   If answer to (a) is no and answer to (b) is yes, (which the spec does seems to suggest) then we can effectively continue with 'loaded' as the default behavior. 
+
+
+To accommodate these differences following actions are proposed:
+
+A1. Request JPA Spec committee to change the API method in JPA 2.0 to OpenJPA detach() method signature. If that request is not met, then change OpenJPA API according to JPA 2.0 spec. It will break backward compatibility of OpenJPAEntityManager API. There seems to be no way out.
+A2. The default behavior will change in the following way
+             a) the detach will be in-place
+             b) no implict flush of dirty instances
+             c) based on condition, how JPA 2.0 spec clarifies the DETACH cascade and loaded fields for inclusion in the detached graph, change 'loaded' default to 'cascade' default. 

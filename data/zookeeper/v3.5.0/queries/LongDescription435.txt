@@ -1,0 +1,9 @@
+the server has a "super" digest based auth user that enables administrative access (ie has access to znodes regardless
+of acl settings) but the password is not configurable
+
+1) make the default digest null, ie turn off "super" by default
+2) if a command line option is specified when starting server then use the provided digest for super
+
+eg. java -Dzookeeper.DigestAuthenticationProvider.superDigest=xkxkxkxkx ....
+
+also this is not documented in the forrest docs - need to add that along with tests as part of the patch.

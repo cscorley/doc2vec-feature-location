@@ -1,0 +1,5 @@
+Currently, in Zookeeper trunk, there are two problems with Kerberos TGT renewal:
+
+1. TGTs obtained from a keytab are not refreshed periodically. They should be, just as those from ticket cache are refreshed.
+
+2. Ticket renewal should be retried if it fails. Ticket renewal might fail if two or more separate processes (different JVMs) running as the same user try to renew Kerberos credentials at the same time. 

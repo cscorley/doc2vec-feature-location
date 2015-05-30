@@ -1,0 +1,9 @@
+Existing harness recovery tests need to be converted to JUnit tests. A framework as designed in Derby-4249 can be used for this purpose.
+
+Tests to be converted:
+a) oc_rec1
+b) oc_rec2
+c) oc_rec3
+d) oc_rec4
+
+These recovery tests run in coordination. The test oc_rec1 creates a table, inserts and then deletes rows from it and commit it which is followed by a series of insertion of rows in the existing table in oc_rec2, oc_rec3 and oc_rec4. The tests oc_rec2 and oc_3 also create table and insert, delete, compress rows in it and leave the table thus produced in committed or uncommitted state which is tested by the next corresponding test (oc_rec3 for oc_rec2, oc_rec4 for oc_rec3) for recovery.

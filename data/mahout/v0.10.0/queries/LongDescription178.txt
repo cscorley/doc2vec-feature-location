@@ -1,0 +1,20 @@
+Every project needs a common area for code that is not obviously part of any specific piece of the project, typically because it's used in many places. This is good as it promotes reuse. I would like to make an explicit effort to rationalize this project's approach to 'common', starting with some basic reshuffling, which will then pave the way to unify more of the code that is duplicated now (thinking: caches, distance measures, Hadoop integration, etc.)
+
+Right now we have this common code in three places, when it seems like there should be basically one:
+
+	mahout-core: org.apache.mahout.utils
+	mahout-core: org.apache.mahout.common
+	mahout-utils
+
+
+
+I suggest that of the two packages named above, 'common' is slightly preferable; one could easily just merge these packages. I also would like to ask whether it makes sense to have a mahout-utils module? It's like having a mahout-core-core, in my opinion. It appears to serve exactly the same role as the other utils/common package. Would it ever be used as a standalone build product?
+
+Renaming may sound like a trivial change, but I think the above is merely symptomatic of several developers having independent ideas about where to stash common stuff. I want to force the issue and push everyone's stuff together to begin the hard but necessary work of refactoring the code base into something more unified.
+
+
+So far, I propose pushing all code together into org.apache.mahout.common. This is enough of a big-bang that will break patches that I want to propose it, and if agreed, plan when to commit.
+
+(Also, shouldn't stuff like the distance measure classes be in a package?)
+
+Anyway, partial patch will be attached shortly.

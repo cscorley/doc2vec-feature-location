@@ -1,0 +1,38 @@
+The following query gives an exception:
+
+a = load '1.txt' as (a0:int, a1:int, a2:int);
+b = group a by a0;
+c = foreach b 
+{ c1 = limit a 10; c2 =  distinct c1.a1; c3 = distinct c1.a2; generate c2, c3;}
+;
+store c into 'output';
+
+2011-05-04 12:36:01,720 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 2999: Unexpected internal error. Index: 0, Size: 0
+
+Stack trace:
+
+java.lang.IndexOutOfBoundsException: Index: 0, Size: 0
+        at java.util.ArrayList.RangeCheck(ArrayList.java:547)
+        at java.util.ArrayList.get(ArrayList.java:322)
+        at org.apache.pig.newplan.logical.expression.ProjectExpression.getFieldSchema(ProjectExpression.java:279)
+        at org.apache.pig.newplan.logical.relational.LOGenerate.getSchema(LOGenerate.java:88)
+        at org.apache.pig.newplan.logical.visitor.SchemaAliasVisitor.validate(SchemaAliasVisitor.java:60)
+        at org.apache.pig.newplan.logical.visitor.SchemaAliasVisitor.visit(SchemaAliasVisitor.java:104)
+        at org.apache.pig.newplan.logical.relational.LOGenerate.accept(LOGenerate.java:240)
+        at org.apache.pig.newplan.DependencyOrderWalker.walk(DependencyOrderWalker.java:75)
+        at org.apache.pig.newplan.PlanVisitor.visit(PlanVisitor.java:50)
+        at org.apache.pig.newplan.logical.visitor.SchemaAliasVisitor.visit(SchemaAliasVisitor.java:99)
+        at org.apache.pig.newplan.logical.relational.LOForEach.accept(LOForEach.java:73)
+        at org.apache.pig.newplan.DependencyOrderWalker.walk(DependencyOrderWalker.java:75)
+        at org.apache.pig.newplan.PlanVisitor.visit(PlanVisitor.java:50)
+        at org.apache.pig.PigServer$Graph.compile(PigServer.java:1664)
+        at org.apache.pig.PigServer$Graph.validateQuery(PigServer.java:1615)
+        at org.apache.pig.PigServer$Graph.registerQuery(PigServer.java:1586)
+        at org.apache.pig.PigServer.registerQuery(PigServer.java:580)
+        at org.apache.pig.tools.grunt.GruntParser.processPig(GruntParser.java:930)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:386)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:176)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:152)
+        at org.apache.pig.tools.grunt.Grunt.run(Grunt.java:76)
+        at org.apache.pig.Main.run(Main.java:488)
+        at org.apache.pig.Main.main(Main.java:109)

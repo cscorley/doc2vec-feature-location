@@ -1,0 +1,111 @@
+The basic problem is this:  I'm attempting to specify some entity listeners in my orm.xml , but I continue to get the following TRACE message:
+
+322664  my persistence unit  TRACE  [main] openjpa.MetaData - OpenJPA does not currently support XML element "pre-persist". Ignoring.
+
+The following discussion is from the openjpa-dev mailing list...
+
+------------------------------------------------------------
+Marc,
+Thanks for the background on the earlier drafts of the JPA spec.  That helps explain some of the processing that I see.  I also now see that elements tagged as MetaDataTags have corresponding annotation support associated with them.  So, it looks like I just need to provide similar callback processing for the pre-* and post-* methods at the "system" level as exist at the "class" levels.  Thanks for your insights.
+
+Kevin
+
+	Hide quoted text -
+
+
+
+
+On 1/16/07, Marc Prud'hommeaux <mprudhom@apache.org> wrote:
+
+    Kevin-
+
+    The draft of the JPA spec said that "pre-persist" was only supported
+    beneath the "entity-listeners" (note plural) element, rather than
+    "entity-listener". This appears to have been corrected in the final
+    version of the spec, but it looks like we never updated that part of
+    the code (and the CTS doesn't test for it). This is indeed a bug.
+
+    As for how the parser works, I'm afraid I don't know all that much
+    about it (aside from sharing your observation that it is complex).
+    Hopefully, though, my comment above will make the problem make a
+    little more sense to you...
+
+
+
+    On Jan 16, 2007, at 3:20 PM, Kevin Sutter wrote:
+
+    > Looking for some assistance (that is, background information) on
+    > how the
+    > orm.xml parsing is supposed to work.  I'm attempting to specify
+    > some entity
+    > listeners in my orm.xml , but I continue to get the following TRACE
+    > message:
+    >
+    > 322664  my persistence unit  TRACE  [main] openjpa.MetaData -
+    > OpenJPA does
+    > not currently support XML element "pre-persist". Ignoring.
+    >
+    > My orm.xml looks like this:
+    >
+    > <entity-mappings
+    >    xmlns="http://java.sun.com/xml/ns/persistence/orm"
+    >    xmlns:xsi=" http://www.w3.org/2001/XMLSchema-instance"
+    >    xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm
+    > http://java.sun.com/xml/ns/persistence/orm_1_0.xsd"
+    >    version="1.0">
+    >    <persistence-unit-metadata>
+    >        <persistence-unit-defaults>
+    >            <entity-listeners>
+    >                <entity-listener class="
+    > com.ibm.ws.persistence.tests.simple.TestEntity">
+    >                    <pre-persist  method-name="prePersist" />
+    >                    <post-persist method-name="postPersist" />
+    >                    <pre-remove   method-name="preRemove" />
+    >                    <post-remove  method-name="postRemove" />
+    >                    <pre-update   method-name="preUpdate" />
+    >                    <post-update  method-name="postUpdate" />
+    >                    <post-load    method-name="postLoad" />
+    >                </entity-listener>
+    >            </entity-listeners>
+    >        </persistence-unit-defaults>
+    >    </persistence-unit-metadata>
+    > </entity-mappings>
+    >
+    > I've started to debug this problem, but I have some general
+    > questions on how
+    > the SAX parser is supposed to work.  I see in the
+    > CFMetaDataParser.startElement() where these "entity-listener"
+    > related tags
+    > are treated as System Elements – we end up calling
+    > XMLPersistenceMetaDataParser.startSystemElement().
+    >
+    > The processing in this method is dependent on whether the given
+    > element is a
+    > MetaDataTag or not.  When we process the "entity-listener" element,
+    > it's
+    > treated like a "normal" element and we fall past the switch
+    > statement and
+    > eventually call startEntityListener().  This processing all seems
+    > to depend
+    > on whether the _elems hashmap contains a string entry or a
+    > MetatDataTag for
+    > a given Element.  What is the significance of being a MetaDataTag
+    > or not?
+    >
+    > In this simple orm.xml, I have noticed that persistence-unit-metadata,
+    > persistence-unit-defaults, and entity-listener are not
+    > MetaDataTags.  But,
+    > entity-listeners and the individual pre-persist, post-persist, etc
+    > elements
+    > are all MetaDataTags.
+    >
+    > When one of these pre-* or post-* MetaDataTag elements are
+    > processed in the
+    > startSystemElement() method, we fall into the default leg of the
+    > switch
+    > statement and produce the TRACE message outlined above.
+    >
+    > Any pointers would be appreciated.  Thanks!
+    >
+    > Kevin
+------------------------------------------------------------

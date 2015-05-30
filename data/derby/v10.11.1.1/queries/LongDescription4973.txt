@@ -1,0 +1,202 @@
+The IBM 1.6 results for Jan 13, 2011 show the following failure for IBM 1.6 on XP
+
+
+
+	
+	
+		
+		
+			End:   TestEnc jdk1.6.0 DerbyNetClient derbynetclientmats:encodingTests 2011-01-14 00:05:38 ***
+			
+				
+				
+					
+					
+						
+						
+							
+							
+								
+								
+									Diff file derbyall/encryptionAll/storemats/storemats/updatelocks.diff
+								
+								
+							
+							
+						
+						
+					
+					
+				
+				
+			
+			
+			Start: updatelocks jdk1.6.0 storemats:storemats 2011-01-14 00:18:37 ***
+19859a19860,19868
+> ERROR 38000: The exception 'java.lang.NullPointerException' was thrown while evaluating an expression.
+> ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+> ij> next scan_cursor;
+> A          |B          |C                                                                                                                               
+> --------------------------------------------------------------------------------------------------------------------------------------------------------
+> -3         |-30        |-three                                                                                                                          
+> ij> update a set a=3,b=30,c='three' where current of scan_cursor;
+> 1 row inserted/updated/deleted
+> ij> select * from lock_table order by tabname, type desc, mode, cnt, lockname;
+19861a19871
+> APP     |UserTran|TABLE   |1   |IX  |A           |Tablelock |GRANT|ACTIVE  
+19866,19876d19875
+< -3         |-30        |-three                                                                                                                          
+< ij> update a set a=3,b=30,c='three' where current of scan_cursor;
+< 1 row inserted/updated/deleted
+< ij> select * from lock_table order by tabname, type desc, mode, cnt, lockname;
+< USERNAME|TRANTYPE|TYPE    |CNT |MODE|TABNAME     |LOCKNAME  |STATE|STATUS  
+< ---------------------------------------------------------------------------
+< APP     |UserTran|TABLE   |1   |IX  |A           |Tablelock |GRANT|ACTIVE  
+< APP     |UserTran|TABLE   |1   |X   |A           |Tablelock |GRANT|ACTIVE  
+< ij> next scan_cursor;
+< A          |B          |C                                                                                                                               
+< --------------------------------------------------------------------------------------------------------------------------------------------------------
+Test Failed.
+			End:   updatelocks jdk1.6.0 storemats:storemats 2011-01-14 00:19:24 ***
+------------------------------------------------------
+		
+		
+	
+	
+
+
+
+Stack trace is:
+Fri Jan 14 00:19:08 PST 2011 Thread[main,5,main] (XID = 2648), (SESSIONID = 1), (DATABASE = wombat), (DRDAID = null), Failed Statement is: select * from lock_table order by tabname, type desc, mode, cnt, lockname
+
+ERROR 38000: The exception 'java.lang.NullPointerException' was thrown while evaluating an expression.
+
+	at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+
+	at org.apache.derby.iapi.error.StandardException.unexpectedUserException(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.VTIResultSet.populateFromResultSet(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.VTIResultSet.getNextRowCore(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.HashTableResultSet.getNextRowFromRowSource(Unknown Source)
+
+	at org.apache.derby.iapi.store.access.BackingStoreHashtable.getNextRowFromRowSource(Unknown Source)
+
+	at org.apache.derby.iapi.store.access.BackingStoreHashtable.<init>(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.HashTableResultSet.openCore(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.ProjectRestrictResultSet.openCore(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.JoinResultSet.openRight(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.JoinResultSet.openCore(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.ProjectRestrictResultSet.openCore(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.SortResultSet.openCore(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.BasicNoPutResultSetImpl.open(Unknown Source)
+
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(Unknown Source)
+
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(Unknown Source)
+
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(Unknown Source)
+
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+
+	at org.apache.derby.impl.tools.ij.ij.executeImmediate(Unknown Source)
+
+	at org.apache.derby.impl.tools.ij.utilMain.doCatch(Unknown Source)
+
+	at org.apache.derby.impl.tools.ij.utilMain.runScriptGuts(Unknown Source)
+
+	at org.apache.derby.impl.tools.ij.utilMain.go(Unknown Source)
+
+	at org.apache.derby.impl.tools.ij.Main.go(Unknown Source)
+
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Unknown Source)
+
+	at org.apache.derby.impl.tools.ij.Main.main(Unknown Source)
+
+	at org.apache.derby.tools.ij.main(Unknown Source)
+
+Caused by: java.lang.NullPointerException
+
+	at org.apache.derby.impl.store.raw.xact.Xact.getContextId(Unknown Source)
+
+	at org.apache.derby.impl.store.raw.xact.TransactionTableEntry.getTransactionTypeString(Unknown Source)
+
+	at org.apache.derby.diag.TransactionTable.getString(Unknown Source)
+
+	at org.apache.derby.iapi.types.SQLChar.setValueFromResultSet(Unknown Source)
+
+	... 25 more
+
+============= begin nested exception, level (1) ===========
+
+java.lang.NullPointerException
+
+	at org.apache.derby.impl.store.raw.xact.Xact.getContextId(Unknown Source)
+
+	at org.apache.derby.impl.store.raw.xact.TransactionTableEntry.getTransactionTypeString(Unknown Source)
+
+	at org.apache.derby.diag.TransactionTable.getString(Unknown Source)
+
+	at org.apache.derby.iapi.types.SQLChar.setValueFromResultSet(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.VTIResultSet.populateFromResultSet(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.VTIResultSet.getNextRowCore(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.HashTableResultSet.getNextRowFromRowSource(Unknown Source)
+
+	at org.apache.derby.iapi.store.access.BackingStoreHashtable.getNextRowFromRowSource(Unknown Source)
+
+	at org.apache.derby.iapi.store.access.BackingStoreHashtable.<init>(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.HashTableResultSet.openCore(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.ProjectRestrictResultSet.openCore(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.JoinResultSet.openRight(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.JoinResultSet.openCore(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.ProjectRestrictResultSet.openCore(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.SortResultSet.openCore(Unknown Source)
+
+	at org.apache.derby.impl.sql.execute.BasicNoPutResultSetImpl.open(Unknown Source)
+
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(Unknown Source)
+
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(Unknown Source)
+
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(Unknown Source)
+
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+
+	at org.apache.derby.impl.tools.ij.ij.executeImmediate(Unknown Source)
+
+	at org.apache.derby.impl.tools.ij.utilMain.doCatch(Unknown Source)
+
+	at org.apache.derby.impl.tools.ij.utilMain.runScriptGuts(Unknown Source)
+
+	at org.apache.derby.impl.tools.ij.utilMain.go(Unknown Source)
+
+	at org.apache.derby.impl.tools.ij.Main.go(Unknown Source)
+
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Unknown Source)
+
+	at org.apache.derby.impl.tools.ij.Main.main(Unknown Source)
+
+	at org.apache.derby.tools.ij.main(Unknown Source)
+
+============= end nested exception, level (1) ===========

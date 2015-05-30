@@ -1,0 +1,5 @@
+As mentioned in the summary, DenseMatrix.getRow() returns a new DenseVector(values[row]) instead of just a shallow reference.  This is a) wasteful, and b) inconsistent with what SparseRowMatrix / SparseColumnMatrix do, which means that users who think they can mutate rows by calling getRow() are wrong for DenseMatrix, or conversely think they can modify the row at will are wrong for SparseRowMatrix.  
+
+Either way, we need to be consistent.  I would suggest the contract be that you get a shallow view reference (meaning, it may be an actual reference to a real Vector, or it may be a virtual Vector, dynamically constructed, which is still backed by entries in the matrix), so that calling Matrix.getRow(row).set(col, value) has the same affect as Matrix.set(row, col, value).  If we don't do it this way, we should at least provide an api to get a shallow reference to rows.
+
+Thoughts?

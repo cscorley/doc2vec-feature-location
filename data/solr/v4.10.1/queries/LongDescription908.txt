@@ -1,0 +1,8 @@
+Phrase queries containing common words are extremely slow.  We are reluctant to just use stop words due to various problems with false hits and some things becoming impossible to search with stop words turned on. (For example "to be or not to be", "the who", "man in the moon" vs "man on the moon" etc.)  
+
+Several postings regarding slow phrase queries have suggested using the approach used by Nutch.  Perhaps someone with more Java/Solr experience might take this on.
+
+It should be possible to port the Nutch CommonGrams code to Solr  and create a suitable Solr FilterFactory so that it could be used in Solr by listing it in the Solr schema.xml.
+
+"Construct n-grams for frequently occuring terms and phrases while indexing. Optimize phrase queries to use the n-grams. Single terms are still indexed too, with n-grams overlaid."
+http://lucene.apache.org/nutch/apidocs-0.8.x/org/apache/nutch/analysis/CommonGrams.html

@@ -1,0 +1,22 @@
+The issue is specific to the DerbyNet client driver, and doesn't seem to occur using embedded Derby.
+
+ "PreparedStatement.setObject(int, Object, Types.CLOB)". It seems to be a problem updating a CLOB column with a parameterized value using the DerbyNet client driver, and if the update SQL ends up updating more than one row. I attached a simple test case that just uses JDBC to reproduce the error. The exception looks like this:
+
+org.apache.derby.client.am.BatchUpdateException: Non-atomic batch failure.  The batch was submitted, but at least one exception occurred on an individual member of the batch. Use getNextException() to retrieve the exceptions for specific batched elements.
+    at org.apache.derby.client.am.Agent.endBatchedReadChain(Unknown Source)
+    at org.apache.derby.client.am.PreparedStatement.executeBatchRequestX(Unknown Source)
+    at org.apache.derby.client.am.PreparedStatement.executeBatchX(Unknown Source)
+    at org.apache.derby.client.am.PreparedStatement.executeBatch(Unknown Source)
+    ...
+Caused by: org.apache.derby.client.am.SqlException: Error for batch element #0: An unexpected exception was thrown
+    at org.apache.derby.client.am.Statement.completeExecute(Unknown Source)
+    at org.apache.derby.client.net.NetStatementReply.parseEXCSQLSTTreply(Unknown Source)
+    at org.apache.derby.client.net.NetStatementReply.readExecute(Unknown Source)
+    at org.apache.derby.client.net.StatementReply.readExecute(Unknown Source)
+    at org.apache.derby.client.net.NetPreparedStatement.readExecute_(Unknown Source)
+    at org.apache.derby.client.am.PreparedStatement.readExecute(Unknown Source)
+    ... 4 more
+Caused by: org.apache.derby.client.am.SqlException: Error for batch element #0: Java exception: 'Stream has already been read and end-of-file reached and cannot be re-used.: java.io.EOFException'.
+    at org.apache.derby.client.am.SqlException.<init>(Unknown Source)
+    at org.apache.derby.client.am.SqlException.<init>(Unknown Source)
+    ... 10 more

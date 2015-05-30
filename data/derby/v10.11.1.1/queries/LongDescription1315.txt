@@ -1,0 +1,98 @@
+The test case lang/largeCodeGen.java was run as is without giving any -Djvmflags="-mx512M -ms512M" and gave the following error:
+
+
+	
+	
+		
+		
+			Start: largeCodeGen jdk1.4.2 largeDataTests:largeDataTests 2006-04-29 08:30:04 ***
+27a28
+> JVMST109: Insufficient space in Javaheap to satisfy allocation request
+Test Failed.
+			End:   largeCodeGen jdk1.4.2 largeDataTests:largeDataTests 2006-04-29 08:32:01 ***
+		
+		
+	
+	
+
+
+
+Then the test case lang/largeCodeGen.java was run with -Djvmflags="-mx512M -ms512M", and it gave the following error:
+< PASS: IN clause with 97000 parameters
+20 del
+< PASS: PREPARE: IN clause with 98000 parameters
+21 del
+< PASS: IN clause with 98000 parameters
+22 del
+< FAILED QUERY: IN clause with 99000 parameters. 
+22a19
+> FAILED QUERY: IN clause with 97000 parameters.
+Test Failed.
+
+Then I modified test case lang/largeCodeGen.java to set PRINT_FAILURE_EXCEPTION  to true and ran the test again. This time I got the following error and stack trace:
+
+MasterFileName = master/largeCodeGen.out
+15a16,18
+> java.sql.SQLException: Statement too complex. Try rewriting the query to remove 
+complexity. Eliminating many duplicate expressions or breaking up the query and 
+storing interim results in a temporary table can often help resolve this error
+. SQLSTATE: XBCM4: Java class file format limit(s) exceeded: method:e1 code_leng
+th (65577 > 65535) in generated class org.apache.derby.exe.ac46a08075x010bx203ax 
+d010x000050a9065e9.
+
+> Caused by: org.apache.derby.client.am.SqlException: Statement too complex. Try
+ rewriting the query to remove complexity. Eliminating many duplicate expression
+s or breaking up the query and storing interim results in a temporary table can 
+often help resolve this error. SQLSTATE: XBCM4: Java class file format limit(s)
+
+exceeded: method:e1 code_length (65577 > 65535) in generated class 
+org.apache.derby.exe.ac46a08075x010bx203axd010x000050a9065e9 .
+>       ... 4 more
+19 del
+< PASS: IN clause with 97000 parameters
+20 del
+< PASS: PREPARE: IN clause with 98000 parameters
+21 del
+< PASS: IN clause with 98000 parameters
+22 del
+
+< FAILED QUERY: IN clause with 99000 parameters. 
+22a22,29
+> FAILED QUERY: IN clause with 97000 parameters.
+> java.sql.SQLException: The parameter position '31,465' is out of range.  The 
+number of parameters for this prepared  statement is '31,464'.
+>       at org.apache.derby.client.am.PreparedStatement.setInt(PreparedStatement
+.java(Compiled Code))
+> Caused by: org.apache.derby.client.am.SqlException: The parameter position '31
+,465' is out of range.  The number of parameters for this prepared  statement is 
+ '31,464'.
+>       at org.apache.derby.client.am.PreparedStatement.checkForValidParameterIn
+dex(PreparedStatement.java(Compiled Code))
+>       at org.apache.derby.client.am.PreparedStatement.checkSetterPreconditions 
+(PreparedStatement.java(Inlined Compiled Code))
+>       at org.apache.derby.client.am.PreparedStatement.setIntX(PreparedStatemen
+t.java(Inlined Compiled Code))
+>       ... 5 more
+
+27a35,37
+> java.sql.SQLException : Statement too complex. Try rewriting the query to remove 
+complexity. Eliminating many duplicate expressions or breaking up the query and 
+storing interim results in a temporary table can often help resolve this error 
+. SQLSTATE: XBCM4: Java class file format limit(s) exceeded: method:fillResultSe
+t code_length (69127 > 65535) in generated class 
+org.apache.derby.exe.ac46a08075x010bx203axd010x000050a9065e11.
+> Caused by: org.apache.derby.client.am.SqlException: Statement too complex. Try
+ rewriting the query to remove complexity. Eliminating many duplicate expression
+s or breaking up the query and storing interim results in a temporary table can 
+often help resolve this error. SQLSTATE: XBCM4: Java class file format limit(s)
+exceeded: method:fillResultSet code_length (69127 > 65535) in generated class 
+org.apache.derby.exe.ac46a08075x010bx203axd010x000050a9065e11 .
+>       ... 3 more
+28 add
+> java.sql.SQLException: Java exception: ': java.lang.OutOfMemoryError'.
+> Caused by: org.apache.derby.client.am.SqlException: Java exception: ': 
+java.lang.OutOfMemoryError '.
+>       ... 3 more
+Test Failed.
+
+

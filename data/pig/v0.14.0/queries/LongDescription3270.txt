@@ -1,0 +1,26 @@
+
+t1 = LOAD 'file1.txt' USING PigStorage() AS (a: chararray, b: chararray);
+t2 = LOAD 'file2.txt' USING PigStorage() AS (a: chararray, b: float);
+tout = UNION ONSCHEMA t1, t2;
+dump tout;
+
+
+
+Job fails with 
+2013-04-09 11:37:37,817 [Thread-12] WARN  org.apache.hadoop.mapred.LocalJobRunner - job_local_0001
+java.lang.Exception: org.apache.pig.backend.executionengine.ExecException: ERROR 2055: Received Error while processing the map plan.
+        at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:399)
+Caused by: org.apache.pig.backend.executionengine.ExecException: ERROR 2055: Received Error while processing the map plan.
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.runPipeline(PigGenericMapBase.java:311)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.map(PigGenericMapBase.java:278)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.map(PigGenericMapBase.java:64)
+        at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144)
+        at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:726)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:333)
+        at org.apache.hadoop.mapred.LocalJobRunner$Job$MapTaskRunnable.run(LocalJobRunner.java:231)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:439)
+        at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:895)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:918)
+        at java.lang.Thread.run(Thread.java:680)

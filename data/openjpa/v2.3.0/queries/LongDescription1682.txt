@@ -1,0 +1,64 @@
+TestSimpleXmlEntity.testId starts failing with the following exception against DB2:
+
+TestSimpleXmlEntity.testId  View test details   (org.apache.openjpa.persistence.xml)
+    <openjpa-2.1.0-SNAPSHOT-r422266:951071 nonfatal general error> org.apache.openjpa.persistence.PersistenceException: DB2 SQL Error: SQLCODE=-542, SQLSTATE=42831, SQLERRMC=NICKNAME_XML, DRIVER=3.50.152 
+{stmnt 65405926 CREATE TABLE NickNames_xml (A_ID_xml INTEGER NOT NULL, nickName_xml VARCHAR(20), CONSTRAINT U_NCKNXML_A_ID_XML UNIQUE (A_ID_xml, nickName_xml))} [code=-542, state=42831]
+    at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:556)
+    at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:456)
+    Please wait... Show details »
+    « Hide details
+    <openjpa-2.1.0-SNAPSHOT-r422266:951071 nonfatal general error> org.apache.openjpa.persistence.PersistenceException: DB2 SQL Error: SQLCODE=-542, SQLSTATE=42831, SQLERRMC=NICKNAME_XML, DRIVER=3.50.152 {stmnt 65405926 CREATE TABLE NickNames_xml (A_ID_xml INTEGER NOT NULL, nickName_xml VARCHAR(20), CONSTRAINT U_NCKNXML_A_ID_XML UNIQUE (A_ID_xml, nickName_xml))}
+ [code=-542, state=42831]
+    at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:556)
+    at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:456)
+    at org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.synchronizeMappings(JDBCBrokerFactory.java:155)
+    at org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.synchronizeMappings(JDBCBrokerFactory.java:159)
+    at org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.newBrokerImpl(JDBCBrokerFactory.java:117)
+    at org.apache.openjpa.kernel.AbstractBrokerFactory.newBroker(AbstractBrokerFactory.java:199)
+    at org.apache.openjpa.kernel.DelegatingBrokerFactory.newBroker(DelegatingBrokerFactory.java:156)
+    at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:213)
+    at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:151)
+    at org.apache.openjpa.persistence.test.SingleEMTestCase.setUp(SingleEMTestCase.java:47)
+    at org.apache.openjpa.persistence.xml.TestSimpleXmlEntity.setUp(TestSimpleXmlEntity.java:28)
+    at junit.framework.TestCase.runBare(TestCase.java:125)
+    at org.apache.openjpa.persistence.test.AbstractPersistenceTestCase.runBare(AbstractPersistenceTestCase.java:503)
+    at org.apache.openjpa.persistence.test.AbstractPersistenceTestCase.runBare(AbstractPersistenceTestCase.java:479)
+    at junit.framework.TestResult$1.protect(TestResult.java:106)
+    at junit.framework.TestResult.runProtected(TestResult.java:124)
+    at junit.framework.TestResult.run(TestResult.java:109)
+    at junit.framework.TestCase.run(TestCase.java:118)
+    at org.apache.openjpa.persistence.test.AbstractPersistenceTestCase.run(AbstractPersistenceTestCase.java:179)
+    at junit.framework.TestSuite.runTest(TestSuite.java:208)
+    at junit.framework.TestSuite.run(TestSuite.java:203)
+    at sun.reflect.GeneratedMethodAccessor52.invoke(Unknown Source)
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:37)
+    at java.lang.reflect.Method.invoke(Method.java:600)
+    at org.apache.maven.surefire.junit.JUnitTestSet.execute(JUnitTestSet.java:213)
+    at org.apache.maven.surefire.suite.AbstractDirectoryTestSuite.executeTestSet(AbstractDirectoryTestSuite.java:140)
+    at org.apache.maven.surefire.suite.AbstractDirectoryTestSuite.execute(AbstractDirectoryTestSuite.java:127)
+    at org.apache.maven.surefire.Surefire.run(Surefire.java:177)
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:48)
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:37)
+    at java.lang.reflect.Method.invoke(Method.java:600)
+    at org.apache.maven.surefire.booter.SurefireBooter.runSuitesInProcess(SurefireBooter.java:345)
+    at org.apache.maven.surefire.booter.SurefireBooter.main(SurefireBooter.java:1009)
+    Caused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: DB2 SQL Error: SQLCODE=-542, SQLSTATE=42831, SQLERRMC=NICKNAME_XML, DRIVER=3.50.152 
+{stmnt 65405926 CREATE TABLE NickNames_xml (A_ID_xml INTEGER NOT NULL, nickName_xml VARCHAR(20), CONSTRAINT U_NCKNXML_A_ID_XML UNIQUE (A_ID_xml, nickName_xml))}
+ [code=-542, state=42831]
+    at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.wrap(LoggingConnectionDecorator.java:257)
+    at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.wrap(LoggingConnectionDecorator.java:241)
+    at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.access$700(LoggingConnectionDecorator.java:70)
+    at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection$LoggingStatement.executeUpdate(LoggingConnectionDecorator.java:951)
+    at org.apache.openjpa.lib.jdbc.DelegatingStatement.executeUpdate(DelegatingStatement.java:136)
+    at org.apache.openjpa.jdbc.schema.SchemaTool.executeSQL(SchemaTool.java:1200)
+    at org.apache.openjpa.jdbc.schema.SchemaTool.createTable(SchemaTool.java:956)
+    at org.apache.openjpa.jdbc.schema.SchemaTool.add(SchemaTool.java:533)
+    at org.apache.openjpa.jdbc.schema.SchemaTool.add(SchemaTool.java:348)
+    at org.apache.openjpa.jdbc.schema.SchemaTool.run(SchemaTool.java:325)
+    at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:504)
+    ... 33 more
+
+The create table constraint  requires nickName_xml be "NOT NULL"
+
+Albert Lee

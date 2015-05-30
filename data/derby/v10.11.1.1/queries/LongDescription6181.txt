@@ -1,0 +1,7 @@
+This test is currently disabled by DERBY-6178 when a non-default base port is specified.  It would be nice if it could run
+in the nightly regression runs where multiple suites.all are run using differen base ports.
+
+This test currently spawns a new process to test auto loading.  I think the changes necessary are:
+1) get the non-default baseport over to the spawned process.  I think you can add a -D argument to 
+    the spawn command for this.
+2) change the code that starts a network server to use the new baseport.

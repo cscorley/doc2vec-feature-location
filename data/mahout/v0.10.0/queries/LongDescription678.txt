@@ -1,0 +1,3 @@
+I am trying to use the MixedGradient in OnlineLogisticRegression algorithm. But I will get an NullPointerException randomly if I set the alpha larger than 0. 
+
+I checked the code and found that in the RankingGradient used by MixedGradient, it assume that the target category should be only 2, rather than multiple. And the rank gradient should only be used once the Gradient object knew both the positive and negative targets. I created a simple patch to make it workable, but I am not really understand the MixedGradient method deeply, please check the patch carefully to see if it really works correctly.

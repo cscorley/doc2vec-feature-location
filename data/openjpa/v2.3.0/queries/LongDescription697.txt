@@ -1,0 +1,25 @@
+The OpenJPA manual very briefly talks about the @VersionColumns annotation, but its usage is not clear. I have an entity that tries to use this annotation (below), but I get back an exception when I run the mapping tool against it:
+
+"Exception in thread "main" <openjpa-1.3.0-SNAPSHOT-runknown fatal user error>
+org.apache.openjpa.util.MetaDataException: For "entities.Employee<version>", expected 1 column(s),
+but found 2."
+
+@Entity
+@VersionColumns(
+{@VersionColumn(name="vcol1"),@VersionColumn(name="vcol2")}
+)
+@SecondaryTable(name="EADDRESS", pkJoinColumns=@PrimaryKeyJoinColumn(name="EMPID"))
+public class Employee {
+        @Id @GeneratedValue(strategy=GenerationType.AUTO)
+        private int empid;
+        private String name;
+
+        @Column(table="EADDRESS")
+        private String street1;
+        @Column(table="EADDRESS")
+        private String street2;
+        @Column(table="EADDRESS")
+        private String city;
+        @Column(table="EADDRESS")
+        private int zipcode;
+}

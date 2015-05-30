@@ -1,0 +1,16 @@
+When the Monitor tries to read Derby properties, it silently swallows SecurityExceptions. This means that the properties will be silently ignored if Derby has not been granted sufficient privileges. This means that if you make a mistake crafting your security policy, then you may disable authentication and authorization. You may not realize this until you have incurred a security breach. This swallowing occurs at the following code locations:
+
+
+org.apache.derby.impl.services.monitor.BaseMonitor readApplicationProperties Catch java.lang.SecurityException 1 line 1360
+org.apache.derby.impl.services.monitor.BaseMonitor runWithState Catch java.lang.SecurityException 0 line 280
+org.apache.derby.impl.services.monitor.FileMonitor PBgetJVMProperty Catch java.lang.SecurityException 1 line 183
+org.apache.derby.impl.services.monitor.FileMonitor PBinitialize Catch java.lang.SecurityException 1 line 120
+
+
+
+SecurityExceptions are swallowed at other locations in the Monitor. The implications of these swallowings should be understood and, at a minimum, security problems should be fixed:
+
+
+org.apache.derby.impl.services.monitor.FileMonitor PBinitialize Catch java.lang.SecurityException 1 line 157
+org.apache.derby.impl.services.monitor.FileMonitor createDaemonGroup Catch java.lang.SecurityException 1 line 89
+

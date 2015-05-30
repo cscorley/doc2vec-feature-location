@@ -1,0 +1,9 @@
+Hi
+
+In my case I am inserting many many rows in a in memory derby DB. After a while (a few minutes) I get a "SQLNonTransientConnectionException: No current connection" and the derby.log (see attachment) contains a complaint about an invalid page format with a dump of the page in question (which is completely zeros). The derby.log also contains another entry before the error (usually the same time stamp as the error): Cleanup action starting
+Maybe this is related to the error.
+Please find attached a test case to reproduce the issue. Just give it enough memory (-Xmx4g). It will insert a lot of rows to an in-memory derby DB with several threads over several connections. In case you want to run only one thread with one connection you might want to set these properties:
+ -DuseSingleConnectionOnly=true -DuseSynchronousCommit=true -DnumberOfAsyncThreadsPerGenerator=1 -DnumberOfGeneratorThreads=1 -DnubmerOfRowsPerThread=100000000 
+
+Thank you very much
+Christian

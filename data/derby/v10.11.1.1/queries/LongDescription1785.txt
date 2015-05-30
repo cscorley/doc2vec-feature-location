@@ -1,0 +1,22 @@
+The junit tests have been made to run with security manager.
+Until now, using the org.apache.derbyTesting.functionTests.harness classes, there was exception logic that stopped the j9 jvms from running with security manager, but that's now changed for the junit tests.
+
+For instance, the test store/bootAllTest.junit fails with the following error:
+There was 1 error:
+1) testSettingBootAllPropertyWithHomePropertySet(org.apache.derbyTesting.functionTests.tests.store.BootAllTest)java.security.AccessControlException: Access denied (java.util.PropertyPermission framework read)
+	at java.security.AccessController.checkPermission(AccessController.java:74)
+	at java.lang.SecurityManager.checkPermission(SecurityManager.java:612)
+	at java.lang.SecurityManager.checkPropertyAccess(SecurityManager.java:366)
+	at java.lang.System.getProperty(System.java:319)
+	at java.lang.System.getProperty(System.java:301)
+	at org.apache.derbyTesting.functionTests.util.TestUtil$1.run(TestUtil.java:177)
+	at java.security.AccessController.doPrivileged(AccessController.java:147)
+	at org.apache.derbyTesting.functionTests.util.TestUtil.getFramework(TestUtil.java:174)
+	at org.apache.derbyTesting.functionTests.util.TestUtil.getDataSourcePrefix(TestUtil.java:391)
+	at org.apache.derbyTesting.functionTests.util.TestUtil.getSimpleDataSource(TestUtil.java:330)
+	at org.apache.derbyTesting.functionTests.util.TestUtil.getDataSource(TestUtil.java:324)
+	at org.apache.derbyTesting.functionTests.util.TestDataSourceFactory.getDataSource(TestDataSourceFactory.java:47)
+	at org.apache.derbyTesting.junit.TestConfiguration.openConnection(TestConfiguration.java:296)
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.openConnection(BaseJDBCTestCase.java:197)
+	at org.apache.derbyTesting.functionTests.tests.store.BootAllTest.setUp(BootAllTest.java:58)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:76)

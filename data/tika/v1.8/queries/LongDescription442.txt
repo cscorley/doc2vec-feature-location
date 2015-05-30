@@ -1,0 +1,8 @@
+Currently Tika has a number of parsers for image formats, but the way they return their data is inconsistent. For example:
+
+Jpeg: "Image Width" = "420 pixels", "Data Precision" = "8 bits"
+Gif: "width" = "420"
+Png: "width" = "420", "IHDR" = ".... bitDepth = 8 ....."
+Bmp: "width" = "420", "BitsPerSample" = "8 8 8"
+
+I think that the common keys, such as width and height, should be returned in a consistent format of key and value. If someone would like to suggest the namespace for this (maybe under XMDPM), and the short or long form (eg 420 vs 420 pixels), then I'm happy to work up a patch for this

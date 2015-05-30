@@ -1,0 +1,3 @@
+When obtaining facet counts using the MoreLikeThis handler, the facet information returned is generated from the document list returned rather than the entire set of matching documents.  For example, if your MoreLikeThis query returns by default 10 documents, then getFacetCounts() returns values based only on these 10 documents, despite the fact that there may be thousands of matching documents in the set.
+
+The soon-to-be uploaded patch addresses this particular issue by changing the object type returned by MoreLikeThisHelper.getMoreLikeThis() from DocList to DocListAndSet and ensuring that the facet count is generated from the entire set rather than the document list.  The MLT functionality of the StandardRequestHandler should not be affected by this change.

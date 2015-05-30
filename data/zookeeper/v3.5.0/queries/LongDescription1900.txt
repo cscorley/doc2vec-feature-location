@@ -1,0 +1,112 @@
+The other day we started up a ZK instance that had been down for a bit (1day) and started getting NPEs all over the place...
+
+
+2014-20-03 11:15:42.320 INFO  QuorumPeerConfig [main] - Reading configuration from: /xxx/bin/zk/etc/zk.cfg
+2014-20-03 11:15:42.350 INFO  QuorumPeerConfig [main] - Defaulting to majority quorums
+2014-20-03 11:15:42.353 INFO  DatadirCleanupManager [main] - autopurge.snapRetainCount set to 3
+2014-20-03 11:15:42.353 INFO  DatadirCleanupManager [main] - autopurge.purgeInterval set to 0
+2014-20-03 11:15:42.353 INFO  DatadirCleanupManager [main] - Purge task is not scheduled.
+2014-20-03 11:15:42.385 INFO  QuorumPeerMain [main] - Starting quorum peer
+2014-20-03 11:15:42.399 INFO  NIOServerCnxnFactory [main] - binding to port 0.0.0.0/0.0.0.0:5555
+2014-20-03 11:15:42.413 INFO  QuorumPeer [main] - tickTime set to 2000
+2014-20-03 11:15:42.413 INFO  QuorumPeer [main] - minSessionTimeout set to -1
+2014-20-03 11:15:42.413 INFO  QuorumPeer [main] - maxSessionTimeout set to -1
+2014-20-03 11:15:42.413 INFO  QuorumPeer [main] - initLimit set to 10
+2014-20-03 11:15:42.456 INFO  FileSnap [main] - Reading snapshot /xxx/zk_data/version-2/snapshot.2c00000000
+2014-20-03 11:15:42.463 INFO  QuorumCnxManager [Thread-3] - My election bind port: 0.0.0.0/0.0.0.0:7555
+2014-20-03 11:15:42.470 INFO  QuorumPeer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - LOOKING
+2014-20-03 11:15:42.471 INFO  FastLeaderElection [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - New election. My id =  3, proposed zxid=0x8000000000000000
+2014-20-03 11:15:42.479 INFO  FastLeaderElection [WorkerReceiver[myid=3]] - Notification: 2 (n.leader), 0x2b00000002 (n.zxid), 0x2c (n.round), FOLLOWING (n.state), 1 (n.sid), 0x2b (n.peerEPoch), LOOKING (my state)
+2014-20-03 11:15:42.479 INFO  FastLeaderElection [WorkerReceiver[myid=3]] - Notification: 2 (n.leader), 0x2b00000002 (n.zxid), 0x2c (n.round), FOLLOWING (n.state), 1 (n.sid), 0x2b (n.peerEPoch), LOOKING (my state)
+2014-20-03 11:15:42.482 INFO  QuorumCnxManager [WorkerSender[myid=3]] - Have smaller server identifier, so dropping the connection: (5, 3)
+2014-20-03 11:15:42.482 INFO  FastLeaderElection [WorkerReceiver[myid=3]] - Notification: 2 (n.leader), 0x2b00000002 (n.zxid), 0x2c (n.round), LEADING (n.state), 2 (n.sid), 0x2b (n.peerEPoch), LOOKING (my state)
+2014-20-03 11:15:42.482 INFO  FastLeaderElection [WorkerReceiver[myid=3]] - Notification: 2 (n.leader), 0x2b00000002 (n.zxid), 0x2c (n.round), LEADING (n.state), 2 (n.sid), 0x2b (n.peerEPoch), LOOKING (my state)
+2014-20-03 11:15:42.482 INFO  QuorumPeer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - OBSERVING
+2014-20-03 11:15:42.486 INFO  Learner [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - TCP NoDelay set to: true
+2014-20-03 11:15:42.488 INFO  QuorumCnxManager [host1/###.###.###.###:7555] - Received connection request /###.###.###.###:64528
+2014-20-03 11:15:42.490 INFO  ZooKeeperServer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Server environment:zookeeper.version=3.4.5-1392090, built on 09/30/2012 17:52 GMT
+2014-20-03 11:15:42.490 INFO  ZooKeeperServer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Server environment:host.name=host1
+2014-20-03 11:15:42.490 INFO  ZooKeeperServer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Server environment:java.version=1.6.0_20
+2014-20-03 11:15:42.490 INFO  ZooKeeperServer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Server environment:java.vendor=Sun Microsystems Inc.
+2014-20-03 11:15:42.490 INFO  ZooKeeperServer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Server environment:java.home=/xxx/util/common/jdk1.6.0_20_64bit/jre
+2014-20-03 11:15:42.490 INFO  ZooKeeperServer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Server environment:java.class.path=/xxx/bin/zk/etc:/xxx/bin/zk/lib/slf4j-log4j12-1.7.2.jar:/xxx/bin/zk/lib/jline-0.9.94.jar:/xxx/bin/zk/lib/jul-to-slf4j-1.7.2.jar:/xxx/bin/zk/lib/ZooInspector-3.4.5.jar:/xxx/bin/zk/lib/jcl-over-slf4j-1.7.2.jar:/xxx/bin/zk/lib/log4j-1.2.17.jar:/xxx/bin/zk/lib/zookeeper-3.4.5.jar:/xxx/bin/zk/lib/slf4j-api-1.7.2.jar:/xxx/bin/zk/lib/netty-3.2.2.Final.jar
+2014-20-03 11:15:42.490 INFO  ZooKeeperServer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Server environment:java.library.path=/xxx/util/common/jdk1.6.0_20_64bit/jre/lib/amd64/server:/xxx/util/common/jdk1.6.0_20_64bit/jre/lib/amd64:/xxx/util/common/jdk1.6.0_20_64bit/jre/../lib/amd64:/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib
+2014-20-03 11:15:42.490 INFO  ZooKeeperServer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Server environment:java.io.tmpdir=/tmp
+2014-20-03 11:15:42.490 INFO  ZooKeeperServer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Server environment:java.compiler=<NA>
+2014-20-03 11:15:42.490 INFO  ZooKeeperServer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Server environment:os.name=Linux
+2014-20-03 11:15:42.490 INFO  ZooKeeperServer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Server environment:os.arch=amd64
+2014-20-03 11:15:42.490 INFO  ZooKeeperServer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Server environment:os.version=2.6.32-220.2.1.el6.x86_64
+2014-20-03 11:15:42.490 INFO  ZooKeeperServer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Server environment:user.name=op
+2014-20-03 11:15:42.490 INFO  ZooKeeperServer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Server environment:user.home=/xxx/bin
+2014-20-03 11:15:42.490 INFO  ZooKeeperServer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Server environment:user.dir=/xxx/bin
+2014-20-03 11:15:42.491 INFO  ZooKeeperServer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Created server with tickTime 2000 minSessionTimeout 4000 maxSessionTimeout 40000 datadir /xxx/zk_log/version-2 snapdir /xxx/zk_data/version-2
+2014-20-03 11:15:42.493 INFO  Learner [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Observing host4/###.###.###.###:6555
+2014-20-03 11:15:42.495 INFO  FastLeaderElection [WorkerReceiver[myid=3]] - Notification: 2 (n.leader), 0x2b00000002 (n.zxid), 0x2c (n.round), FOLLOWING (n.state), 5 (n.sid), 0x2b (n.peerEPoch), OBSERVING (my state)
+2014-20-03 11:15:42.498 WARN  Learner [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Truncating log to get in sync with the leader 0x2b00000002
+2014-20-03 11:15:42.499 WARN  QuorumPeer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Unexpected exception
+java.lang.NullPointerException
+        at org.apache.zookeeper.server.persistence.FileTxnLog.truncate(FileTxnLog.java:352)
+        at org.apache.zookeeper.server.persistence.FileTxnSnapLog.truncateLog(FileTxnSnapLog.java:259)
+        at org.apache.zookeeper.server.ZKDatabase.truncateLog(ZKDatabase.java:438)
+        at org.apache.zookeeper.server.quorum.Learner.syncWithLeader(Learner.java:339)
+        at org.apache.zookeeper.server.quorum.Observer.observeLeader(Observer.java:72)
+        at org.apache.zookeeper.server.quorum.QuorumPeer.run(QuorumPeer.java:727)
+2014-20-03 11:15:42.500 INFO  Learner [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - shutdown called
+java.lang.Exception: shutdown Observer
+        at org.apache.zookeeper.server.quorum.Observer.shutdown(Observer.java:137)
+        at org.apache.zookeeper.server.quorum.QuorumPeer.run(QuorumPeer.java:731)
+2014-20-03 11:15:42.500 INFO  ZooKeeperServer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - shutting down
+2014-20-03 11:15:42.500 INFO  QuorumPeer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - LOOKING
+2014-20-03 11:15:42.501 INFO  FastLeaderElection [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - New election. My id =  3, proposed zxid=0x8000000000000000
+2014-20-03 11:15:42.503 INFO  FastLeaderElection [WorkerReceiver[myid=3]] - Notification: 2 (n.leader), 0x2b00000002 (n.zxid), 0x2c (n.round), FOLLOWING (n.state), 1 (n.sid), 0x2b (n.peerEPoch), LOOKING (my state)
+2014-20-03 11:15:42.503 INFO  FastLeaderElection [WorkerReceiver[myid=3]] - Notification: 2 (n.leader), 0x2b00000002 (n.zxid), 0x2c (n.round), LEADING (n.state), 2 (n.sid), 0x2b (n.peerEPoch), LOOKING (my state)
+2014-20-03 11:15:42.503 INFO  QuorumPeer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - OBSERVING
+2014-20-03 11:15:42.503 INFO  ZooKeeperServer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Created server with tickTime 2000 minSessionTimeout 4000 maxSessionTimeout 40000 datadir /xxx/zk_log/version-2 snapdir /xxx/zk_data/version-2
+2014-20-03 11:15:42.504 INFO  Learner [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Observing host4/###.###.###.###:6555
+2014-20-03 11:15:42.504 INFO  FastLeaderElection [WorkerReceiver[myid=3]] - Notification: 2 (n.leader), 0x2b00000002 (n.zxid), 0x2c (n.round), FOLLOWING (n.state), 5 (n.sid), 0x2b (n.peerEPoch), OBSERVING (my state)
+2014-20-03 11:15:42.514 INFO  FileSnap [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Reading snapshot /xxx/zk_data/version-2/snapshot.2c00000000
+2014-20-03 11:15:42.517 WARN  Learner [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Truncating log to get in sync with the leader 0x2b00000002
+2014-20-03 11:15:42.518 WARN  QuorumPeer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Unexpected exception
+java.lang.NullPointerException
+        at org.apache.zookeeper.server.persistence.FileTxnLog.truncate(FileTxnLog.java:352)
+        at org.apache.zookeeper.server.persistence.FileTxnSnapLog.truncateLog(FileTxnSnapLog.java:259)
+        at org.apache.zookeeper.server.ZKDatabase.truncateLog(ZKDatabase.java:438)
+        at org.apache.zookeeper.server.quorum.Learner.syncWithLeader(Learner.java:339)
+        at org.apache.zookeeper.server.quorum.Observer.observeLeader(Observer.java:72)
+        at org.apache.zookeeper.server.quorum.QuorumPeer.run(QuorumPeer.java:727)
+
+
+
+This exception went on and on over and over again (more than 1M times in a day) until it then began spewing this exception:
+
+
+2014-20-03 13:45:32.843 INFO  QuorumPeer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - LOOKING
+2014-20-03 13:45:32.843 INFO  FastLeaderElection [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - New election. My id =  3, proposed zxid=0x8000000000000000
+2014-20-03 13:45:32.844 INFO  FastLeaderElection [WorkerReceiver[myid=3]] - Notification: 2 (n.leader), 0x2b00000002 (n.zxid), 0x2c (n.round), FOLLOWING (n.state), 1 (n.sid), 0x2b (n.peerEPoch), LOOKING (my state)
+2014-20-03 13:45:32.845 INFO  FastLeaderElection [WorkerReceiver[myid=3]] - Notification: 2 (n.leader), 0x2b00000002 (n.zxid), 0x2c (n.round), LEADING (n.state), 2 (n.sid), 0x2b (n.peerEPoch), LOOKING (my state)
+2014-20-03 13:45:32.845 INFO  QuorumPeer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - OBSERVING
+2014-20-03 13:45:32.845 INFO  FastLeaderElection [WorkerReceiver[myid=3]] - Notification: 2 (n.leader), 0x2b00000002 (n.zxid), 0x2c (n.round), FOLLOWING (n.state), 5 (n.sid), 0x2b (n.peerEPoch), OBSERVING (my state)
+2014-20-03 13:45:32.845 INFO  ZooKeeperServer [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Created server with tickTime 2000 minSessionTimeout 4000 maxSessionTimeout 40000 datadir /xxx/zk_log/version-2 snapdir /xxx/zk_data/version-2
+2014-20-03 13:45:32.845 INFO  Learner [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Observing host4/###.###.###.###:6555
+2014-20-03 13:45:32.853 WARN  Learner [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Unexpected exception, tries=0, connecting to host4/###.###.###.###:6555
+java.net.ConnectException: Cannot assign requested address
+        at java.net.PlainSocketImpl.socketConnect(Native Method)
+        at java.net.PlainSocketImpl.doConnect(PlainSocketImpl.java:333)
+        at java.net.PlainSocketImpl.connectToAddress(PlainSocketImpl.java:195)
+        at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:182)
+        at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:366)
+        at java.net.Socket.connect(Socket.java:529)
+        at org.apache.zookeeper.server.quorum.Learner.connectToLeader(Learner.java:224)
+        at org.apache.zookeeper.server.quorum.Observer.observeLeader(Observer.java:69)
+        at org.apache.zookeeper.server.quorum.QuorumPeer.run(QuorumPeer.java:727)
+2014-20-03 13:45:33.863 INFO  FileSnap [QuorumPeer[myid=3]/0:0:0:0:0:0:0:0:5555] - Reading snapshot /xxx/zk_data/version-2/snapshot.2c00000000
+
+
+
+This exception for a while was interspersed with the NPEs but eventually it just was spewing the ConnectionException.
+
+Looking through the code a bit it seems if the FileTxnIterator when initialized cannot find any log files the inputStream is set to null which causes truncate() to NPE.. I see in 3.4.6 this has been wrapped in a try/finally which closes the iterator.. but i presume that this issue would still remain.
+
+Looking at the system in this state there were 29k+ sockets in CLOSE_WAIT state on the system and looking at a heap dump there were tons of Socket objects waiting for GC (ie not getting properly closed).. this eventually ran the system out of ephemeral ports and hence the ConnectionExceptions..
+
+It would seem that a quick check of itr.next() prior to attempting truncation would resolve the NPE, but it seems somewhere a connection is not being closed properly when an exception occurs.

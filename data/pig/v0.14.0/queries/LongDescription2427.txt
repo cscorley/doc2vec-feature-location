@@ -1,0 +1,8 @@
+
+Schema thing = Utils.getSchemaFromString("b:bag{t:tuple(x:int,y:int,z:int)}");
+System.out.println(thing.getField(0).schema.getField(0).alias); //returns null
+
+
+This isn't a huge issue, but it does seem odd to throw away this information unnecessarily. While any bag will of course have thus tuple and no other elements, it seems to violate the principle of least astonishment: if the tuple name was specified, shouldn't it be kept around?
+
+Edit: I just found a case where this actually can be a bit annoying. If you want to pull that tuple out of the bag, for whatever reason, you've now lost its name.

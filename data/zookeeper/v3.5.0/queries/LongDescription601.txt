@@ -1,0 +1,8 @@
+ZK servers currently enforce a min/max boundary on client session timeout relative to the ticktime setting, detailed here:
+http://hadoop.apache.org/zookeeper/docs/current/zookeeperProgrammers.html#ch_zkSessions
+
+In general there are good reasons for this however in some cases, in particular with HBase region servers, we have seen a need to allow this bound to be set differently (higher). The Sun jvm can GC pause for very long times (in some cases we've seen 4 minutes even with the "realtime" gc.
+
+It would be good to allow this bound to be set via configuration parameters. 
+
+Note: 4letterword and JMX integration would be needed.

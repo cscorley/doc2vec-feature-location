@@ -1,0 +1,22 @@
+tests such as org.apache.zookeeper.test.MultiTransactionTest.testWatchesTriggered() are incorrect. Two issues I see
+
+1) zk.sync is async, there is no guarantee that the watcher will be called subsequent to sync returning
+
+
+        zk.sync("/", null, null);
+        assertTrue(watcher.triggered); /// incorrect assumption
+
+
+
+The callback needs to be implemented, only once the callback is called can we verify the trigger.
+
+2) trigger is not declared as volatile, even though it will be set in the context of a different thread (eventthread)
+
+See https://builds.apache.org/view/S-Z/view/ZooKeeper/job/ZooKeeper-trunk-solaris/91/testReport/junit/org.apache.zookeeper.test/MultiTransactionTest/testWatchesTriggered/
+for an example of a false positive failure
+
+
+junit.framework.AssertionFailedError
+	at org.apache.zookeeper.test.MultiTransactionTest.testWatchesTriggered(MultiTransactionTest.java:236)
+	at org.apache.zookeeper.JUnit4ZKTestRunner$LoggedInvokeMethod.evaluate(JUnit4ZKTestRunner.java:52)
+

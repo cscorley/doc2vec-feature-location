@@ -1,0 +1,12 @@
+1. Ledger was created with ensemble 2 and quorum as 2 and entries were written.
+2. While reading entries, 2 BKs out of 3 in cluster were killed and restarted.
+3. Client was hung at read call waiting for sync counter notification.
+
+As though I was not able to reproduce this in some tries, but
+By looking at the logs and code, following seems to be problem
+
+1. BookieWatcher got the notification first for changes in available bookies.
+2. PerChannelBookieClient#disconnect() called from BookieWatcher for failed bookies. This has set the 'this.channel=null;'
+3. PerChannelBookieClient#channelDisconnected() call came now, and it proceeded silently without notifying errors to read ops.
+
+So client is hung waiting for result.

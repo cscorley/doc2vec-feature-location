@@ -1,0 +1,19 @@
+Given a query like:
+
+
+
+A = load 'myfile';
+B = group A by ($0, $1);
+C = foreach B generate group.$0, group.$1, COUNT(A);
+
+
+
+The combiner will not be invoked.  But if the last line is changed to:
+
+
+
+C = foreach B generate flatten(group), COUNT(A);
+
+
+
+it will be.  The reason for the discrepancy is because the CombinerOptimizer checks that all of the projections are simple.  If not, it does not use the combiner.  group.$0 is not a simple projection, so this is failed.  However, this is a common enough case that the CombinerOptimizer should detect it and still use the combiner. 

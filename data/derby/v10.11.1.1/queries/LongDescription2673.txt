@@ -1,0 +1,28 @@
+Currently if the system property derby.system.home is set and the folder does not exist then derby will attempt to create the folder using File.mkdirs() on the value of derby.system.home.
+
+This operation actually requires read permission on the parent directory (at least, maybe all folders in the path). E.g. when running the junit tests using ant:
+
+ derby.system.home=/home/djd/derby/trunk/junit_20070518_1216/system
+
+and thus read permission is required on the parent
+
+ /home/djd/derby/trunk/junit_20070518_1216
+
+The requirement to have this permission was added (I think) in JDK 1.5 and is intentional, see Sun bug 4932924
+
+ http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4932924
+
+The testing policy file does not include this permission thus some of the tests fail when running using ant. [I think most tests pass because the driver gets loaded outside of the security manager, thus allowing the mkdirs() to succeed.]
+
+I'm not sure that this permission should simply be added to the test policy file. This would mean that users would also have to add such an entry in their policy file. Of course the entry would need to be the explicit parent path, I don't think $
+{derby.system.home}${/}.. would be portable.
+[actually
+
+The reason for not adding it is that from a security point of view it expands the range of files Derby can read to be outside of the ${derby.system.home}
+. I think being able to encapsulate Derby's permissions to files under $
+{derby.system.home}
+ is a better security model.
+
+The simple change in Derby behaviour that seems to fix this is to change the mkdirs() to a mkdir(). The visible change to users would be that parent folder of derby.system.home must exist, previously Derby would have created all non-existent parent directories.
+
+I think this is an acceptable change in behaviour for a security issue and unlikely to cause many issues for users. 

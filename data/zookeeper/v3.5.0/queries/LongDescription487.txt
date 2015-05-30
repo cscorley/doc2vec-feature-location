@@ -1,0 +1,12 @@
+setdata on root "/" crashes the servers with the followimg exception. Unfortunately we never had a setdata test on root. The following is the exception. This happens with 3.1.1 as well. We might want to consider releasing 3.1.2 just for this jira.
+
+
+
+java.lang.IllegalArgumentException: Invalid path /
+        at org.apache.zookeeper.common.PathTrie.findMaxPrefix(PathTrie.java:255)
+        at org.apache.zookeeper.server.DataTree.setData(DataTree.java:543)
+        at org.apache.zookeeper.server.DataTree.processTxn(DataTree.java:701)
+        at org.apache.zookeeper.server.FinalRequestProcessor.processRequest(FinalRequestProcessor.java:94)
+        at org.apache.zookeeper.server.SyncRequestProcessor.flush(SyncRequestProcessor.java:127)
+        at org.apache.zookeeper.server.SyncRequestProcessor.run(SyncRequestProcessor.java:75)
+

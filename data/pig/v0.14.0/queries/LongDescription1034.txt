@@ -1,0 +1,24 @@
+GROUP ... ALL and GROUP ... BY produce an alias "group".
+
+Pig produces a syntax error if you attempt to ORDER ... BY group.
+
+This does seem like a perfectly reasonable thing to do.
+
+The workaround is to create an alias for group using an AS clause.  But I think this workaround should be unnecessary.
+
+Here's sample code which elicits the syntax error:
+
+
+
+A = load 'one.txt' using PigStorage as (one: int);
+
+B = group A all;
+
+C = foreach B generate
+	group,
+	COUNT(A) as count;
+
+D = order C by group parallel 1; -- group is one of the aliases in C, why does this throw a syntax error?
+
+dump D;
+

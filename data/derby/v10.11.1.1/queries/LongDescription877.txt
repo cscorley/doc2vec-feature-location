@@ -1,0 +1,34 @@
+The test lang/resultset.java fails with DerbyNetClient on zOS 
+because ResultSet.getDate(#) fails with an 
+java.lang.IllegalArgumentException - unsupported date format.
+
+This is the stack trace with 10.2 debug version (but it fails 
+with 10.1 also):
+------------------
+....
+getBytes(dt) got exception
+Data Conversion SQLException
+FAIL – unexpected exception: 
+java.lang.IllegalArgumentException: Unsupported date format!
+java.lang.IllegalArgumentException: Unsupported date format!
+        at 
+org.apache.derby.client.am.DateTime.dateBytesToDate(DateTime.java:63)
+        at 
+org.apache.derby.client.am.Cursor.getDATE(Cursor.java:400)
+        at 
+org.apache.derby.client.am.Cursor.getDate(Cursor.java:712)
+        at 
+org.apache.derby.client.am.ResultSet.getDate(ResultSet.java:687)
+        at 
+org.apache.derbyTesting.functionTests.tests.jdbcapi.resultset.main(Unknown Source)
+------------------
+Note: does not fail with jcc.
+
+Also, test lang/updatableResultSet.java failed with e.g.:
+
+	instead of 'Got expected exception : Illegal Conversion' :
+		     'Got expected exception : Unsupported date format!' . 
+	instead of 'Got expected exception : Illegal Conversion' :
+		     'Got expected exception : nanos > 99999999999 or < 0' .
+
+

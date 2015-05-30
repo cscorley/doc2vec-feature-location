@@ -1,0 +1,5 @@
+a pet project i've bene working on in some spare time has been looking at source code and byte code analysis toolkits with the goal of being able to write a tool that could be pointed at a jar, and it would generate stub Factories for any TokenFilter or Tokenizer classes it found not already in Solr.
+
+in the end, it looks like a combination of reflection and some simple pattern matching is actually the best way to go (byte code loses info about param names, and reflection saves a lot of the hassle involved in pure source code analysis)
+
+i've got a proof of concept ready that i'll attach shortly.  I hope to have some time next week to resubmit this as a patch that integrates it with the solr build.xml in such a way that anytime we add/update a lucene jar, we can run "ant stub-factories" and have 99% of the work done for us.

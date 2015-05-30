@@ -1,0 +1,20 @@
+Bookie#getBookieAddress uses the following code:
+
+Bookie.java
+
+    /**
+     * Return the configured address of the bookie.
+     */
+    public static InetSocketAddress getBookieAddress(ServerConfiguration conf)
+            throws UnknownHostException {
+        return new InetSocketAddress(InetAddress.getLocalHost()
+                .getHostAddress(), conf.getBookiePort());
+    }
+
+
+
+This code is subject to the contents of one's /etc/hosts file, in that if they have an entry like 127.0.0.1 myhostname, this method will return the same 127.0.0.1 address on all bookie servers.  This causes conflicts due to the way bookies register in zookeeper.
+
+There should be an optional bk_server.conf setting to allow one to select their preferred network interface to use for the bookie.  Then you could use something like NetworkInterface.getByName(PREFERRED_INTERFACE).getInetAddresses() instead.  This method is not effected by the /etc/hosts.
+
+An alternative method of registering the bookie that does not rely on the local address would be another possible solution, such as using the DNS like other apache projects (hbase).

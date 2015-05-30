@@ -1,0 +1,33 @@
+I have an Entity (Course) with a simple @Embedded field and a @Lob. I do not use any LAZY attribution on them!
+
+
+If I do a normal em.find, the entity will be loaded as a whole (all the fields, including the embedded and the lob will be fetched immediately).
+Sidenote: the Lecturer referred in the select is defined as
+    @OneToMany(mappedBy = "course",
+            cascade = 
+{CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE}
+,
+            orphanRemoval = true, fetch = FetchType.EAGER)
+    @OrderColumn(name = "POSITION")
+    private List<Lecturer> lecturers;
+
+The following selects DO work
+
+	"select c from Course c join c.lecturers l "
+	"select distinct c from Course c"
+
+
+
+The following selects create tons of subqueries! 1 separate sub-query for each @Embedded field, and also for each @Lob
+
+
+	"select distinct c from Course c join c.lecturers l "
+	"select distinct c from Lecturer l join l.course c"
+	"select c from Lecturer l join l.course c"
+
+
+
+
+This happens ONLY if I run this stuff against Oracle. In MySQL it seems to work properly.
+
+I'll try to create a unit test for it.

@@ -1,0 +1,18 @@
+The reader that reads the XML and builds MimeTypes seem to be hard coded to the read only a single element when another is often used to hold descriptions/comments..
+
+String COMMENT_TAG = "_comment";
+
+MimeTypesReader.readMimeType(Element element) throws MimeTypeException {
+                if (nodeElement.getTagName().equals(COMMENT_TAG)) {
+                    type.setDescription(
+                            nodeElement.getFirstChild().getNodeValue());
+
+-xml sample #1-
+
+<mime-type type="application/msword">
+    <alias type="application/vnd.ms-word"/>
+    <comment>Microsoft Word Document</comment>
+
+notice "comment" not "_comment' element...
+
+Why not simply rename all "_comment" tags to _comment and update the constant and all will be well.

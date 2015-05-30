@@ -1,0 +1,42 @@
+When trying to view a password-protected Pages file in Tika GUI, you get an NPE:
+
+org.apache.tika.exception.TikaException: Unexpected RuntimeException from org.apache.tika.parser.iwork.IWorkPackageParser@30583058
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:244)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+	at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:120)
+	at org.apache.tika.gui.TikaGUI.handleStream(TikaGUI.java:320)
+	at org.apache.tika.gui.TikaGUI.openFile(TikaGUI.java:279)
+	at org.apache.tika.gui.ParsingTransferHandler.importFiles(ParsingTransferHandler.java:94)
+	at org.apache.tika.gui.ParsingTransferHandler.importData(ParsingTransferHandler.java:77)
+	at javax.swing.TransferHandler.importData(TransferHandler.java:756)
+	at javax.swing.TransferHandler$DropHandler.drop(TransferHandler.java:1479)
+	at java.awt.dnd.DropTarget.drop(DropTarget.java:445)
+	at javax.swing.TransferHandler$SwingDropTarget.drop(TransferHandler.java:1204)
+	at sun.awt.dnd.SunDropTargetContextPeer.processDropMessage(SunDropTargetContextPeer.java:531)
+	at sun.awt.dnd.SunDropTargetContextPeer$EventDispatcher.dispatchDropEvent(SunDropTargetContextPeer.java:844)
+	at sun.awt.dnd.SunDropTargetContextPeer$EventDispatcher.dispatchEvent(SunDropTargetContextPeer.java:768)
+	at sun.awt.dnd.SunDropTargetEvent.dispatch(SunDropTargetEvent.java:42)
+	at java.awt.Component.dispatchEventImpl(Component.java:4498)
+	at java.awt.Container.dispatchEventImpl(Container.java:2110)
+	at java.awt.Component.dispatchEvent(Component.java:4471)
+	at java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4588)
+	at java.awt.LightweightDispatcher.processDropTargetEvent(Container.java:4323)
+	at java.awt.LightweightDispatcher.dispatchEvent(Container.java:4174)
+	at java.awt.Container.dispatchEventImpl(Container.java:2096)
+	at java.awt.Window.dispatchEventImpl(Window.java:2490)
+	at java.awt.Component.dispatchEvent(Component.java:4471)
+	at java.awt.EventQueue.dispatchEvent(EventQueue.java:610)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:280)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:195)
+	at java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:185)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:180)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:172)
+	at java.awt.EventDispatchThread.run(EventDispatchThread.java:133)
+Caused by: java.lang.NullPointerException
+	at org.apache.tika.parser.iwork.IWorkPackageParser$IWORKDocumentType.detectType(IWorkPackageParser.java:125)
+	at org.apache.tika.parser.iwork.IWorkPackageParser$IWORKDocumentType.access$000(IWorkPackageParser.java:71)
+	at org.apache.tika.parser.iwork.IWorkPackageParser.parse(IWorkPackageParser.java:166)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+	... 30 more
+
+I tried viewing the contents in 7-zip, but it tells me it can't understand the compression format.

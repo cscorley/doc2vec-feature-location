@@ -1,0 +1,13 @@
+If the SQLType argument to the new JDBC 4.2 methods in PreparedStatement and ResultSet is null, the call will fail with a NullPointerException. It should fail with an SQLException.
+
+Stack trace on embedded:
+
+java.lang.NullPointerException
+        at org.apache.derby.impl.jdbc.Util42.getTypeAsInt(Util42.java:57)
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement42.setObject(EmbedPreparedStatement42.java:57)
+
+Stack trace on client:
+
+java.lang.NullPointerException
+        at org.apache.derby.client.am.Utils42.getTypeAsInt(Utils42.java:55)
+        at org.apache.derby.client.am.PreparedStatement42.setObject(PreparedStatement42.java:78)

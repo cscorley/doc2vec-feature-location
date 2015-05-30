@@ -1,0 +1,15 @@
+I see this error when I specify the columns in a different order than in the table definition. It only fails if a multi-row table constructor is used.
+
+ij> create table t(a int, b generated always as (-a));
+0 rows inserted/updated/deleted
+ij> insert into t(b,a) values (default,1);
+1 row inserted/updated/deleted
+ij> insert into t(b,a) values (default,1), (default, 2);
+ERROR XJ001: Java exception: '1 >= 1: java.lang.ArrayIndexOutOfBoundsException'.
+
+And in a sane build:
+
+ij> insert into t(b,a) values (default,1),(default,2);
+ERROR XJ001: Java exception: 'ASSERT FAILED More columns in result column list than in base table: org.apache.derby.shared.common.sanity.AssertFailure'.
+
+This bug may be similar to DERBY-4448, but the stack trace is different, and DERBY-4448 does not raise an ASSERT FAILED in sane builds.

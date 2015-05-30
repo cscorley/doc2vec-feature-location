@@ -1,0 +1,6 @@
+The following script shows the problem for CHECK constraints. Other NPEs occur for PRIMARY, FOREIGN KEY, and NOT NULL constraints.
+
+drop table t_ccnd_1;
+
+– raises a null pointer exception
+create table t_ccnd_1( a int, b generated always as ( -a ) check ( b < 0 ) );

@@ -1,0 +1,10 @@
+Currently the following script will push B below D. But we will use fattened column in the join, we cannot push that.
+
+A = load '1.txt' as (bg:bag
+{t:tuple(a0,a1)}
+);
+B = FOREACH A generate flatten($0);
+C = load '3.txt' AS (c0, c1);
+D = JOIN B by a1, C by c1;
+E = limit D 10;
+explain E;

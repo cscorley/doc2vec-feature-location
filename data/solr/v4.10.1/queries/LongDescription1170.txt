@@ -1,0 +1,5 @@
+When using solr 1.4 replication, I see that the lucene-write.lock file is being replicated to slaves.  I'm importing data from a db every 5 minutes using cron to trigger a DIH delta-import.  Replication polls every 60 seconds and the master is configured to take a snapshot (replicateAfter) commit.
+
+Why should the lock file be replicated to slaves?
+
+The lock file isn't stale on the master and is absent unless the delta-import is in process.  I've not tried it yet, but with the lock file replicated, it seems like promotion of a slave to a master in a failure recovery scenario requires the manual removal of the lock file.

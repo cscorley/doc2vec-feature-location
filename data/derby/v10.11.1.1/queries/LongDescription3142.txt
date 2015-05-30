@@ -1,0 +1,29 @@
+Sysinfo messages are localized using the system's default locale instead of the locale specified by derby.ui.locale.
+
+Example:
+
+$ java -Dderby.ui.locale=de_DE -jar derbyrun.jar sysinfo|head                  
+------------------ Java Information ------------------
+Java Version:    1.6.0_01
+Java Vendor:     Sun Microsystems Inc.
+Java home:       /usr/jdk/instances/jdk1.6.0/jre
+Java classpath:  derbyrun.jar
+OS name:         SunOS
+OS architecture: x86
+OS version:      5.11
+Java user name:  kah
+Java user home:  /home/kah
+
+Setting the default locale works correctly:
+
+$ LC_ALL=de_DE.UTF-8 java -jar derbyrun.jar sysinfo|head
+------------------ Java-Informationen ------------------
+Java-Version: 1.6.0_01
+Java-Anbieter: Sun Microsystems Inc.
+Java-Home: /usr/jdk/instances/jdk1.6.0/jre
+Java-Klassenpfad: derbyrun.jar
+Name des Betriebssystems: SunOS
+Architektur des Betriebssystems: x86
+Betriebssystemversion: 5.11
+Java-Benutzername: kah
+Java-Benutzerausgangsverzeichnis: /home/kah

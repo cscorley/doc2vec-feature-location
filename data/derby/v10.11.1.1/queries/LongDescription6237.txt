@@ -1,0 +1,24 @@
+PreparedStatement.execute() worked on 10.1(both embedded and network server) when multiple rows are updated and PreparedStatement.setCharacterStream(int, Reader, int) is used. In 10.2, the embedded case stopped working for multi-row update using a prepared statement which used PreparedStatement.setCharacterStream(int, Reader, int) with exception
+java.io.EOFException: Stream has already been read and end-of-file reached and cannot be re-used.
+	at org.apache.derby.iapi.types.ReaderToUTF8Stream.read(ReaderToUTF8Stream.java:185)
+	at org.apache.derby.impl.store.raw.data.MemByteHolder.write(MemByteHolder.java:146)
+	at org.apache.derby.impl.store.raw.data.RememberBytesInputStream.fillBuf(RememberBytesInputStream.java:135)
+	at org.apache.derby.impl.store.raw.data.StoredPage.logColumn(StoredPage.java:6167)
+	at org.apache.derby.impl.store.raw.data.StoredPage.logRow(StoredPage.java:3971)
+	at org.apache.derby.impl.store.raw.data.UpdateOperation.writeOptionalDataToBuffer(UpdateOperation.java:255)
+	at org.apache.derby.impl.store.raw.data.UpdateOperation.<init>(UpdateOperation.java:106)
+	at org.apache.derby.impl.store.raw.data.LoggableActions.actionUpdate(LoggableActions.java:80)
+	at org.apache.derby.impl.store.raw.data.StoredPage.doUpdateAtSlot(StoredPage.java:8549)
+	at org.apache.derby.impl.store.raw.data.BasePage.updateAtSlot(BasePage.java:1178)
+	at org.apache.derby.impl.store.access.conglomerate.GenericConglomerateController.replace(GenericConglomerateController.java:479)
+	at org.apache.derby.impl.sql.execute.RowChangerImpl.updateRow(RowChangerImpl.java:523)
+	at org.apache.derby.impl.sql.execute.UpdateResultSet.collectAffectedRows(UpdateResultSet.java:579)
+	at org.apache.derby.impl.sql.execute.UpdateResultSet.open(UpdateResultSet.java:273)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:358)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1182)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeStatement(EmbedPreparedStatement.java:1635)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.execute(EmbedPreparedStatement.java:1304)
+	at org.apache.derbyTesting.functionTests.tests.lang.MamtaJDBC.main(MamtaJDBC.java:91)
+
+
+In 10.3 and 10.4, both the embedded and network server cases are broken for multi-row update using a prepared statement which used PreparedStatement.setCharacterStream(int, Reader, int).I still need to test 10.5 and higher. I will also add junit test cases for each of these releases on incremental basis.

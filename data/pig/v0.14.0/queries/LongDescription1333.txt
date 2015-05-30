@@ -1,0 +1,26 @@
+It would be nice to make Pig more friendly for applications like workflow that would be executing pig scripts on user behalf.
+
+Currently, they would have to use pig command line to execute the code; however, this has limitation on the kind of output that would be delivered. For instance, it is hard to produce error information that is easy to use programatically or collect statistics.
+
+The proposal is to create a class that mimics the behavior of the Main but gives users a status object back. The the main code of pig would look somethig like:
+
+public static void main(String args[])
+{
+    PigStatus ps = PigMain.exec(args);
+    exit (PigStatus.rc);
+}
+
+We need to define the following:
+
+
+	Content of PigStatus. It should at least include
+
+
+	return code
+	error string
+	exception
+	statistics
+
+
+	A way to propagate the status class through pig code
+

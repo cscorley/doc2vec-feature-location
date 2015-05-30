@@ -1,0 +1,33 @@
+We have some code that's supposed to work on Java 1.4, but that uses BigDecimal constructors that were not added until Java 5. The problematic constructors are the ones that take a single int or long.
+
+The constructors are used in the following classes:
+
+org.apache.derby.client.am.Cursor
+org.apache.derbyTesting.functionTests.tests.lang.Price
+org.apache.derbyTesting.system.oe.client.Submitter
+
+All of the classes are compiled against $
+{java14compile.classpath}
+, so one would expect the build to fail when java14compile.classpath pointed to proper Java 1.4 libraries. However, there is a constructor with a double parameter in Java 1.4, and the compiler picks that constructor if it cannot find the ones for int and long. If that happens, the compiled byte-code works on Java 1.4 and newer, and everything is fine.
+
+The problem appears when the build does not use the Java 1.4 libraries. This can easily happen if you build without a customized ant.properties, and PropertySetter ends up building java14compile.classpath based on the auto-detected java15compile.classpath. In that case, the compiler finds the int and long variants of the constructor, even when building against java14compile.classpath. The compiled byte-code will therefore use those Java 5 constructors, and the code will fail at run-time if ever executed on a Java 1.4 JVM.
+
+To reproduce, build Derby without ant.properties on a system where PropertySetter doesn't find JDK 1.4. Verify with -DprintCompilerProperties=true that java14compile.classpath is built up of jar files from a Java 5 or Java 6 directory. Then run org.apache.derbyTesting.functionTests.tests.lang.UDTTest using a Java 1.4 JVM. You'll see two errors of this kind:
+
+1) test_06_casts(org.apache.derbyTesting.functionTests.tests.lang.UDTTest)java.lang.NoSuchMethodError: java.math.BigDecimal.<init>(I)V
+	at org.apache.derbyTesting.functionTests.tests.lang.Price.makePrice(Price.java:49)
+	at org.apache.derbyTesting.functionTests.tests.lang.UDTTest.test_06_casts(UDTTest.java:501)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:109)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+
+The problem in client.am.Cursor can be seen if you follow the same procedure as above, and instead of UDTTest run ParameterMappingTest with the patch for DERBY-4891 that enables testing of booleans.

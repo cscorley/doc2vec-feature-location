@@ -1,0 +1,18 @@
+When using Hsqldb or Derby in in-memory mode, the generated create statements wil be using a dimension declaration on columns with type TEXT, which seems to be invalid.
+
+Entity definition:
+[...]
+@Column(columnDefinition = "TEXT")
+public String getText() 
+{
+    return text;
+}
+[...]
+
+OpenJPA hsqldb TRACE:
+807  relege-testcycle  TRACE  [main] openjpa.jdbc.SQL - <t 1227469025, conn 2083747981> executing stmnt 389001391 CREATE TABLE houses_descriptions (id INTEGER NOT NULL, locale VARCHAR(5), name VARCHAR(255), text TEXT(255), house_id INTEGER, PRIMARY KEY (id))
+
+Testing this with a MySQL DB (5.1), the problem does not occur. Here, sql create statements are formed without the dimension declaration on TEXT types:
+
+OpenJPA mysql TRACE:
+1017  relege-development  TRACE  [main] openjpa.jdbc.SQL - <t 1372096729, conn 680220284> executing stmnt 1406860207 CREATE TABLE houses_descriptions (id INTEGER NOT NULL, locale VARCHAR(5), name VARCHAR(255), text TEXT, house_id INTEGER, PRIMARY KEY (id)) TYPE = innodb

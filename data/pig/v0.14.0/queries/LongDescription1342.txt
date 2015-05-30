@@ -1,0 +1,4 @@
+Currently, table and column group level meta data is extracted from job configuration object and written onto HDFS disk within checkOutputSpec(). Later on, writers at back end will open these files to access the meta data for doing writes. This puts extra load to name node since all writers need to make name node calls to open files. 
+
+We propose the following approach to this problem:
+For writers at back end, they extract meta information from job configuration object directly, rather than making name node calls and going to HDFS disk to fetch the information.

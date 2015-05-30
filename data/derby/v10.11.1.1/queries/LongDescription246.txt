@@ -1,0 +1,144 @@
+I am testing ClientXADataSource.
+It fails when end() is called - here is the output fromn my test program.
+
+Running test org.simplejta.xatests.common.Test1
+autocommit = false
+No of rows Affected 1
+autocommit = true
+No of rows Affected 1
+org.apache.derby.client.am.XaException: XAER_RMFAIL : Connection is Closed.
+	at org.apache.derby.client.net.NetXAResource.throwXAException(Unknown Source)
+	at org.apache.derby.client.net.NetXAResource.throwXAException(Unknown Source)
+	at org.apache.derby.client.net.NetXAResource.connectionClosedFailure(Unknown Source)
+	at org.apache.derby.client.net.NetXAResource.end(Unknown Source)
+	at org.simplejta.xatests.common.Test1.doTest(Test1.java:52)
+	at org.simplejta.tests.DerbyClientTests.main(DerbyClientTests.java:66)
+Caused by: org.apache.derby.client.am.SqlException: Connection is Closed.
+	... 4 more
+Test org.simplejta.xatests.common.Test1 failed
+
+The test program is:
+
+/*
+
+	Test case for multiple logical connections between start() and end().
+ */
+package org.simplejta.xatests.common;
+
+
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import javax.sql.XAConnection;
+import javax.sql.XADataSource;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+
+public class Test1 extends TestCase {
+
+    public void doTest(XADataSource ds) throws Exception 
+{
+
+            // Get a XA connection to the underlying data source
+            XAConnection pc1 = ds.getXAConnection();
+
+            // Get the XA Resource
+            XAResource xar1 = pc1.getXAResource();
+
+            // Create an Xid
+            Xid xid1 = Utils.createXid(1);
+
+            // Start the XA transaction
+            xar1.start(xid1, XAResource.TMNOFLAGS);
+
+            // Get a Logical Connection
+            Connection conn1 = pc1.getConnection();
+            System.out.println("autocommit = " + conn1.getAutoCommit());
+
+            // Do something with conn1
+            doSomeWork1(conn1, 50);
+
+            // Close the logical connection
+            conn1.close();
+
+            // Get another logical connection
+            conn1 = pc1.getConnection();
+            System.out.println("autocommit = " + conn1.getAutoCommit());
+
+            // Do something with conn1
+            doSomeWork1(conn1, 51);
+
+            // Close the logical connection
+            conn1.close();
+
+            // END the branche
+            xar1.end(xid1, XAResource.TMSUCCESS);
+
+            // Prepare the RMs
+            int prp1 = xar1.prepare(xid1);
+
+            // Commit transaction
+            xar1.commit(xid1, false);
+
+            // Close physical connection
+            pc1.close();
+    }
+
+    private void doSomeWork1(Connection conn, int deptno) throws SQLException 
+{
+        Statement stmt = conn.createStatement();
+        int cnt = stmt
+                .executeUpdate("INSERT INTO dept VALUES (" + deptno + ", 'BSD', 'LONDON')");
+        System.out.println("No of rows Affected " + cnt);
+        stmt.close();
+        stmt = null;
+    }
+}
+
+
+This test works fine with EmbeddedXADataSource. It also works fine with Oracle.
+
+Also, note that this error seems similar to the error I am getting with DB2 using the DB2 type 4 driver.
+
+Running test org.simplejta.xatests.common.Test1
+autocommit = false
+No of rows Affected 1
+autocommit = false
+No of rows Affected 1
+com.ibm.db2.jcc.b.de: XAER_RMFAIL : Connection is Closed. : Exception from native code during XA
+	at com.ibm.db2.jcc.uw.UWXAResource.a(UWXAResource.java:695)
+	at com.ibm.db2.jcc.uw.UWXAResource.a(UWXAResource.java:709)
+	at com.ibm.db2.jcc.uw.UWXAResource.end(UWXAResource.java:227)
+	at org.simplejta.xatests.common.Test1.doTest(Test1.java:52)
+	at org.simplejta.tests.DB2Tests.main(DB2Tests.java:65)
+Caused by: com.ibm.db2.jcc.b.SqlException: Connection is Closed.
+	at com.ibm.db2.jcc.uw.UWXAResource.a(UWXAResource.java:705)
+	... 3 more
+Test org.simplejta.xatests.common.Test1 failed
+
+
+
+Curiously, the error appears to corrupt the database. Subsequent attempts to start the database gives an error.
+
+
+org.apache.derby.client.am.SqlException: DERBY SQL error: SQLCODE: -1, SQLSTATE: XJ040, SQLERRMC: tca[..snip..]XJ040.C..[snip]..STB0:XSTB0.M..[snip]..led to start database 'tca', see the next exception for details...[snip]..An exception was thrown during transaction abort...[snip]..(server log:c:\derby\databases\derby.log)
+	at org.apache.derby.client.am.Connection.completeSqlca(Unknown Source)
+	at org.apache.derby.client.net.NetConnectionReply.parseRdbAccessFailed(Unknown Source)
+	at org.apache.derby.client.net.NetConnectionReply.parseAccessRdbError(Unknown Source)
+	at org.apache.derby.client.net.NetConnectionReply.parseACCRDBreply(Unknown Source)
+	at org.apache.derby.client.net.NetConnectionReply.readAccessDatabase(Unknown Source)
+	at org.apache.derby.client.net.NetConnection.readSecurityCheckAndAccessRdb(Unknown Source)
+	at org.apache.derby.client.net.NetConnection.flowSecurityCheckAndAccessRdb(Unknown Source)
+	at org.apache.derby.client.net.NetConnection.flowUSRIDPWDconnect(Unknown Source)
+	at org.apache.derby.client.net.NetConnection.flowConnect(Unknown Source)
+	at org.apache.derby.client.net.NetConnection.initialize(Unknown Source)
+	at org.apache.derby.client.net.NetConnection.<init>(Unknown Source)
+	at org.apache.derby.client.net.NetXAConnection.<init>(Unknown Source)
+	at org.apache.derby.client.ClientPooledConnection.<init>(Unknown Source)
+	at org.apache.derby.client.ClientXAConnection.<init>(Unknown Source)
+	at org.apache.derby.jdbc.ClientXADataSource.getXAConnection(Unknown Source)
+	at org.apache.derby.jdbc.ClientXADataSource.getXAConnection(Unknown Source)
+
+

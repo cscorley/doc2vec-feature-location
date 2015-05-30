@@ -1,0 +1,7 @@
+On the network client driver, the ResultSet method updateRow makes the transaction commit, when autocommit is true. The correct behavior is to commit only when the result set is closed. This works correctly in the embedded driver.
+
+The repro case is uploaded as an attachment "testCSUpdateRowCommits.java".
+
+Output (repro case):
+	updateRow() should not commit
+	Value: 16, expected value 1. Should not have committed updateRow()

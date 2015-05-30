@@ -1,0 +1,6 @@
+There are 3 test failures when running unit tests in MR:
+TestStore.testSetStoreSchema: fail only in Hadoop 1, we change the test sequence PIG-3935 (before that, we test mr then local, after that, local first then mr), some dirty data in local mode is not cleaned
+
+TestParamSubPreproc.testGruntWithParamSub: the test is added by PIG-2122, not sure what happen, perhaps the test never work before
+
+TestJobSubmission.testReducerNumEstimation: This is due to the upgrade HBase to 0.96 and only happen in Hadoop 1

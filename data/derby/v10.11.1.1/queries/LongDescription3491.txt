@@ -1,0 +1,12 @@
+With the additional system permissions proposed in DERBY-3462 I wonder if it makes sense to change the style of names & actions in SystemPermission.
+
+Today a "shutdown" name is proposed and potential for future "shutdownEngine" and "shutdownServer" with no actions.
+
+DERBY-3462 is proposing names of jmxControl, serverControl, engineControl etc also with no actions.
+
+Looking at the standard Permission class it seems the name is meant to represent an object that the permission applies to and action represent actions on that object.
+Thus it would seem to make more sense and be consistent with other Permissions to have:
+
+ name=server action=control | monitor | shutdown
+ name=engine action=control | monitor | shutdown
+ name=jmx action=control

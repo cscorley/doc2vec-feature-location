@@ -1,0 +1,19 @@
+The following script produce wrong result:
+
+
+data = LOAD 'data.txt' using PigStorage() as (referrer:chararray, canonical_url:chararray, ip:chararray);
+best_url = FOREACH data GENERATE ((canonical_url != '' and canonical_url is not null) ? canonical_url : referrer) AS url, ip;
+filtered = FILTER best_url BY url == 'badsite.com';
+dump filtered;
+
+
+data.txt:
+badsite.com             127.0.0.1
+goodsite.com/1?foo=true goodsite.com    127.0.0.1
+
+Expected:
+(badsite.com,127.0.0.1)
+
+We get nothing.
+
+Thanks Corbin Hoenes for reporting.

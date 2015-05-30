@@ -1,0 +1,11 @@
+I see two assert failures when I'm running lang/closed.java on one particular machine with Java SE 5.0/Java SE 6 and Solaris 10. It fails consistently on that machine, but I have never seen the failure on other machines. Stack trace:
+
+org.apache.derby.shared.common.sanity.AssertFailure: ASSERT FAILED Current Context Manager not the one was expected: null org.apache.derby.iapi.services.context.ContextManager@182a70
+        at org.apache.derby.shared.common.sanity.SanityManager.THROWASSERT(SanityManager.java:149)
+        at org.apache.derby.impl.jdbc.Util.THROWASSERT(Util.java:140)
+        at org.apache.derby.impl.jdbc.EmbedConnection.restoreContextStack(EmbedConnection.java:1563)
+        at org.apache.derby.impl.jdbc.ConnectionChild.restoreContextStack(ConnectionChild.java:131)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:587)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:517)
+        at org.apache.derbyTesting.functionTests.tests.lang.closed.run(closed.java:193)
+        at java.lang.Thread.run(Thread.java:595)

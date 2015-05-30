@@ -1,0 +1,10 @@
+The following query fails in fetch mode:
+
+
+A = load 'data' as (a:chararray);   
+B = FOREACH A generate 'a', CurrentTime();     
+dump B;
+
+
+
+Reason: CurrentTime() throws an exception if pig.job.submitted.timestamp is not set.

@@ -1,0 +1,29 @@
+When an entity is defined as following (unique index annotation on the primary key field. In this situation): 
+
+@Entity
+@Table(name="AddressBean")   
+public class AddressBeanAno implements IAddressBean,  Serializable {
+    @EmbeddedId
+    @Index(name="street_index",unique=true)
+    @Column(length=30)
+    private AddressPK street;
+
+Informix will issue an error:
+
+Caused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: Index already exists on column. 
+{stmnt 1440372186 CREATE UNIQUE INDEX street_index ON AddressBean (street)}
+ [code=-350, state=S0011]
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.wrap(LoggingConnectionDecorator.java:192)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.access$3(LoggingConnectionDecorator.java:189)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection$LoggingStatement.executeUpdate(LoggingConnectionDecorator.java:762)
+	at org.apache.openjpa.lib.jdbc.DelegatingStatement.executeUpdate(DelegatingStatement.java:114)
+	at org.apache.openjpa.jdbc.schema.SchemaTool.executeSQL(SchemaTool.java:1204)
+	at org.apache.openjpa.jdbc.schema.SchemaTool.createIndex(SchemaTool.java:1019)
+	at org.apache.openjpa.jdbc.schema.SchemaTool.add(SchemaTool.java:554)
+	at org.apache.openjpa.jdbc.schema.SchemaTool.add(SchemaTool.java:344)
+	at org.apache.openjpa.jdbc.schema.SchemaTool.run(SchemaTool.java:321)
+	at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:501)
+
+Per Informaix SQL syntax guide (Create Index section):
+You can not add a unique index to a column or column list that a primary -key constraint on it. The reason is  that defining the column or column list as the primary key causes the database server to create a unique internal index on the column or column list. So you cannot create another unique index on this column or column list with CREATE INDEX statement.    
+

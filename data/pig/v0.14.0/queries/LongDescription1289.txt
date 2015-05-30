@@ -1,0 +1,53 @@
+PIG Join fails while doing a filter on joined data
+
+Here are the steps to reproduce it:
+-bash-3.1$ pig -latest -x local
+grunt> a = load 'first.dat' using PigStorage('\u0001') as (f1:int, f2:chararray);
+grunt> DUMP a;
+(1,A)
+(2,B)
+(3,C)
+(4,D)
+
+grunt> b = load 'second.dat' using PigStorage() as (f3:chararray);
+grunt> DUMP b;
+(A)
+(D)
+(E)
+
+grunt> c = join a by f2 LEFT OUTER, b by f3;
+grunt> DUMP c;
+(1,A,A)
+(2,B,)
+(3,C,)
+(4,D,D)
+grunt> describe c;
+c: 
+{a::f1: int,a::f2: chararray,b::f3: chararray}
+grunt> d = filter c by (f3 is null or f3 =='');
+
+grunt> dump d;
+2010-03-03 15:00:37,129 [main] INFO  org.apache.pig.impl.logicalLayer.optimizer.PruneColumns - No column pruned for b
+2010-03-03 15:00:37,129 [main] INFO  org.apache.pig.impl.logicalLayer.optimizer.PruneColumns - No map keys pruned for b
+2010-03-03 15:00:37,129 [main] INFO  org.apache.pig.impl.logicalLayer.optimizer.PruneColumns - No column pruned for a
+2010-03-03 15:00:37,130 [main] INFO  org.apache.pig.impl.logicalLayer.optimizer.PruneColumns - No map keys pruned for a
+2010-03-03 15:00:37,130 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1002: Unable to store alias d
+
+
+This one is failing too:
+
+grunt> d = filter c by (b::f3 is null or b::f3 =='');
+
+or this one not returning results as expected:
+
+grunt> d = foreach c generate f1 as f1, f2 as f2, f3 as f3;
+grunt> e = filter d by (f3 is null or f3 =='');
+grunt> DUMP e;
+(1,A,)
+(2,B,)
+(3,C,)
+(4,D,)
+
+while the expected result is
+(2,B,)
+(3,C,)

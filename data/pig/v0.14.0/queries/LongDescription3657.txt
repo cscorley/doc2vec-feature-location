@@ -1,0 +1,16 @@
+To reproduce the issue, try a filter expression as follows-
+
+
+b = FILTER a BY partition_column < x OR (partition_column == y AND non-partition_column == z); 
+
+
+Pig fails with NPE, and the stack trace is something like this-
+
+
+Caused by: java.lang.NullPointerException
+    at org.apache.pig.newplan.FilterExtractor.checkPushDown(FilterExtractor.java:252)
+    at org.apache.pig.newplan.FilterExtractor.visit(FilterExtractor.java:115)
+    at org.apache.pig.newplan.logical.rules.PartitionFilterOptimizer$PartitionFilterPushDownTransformer.transform(PartitionFilterOptimizer.java:150)
+    at org.apache.pig.newplan.optimizer.PlanOptimizer.optimize(PlanOptimizer.java:110)
+    ... 18 more
+

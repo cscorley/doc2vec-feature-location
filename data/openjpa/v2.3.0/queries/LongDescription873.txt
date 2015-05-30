@@ -1,0 +1,95 @@
+This JIRA is open on behalf of pioneer_ip@yahoo.com.
+
+@MappedSuperclass
+public abstract class CashBaseEntity extends BaseEntity
+{
+@Column(name="TRCCRUI")
+          private String createUser;
+         
+          @Column(name="TRCCRTS")
+          private Date createTime;
+         
+          @Column(name="TRCLUUID")
+          private String updateUser;
+         
+          @Column(name="TRCLUTS")
+          private Date updateTime;
+         
+          @Version
+          @Column(name="TRCVER")
+          private int version;
+//getter setter ....removed ..for short post
+
+    }
+
+
+@Entity
+@Table (  name = "cc2SITUATION")
+@IdClass(SituationDA.SituationId.class)
+public class SituationDA extends CashBaseEntity{
+
+    @Id
+    @Column(name="C2008SRL")
+    private String CashBoxPeriodSerial;
+
+    @Id
+    @Column(name="C2012TYPE")
+    private short Type;
+
+    public static class SituationId implements Serializable{
+        private static final long serialVersionUID = 1L;
+        public String CashBoxPeriodSerial;
+        public short Type;
+
+        public SituationId(){
+
+        }
+
+        public boolean equals(Object other){
+            if (other instanceof SituationId) 
+{
+                final SituationId otherId = (SituationId)other;
+                return ( otherId.CashBoxPeriodSerial.equals(this.CashBoxPeriodSerial) &&
+otherId.Type == this.Type );
+                }
+                return false;   
+        }
+
+        public int hashCode() 
+{
+            return super.hashCode();
+        }
+    }
+//getter setter removed for short post..
+}
+
+@Entity
+@Table (name = "CF2VLUITEM")
+public class ValuableItemDA extends CashBaseEntity
+{
+    @Id
+    @Column(name="C2001COD")
+    private short Code;
+
+//getter setter removed for short post..
+
+}
+
+
+Exception in thread "main" java.lang.NullPointerException
+    at org.apache.openjpa.meta.ClassMetaData.validateAppIdClass(ClassMetaData.java:1883)
+    at org.apache.openjpa.meta.ClassMetaData.validateIdentity(ClassMetaData.java:1840)
+    at org.apache.openjpa.meta.ClassMetaData.validateMeta(ClassMetaData.java:1757)
+    at org.apache.openjpa.meta.ClassMetaData.resolve(ClassMetaData.java:1630)
+    at org.apache.openjpa.meta.MetaDataRepository.processBuffer(MetaDataRepository.java:717)
+    at org.apache.openjpa.meta.MetaDataRepository.resolveMeta(MetaDataRepository.java:616)
+    at org.apache.openjpa.meta.MetaDataRepository.resolve(MetaDataRepository.java:541)
+    at org.apache.openjpa.meta.MetaDataRepository.getMetaData(MetaDataRepository.java:308)
+    at org.apache.openjpa.enhance.PCEnhancer.<init>(PCEnhancer.java:249)
+    at org.apache.openjpa.enhance.PCEnhancer.run(PCEnhancer.java:4502)
+    at org.apache.openjpa.enhance.PCEnhancer.run(PCEnhancer.java:4449)
+    at org.apache.openjpa.enhance.PCEnhancer$1.run(PCEnhancer.java:4419)
+    at org.apache.openjpa.lib.conf.Configurations.launchRunnable(Configurations.java:726)
+    at org.apache.openjpa.lib.conf.Configurations.runAgainstAllAnchors(Configurations.java:716)
+    at org.apache.openjpa.enhance.PCEnhancer.run(PCEnhancer.java:4414)
+    at org.apache.openjpa.enhance.PCEnhancer.main(PCEnhancer.java:4405)

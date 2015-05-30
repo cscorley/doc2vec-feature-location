@@ -1,0 +1,17 @@
+When streaming a BLOB from the Network Client to the Network Server, the Network server currently read all the data from the stream and put it into a byte array.
+The blob data is then inserted into the DB by using
+PreparedStatement.setBytes(..)
+
+and later
+
+PreparedStatement.execute()
+
+To avoid OutOfMemoryError if the size of the Blob is > than total memory in the VM, we could make the network server create a stream which reads data when doing PreparedStatement.execute().  The DB will then stream the BLOB data directly from the network inputstream into the disk.
+
+I intent to make a patch which does this if there is only one EXTDTA object (BLOB) sent from the client in the statement, as it will simplify the implementation. Later this can be improved  further to include CLOBs, and possibly to include the cases where there are multiple EXTDTA objects.
+
+–
+CLOBs are more complex, as there need to be some character encoding. This can be achieved by using a InputStreamReader,  and use PreparedStatement.setCharacterStream(..). However the size of the stream is not necessarily the same as the size of the raw binary data, and to do this for CLOBs, I would need the embedded prepared statements to support the new setCharacterStream() overloads in JDBC4 (which do not include a length atribute)
+–
+Multiple EXTDATA objects are also more complex, since one would need to have fully read the previous object ,before it is possible to read the next.
+–

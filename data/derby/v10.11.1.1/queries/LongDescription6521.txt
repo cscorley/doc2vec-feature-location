@@ -1,0 +1,13 @@
+In DERBY-6503 there was some discussion about changing how errors are handled when Derby fails to restrict the file permissions.
+
+There seemed to be consensus that Derby should raise an exception if the user had explicitly requested (by setting derby.storage.useDefaultFilePermissions=false) that it should try to restrict file permissions. Currently, it only raises an error on non-posix file systems that support access control lists.
+
+In the case were the user has not explicitly requested restriction of file permissions, two options have been suggested:
+
+1) Raise an exception
+
+2) Don't raise an exception, possibly print a warning in derby.log
+
+Option 1 is the more secure one, since it forces the user to make a decision on how to handle a possible security problem (either by addressing the underlying cause of the failure, so that permissions can be successfully restricted by Derby, or by disabling the file restriction functionality).
+
+Option 2 is the more backward compatible one, since it gracefully falls back to the pre-10.10/pre-Java 7 behaviour if it cannot restrict the file permissions.

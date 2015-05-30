@@ -1,0 +1,12 @@
+For the following pig script:
+
+a = load ':INPATH:/singlefile/studenttab10k' as (name, age, gpa);
+b = group a by name;
+c = foreach b 
+{ ba = filter a by age < '25'; bb = foreach ba generate gpa; generate group, flatten(bb);}
+
+parser gives the following error message:
+
+<line 3, column 14> mismatched input '{' expecting GENERATE
+
+The error seems to indicate that we do not support nested foreach, which is misleading. The error message needs to be improved.

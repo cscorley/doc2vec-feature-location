@@ -1,0 +1,3 @@
+There are several places where we highly underestimate the memory footprint . For example, for map datatypes, we don't account for the per entry cost for the map container data structures. The estimated size of a tuple having map with 100 integer key-value entries , as per current version of code is 3260 bytes, while what is observed is around 6775 bytes .  To verify the memory footprint, i checked free memory before and after creating multiple instances of the object , using code on the lines of http://www.javaspecialists.eu/archive/Issue029.html . 
+
+In PIG-1443 similar change was done to fix this for CHARARRAY .

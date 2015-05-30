@@ -1,0 +1,22 @@
+This happens from JDBC or ij. Here the output form ij>
+
+ij version 10.0 
+CONNECTION0* - 	jdbc:derby:phsDB 
+
+	= current connection
+ij> select a1.XXX_foreign, a1.native, a1.kind, a1.XXX_foreign FROM slg_name_lookup a1 ORDER BY a1.XXX_foreign;
+ERROR 42X79: Column name 'XXX_FOREIGN' appears more than once in the result of the query expression. 
+
+
+
+But when removing the ORDER BY and keeping the 2 same column names it works
+
+ij> select a1.XXX_foreign, a1.native, a1.kind, a1.XXX_foreign FROM slg_name_lookup a1;
+XXX_FOREIGN                                                                     |NATIVE                                                                          |KIND                                    |XXX_FOREIGN                                                                      -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
+0 rows selected 
+ij> 
+
+
+So - it seams to be OK to specify the same column twice - as long as you do not add the ORDER BY clause.  
+
+I woul dof course like that the system allows this - but at leats it should be consistant and either allow both or none of the two queries above.

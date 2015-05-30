@@ -1,0 +1,3 @@
+bookie server hangs on reading header part when reading partial header index file (whose header part is less than 1k). This kind of index file existed because bookie server shuts down when writing header of index file.
+
+bookie server should check file size when reading header. in pre-v3 journal, we don't have master key stored in journal, so if master key is missing, we have no chance to repair it just throw an IOException when reading header. in post-v3 journal, we store master key as an meta entry in journal, so we can rewrite the header part.

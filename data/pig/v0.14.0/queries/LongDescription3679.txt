@@ -1,0 +1,14 @@
+The e2e test StreamingPythonUDFs_10 fails in trunk with NPE-
+
+
+Caused by: java.lang.NullPointerException
+        at org.apache.pig.builtin.DoubleRound.exec(DoubleRound.java:45)
+
+
+The test query is as follows-
+
+
+a = load '/user/pig/tests/data/singlefile/allscalar10k' using PigStorage() as (name:chararray, age:int, gpa:double, instate:chararray);
+b = foreach a generate name, ((double)ROUND((instate=='true'?gpa:gpa+1)*10000)) / 10000.0;
+store b into '/user/pig/out/cheolsoop-1390330024-nightly.conf-StreamingPythonUDFs/StreamingPythonUDFs_10_benchmark.out';
+

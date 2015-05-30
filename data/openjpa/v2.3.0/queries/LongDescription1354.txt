@@ -1,0 +1,9 @@
+Property combination on openjpa.* works
+   <property name="openjpa.ConnectionDriver" value="org.apache.commons.dbcp.BasicDataSource"/> 
+   <property name="openjpa.ConnectionProperties" value="DriverClassName=com.mysql.jdbc.Driver,Url=jdbc:mysql://localhost/test,Username=scott,Password=tiger,MaxActive=40"/>
+
+But mixing them as
+        <property name="javax.persistence.jdbc.driver" value="org.apache.commons.dbcp.BasicDataSource"/> 
+        <property name="openjpa.ConnectionProperties" value="DriverClassName=com.mysql.jdbc.Driver,Url=jdbc:mysql://localhost/test,Username=scott,Password=tiger,MaxActive=40"/>
+
+breaks because dbcp.BasicDataSource.getConnection(user, pwd) throws UnSupportedOperationException

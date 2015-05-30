@@ -1,0 +1,36 @@
+This is my first issue report, so please be understanding if I'm posting the wrong thing, in the wrong place or in the wrong way. I just want to help. 
+
+While iterating through a ResultSet, when accessing a BLOB field to read its contents via an InputStream, I noticed that:
+
+	if the current ResultSet's has been "warmed up" by retrieving another column first, everything it's fine;
+	if, on the other hand, you first-thing access the BLOB (and read other columns later), then upon reading the first byte out the InputStream bound to the BLOB field (ResultSet.getBinaryStream("col_name")) an IOException is thrown (and IOException's getMessage() method returns null).
+
+
+
+Following is an example, taken from a real application. The two code segments only differ in the fact that a SMALLINT & VARCHAR read is done before/after the BLOB read.
+
+-Working snippet-
+[...]
+                    icRelPath[i] = "imm" + File.separator + "ic" + "" + rs.getShort("setIcone") + "" + i + "." + rs.getString("estensione");
+                    AutoCloseInputStream acis = new AutoCloseInputStream(rs.getBinaryStream("ic" + i));
+                    if (rs.wasNull())
+                        icRelPath[i] = null;
+                    else
+                    {
+                        //icRelPath[i] = "imm" + File.separator + "ic" + "" + rs.getShort("setIcone") + "" + i + "." + rs.getString("estensione");
+                        BufferedInputStream bis = new BufferedInputStream(acis);
+                        int b = bis.read();//READS FINE
+[...]
+
+-Broken snippet-
+[...]
+                    //icRelPath[i] = "imm" + File.separator + "ic" + "" + rs.getShort("setIcone") + "" + i + "." + rs.getString("estensione");
+                    AutoCloseInputStream acis = new AutoCloseInputStream(rs.getBinaryStream("ic" + i));
+                    if (rs.wasNull())
+                        icRelPath[i] = null;
+                    else
+                    {
+                        icRelPath[i] = "imm" + File.separator + "ic" + "" + rs.getShort("setIcone") + "" + i + "." + rs.getString("estensione");
+                        BufferedInputStream bis = new BufferedInputStream(acis);
+                        int b = bis.read();//THROWS IOException WITH A null ERROR MESSAGE STRING
+[...]

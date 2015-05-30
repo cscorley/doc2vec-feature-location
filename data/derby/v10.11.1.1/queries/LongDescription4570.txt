@@ -1,0 +1,20 @@
+I see the following test failure, which looks like somehow we're calling java.sql.Driver when that class is not available with the foundation profile.
+This I think is related to the changes to ij:
+------------------------------------------------------------------------
+r916014 | rhillegas | 2010-02-24 14:39:49 -0800 (Wed, 24 Feb 2010) | 1 line
+
+DERBY-4550: Commit Sylvain Leroux's patch which adds qualified identifiers to ij.
+------------------------------------------------------------------------
+I've not investigated further, perhaps this is a test issue after all, but I marked it tools for now. 
+This is the output from suites.All:
+
+1) ij7(org.apache.derbyTesting.functionTests.tests.tools.ToolScripts)junit.framework.ComparisonFailure: Output at line 250 expected:<ij(DERBY4550_1)> create table t1(a int, b int);> but was:<JAVA ERROR: java.lang.NoClassDefFoundError: java.sql.Driver>
+	at junit.framework.AssertionFailedError.<init>(AssertionFailedError.java:11)
+	at junit.framework.ComparisonFailure.<init>(ComparisonFailure.java:19)
+	at org.apache.derbyTesting.functionTests.util.CanonTestCase.compareCanon(CanonTestCase.java:106)
+	at org.apache.derbyTesting.functionTests.util.ScriptTestCase.runTest(ScriptTestCase.java:198)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:109)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)

@@ -1,0 +1,9 @@
+While implementing counter support in Pig-on-Tez (PIG-3603), I made several changes to PigStats and JobStats classes. To avoid breaking backward compatibility between 0.13 and 0.13+, I'd like to commit this patch into trunk prior to 0.13 release.
+
+The changes include-
+
+	Move getHdfsBytes[Read|Written]() from MRPigStatsUtil to PigStatsUtil since these are not MR specific.
+	Move [MAP|REDUCE]_[IN|OUT]PUT_RECORDS from MRPigStatsUtil to PigStatsUtil since Tez MRInput and MROutput also use them.
+	Fix a typo in JobStats#getAvgREduceTime(): REduce -> Reduce.
+	Fix white spaces.
+

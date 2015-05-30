@@ -1,0 +1,3 @@
+CapitalizationFilterFactory in some cases uses termBuffer.length, which might be larger than the actual termBufferLength()
+
+this causes keep words to be evaluated incorrectly, but with the LUCENE-1762 the bug is exposed, because the default buffer size has changed.

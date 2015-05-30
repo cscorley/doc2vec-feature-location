@@ -1,0 +1,16 @@
+The below is my faulty script (note the usage of alias F) for which Pig 0.9 composes not so useful message as compared to 0.8;
+
+A = load 'input'  using TextLoader as (doc:chararray) ;
+B = foreach A generate flatten(TOKENIZE(doc)) as myword;
+C = group B by myword parallel 30;
+D = foreach C generate group,COUNT(B) as count,SIZE(group) as size;
+
+E = order D by size parallel 5;
+>F = limit F 20;
+dump F;
+
+For this script , error message in 0.9
+>ERROR org.apache.pig.tools.grunt.Grunt - ERROR 2240: LogicalPlanVisitor can only visit logical plan
+
+Error message in 0.8
+>ERROR 1000: Error during parsing. Unrecognized alias F

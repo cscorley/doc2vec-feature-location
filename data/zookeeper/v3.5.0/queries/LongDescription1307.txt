@@ -1,0 +1,14 @@
+use consoleClient (zkCli.sh) and issue setAcl /temp abc
+[zk: XX.XX.XX.XX:XXXX(CONNECTED) 17] setAcl /temp abc
+abc does not have the form scheme:id:perm
+Exception in thread "main" org.apache.zookeeper.KeeperException$InvalidACLException: KeeperErrorCode = InvalidACL
+        at org.apache.zookeeper.ZooKeeper.setACL(ZooKeeper.java:1172)
+        at org.apache.zookeeper.ZooKeeperMain.processZKCmd(ZooKeeperMain.java:717)
+        at org.apache.zookeeper.ZooKeeperMain.processCmd(ZooKeeperMain.java:582)
+        at org.apache.zookeeper.ZooKeeperMain.executeLine(ZooKeeperMain.java:354)
+        at org.apache.zookeeper.ZooKeeperMain.run(ZooKeeperMain.java:312)
+        at org.apache.zookeeper.ZooKeeperMain.main(ZooKeeperMain.java:271)
+linux-xxx:/zookeeper1/bin #
+
+if any InvalidACLException is thrown then client is exiting.
+client should be able to handle this kind of issues

@@ -1,0 +1,16 @@
+The plan exporter tool fails to produce well-formed output for the following query:
+
+ij> select * from sysibm.sysdummy1 where ibmreqd < 'Z';
+
+The generation of XML doesn't fail, but when I open the file in Firefox, I see this message:
+
+XML Parsing Error: not well-formed
+Location: file:///tmp/plan.xml
+Line Number 9, Column 11:
+
+Operator: <
+----------^
+
+HTML generation prints the following error, and produces an empty file:
+
+ERROR:  'The value of attribute "scan_qualifiers" associated with an element type "null" must not contain the '<' character.'

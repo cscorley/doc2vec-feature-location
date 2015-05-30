@@ -1,0 +1,17 @@
+Opening a JIRA issue for the following problem, originally posted to openjpa-dev mailing list. 
+
+I've run into tricky issue with Sequence tables on SQLServer.
+
+After some time during a stress test I get this exception when trying to update the sequence table:
+openjpa.jdbc.SQL: Trace: <t 25198719, conn 17636058> executing prepstmnt 4953425 SELECT SEQUENCE_VALUE FROM OPENJPA_SEQUENCE_TABLE WHERE ID = ? [params=(int) 0]
+. . .
+openjpa.jdbc.SQL: Trace: <t 25198719, conn 17636058> executing prepstmnt 19626156 UPDATE OPENJPA_SEQUENCE_TABLE SET SEQUENCE_VALUE = ? WHERE ID = ? AND SEQUENCE_VALUE = ? [params=(long) 48601, (int) 0, (long) 48551]
+. . .
+java.sql.SQLException: [IBM][SQLServer JDBC Driver][SQLServer]Transaction (Process ID 85) was deadlocked on lock resources with another process and has been chosen as the deadlock victim. Rerun the transaction.
+    at com.ibm.websphere.jdbc.base.BaseExceptions.createException(Unknown Source)
+    at com.ibm.websphere.jdbc.base.BaseExceptions.getException(Unknown Source)
+ . . .
+    at org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement.executeUpdate (DelegatingPreparedStatement.java:269)
+    at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection$LoggingPreparedStatement.executeUpdate(LoggingConnectionDecorator.java:856)
+
+I believe I'm hitting the exception because SQLServer doesn't support the FOR UPDATE clause. Normally the first SQL statement shown above would have locked the row preventing the deadlock. SQLServer does support the WITH (UPDLOCK) hint, but I haven't found a convenient way to isolate the change so that it only affects TableSequences.

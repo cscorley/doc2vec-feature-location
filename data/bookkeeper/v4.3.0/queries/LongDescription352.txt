@@ -1,0 +1,3 @@
+TestServers failed when running whole test. Because TestServers uses ServerStats instance directly. ServerStats is a static instance, which will be used across whole testing. so the numSuccessOps would not be zero, the assertion would fail.
+
+Same problem occurs in TestBKStats. TestBKStats doesn't fail because statistics is turned off by default. The value happened to be zero. But it still is not a good idea to use static instance during testing.

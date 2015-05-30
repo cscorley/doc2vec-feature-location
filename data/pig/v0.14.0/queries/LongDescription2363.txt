@@ -1,0 +1,12 @@
+For Pig scripts which has streaming commands , the stderr is saved into hdfs under _logs folder in the output directory.
+This behavior was not seen with Pig 0.8 by default, but from 0.9 onwards,  we are seeing _logs folder.
+Hence it would be nice to have a configuration to disable this feature.
+
+Sample script
+
+
+DEFINE mycmd `t.pl` ship ('t.pl');
+a = load 'i1' as (f1:chararray,f2:chararray);
+b = stream a through mycmd;
+store b into 'output';
+

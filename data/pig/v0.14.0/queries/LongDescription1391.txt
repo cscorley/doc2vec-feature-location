@@ -1,0 +1,2 @@
+Pig unit test runs leave behind files in temp dir (/tmp) and there are too many files in the directory over time.
+Most of the files are left behind by MiniCluster . It closes/shutsdown MiniDFSCluster, MiniMRCluster and the FileSystem that it has created when the constructor is called, only in finalize(). And java does not guarantee that finalize() will be called. 

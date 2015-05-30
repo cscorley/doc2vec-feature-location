@@ -1,0 +1,3 @@
+Currently, user supplied Detectors are preferred over built in ones, via logic in DefaultDetector. This allows users to easily add their own detectors which are used in preference, as well as making it easy to override the built in ones.
+
+However, there is no such logic for Parsers. Instead, the last parser in the DefaultParser / CompositeParser list for a given mimetype will be used (the map only holds one entry, so last in wins). This makes it hard for users to override the parser for a type that the builtin parsers support, as it isn't predictable where in the list parsers will go

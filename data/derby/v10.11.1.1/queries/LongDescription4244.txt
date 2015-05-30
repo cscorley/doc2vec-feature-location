@@ -1,0 +1,38 @@
+While working with Eranda on DERBY-4187, I stumbled across an apparent ALTER TABLE bug.
+
+Here's a script which reproduces the problem for me:
+
+autocommit off;
+create table t0(c1 int not null constraint p1 primary key);
+alter table t0 add column c1 int;
+alter table t0 add column c2 int not null default 0 primary key;
+alter table t0 add column c2 int not null default 0;
+
+The "autocommit off" is crucial; otherwise the problem does not reproduce.
+
+Here's the detailed assertion failure:
+
+2009-05-23 15:01:17.436 GMT Thread[main,5,main] (XID = 146), (SESSIONID = 1), (DATABASE = brydb), (DRDAID = null), Failed Statement is: alter table t0 add column c2 int not null default 0
+org.apache.derby.shared.common.sanity.AssertFailure: ASSERT FAILED column_id = 1format_ids.length = 2format_ids = [I@1321f5
+        at org.apache.derby.shared.common.sanity.SanityManager.THROWASSERT(SanityManager.java:162)
+        at org.apache.derby.shared.common.sanity.SanityManager.THROWASSERT(SanityManager.java:147)
+        at org.apache.derby.impl.store.access.heap.Heap.addColumn(Heap.java:418)
+        at org.apache.derby.impl.store.access.RAMTransaction.addColumnToConglomerate(RAMTransaction.java:618)
+        at org.apache.derby.impl.sql.execute.AlterTableConstantAction.addNewColumnToTable(AlterTableConstantAction.java:1325)
+        at org.apache.derby.impl.sql.execute.AlterTableConstantAction.executeConstantAction(AlterTableConstantAction.java:449)
+
+Here's the relevant section of Heap.java:
+
+            if (column_id != format_ids.length)
+            {
+                if (SanityManager.DEBUG)
+                    SanityManager.THROWASSERT(
+                        "column_id = " + column_id +
+                        "format_ids.length = " + format_ids.length +
+                        "format_ids = " + format_ids);
+
+                throw(StandardException.newException(
+                        SQLState.HEAP_TEMPLATE_MISMATCH,
+                        new Long(column_id),
+                        new Long(this.format_ids.length)));
+            }

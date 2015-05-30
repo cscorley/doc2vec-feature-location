@@ -1,0 +1,41 @@
+I have written a parser that extracts text and metadata from ENVI header files, currently called at the command line as: 
+
+abryant:tika abryant$ java -classpath annie-envi-parser.jar:tika-app/target/tika-app-1.6-SNAPSHOT.jar org.apache.tika.cli.TikaCLI --metadata MOD09GA_test_header.hdr
+
+   Content-Encoding: ISO-8859-1
+   Content-Length: 818
+   Content-Type: application/envi.hdr
+   resourceName: MOD09GA_test_header.hdr
+
+abryant:tika abryant$ java -classpath annie-envi-parser.jar:tika-app/target/tika-app-1.6-SNAPSHOT.jar org.apache.tika.cli.TikaCLI --text MOD09GA_test_header.hdr
+
+ENVI
+description = 
+{
+  GEO-TIFF File Imported into ENVI [Fri May 25 14:06:23 2012]}
+samples = 2400
+lines   = 2400
+bands   = 7
+header offset = 0
+file type = ENVI Standard
+data type = 2
+interleave = bip
+sensor type = Unknown
+byte order = 0
+map info = 
+{Sinusoidal, 1.5000, 1.5000, -10007091.3643, 5559289.2856, 4.6331271653e+02, 4.6331271653e+02, , units=Meters}
+projection info = 
+{16, 6371007.2, 0.000000, 0.0, 0.0, Sinusoidal, units=Meters}
+coordinate system string = 
+{PROJCS["Sinusoidal",GEOGCS["GCS_ELLIPSE_BASED_1",DATUM["D_ELLIPSE_BASED_1",SPHEROID["S_ELLIPSE_BASED_1",6371007.181,0.0]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Sinusoidal"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],UNIT["Meter",1.0]]}
+wavelength units = Unknown
+
+______________
+
+As a current non-certified committer, could someone enlighten me to the steps needed to submit this new parser for review.  
+
+The parser is located in my directory structure as: 
+/users/annbryant/tika/tika/anniedev/src/main/java/edu/usc/sunset/abburgess/tika/EnviFileReader.class
+
+My custom mimetypes.xml file is located at: /Users/annbryant/TIKA/tika/anniedev/src/main/resources/org/apache/tika/mime/custom-mimetypes.xml
+

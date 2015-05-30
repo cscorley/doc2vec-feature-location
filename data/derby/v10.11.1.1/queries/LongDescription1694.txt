@@ -1,0 +1,8 @@
+The testProperties.execCmd() is used to fork a JVM and not handle its
+streams. This will cause problems, as indicated by the javadoc for Process.
+
+"The parent process uses these streams to feed input to and get output
+from the subprocess. Because some native platforms only provide limited
+buffer size for standard input and output streams, failure to promptly
+write the input stream or read the output stream of the subprocess may
+cause the subprocess to block, and even deadlock"

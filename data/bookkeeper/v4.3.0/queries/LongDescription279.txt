@@ -1,0 +1,10 @@
+LocalBookKeeper is initializing the zkclient and immediately trying to create "/ledgers" and "/ledgers/available" znodes without waiting for the ZooKeeper SyncConnected state. The client operation should be guarded with ZKConnectionWatcher.
+
+LocalBookKeeper.java
+
+zkc = new ZooKeeper("127.0.0.1", ZooKeeperDefaultPort, new emptyWatcher());
+/*	User for testing purposes, void */
+static class emptyWatcher implements Watcher {
+public void process(WatchedEvent event) {}
+}
+

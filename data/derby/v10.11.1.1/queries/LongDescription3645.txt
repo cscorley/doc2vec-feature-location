@@ -1,0 +1,74 @@
+The following code which inserts into a table by selecting a blob column twice from another table, causes SQLException: Restore of a serializable or SQLData object of class error selecting from the table. See attached program DoubleInsertInto for full repro.  Stack trace is below.  Verified back to 10.3 but probably goes back further.
+
+
+
+        s.executeUpdate("CREATE TABLE T_MAIN(" +
+                "ID INT  GENERATED ALWAYS AS IDENTITY PRIMARY KEY, " +
+                "V BLOB(590473235) )");
+
+        String ins1 = "INSERT INTO T_MAIN(V) VALUES ";
+
+        PreparedStatement ps;
+        ps = c.prepareStatement(ins1);
+	byte[] bytes = new byte[35000];
+	for (int i = 0; i < 35000; i++)
+	    bytes[i] = (byte) i ;
+	ps.setBytes(1, bytes);
+        ps.executeUpdate();
+        ps.close();
+
+	s.executeUpdate("CREATE TABLE T_COPY ( V1 BLOB(2M), V2 BLOB(2M))");
+
+	Statement stmt = c.createStatement();
+	stmt.executeUpdate("INSERT INTO T_COPY SELECT  V, V FROM T_MAIN");
+	ResultSet rs = stmt.executeQuery("SELECT * FROM T_COPY");
+	rs.next();
+	String v1 = rs.getString(1);
+	String v2 = rs.getString(2);
+	System.out.println("v1:" + v1);
+	System.out.println("v2:" + v2);
+	System.out.println("I am done");
+
+Exception in thread "main" java.sql.SQLException: Restore of a serializable or SQLData object of class , attempted to re
+ad more data than was originally stored
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:95)
+        at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Util.java:87)
+        at org.apache.derby.impl.jdbc.Util.seeNextException(Util.java:223)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:398)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:346)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:2125)
+        at org.apache.derby.impl.jdbc.ConnectionChild.handleException(ConnectionChild.java:81)
+        at org.apache.derby.impl.jdbc.EmbedResultSet.closeOnTransactionError(EmbedResultSet.java:4320)
+        at org.apache.derby.impl.jdbc.EmbedResultSet.movePosition(EmbedResultSet.java:463)
+        at org.apache.derby.impl.jdbc.EmbedResultSet.next(EmbedResultSet.java:367)
+        at DoubleInsertInto.main(DoubleInsertInto.java:47)
+Caused by: java.sql.SQLException: Restore of a serializable or SQLData object of class , attempted to read more data tha
+n was originally stored
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(SQLExceptionFactory40.java:11
+9)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:70)
+        ... 10 more
+Caused by: java.sql.SQLException: Java exception: ': java.io.EOFException'.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(SQLExceptionFactory40.java:11
+9)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:70)
+        at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Util.java:87)
+        at org.apache.derby.impl.jdbc.Util.javaException(Util.java:244)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:403)
+        ... 8 more
+Caused by: java.io.EOFException
+        at org.apache.derby.iapi.types.SQLBinary.readBinaryLength(SQLBinary.java:350)
+        at org.apache.derby.iapi.types.SQLBinary.readExternalFromArray(SQLBinary.java:328)
+        at org.apache.derby.impl.store.raw.data.StoredPage.readRecordFromArray(StoredPage.java:5568)
+        at org.apache.derby.impl.store.raw.data.StoredPage.restoreRecordFromSlot(StoredPage.java:1497)
+        at org.apache.derby.impl.store.raw.data.BasePage.fetchFromSlot(BasePage.java:459)
+        at org.apache.derby.impl.store.access.conglomerate.GenericScanController.fetchRows(GenericScanController.java:75
+9)
+        at org.apache.derby.impl.store.access.heap.HeapScan.fetchNextGroup(HeapScan.java:324)
+        at org.apache.derby.impl.sql.execute.BulkTableScanResultSet.reloadArray(BulkTableScanResultSet.java:327)
+        at org.apache.derby.impl.sql.execute.BulkTableScanResultSet.getNextRowCore(BulkTableScanResultSet.java:282)
+        at org.apache.derby.impl.sql.execute.BasicNoPutResultSetImpl.getNextRow(BasicNoPutResultSetImpl.java:460)
+        at org.apache.derby.impl.jdbc.EmbedResultSet.movePosition(EmbedResultSet.java:423)
+        ... 2 more

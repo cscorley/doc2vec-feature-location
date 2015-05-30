@@ -1,0 +1,45 @@
+Consider the Pig script with the error that a String with double quotes 
+
+"www\\."
+
+ is used instead of a single quote 
+
+'www\\.'
+
+ in the UDF string.REPLACEALL()
+
+
+
+register string-2.0.jar;
+A = load 'inputdata' using PigStorage() as ( curr_searchQuery );
+
+B = foreach A {
+        domain = string.REPLACEALL(curr_searchQuery,"^www\\.",'');
+        generate
+        domain;
+        };
+
+dump B;
+
+
+
+I get the following error message where "Line 11" points to the end of file. The error message should point to "Line 5".
+===================================================================================================================================
+2009-03-31 01:33:38,403 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to hadoop file system at: hdfs://localhost:9000
+2009-03-31 01:33:39,168 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to map-reduce job tracker at: localhost:9001
+2009-03-31 01:33:39,589 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1000: Error during parsing. Lexical error at line 11, column 0.  Encountered: <EOF> after : ""
+Details at logfile: /home/viraj/pig-svn/trunk/pig_1238463218046.log
+===================================================================================================================================
+
+
+The log file contains the following contents
+===================================================================================================================================
+ERROR 1000: Error during parsing. Lexical error at line 11, column 0.  Encountered: <EOF> after : ""
+org.apache.pig.tools.pigscript.parser.TokenMgrError: Lexical error at line 11, column 0.  Encountered: <EOF> after : ""
+        at org.apache.pig.tools.pigscript.parser.PigScriptParserTokenManager.getNextToken(PigScriptParserTokenManager.java:2739)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.jj_ntk(PigScriptParser.java:778)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:89)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:99)
+        at org.apache.pig.tools.grunt.Grunt.exec(Grunt.java:88)
+        at org.apache.pig.Main.main(Main.java:352)
+===================================================================================================================================

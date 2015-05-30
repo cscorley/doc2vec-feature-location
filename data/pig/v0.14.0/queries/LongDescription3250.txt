@@ -1,0 +1,37 @@
+step to reproduce it:
+1. input files 'users'
+
+1
+2
+3
+4
+5
+
+
+
+2. pig script split.pig
+
+define group_and_count (A,key) returns B {
+    SPLIT $A INTO $B IF $key<7, Y IF $key==5, Z OTHERWISE;
+}
+alpha = load '/var/lib/jenkins/users' as (f1:int);
+gamma = group_and_count (alpha, f1);
+store gamma into '/var/lib/jenkins/byuser';
+
+
+
+3. run command
+
+pig -x local -r split.pig
+
+
+
+4. the content of split.pig.expanded
+
+alpha = load '/var/lib/jenkins/users' as f1:int;
+SPLIT alpha INTO gamma IF f1 < 7, macro_group_and_count_Y_0 IF f1 == 5OTHERWISE macro_group_and_count_Z_0;
+store gamma INTO '/var/lib/jenkins/byuser';
+
+
+
+the line "....f1 == 5OTHERWISE macro_group_and_count_Z_0;" is wrong, it should be "f1 == 5, macro_group_and_count_Z_0 OTHERWISE"

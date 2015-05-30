@@ -1,0 +1,22 @@
+When extracting content from PDFs, PDF form data isn't extracted. 
+
+The following code extracts this data via PDF box, but it seems like something Tika should be doing.
+
+PDDocumentCatalog docCatalog = load.getDocumentCatalog();
+if (docCatalog != null) {
+  PDAcroForm acroForm = docCatalog.getAcroForm();
+  if (acroForm != null) {
+	@SuppressWarnings("unchecked")
+	List<PDField> fields = acroForm.getFields();
+	if (fields != null && fields.size() > 0) {
+	  documentContent.append(" ");
+	  for (PDField field : fields) {
+		if (field.getValue()!=null) 
+{
+		  documentContent.append(field.getValue());
+		  documentContent.append(" ");
+		}
+	  }
+	}
+  }
+}

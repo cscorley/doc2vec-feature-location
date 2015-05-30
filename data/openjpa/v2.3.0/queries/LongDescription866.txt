@@ -1,0 +1,12 @@
+Per Alan Raison's post to the dev mailing list there appears to be a problem with trimming table names when SynchronizeMappings is used. 
+
+Here's the email that started the conversation : 
+I have been writing a DBDictionary for the Ingres database and have been running the test cases.  Ingres supports 32 character table names, and this has been set in the dictionary.  However some tests have hit an error whereby the table name is too long for the database.
+
+I notice in the DBDictionary class there is a method called "getValidTableName" but this clearly isn't being used since it is trying to use a table name which is too long.  Other databases (such as Oracle) also have quite a short maximum length for table names, so this problem must be able to overcome, but I can't see anything in other Dictionary classes.
+
+Is there anything special I should be doing to run the tests?  I am currently running through mvn test.
+
+My draft DBDictionary class is attached along with a sample surefire report (with my username and password removed!)
+
+The full thread can be seen here : http://n2.nabble.com/OpenJPA-1.2.0-Test-Cases---Table-Name-too-Long-td2197132.html

@@ -1,0 +1,14 @@
+Pig should provide a function to format output using java.util.Formatter (printf-style) templates.
+
+
+
+SPRINTF(
+    '%6s|%-8s|%2$,10d %2$8x %3$1TFT%<tT%<tz', 
+    'yay', 1234567, ToMilliSeconds(CurrentTime()))
+--  '   yay|1234567 | 1,234,567   12d687 2014-05-15T08:22:26-0500'
+
+
+
+I've written a UDF implementing SPRINTF(...), a variable-arguments function that accepts a string and any number of objects and returns a string. It counts on the java.util.Formatter to do its type-conversion, which works quite well. It doesn't appreciates pig's Dates for datetime formats ('%t'), but is quite happy to use epoch milliseconds for these as shown above.
+
+Patch forthcoming.

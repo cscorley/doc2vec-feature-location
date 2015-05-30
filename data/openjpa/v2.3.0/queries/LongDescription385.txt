@@ -1,0 +1,28 @@
+When finding and parsing files via the classpath, we're hitting a situation where an invalid .class file is in the classpath.  Although the files in question have the .class suffix, they do not have valid .class format.  Not only are we blowing up via the serp utilities, but neither jad nor javap can recognize the files either.  Here's the call stack that is produced:
+
+Exception in thread "main" java.lang.ClassFormatError: COM/ibm/db2os390/sqlj/custom/DB2SQLJCustomizer.class
+        at org.apache.openjpa.lib.meta.ClassAnnotationMetaDataFilter.matches(ClassAnnotationMetaDataFilter.java:89)
+        at org.apache.openjpa.lib.meta.ZipFileMetaDataIterator.hasNext(ZipFileMetaDataIterator.java:79)
+        at org.apache.openjpa.lib.meta.MetaDataIteratorChain.hasNext(MetaDataIteratorChain.java:76)
+        at org.apache.openjpa.lib.meta.ClassArgParser.mapTypeNames(ClassArgParser.java:277)
+        at org.apache.openjpa.meta.AbstractCFMetaDataFactory.scan(AbstractCFMetaDataFactory.java:713)
+        at org.apache.openjpa.meta.AbstractCFMetaDataFactory.getPersistentTypeNames(AbstractCFMetaDataFactory.java:583)
+        at org.apache.openjpa.meta.MetaDataRepository.getPersistentTypeNames(MetaDataRepository.java:1190)
+        at org.apache.openjpa.meta.MetaDataRepository.loadPersistentTypes(MetaDataRepository.java:1207)
+        at org.apache.openjpa.jdbc.meta.MappingTool.run(MappingTool.java:1002)
+        at org.apache.openjpa.jdbc.meta.MappingTool.run(MappingTool.java:977)
+        at org.apache.openjpa.jdbc.meta.MappingTool.main(MappingTool.java:918)
+Caused by: java.lang.ArrayIndexOutOfBoundsException
+        at serp.bytecode.lowlevel.ConstantPoolTable.readByte(ConstantPoolTable.java:106)
+        at serp.bytecode.lowlevel.ConstantPoolTable.readUnsignedShort(ConstantPoolTable.java:114)
+        at serp.bytecode.lowlevel.ConstantPoolTable.readUnsignedShort(ConstantPoolTable.java:184)
+        at org.apache.openjpa.lib.meta.ClassAnnotationMetaDataFilter.matches(ClassAnnotationMetaDataFilter.java:67)
+        ... 10 more
+
+As you can see, the file in question is actually coming from the db2jcc.jar.  Although I could pursue why these files do not have the correct format, I'm proposing that we become more lenient in our "matches" logic.  Right now, we are throwing this IOOB exception.  This seems too harsh, especially since we just return "false" for any other indication that the resource is not an "interesting" class file with appropriate annotations.  In my mind, this invalid class file should just be treated as if it didn't have the .class suffix.
+
+So, instead of the current exception throwing processing, I would like to change to just log a trace message.  We already log an Info message for all of the files that we do process.  And, logging an info message for a bad class format might just cause confusion (much like this exception throwing).  Thus, I would like to just log a trace message with the appropriate information and return "false" on this matches() invocation.
+
+Any problems with this approach?  I've looked at the caller's of this method and nobody is expecting to get the ClassFormatException or IOOB exception (unexpected runtime exception), so just logging and eating the exception and returning false looks safe.
+
+Kevin

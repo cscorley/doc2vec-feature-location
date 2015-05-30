@@ -1,0 +1,55 @@
+I've seen the following failure when running the largedata suite:
+
+(emb)largedata.Derby5624Test.testDERBY_5624 used 518403 ms .
+(emb)largedata.LobLimitsTest.test_01_Blob used 2422 ms .
+(emb)largedata.LobLimitsTest.test_02_BlobNegative used 31 ms .
+(emb)largedata.LobLimitsTest.test_03_Clob1 used 2375 ms .
+(emb)largedata.LobLimitsTest.test_04_Clob2 used 3234 ms .
+(emb)largedata.LobLimitsTest.test_05_ClobNegative used 516 ms .
+(net)largedata.LobLimitsTest.test_01_Blob used 5360 ms .
+(net)largedata.LobLimitsTest.test_02_BlobNegative used 32 ms .
+(net)largedata.LobLimitsTest.test_03_Clob1 used 2078 ms .
+(net)largedata.LobLimitsTest.test_04_Clob2 used 2390 ms .
+(net)largedata.LobLimitsTest.test_05_ClobNegative used 938 ms .
+(emb)largedata.LobLimitsTest.test_01_Blob used 9188238 ms .
+(emb)largedata.LobLimitsTest.test_02_BlobNegative used 109 ms .
+(emb)largedata.LobLimitsTest.test_03_Clob1 used 8116714 ms .
+(emb)largedata.LobLimitsTest.test_04_Clob2 used 2164002 ms .
+(emb)largedata.LobLimitsTest.test_05_ClobNegative used 685745 ms E
+Time: 22,320.138
+There was 1 error:
+1) LobLimitsTestjava.sql.SQLException: Table/View 'BLOBTBL' already exists in Schema 'APP'.
+	at org.apache.derby.client.am.SQLExceptionFactory40.getSQLException(Unknown Source)
+	at org.apache.derby.client.am.SqlException.getSQLException(Unknown Source)
+	at org.apache.derby.client.am.Statement.execute(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.largedata.LobLimitsTest.setupTables(LobLimitsTest.java:107)
+	at org.apache.derbyTesting.functionTests.tests.largedata.LobLimitsTest$1.decorateSQL(LobLimitsTest.java:141)
+	at org.apache.derbyTesting.junit.CleanDatabaseTestSetup.setUp(CleanDatabaseTestSetup.java:112)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:20)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+Caused by: org.apache.derby.client.am.SqlException: Table/View 'BLOBTBL' already exists in Schema 'APP'.
+	at org.apache.derby.client.am.Statement.completeSqlca(Unknown Source)
+	at org.apache.derby.client.am.Statement.completeExecuteImmediate(Unknown Source)
+	at org.apache.derby.client.net.NetStatementReply.parseEXCSQLIMMreply(Unknown Source)
+	at org.apache.derby.client.net.NetStatementReply.readExecuteImmediate(Unknown Source)
+	at org.apache.derby.client.net.StatementReply.readExecuteImmediate(Unknown Source)
+	at org.apache.derby.client.net.NetStatement.readExecuteImmediate_(Unknown Source)
+	at org.apache.derby.client.am.Statement.readExecuteImmediate(Unknown Source)
+	at org.apache.derby.client.am.Statement.flowExecute(Unknown Source)
+	at org.apache.derby.client.am.Statement.executeX(Unknown Source)
+	... 26 more
+
+Unfortunately, when this happens, there seems to be no 'fail' directory created. The derby.log in the system directory looks very innocent (just some start up and shutting down of the database), and the serverConsoleOutput.log only has the typical 'failed to find db 'wombat' messages'.
+
+Note, when this happens, the suite exits, so that instead of the expected 20 (or 21 on windows, see DERBY-5624 for reason for skipping on Linux default installs with 1024 max open files) we only get 15 (or 16) tests run - if the test doesn't fail it goes on to run the last 5 fixtures again for network server.

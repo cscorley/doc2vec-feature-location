@@ -1,0 +1,7 @@
+If ClientThread hits an SSLException exception it will call NetworkServerControlImpl.directShutdown().
+
+DERBY-2109 added privilege checking to directShutdown() that includes authentication.
+
+I can't see how this call by ClientThread can be valid. Authentication is not required to start the network server, thus a NetworkServerControl with no user,password may be used and thus passed onto directShutdown() failing authentication and then failing to perform the failed shutdown?
+
+I think the error was adding the privilege check in DERBY-2109, it looks like this method is for use only within the network server (actually this is the only use of it), maybe the correct security mechanism would have been to make the method package private?

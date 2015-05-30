@@ -1,0 +1,17 @@
+When loading the snapshot, ZooKeeper will consider only the 'snapshots with atleast 10 bytes size'. Otherwsie it will ignore and just return without closing the RandomAccessFile.
+
+
+Util.isValidSnapshot() having the following logic. 
+       // Check for a valid snapshot
+        RandomAccessFile raf = new RandomAccessFile(f, "r");
+        // including the header and the last / bytes
+        // the snapshot should be atleast 10 bytes
+        if (raf.length() < 10) {
+            return false;
+        }
+
+
+
+Since the snapshot file validation logic is outside try block, it won't go to the finally block and will be leaked.
+
+Suggestion: Move the validation logic to the try/catch block.

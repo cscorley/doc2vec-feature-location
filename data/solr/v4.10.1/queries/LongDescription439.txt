@@ -1,0 +1,8 @@
+The SolrInputDocument currently uses a Map for storing the names of Fields.  While in general this is fine, there are cases where it is important to preserve the ordering of Fields as Lucene does.  For instance, some applications may only need to return certain fields w/ the results, in which case some optimization could be attained by having them occur first in the document so that Lucene doesn't have to skip over other Fields (if using the FieldSelector to restrict what Fields get loaded)
+
+Also, in some cases it is possible to setup Analyzers that coordinate results between Fields by using the TeeTokenFilter (see LUCENE-1058 and http://www.gossamer-threads.com/lists/lucene/java-dev/55927) thus saving on indexing time.
+
+Simply changing line 42 of SolrInputDocument to:
+_fields = new LinkedHashMap<String,SolrInputField>();
+
+should do the trick.  This requires no interface changes, etc. and should be back-compatible.

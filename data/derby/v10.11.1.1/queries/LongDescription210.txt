@@ -1,0 +1,28 @@
+Network server will not garbage collect prepared statements that are not explicitly closed by the user.  So  a loop like this will leak.
+
+...
+PreparedStatement ps;
+
+ for (int i = 0 ; i  < numPs; i++)
+	{
+
+	 ps = conn.prepareStatement(selTabSql);
+	 rs =ps.executeQuery();
+
+	 while (rs.next())
+	{
+	    rs.getString(1);
+	}
+	rs.close();
+	// I'm a sloppy java programmer
+	//ps.close();
+
+	}
+
+To reproduce run the attached program 
+java derbyStress
+
+Both client and server will grow until the connection is closed.
+
+
+It is likely that the fix for this will have to be in the client.  The client does not send protocol to close the prepared statement, but rather reuses the PKGNAMCSN on the PRPSQLSTT request once the prepared statement has been closed. This is how the server knows to close the old statement and create a new one.

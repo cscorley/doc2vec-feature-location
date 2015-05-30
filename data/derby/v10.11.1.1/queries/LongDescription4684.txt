@@ -1,0 +1,7 @@
+Via a UNION query, it is possible to implicitly cast non-BOOLEAN types to BOOLEAN today. These implicit casts do not obey the SQL Standard rules defined in part 2, section 6.12 (<cast specification>). Derby should support the Standard rules.
+
+The following query shows how you can implicitly cast a non-BOOLEAN data type to BOOLEAN today:
+
+select isindex from sys.sysconglomerates where conglomeratename = 'foo'
+union
+values ( 1 )

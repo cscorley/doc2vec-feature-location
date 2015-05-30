@@ -1,0 +1,8 @@
+I've observed an inconsistent behavior in java client watches. The inconsistency relates to the behavior after the client reconnects to the zookeeper ensemble.
+
+After the client reconnects to the ensemble only those watches should trigger which should have been triggered also if the connections was not lost. This means if I watch for changes in node /foo and there is no change there than my watch should not be triggered on reconnecting to the ensemble.
+This is not always the case in the java client.
+
+I've debugged the issues and I could locate the case when the watch is always triggered on reconnect. This is consistently happening if I connect to a follower in the ensemble and I don't do any operation which goes through the leader.
+Looking at the code I see that the client stores the lastzxid and sends that with its request. This is 0 on startup and will be updated everytime from the server replies. This lastzxid is also sent to the server after reconnect together with watches. The server decides which watch to trigger based on this lastzxid probably because that should mean the last known state of the client. If this lastzxid is 0 than all the watches are triggered.
+I've checked why is this lastzxid 0. I thought it shouldn't be since there was already a request to the server to set the watch and in the reply the server could have sent back the zxid but it turns out that it sends just 0. Looking at the server code I see that for requests which doesn't go through the leader the follower server just sends back the same zxid that the client sent.

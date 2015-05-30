@@ -1,0 +1,14 @@
+When installing a jar file with the SQLJ.INSTALL_JAR procedure, it will copy the jar file to a subdirectory of the database directory. The name of the stored jar file is based on the qualified name specified by the second parameter in the procedure, and becomes something like: <DBDIR>/jar/<SCHEMA>/<JAR_NAME>.jar.<VERSION>
+
+This naming scheme is problematic because the qualified name of the jar file is an SQL identifier and may contain any characters, also characters with special meaning to the underlying file system.
+
+One example is this call:
+
+ij> call sqlj.install_jar('/path/to/toursdb.jar', 'APP."../../../x/jar"', 0);
+0 rows inserted/updated/deleted
+
+On Unix-like systems, this will install the jar in a subdirectory of the database directory's parent directory, which is clearly unfortunate as the database directory should be self-contained (an assumption used when taking backup of a database using operating system commands, or when moving the database to another location).
+
+There's probably also a possibility that INSTALL_JAR fails if the identifier contains a character that's not allowed in file names on the platform.
+
+It would be better if the jars were stored in a file whose name is independent of the identifier used, so that any valid SQL identifier could be used to name a jar file in the database without causing problems.

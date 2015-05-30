@@ -1,0 +1,9 @@
+am.Connection.reset(LogWriter,ClientBaseDataSource,boolean) isn't called and can be removed.
+Further, the following methods are only called from the reset(3):
+
+	abstract Connection.reset_(3) and impl NetConnection.reset_(3)
+	NetConnection.resetNetConnection(3)
+
+
+
+All these methods have cousins taking 4 arguments, which are being used by on one occasion: ClientPooledConnection.getConnection().

@@ -1,0 +1,6 @@
+A MapsId annotation in entity C (child) annotates a field p of type P (parent). P uses auto-generated identity. 
+P-C is a bidirectional parent-child relationship.
+
+During flush sequence, A row is created for P and flushed for the database to assign an identity. When C is flushed, it wrongly creates a row for P again while handling the field p that points to parent.
+
+Of course, the commit breaks with a DuplicateKeyException on P's table. 

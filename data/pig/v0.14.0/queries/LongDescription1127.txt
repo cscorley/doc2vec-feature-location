@@ -1,0 +1,12 @@
+Currently some logical operator only contains a schema reference to the predecessor's schema object. These logical operators include: LOSplitOutput, LOLimit, LOSplit, LOFilter, LOSort, LODistinct, LOUnion. It is ok in the before because we do not change schema object once it is set. Now with the column pruner (PIG-922), we need to change individual schema object so it is no longer acceptable. For example, the following script fail:
+
+
+
+a = load '1.txt' as (a0, a1:map[], a2);
+b = foreach a generate a1;
+c = limit b 10;
+dump c;
+
+
+
+We need to fix it.

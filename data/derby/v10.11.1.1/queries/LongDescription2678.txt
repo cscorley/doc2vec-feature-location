@@ -1,0 +1,6 @@
+The collation methods in Derby should follow the rules defined by SQL spec in Section 9.13 Collation determination Syntax Rules 2 and 3e. 
+
+According to those rules, 
+1)at least one operand shall have a declared type collation (that means if the comparison is sysChar1|userChar1 > sysChar2|userChar2, then such a comparison will fail because both sides of > operator have collation derivation of NONE. But if the comparison is sysChar|userChar1 > sysChar2, then it shouldn't fail because although the left hand operand has collation derivation of NONE, the right hand operand has collation derivation of IMPLICIT and hence the comparison is possible). 
+2)every operand whose collation derivation is IMPLICIT shall have the same declared type collation (that means if the comparison is sysChar1 > userChar1WithTerritoryBasedCollation, then such a comparison will fail because left operand has collation derivation as IMPLICIT and collation type as UCS_BASIC and the right operand has collation derivation IMPLICIT and collation type as TERRITORY_BASED. But if the comparison is sysChar1 > sysChar2, then comparison won't fail because both the operands have same collation derivation and type.) 
+

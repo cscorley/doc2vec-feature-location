@@ -1,0 +1,9 @@
+Currently, the Embedded Driver supports Statement.setQueryTimeout(), but the Client Driver does not. The Client Driver should be enhanced and match the Embedded Driver.
+
+For this, we need to transfer the timeout value from the client to the server, preferably without a separate round-trip. I have some loose thoughts on how to do this:
+
+
+	If the client has set a timeout value for a statement, prepend the (DRDA) EXCSQLSTT command with an EXCSQLSET command which contains the timeout value; conceptually a "SET STATEMENT TIMEOUT <seconds>" (this does not mean that we need to extend the Derby grammar; only the Network Server needs to understand this DRDA EXCSQLSET command).
+	In DRDAConnThread.parseEXCSQLSETobjects() on the server side, recognize the "SET STATEMENT TIMEOUT" text, parse the timeout value and remember it for the coming EXCSQLSTT command. Do NOT invoke executeUpdate() with the SET statement [see note below].
+	In DRDAConnThread.parseEXCSQLSTT(), check if a timeout value has been set; if so, use it (by setting the timeout value on the server-side Statement object before calling execute/executeQuery).
+

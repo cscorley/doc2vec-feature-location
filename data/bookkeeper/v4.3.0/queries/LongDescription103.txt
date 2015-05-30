@@ -1,0 +1,29 @@
+this case is found when openLedger using a wrong password.
+
+openLedger uses wrong password to do recovery, so the addEntry in bookie server will fail.
+Then bookie server will sent a response with wrong ledgerId and entryId.
+And openLedger can't receive response with right ledgerId and entryId, the program will hang there.
+
+--------- log messages ---------------
+
+
+2011-11-04 13:37:58,271 - DEBUG - [pool-55-thread-1:PerChannelBookieClient@495] - Got response for read request from bookie: /10.82.129.91:5000 for ledger: 1 entry: -1 rc: 0entry length: 59
+2011-11-04 13:37:58,269 - DEBUG - [NIOServerFactory:BookieServer@185] - Received new read request: 1, -1
+2011-11-04 13:37:58,273 - DEBUG - [NIOServerFactory:BookieServer@189] - ##### Read entry ##### 59
+2011-11-04 13:37:58,273 - DEBUG - [NIOServerFactory:BookieServer@220] - Sending response for: -1, 'J####ookKeeper is cool!
+2011-11-04 13:37:58,273 - DEBUG - [pool-55-thread-1:PerChannelBookieClient@495] - Got response for read request from bookie: /10.82.129.91:5002 for ledger: 1 entry: -1 rc: 0entry length: 59
+2011-11-04 13:37:58,273 - DEBUG - [pool-55-thread-1:PendingReadOp@77] - Acquiring lock: 29
+2011-11-04 13:37:58,269 - DEBUG - [New I/O client worker #8-3:PerChannelBookieClient$3@280] - Successfully wrote request for reading entry: -1 ledger-id: 1 bookie: /10.82.129.91:5001
+2011-11-04 13:37:58,274 - DEBUG - [New I/O client worker #8-3:PerChannelBookieClient$3@280] - Successfully wrote request for reading entry: 29 ledger-id: 1 bookie: /10.82.129.91:5001
+2011-11-04 13:37:58,274 - DEBUG - [NIOServerFactory:BookieServer@185] - Received new read request: 1, 29
+2011-11-04 13:37:58,274 - DEBUG - [NIOServerFactory:BookieServer@189] - ##### Read entry ##### 59
+2011-11-04 13:37:58,275 - DEBUG - [NIOServerFactory:BookieServer@220] - Sending response for: 29, :###BookKeeper is cool!
+2011-11-04 13:37:58,275 - DEBUG - [pool-55-thread-1:PerChannelBookieClient@495] - Got response for read request from bookie: /10.82.129.91:5001 for ledger: 1 entry: -1 rc: 0entry length: 59
+2011-11-04 13:37:58,275 - DEBUG - [pool-55-thread-1:PerChannelBookieClient@495] - Got response for read request from bookie: /10.82.129.91:5001 for ledger: 1 entry: 29 rc: 0entry length: 59
+2011-11-04 13:37:58,275 - DEBUG - [pool-55-thread-1:PendingReadOp@147] - Releasing lock: 29
+2011-11-04 13:37:58,276 - DEBUG - [New I/O client worker #8-3:PerChannelBookieClient$2@245] - Successfully wrote request for adding entry: 29 ledger-id: 1 bookie: /10.82.129.91:5001 entry length: 59
+2011-11-04 13:37:58,276 - DEBUG - [New I/O client worker #8-1:PerChannelBookieClient$2@245] - Successfully wrote request for adding entry: 29 ledger-id: 1 bookie: /10.82.129.91:5000 entry length: 59
+2011-11-04 13:37:58,277 - ERROR - [NIOServerFactory:BookieServer@179] - Unauthorized access to ledger 1155778282460938774
+2011-11-04 13:37:58,286 - ERROR - [NIOServerFactory:BookieServer@179] - Unauthorized access to ledger 1155778282460938774
+
+ledger id should be 1 but when it is 1155778282460938774

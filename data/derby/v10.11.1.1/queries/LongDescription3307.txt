@@ -1,0 +1,4 @@
+If a null reference is passed in to one of the ClientPooledConnection.addXEventListener, a NPE will be thrown if an event occurs.
+I will attach a simple repro as a patch to the test jdbc4.StatementEventsTests. I believe the situation is the same for connection event listeners.
+
+I have found no information in the specs regarding null listeners, but I assume it would be okay to ignore them.

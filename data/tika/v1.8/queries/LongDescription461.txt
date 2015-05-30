@@ -1,0 +1,3 @@
+Presented with an RFC822 message exported from Thunderbird, AutodetectParser produces an empty body, and a Metadata containing only one key-value pair: "Content-Type=message/rfc822". Directly calling MboxParser likewise gives an empty body, but with two metadata pairs: "Content-Encoding=us-ascii Content-Type=application/mbox".
+
+A quick peek at the source of MboxParser shows that the implementation is pretty naive. If the wiring can be sorted out, something like Apache James' mime4j might be a better bet.

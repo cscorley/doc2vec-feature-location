@@ -1,0 +1,15 @@
+for single core ,the  CoreDescriptor is instantiated with the following code
+
+CoreDescriptor dcore = new CoreDescriptor(cores, "", cfg.getResourceLoader().getInstanceDir());
+
+
+and the reload in CoreContainer#create(CoreDescriptor dcore) has a snippet as follows
+
+
+File idir = new File(loader.getInstanceDir(), dcore.getInstanceDir());
+
+
+
+which will make the idir value something like "solr/solr/" which is wrong
+
+

@@ -1,0 +1,32 @@
+On IBM 1.7, presumably after the checkin of DERBY-5363 suites.All fails to run with the exception:
+
+Failed to invoke class org.apache.derbyTesting.functionTests.tests.engine._Suite
+java.lang.reflect.InvocationTargetException
+		 at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+		 at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:88)
+		 at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:55)
+		 at java.lang.reflect.Method.invoke(Method.java:613)
+		 at org.apache.derbyTesting.functionTests.suites.AllPackages.invokeSuite(AllPackages.java:176)
+		 at org.apache.derbyTesting.functionTests.suites.AllPackages.suite(AllPackages.java:63)
+		 at org.apache.derbyTesting.functionTests.suites.All.suite(All.java:51)
+		 at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+		 at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:88)
+		 at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:55)
+		 at java.lang.reflect.Method.invoke(Method.java:613)
+		 at junit.runner.BaseTestRunner.getTest(BaseTestRunner.java:126)
+		 at junit.textui.TestRunner.start(TestRunner.java:184)
+		 at junit.textui.TestRunner.main(TestRunner.java:143)
+Caused by: junit.framework.AssertionFailedError
+		 at junit.framework.Assert.fail(Assert.java:47)
+		 at junit.framework.Assert.fail(Assert.java:53)
+		 at org.apache.derbyTesting.functionTests.tests.engine.RestrictiveFilePermissionsTest$2.run(RestrictiveFilePermissionsTest.java:673)
+		 at java.security.AccessController.doPrivileged(AccessController.java:254)
+		 at org.apache.derbyTesting.functionTests.tests.engine.RestrictiveFilePermissionsTest.checkAccessToOwner(RestrictiveFilePermissionsTest.java:590)
+		 at org.apache.derbyTesting.functionTests.tests.engine.RestrictiveFilePermissionsTest.suite(RestrictiveFilePermissionsTest.java:92)
+		 at org.apache.derbyTesting.functionTests.tests.engine._Suite.suite(_Suite.java:51)
+		 ... 14 more
+Failed to invoke suite():java.lang.reflect.InvocationTargetException
+
+
+This JDK was just released recently and I am not sure where to get it publicly.   I am not sure if this is  a JVM bug.  I will take a look and if it is not something that can be fixed quickly, will skip this test on IBM 1.7 until we can figure it out so the other tests can run.
+

@@ -1,0 +1,9 @@
+Currently the subclasses of PCState don't implement a toString() method, so debug messages look like this:
+FINEST: NdbOpenJPAStoreManager.beforeStateChange: objectId: 1 PCState: org.apache.openjpa.kernel.PNonTransState@96a21e
+ from  PCState: org.apache.openjpa.kernel.PNonTransState@96a21e to  PCState: org.apache.openjpa.kernel.TransientState@51e0c4
+
+I'd like to add toString() to these classes so the messages look like this:
+FINEST: NdbOpenJPAStoreManager.beforeStateChange: objectId: 1 PCState: PNonTrans
+ from  PCState: .PNonTrans to  PCState: Transient
+
+So the toString() would return PNonTrans, or PNONTRANS or Persistent Nontransactional or some user-friendly string.

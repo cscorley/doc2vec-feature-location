@@ -1,0 +1,61 @@
+I ran a sample Excel 2003 file (which I will attempt to attach) that I made through Tika 0.3 and the output didn't correctly identify the sheets, did not include text from the first column of the first sheet, and did not include any supplementary text (e.g. titles for charts, legends, etc.).
+
+Specific issues with parsing xls.xls: (pardon the deliberately random names)
+
+	"charttabyodawg" (a chart sheet) improperly labeled as the sheet for data actually on Sheet1.
+	"Sheet1" data is actually the data on Sheet2
+	Sheet2 is not mentioned.
+	Chart title for chart on "charttabyodawg" is "WhamPuff" and is not included in the output.
+	Chart title for inline chart on Sheet1 is "fizzlepuff" and is not included in output.
+	Y-axis for inline chart on Sheet1 is "whyaxis" and is not included in output.
+	X-axis for inline chart on Sheet1 is "eksaxis" and is not included in output.
+	Label for data in inline chart on Sheet1 is "YottaPuff" and is not included in output.
+
+
+
+Below is the output fromt Tika v0.3 when run on the attached XLS:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title/>
+</head>
+<body>
+<div class="page">
+<h1>charttabyodawg</h1>
+<table>
+<tbody>
+<tr>    <td>1</td>
+</tr>
+<tr>    <td>2</td>
+</tr>
+<tr>    <td>300</td>    <td/>   <td/>   <td>1</td>
+</tr>
+<tr>    <td>baz</td>    <td/>   <td/>   <td>2</td>      <td/>   <td>9</td>
+</tr>
+<tr>    <td>yadda yam</td>      <td/>   <td/>   <td>300</td>    <td/>   <td>5</td>
+</tr>
+<tr>    <td/>   <td/>   <td/>   <td/>   <td/>   <td>16</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="page">
+<h1>Sheet1</h1>
+<table>
+<tbody>
+<tr>    <td/>
+</tr>
+<tr>    <td/>
+</tr>
+<tr>    <td/>
+</tr>
+<tr>    <td/>
+</tr>
+<tr>    <td/>   <td/>   <td>dingdong</td>
+</tr>
+</tbody>
+</table>
+</div>
+</body>
+</html>

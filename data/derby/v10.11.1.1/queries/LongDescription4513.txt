@@ -1,0 +1,13 @@
+This is part of the work needed to implement ANSI/ISO sequences. The functional spec attached to DERBY-712 lists various situations in which the NEXT VALUE FOR clause is illegal. These include:
+
+
+	CASE expression
+	WHERE clause
+	ORDER BY clause
+	AGGREGATE expression
+	WINDOW function
+	DISTINCT select list
+
+
+
+In addition, I propose that we make it illegal for a statement to have more than one NEXT VALUE FOR clause on the same sequence generator. This is a tighter restriction than the ANSI/ISO standard calls for. The standard requires that if two columns in a row are populated by NEXT VALUE FOR clauses on the same sequence, then the values should be the same. I don't feel confident that I could track down all of the cases which could give rise to this situation--so I propose to limit the number of NEXT VALUE FOR clauses on a given sequence generator to just 1.

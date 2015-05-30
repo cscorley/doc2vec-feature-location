@@ -1,0 +1,23 @@
+In EmbedConnection.clearLOBMapping()  the code which iterates over lobFiles has a finally block which clears the Set.  This causes a ConcurrentModificationException to be thrown and even using a concurrent data structure would still result in only one LOBFile being correctly closed.
+
+This will occur anytime the lobFiles Set contains more than 1 LOBFile.
+
+Stack Trace:
+java.sql.SQLException: Java exception: ': java.util.ConcurrentModificationException'. 
+ at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(Unknown Source) 
+ at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Unknown Source) 
+ at org.apache.derby.impl.jdbc.Util.javaException(Unknown Source) 
+ at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source) 
+ at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source) 
+ at org.apache.derby.impl.jdbc.EmbedConnection.handleException(Unknown Source) 
+ at org.apache.derby.impl.jdbc.EmbedConnection.commit(Unknown Source) 
+<lines removed>
+Caused by: java.sql.SQLException: Java exception: ': java.util.ConcurrentModificationException'. 
+ at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source) 
+ at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(Unknown Source) 
+ ... 16 more 
+Caused by: java.util.ConcurrentModificationException 
+ at java.util.HashMap$HashIterator.nextEntry(Unknown Source) 
+ at java.util.HashMap$KeyIterator.next(Unknown Source) 
+ at org.apache.derby.impl.jdbc.EmbedConnection.clearLOBMapping(Unknown Source) 
+ ... 10 more

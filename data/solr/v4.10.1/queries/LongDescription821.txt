@@ -1,0 +1,9 @@
+It is likely that a file is different in master and slave. for instance replicating solrconfig.xml is not possible with the current config if master and slave has diffferent solrconfig.xml (which is always true)
+
+We can add an alias feature in the confFiles as
+
+
+<str name="confFiles">slave_solrconfig.xml:solrconfig.xml,slave_schema.xml:schema.xml</str>
+
+
+This means that the file slave_solrconfig.xml should be copied to the slave as solrconfig.xml and slave_schema.xml must be saved to slave as schema.xml

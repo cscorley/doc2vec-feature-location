@@ -1,0 +1,14 @@
+Cf the attached negative test in a patch to PreparedStatement42.
+
+In JDBC 4.2, the Javadoc for registerOutParameter(int parameterIndex,
+int sqlType, String typeName) reads:
+
+:
+@exception SQLFeatureNotSupportedException if sqlType is a ARRAY,
+ BLOB, CLOB, DATALINK, JAVA_OBJECT, NCHAR, NCLOB, NVARCHAR,
+ LONGNVARCHAR, REF, ROWID, SQLXML or STRUCT data type and the JDBC
+ driver does not support this data type
+:
+
+For the new overloads, for embedded this is checked inside Util42#getTypeAsInt. The similar
+client method, Utils42#getTypeAsInt does not do this checking.

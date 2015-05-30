@@ -1,0 +1,32 @@
+Due to the fact the XML support in Derby has external dependencies on Apache Xalan and a JAXP parser (such as, but not limited to, Apache Xerces), the tests for XML, which are all included in "xmlSuite", are not currently run as part of derbyall.
+
+Changes for DERBY-688 (and DERBY-567 indirectly) have now made it so that JVMs which have Apache Xalan and a JAXP parser embedded in them can run the XML tests without requiring additional jars, assuming that the embedded version of Xalan is at least the minimum version required by Derby (which is currently 2.5).
+
+So given that, the xmlSuite should be enabled as part of derbyall for any environment that is capable of running them.
+
+Per comments in DERBY-688, enabling the XML suite could include the following tasks:
+
+  1. Enable the suite to run as part of derbyall but ONLY if the JVM has
+      access to all of the required Xalan/JAXP classes.
+
+  2. Resolve the following diff in lang/xmlBinding.java that occurs on
+     some platforms (ex. Linux):
+
+    < Inserted roughly 40k of data.
+    10 del
+    < Inserted roughly 40k of data.
+    10a9,10
+    > Inserted roughly 39k of data.
+    > Inserted roughly 37k of data.
+    21 del
+    < 1, [ roughly 40k ]
+    22 del
+    < 2, [ roughly 40k ]
+    22a21,22
+    > 1, [ roughly 39k ]
+    > 2, [ roughly 37k ]
+
+  3. Add new tests to verify Derby behavior when XML classes are
+    not present.
+
+Note that #3 may turn out to be its own Jira issue; the first two, however, should both be addressed as part of this issue since the xmlSuite will not run (and pass) on all platforms if either 1 or 2 is not addressed.

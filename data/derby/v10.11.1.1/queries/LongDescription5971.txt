@@ -1,0 +1,19 @@
+When looking at a test coverage report, I noticed that these methods in the SQLBoolean class are not tested:
+
+
+	falseTruthValue
+	trueTruthValue
+	greaterOrEquals
+	greaterThan
+	lessOrEquals
+	lessThan
+	is
+	isNot
+	readExternal
+	hashCode
+
+
+
+falseTruthValue() and trueTruthValue() are never called anywhere in the code and could be removed.
+
+is() and isNot() also have no callers. However, they implement the boolean IS operator which is part of the SQL standard, so it might make more sense to file a JIRA to add the syntax to the grammar rather than removing the methods.

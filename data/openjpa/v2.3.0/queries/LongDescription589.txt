@@ -1,0 +1,93 @@
+When DataCahe is on, the retrieval of M-to-M data will fail with the following exception:
+
+<openjpa-1.0.1-r420667:592145 fatal user error> org.apache.openjpa.persistence.ArgumentException: Could not locate metadata for the class using oid "10=10" of type "class java.util.HashMap$Entry".  Registered oid type mappings: "
+{class org.apache.openjpa.util.IntId=class dw.EntityB, class java.util.HashMap$Entry=null}
+"
+FailedObject: 10=10 [java.util.HashMap$Entry]
+	at org.apache.openjpa.meta.MetaDataRepository.getMetaData(MetaDataRepository.java:986)
+	at org.apache.openjpa.kernel.BrokerImpl.newStateManagerImpl(BrokerImpl.java:1121)
+	at org.apache.openjpa.kernel.BrokerImpl.findAll(BrokerImpl.java:913)
+	at org.apache.openjpa.kernel.BrokerImpl.findAll(BrokerImpl.java:862)
+	at org.apache.openjpa.kernel.AbstractPCData.toRelationFields(AbstractPCData.java:214)
+	at org.apache.openjpa.kernel.AbstractPCData.toNestedFields(AbstractPCData.java:181)
+	at org.apache.openjpa.kernel.AbstractPCData.toField(AbstractPCData.java:95)
+	at org.apache.openjpa.kernel.PCDataImpl.loadField(PCDataImpl.java:197)
+	at org.apache.openjpa.kernel.PCDataImpl.load(PCDataImpl.java:167)
+	at org.apache.openjpa.datacache.DataCacheStoreManager.load(DataCacheStoreManager.java:373)
+	at org.apache.openjpa.kernel.DelegatingStoreManager.load(DelegatingStoreManager.java:116)
+	at org.apache.openjpa.kernel.ROPStoreManager.load(ROPStoreManager.java:78)
+	at org.apache.openjpa.kernel.StateManagerImpl.loadFields(StateManagerImpl.java:2867)
+	at org.apache.openjpa.kernel.StateManagerImpl.loadField(StateManagerImpl.java:2945)
+	at org.apache.openjpa.kernel.StateManagerImpl.beforeAccessField(StateManagerImpl.java:1449)
+	at org.apache.openjpa.kernel.StateManagerImpl.accessingField(StateManagerImpl.java:1434)
+	at dw.EntityE.pcGetentityf(EntityE.java)
+	at dw.EntityE.print(EntityE.java:32)
+	at dw.Test3.main(Test3.java:49)
+
+The test case to reproduce this error is:
+
+			EntityManagerFactory emf = Persistence
+					.createEntityManagerFactory("Test1");
+
+			EntityManager em = emf.createEntityManager();
+			em.getTransaction().begin();
+
+			EntityE e1 = new EntityE();
+			e1.setId(1);
+			e1.setName("ABC");
+			em.persist(e1);
+			EntityE e2 = new EntityE();
+			e2.setId(2);
+			e2.setName("DEF");
+			em.persist(e2);
+
+			EntityF f1 = new EntityF();
+			f1.setId(10);
+			em.persist(f1);
+			EntityF f2 = new EntityF();
+			f2.setId(20);
+			em.persist(f2);
+
+			e1.getEntityF().put(f1.getId(), f1);
+			e1.getEntityF().put(f2.getId(), f2);
+			e2.getEntityF().put(f1.getId(), f1);
+			e2.getEntityF().put(f2.getId(), f2);
+
+			f1.getEntityE().put(e1.getName(), e1);
+			f1.getEntityE().put(e2.getName(), e2);
+			f2.getEntityE().put(e1.getName(), e1);
+			f2.getEntityE().put(e2.getName(), e2);
+			e1.print();
+			e2.print();
+			f1.print();
+			f2.print();
+			em.getTransaction().commit();
+			em.close();
+
+			em = emf.createEntityManager();
+			EntityE e1a = em.find(EntityE.class, 1);
+			e1a.getEntityf();                         <========= exception is thrown here
+			EntityE e2a = em.find(EntityE.class, 2);
+			e2a.getEntityf();
+			EntityF f1a = em.find(EntityF.class, 10);
+			f1a.getEntitye();
+			EntityF f2a = em.find(EntityF.class, 20);
+			f2a.getEntitye();
+
+Note that this test case created 4 entities:
+EnityE: e1 (id = 1), e2 (id = 2), 
+EntityF: f1 (id = 10), f2 (id = 20)
+
+EntityE has a field entityf, which is a Map<Integer, EntityF>
+EntityF has a field entitye, which is a Map<String, EntityE>
+
+In this test case, entityf of e1 contains <10, f1>, and <20, f2>. The same for entityf of e2. On the other hand, 
+entitye of f1 contains<"ABC", e1>, and <"DEF", e2>. The same for entitye of f2.
+
+When DataCache is on, e1, e2, f1, and f2 are all stored in the data cache. Note that for the field of entityf in e1 and e2,
+the value of Map (<10, object id of f1>, <20, object id of f2> is store in the datacache. For the field of entitye in f1 and f2,
+the value of Map(<"ABC", object id of e1>, <"DEF", object id of e2> is stored in the data cache. 
+
+The cause of the exception shown above occurs when the value of the Map is to be retrieved from the data cache.
+Specifically, it happens in AbstractPCData.toField. The keys of the Map are correctly retrieved while the values of the 
+Map are handled incorrectly. The attached patch fixes this problem.

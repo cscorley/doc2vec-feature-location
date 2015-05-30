@@ -1,0 +1,13 @@
+When doing an HTTP request to a Solr Server using the shards parameter ("shards") the behavior of the response varies.
+
+The following requests cause the entire document (all fields) to return in the response:
+
+    http://localhost:8180/solr/cpaCore/select/?q=*:*
+    http://localhost:8180/solr/cpaCore/select/?q=*:*&fl=score
+    http://localhost:8180/solr/cpaCore/select/?q=*:*&shards=shardLocation/solr/cpaCore
+
+The following request causes only the fields "id" and "score" to return in the response:
+
+    http://localhost:8180/solr/cpaCore/select/?q=*:*&fl=score&shards=shardLocation/solr/cpaCore
+
+I don't know if this is by design but it does provide for some inconsistent behavior, as shard requests behave differently than regular requests.

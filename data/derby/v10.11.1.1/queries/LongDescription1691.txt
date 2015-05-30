@@ -1,0 +1,54 @@
+With JCC 2.6, the jdbcapi/blobclob4BLOB.java fails.  The diff did not show anything alarming, so I am guessing it
+may be a master update. The test passed fine with DerbyClient
+
+
+	
+	
+		
+		
+			Start: blobclob4BLOB jdk1.5.0_06 DerbyNet derbynetmats:jdbcapi 2006-08-11 23:29:48 ***
+466a467,474
+> EXPECTED SQLSTATE(22018): Invalid character string format for type INTEGER.
+> end clobTest54
+> START: clobTest6
+> EXPECTED SQLSTATE(null): Invalid position 0 or length 5
+> EXPECTED SQLSTATE(null): Invalid position 1 or length -76
+> EXPECTED SQLSTATE(null): Invalid position 1 or length -1
+> EXPECTED SQLSTATE(null): Invalid position 0 or length 0
+> FAIL – unexpected exception:java.lang.StringIndexOutOfBoundsException: String index out of range: -1
+468,475d475
+< EXPECTED SQLSTATE(22018): Invalid character string format for type INTEGER.
+< end clobTest54
+< START: clobTest6
+< EXPECTED SQLSTATE(null): Invalid position 0 or length 5
+< EXPECTED SQLSTATE(null): Invalid position 1 or length -76
+< EXPECTED SQLSTATE(null): Invalid position 1 or length -1
+< EXPECTED SQLSTATE(null): Invalid position 0 or length 0
+< FAIL – unexpected exception:java.lang.StringIndexOutOfBoundsException: String index out of range: -1
+775a776,782
+> blobTest54 finished
+> START: blobTest6
+> EXPECTED SQLSTATE(null): Invalid position 0 or length 5
+> EXPECTED SQLSTATE(null): Invalid position 1 or length -76
+> EXPECTED SQLSTATE(null): Invalid position 1 or length -1
+> EXPECTED SQLSTATE(null): Invalid position 0 or length 0
+> FAIL – unexpected exception:java.lang.NegativeArraySizeException
+777,783d783
+< blobTest54 finished
+< START: blobTest6
+< EXPECTED SQLSTATE(null): Invalid position 0 or length 5
+< EXPECTED SQLSTATE(null): Invalid position 1 or length -76
+< EXPECTED SQLSTATE(null): Invalid position 1 or length -1
+< EXPECTED SQLSTATE(null): Invalid position 0 or length 0
+< FAIL – unexpected exception:java.lang.NegativeArraySizeException
+789 del
+< com.ibm.db2.jcc.c.SqlException: Operation 'CREATE TRIGGER' cannot be performed on object 'TESTBLOB' because there is an open ResultSet dependent on that object.
+789a789
+> com.ibm.db2.jcc.a.SqlException: Operation 'CREATE TRIGGER' cannot be performed on object 'TESTBLOB' because there is an open ResultSet dependent on that object.
+Test Failed.
+			End:   blobclob4BLOB jdk1.5.0_06 DerbyNet derbynetmats:jdbcapi 2006-08-11 23:30:46 ***
+		
+		
+	
+	
+

@@ -1,0 +1,13 @@
+Saw this failure once when running suites.All on the 10.7.1.0 release candidate:
+
+1) testBuiltInFunctions(org.apache.derbyTesting.functionTests.tests.lang.CheckConstraintTest)junit.framework.AssertionFailedError: Column value mismatch @ column 'TYPE', row 1:
+    Expected: >P<
+    Found:    >U<
+        at org.apache.derbyTesting.junit.JDBC.assertRowInResultSet(JDBC.java:1213)
+        at org.apache.derbyTesting.junit.JDBC.assertRowInResultSet(JDBC.java:1125)
+        at org.apache.derbyTesting.junit.JDBC.assertFullResultSetMinion(JDBC.java:1012)
+        at org.apache.derbyTesting.junit.JDBC.assertFullResultSet(JDBC.java:935)
+        at org.apache.derbyTesting.junit.JDBC.assertFullResultSet(JDBC.java:892)
+        at org.apache.derbyTesting.functionTests.tests.lang.CheckConstraintTest.testBuiltInFunctions(CheckConstraintTest.java:752)
+
+The failure didn't show up when I reran the test (reran both standalone and as part of suites.All).

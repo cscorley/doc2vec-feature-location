@@ -1,0 +1,15 @@
+I'm seeing lots of the following failure. Seems like a flakey test (passes every so often).
+
+
+junit.framework.AssertionFailedError: client could not connect to reestablished quorum: giving up after 30+ seconds.
+	at org.apache.zookeeper.test.ReconfigTest.testNormalOperation(ReconfigTest.java:143)
+	at org.apache.zookeeper.server.quorum.StandaloneDisabledTest.startSingleServerTest(StandaloneDisabledTest.java:75)
+	at org.apache.zookeeper.JUnit4ZKTestRunner$LoggedInvokeMethod.evaluate(JUnit4ZKTestRunner.java:52)
+
+
+
+I've found 3 problems:
+
+1. QuorumCnxManager.Listener.run() leaks the socket depending on when the shutdown flag gets set.
+2. QuorumCnxManager.halt() doesn't wait for the listener to terminate.
+3. QuorumPeer.shuttingDownLE flag doesn't get reset when restarting the leader election.

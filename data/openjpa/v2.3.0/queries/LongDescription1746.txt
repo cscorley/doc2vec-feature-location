@@ -1,0 +1,3 @@
+If a property is set with a null value in the Entity.createEntityManagerFactory, a NullPointerException is thrown due to PersistenceUnitInfoImpl's use of Properties for the _props field (which extends Hashtable which doesn't allow nulls).  Although not specifically laid out by the API, it accepts Map, which is incompatible with Properties/Hashtable in this instance.  HashMap would be the preffered type here.
+
+Currently this was working with EclipseLink, as I set some properties to null to override defaults set in the persistence.xml file based on some dynamic criteria.

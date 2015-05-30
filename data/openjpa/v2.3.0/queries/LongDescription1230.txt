@@ -1,0 +1,38 @@
+Per spec 3.6.1.1 Enabling Automatic Validation
+...... the validation mode can be specified using the javax.persistence.validation.mode map key, which will override the value specified (or defaulted) in the persistence.xml file. The map values for this key are "auto", "callback", "none".
+
+Using lower case validation mode value as javax.persistence.validation.mode key in createEntityManagerFactory failed to create a emf with the following exception.
+
+188  Basic_OvrNone_JSE  ERROR  [main] openjpa.Runtime - Failed to create a provider for "Basic_JSE".
+java.lang.IllegalArgumentException: No enum const class javax.persistence.spi.ValidationMode.callback
+        at java.lang.Enum.valueOf(Enum.java:207)
+        at org.apache.openjpa.persistence.PersistenceUnitInfoImpl.setValidationMode(PersistenceUnitInfoImpl.java:544)
+        at org.apache.openjpa.persistence.PersistenceUnitInfoImpl.fromUserProperties(PersistenceUnitInfoImpl.java:319)
+        at org.apache.openjpa.persistence.PersistenceProductDerivation$ConfigurationParser.endElement(PersistenceProductDerivation.java:698)
+        at org.apache.openjpa.lib.meta.XMLMetaDataParser.endElement(XMLMetaDataParser.java:456)
+        at org.apache.xerces.parsers.AbstractSAXParser.endElement(Unknown Source)
+        at org.apache.xerces.impl.xs.XMLSchemaValidator.endElement(Unknown Source)
+        at org.apache.xerces.impl.XMLNSDocumentScannerImpl.scanEndElement(Unknown Source)
+        at org.apache.xerces.impl.XMLDocumentFragmentScannerImpl$FragmentContentDispatcher.dispatch(Unknown Source)
+        at org.apache.xerces.impl.XMLDocumentFragmentScannerImpl.scanDocument(Unknown Source)
+        at org.apache.xerces.parsers.XML11Configuration.parse(Unknown Source)
+        at org.apache.xerces.parsers.XML11Configuration.parse(Unknown Source)
+        at org.apache.xerces.parsers.XMLParser.parse(Unknown Source)
+        at org.apache.xerces.parsers.AbstractSAXParser.parse(Unknown Source)
+        at org.apache.xerces.jaxp.SAXParserImpl$JAXPSAXParser.parse(Unknown Source)
+        at org.apache.xerces.jaxp.SAXParserImpl.parse(Unknown Source)
+        at org.apache.openjpa.lib.meta.XMLMetaDataParser.parseNewResource(XMLMetaDataParser.java:393)
+        at org.apache.openjpa.lib.meta.XMLMetaDataParser.parse(XMLMetaDataParser.java:334)
+        at org.apache.openjpa.lib.meta.XMLMetaDataParser.parse(XMLMetaDataParser.java:311)
+        at org.apache.openjpa.lib.meta.XMLMetaDataParser.parse(XMLMetaDataParser.java:284)
+        at org.apache.openjpa.persistence.PersistenceProductDerivation$ConfigurationParser.parse(PersistenceProductDerivation.java:634)
+        at org.apache.openjpa.persistence.PersistenceProductDerivation.parseResources(PersistenceProductDerivation.java:438)
+        at org.apache.openjpa.persistence.PersistenceProductDerivation.load(PersistenceProductDerivation.java:405)
+        at org.apache.openjpa.persistence.PersistenceProductDerivation.load(PersistenceProductDerivation.java:223)
+        at org.apache.openjpa.persistence.PersistenceProviderImpl.createEntityManagerFactory(PersistenceProviderImpl.java:90)
+        at com.ibm.websphere.persistence.PersistenceProviderImpl.createEntityManagerFactory(PersistenceProviderImpl.java:73)
+        at com.ibm.websphere.persistence.PersistenceProviderImpl.createEntityManagerFactory(PersistenceProviderImpl.java:43)
+        at org.apache.openjpa.persistence.PersistenceProviderImpl.createEntityManagerFactory(PersistenceProviderImpl.java:140)
+        at org.apache.openjpa.persistence.PersistenceProviderImpl.createEntityManagerFactory(PersistenceProviderImpl.java:63)
+        at javax.persistence.Persistence.createEntityManagerFactory(Persistence.java:152)
+        at suite.r80.base.jpaspec.validation.basic.JSE_BasicTest.setupTestEnvironmentModeBasicOvrCallback(JSE_BasicTest.java:446)

@@ -1,0 +1,106 @@
+From a user using client XA.
+
+save points don't seem to be working with DerbyClient using 
+XA.
+
+levels i am on:
+10.1.2.2
+Apache Derby
+
+Exception thrown is:
+
+Exception in thread "main" 
+org.apache.derby.client.am.SqlException: SAVEPOINT, MyPoint 
+does not  exist or is not active in the current transaction.
+	at org.apache.derby.client.am.Statement.completeSqlca(Unknown 
+Source)
+	at 
+org.apache.derby.client.am.Statement.completeExecuteImmediate(Un
+known Source)
+	at 
+org.apache.derby.client.net.NetStatementReply.parseEXCSQLIMMrepl
+y(Unknown Source)
+	at 
+org.apache.derby.client.net.NetStatementReply.readExecuteImmedia
+te(Unknown Source)
+	at 
+org.apache.derby.client.net.StatementReply.readExecuteImmediate(
+Unknown Source)
+	at 
+org.apache.derby.client.net.NetStatement.readExecuteImmediate_(U
+nknown Source)
+	at 
+org.apache.derby.client.am.Statement.readExecuteImmediate(Unknow
+n Source)
+	at org.apache.derby.client.am.Statement.flowExecute(Unknown 
+Source)
+	at org.apache.derby.client.am.Statement.executeX(Unknown 
+Source)
+	at org.apache.derby.client.am.Connection.rollback(Unknown 
+Source)
+	at 
+org.apache.derby.client.am.LogicalConnection.rollback(Unknown 
+Source)
+	at 
+Derby.networkServer.NSConnection.main(NSConnection.java:103)
+
+Test case below 
+
+class SavePointProblem337977  
+{
+
+    public static void main (String args [])throws Exception {
+    	//org.apache.derby.jdbc.ClientConnectionPoolDataSource ds 
+= new org.apache.derby.jdbc.ClientConnectionPoolDataSource();
+    	org.apache.derby.jdbc.ClientXADataSource ds = new 
+org.apache.derby.jdbc.ClientXADataSource();
+
+    	Connection conn = null;
+    	ds.setDatabaseName("e:\\tempsampl127;create=true");
+
+    	XAConnection xaCon = ds.getXAConnection() ;
+         //PooledConnection xaCon = ds.getPooledConnection() ;
+
+
+         conn = xaCon.getConnection();
+
+
+
+        DatabaseMetaData md = conn.getMetaData() ;
+        System.out.println(md.getDatabaseProductVersion());
+        System.out.println(md.getDatabaseProductName());
+
+        Statement st = null;
+        PreparedStatement ps1 = null;
+         try
+         {
+             st = conn.createStatement ();
+             try
+             
+{
+             	st.executeUpdate ("drop table TAB1");
+             }
+catch (SQLException x)
+             {
+             	System.out.println ("no table exists");
+             }
+
+             ps1 = conn.prepareStatement("CREATE TABLE 
+TAB1(COL1 INT NOT NULL)");
+             ps1.executeUpdate();
+
+             conn.commit ();
+         } catch (SQLException x)
+         {
+             System.out.println ("table already exists");
+         }
+
+
+         conn.setAutoCommit(false);
+         conn.createStatement().execute("update tab1 set col1 = 
+-1 where col1 = 9");
+         Savepoint savepoint1 = conn.setSavepoint("MyPoint");
+
+         conn.rollback(savepoint1);
+            }
+}

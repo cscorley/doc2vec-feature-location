@@ -1,0 +1,25 @@
+The attached program DoubleSelect selects a blob column twice and tries to access the blob column with getBinaryStream.
+
+
+With embedded the output is:
+4 5 6 7 8 9 10 11 12 13
+14 15 16 17 18 19 20 21 22 23
+I am done
+
+Two things seem to be happening with embedded.
+1) Both getBinaryStream() calls are returning the same stream.
+2) The second getBinaryStream() call throws away 4 bytes.
+
+
+With client the output is:
+Exception in thread "main" java.io.IOException: The object is already
+closed.
+        at
+org.apache.derby.client.am.CloseFilterInputStream.read(CloseFilterInputStream.java:50)
+        at DoubleSelect.printNextTen(DoubleSelect.java:53)
+        at DoubleSelect.main(DoubleSelect.java:43)
+0 1 2 3 4 5 6 7 8 9
+So with client it looks like the  second getBinaryStream() call closes
+the first stream but then returns the right result for the second stream.
+
+Perhaps embedded should behave the same as client or perhaps the query should just work.  Regardless embedded should not return wrong results.

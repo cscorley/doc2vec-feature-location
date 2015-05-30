@@ -1,0 +1,43 @@
+I'm using UUID via Solrj in my project. When I use javabin (default), I got:
+
+java.util.UUID: 391e3214-4f8e-4abd-aa6b-4f12be79534f
+
+as the uuid value. But if I use xml, I got:
+
+391e3214-4f8e-4abd-aa6b-4f12be79534f
+
+I think the both of them should return same string.
+
+program for reproducing the problem:
+
+  public static void main(String[] args) throws Exception {
+    CommonsHttpSolrServer server = new CommonsHttpSolrServer( "http://localhost:8983/solr" );
+    SolrQuery query = new SolrQuery().setQuery( "*:*" );
+    //server.setParser( new XMLResponseParser() );   // uncomment for wt=xml
+    System.out.println( "===== " + server.getParser().getClass().getSimpleName() + " =====" );
+    QueryResponse rsp = server.query( query );
+    SolrDocumentList docs = rsp.getResults();
+    for( SolrDocument doc : docs ){
+      Object id = doc.getFieldValue( "id" );
+      System.out.println( "type = " + id.getClass().getName() + ", id = " + id );
+      Object timestamp = doc.getFieldValue( "timestamp" );
+      System.out.println( "type = " + timestamp.getClass().getName() + ", timestamp = " + timestamp );
+    }
+  }
+
+
+
+result for wt=javabin
+javabin
+===== BinaryResponseParser =====
+type = java.lang.String, id = java.util.UUID:391e3214-4f8e-4abd-aa6b-4f12be79534f
+type = java.util.Date, timestamp = Wed Oct 15 00:20:50 JST 2008
+
+
+
+result for wt=xml
+xml
+===== XMLResponseParser =====
+type = java.lang.String, id = 391e3214-4f8e-4abd-aa6b-4f12be79534f
+type = java.util.Date, timestamp = Wed Oct 15 00:20:50 JST 2008
+

@@ -1,0 +1,7 @@
+In response to the wish from MAHOUT-362 and the latest discussion on the mailing list started by Kris Jack about computing a document similarity matrix, I tried to generalize the approach we're already using to compute the item-item-similarities for collaborative filtering.
+
+The job in the patch computes the pairwise similarity of the rows of a matrix in a distributed manner, is uses a SequenceFile<IntWritable,VectorWritable> as input and outputs such a file too. Custom similarity implementations can be supplied, I've already implemented tanimoto and cosine for demo and testing purposes. The algorithm is based on the one presented here: http://www.umiacs.umd.edu/~jimmylin/publications/Elsayed_etal_ACL2008_short.pdf
+
+I'd be glad if someone could verify the applicability of this approach by running it with a reasonably large input, I'm also worried that it might buffer to much data in certain steps.
+
+If you decide to include it in mahout, some more efforts and decisions (like more tests, more similarity measures, integration with DistributedRowMatrix) would need to be made, I guess.

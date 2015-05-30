@@ -1,0 +1,3 @@
+org.apache.derby.vti.Restriction.toSQL() adds double quotes around column names, but it does not escape the special characters (like double quotes) in the column names, so the returned string may not be valid SQL. This could cause problems when using the restriction to generate a query against an external database.
+
+Restriction.doubleQuote() should use IdUtil.normalToDelimited() to get proper quoting of the names.

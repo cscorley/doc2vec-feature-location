@@ -1,0 +1,12 @@
+If you try to export a table to a nonexistent directory, you get a SQLException which tells you that an IOException occurred. The actual IOException tells you that the file or directory can't be found. That is useful information and ought to appear in the message text of the SQLException. E.g.:
+
+j> call SYSCS_UTIL.SYSCS_EXPORT_TABLE
+(
+  'APP',
+  'LOBTABLE',
+  '/unknown/test-export-table.dat',
+  null,
+  null,
+  null
+);
+ERROR XIE0I: An IOException occurred while writing data to the file.

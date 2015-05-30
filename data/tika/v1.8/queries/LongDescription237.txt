@@ -1,0 +1,5 @@
+Like TIKA-198 but for SAXException.
+
+Some of our Parser implementations use XML parsers that may throw SAXExceptions caused by parse errors or other problems with the input document. Such problems should be reported as TikaExceptions to Parser clients as specified in the Parser.parse() documentation and SAXExceptions should only be thrown when the ContentHandler provided by the client throws them.
+
+Not making this distinction causes problems like TIKA-236.

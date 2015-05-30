@@ -1,0 +1,1 @@
+ConfigurationImpl.writeExternal() serializes out the toProperties() and Map _props, which both contain the connectionPassword.  When readExternal() deserializes, the StringValue of connectionPassword gets its value set twice, which causes Value.INVISIBLE to get set as the value, which never happens if the EMF is never serialized.

@@ -1,0 +1,35 @@
+This test is currently commented out but if you uncomment it it fails with Pig 10 but runs successfully with Pig 9.
+
+Script:
+
+a = load '/homes/olgan/studenttab10k' using PigStorage() as (name, age, gpa);
+store a into 'intermediate.bz';
+b = load 'intermediate.bz';
+store b into 'final.bz';
+
+A couple of observations:
+
+(1) Identical script (represented by Bzip_1 test) that has bz2 instead of bz extension in the script succeeds in Pig 10
+(2) The problem occurs while reading intermediate.bz which has different size with Pig 9 and Pig 10
+(3) Problem can be reproduced in local mode with small subset of data in the file
+(4) The following stack trace is observed:
+
+2011-12-01 13:53:12,280 [Thread-22] WARN  org.apache.hadoop.mapred.LocalJobRunner - job_local_0002
+java.lang.RuntimeException: java.io.IOException: compressedStream EOF
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigRecordReader.initNextRecordReader(PigRecordReader.java:237)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigRecordReader.<init>(PigRecordReader.java:109)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigInputFormat.createRecordReader(PigInputFormat.java:119)
+        at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:588)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:305)
+        at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:177)
+Caused by: java.io.IOException: compressedStream EOF
+        at org.apache.tools.bzip2r.CBZip2InputStream.cadvise(CBZip2InputStream.java:92)
+        at org.apache.tools.bzip2r.CBZip2InputStream.compressedStreamEOF(CBZip2InputStream.java:96)
+        at org.apache.tools.bzip2r.CBZip2InputStream.bsR(CBZip2InputStream.java:451)
+        at org.apache.tools.bzip2r.CBZip2InputStream.initBlock(CBZip2InputStream.java:348)
+        at org.apache.tools.bzip2r.CBZip2InputStream.<init>(CBZip2InputStream.java:220)
+        at org.apache.pig.bzip2r.Bzip2TextInputFormat$BZip2LineRecordReader.<init>(Bzip2TextInputFormat.java:105)
+        at org.apache.pig.bzip2r.Bzip2TextInputFormat.createRecordReader(Bzip2TextInputFormat.java:244)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigRecordReader.initNextRecordReader(PigRecordReader.java:227)
+        ... 5 more
+

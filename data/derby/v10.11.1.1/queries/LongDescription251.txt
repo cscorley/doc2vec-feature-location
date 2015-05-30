@@ -1,0 +1,22 @@
+Following query on a table with primary key returns duplicate rows
+select  distinct  q1."NO1" from IDEPT q1, IDEPT q2 
+where  ( q2."DISCRIM_DEPT" = 'HardwareDept') 
+ and  ( q1."DISCRIM_DEPT" = 'SoftwareDept')  and  ( q1."NO1" 
+<> ALL  ( select  q3."NO1" from IDEPT q3 where  (  q3."REPORTTO_NO" =  q2."NO1") ) )  ;
+
+The sql script to create the table and load data into it is as follows
+CREATE TABLE "APP"."IDEPT" ("DISCRIM_DEPT" VARCHAR(32), "NO1" INTEGER NOT NULL, 
+"NAME" VARCHAR(50), "AUDITOR_NO" INTEGER, "REPORTTO_NO" INTEGER, "HARDWAREASSET"
+ VARCHAR(15), "SOFTWAREASSET" VARCHAR(15));
+– primary/unique
+ALTER TABLE "APP"."IDEPT" ADD CONSTRAINT "PK_IDEPT" PRIMARY KEY ("NO1");
+insert into idept values ('Dept', 1, 'Department1', null, null, null, null);
+insert into idept values ('HardwareDept', 2, 'Department2', 25, 1, 'hardwareaset2', null);
+insert into idept values ('HardwareDept', 3, 'Department3', 25, 2, 'hardwareaset3', null);
+insert into idept values ('SoftwareDept', 4, 'Department4', 25, 1, null, 'softwareasset4');
+insert into idept values ('SoftwareDept', 5, 'Department5', 30, 4, null, 'softwareasset5');
+
+
+The problem appears to be in org.apache.derby.impl.sql.compile.FromList.returnsAtMostSingleRow() method. This method along with other things tries to determine if the DISTINCT can be dropped without causing duplicate rows. For the query in question, this method decides that DISTINCT is not necessary which I think is incorrect.
+
+If the table above is created with no primary key, the DISTINCT query does not return duplicate rows. That is because one of the several criterias for dropping DISTINCT is that there should be a unique index on the columns in the where clause.

@@ -1,0 +1,20 @@
+A file containing macros can be imported in pig like so:
+
+
+
+IMPORT 'some_path/my_macros.pig';
+
+
+
+It would be convenient if a macro file could be imported from a registered JAR as well.  This would make it easier to distribute them.  One could package a set of UDFs and macros in a single JAR.  Once the JAR is registered any of the UDFs or macros can be used once.
+
+For example, support that some_path/my_macros.pig has been packaged in a JAR named my_macros.jar.  The above code then becomes 
+
+
+
+REGISTER my_macros.jar;
+IMPORT 'some_path/my_macros.pig';
+
+
+
+Pig would first check if the file is found at the path some_path/my_macros.pig, and failing that it would attempt to load a resource by that name.  Since the JAR is registered it will find it.

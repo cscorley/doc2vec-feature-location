@@ -1,0 +1,34 @@
+Currently tika has the following direct depencdencies declared in its pom.xml-s:
+
+tika-core:
+
+	none
+
+
+
+tika-parent:
+
+	none
+
+
+
+tika-parsers:
+
+	commons-logging 1.1.1
+	log4j 1.2.14
+
+
+
+In tika-parsers pom.xml it is stated that commons-logging is only a transitive dependency and it is not used in tika only in poi and it is only there so tika pulls the 1.1.1 version of commons-logging instead of the 1.1 version which is pulled by poi. For this usecase there is a better option in maven: move this depencency declaration from the <depencencies> element to the <dependencyManagement> element. Like so:
+<dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+	</dependencies>
+</dependencyManagement>
+The result will be the same but tika-parsers will no more say that it directly needs commons-logging as dependency.
+
+I did a search for "log" in the java files of tika-core and tike-parsers and it seems that only one class uses logging and its org.apache.tika.parser.mbox.MboxParser referencing log4j. I think it should be trivial to modify this class to not depend on log4j and so the log4j depencency could also be removed from the direct dependencies of tika-parsers.

@@ -1,0 +1,39 @@
+Looking at this snippet:
+
+
+
+    private void init(Properties properties) throws ExecException {
+          .
+          .
+          .
+
+            // Check existence of hadoop-site.xml or core-site.xml
+            Configuration testConf = new Configuration();
+            ClassLoader cl = testConf.getClassLoader();
+            URL hadoop_site = cl.getResource( HADOOP_SITE );
+            URL core_site = cl.getResource( CORE_SITE );
+           
+            if( hadoop_site == null && core_site == null ) {
+                throw new ExecException("Cannot find hadoop configurations in classpath (neither hadoop-site.xml nor core-site.xml was found in the classpath)." +
+                        " If you plan to use local mode, please put -x local option in command line",
+                        4010);
+            }
+
+
+
+This assumes the resources (*-site.xml) are set on the classpath, but this will not always be the case when run with Pig's Java APIs. One could want to programatically set the resources and the code here should additionally check if they are available in there. 
+
+Example: When a Configuration object is created and resources are added before passing it on to Pig.
+
+
+
+Configuration conf = new Configuration(false);
+conf.addResource("foo/core-site.xml");
+conf.addResource("bar/hadoop-site.xml");
+
+PigServer pServer = new PigServer(ExecType.MAPREDUCE, conf);
+
+
+
+The above conf is not used right now to obtain resources.
+

@@ -1,0 +1,13 @@
+From the EmbedConnection.java comment for "xa_prepare".
+
+
+					// On a prepare call, xa allows an optimization that if the
+					// transaction is read only, the RM can just go ahead and
+					// commit it.  So if store returns this read only status -
+					// meaning store has taken the liberty to commit already - we
+					// needs to turn around and call internalCommit (without
+					// committing the store again) to make sure the state is
+					// consistent.  Since the transaction is read only, there is
+					// probably not much that needs to be done.
+
+When XATransactionController.XA_RDONLY is returned, no "commit" or "rollback" will be received.  If a XA transaction timer was started (could be through the derby.jdbc.xaTransactionTimeout=xxx for example), then these transactions will not have their timer canceled and will later attempt to cancel the transaction and fail as the transaction no longer exists.

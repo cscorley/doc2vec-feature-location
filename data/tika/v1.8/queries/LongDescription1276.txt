@@ -1,0 +1,78 @@
+While updating from tika 1.2 to 1.5 I that the `org.apache.tika:tika-bundle:1.5` module has some missing dependences.
+
+1. `com.uwyn:jhighlight:1.0` is not embedded
+
+Because of that installing the bundle results in the following exception
+
+
+
+org.osgi.framework.BundleException: Unresolved constraint in bundle org.apache.tika.bundle [103]: Unable to resolve 103.0: missing requirement [103.0] osgi.wiring.package; (osgi.wiring.package=com.uwyn.jhighlight.renderer))
+org.osgi.framework.BundleException: Unresolved constraint in bundle org.apache.tika.bundle [103]: Unable to resolve 103.0: missing requirement [103.0] osgi.wiring.package; (osgi.wiring.package=com.uwyn.jhighlight.renderer)
+	at org.apache.felix.framework.Felix.resolveBundleRevision(Felix.java:3962)
+	at org.apache.felix.framework.Felix.startBundle(Felix.java:2025)
+	at org.apache.felix.framework.Felix.setActiveStartLevel(Felix.java:1279)
+	at org.apache.felix.framework.FrameworkStartLevelImpl.run(FrameworkStartLevelImpl.java:304)
+	at java.lang.Thread.run(Thread.java:744)
+
+
+
+2. `org.ow2.asm:asm:4.1` is not embedded because `org.apache.tika:tika-core:1.5` uses `org.ow2.asm-debug-all:asm:4.1` and therefore the `Embed-Dependency` directive `asm` does not match any dependency. 
+
+Because of that one do get the following exception (after fixing (1))
+
+
+
+org.osgi.framework.BundleException: Unresolved constraint in bundle org.apache.tika.bundle [96]: Unable to resolve 96.0: missing requirement [96.0] osgi.wiring.package; (&(osgi.wiring.package=org.objectweb.asm)(version>=4.1.0)(!(version>=5.0.0))))
+org.osgi.framework.BundleException: Unresolved constraint in bundle org.apache.tika.bundle [96]: Unable to resolve 96.0: missing requirement [96.0] osgi.wiring.package; (&(osgi.wiring.package=org.objectweb.asm)(version>=4.1.0)(!(version>=5.0.0)))
+	at org.apache.felix.framework.Felix.resolveBundleRevision(Felix.java:3962)
+	at org.apache.felix.framework.Felix.startBundle(Felix.java:2025)
+	at org.apache.felix.framework.Felix.setActiveStartLevel(Felix.java:1279)
+	at org.apache.felix.framework.FrameworkStartLevelImpl.run(FrameworkStartLevelImpl.java:304)
+	at java.lang.Thread.run(Thread.java:744)
+
+
+
+There are two possibilities to fix this (a) change the `Embed-Dependency` to `asm-debug-all` or adding a dependency to `org.ow2.asm:asm:4.1` to the tika-bundle pom file.
+
+3. `edu.ucar:netcdf:4.2-min` is not embedded
+
+Because of that one does get the following exception (after fixing (1) and (2))
+
+
+
+org.osgi.framework.BundleException: Unresolved constraint in bundle org.apache.tika.bundle [96]: Unable to resolve 96.0: missing requirement [96.0] osgi.wiring.package; (osgi.wiring.package=ucar.ma2))
+org.osgi.framework.BundleException: Unresolved constraint in bundle org.apache.tika.bundle [96]: Unable to resolve 96.0: missing requirement [96.0] osgi.wiring.package; (osgi.wiring.package=ucar.ma2)
+	at org.apache.felix.framework.Felix.resolveBundleRevision(Felix.java:3962)
+	at org.apache.felix.framework.Felix.startBundle(Felix.java:2025)
+	at org.apache.felix.framework.Felix.setActiveStartLevel(Felix.java:1279)
+	at org.apache.felix.framework.FrameworkStartLevelImpl.run(FrameworkStartLevelImpl.java:304)
+	at java.lang.Thread.run(Thread.java:744)
+
+
+
+
+4. The `com.adobe.xmp:xmpcore:5.1.2` dependency is required at runtime
+
+After fixing the above issues the tika-bundle was started successfully. However when extracting EXIG metadata from a jpeg image I got the following exception.
+
+
+
+java.lang.NoClassDefFoundError: com/adobe/xmp/XMPException
+	at com.drew.imaging.jpeg.JpegMetadataReader.extractMetadataFromJpegSegmentReader(JpegMetadataReader.java:112)
+	at com.drew.imaging.jpeg.JpegMetadataReader.readMetadata(JpegMetadataReader.java:71)
+	at org.apache.tika.parser.image.ImageMetadataExtractor.parseJpeg(ImageMetadataExtractor.java:91)
+	at org.apache.tika.parser.jpeg.JpegParser.parse(JpegParser.java:56)
+	[..]
+
+
+
+Embedding xmpcore in the tika-bundle solved this issue.
+
+
+NOTES:
+
+
+	The Apache Stanbol integration tests only covers PDF, JPEG, DOCX. So there might be additional issues with other not tested parsers.
+	I was updating Tika from version 1.2 to 1.5. This means that all versions > 1.2 might also be affected by this.
+	The following dependencies embedded by the tika-bundle are in fact OSGI bundles and would not be needed to be embedded: commons-compress, xz, commons-codec, commons-io
+

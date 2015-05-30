@@ -1,0 +1,11 @@
+DERBY-2347 adds the possibility to send locators between client and server instead of LOB values.  This has not been activated yet, since the client implementation does not currently support locators.  This report is for supporting the locators for Blob objects.  Another JIRA issue will be made for Clob.
+
+This work will be made in several steps:
+   1. Blob methods and ResultSet.getXXX methods
+   2. PreparedStatement and CallableStatement methods
+   3. ResultSet.updateXXX methods
+   4. Connection.createBlob()
+
+There is dependencies between these steps and it might be that the Locator implementation cannot be exposed until everything has been done.  At least, doing just step 1, gives testing errors because tests use Blobs fetched from DB as parameters to prepared statements.   I would guess tests for updatable result sets, needs the combination of 1. and 3.
+
+

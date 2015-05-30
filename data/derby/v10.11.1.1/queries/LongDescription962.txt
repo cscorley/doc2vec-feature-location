@@ -1,0 +1,9 @@
+Currently in the client, if userid and password are set in the connection url, the default security mechanism is upgraded to USRIDPWD (which is clear text userid and password).  This seems to be a security hole here. 
+
+Current client  driver supports encrypted userid/password (EUSRIDPWD) via the use of DH key-agreement protocol - however current Open Group DRDA specifications imposes small prime and base generator values (256 bits) that prevents other JCE's  (apt from ibm jce) to be used as java cryptography providers.  
+
+Some thoughts:
+– client can make a check to see if it the jvm it is running in supports the encryption necessary for EUSRIDPWD. If it supports, then the client can upgrade to EUSRIDPWD. 
+– if the jvm the client is running is , doesnt support encryption requirements for EUSRIDPWD, then the security mechanism will be set to USRIDPWD.
+
+– DERBY-528 will add support for strong userid and password which is another option to send encrypted passwords across the wire. When this gets added, maybe this can be considered as one of the upgrade options after EUSRIDPWD. 

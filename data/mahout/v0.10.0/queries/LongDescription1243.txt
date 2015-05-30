@@ -1,0 +1,19 @@
+Dictionary file format generated from lucene.vectors is not in SequenceFileFormat and hence not acceptable as input to CVB clustering.
+
+The problem code from Driver.java
+
+
+
+
+    File dictOutFile = new File(dictOut);
+    log.info("Dictionary Output file: {}", dictOutFile);
+    Writer writer = Files.newWriter(dictOutFile, Charsets.UTF_8);
+    DelimitedTermInfoWriter tiWriter = new DelimitedTermInfoWriter(writer, delimiter, field);
+    try {
+      tiWriter.write(termInfo);
+    } finally {
+      Closeables.close(tiWriter, false);
+    }
+
+
+

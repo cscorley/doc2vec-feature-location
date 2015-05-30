@@ -1,0 +1,13 @@
+Due to the following if block, deleteByQuery cannot be executed. cmd.id and cmd.query should be set to null when UpdateProcessor chain is finished.
+
+RunUpdateProcessor
+public void processDelete(DeleteUpdateCommand cmd) throws IOException {
+  if( cmd.id != null ) {
+    updateHandler.delete(cmd);
+  }
+  else {
+    updateHandler.deleteByQuery(cmd);
+  }
+  super.processDelete(cmd);
+}
+

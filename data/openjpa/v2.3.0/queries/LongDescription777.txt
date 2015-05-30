@@ -1,0 +1,18 @@
+When an entity contains a persistent collection of embeddables and the embeddable has a to-One relation in it, the following exception is thrown during retrieval of this entity:
+
+<openjpa-1.2.1-SNAPSHOT-r422266:712930M fatal general error> org.apache.openjpa.persistence.PersistenceException: org.apache.openjpa.persistence.jdbc.annotations.PColl_EntityA.embedCollection.org.apache.openjpa.persistence.jdbc.annotations.PColl_EntityB.m2oC
+	at org.apache.openjpa.kernel.StateManagerImpl.setExtraFieldData(StateManagerImpl.java:721)
+	at org.apache.openjpa.kernel.StateManagerImpl.setIntermediate(StateManagerImpl.java:698)
+	at org.apache.openjpa.jdbc.meta.strats.RelationFieldStrategy.loadEmbedded(RelationFieldStrategy.java:968)
+	at org.apache.openjpa.jdbc.meta.strats.EmbedValueHandler.toObjectValue(EmbedValueHandler.java:165)
+	at org.apache.openjpa.jdbc.meta.strats.ElementEmbedValueHandler.toObjectValue(ElementEmbedValueHandler.java:132)
+	at org.apache.openjpa.jdbc.meta.strats.HandlerStrategies.loadObject(HandlerStrategies.java:202)
+	at org.apache.openjpa.jdbc.meta.strats.HandlerCollectionTableFieldStrategy.loadElement(HandlerCollectionTableFieldStrategy.java:78)
+	at org.apache.openjpa.jdbc.meta.strats.StoreCollectionFieldStrategy.load(StoreCollectionFieldStrategy.java:611)
+	at org.apache.openjpa.jdbc.meta.FieldMapping.load(FieldMapping.java:819)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.load(JDBCStoreManager.java:626)
+	at org.apache.openjpa.kernel.DelegatingStoreManager.load(DelegatingStoreManager.java:116)
+	at org.apache.openjpa.kernel.ROPStoreManager.load(ROPStoreManager.java:78)
+	at org.apache.openjpa.kernel.StateManagerImpl.loadFields(StateManagerImpl.java:2921)
+	at org.apache.openjpa.kernel.StateManagerImpl.loadField(StateManagerImpl.java:2999)
+	at org.apache.openjpa.kernel.StateManagerImpl.beforeAccessField(StateManagerImpl.java:1493)

@@ -1,0 +1,5 @@
+A sort is obtained through TransactionController.openSort() which returns a long, this is then used with various methods on TransactionController to get a SortController, get the scans against the sort and drop the sort.
+
+This is not a natural OO style of programming, instead the open should return the SortController and then all actions on the sort including dropping be methods on SortController.
+
+This would be cleaner and remove the logic in RAMTransaction that tries to re-uses long sort identifiers.

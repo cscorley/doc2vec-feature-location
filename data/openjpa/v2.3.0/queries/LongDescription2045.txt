@@ -1,0 +1,14 @@
+This issue was originally reported on the users mailing list : http://openjpa.208410.n2.nabble.com/GenerationType-TABLE-question-column-name-suffixed-with-0-td6729676.html. 
+
+The H2 DBDictionary is picking up the default list of invalid column names from openjpa-jdbc/src/main/resources/org/apache/openjpa/jdbc/sql/sql-keywords.rsrc, which includes "NAME". As a result we're trying to fix the column so that it contains a valid identifier, and end up with the wrong value. 
+
+Users can work around the problem by delimiting columns in their annotations or xml mapping files, for example : 
+@javax.persistence.TableGenerator(
+    name = "fred", 
+    table = "jpa_sequence", 
+    pkColumnName = "\"name\"", 
+    valueColumnName = "last_value", 
+    pkColumnValue = "fred", 
+    allocationSize = 500)
+
+To fix the problem we need to either remove NAME from the default list, or manually remove it in the H2 Dictionary. Some additional investigation may be needed to determine whether this is a problem for other databases too. 

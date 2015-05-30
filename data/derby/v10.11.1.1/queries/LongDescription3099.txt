@@ -1,0 +1,15 @@
+I noticed this strange behaviour when I was working on DERBY-2911. It seems like the result of test case P042 in unit/T_RawStoreFactory.unit is dependent on the actual contents of the buffer manager (which pages have been evicted, which free entries have been reused and so on). I'm not sure if this is a bug in the test or somewhere in the code, or if this is expected behaviour, but it sounds a bit suspicious.
+
+For instance, commenting out all the test cases preceeding P042 makes P042 fail, even though P042 creates a new container so that it should not be affected by any of the previous test cases. Also, commenting out a space optimization in Clock.findFreeItem() so that freed entries are not reused except when rotateClock() is called on a full cache to find a victim, causes the test case to fail. A third way to make it fail, is to vary the scan direction when looking for a free entry to reuse in the new buffer manager (ConcurrentCache). If the scan is disabled or walks the clock from the beginning to the end, the test fails, but if the clock is scanned backwards, it passes.
+
+The code that fails in the test, is
+
+			c = t_util.t_openContainer(t, segment, cid, true);
+			Page checkNextPage = t_util.t_addPage(c);
+			if (checkNextPage.getPageNumber() == nextPageNumber)
+				throw T_Fail.testFailMsg(
+					"expect some pages to be freed by update rollback");
+
+The expected page number is 2, and the actual page number is 7.
+
+Before this, a large row has been inserted on page 1 and overflows to page 2, 3, 4, 5 and 6. Also, page 7 has been added manually before all the updates were rolled back so that the pages from 2 up to 7 should be unallocated. Page 7 is then added and removed, and the transaction is committed. After reopening the container, the test expects the pages from 2 up to 7 to be free, and that t_addPage() should allocate page number 2.

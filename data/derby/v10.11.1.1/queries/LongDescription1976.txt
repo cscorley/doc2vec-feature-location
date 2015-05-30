@@ -1,0 +1,58 @@
+As part of my work for DERBY-1758 I'm trying to convert the SQL test lang/xml_general.sql into a JUnit test.  In doing so I've found that there are several methods which would make such a conversion easier (and more applicable across different frameworks).
+
+In particular the methods I've found useful (and for which I plan to post a patch) are:
+
+ – assertSQLState():
+
+  This method already exists, but I'd like to expand it so that if the top-level exception doesn't have the target SQLSTATE, the method will look at nested exceptions (if any) and try to determine if any of them match the target SQLSTATE.
+
+  This added functionality is useful in cases where we have a generic top-level SQLException that in turn has a more specific (and probably more meaningful) nested exception that is really what we want to test.
+
+  For example, master/xml_general.out has the following lines:
+
+    ij> – XML cannot be imported or exported.  These should all fail.
+    CALL SYSCS_UTIL.SYSCS_EXPORT_TABLE (
+      null, 'T1', 'xmlexport.del', null, null, null);
+    ERROR 38000: The exception 'java.sql.SQLException: XML values are not allowed in top-level result sets; try using XMLSERIALIZE.' was thrown while evaluating an expression.
+    ERROR 42Z71: XML values are not allowed in top-level result sets; try using XMLSERIALIZE.
+
+  Since both 38000 and 42Z71 show up in the master file we're effectively checking both of them.  With JUnit we could check both by doing something like:
+
+    assertSQLState("38000", se);
+    assertSQLState("42Z71", se.getNextException());
+
+but that doesn't appear to work for client/server configurations because we don't actually get chained exceptions in client/server; we just get a single exception whose content is the concatenation of the top-level exception's message with the nested exception's message.  That said, if we extend assertSQLSTATE() to check nested exceptions and make that check account for the different treatment of nested exceptions in client vs embedded vs jcc, then we can check both SQLSTATEs by making two calls with the same SQLException, namely:
+
+    assertSQLSTATE("38000", se);
+    assertSQLSTATE("42Z71", se);
+
+  Or if we don't care about 38000 but are really just interested in 42Z71, then we just make the single call for the latter and ignore the former.  Either way the call to assertSQLState() should be enhanced such that it can handle nested exceptions for all frameworks/configurations.
+
+ – assertCompileError():
+
+  Again, this method already exists.  But I'd like to extend it so that if the call to "prepareStatement(query)" succeeds, the method goes on to call "execute()" on the prepared statement.  The reason for this is that JCC defers preparation until execution time.  Thus if we expect a compile-time error in a test and we run it against JCC, the current method will throw an assertionfailure because JCC didn't actually try to compile the query (and thus didn't throw an error).  By adding a call to "execute()" we force JCC to compile and therefore make it so that the method behaves as expected in all frameworks.
+
+ – assertStatementError():
+
+  A more generic version of assertCompileError() that doesn't care when the error happens.  This method executes the query and processes (reads and discards) all rows in the result set(s) (if any) until it hits an error.  If no error is thrown then an assertion failure occurs.
+
+  This method is useful for checking execution-time errors-especially data-specific ones such a divide-by-zero.  For example, assume we have a query that returns 3 rows successfully but is expected to throw an error on fourth row.  In embedded mode execution of the query will occur without an error and the first three calls to "rs.next()" will also succeed.  Only when the fourth call to "rs.next()" is made will the error occur.  In JCC, though, the error occurs right away as part of the call to "execute()".  By having a method that doesn't care when the error occursit just asserts that the error does in fact occur at some point-we make it easier to check for execution-time errors across all frameworks.
+
+ – assertDDLRowCount():
+
+  Executes a statement using "executeUpdate()" and asserts that the resultant row count matches an expected row count.  This method is itself just one line:
+
++        assertEquals("DDL row count doesn't match.",
++            expectedRC, st.executeUpdate(query));
+
+but by putting it in a common place we avoid having to re-type (or copy-paste) the assertion failure message every single time we want to check row counts.  Not by any means necessary, but convenient enough to warrant inclusion in BaseJDBCTestCase, I think.
+
+ – assertRowCount():
+
+  Takes a result set and an expected row count and simply iterates through the result set, counting the number of rows.  Then asserts that the actual and expected row counts are the same.
+
+ – assertFullResultSet():
+
+  Takes a result set and a two-dimensional array and asserts that the two have equivalent rows and columns.  The first row in the 2-d array is expected to be the names of the columns and thus is compared to the metadata column names.  Subsequent rows in the array are then compared with the corresponding rows in the result set.
+
+  This method is useful when converting the output of a query from a .sql test into a JUnit test.  Test writers (or perhaps more importantly, some wouldn't-it-be-nice conversion tool) can create the 2-D array based on the master file and then call this method to verify that the rows and columns in the result set are all as expected.

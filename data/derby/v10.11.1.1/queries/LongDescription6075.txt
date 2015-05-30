@@ -1,0 +1,5 @@
+The code in the org.apache.derby.impl.sql.compile package predates the Java Collections Framework and uses old-style collections like java.util.Vector and java.util.Hashtable. Since the old-style collection classes are used in many method signatures, it's difficult to use modern collection classes when adding new code.
+
+I suggest we switch to using interfaces (like java.util.List and java.util.Map) instead of specific classes in the signatures, so that we have more flexibility in choosing the right collection class for the job.
+
+Only changing the signatures would allow us to continue using Vector and Hashtable, since they implement the interfaces. However, I think it would be good to switch to ArrayList and HashMap in a second step. The instances in impl/sql/compile are not shared between threads, so we don't need the synchronization provided by the old-style classes. Switching to unsynchronized classes may make compilation slightly faster.

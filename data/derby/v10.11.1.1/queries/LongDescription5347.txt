@@ -1,0 +1,16 @@
+When a TCP/IP Stack on a z/OS system running Derby is stopped and started, Derby loops with the following stack trace repeated until disk space is exhausted on the logging file system:
+
+Wed Jul 20 07:49:51 CDT 2011 : EDC5122I Input/output error.
+java.net.SocketException: EDC5122I Input/output error.
+	at java.net.PlainSocketImpl.accept(PlainSocketImpl.java:457)
+	at java.net.ServerSocket.implAccept(ServerSocket.java:473)
+	at java.net.ServerSocket.accept(ServerSocket.java:444)
+	at org.apache.derby.impl.drda.ClientThread$1.run(Unknown Source)
+	at java.security.AccessController.doPrivileged(AccessController.java:241)
+	at org.apache.derby.impl.drda.ClientThread.run(Unknown Source)
+
+The derby log we generated was 498 megabytes and had 1,883,750 of these stack traces.
+
+Since Derby originated from IBM, the following link may provide a valuable clue as to how to fix the defect in Derby:
+
+http://www-01.ibm.com/support/docview.wss?uid=swg1PQ93090

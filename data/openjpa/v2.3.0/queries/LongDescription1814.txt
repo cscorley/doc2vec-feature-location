@@ -1,0 +1,27 @@
+The following JPQL fail:
+
+    	String jpql = "SELECT a.uuid from EntityA a WHERE a.name = 'test' " + 
+    	    "GROUP BY a.date1, a.uuid " +
+
+(1)    "HAVING MAX(a.date1) IN (SELECT MAX(a1.date2) from EntityA a1 WHERE a1.name = 'test') ";
+(2)    "HAVING MAX(a.date1) = (SELECT MAX(a1.date2) from EntityA a1 WHERE a1.name = 'test') ";
+
+org.apache.openjpa.persistence.ArgumentException: Encountered "MAX ( a .date1) IN" at character 168, but expected: ["(", ")", "*", "+", "-", ".", "/", ":", "<", "<=", "<>", "=", ">", ">=", "?", "ABS", "ALL", "AND", "ANY", "AS", "ASC", "AVG", "BETWEEN", "BOTH", "BY", "CONCAT","COUNT", "CURRENT_DATE", "CURRENT_TIME", "CURRENT_TIMESTAMP", "DELETE", "DESC", "DISTINCT", "EMPTY", "ESCAPE", "EXISTS", "FETCH", "FROM", "GROUP", "HAVING", "IN", "INNER", "IS", "JOIN", "LEADING", "LEFT","LENGTH", "LIKE", "LOCATE", "LOWER", "MAX", "MEMBER", "MIN", "MOD","NEW", "NOT", "NULL", "OBJECT", "OF", "OR", "ORDER", "OUTER", "SELECT",
+"SET", "SIZE", "SOME", "SQRT", "SUBSTRING", "SUM", "TRAILING", "TRIM","UPDATE", "UPPER", "WHERE", <BOOLEAN_LITERAL>, <DECIMAL_LITERAL>,<IDENTIFIER>, <INTEGER_LITERAL>, <STRING_LITERAL>].
+ at org.apache.openjpa.kernel.jpql.JPQL.generateParseException(JPQL.java:9566)
+ at org.apache.openjpa.kernel.jpql.JPQL.jj_consume_token(JPQL.java:9443)
+ at org.apache.openjpa.kernel.jpql.JPQL.conditional_primary(JPQL.java:1947)
+ at org.apache.openjpa.kernel.jpql.JPQL.conditional_factor(JPQL.java:1925)
+ at org.apache.openjpa.kernel.jpql.JPQL.conditional_term(JPQL.java:1791)
+
+The fix involves two changes:
+(1) jjt grammar change
+(2) OpenJPA performs a preliminary validation to ensure the expression in the having clause is included in the group-by list. However, this validation checking should be done only on the LHS of the having clause (see expr1 below), not on the RHS (see expr2 below).  For example:
+
+     Having expr1 = expr2
+
+Only expr1 should be in the group-by list
+
+The current visitor pattern can not tell which node to visit without massive change. The alternative is to disable the checking by OpenJPA and let the backend to determine whether the generated SQL is valid or not.
+
+

@@ -1,0 +1,21 @@
+I have a strange issue that can be reproduced easily with the following objects in schema "test":
+
+create table a (a integer);
+insert into a (a) values(1);
+create view v as select * from a;
+
+This works:
+select test.a.a from test.a where test.a.a <> 2 order by test.a.a asc;
+
+This doesn't work:
+select test.v.a from test.v where test.v.a <> 2 order by test.v.a asc;
+
+But this does:
+select test.v.a from test.v where test.v.a <> 2 order by v.a asc;
+
+This is the error I get:
+Error: 'TEST.V' is not an exposed table name in the scope in which it appears.
+SQLState:  42X10
+ErrorCode: -1
+
+I've tried quite a few SELECT clauses, and I think the ORDER BY clause is the only one having this issue.

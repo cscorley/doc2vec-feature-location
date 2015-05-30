@@ -1,0 +1,20 @@
+On client getTimestamp on a TIME column will print date   1900-01-01 instead of the current date like the embedded driver.
+To repro run the DERBY-877 repro without specifying a file.encoding
+
+java TestEnc derbynetclient
+[snip]
+COLUMN 2:TM TIME
+        getString:      16:27:35
+        getTimeStamp:   1900-01-01 16:27:35.0
+        getTime:        16:27:35
+        getDate         Exception SQLSTATE:null  (EXPECTED)
+
+
+With Embedded  it prints the current date for getTimestamp
+java TestEnc  derby
+
+COLUMN 2:TM TIME
+        getString:      16:27:35
+        getTimeStamp:   2006-01-28 16:27:35.0
+        getTime:        16:27:35
+        getDate         Exception SQLSTATE:22005  (EXPECTED)

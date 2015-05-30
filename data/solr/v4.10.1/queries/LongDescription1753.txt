@@ -1,0 +1,17 @@
+When using the StatsComponent with a sharded request and getting statistics over facets, a NullPointerException is thrown.
+
+Stacktrace:
+java.lang.NullPointerException at org.apache.solr.handler.component.StatsValues.accumulate(StatsValues.java:54) at 
+org.apache.solr.handler.component.StatsValues.accumulate(StatsValues.java:82) at 
+org.apache.solr.handler.component.StatsComponent.handleResponses(StatsComponent.java:116) at 
+org.apache.solr.handler.component.SearchHandler.handleRequestBody(SearchHandler.java:290) at 
+org.apache.solr.handler.RequestHandlerBase.handleRequest(RequestHandlerBase.java:131) at org.apache.solr.core.SolrCore.execute(SolrCore.java:1316) at 
+org.apache.solr.servlet.SolrDispatchFilter.execute(SolrDispatchFilter.java:338) at org.apache.solr.servlet.SolrDispatchFilter.doFilter(SolrDispatchFilter.java:241) at 
+org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:235) at 
+org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:206) at 
+org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:233) at 
+org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:191) at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:128) at 
+org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:102) at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:109) at 
+org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:293) at org.apache.coyote.http11.Http11Processor.process(Http11Processor.java:849) at 
+org.apache.coyote.http11.Http11Protocol$Http11ConnectionHandler.process(Http11Protocol.java:583) at 
+org.apache.tomcat.util.net.JIoEndpoint$Worker.run(JIoEndpoint.java:454) at java.lang.Thread.run(Unknown Source) 

@@ -1,0 +1,25 @@
+When using org.apache.solr.request.PHPSerializedResponseWriter as the queryResponseWriter, search results that contain spellcheck-fields are incorrectly serialized and can't be properly deserialized by PHP 5. Example error:
+Notice: unserialize() [function.unserialize]: Error at offset 305 of 312 bytes in /Solr/Client.php on line 131 
+
+How to reproduce:
+
+	open the example solrconfig.xml (apache-solr-nightly/example/solr/conf/solrconfig.xml)
+	uncomment the PHPSerializedResponseWriter, around line 733
+	start the Jetty container
+	index all the example documents from exampledocs/
+	open this URL: http://localhost:8983/solr/spellCheckCompRH?cmd=&q=ipod&spellcheck=true&spellcheck.extendedResults=true&spellcheck.onlyMorePopular=true&wt=phps
+
+
+
+At the very end of the serialized array you will see this:
+> s:10:"spellcheck";a:1:{s:11:"suggestions";a:1:
+{s:16:"correctlySpelled";true}
+}} 
+
+When you serialize a similar array in PHP, you get this:
+echo serialize(array("spellcheck"=>array("suggestions"=>array("correctlySpelled"=>true))));
+> a:1:{s:10:"spellcheck";a:1:{s:11:"suggestions";a:1:
+{s:16:"correctlySpelled";b:1;}
+}} 
+
+So it seems to be, that the PHPResponseWriter doesn't recognize "true" to be a boolean var and prints it directly, instead of transforming it to "b:1;".

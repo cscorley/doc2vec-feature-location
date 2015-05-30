@@ -1,0 +1,10 @@
+Currently, Tez mini cluster tests are slow partly because negative tests are slow. The reason is that Tez retries 4 times before marking the job failed.
+
+I suggest we should lower the max failed attempts to 2 so that negative tests will fail faster. For example, TestAccumulator runs 30 secs faster with this change-
+
+
+tez.am.task.max.failed.attempts=2: Tests run: 23, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 276.269 sec
+tez.am.task.max.failed.attempts=4: Tests run: 23, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 302.772 sec
+
+
+I am not lowering it to 1 for transient errors.

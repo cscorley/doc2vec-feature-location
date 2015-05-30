@@ -1,0 +1,27 @@
+Tried turning on trace:
+
+>networkservercontrol  trace on
+Invalid reply from network server: Insufficient data.
+
+The server process shows the following stack trace:
+
+access denied (java.io.FilePermission Server58.trace write)
+java.security.AccessControlException: access denied (java.io.FilePermission Server58.trace write)
+        at java.security.AccessControlContext.checkPermission(AccessControlContext.java:269)
+        at java.security.AccessController.checkPermission(AccessController.java:401)
+        at java.lang.SecurityManager.checkPermission(SecurityManager.java:524)
+        at java.lang.SecurityManager.checkWrite(SecurityManager.java:954)
+        at java.io.FileOutputStream.<init>(FileOutputStream.java:169)
+        at java.io.FileOutputStream.<init>(FileOutputStream.java:70)
+        at java.io.FileWriter.<init>(FileWriter.java:46)
+        at org.apache.derby.impl.drda.DssTrace.startComBufferTrace(Unknown Source)
+        at org.apache.derby.impl.drda.Session.initTrace(Unknown Source)
+        at org.apache.derby.impl.drda.Session.setTraceOn(Unknown Source)
+        at org.apache.derby.impl.drda.NetworkServerControlImpl.setTrace(Unknown Source)
+        at org.apache.derby.impl.drda.NetworkServerControlImpl.processCommands(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.sessionInitialState(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.run(Unknown Source)
+
+The server now does not respond to ping or shutdown, and has to be killed.
+
+See also DERBY-3103

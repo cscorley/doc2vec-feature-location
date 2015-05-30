@@ -1,0 +1,18 @@
+The following script fail:
+
+
+
+a = load '1.txt' as (a0:chararray);
+b = load '2.txt' as (b0:chararray);
+c = foreach b generate flatten(STRSPLIT(b0)) as c0;
+d = join c by c0, a by a0;
+dump d;
+
+
+
+Error message:
+Caused by: java.lang.NullPointerException
+        at org.apache.pig.newplan.logical.rules.PushDownForEachFlatten$PushDownForEachFlattenTransformer.getNonFlattenFieldUids(PushDownForEachFlatten.java:186)
+        at org.apache.pig.newplan.logical.rules.PushDownForEachFlatten$PushDownForEachFlattenTransformer.check(PushDownForEachFlatten.java:101)
+        at org.apache.pig.newplan.optimizer.PlanOptimizer.optimize(PlanOptimizer.java:108)
+        ... 13 more

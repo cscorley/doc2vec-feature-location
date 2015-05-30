@@ -1,0 +1,9 @@
+Noticed the following issues in SyncRequestProcessor
+
+1) logCount is incremented even for non-log events (say getData)
+txnlog should return indication if request was logged or not (if hdr ==null it returns)
+
+also:
+
+2) move r.nextInt below logCount++ (ie if an actual log event)
+3) fix indentation after txnlog.append (for some reason has unnecessary 4 char indent)

@@ -1,0 +1,3 @@
+The current order column reordering mechanism does not maintain a contiguous index value when an item is deleted from anywhere except the end of a collection.  Per the latest JPA 2.0 spec, a contiguous index value must be maintained.
+
+The current reordering mechanism does a full delete and reinsert of the container/collection table values if a reorder is required for inserts.  For deletes, it just removes entries and leaves an empty index value.  The first phase of the fix will be to maintain contiguous ordering using the same mechanism as inserts (delete/re-insert).  The second phase will be to update the ChangeTracker to record the indexes of the updated list items and to use that information to provide a more intelligent update strategy in the handlers.

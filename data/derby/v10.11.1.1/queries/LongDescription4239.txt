@@ -1,0 +1,41 @@
+corruption with storerecovery oc_rec? tests.  ERROR XSLA7: Cannot redo operation null in the log when compress occurs during checkpoint, then jvm exits
+
+I saw corruption on z/OS with the storerecovery tests and 10.5.1.1.  The failure comes in oc_rec3 trying to connect to the database, but the actual problem seems to have occurred with the prior test oc_rec2.  The problem is somewhat intermittent, happening approximately 1/4 times.  I extracted the case from the harness and will attach the reproduction and run the script repro.ksh.  The script will loop up to 50 times until it gets the failure which looks like.
+
+ERROR XSLA7: Cannot redo operation null in the log.
+	at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+	at org.apache.derby.impl.store.raw.log.FileLogger.redo(Unknown Source)
+	at org.apache.derby.impl.store.raw.log.LogToFile.recover(Unknown Source)
+	at org.apache.derby.impl.store.raw.RawStore.boot(Unknown Source)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.boot(Unknown Source)
+	at org.apache.derby.impl.services.monitor.TopService.bootModule(Unknown Source)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(Unknown Source)
+	at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Unknown Source)
+	at org.apache.derby.impl.store.access.RAMAccessManager.boot(Unknown Source)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.boot(Unknown Source)
+	at org.apache.derby.impl.services.monitor.TopService.bootModule(Unknown Source)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(Unknown Source)
+	at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Unknown Source)
+	at org.apache.derby.impl.db.BasicDatabase.bootStore(Unknown Source)
+	at org.apache.derby.impl.db.BasicDatabase.boot(Unknown Source)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.boot(Unknown Source)
+	at org.apache.derby.impl.services.monitor.TopService.bootModule(Unknown Source)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.bootService(Unknown Source)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startProviderService(Unknown Source)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.findProviderAndStartService(Unknown Source)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startPersistentService(Unknown Source)
+	at org.apache.derby.iapi.services.monitor.Monitor.startPersistentService(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.bootDatabase(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.<init>(Unknown Source)
+	at org.apache.derby.jdbc.Driver40.getNewEmbedConnection(Unknown Source)
+	at org.apache.derby.jdbc.InternalDriver.connect(Unknown Source)
+	at org.apache.derby.jdbc.AutoloadedDriver.connect(Unknown Source)
+	at java.sql.DriverManager.getConnection(DriverManager.java:311)
+	at java.sql.DriverManager.getConnection(DriverManager.java:268)
+	at CheckTables.main(CheckTables.java:8)
+Caused by: ERROR XSDBB: Unknown page format at page Page(16,Container(0, 1073)), page dump follows: Hex dump:
+00000000: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000010: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+<snip lots of 000's>
+
+I ran it with 10.3 and it completed all 50 iterations, so whether JVM or Derby issue it seems new since 10.3. (I haven't tried with 10.4).  Oddly I have run tests many times before on this machine using in the 10.5.1.1 release and the same jvm and have never seen this failure, so am looking into whether maybe something changed on the machine or environment.

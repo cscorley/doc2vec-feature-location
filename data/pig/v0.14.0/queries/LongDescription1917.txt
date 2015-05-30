@@ -1,0 +1,43 @@
+In Pig, NativeMapReduce does not allow Configuration parameters which contain spaces.
+
+Considering a simple pig script with wordcount as Native M-R job.
+
+nativeMR.pig
+
+A = load 'input/WordCountInput.txt';
+B = MAPREDUCE 'hadoop-examples.jar' Store A into 'inputDir' Load 'outputDir' as (word:chararray, count:int) `wordcount -Dmapred.job.map.memory.mb=3072 -Dmapred.child.java.opts="-Xmx1536m -Xss128k" inputDir outputDir`;
+store B into 'output/WordCount' using PigStorage;
+
+
+
+The above pig script fails while launching native MAPREDUCE job. Because space after -Dmapred.child.java.opts="-Xmx1536m makes
+-Xss128k" as the first argument to wordcount
+Even with other example M-R program, the parameter mapred.child.java.opts was assigned "-Xmx1536m in Jobconf.
+
+Physical plan, Logical plan, and M-R plan of pig show double quotes. 
+For example, here is the corresponding M-R Plan for the native M-R "MAPREDUCE" statement.
+
+
+MapReduce node scope-13
+hadoop jar hadoop-examples.jar wordcount -Dmapred.job.map.memory.mb=3072 -Dmapred.child.java.opts="-Xmx1536m -Xss128k" inputDir outputDir
+--------
+
+
+
+On executing above M-R job after copying  'input/WordCountInput.txt' into 'inputDir/', as Hadoop Job, this ran successfully.
+
+
+$ *hadoop jar hadoop-examples.jar wordcount -Dmapred.job.map.memory.mb=3072 -Dmapred.child.java.opts="-Xmx1536m -Xss128k" inputDir outputDir*
+11/03/18 14:23:29 INFO input.FileInputFormat: Total input paths to process : 1
+11/03/18 14:23:29 INFO mapred.JobClient: Running job: job_201103181353_0007
+11/03/18 14:23:30 INFO mapred.JobClient:  map 0% reduce 0%
+11/03/18 14:23:37 INFO mapred.JobClient:  map 100% reduce 0%
+11/03/18 14:23:49 INFO mapred.JobClient:  map 100% reduce 100%
+11/03/18 14:23:51 INFO mapred.JobClient: Job complete: job_201103181353_0007
+...
+...
+
+
+
+
+Whereas, when  -Dmapred.child.java.opts=-Xmx1536m was used, the nativeMR.pig executed successfully.

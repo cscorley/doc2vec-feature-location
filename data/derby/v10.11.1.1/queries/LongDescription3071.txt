@@ -1,0 +1,13 @@
+When a database is booted in slave replication mode, it should apply log records received from the master but must not generate log by itself. As described in the functional specification (see DERBY-2872), a database booted in slave mode should enter LogToFile#recover, but not leave this method until the database is no longer in slave mode. 
+
+The current plan for this issue is to modify LogToFile the following ways:
+
+
+	LogToFile is put in slave mode automatically during boot (if property SlaveFactory.SLAVE_MODE is set, see DERBY-3021), but a method is needed to take LogToFile out of recovery mode.
+	SlaveFactory (DERBY-3021) will receive log records from the master and use LogToFile#appendLogRecord to write these to disk. While in slave mode, only SlaveFactory will be allowed to append log records.
+	The thread running LogToFile#recover will recover (redo) one log file at a time (like now), but will not be allowed to open a log file X until that file is no longer being written to. Thus, while appenLogFile writes to logX.dat, recover will be allowed to read all log files up to and including logX-1.dat but will then have to wait until appendLogRecord starts writing to logX+1.dat.
+
+
+
+
+All the described changes will only apply when in slave mode

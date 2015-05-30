@@ -1,0 +1,21 @@
+From http://www.lucidimagination.com/search/document/3b50cd3506952f7 :
+
+In the QueryElevComponent (QEC) it currently throws an exception if  
+the input Query is null (line 329).    Additionally, I've seen cases  
+where it's possible that the Query is not null (q is not set, but  
+q.alt is :), but the rb.getQueryString() is null, which causes an  
+NPE on line 300 or so.
+
+I'd like to suggest that if the Query is empty/null, the QEC should  
+just go on it's merry way as if there is nothing to do.  I don't think  
+a lack of query means that the QEC is improperly configured, as the  
+exception message implies:
+	The QueryElevationComponent needs to be registered 'after' the query  
+component
+
+We should be making sure the QEC is properly registered during  
+initialization time.
+
+Thoughts?
+
+-Grant

@@ -1,0 +1,9 @@
+In JPA2, additional reserved words are introduced in the JPQL language. For example,  KEY, VALUE, ENTRY, CASE, etc.
+These keywords is causing existing application that migrate to JPA2 regressed in ArgumentException (JPQL parser error).
+For example,
+
+     JPQL:  select c from Customer c where c.name = :value
+
+:value is a named parameter, but 'value' is a reserved word in JPA2.
+
+The above query used to work in OpenJPA-1.2.x but not in OpenJPA-2.x

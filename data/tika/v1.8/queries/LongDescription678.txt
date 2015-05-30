@@ -1,0 +1,32 @@
+I get this exception from the tika-app with the command line:
+
+java -jar tika-app-0.9.jar -t test.txt 
+Exception in thread "main" org.apache.tika.exception.TikaException: Unexpected RuntimeException from org.apache.tika.parser.mail.RFC822Parser@558041e0
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:199)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:197)
+	at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:135)
+	at org.apache.tika.cli.TikaCLI$OutputType.process(TikaCLI.java:107)
+	at org.apache.tika.cli.TikaCLI.process(TikaCLI.java:302)
+	at org.apache.tika.cli.TikaCLI.main(TikaCLI.java:91)
+Caused by: java.lang.NullPointerException
+	at org.apache.tika.parser.mail.MailContentHandler.field(MailContentHandler.java:130)
+	at org.apache.james.mime4j.parser.MimeStreamParser.parse(MimeStreamParser.java:121)
+	at org.apache.tika.parser.mail.RFC822Parser.parse(RFC822Parser.java:60)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:197)
+	... 5 more
+
+
+It seems that what is really just a text file is identified as mail. I guess i'd expect this would fall back to a text parser if the mail processor can't handle it (the CC: can be optionally there).
+
+The content of test.txt (i'll attach it as well)
+cat test.txt 
+From: xyz, abc
+Sent: Monday, May 03, 2010 4:21 PM
+To: abc, def
+Cc: eft,hij; abc@gef.com
+Subject: abcd
+
+foo:
+
+bar biz bat
+

@@ -1,0 +1,12 @@
+There is a bug that causes tokenstreams to return different results, depending upon whether they are consumed with the incrementToken() api or the next() api.
+
+I found this because the Solr analysis tool in the admin page uses the next() api, and i was seeing strange results.
+
+I've created a test case to show the problem. when calling captureState(),  the current state is erased, but only when consuming with the next() api.
+If I consume with incrementToken(), things work. 
+
+
+
+State tempState = captureState(); // after we capture state here, things get strange.
+String right = termAtt.term(); // when using old consumer API, this value is wrong!!!!
+

@@ -1,0 +1,108 @@
+Hi,
+This is a work in progress of Lius. The release remove all Lucene dependencies and use Nutch Office parsers because they are based on Apache POI.
+Lius Lite offer 4 ways  for content extraction :
+
+	Document fulltext extraction
+	XPath extraction
+	Regex extraction
+	Document metadata extraction (not implemented for all parsers)
+
+
+
+Lius Lite use an XML config file to configure the parsers and the information to extract.  Please see config.xml in the config folder
+See also Junit tests.
+Here is an example  of XML parsing :
+1- XML Config
+		<parser name="text-xml" class="liuslite.parser.xml.XMLParser">			
+				<namespace>http://purl.org/dc/elements/1.1/</namespace>
+				<mime>application/xml</mime>
+				<extract>
+					<content name="title" xpathSelect="//dc:title"/>
+					<content name="subject" xpathSelect="//dc:subject"/>
+					<content name="creator" xpathSelect="//dc:creator"/>
+					<content name="description" xpathSelect="//dc:description"/>
+					<content name="publisher" xpathSelect="//dc:publisher"/>
+					<content name="contributor" xpathSelect="//dc:contributor"/>
+					<content name="type" xpathSelect="//dc:type"/>
+					<content name="format" xpathSelect="//dc:format"/>
+					<content name="identifier" xpathSelect="//dc:identifier"/>
+					<content name="language" xpathSelect="//dc:language"/>
+					<content name="rights" xpathSelect="//dc:rights"/>
+					<content name="outLinks">
+						<regexSelect>
+							<![CDATA[
+								([A-Za-z][A-Za-z0-9+.-]
+{1,120}
+:[A-Za-z0-9/](([A-Za-z0-9$_.+!*,;/?:@&~=-])|%[A-Fa-f0-9]
+{2}
+)
+{1,333}
+(#([a-zA-Z0-9][a-zA-Z0-9$_.+!*,;/?:@&~=%-]
+{0,1000}
+))?)
+							]]>
+						</regexSelect>
+					</content>
+				</extract>			
+		</parser>
+
+2- XML Document
+<oaidc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oaidc="http://www.openarchives.org/OAI/2.0/oai_dc/">
+	<dc:title>Archimède et Lius</dc:title>
+	<dc:creator>Rida Benjelloun</dc:creator>
+	<dc:subject>Java</dc:subject>
+	<dc:subject>XML</dc:subject>
+	<dc:subject>XSLT</dc:subject>
+	<dc:subject>JDOM</dc:subject>
+	<dc:subject>Indexation</dc:subject>
+	<dc:description>Framework d'indexation des documents XML, HTML, PDF etc.. </dc:description>
+	<dc:publisher>Doculibre</dc:publisher>
+	<dc:identifier>http://www.apache.org</dc:identifier>
+	<dc:date>2000-12</dc:date>
+	<dc:type>test</dc:type>
+	<dc:format>application/msword</dc:format>
+	<dc:language>Fr</dc:language>
+	<dc:rights>Non restreint</dc:rights>	
+</oaidc:dc>
+
+3- Java Code 
+
+LiusConfig lc = LiusConfig.getInstance(configPathString);
+LiusLogger.setLoggerConfigFile(log4jPathString);
+
+File testFile = new File("test.xml");
+try 
+{
+	Parser  parser = ParserFactory.getParser(testFile, lc);
+        String fullText = parser.getContentStr();
+        
+        Content title = parser.getContent("title");
+        String titleStr = title.getValue();
+        
+        Content subject = parser.getContent("subject");
+        String[] subjects = subject.getValues();
+
+        etc ...
+
+        Or : 
+        List<Content> contents = parser.getContents();
+        
+     }
+ catch (MimeInfoException e) 
+{
+	 e.printStackTrace();
+     }
+ catch (IOException e) 
+{
+	e.printStackTrace();
+     }
+ catch (LiusException e) 
+{
+	e.printStackTrace();
+      }
+
+
+best regards
+Rida Benjelloun
+
+

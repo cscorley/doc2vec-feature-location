@@ -1,0 +1,5 @@
+This is a pre-existing bug which seems to have been with Derby since the beginning. Some of the columns in the system tables (e.g., SYS.SYSALIASES.ALIASINFO) contain objects. If you select these columns:
+
+1) In the embedded client you will get the correct results. You will get the objects in these columns. In addition, the ResultSetMetaData for these columns will correctly report that the columns have type JAVA_OBJECT and will give a reasonable type name (the class name for the object in the column).
+
+2) However, in the network client, you will get the wrong results. ResultSet.getObject() will return Strings rather than the original objects. In addition, the ResultSetMetaData for these columns will incorrectly report that their type is LONGVARBINARY.

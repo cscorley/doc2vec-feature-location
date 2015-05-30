@@ -1,0 +1,31 @@
+Currently, our codebase is littered with the following:
+
+
+
+Iterator<Element> it = vector.iterateNonZero();
+while (it.hasNext()) {
+  Element e = it.next();
+  ...
+
+
+
+wouldn't it be nice to be able to do:
+
+
+
+for (Element e : vector.allNonZero()) {
+  ...
+
+
+
+instead?
+
+I propose adding an Iterable<Element> allNonZero() which allow this syntactic sugar.  To make it symmetric with iterateAll, let's also add Iterable<Element> all(), and implement the simply in AbstractVector.
+
+The first diff adding this is very non-invasive - new methods added to interface, implemented in the three classes from which all Vector implementations derive (AbstractVector, NamedVector, and DelegatingVector).  User code should just work, unless they've implemented their own vector without subclassing one of these three (yikes).
+
+Next diff, which is more invasive, would remove "extends Iterable<Element>" from Vector, because using the foreach of a Vector itself is very rarely what the caller really means to do (it's the all-iterator, very bad for the more common sparse use case).  To achieve the same effect, the caller chooses between vector.all() and vector.allNonZero(), and then they're being crystal clear what they mean.
+
+Lastly, I'd propose we make iterateAll() and iterateAllNonZero() protected methods on AbstractVector, so that we are forced to remove all the clumsy places where we do Iterator<Element> it = ... all throughout the codebase.  I suspect there will be very few places left that really want the raw iterator, but if there are any, it can be gotten by calling vector.(all/allNonZero).iterator()
+
+(feature-request/api fix suggestion idea courtesy of Andy Schlaikjer, formalized as a proposal and posted up here by me, Jake Mannix)

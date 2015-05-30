@@ -1,0 +1,50 @@
+When converting Word97 documents (*.doc), tika-server reproducibly leaves behind temporary files.
+
+Steps to reproduce:
+
+
+	Start tika-app-1.5.jar in --server mode
+	Send a *.doc file to server for conversion
+	Stop tika-server using CTRL+C or kill -15
+
+
+
+For example:
+
+
+
+lukas@host:~> java -jar tika-app-1.5.jar -v --server --port 8077 --text
+
+# ...
+
+lukas@host:/tmp> ls -lah apache-tika-*
+ls: cannot access apache-tika-*: No such file or directory
+lukas@host:/tmp>
+lukas@host:/tmp> netcat 127.0.0.1 8077 < simple_word97.doc
+Simple Word-97 Document
+Lorem Ipsum.
+lukas@host:/tmp> ls -lah apache-tika-*
+-rw-r--r-- 1 lukas users 22K 2014-08-29 15:48 apache-tika-2457738389388821864.tmp
+
+# after conversion is done, tmp file handles are still open
+
+lukas@host:/tmp> lsof | grep tika
+java   29857   lukas   32r   REG   104,2  28628386  4571740 /home/lukas/tika-app-1.5.jar
+java   29857   lukas   85r   REG   104,2     22528  8604717 /tmp/apache-tika-2457738389388821864.tmp
+java   29857   lukas   86r   REG   104,2     22528  8604717 /tmp/apache-tika-2457738389388821864.tmp
+
+# stop tika-server...
+
+^C
+lukas@host:~>
+
+# ...
+
+lukas@host:/tmp> lsof | grep tika
+lukas@host:/tmp>
+
+
+
+No exceptions are thrown, and the plaintext is being extracted correctly from the document, but temporary files are still left behind every single time.
+
+This obviously is a major issue in a production environment when converting thousands of documents a day. Our temp directories are filling up rapidly, and we had to configure cron jobs to clean up after Tika on most of our production servers. I wasn't able to reproduce this issue using tika-app-1.5.jar in non-server mode. However, booting up a JVM for every single conversion is just too slow.

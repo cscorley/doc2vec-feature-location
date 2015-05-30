@@ -1,0 +1,11 @@
+AbstractQueryCache.java contains the following block:
+
+           for (Object o: changedTypes) 
+{
+                String name = ((Class) o).getName();
+                if(!changedClasses.containsKey(name))
+                    changedClasses.put(name, 
+                        new Long(System.currentTimeMillis()));
+            }
+
+Suggesting caching the Long containing the entity type's last-modification timestamp outside of the for-loop to improve performance and reduce memory usage.

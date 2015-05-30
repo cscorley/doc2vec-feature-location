@@ -1,0 +1,20 @@
+While pinging to the RwServer, ClientCnxn is opening a socket and using BufferedReader. These are not properly closed in finally block and could cause leaks on exceptional cases.
+
+ClientCnxn#pingRwServer()
+
+
+            try {
+                Socket sock = new Socket(addr.getHostName(), addr.getPort());
+                BufferedReader br = new BufferedReader(
+                        new InputStreamReader(sock.getInputStream()));
+                ......
+                sock.close();
+                br.close();
+            } catch (ConnectException e) {
+                // ignore, this just means server is not up
+            } catch (IOException e) {
+                // some unexpected error, warn about it
+                LOG.warn("Exception while seeking for r/w server " +
+                        e.getMessage(), e);
+            }
+

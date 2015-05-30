@@ -1,0 +1,29 @@
+Both master and slave embedded in ij.
+I kill master and perform failover on slave. 
+The following is printed in ij:
+
+ij> connect 'jdbc:derby:slaveDB;user=oystein;password=pass;failover=true';
+Exception in thread "derby.slave.logger-slaveDB" java.lang.NullPointerException
+    at org.apache.derby.impl.services.replication.slave.SlaveController.setupConnection(SlaveController.java:348)
+   at org.apache.derby.impl.services.replication.slave.SlaveController.handleDisconnect(SlaveController.java:375)
+  at org.apache.derby.impl.services.replication.slave.SlaveController.access$600(SlaveController.java:62)
+ at org.apache.derby.impl.services.replication.slave.SlaveController$SlaveLogReceiverThread.run(SlaveController.java:504)
+
+Note that failover works, and all seems well, so this is not a major issue.
+derby.log is as follows:
+
+--------  BEGIN REPLICATION ERROR MESSAGE ---------
+Lost connection with the replication master of database 'slaveDB'.
+java.io.EOFException
+	at java.io.ObjectInputStream$BlockDataInputStream.peekByte(ObjectInputStream.java:2552)
+	at java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1297)
+	at java.io.ObjectInputStream.readObject(ObjectInputStream.java:351)
+	at org.apache.derby.impl.services.replication.net.SocketConnection.readMessage(SocketConnection.java:84)
+	at org.apache.derby.impl.services.replication.net.ReplicationMessageReceive.readMessage(ReplicationMessageReceive.java:387)
+	at org.apache.derby.impl.services.replication.slave.SlaveController$SlaveLogReceiverThread.run(SlaveController.java:477)
+
+---------  END REPLICATION ERROR MESSAGE ----------
+Failover perfomed successfully for database 'slaveDB'.
+Database Class Loader started - derby.database.classpath=''
+
+

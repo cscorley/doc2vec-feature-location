@@ -1,0 +1,8 @@
+Usage of ChangeConfigurationSetup creates a TestConfiguration object at object creation time based upon the current configuration, instead it should create the configuration based upon the current configuration at setUp time.
+
+Nesting two decorators A and B in a suite method that change the configuration, e.g.
+
+     return new B(new A(suite))
+
+will cause A and B to be a modified version of the current configuration at suite creation time, when B should be a modified version of A
+and A should be a modified version of the current configuration when its setUp is run.

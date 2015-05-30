@@ -1,0 +1,22 @@
+Symptom:
+Generates wrong SQL query 
+   "SELECT t1.id, t1.name, t0.name FROM  ORDER BY t0.name ASC"
+for a JPQL Query 
+   "SELECT p FROM Base p ORDER BY p.name"
+
+Condition:
+    where Base class uses TABLE_PER_CLASS inheritance strategy and has one or more known subclasses.
+
+Cause:
+   The routine that fails to handle aliasing and leaves the table in FROM clause empty is JDBCStoreManager.selectBaseMappings() line 1028-1031. 
+
+
+Note:
+  Queries that do not use ORDER BY on the same class hierarchy such as
+  "SELECT p FROM Base [WHERE <some condition>]" 
+  works.
+
+
+
+
+

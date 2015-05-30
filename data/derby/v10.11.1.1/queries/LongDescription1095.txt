@@ -1,0 +1,6 @@
+Closing an embedded connection (calling EmbedConnection.close()) does not seem to close associated EmbedStatements. 
+The severity of the bug is not determined. The least severe case is that the internal EmbedStatement variable 'active' is not updated accordingly, the most severe case is that the the resources bound to EmbedStatement will not be viable for garbage collection until the EmbedStatement itself is (if user keeps references to it).
+If methods on the statement are called, Derby will correctly throw an NoCurrentConnection exception, but the close() method is still never called automatically.
+The problem also seem to extend down to ResultSet.isClosed(), but this is probably due to the bug in EmbedStatement.
+
+Problem detected while fixing DERBY-953; implement Statement.isClosed().

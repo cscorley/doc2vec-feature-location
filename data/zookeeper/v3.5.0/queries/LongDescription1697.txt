@@ -1,0 +1,43 @@
+I keep seeing this on the leader:
+
+2013-04-30 01:18:39,754 INFO
+org.apache.zookeeper.server.quorum.Leader: Shutdown called
+java.lang.Exception: shutdown Leader! reason: Only 0 followers, need 2
+at org.apache.zookeeper.server.quorum.Leader.shutdown(Leader.java:447)
+at org.apache.zookeeper.server.quorum.Leader.lead(Leader.java:422)
+at org.apache.zookeeper.server.quorum.QuorumPeer.run(QuorumPeer.java:753)
+
+The followers are downloading the snapshot when this happens, and are
+trying to do their first ACK to the leader, the ack fails with broken
+pipe.
+
+In this case the snapshots are large and the config has increased the
+initLimit. syncLimit is small - 10 or so with ticktime of 2000. Note
+this is 3.4.3 with ZOOKEEPER-1521 applied.
+
+I originally speculated that
+https://issues.apache.org/jira/browse/ZOOKEEPER-1521 might be related.
+I thought I might have broken something for this environment. That
+doesn't look to be the case.
+
+As it looks now it seems that 1521 didn't go far enough. The leader
+verifies that all followers have ACK'd to the leader within the last
+"syncLimit" time period. This runs all the time in the background on
+the leader to identify the case where a follower drops. In this case
+the followers take so long to load the snapshot that this check fails
+the very first time, as a result the leader drops (not enough ack'd
+followers w/in the sync limit) and re-election happens. This repeats
+forever. (the above error)
+
+this is the call:
+org.apache.zookeeper.server.quorum.LearnerHandler.synced() that's at
+odds.
+
+look at setting of tickOfLastAck in
+org.apache.zookeeper.server.quorum.LearnerHandler.run()
+It's not set until the follower first acks - in this case I can see
+that the followers are not getting to the ack prior to the leader
+shutting down due to the error log above.
+
+It seems that sync() should probably use the init limit until the
+first ack comes in from the follower. I also see that while tickOfLastAck and leader.self.tick is shared btw two threads there is no synchronization of the shared resources.

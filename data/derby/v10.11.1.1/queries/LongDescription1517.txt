@@ -1,0 +1,7 @@
+Currently, the Derby DRDA network server does not properly return the list of SECMEC(s) it can support if a client is requesting to authenticate with a non-supported SECMEC (see JIRA-926 - http://issues.apache.org/jira/browse/DERBY-926)
+
+The motivation for this JIRA is to add the logic for the Derby client to be capable of parsing the list of supported SECMEC(s) returned by previous released Derby network servers (pre-JIRA-926 Fix) - This is necessary for backwards compatibility with older servers - This issue has been even more visible as Derby-528 introduces support for a new DRDA security mechanism (Strong Password Substitute), which causes a DRDA protocol exception when trying to authenticate with the new supported mechanism against older Derby DRDA servers (JIRA-926 issue)
+
+JIRA-926 has to be fixed nonetheless on the server side to properly return the list of supported SECMEC(s) in conformance with the DRDA (DDM) specs - This JIRA focuses on the client side to do its best and be capable of parsing a list of SECMEC(s) returned pre-926 fix.
+
+Ultimately, the derby network client can be made capable of parsing a list of SECMEC(s) from pre-926 fixed (older) and post-926 fixed servers...

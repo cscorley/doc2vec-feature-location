@@ -1,0 +1,58 @@
+TestDynamicConfiguration.testConfigurationIsEqualByValueAndHashCode failed with configuration object equality
+using a OpenJPA derived provider.
+
+    public void testConfigurationIsEqualByValueAndHashCode() 
+{
+		OpenJPAEntityManagerFactorySPI emf1 = createEMF(FRESH_EMF);
+		assertNotNull(emf1);
+		OpenJPAConfiguration conf1 = emf1.getConfiguration();
+		
+		OpenJPAEntityManagerFactorySPI emf2 = createEMF(FRESH_EMF);
+		assertNotNull(emf2);
+		OpenJPAConfiguration conf2 = emf2.getConfiguration();
+		
+		assertFalse(emf1==emf2);
+		assertFalse(emf1.equals(emf2));
+		assertFalse(conf1==conf2);
+		assertEquals(conf1, conf2);	<<<< faild here
+		assertEquals(conf1.hashCode(), conf2.hashCode());
+        	assertEquals(conf1.toProperties(false), conf2.toProperties(false));
+	}
+
+The problem is in the equals() method of ConfigurationImpl:
+
+    public boolean equals(Object other) {
+	.....
+        for(Value v : _vals) {
+            Value thatV = conf.getValue(propName);
+       	    if (!v.equals(thatV)) 
+{
+        	return false;
+            }
+        }
+        return true;
+    }
+
+getValue search backward based on the property name as in:
+
+    public Value getValue(String property) {
+        if (property == null)
+            return null;
+
+        // search backwards so that custom values added after construction
+        // are found quickly, since this will be the std way of accessing them
+        for (int i = _vals.size()1; i >= 0; i-) 
+{ 
+            if (_vals.get(i).matches(property))
+                return _vals.get(i);
+        }
+        return null;
+    }
+
+In the case of a dervied provider, it adds new EntityManagerFactoryValue to the end of the property list, which in theory override
+the one defined by the openjpa provider.
+
+However the equals method iterate the "current" configuration _vals list from the top but match the "other" configuration _vals
+list found from the bottom, so even both configuration objects are exactly the same, the equals will fail.
+
+In the case of a single openjpa provider, this problem is NOT surfaced.

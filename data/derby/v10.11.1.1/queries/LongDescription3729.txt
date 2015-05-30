@@ -1,0 +1,67 @@
+I was creating a test database on an external USB drive formatted as FAT32- it contains some tables that have quite large binary objects in: This was in conjunction with Hibernate. I got this rather cryptic error message.
+
+Looks rather scary:
+
+18:02:37,550  WARN JDBCExceptionReporter:77 - SQL Error: 40000, SQLState: 08006
+18:02:37,550 ERROR JDBCExceptionReporter:78 - A network protocol error was encountered and the connection has been terminated: the requested command encountered an unarchitected and implementation-specific condition for which there was no architected message
+18:02:37,597 ERROR AbstractFlushingEventListener:301 - Could not synchronize database state with session
+org.hibernate.exception.JDBCConnectionException: could not insert: [proteinChainMoleculeBinaryData]
+        at org.hibernate.exception.SQLStateConverter.convert(SQLStateConverter.java:74)
+        at org.hibernate.exception.JDBCExceptionHelper.convert(JDBCExceptionHelper.java:43)
+        at org.hibernate.persister.entity.AbstractEntityPersister.insert(AbstractEntityPersister.
+java:2263)
+        at org.hibernate.persister.entity.AbstractEntityPersister.insert(AbstractEntityPersister.java:2656)
+        at org.hibernate.action.EntityInsertAction.execute(EntityInsertAction.java:52)
+        at org.hibernate.engine.ActionQueue.execute(ActionQueue.java:248)
+        at org.hibernate.engine.ActionQueue.executeActions(ActionQueue.java:232)
+        at org.hibernate.engine.ActionQueue.executeActions(ActionQueue.java:139)
+        at org.hibernate.event.def.AbstractFlushingEventListener.performExecutions(AbstractFlushingEventListener.java:298)
+        at org.hibernate.event.def.DefaultFlushEventListener.onFlush(DefaultFlushEventListener.java:27)
+        at org.hibernate.impl.SessionImpl.flush(SessionImpl.java:1000)
+        at org.hibernate.impl.SessionImpl.managedFlush(SessionImpl.java:338)
+        at org.hibernate.transaction.JDBCTransaction.commit(JDBCTransaction.java:106)
+
+Initially it didnt even occur to me that this may be due to me using a FAT32 drive, but eventually I figured out that the table's file had got to the operating FAT32 limit: I had a file of 4,194,272 KB.
+
+In the derby log, there's a more revealing, but still incorrect, error message:
+
+ERROR XSDG1: Page Page(131071,Container(0, 2384)) could not be written to disk, please check if disk is full.
+	at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.CachedPage.writePage(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.CachedPage.createIdentity(Unknown Source)
+	at org.apache.derby.impl.services.cache.CachedItem.takeOnIdentity(Unknown Source)
+	at org.apache.derby.impl.services.cache.Clock.addEntry(Unknown Source)
+	at org.apache.derby.impl.services.cache.Clock.create(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.FileContainer.initPage(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.FileContainer.newPage(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.BaseContainer.addPage(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.StoredPage.getNewOverflowPage(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.BasePage.insertLongColumn(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.BasePage.insertAllowOverflow(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.BasePage.insert(Unknown Source)
+	at org.apache.derby.impl.store.access.heap.HeapController.doInsert(Unknown Source)
+	at org.apache.derby.impl.store.access.heap.HeapController.insertAndFetchLocation(Unknown Source)
+	at org.apache.derby.impl.sql.execute.RowChangerImpl.insertRow(Unknown Source)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.normalInsertCore(Unknown Source)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.open(Unknown Source)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.execute(Unknown Source)
+	at org.apache.derby.impl.drda.DRDAStatement.execute(Unknown Source)
+	at org.apache.derby.impl.drda.DRDAConnThread.parseEXCSQLSTTobjects(Unknown Source)
+	at org.apache.derby.impl.drda.DRDAConnThread.parseEXCSQLSTT(Unknown Source)
+	at org.apache.derby.impl.drda.DRDAConnThread.processCommands(Unknown Source)
+	at org.apache.derby.impl.drda.DRDAConnThread.run(Unknown Source)
+Caused by: java.io.IOException: There is not enough space on the disk
+	at sun.nio.ch.FileDispatcher.pwrite0(Native Method)
+	at sun.nio.ch.FileDispatcher.pwrite(FileDispatcher.java:51)
+	at sun.nio.ch.IOUtil.writeFromNativeBuffer(IOUtil.java:100)
+	at sun.nio.ch.IOUtil.write(IOUtil.java:75)
+	at sun.nio.ch.FileChannelImpl.write(FileChannelImpl.java:651)
+	at org.apache.derby.impl.store.raw.data.RAFContainer4.writeFull(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.RAFContainer4.writePage0(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.RAFContainer4.writePage(Unknown Source)
+	... 26 more
+
+The error is still strictly speaking incorrect - my disk is far from full, but I have created a file too big for the disk type - but the error is at least closer to the truth and this would be useful information for the derby client to display rather than the rather scary looking message I was getting.

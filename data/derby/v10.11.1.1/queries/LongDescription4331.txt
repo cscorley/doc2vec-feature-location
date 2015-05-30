@@ -1,0 +1,26 @@
+In Derby 10.5.2.0, the query below started returning results in wrong order (note the ORDER BY clause). Derby 10.5.1.1 gives the expected ordering.
+
+ij> SELECT CS.ID
+FROM
+    CHANGESETS CS, FILECHANGES FC, REPOSITORIES R, FILES F, AUTHORS A
+WHERE
+    R.PATH = '/var/tmp/source5923202038296723704opengrok/mercurial' AND F.REPOSITORY = R.ID AND A.REPOSITORY = R.ID AND
+    CS.REPOSITORY = R.ID AND CS.ID = FC.CHANGESET AND F.ID = FC.FILE AND
+    A.ID = CS.AUTHOR AND
+    EXISTS (
+        SELECT 1
+        FROM FILES F2
+        WHERE
+            F2.ID = FC.FILE AND F2.REPOSITORY = R.ID AND
+            F2.PATH LIKE '/%' ESCAPE '#')
+ORDER BY CS.ID DESC;
+ID         
+-----------
+1          
+2          
+3          
+2          
+2          
+3          
+
+6 rows selected

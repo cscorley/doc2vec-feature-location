@@ -1,0 +1,17 @@
+SOLR-86 create post.jar which eliminated the need for post.sh ... but as noticed in 
+SOLR-164 there are still some cases in the tutorial that require direct use of curl (deleting) and there are some nice things about post.sh that post.jar doesn't support (defaulting the URL)
+
+this issue is to tackle some of the ideas Bertrand and I posted as a comment in SOLR-86 after it was resolved....
+
+Bertrand Delacretaz [19/Feb/07 12:35 AM] ...
+Considering the tutorial examples (http://lucene.apache.org/solr/tutorial.html), it'd be useful to allow this to POST its standard input, or the contents of a command-line parameter: ...
+
+Hoss Man [19/Feb/07 11:50 AM]
+yeah ... i think we should hardcode http://localhost:8983/solr/update with a possible override by system prop, then add either a command line switch other another system prop indicating to use the command line as filenames or as raw data, and another op for stdin.
+
+java -jar -Ddata=files post.jar *.xml
+java -jar post.jar *.xml ... data=files being the default
+echo "<delete><query>name:DDR</query></delete>" | java -jar -Ddata=stdin post.jar
+cat *.xml | java -jar -Ddata=stdin post.jar
+java -jar -Ddata=args post.jar "<delete><query>name:DDR</query></delete>"
+java -jar -Durl=http://localhost:8983/solr/update post.jar *.xml 

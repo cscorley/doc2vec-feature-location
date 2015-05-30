@@ -1,0 +1,7 @@
+Currently clients of the HtmlParser need to manually keep track of the appropriate base URL to use when resolving relative URLs in href="xxx" attributes.
+
+The parser should use the metadata RESOURCE_NAME_KEY value as the base.
+
+The parser should also watch for a <base> element in the <head> section, and use that to update the base URL.
+
+Note that special care must be taken to work around a known bug in the Java URL() class, when the relative URL is a query string and the base URL doesn't end with a '/'.

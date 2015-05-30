@@ -1,0 +1,17 @@
+a back-to-back of the following JPQL query providing different set of parameter values, 
+the second execution gives wrong answer.
+
+ "select o from OrderJPA o where o.OrderId in (select max(o1.OrderId) from OrderJPA o1 where ((o1.CustomerId = :customerId) and (o1.DistrictId = :districtId) and (o1.WarehouseId = :warehouseId))) and (o.CustomerId = :customerId) and (o.DistrictId = :districtId) and (o.WarehouseId = :warehouseId)"
+
+SQL trace shown the first time query execution, let say customerId=339, districtId=3, warehouseId=23, then query returns 1 row:
+
+the SQL trace looked fine:
+
+[3/16/10 17:40:36:831 CDT] 00000045 OpenJPA       3   openjpa.jdbc.SQL: Trace: <t 241897067, conn 1981117973> executing prepstmnt 1547852866 SELECT t0.O_D_ID, t0.O_ID, t0.O_W_ID, t0.VERSION, t0.O_ALL_LOCAL, t0.O_CARRIER_ID, t0.O_C_ID, t0.O_ENTRY_D, t0.O_OL_CNT FROM ORDERS t0 WHERE (t0.O_ID IN (SELECT MAX(t1.O_ID) FROM ORDERS t1 WHERE (t1.O_C_ID = ? AND t1.O_D_ID = ? AND t1.O_W_ID = ?) ) AND t0.O_C_ID = ? AND t0.O_D_ID = ? AND t0.O_W_ID = ?)  optimize for 1 row [params=(short) 339, (short) 3, (short) 23, (short) 339, (short) 3, (short) 23]
+
+On the next execution of the same JPQL, the PreparedQueryImpl (which is cached before) gets reused.
+In processing user provided parameters, for example, customerId=2967, districtId=5, warehouseId=22,
+It is observed that the parameter values are incorrect: the last 3 values were incorrectly copied from the previously cached version.
+
+
+[3/16/10 17:45:42:411 CDT] 00000043 OpenJPA       3   openjpa.jdbc.SQL: Trace: <t 195496871, conn 1706649017> executing prepstmnt 1531796301 SELECT t0.O_D_ID, t0.O_ID, t0.O_W_ID, t0.VERSION, t0.O_ALL_LOCAL, t0.O_CARRIER_ID, t0.O_C_ID, t0.O_ENTRY_D, t0.O_OL_CNT FROM ORDERS t0 WHERE (t0.O_ID IN (SELECT MAX(t1.O_ID) FROM ORDERS t1 WHERE (t1.O_C_ID = ? AND t1.O_D_ID = ? AND t1.O_W_ID = ?) ) AND t0.O_C_ID = ? AND t0.O_D_ID = ? AND t0.O_W_ID = ?)  optimize for 1 row [params=(short) 2967, (short) 5, (short) 22, (short) 339, (short) 3, (short) 23]

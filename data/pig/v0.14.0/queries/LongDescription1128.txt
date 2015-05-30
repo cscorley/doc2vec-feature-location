@@ -1,0 +1,15 @@
+Issue is seen in 0.6.0 and trunk.
+
+grunt> l = load 'dummy.txt' as ( c1 : chararray,  c2 : int);                                   
+grunt> f1 = foreach l generate c1 as c1 : chararray, c2 as c2 : int, 'CA' as state : chararray;
+grunt> f2 = foreach f1 generate c1 as c1 : chararray;                                          
+grunt> explain f2;
+2009-12-04 13:11:19,010 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1022: Type mismatch merging schema prefix. Field Schema: chararray. Other Field Schema: c2: int
+
+
+( it does not matter if the new schema has new/different column name - )
+grunt>l = load 'dummy.txt' as ( c1 : chararray,  c2 : int);
+grunt>f1 = foreach l generate c1 as c11 : chararray, c2 as c22 : int, 'CA' as state : chararray;
+grunt>f2 = foreach f1 generate c11 as c111 : chararray;
+grunt> explain f2;
+2009-12-04 13:13:01,462 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1022: Type mismatch merging schema prefix. Field Schema: chararray. Other Field Schema: c22: int

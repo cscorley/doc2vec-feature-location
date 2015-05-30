@@ -1,0 +1,4 @@
+With embedded pooled connections identity column values can be leaked from one user's connection to the other. With a PooledConnection the state of IDENTITY_VAL_LOCAL variable is not reset when the underlying EmbeddedConnection is re-used.
+Thus an application can use this function to see a value that was returned to a previous user of the pooled connection.
+
+A general reset() mechanism is needed on EmbeddedConnection/LanguageConnectionContext, this could replace and encapsulate the current single item that is reset, dropping of session temporary tables.

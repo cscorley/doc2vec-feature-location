@@ -1,0 +1,222 @@
+In my application, i wanted to catch "javax.persistence.OptimisticLockException" and take appropriate action. However I am seeing that instead "org.apache.openjpa.util.OptimisticException" is being thrown. I don't want my code to become dependent on OpenJPA and would like to see OptimisticLockException thrown.
+
+While discussing in the OpenJPA forums, Patrick suggested that I create a JIRA issue for this since its a bug.
+You can see the discussion in the forum under title "OptimisticException question" few days ago.
+
+Below is the stack trace from my application.
+
+<Nov 30, 2007 9:50:53 AM EST> <Error> <EJB> <BEA-010026> <Exception occurred during commit of transaction Name=[EJB com.covergence.soa.covapi.sesscfg.SessionConfigBean.getSessionConfig(com.covergence.soa.utils.SerJavaSipMessageType)],Xid=BEA1-00001267875BE126CEB7(64273527),Status=Rolled back. [Reason=<2|false|0.9.7> org.apache.openjpa.util.OptimisticException: Optimistic locking errors were detected when flushing to the data store.  The following objects may have been concurrently modified in another transaction: [com.covergence.soa.covapi.userpolicy.User-com.covergence.soa.covapi.userpolicy.User-1]],numRepliesOwedMe=0,numRepliesOwedOthers=0,seconds since begin=2,seconds left=30,SCInfo[ajayProduction+AdminServer]=(state=rolledback),properties=(
+{weblogic.transaction.name=[EJB com.covergence.soa.covapi.sesscfg.SessionConfigBean.getSessionConfig(com.covergence.soa.utils.SerJavaSipMessageType)]}
+),OwnerTransactionManager=ServerTM[ServerCoordinatorDescriptor=(CoordinatorURL=AdminServer+172.30.0.202:7001+ajayProduction+t3+admin+7001+,XAResources=
+{WLStore_ajayProduction__WLS_AdminServer}
+,NonXAResources={})],CoordinatorURL=AdminServer+172.30.0.202:7001+ajayProduction+t3+admin+7001+): weblogic.transaction.RollbackException: Optimistic locking errors were detected when flushing to the data store.  The following objects may have been concurrently modified in another transaction: [com.covergence.soa.covapi.userpolicy.User-com.covergence.soa.covapi.userpolicy.User-1]
+
+        at weblogic.transaction.internal.TransactionImpl.throwRollbackException(TransactionImpl.java:1818)
+
+        at weblogic.transaction.internal.ServerTransactionImpl.internalCommit(ServerTransactionImpl.java:333)
+
+        at weblogic.transaction.internal.ServerTransactionImpl.commit(ServerTransactionImpl.java:227)
+
+        at weblogic.ejb.container.internal.BaseRemoteObject.postInvoke1(BaseRemoteObject.java:606)
+
+        at weblogic.ejb.container.internal.StatelessRemoteObject.postInvoke1(StatelessRemoteObject.java:57)
+
+        at weblogic.ejb.container.internal.BaseRemoteObject.postInvokeTxRetry(BaseRemoteObject.java:426)
+
+        at com.covergence.soa.covapi.sesscfg.SessionConfigBean_4w7egw_SessionConfigImpl.getSessionConfig(SessionConfigBean_4w7egw_SessionConfigImpl.java:76)
+
+        at jrockit.reflect.VirtualNativeMethodInvoker.invoke(Ljava.lang.Object;[Ljava.lang.Object;)Ljava.lang.Object;(Unknown Source)
+
+        at java.lang.reflect.Method.invoke(Ljava.lang.Object;[Ljava.lang.Object;I)Ljava.lang.Object;(Unknown Source)
+
+        at weblogic.ejb.container.internal.RemoteBusinessIntfProxy.invoke(RemoteBusinessIntfProxy.java:63)
+
+        at $Proxy67.getSessionConfig(Lcom.covergence.soa.utils.SerJavaSipMessageType;)Lcom.covergence.ws.callouts.SessionConfigType;(Unknown Source)
+
+        at com.covergence.soa.ws.server.CallOutsImpl.getSessionConfigType(CallOutsImpl.java:46)
+
+        at com.covergence.soa.ws.server.CallOutsImplBase.getSessionPolicy(CallOutsImplBase.java:238)
+
+        at jrockit.reflect.VirtualNativeMethodInvoker.invoke(Ljava.lang.Object;[Ljava.lang.Object;)Ljava.lang.Object;(Unknown Source)
+
+        at java.lang.reflect.Method.invoke(Ljava.lang.Object;[Ljava.lang.Object;I)Ljava.lang.Object;(Unknown Source)
+
+        at weblogic.wsee.jaxws.WLSInvoker.invoke(WLSInvoker.java:50)
+
+        at weblogic.wsee.jaxws.WLSInvoker.invoke(WLSInvoker.java:42)
+
+        at com.sun.xml.ws.server.sei.EndpointMethodHandler.invoke(EndpointMethodHandler.java:247)
+
+        at com.sun.xml.ws.server.sei.SEIInvokerPipe.process(SEIInvokerPipe.java:97)
+
+        at weblogic.wsee.jaxws.MonitoringPipe.process(MonitoringPipe.java:98)
+
+        at com.sun.xml.ws.protocol.soap.ServerMUPipe.process(ServerMUPipe.java:62)
+
+        at com.sun.xml.ws.server.WSEndpointImpl$1.process(WSEndpointImpl.java:139)
+
+        at com.sun.xml.ws.transport.http.HttpAdapter$HttpToolkit.handle(HttpAdapter.java:153)
+
+        at com.sun.xml.ws.transport.http.HttpAdapter.handle(HttpAdapter.java:235)
+
+        at com.sun.xml.ws.transport.http.servlet.ServletAdapter.handle(ServletAdapter.java:97)
+
+        at weblogic.wsee.jaxws.HttpServletAdapter.post(HttpServletAdapter.java:36)
+
+.>
+
+javax.ejb.EJBException: nested exception is: <2|false|0.9.7> org.apache.openjpa.util.OptimisticException: Optimistic locking errors were detected when flushing
+
+to the data store.  The following objects may have been concurrently modified in another transaction: [com.covergence.soa.covapi.userpolicy.User-com.covergence.
+
+soa.covapi.userpolicy.User-1]<2|false|0.9.7> org.apache.openjpa.util.OptimisticException: Optimistic locking errors were detected when flushing to the data store.  The following objects may have been concurrently modified in another transaction: [com.covergence.soa.covapi.userpolicy.User-com.covergence.soa.covapi.userpolicy.User-1]
+
+        at org.apache.openjpa.kernel.BrokerImpl.newFlushException(BrokerImpl.java:2120)
+
+        at org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:1970)
+
+        at org.apache.openjpa.kernel.BrokerImpl.flushSafe(BrokerImpl.java:1868)
+
+        at org.apache.openjpa.kernel.BrokerImpl.beforeCompletion(BrokerImpl.java:1786)
+
+        at weblogic.transaction.internal.ServerSCInfo.doBeforeCompletion(ServerSCInfo.java:1212)
+
+        at weblogic.transaction.internal.ServerSCInfo.callBeforeCompletions(ServerSCInfo.java:1190)
+
+        at weblogic.transaction.internal.ServerSCInfo.startPrePrepareAndChain(ServerSCInfo.java:118)
+
+        at weblogic.transaction.internal.ServerTransactionImpl.localPrePrepareAndChain(ServerTransactionImpl.java:1299)
+
+        at weblogic.transaction.internal.ServerTransactionImpl.globalPrePrepare(ServerTransactionImpl.java:2111)
+
+        at weblogic.transaction.internal.ServerTransactionImpl.internalCommit(ServerTransactionImpl.java:260)
+
+        at weblogic.transaction.internal.ServerTransactionImpl.commit(ServerTransactionImpl.java:227)
+
+        at weblogic.ejb.container.internal.BaseRemoteObject.postInvoke1(BaseRemoteObject.java:606)
+
+        at weblogic.ejb.container.internal.StatelessRemoteObject.postInvoke1(StatelessRemoteObject.java:57)
+
+        at weblogic.ejb.container.internal.BaseRemoteObject.postInvokeTxRetry(BaseRemoteObject.java:426)
+
+        at com.covergence.soa.covapi.sesscfg.SessionConfigBean_4w7egw_SessionConfigImpl.getSessionConfig(SessionConfigBean_4w7egw_SessionConfigImpl.java:76)
+
+        at jrockit.reflect.VirtualNativeMethodInvoker.invoke(Ljava.lang.Object;[Ljava.lang.Object;)Ljava.lang.Object;(Unknown Source)
+
+        at java.lang.reflect.Method.invoke(Ljava.lang.Object;[Ljava.lang.Object;I)Ljava.lang.Object;(Unknown Source)
+
+        at weblogic.ejb.container.internal.RemoteBusinessIntfProxy.invoke(RemoteBusinessIntfProxy.java:63)
+
+        at $Proxy67.getSessionConfig(Lcom.covergence.soa.utils.SerJavaSipMessageType;)Lcom.covergence.ws.callouts.SessionConfigType;(Unknown Source)
+
+        at com.covergence.soa.ws.server.CallOutsImpl.getSessionConfigType(CallOutsImpl.java:46)
+
+Caused by: <2|false|0.9.7> org.apache.openjpa.util.OptimisticException: An optimistic lock violation was detected when flushing object instance "com.covergence.soa.covapi.userpolicy.User-com.covergence.soa.covapi.userpolicy.User-1" to the data store.  This indicates that the object was concurrently modified in anothertransaction.
+
+FailedObject: com.covergence.soa.covapi.userpolicy.User-com.covergence.soa.covapi.userpolicy.User-1
+
+        at kodo.jdbc.kernel.BatchingPreparedStatementManager.checkUpdate(BatchingPreparedStatementManager.java:354)
+
+        at kodo.jdbc.kernel.BatchingPreparedStatementManager.flushInternal(BatchingPreparedStatementManager.java:208)
+
+        at kodo.jdbc.kernel.BatchingPreparedStatementManager.flush(BatchingPreparedStatementManager.java:188)
+
+        at kodo.jdbc.kernel.ConstraintUpdateManager.flush(ConstraintUpdateManager.java:90)
+
+        at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.flush(AbstractUpdateManager.java:86)
+
+        at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.flush(AbstractUpdateManager.java:69)
+
+        at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.flush(JDBCStoreManager.java:511)
+
+        at org.apache.openjpa.kernel.DelegatingStoreManager.flush(DelegatingStoreManager.java:127)
+
+        at org.apache.openjpa.datacache.DataCacheStoreManager.flush(DataCacheStoreManager.java:506)
+
+        at org.apache.openjpa.kernel.DelegatingStoreManager.flush(DelegatingStoreManager.java:127)
+
+        at org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:1970)
+
+        at org.apache.openjpa.kernel.BrokerImpl.flushSafe(BrokerImpl.java:1868)
+
+        at org.apache.openjpa.kernel.BrokerImpl.beforeCompletion(BrokerImpl.java:1786)
+
+        at weblogic.transaction.internal.ServerSCInfo.doBeforeCompletion(ServerSCInfo.java:1212)
+
+        at weblogic.transaction.internal.ServerSCInfo.callBeforeCompletions(ServerSCInfo.java:1190)
+
+        at weblogic.transaction.internal.ServerSCInfo.startPrePrepareAndChain(ServerSCInfo.java:118)
+
+        at weblogic.transaction.internal.ServerTransactionImpl.localPrePrepareAndChain(ServerTransactionImpl.java:1299)
+
+        at weblogic.transaction.internal.ServerTransactionImpl.globalPrePrepare(ServerTransactionImpl.java:2111)
+
+        at weblogic.transaction.internal.ServerTransactionImpl.internalCommit(ServerTransactionImpl.java:260)
+
+        at weblogic.transaction.internal.ServerTransactionImpl.commit(ServerTransactionImpl.java:227)
+
+        at weblogic.ejb.container.internal.BaseRemoteObject.postInvoke1(BaseRemoteObject.java:606)
+
+        at weblogic.ejb.container.internal.StatelessRemoteObject.postInvoke1(StatelessRemoteObject.java:57)
+
+        at weblogic.ejb.container.internal.BaseRemoteObject.postInvokeTxRetry(BaseRemoteObject.java:426)
+
+javax.ejb.EJBException: nested exception is: <2|false|0.9.7> org.apache.openjpa.util.OptimisticException: Optimistic locking errors were detected when flushing to the data store.  The following objects may have been concurrently modified in another transaction: [com.covergence.soa.covapi.userpolicy.User-com.covergence.soa.covapi.userpolicy.User-1]
+
+        at weblogic.ejb.container.internal.RemoteBusinessIntfProxy.invoke(RemoteBusinessIntfProxy.java:78)
+
+        at $Proxy67.getSessionConfig(Lcom.covergence.soa.utils.SerJavaSipMessageType;)Lcom.covergence.ws.callouts.SessionConfigType;(Unknown Source)
+
+        at com.covergence.soa.ws.server.CallOutsImpl.getSessionConfigType(CallOutsImpl.java:46)
+
+        at com.covergence.soa.ws.server.CallOutsImplBase.getSessionPolicy(CallOutsImplBase.java:238)
+
+        at jrockit.reflect.VirtualNativeMethodInvoker.invoke(Ljava.lang.Object;[Ljava.lang.Object;)Ljava.lang.Object;(Unknown Source)
+
+        at java.lang.reflect.Method.invoke(Ljava.lang.Object;[Ljava.lang.Object;I)Ljava.lang.Object;(Unknown Source)
+
+        at weblogic.wsee.jaxws.WLSInvoker.invoke(WLSInvoker.java:50)
+
+        at weblogic.wsee.jaxws.WLSInvoker.invoke(WLSInvoker.java:42)
+
+        at com.sun.xml.ws.server.sei.EndpointMethodHandler.invoke(EndpointMethodHandler.java:247)
+
+        at com.sun.xml.ws.server.sei.SEIInvokerPipe.process(SEIInvokerPipe.java:97)
+
+        at weblogic.wsee.jaxws.MonitoringPipe.process(MonitoringPipe.java:98)
+
+        at com.sun.xml.ws.protocol.soap.ServerMUPipe.process(ServerMUPipe.java:62)
+
+        at com.sun.xml.ws.server.WSEndpointImpl$1.process(WSEndpointImpl.java:139)
+
+        at com.sun.xml.ws.transport.http.HttpAdapter$HttpToolkit.handle(HttpAdapter.java:153)
+
+        at com.sun.xml.ws.transport.http.HttpAdapter.handle(HttpAdapter.java:235)
+
+        at com.sun.xml.ws.transport.http.servlet.ServletAdapter.handle(ServletAdapter.java:97)
+
+        at weblogic.wsee.jaxws.HttpServletAdapter.post(HttpServletAdapter.java:36)
+
+        at weblogic.wsee.jaxws.JAXWSServlet.doPost(JAXWSServlet.java:218)
+
+        at javax.servlet.http.HttpServlet.service(HttpServlet.java:727)
+
+        at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)
+
+        at weblogic.servlet.internal.StubSecurityHelper$ServletServiceAction.run(StubSecurityHelper.java:226)
+
+        at weblogic.servlet.internal.StubSecurityHelper.invokeServlet(StubSecurityHelper.java:124)
+
+        at weblogic.servlet.internal.ServletStubImpl.execute(ServletStubImpl.java:283)
+
+        at weblogic.servlet.internal.ServletStubImpl.execute(ServletStubImpl.java:175)
+
+        at weblogic.servlet.internal.WebAppServletContext$ServletInvocationAction.run(WebAppServletContext.java:3370)
+
+        at weblogic.security.acl.internal.AuthenticatedSubject.doAs(AuthenticatedSubject.java:321)
+
+        at weblogic.security.service.SecurityManager.runAs(Lweblogic.security.acl.internal.AuthenticatedSubject;Lweblogic.security.acl.internal.AuthenticatedSubject;Ljava.security.PrivilegedAction;)Ljava.lang.Object;(Unknown Source)
+
+        at weblogic.servlet.internal.WebAppServletContext.securedExecute(WebAppServletContext.java:2117)
+
+        at weblogic.servlet.internal.WebAppServletContext.execute(WebAppServletContext.java:2023)

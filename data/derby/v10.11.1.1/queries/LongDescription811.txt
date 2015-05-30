@@ -1,0 +1,20 @@
+Can be seen by running the test jdbcapi/checkDriver.java in the DerbyNetClient framework.
+
+Another bug in the code is in ClientBaseDataSource.computePrintWriter  where the file separator is hard coded as "/".
+
+
+java.security.AccessControlException: access denied (java.io.FilePermission C:_work\svn_clean2\trunk\systest\out2\DerbyNetClient\checkDriver\trace.out write)
+        at java.security.AccessControlContext.checkPermission(AccessControlContext.java:292)
+        at java.security.AccessController.checkPermission(AccessController.java:476)
+        at java.lang.SecurityManager.checkPermission(SecurityManager.java:538)
+        at java.lang.SecurityManager.checkWrite(SecurityManager.java:968)
+        at java.io.FileOutputStream.<init>(FileOutputStream.java:191)
+        at java.io.FileOutputStream.<init>(FileOutputStream.java:124)
+        at org.apache.derby.client.am.LogWriter.getPrintWriter(LogWriter.java:1190)
+        at org.apache.derby.jdbc.ClientBaseDataSource.computePrintWriter(ClientBaseDataSource.java:587)
+        at org.apache.derby.jdbc.ClientBaseDataSource.computeDncLogWriter(ClientBaseDataSource.java:528)
+        at org.apache.derby.jdbc.ClientBaseDataSource.computeDncLogWriterForNewConnection(ClientBaseDataSource.java:512)
+        at org.apache.derby.jdbc.ClientDriver.connect(ClientDriver.java:116)
+        at org.apache.derbyTesting.functionTests.tests.jdbcapi.checkDriver.testConnect(checkDriver.java:397)
+        at org.apache.derbyTesting.functionTests.tests.jdbcapi.checkDriver.testClientAttributes(checkDriver.java:177)
+        at org.apache.derbyTesting.functionTests.tests.jdbcapi.checkDriver.main(checkDriver.java:133)

@@ -1,0 +1,55 @@
+In a recent attempt to create a QParserPlugin which extends DisMaxQParser/FunctionQParser functionality, 
+it became apparent that in the current state of these classes, it is not straight forward and in fact impossible to seriously build
+upon the existing code. 
+To this end, I've refactored some of the involved classes which enabled me to reuse existing logic to great results.
+I thought I will share these changes and comment on their nature in the hope these will make sense to other solr developers/users, and
+at the very least cultivate a fruitful discussion about this particular area of the solr codebase.
+
+The relevant changes are as follows:
+
+
+	Renamed DismaxQParser class to DisMaxQParser ( in accordance with the apparent naming convention, e.g DisMaxQParserPlugin )
+
+
+
+
+	Moved DisMaxQParser to its own .java file, making it a public class rather than its previous package-private visibility. This makes
+  it possible for users to build upon its logic, which is considerable, and to my mind is a good place to start alot of custom
+  QParser implementations.
+
+
+
+
+	Changed access modifiers for the QParser abstract base class to protected (were package-private). Again as above, it makes this
+  object usable by user-defined classes that wish to define custom QParser classes. More generally, and on the philosophy-of-code 
+  side of things, it seems misleading to define some class members as having the default access modifier (package-private) and then
+  letting other package-scope derived classes use these while not explicitly allowing user-defined derived classes to make use of these members.
+
+
+
+  In specific i'm thinking of how DisMaxQParser makes use of these members: **not because it is derived from QParser, but because it
+  simply resides in the same namespace**
+
+
+	Changed access modifier for the QueryParsing.StrParser inner class and its constructors to public. Again as in above, same issue
+  of having same-package classes enjoy the benefit of being in the same namespace (FunctionQParser.parse() uses it like so), 
+  while user defined classes cannot. Particulary in this case it is pretty bad since this class advertises itself as a collection of utilities
+  for query parsing in general - great resource, should probably even live elsewhere (common.utils?)
+
+
+
+
+	Changed Function.FunctionWeight inner class data member modifiers to protected (were default - package-private). This allowed me
+  to inherit from FunctionQuery as well as make use of its original FunctionWeight inner class while overriding some of the latter's
+  methods. This is in the same spirit of the changes above. Please also note this follows the common Query/Weight implementation pattern
+  in the lucene codebase, see for example the BooleanQuery/BooleanWeight code.
+
+
+
+All in all these are relatively minor changes which unlock a great deal of functionality to 3rd party developers, which i think is
+ultimately a big part of what solr is all about - extendability. It is also perhaps a cue for a more serious refactoring of the
+QParserPlugin hierarchy, although i will leave such bold exclamations to another occasion.
+
+Attached is a patch file, having passed the usual coding-style/unit testing cycle.
+
+-Chak

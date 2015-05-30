@@ -1,0 +1,21 @@
+The sequence below shows that a query returns 1 row when there is no index on the table, and it returns 0 rows when an index is created. It should return 1 row regardless of the index's presence.
+
+ij version 10.9
+ij> connect 'jdbc:derby:memory:colldb;create=true;territory=no;collation=TERRITORY_BASED';
+ij> create table t(x varchar(40));
+0 rows inserted/updated/deleted
+ij> insert into t values 'Stranda Idrottslag', 'Aalesunds Fotballklubb';
+2 rows inserted/updated/deleted
+ij> select * from t where x in ('Aalesunds Fotballklubb', cast('xyz' as char(3)));
+X                                       
+----------------------------------------
+Aalesunds Fotballklubb                  
+
+1 row selected
+ij> create index i on t;
+0 rows inserted/updated/deleted
+ij> select * from t where x in ('Aalesunds Fotballklubb', cast('xyz' as char(3)));
+X                                       
+----------------------------------------
+
+0 rows selected

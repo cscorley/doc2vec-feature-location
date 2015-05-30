@@ -1,0 +1,32 @@
+In older versions of Tika, our Microsoft Works 2000 Word Processor example file would get recognized properly by the POIFSContainerDetector. Now it isn't. Some debugging revealed that the improvements from TIKA-704 broke the detection of that particular file. The detection is based on top-level names obtained from the root DirectoryNode. In case of this file there are two strings in that set: "CONTENTS" and "\u0001CompObj". In older versions "CONTENTS" was enough to recognize a file as "application/vnd.ms-works". Now it looks like this:
+
+
+if (names.contains("CONTENTS") && names.contains("SPELLING")) {
+   return WPS;
+} else if (names.contains("CONTENTS")) {
+   // CONTENTS without SPELLING normally means some sort of
+   //  embedded non-office file inside an OLE2 document
+   // This is most commonly triggered on nested directories
+   return OLE;
+}
+
+
+
+Now I have a file with CONTENTS, but without SPELLING, and it's a normal WPS file. I did a workaround like this:
+
+
+if ( names.contains("CONTENTS") && 
+    (names.contains("SPELLING") || names.contains("\u0001CompObj"))) {
+   return WPS;
+} else if (names.contains("CONTENTS")) {
+   // CONTENTS without SPELLING normally means some sort of
+   //  embedded non-office file inside an OLE2 document
+   // This is most commonly triggered on nested directories
+   return OLE;
+}
+
+
+
+So "CONTENTS" has to be supplemented by "SPELLING" or "\u0001CompObj". I don't know the meaning of this and I don't know if that second string also occurs in those "embedded non-office files inside an OLE2 documents", referred to in that comment. The workaround solves the problem for me, the Tika build tests pass and regression tests of my apps pass as well.
+
+Jukka, do you have more than one WPS file, and all of them have both CONTENTS and SPELLING names in that collection? Is the "\u0001CompObj" string characteristic to this format, or is it a generic thing which also occurs on those "non-office files" or "nested directories". If yes, just close this as wontfix. 

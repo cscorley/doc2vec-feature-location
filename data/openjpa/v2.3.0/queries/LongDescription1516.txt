@@ -1,0 +1,12 @@
+Per the JPA specification, EntityManagers are allowed to be pooled by the container by calling the clear() method.  This clear() processing is more efficient than closing the EM and re-creating it with every PersistenceContext injection.  This is working for the most part.
+
+But, there are use cases where the defined clear() processing is not sufficient.  We have run into customer situations where the connection is still active when the EM gets pooled.  And, when this EM gets handed out to another thread/transaction, strange errors and exceptions can occur due to the active connection.  The JPA specification and the javadoc for EM.clear() doesn't say anything about closing out resources (connections) like the close() documentation does.
+
+But, the spec does allow for more efficient processing between the container and the jpa provider (instead of relying on the clear() method) per this footnote:
+
+[78] It is not required that these contracts be used when a third-party persistence provider is not used: the container might use these
+same APIs or its might use its own internal APIs.
+
+In order to open the door for more efficient and more complete "clear" processing before pooling an OpenJPA EntityManager, this JIRA is introducing a new method on our EntityManagerImpl called prepareForPooling().  Since this is for very specific usage, I don't want to put this on the OpenJPAEntityManager interface.  Also, I have raised this as a concern with the JPA Expert Group and an alternative solution might be proposed in a future revision of the spec.  Containers that wish to take advantage of this can very easily detect the existence of this method and call prepareForPooling() instead of the clear().
+
+Due to the customer situation, I would like to get this committed yet this week.  Please raise any concerns with this approach immediately.  Thanks!

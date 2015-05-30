@@ -1,0 +1,10 @@
+When using OpenJPA within a container-managed environment and the configuration is using <jta-data-source> and/or <non-jta-data-source> elements with jndi names, the error messages produced when the lookup fails doesn't help with deciphering the problem:
+
+Exception data:
+<openjpa-1.1.0-SNAPSHOT-r422266:641891 fatal user error> org.apache.openjpa.persistence.ArgumentException: A JDBC Driver or DataSource class name must be specified in the ConnectionDriverName property.
+
+Looking at the code, even if the jndi lookup causes an exception, the exception is eaten.  This failure turns into a null datasource and then we fall into "normal" datasource processing with the openjpa.Connection* properties.  That's when we produce the above message because there is no driver specified.
+
+In this particular case, the user had a typo in his persistence.xml for the jndi name.  It took too much debugging time to figure out that he had a typo.
+
+Kevin

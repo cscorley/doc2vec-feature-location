@@ -1,0 +1,1 @@
+There's a potential for a NullPointerException to be thrown in the in the org.apache.derby.impl.store.raw.data.CachedPage class.  In the writePage() method, there's a test of the myContainer reference to ensure it's not null (line 771), however in the else block, myContainer is dereferenced (line 836), where a NullPointerException is guaranteed to be thrown.

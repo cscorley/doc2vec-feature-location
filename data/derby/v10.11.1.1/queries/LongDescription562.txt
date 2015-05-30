@@ -1,0 +1,12 @@
+Derby incorrectly throws an Exception when streaming to a BLOB in case the used InputStream actually could provide more data than I want to write to the BLOB field.
+
+   PreparedStatement statement = connection.prepareStatement( "insert into FOO(ID,DATA) values(?, ?)" );
+   statement.setLong( 1, someValue );
+   statement.setBinaryStream( 2, someInputStream, amountOfData ); // amountOfData < amount of data readable from someInputStream
+   statement.executeUpdate();
+
+executeUpdate() throws an SQLException with detail message: "Input stream held less data than requested length.: java.io.IOException"
+
+In my case this was first caused by writing an internal buffer (byte[]) to the data base through a ByteArrayInputStream while not limiting the ByteArrayInputStream to the useful data within the buffer but setting amountOfData to the number of useful bytes. So the 2 problems are:
+1. the error text is definitly incorrect since I provide more data than neccessary, not less
+2. in my opinion this shouldn't throw an exception at all (I checked against 4 other DBMS, all of them worked as intended)

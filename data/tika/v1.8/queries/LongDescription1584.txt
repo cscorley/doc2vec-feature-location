@@ -1,0 +1,14 @@
+I tried to send this to the tika user list, but got a qmail failure so I am opening a jira to see if I can get help with this.
+
+There appears to be a change in the behavior of tika since 1.5 (the last version we have used). In 1.5, if we pass a file with content type of rfc822 which contains a zip that contains a docx file, the entire content would get recursed and the text returned. In 1.7, tika only unwinds as far as the zip file and ignores the content of the contained docx file. This is causing a regression failure in our search tests because the contents of the docx file are not found when searched for.
+
+We are testing with tika-server if this helps. If we ask the meta service to just characterize the test data, it correctly determines the input is of type rfc822. However, on extract, the contents of the attachment are not extracted as expected.
+
+curl -X PUT -T test.eml -q -H Content-Type:application/octet-stream  http://localhost:9998/meta 2>/dev/null | grep Content-Type
+"Content-Type","message/rfc822"
+
+curl -X PUT -T test.eml -q -H Content-Type:application/octet-stream  http://localhost:9998/tika 2>/dev/null | grep docx
+sign.docx       <<<<--- this is not expected, need contents of this extracted
+
+
+We can easily reproduce this problem with a simple eml file with an attachment. Can someone please comment if this seems like a problem or perhaps we need to change something in our call to get the old behavior?

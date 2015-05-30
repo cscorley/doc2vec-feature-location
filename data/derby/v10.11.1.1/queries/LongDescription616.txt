@@ -1,0 +1,13 @@
+Seen in tests lang/wisconsin.sql and jdbcapi/maxfieldsize.java when running with the network server and the new security policy file that grants permisions on a per-jar basis. Unless permission is given to the network serve code (since it is in the stack) to access temp files in the database the test will fail.
+
+  permission java.io.FilePermission "$
+{derby.system.home}
+$
+{/}wombat${/}
+tmp$
+{/}
+-", "read, write, delete";
+
+Most likely the temp files are being accessed in without a privileged block.
+
+Easy to reproduce once the new policy file changes are checked in (see http://wiki.apache.org/db-derby/SecurityManagerTesting) by removing the permission in the derby_tests.policy  file and running these tests using the jar files.

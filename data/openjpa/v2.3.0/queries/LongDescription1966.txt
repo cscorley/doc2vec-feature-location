@@ -1,0 +1,13 @@
+An entity graph (with cascade) containing bi-directional relationships or circular references may fail to merge properly if one or more of the entities in the graph do not have a state manager - either an active or detached state manager.  The result is that one or more of the merged entities may end up with a reference to a detached object.  This may not be immediately evident and could cause problems in subsequent operations. It can even affect the ordering of SQL statements since foreign keys may not be properly associated with the detached entities.
+
+For example:  A <- OneToOne -> B
+em.clear()
+Detached graph:  B <--> A
+A: Is detached, has DetachedStateManager
+B: Is detached, No state manager, only detached state field.  (ie. @DetachedState Object state)
+Merge: B
+After merge:  B' --> A' --> B (detached)
+
+If B contains a state manager the result of the merge is correct: B' <--> A'
+
+The source of the problem is that the "no state manager" attachment path creates a new PC + state manager and assigns this state manager to the detached instance so that it can be used to attach all its fields.  During a cascade, this detached entity (with borrowed state manager) looks persistent, so it can get attached into the resulting merge graph.

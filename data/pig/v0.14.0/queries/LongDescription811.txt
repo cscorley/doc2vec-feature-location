@@ -1,0 +1,34 @@
+Script:
+a = load 'studenttab10?';
+dump a;
+
+Actual file name: studenttab10k
+
+Stack trace:
+
+ERROR 2081: Unable to setup the load function.
+org.apache.pig.backend.executionengine.ExecException: ERROR 2081: Unable to setup the load function.
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLoad.getNext(POLoad.java:128)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:231)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POFilter.getNext(POFilter.java:95)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:231)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POStore.getNext(POStore.java:117)
+        at org.apache.pig.backend.local.executionengine.LocalPigLauncher.runPipeline(LocalPigLauncher.java:129)
+        at org.apache.pig.backend.local.executionengine.LocalPigLauncher.launchPig(LocalPigLauncher.java:102)
+        at org.apache.pig.backend.local.executionengine.LocalExecutionEngine.execute(LocalExecutionEngine.java:163)
+        at org.apache.pig.PigServer.executeCompiledLogicalPlan(PigServer.java:763)
+        at org.apache.pig.PigServer.execute(PigServer.java:756)
+        at org.apache.pig.PigServer.access$100(PigServer.java:88)
+        at org.apache.pig.PigServer$Graph.execute(PigServer.java:923)
+        at org.apache.pig.PigServer.executeBatch(PigServer.java:242)
+        at org.apache.pig.tools.grunt.GruntParser.executeBatch(GruntParser.java:110)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:151)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:123)
+        at org.apache.pig.tools.grunt.Grunt.exec(Grunt.java:88)
+        at org.apache.pig.Main.main(Main.java:372)
+Caused by: java.io.IOException: file:/home/y/share/pigtest/local/data/singlefile/studenttab10 does not exist
+        at org.apache.pig.impl.io.FileLocalizer.openDFSFile(FileLocalizer.java:188)
+        at org.apache.pig.impl.io.FileLocalizer.openLFSFile(FileLocalizer.java:244)
+        at org.apache.pig.impl.io.FileLocalizer.open(FileLocalizer.java:299)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLoad.setUp(POLoad.java:96)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLoad.getNext(POLoad.java:124)

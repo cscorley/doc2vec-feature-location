@@ -1,0 +1,8 @@
+Network derby client does not properly detect a sql select statement preceded by /* */ comments.  As a result the sql appears to be detected as an update statement, and results in  the following error:
+
+ org.apache.derby.client.am.SqlException: executeQuery method can not be used for update.
+	at org.apache.derby.client.am.Statement.checkForAppropriateSqlMode(Unknown Source)
+	at org.apache.derby.client.am.PreparedStatement.flowExecute(Unknown Source)
+	at org.apache.derby.client.am.PreparedStatement.executeQueryX(Unknown Source)
+
+The problem appears to be in Statment.parseSqlAndSetSqlModes(), which only appears to check for "--" style comments.

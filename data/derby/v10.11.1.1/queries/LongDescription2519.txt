@@ -1,0 +1,31 @@
+Will attach patch to this issue that does the following clean-up in
+the test: 
+
+
+	Do a transaction rollback in tearDown() before dropping tables.
+     This prevents failures when dropping tables due to open result
+     sets.
+
+
+
+
+	Commit work in setUp().  Otherwise, the change above may roll
+     back the created tables on failure and tearDown() will attempt
+     drop non-existing tables.
+
+
+
+
+	Test contains a set of test cases called xTest... that seems to
+     originally have been called so because they were excluded from
+     running in client/server mode.  They are now run in both embedded
+     and client/server so they should be renamed so they are
+     automatically made part of the suite.
+
+
+
+
+	ResultSet.update[BC]lob has now been implemented and should be
+     used in the above mentioned test cases.
+
+

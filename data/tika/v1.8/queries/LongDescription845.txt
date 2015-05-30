@@ -1,0 +1,5 @@
+The XML Abstract metdata handler should check for an existing value for multi-valued fields as well as simple text fields.
+
+Similar metadata may be stored in multiple fields in the source and a developer may choose to map several source fields to the same tika field, in which case no check is made for duplicates of existing delimited values.
+
+For example, a developer may want to dump any values contained in legacy IPTC keywords and dc:subject into tika keywords.  If IPTC keywords = ['rock','tree','dog'] and dc:subject = ['rock','tree','K9'] then currently tika keywords = ['rock','tree','dog','rock','tree','K9'] instead of the desired ['rock','tree','dog','K9'].

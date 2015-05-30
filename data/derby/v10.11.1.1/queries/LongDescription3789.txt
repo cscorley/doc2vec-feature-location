@@ -1,0 +1,17 @@
+If I run the attached program on Windows to create an encrypted database open a result set, shutdown and attempt to delete the directory it fails with:
+[C:]java EncryptShutdown
+Exception in thread "main" junit.framework.AssertionFailedError: encryptdb\seg0\c400.dat
+        at junit.framework.Assert.fail(Assert.java:47)
+        at junit.framework.Assert.assertTrue(Assert.java:20)
+        at org.apache.derbyTesting.junit.DropDatabaseSetup.removeDir(DropDatabaseSetup.java:130)
+        at org.apache.derbyTesting.junit.DropDatabaseSetup.removeDir(DropDatabaseSetup.java:128)
+        at org.apache.derbyTesting.junit.DropDatabaseSetup.access$000(DropDatabaseSetup.java:35)
+        at org.apache.derbyTesting.junit.DropDatabaseSetup$1.run(DropDatabaseSetup.java:105)
+        at java.security.AccessController.doPrivileged(AccessController.java:193)
+        at org.apache.derbyTesting.junit.DropDatabaseSetup.removeDirectory(DropDatabaseSetup.java:102)
+        at org.apache.derbyTesting.junit.DropDatabaseSetup.removeDirectory(DropDatabaseSetup.java:98)
+        at org.apache.derbyTesting.junit.BaseTestCase.removeDirectory(BaseTestCase.java:522)
+        at EncryptShutdown.main(EncryptShutdown.java:25)
+
+
+Apparently all resources are not being released.  It runs fine if the database is not encrypted.

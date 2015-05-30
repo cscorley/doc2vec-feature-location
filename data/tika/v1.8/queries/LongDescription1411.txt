@@ -1,0 +1,74 @@
+When working with a 7z file, the created TikaInputStream is not closed inside PackageParser. Also, it is prematurely wrapping the stream into a CloseShieldInputStream, so it will never be a TikaInputStream and always wrapped into a BufferedInputStream. Proposed change:
+
+
+
+public void parse(
+            InputStream stream, ContentHandler handler,
+            Metadata metadata, ParseContext context)
+            throws IOException, SAXException, TikaException {
+       
+        // Ensure that the stream supports the mark feature
+        if (! TikaInputStream.isTikaInputStream(stream))
+            stream = new BufferedInputStream(stream);
+        
+        
+        TemporaryResources tmp = new TemporaryResources();
+        ArchiveInputStream ais = null;
+        try {
+            ArchiveStreamFactory factory = context.get(ArchiveStreamFactory.class, new ArchiveStreamFactory());
+            // At the end we want to close the archive stream to release
+            // any associated resources, but the underlying document stream
+            // should not be closed
+            ais = factory.createArchiveInputStream(new CloseShieldInputStream(stream));
+            
+        } catch (StreamingNotSupportedException sne) {
+            // Most archive formats work on streams, but a few need files
+            if (sne.getFormat().equals(ArchiveStreamFactory.SEVEN_Z)) {
+                // Rework as a file, and wrap
+                stream.reset();
+                TikaInputStream tstream = TikaInputStream.get(stream, tmp);
+                
+                // Pending a fix for COMPRESS-269, this bit is a little nasty
+                ais = new SevenZWrapper(new SevenZFile(tstream.getFile()));
+                
+            } else {
+            	tmp.close();
+                throw new TikaException("Unknown non-streaming format " + sne.getFormat(), sne);
+            }
+        } catch (ArchiveException e) {
+        	tmp.close();
+            throw new TikaException("Unable to unpack document stream", e);
+        }
+
+        MediaType type = getMediaType(ais);
+        if (!type.equals(MediaType.OCTET_STREAM)) {
+            metadata.set(CONTENT_TYPE, type.toString());
+        }
+
+        // Use the delegate parser to parse the contained document
+        EmbeddedDocumentExtractor extractor = context.get(
+                EmbeddedDocumentExtractor.class,
+                new ParsingEmbeddedDocumentExtractor(context));
+
+        XHTMLContentHandler xhtml = new XHTMLContentHandler(handler, metadata);
+        xhtml.startDocument();
+
+        try {
+            ArchiveEntry entry = ais.getNextEntry();
+            while (entry != null) {
+                if (!entry.isDirectory()) {
+                    parseEntry(ais, entry, extractor, xhtml);
+                }
+                entry = ais.getNextEntry();
+            }
+        } finally {
+            ais.close();
+            tmp.close();
+        }
+
+        xhtml.endDocument();
+    }
+
+
+
+I would be nice if TIKA-1246 (very simple) was resolved together.

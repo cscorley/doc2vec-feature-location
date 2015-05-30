@@ -1,0 +1,3 @@
+Three of the fields in the JDBC Foreign Key metadata were being accessed incorrectly.  These three fields are actually documented as being "shorts", but we were accessing them as "ints".  Although most JDBC drivers will process this request correctly, we hit one problem with the JDBC driver on iSeries.  Instead of waiting for a patch for that platform, it's easier for us to make the change.
+
+The three fields are "KEY_SEQ", "DEFERRABILITY", and "DELETE_RULE".  Field "UPDATE_RULE" is also a short, but we don't currently seem to be accessing that field.

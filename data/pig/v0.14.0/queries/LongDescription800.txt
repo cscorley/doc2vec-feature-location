@@ -1,0 +1,12 @@
+Any script of the form
+
+
+
+B = foreach A generate flatten(X); -- X is a bag
+C = distinct B;
+
+
+
+where X is sometimes an empty bag will hang in local mode.  If distinct is replaced by order by it will also hang.
+
+The issue is that the flatten in foreach returns STATUS_NULL whenever the bag X is empty.  PODistinct and POSort handle this incorrectly and go into an infinite loop.

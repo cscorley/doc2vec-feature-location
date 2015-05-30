@@ -1,0 +1,65 @@
+This gives the ability to point one loader at a directory and have multiple formats loaded and used in the same query
+
+----- Overview -----
+
+Lets say we have a directory with files:
+ /logs/myfile.lzo
+ /logs/myfile.rc
+ /logs/myfile.bz2
+ /logs/myfile.gz
+
+To load these currently requires multiple loaders, load statements in pig and then have the query perform a union on these.
+
+With this Loader the query becomes:
+a = LOAD '/logs/' USING  org.apache.pig.piggybank.storage.AllLoader();
+
+The AllLoader will use the mapping property in the $PIG_HOME/conf/pig.properties
+
+file.extension.loaders that can be setup as:
+
+file.extension.loaders=gz:org.apache.pig.builtin.PigStorage(),bz2:org.apache.pig.builtin.PigStorage(),lzo:com.twitter.elephantbird.pig.load.LzoTextLoader(), rc:org.apache.pig.piggybank.storage.HiveColumnarLoader()
+
+The formats of this property is:
+
+-> [file extension]:[loader func spec]
+-> [file-extension]:[optional path tag]:[loader func spec]
+-> [file-extension]:[optional path tag]:[sequence file key value writer class name]:[loader func spec]
+
+----- File path tagging: -----
+
+Loaders can also be chosen based on folder names in the file path:
+e.g.
+file.extension.loaders:gz:type1:Type1Loader(), gz:type2:Type2Loader()
+
+So that if you have /logs/type1/mylog and /logs/type2/mylog
+doing : a = LOAD '/logs/' USING  org.apache.pig.piggybank.storage.AllLoader();  will use Type1Loader for mylog in /logs/type1 and Type2Loader for mylog in /logs/type2
+
+----- File content guessing: -----
+
+If the files do not have extensions the AllLoader will try to guess the type of file by looking at the first three bytes mapping the following bytes to each extension:
+
+[ -119, 76, 90 ] = lzo
+[ 31, -117, 8 ] = gz
+[ 66, 90, 104 ] = bz2
+[ 83, 69, 81 ] = seq
+
+----- Loader selection based on sequence file writer class -----
+
+Loaders can be configured to be selected based on the getKeyClassName of the Sequence File.
+e.g. 
+file.extension.loaders:seq::org.apache.hadoop.hive.ql.io.RCFile:HiveColumnarLoader 
+will use the HiveColumnarLoader loader for all sequence files that have been written with org.apache.hadoop.hive.ql.io.RCFile as the KeyClassName.
+
+All $ extensions are removed from the getKeyClassName's return value.
+
+----- Path Partition Handling -----
+
+Hive style partitioning is supported in the Loader itself so that if you have /logs/type=1 /logs/type=2 /logs/type=3
+The partition columns will be recougnised as "type" and filtering can be done like type<=2 etc.
+
+For this current implementation filtering expressions should be passed into the AllLoader's constructor e.g.
+
+
+a = LOAD '/logs/' USING  org.apache.pig.piggybank.storage.AllLoader('type<=2'); will load only files that are in /logs/type=1 and /logs/type=2
+
+

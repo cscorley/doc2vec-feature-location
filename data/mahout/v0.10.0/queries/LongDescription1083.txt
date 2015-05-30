@@ -1,0 +1,30 @@
+the function "reduce" in mahout-0.7-kmeans-CIReducer.java doesn't work well as it looks like.
+
+  protected void reduce(IntWritable key, Iterable<ClusterWritable> values, Context context) throws IOException,
+      InterruptedException {
+    Iterator<ClusterWritable> iter = values.iterator();
+    ClusterWritable first = null;
+    while (iter.hasNext()) {
+      ClusterWritable cw = iter.next();
+      if (first == null) 
+{
+        first = cw;
+      }
+ else 
+{
+        first.getValue().observe(cw.getValue());
+      }
+    }
+    List<Cluster> models = new ArrayList<Cluster>();
+    models.add(first.getValue());
+    classifier = new ClusterClassifier(models, policy);
+    classifier.close();
+    context.write(key, first);
+  }
+
+
+
+
+Apparently， the variable "first" will collect all output data of maps. Actually but, the value of "first" will change after the code "ClusterWritable cw = iter.next();", same with this new variable "cw"! I don't why but running result shows that the code runs looks like this:"ClusterWritable cw = first = iter.next();".
+is "cw" a reference a to "iter"?
+is "iter.next" just change the value of "iter" itself to the next?

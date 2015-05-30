@@ -1,0 +1,22 @@
+1) With these annotations:
+    @CollectionTable(name = "collectionTemporalOrderColumnTable", joinColumns = @JoinColumn(name = "parent_id"))
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Temporal(TemporalType.DATE)
+    @Column(name = "value")
+    @OrderColumn(name = "valueOrderColumn")
+    //@Temporal(TemporalType.DATE)
+    private Collection<Date> collectionDate;
+
+The collectionTemporalOrderColumnTable is created with the following columns: PARENT_ID, VALUE, VALUEORDERCOLUMN
+
+(2) With these annotations:
+    @CollectionTable(name = "collectionTemporalOrderColumnTable", joinColumns = @JoinColumn(name = "parent_id"))
+    @ElementCollection(fetch = FetchType.EAGER)
+    //@Temporal(TemporalType.DATE)
+    @Column(name = "value")
+    @OrderColumn(name = "valueOrderColumn")
+    @Temporal(TemporalType.DATE)
+    private Collection<Date> collectionDate;
+
+The collectionTemporalOrderColumnTable is created with the following columns: PARENT_ID, ELEMENT, VALUEORDERCOLUMN
+

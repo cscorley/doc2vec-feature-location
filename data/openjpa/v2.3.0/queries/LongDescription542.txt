@@ -1,0 +1,3 @@
+The OracleDictionary class calls Class.forName("oracle.sql.CLOB") and Class.forName("oracle.sql.BLOB") to get the class objects for BLOBs and CLOBs. This approach uses the classloader which loaded OracleDictionary, which might not have access to the Oracle JDBC classes ie if OpenJPA is in a different OSGi bundle from the jdbc driver. 
+
+Instead we should get the current classloader which is more likely to contain the JDBC driver classes. 

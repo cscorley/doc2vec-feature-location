@@ -1,0 +1,15 @@
+Using HBaseStorage like so seems like a reasonable thing to do, but it will yield unexpected results:
+
+
+
+STORE result INTO 'hbase://foo' USING
+ org.apache.pig.backend.hadoop.hbase.HBaseStorage(
+ 'info:first_name, info:last_name');
+
+
+
+The problem us that a column named info:first_name, will be created, with the trailing comma included. I've had numerous developers get tripped up on this issue since everywhere else in Pig variables are separated by commas, so I propose we fix it.
+
+I propose we trim leading/trailing commas from column names, but I'm open to other ideas.
+
+Also should we accept column names that are comman-delimited without spaces?

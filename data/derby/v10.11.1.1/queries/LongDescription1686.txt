@@ -1,0 +1,98 @@
+With authentication on, attempting to execute a GRANT privilege  to 'user3' on a VIEW created by the 'user2' - who has only SELECT privilege
+on the base table created by 'user1' does not fail. This results in 'user3' getting access to the table created by 'user1' through the view.
+
+I remember a discussion on the list to raise an error when an attempt is execute a GRANT on the view, until WITH GRANT option is implemented.
+
+Here is the repro:
+
+java -cp derby.jar;.\derbytools.jar -Dderby.database.sqlAuthorization=true -Dij.exceptionTrace=true   org.apache.derby.tools.ij select_table_no_privilege.sql
+ij version 10.2
+ij> –
+--create db as user1
+–
+connect 'jdbc:derby:grntrevokedb;create=true' user 'user1';
+WARNING 01J14: SQL authorization is being used without first enabling authentication.
+ij> create table t1(id int);
+0 rows inserted/updated/deleted
+ij> insert into t1 values(100);
+1 row inserted/updated/deleted
+ij> insert into t1 values(200);
+1 row inserted/updated/deleted
+ij> –
+--Grant select to user2
+–
+grant select on t1 to user2;
+0 rows inserted/updated/deleted
+ij> –
+--Connect as user2
+–
+connect 'jdbc:derby:grntrevokedb;create=true' user 'user2';
+WARNING 01J01: Database 'grntrevokedb' not created, connection made to existingdatabase instead.
+WARNING 01J14: SQL authorization is being used without first enabling authentication.
+ij(CONNECTION1)> select * from user1.t1;
+ID
+-----------
+100
+200
+
+2 rows selected
+ij(CONNECTION1)> –
+--Create view
+–
+create view v1 as select * from user1.t1;
+0 rows inserted/updated/deleted
+ij(CONNECTION1)> select * from v1;
+ID
+-----------
+100
+200
+
+2 rows selected
+ij(CONNECTION1)> –
+--Grant select on view to user3. With the WITH GRANT option this should have failed
+–
+grant select on v1 to user3;
+0 rows inserted/updated/deleted
+ij(CONNECTION1)> –
+--Connect as user3
+–
+connect 'jdbc:derby:grntrevokedb;create=true' user 'user3';
+WARNING 01J01: Database 'grntrevokedb' not created, connection made to existing
+database instead.
+WARNING 01J14: SQL authorization is being used without first enabling authentication.
+ij(CONNECTION2)> –
+--No select privilege on base table user1.t1, hence will FAIL
+–
+select * from user1.t1;
+ERROR 28508: User 'USER3' does not have select permission on column 'ID' of table 'USER1'.'T1'.
+ERROR 28508: User 'USER3' does not have select permission on column 'ID' of table 'USER1'.'T1'.
+        at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+        at org.apache.derby.iapi.sql.dictionary.StatementColumnPermission.check(Unknown Source)
+        at org.apache.derby.impl.sql.conn.GenericAuthorizer.authorize(Unknown Source)
+        at org.apache.derby.exe.ac295dc08bx010dx00a2x500ax00000011df100.fillResultSet(Unknown Source)
+        at org.apache.derby.exe.ac295dc08bx010dx00a2x500ax00000011df100.execute(Unknown Source)
+        at org.apache.derby.impl.sql.GenericActivationHolder.execute(Unknown Source)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.execute(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+        at org.apache.derby.impl.tools.ij.ij.executeImmediate(Unknown Source)
+        at org.apache.derby.impl.tools.ij.utilMain.doCatch(Unknown Source)
+        at org.apache.derby.impl.tools.ij.utilMain.runScriptGuts(Unknown Source)
+
+        at org.apache.derby.impl.tools.ij.utilMain.go(Unknown Source)
+        at org.apache.derby.impl.tools.ij.Main.go(Unknown Source)
+        at org.apache.derby.impl.tools.ij.Main.mainCore(Unknown Source)
+        at org.apache.derby.impl.tools.ij.Main14.main(Unknown Source)
+        at org.apache.derby.tools.ij.main(Unknown Source)
+ij(CONNECTION2)> –
+--Select from the view on the base table should also FAIL, but does not
+–
+select * from user2.v1;
+ID
+-----------
+100
+200
+
+2 rows selected
+ij(CONNECTION2)>

@@ -1,0 +1,146 @@
+I have table contained BLOB and CLOB fields:
+
+Create table string is:
+
+private static final String CREATE = "CREATE TABLE ta (" +
+            "ta_id INTEGER NOT NULL," +
+            "mname VARCHAR( 254 ) NOT NULL," +
+            "mvalue INT NOT NULL," +
+            "mdate DATE NOT NULL," +
+            "bytedata BLOB NOT NULL," +
+            "chardata CLOB NOT NULL," +
+            "PRIMARY KEY ( ta_id ))";
+
+
+Then I insert 2000 rows in the table.
+
+
+
+Then I update all 2000 rows by command:
+
+private static final String UPDATE  =  "UPDATE ta " +
+    		"SET bytedata=? ,chardata=? " +
+    		"WHERE mvalue=?";
+
+/*create blob and clob arrays*/
+        int len1 = 10000;//for blob length data
+        int len2 = 15000;//for clob length data
+        byte buf [] = new byte[len1];
+        for(int i=0;i<len1;i++)
+{
+        	buf [i] = (byte)45;
+        }
+        ByteArrayInputStream bais = new ByteArrayInputStream(buf);
+
+        char[] bufc = new char[len2];
+        for (int i = 0; i < bufc.length; i++) 
+{
+        	bufc[i] = (char)'b';
+		}
+        CharArrayReader car = new CharArrayReader(bufc);
+/***/
+PreparedStatement pstmt = connection.prepareStatement(UPDATE);
+pstmt.setBinaryStream(1,bais, len1);
+pstmt.setCharacterStream(2,car, len2);
+pstmt.setInt(3,5000);
+int updated =  pstmt.executeUpdate();
+pstmt.close();
+System.out.printlen("updated ="+updated );
+
+
+all 2000 rows updated , because I receive output : updated =2000
+
+But If I run select (SELECT bytedata ,chardata  FROM ta)  after update, select failed with error:
+
+ERROR XSDA7: Restore of a serializable or SQLData object of class , attempted to
+ read more data than was originally stored
+        at org.apache.derby.iapi.error.StandardException.newException(StandardEx
+ception.java)
+        at org.apache.derby.impl.store.raw.data.StoredPage.readRecordFromArray(S
+toredPage.java)
+        at org.apache.derby.impl.store.raw.data.StoredPage.restoreRecordFromSlot
+(StoredPage.java)
+        at org.apache.derby.impl.store.raw.data.BasePage.fetchFromSlot(BasePage.
+java)
+        at org.apache.derby.impl.store.access.conglomerate.GenericScanController
+.fetchRows(GenericScanController.java)
+        at org.apache.derby.impl.store.access.heap.HeapScan.fetchNextGroup(HeapS
+can.java)
+        at org.apache.derby.impl.sql.execute.BulkTableScanResultSet.reloadArray(
+BulkTableScanResultSet.java)
+        at org.apache.derby.impl.sql.execute.BulkTableScanResultSet.getNextRowCo
+re(BulkTableScanResultSet.java)
+        at org.apache.derby.impl.sql.execute.NestedLoopJoinResultSet.getNextRowC
+ore(NestedLoopJoinResultSet.java)
+        at org.apache.derby.impl.sql.execute.NestedLoopLeftOuterJoinResultSet.ge
+tNextRowCore(NestedLoopLeftOuterJoinResultSet.java)
+        at org.apache.derby.impl.sql.execute.ProjectRestrictResultSet.getNextRow
+Core(ProjectRestrictResultSet.java)
+        at org.apache.derby.impl.sql.execute.SortResultSet.getRowFromResultSet(S
+ortResultSet.java)
+        at org.apache.derby.impl.sql.execute.SortResultSet.getNextRowFromRS(Sort
+ResultSet.java)
+        at org.apache.derby.impl.sql.execute.SortResultSet.loadSorter(SortResult
+Set.java)
+        at org.apache.derby.impl.sql.execute.SortResultSet.openCore(SortResultSe
+t.java)
+        at org.apache.derby.impl.sql.execute.BasicNoPutResultSetImpl.open(BasicN
+oPutResultSetImpl.java)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPre
+paredStatement.java)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedState
+ment.java)
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeStatement(Em
+bedPreparedStatement.java)
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement.execute(EmbedPrepar
+edStatement.java)
+        at com.beep_beep.dbtest.complex.Benchmark.testSelect(Unknown Source)
+        at com.beep_beep.dbtest.complex.Benchmark.executeSimplestBigTable(Unknown Sour
+ce)
+        at com.beep_beep.dbtest.complex.Benchmark.testBigTable(Unknown Source)
+        at com.beep_beep.dbtest.complex.Benchmark.executeDegradationBenchmark(Unknown
+Source)
+        at com.beep_beep.dbtest.complex.Benchmark.main(Unknown Source)
+
+
+From the stack trace and from console I see that Update passed, but error was raised in Select after Update.
+
+
+When I try the same update, but with difference(I changed WHERE clause, causing update only 1 row):
+private static final String UPDATE  =  "UPDATE ta " +
+    		"SET bytedata=? ,chardata=? " +
+    		"WHERE mname=?";
+
+PreparedStatement pstmt = connection.prepareStatement(UPDATE);
+pstmt.setBinaryStream(1,bais, len1);
+pstmt.setCharacterStream(2,car, len2);
+pstmt.setInt(3,"PETER");
+int updated =  pstmt.executeUpdate();
+pstmt.close();
+System.out.printlen("updated ="+updated );
+
+Only 1 row updated , because I receive output : updated =1
+
+In this case I have NO errors in select(the same as previous) .
+
+My assumption:
+It seems that Update receives ByteArrayInputStream and updates correctly only 1 row, then all rows updated by some
+incorrect value(may be because ByteArrayInputStream reached its end in first update), causing select failure.
+
+I tested PointBase by the same test and PointBase passed this stage without errors, no matter how many rows was updated.
+So I think it is a bug.
+
+Thank you.
+
+
+
+
+
+
+
+
+
+
+
+
+

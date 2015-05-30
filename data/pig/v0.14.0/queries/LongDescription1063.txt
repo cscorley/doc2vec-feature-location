@@ -1,0 +1,9 @@
+A StoreFunc implementation can inform pig of an OutputFormat it uses through the getStoragePreparationClass() method. In a query with multiple stores which gets optimized into a single mapred job, Pig does not call the checkOutputSpecs() method on the outputformat. An example of such a script is:
+
+a = load 'input.txt';
+b = filter a by $0 < 10;
+store b into 'output1' using StoreWithOutputFormat();
+c = group a by $0;
+d = foreach c generate group, COUNT(a.$0);
+store d into 'output2' using StoreWithOutputFormat();
+

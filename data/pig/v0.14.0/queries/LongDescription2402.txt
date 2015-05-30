@@ -1,0 +1,7 @@
+Current logic is:
+context instanceof WrappedMapper.Context
+
+It is no longer working in current 0.23 branch. I see test failure in some tests, such as SkewedJoin_6.
+
+Here is the stack:
+Error: java.lang.NullPointerException at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POStore.getNext(POStore.java:146) at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POSplit.runPipeline(POSplit.java:254) at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POSplit.processPlan(POSplit.java:236) at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POSplit.getNext(POSplit.java:228) at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.runPipeline(PigGenericMapBase.java:271) at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.map(PigGenericMapBase.java:266) at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.map(PigGenericMapBase.java:64) at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144) at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:711) at org.apache.hadoop.mapred.MapTask.run(MapTask.java:328) at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:147) at java.security.AccessController.doPrivileged(Native Method) at javax.security.auth.Subject.doAs(Subject.java:396) at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1154) at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:142) 

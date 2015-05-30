@@ -1,0 +1,90 @@
+Both buildtime and runtime class enhancement fail with the following error:
+
+...
+1339  TRACE  [main] openjpa.Enhance - Enhancing type "class test.B".
+Exception in thread "main" <0|false|0.9.6-incubating> org.apache.openjpa.util.GeneralException: null
+        at org.apache.openjpa.enhance.PCEnhancer.run(PCEnhancer.java:350)
+        at org.apache.openjpa.enhance.PCEnhancer.run(PCEnhancer.java:3711)
+        at org.apache.openjpa.enhance.PCEnhancer.run(PCEnhancer.java:3661)
+        at org.apache.openjpa.enhance.PCEnhancer.main(PCEnhancer.java:3633)
+Caused by: java.lang.NullPointerException
+        at org.apache.openjpa.enhance.PCEnhancer.enhanceObjectId(PCEnhancer.java:2745)
+        at org.apache.openjpa.enhance.PCEnhancer.run(PCEnhancer.java:338)
+        ... 3 more
+
+Test code as follows:
+
+test/A.java:
+--------------
+package test;
+
+import javax.persistence.*;
+import java.io.Serializable;
+
+@MappedSuperclass
+abstract public class A {
+
+    @Embeddable
+    public static class A_PK implements Serializable {
+        @Basic
+        protected int id1;
+
+        @Basic
+        protected String id2;
+
+        public boolean equals (Object other) 
+{
+            return false;
+        }
+
+        public int hashCode () 
+{
+            return 0;
+        }
+
+    }
+
+    @EmbeddedId
+    protected A_PK pk;
+
+    @Basic
+    protected String val;
+
+}
+--------------
+
+test/B.java:
+--------------
+package test;
+
+import javax.persistence.Entity;
+
+@Entity
+public class B extends A {
+
+}
+--------------
+
+META-INF/persistence.xml:
+--------------
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
+        version="1.0">
+    <persistence-unit name="TestService" transaction-type="RESOURCE_LOCAL">
+        <class>test.A$A_PK</class>
+        <class>test.A</class>
+        <class>test.B</class>
+        <properties>
+            <property name="openjpa.Log" value="DefaultLevel=TRACE"/>
+
+            <property name="openjpa.ConnectionUserName" value="test"/>
+            <property name="openjpa.ConnectionPassword" value="test"/>
+            <property name="openjpa.ConnectionURL" value="jdbc:mysql://localhost:3306/oam?useServerPrepStmts=false"/>
+            <property name="openjpa.ConnectionDriverName" value="com.mysql.jdbc.Driver"/>
+        </properties>
+    </persistence-unit>
+</persistence>
+--------------
+
+

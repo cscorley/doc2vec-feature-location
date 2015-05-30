@@ -1,0 +1,34 @@
+i haven't had a chance to drill into this yet to figure out what's going wrong (i know we already had an issue about this that was fixed), but testing the example configs from 1.2 against 1.3rc1 i'm seeing the following behavior...
+
+
+	the following message is logged...
+
+Aug 29, 2008 12:41:31 PM org.apache.solr.core.SolrCore initDeprecatedSupport
+WARNING: adding ShowFileRequestHandler with hidden files: [.SVN, XSLT, SYNONYMS.TXT, PROTWORDS.TXT, STOPWORDS.TXT, SCRIPTS.CONF]
+
+
+ (Note: that is not the list of files configured in the 1.2 example <gettableFiles>, it's the list of all files in the solr/conf dir ... and for some reason they are all uppercased)
+	links on the admin screen for the schema and config files point to...
+
+file/?file=schema.xml   ...ie...  http://localhost:8983/solr/admin/file/?file=schema.xml
+file/?file=solrconfig.xml  ...ie... http://localhost:8983/solr/admin/file/?file=solrconfig.xml
+
+
+	those links don't work (404, nothing seems to be logged by Solr)
+	the "legacy" form of the urls using get-files.jsp (which people might have bookmarked) do in fact work...
+
+http://localhost:8983/solr/admin/get-file.jsp?file=solrconfig.xml
+http://localhost:8983/solr/admin/get-file.jsp?file=schema.xml
+
+
+...but based on the whitespace at the top of the files, i suspect that is relaly the JSP getting used, not the  ShowFileRequestHandler
+
+
+
+To reproduce:
+
+	checkout the the solr 1.2 tag.
+	copy the 1.3-rc1 war on top of the 1.2 example/webapps/solr.war
+	run the 1.2 example code as normal (java -jar start.jar)
+
+

@@ -1,0 +1,40 @@
+This is somewhat expected since we copy lots of object in POShuffleLoadTez for accumulator UDF. With large data, it consistently fails with OOM. We need to re-implement it.
+
+Here is an example stack trace-
+
+
+2014-08-02 02:59:15,801 ERROR [TezChild] org.apache.tez.runtime.task.TezTaskRunner: Exception of type Error. Exiting now
+java.lang.OutOfMemoryError: GC overhead limit exceeded
+    at java.lang.StringCoding$StringDecoder.decode(StringCoding.java:149)
+    at java.lang.StringCoding.decode(StringCoding.java:193)
+    at java.lang.String.<init>(String.java:416)
+    at org.apache.pig.data.BinInterSedes$BinInterSedesTupleRawComparator.compareBinInterSedesDatum(BinInterSedes.java:964)
+    at org.apache.pig.data.BinInterSedes$BinInterSedesTupleRawComparator.compareBinSedesTuple(BinInterSedes.java:770)
+    at org.apache.pig.data.BinInterSedes$BinInterSedesTupleRawComparator.compare(BinInterSedes.java:728)
+    at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigTupleSortComparator.compare(PigTupleSortComparator.java:100)
+    at org.apache.tez.runtime.library.common.sort.impl.TezMerger$MergeQueue.lessThan(TezMerger.java:539)
+    at org.apache.hadoop.util.PriorityQueue.downHeap(PriorityQueue.java:144)
+    at org.apache.hadoop.util.PriorityQueue.adjustTop(PriorityQueue.java:108)
+    at org.apache.tez.runtime.library.common.sort.impl.TezMerger$MergeQueue.adjustPriorityQueue(TezMerger.java:486)
+    at org.apache.tez.runtime.library.common.sort.impl.TezMerger$MergeQueue.next(TezMerger.java:503)
+    at org.apache.tez.runtime.library.common.ValuesIterator.readNextKey(ValuesIterator.java:179)
+    at org.apache.tez.runtime.library.common.ValuesIterator.access$300(ValuesIterator.java:45)
+    at org.apache.tez.runtime.library.common.ValuesIterator$1$1.next(ValuesIterator.java:138)
+    at org.apache.pig.backend.hadoop.executionengine.tez.POShuffleTezLoad.getNextTuple(POShuffleTezLoad.java:176)
+    at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:301)
+    at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.getNextTuple(POForEach.java:242)
+    at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:301)
+    at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.getNextTuple(POForEach.java:242)
+    at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:301)
+    at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.getNextTuple(POForEach.java:242)
+    at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:301)
+    at org.apache.pig.backend.hadoop.executionengine.tez.POStoreTez.getNextTuple(POStoreTez.java:113)
+    at org.apache.pig.backend.hadoop.executionengine.tez.PigProcessor.runPipeline(PigProcessor.java:313)
+    at org.apache.pig.backend.hadoop.executionengine.tez.PigProcessor.run(PigProcessor.java:196)
+    at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:324)
+    at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:180)
+    at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:172)
+    at java.security.AccessController.doPrivileged(Native Method) 
+    at javax.security.auth.Subject.doAs(Subject.java:415)
+    at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1548)
+

@@ -1,0 +1,12 @@
+TestConfiguration uses the org.apache.derby.iapi.services.info.JVMInfo to determine if JDBC 4 is supported. Ideally test code should not be calling engine private api code.
+
+Suggest two changes:
+
+1) Determine JDBC level support from ability to load classes:
+   E.g. JDBC2 - java.sql.Driver
+            JDBC3 -  java.sql.Driver AND java.sql.ParameterMetaData
+            JDBC4 - java.sql.Driver AND java.sql.SQLXML
+            JSR169 - java.sql.ParameterMetaData AND NOT  java.sql.Driver 
+
+2) Move the supportsJDBC4() method from TestConfiguraiton to JDBC, since if the VM supports JDBC4 or not is
+not an attribute of a test configuration (and add other supportsJDBCX methods).

@@ -1,0 +1,24 @@
+When opening a connection with a network url: jdbc:derby://localhost:4000/data
+The netagent catchs the PrivilegedActionException but doesn't report the checked exception in it.
+Changing these lines
+        try 
+{
+            socket_ = (java.net.Socket) java.security.AccessController.doPrivileged(new OpenSocketAction(server, port));
+        } catch (java.security.PrivilegedActionException e) {
+            throw new DisconnectException(this,
+                    e.getClass().getName() + " : Error opening socket to server " + server + " on port " + port + " with message : " + e.getMessage());
+        }
+To This returns the check exception information:
+        try {            socket_ = (java.net.Socket) java.security.AccessController.doPrivileged(new OpenSocketAction(server, port));        }
+ catch (java.security.PrivilegedActionException e) 
+{
+            throw new DisconnectException(this,
+                    e.getException().getClass().getName() + " : Error opening socket to server " + server + " on port " + port + " with message : " + e.getException().getMessage());
+        }
+
+
+It currently reports messages like this:
+Caused by: java.sql.SQLException: org.apache.derby.client.am.SqlException: java.security.PrivilegedActionException : Error opening socket to server localhost on port 1527 with message : null
+
+With this fix it reports:
+org.apache.derby.client.am.DisconnectException: java.net.ConnectException : Error opening socket to server localhost on port 1527 with message : Connection refused: connect

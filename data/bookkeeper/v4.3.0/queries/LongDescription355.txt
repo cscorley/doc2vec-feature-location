@@ -1,0 +1,12 @@
+Scenario:
+------------
+1. Ledger is created with ensemble and quorum size as 2, written with one entry
+2. Now first bookie is in the ensemble is made down.
+3. Another client fence and trying to recover the same ledger
+4. During this time ensemble change will happen and new bookie will be added. But this bookie is not able to connect.
+5. This recovery will fail.
+7. Now previously added bookie came up.
+8. Another client trying to recover the same ledger.
+9. Since new bookie is first in the ensemble, doRecoveryRead() is reading from that bookie and getting NoSuchLedgerException and closing the ledger with -1
+
+i.e. Marking the ledger as empty, even though first client had successfully written one entry.

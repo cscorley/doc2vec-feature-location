@@ -1,0 +1,180 @@
+While testing TIKA-93 on CentOS6, I ran into some test failing issues on a 1.7-trunk fresh install of tika in tika-parsers:
+
+
+Running org.apache.tika.parser.chm.TestChmLzxcControlData
+Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 sec
+Running org.apache.tika.parser.chm.TestChmBlockInfo
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 sec
+Running org.apache.tika.parser.chm.TestChmItsfHeader
+Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 sec
+Running org.apache.tika.parser.txt.TXTParserTest
+Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 sec
+Running org.apache.tika.parser.txt.CharsetDetectorTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.02 sec
+Running org.apache.tika.parser.image.xmp.JempboxExtractorTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 sec
+Running org.apache.tika.parser.image.PSDParserTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 sec
+Running org.apache.tika.parser.image.ImageParserTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.034 sec
+Running org.apache.tika.parser.image.ImageMetadataExtractorTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.241 sec
+Running org.apache.tika.parser.image.MetadataFieldsTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 sec
+Running org.apache.tika.parser.image.TiffParserTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.02 sec
+Running org.apache.tika.parser.font.FontParsersTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.192 sec
+Running org.apache.tika.parser.mp4.MP4ParserTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.07 sec
+Running org.apache.tika.parser.mp3.Mp3ParserTest
+Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.046 sec
+Running org.apache.tika.parser.mp3.MpegStreamTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 sec
+Running org.apache.tika.parser.dwg.DWGParserTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.02 sec
+Running org.apache.tika.parser.pkg.GzipParserTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.252 sec
+Running org.apache.tika.parser.pkg.Seven7ParserTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.37 sec
+Running org.apache.tika.parser.pkg.TarParserTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.118 sec
+Running org.apache.tika.parser.pkg.Bzip2ParserTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.233 sec
+Running org.apache.tika.parser.pkg.ArParserTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 sec
+Running org.apache.tika.parser.pkg.ZipParserTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.302 sec
+Running org.apache.tika.parser.video.FLVParserTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 sec
+Running org.apache.tika.parser.solidworks.SolidworksParserTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 sec
+Running org.apache.tika.parser.ibooks.iBooksParserTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 sec
+Running org.apache.tika.parser.ParsingReaderTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.018 sec
+Running org.apache.tika.parser.mail.RFC822ParserTest
+Tests run: 8, Failures: 1, Errors: 1, Skipped: 0, Time elapsed: 0.31 sec <<< FAILURE!
+Running org.apache.tika.parser.mbox.MboxParserTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 sec
+Running org.apache.tika.parser.mbox.OutlookPSTParserTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.094 sec
+Running org.apache.tika.parser.jpeg.JpegParserTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.153 sec
+Running org.apache.tika.parser.executable.ExecutableParserTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 sec
+Running org.apache.tika.parser.rtf.RTFParserTest
+Tests run: 31, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.221 sec
+Running org.apache.tika.parser.fork.ForkParserIntegrationTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.322 sec
+Running org.apache.tika.parser.envi.EnviHeaderParserTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 sec
+Running org.apache.tika.parser.AutoDetectParserTest
+Tests run: 22, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 2.439 sec <<< FAILURE!
+Running org.apache.tika.parser.epub.EpubParserTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 sec
+Running org.apache.tika.parser.code.SourceCodeParserTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.069 sec
+Running org.apache.tika.parser.netcdf.NetCDFParserTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.125 sec
+Running org.apache.tika.parser.pdf.PDFParserTest
+ WARN [main] (PDFParser.java:757) - Count in xref table is 0 at offset 205317
+ WARN [main] (PDFParser.java:757) - Count in xref table is 0 at offset 56931
+ WARN [main] (PDFParser.java:757) - Count in xref table is 0 at offset 56931
+ WARN [main] (PDFParser.java:757) - Count in xref table is 0 at offset 56931
+ WARN [main] (PDFParser.java:757) - Count in xref table is 0 at offset 56931
+ WARN [main] (PDFParser.java:757) - Count in xref table is 0 at offset 205317
+ INFO [main] (PDFParser.java:248) - Document is encrypted
+ERROR [main] (NonSequentialPDFParser.java:1904) - Can't find the object xref at offset 116
+ERROR [main] (NonSequentialPDFParser.java:1904) - Can't find the object xref at offset 5592
+ WARN [main] (PDFParser.java:757) - Count in xref table is 0 at offset 51851
+ WARN [main] (PDFParser.java:757) - Count in xref table is 0 at offset 51851
+ERROR [main] (NonSequentialPDFParser.java:1904) - Can't find the object xref at offset 116
+ERROR [main] (NonSequentialPDFParser.java:1904) - Can't find the object xref at offset 5592
+ERROR [main] (NonSequentialPDFParser.java:1904) - Can't find the object xref at offset 12324
+ERROR [main] (NonSequentialPDFParser.java:1904) - Can't find the object xref at offset 116
+ERROR [main] (NonSequentialPDFParser.java:1904) - Can't find the object xref at offset 5969
+ERROR [main] (NonSequentialPDFParser.java:1904) - Can't find the object xref at offset 116
+ERROR [main] (NonSequentialPDFParser.java:1904) - Can't find the object xref at offset 5687
+ WARN [main] (PDFParser.java:757) - Count in xref table is 0 at offset 44785
+ WARN [main] (FontManager.java:312) - Font not found: Times New Roman
+ WARN [main] (PDFParser.java:757) - Count in xref table is 0 at offset 44785
+ WARN [main] (FontManager.java:312) - Font not found: Times New Roman
+ WARN [main] (PDFParser.java:757) - Count in xref table is 0 at offset 56931
+ WARN [main] (PDFParser.java:757) - Count in xref table is 0 at offset 56931
+ERROR [main] (NonSequentialPDFParser.java:1904) - Can't find the object xref at offset 116
+ERROR [main] (NonSequentialPDFParser.java:1904) - Can't find the object xref at offset 26441
+ERROR [main] (NonSequentialPDFParser.java:1904) - Can't find the object xref at offset 116
+ERROR [main] (NonSequentialPDFParser.java:1904) - Can't find the object xref at offset 5592
+ WARN [main] (PDFParser.java:757) - Count in xref table is 0 at offset 205317
+ WARN [main] (PDFParser.java:757) - Count in xref table is 0 at offset 205317
+ERROR [main] (NonSequentialPDFParser.java:1904) - Can't find the object xref at offset 116
+ERROR [main] (NonSequentialPDFParser.java:1904) - Can't find the object xref at offset 8777
+ERROR [main] (NonSequentialPDFParser.java:1904) - Can't find the object xref at offset 2314576
+ WARN [main] (PDFParser.java:757) - Count in xref table is 0 at offset 68229
+ WARN [main] (PDFParser.java:757) - Count in xref table is 0 at offset 68229
+ERROR [main] (NonSequentialPDFParser.java:1904) - Can't find the object xref at offset 116
+ERROR [main] (NonSequentialPDFParser.java:1904) - Can't find the object xref at offset 5500
+ WARN [main] (PDFParser.java:757) - Count in xref table is 0 at offset 56931
+ WARN [main] (PDFParser.java:757) - Count in xref table is 0 at offset 51851
+ INFO [main] (PDFParser.java:248) - Document is encrypted
+ INFO [main] (PDFParser.java:248) - Document is encrypted
+Tests run: 27, Failures: 3, Errors: 0, Skipped: 0, Time elapsed: 14.305 sec <<< FAILURE!
+Running org.apache.tika.parser.RecursiveParserWrapperTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.233 sec
+Running org.apache.tika.parser.prt.PRTParserTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 sec
+Running org.apache.tika.parser.html.HtmlParserTest
+Tests run: 38, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.162 sec
+Running org.apache.tika.parser.mat.MatParserTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.543 sec
+Running org.apache.tika.parser.feed.FeedParserTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 sec
+Running org.apache.tika.parser.ocr.TesseractOCRTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 3, Time elapsed: 0.007 sec
+Running org.apache.tika.parser.odf.ODFParserTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.098 sec
+Running org.apache.tika.parser.hdf.HDFParserTest
+ WARN [main] (H4header.java:392) - **dimension length=0 for TagVGroup= *refno=53 tag= VG (1965) Vgroup length=34 class= Dim0.0 name= Longitude using data 52
+ WARN [main] (H4header.java:392) - **dimension length=0 for TagVGroup= *refno=55 tag= VG (1965) Vgroup length=33 class= Dim0.0 name= Latitude using data 54
+ WARN [main] (H4header.java:392) - **dimension length=0 for TagVGroup= *refno=57 tag= VG (1965) Vgroup length=33 class= Dim0.0 name= fakeDim2 using data 56
+ WARN [main] (H4header.java:392) - **dimension length=0 for TagVGroup= *refno=59 tag= VG (1965) Vgroup length=33 class= Dim0.0 name= fakeDim3 using data 58
+ WARN [main] (H4header.java:844) - data tag missing vgroup= 70 Sea Surface Temperature
+ WARN [main] (H4header.java:844) - data tag missing vgroup= 73 Number of Observations per Bin
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.087 sec
+Running org.apache.tika.embedder.ExternalEmbedderTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 sec
+Running org.apache.tika.mime.MimeTypesTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 sec
+Running org.apache.tika.mime.TestMimeTypes
+Tests run: 47, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.163 sec
+Running org.apache.tika.mime.MimeTypeTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 sec
+Running org.apache.tika.detect.TestContainerAwareDetector
+Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.277 sec
+Running org.apache.tika.TestParsers
+ WARN [main] (PDFParser.java:757) - Count in xref table is 0 at offset 68229
+ WARN [main] (PDFParser.java:757) - Count in xref table is 0 at offset 44785
+ WARN [main] (FontManager.java:312) - Font not found: Times New Roman
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.2 sec
+
+Results :
+
+Failed tests:   testMultipart(org.apache.tika.parser.mail.RFC822ParserTest): Exception thrown: TIKA-198: Illegal IOException from org.apache.tika.parser.ocr.TesseractOCRParser@2657d8a0
+  testInlineSelector(org.apache.tika.parser.pdf.PDFParserTest): expected:<2> but was:<0>
+  testInlineConfig(org.apache.tika.parser.pdf.PDFParserTest): expected:<2> but was:<0>
+  testEmbeddedFilesInChildren(org.apache.tika.parser.pdf.PDFParserTest): expected:<5> but was:<3>
+
+Tests in error: 
+  testUnusualFromAddress(org.apache.tika.parser.mail.RFC822ParserTest): TIKA-198: Illegal IOException from org.apache.tika.parser.ocr.TesseractOCRParser@1574a7af
+  testImages(org.apache.tika.parser.AutoDetectParserTest): TIKA-198: Illegal IOException from org.apache.tika.parser.ocr.TesseractOCRParser@107aac4a
+
+Tests run: 538, Failures: 4, Errors: 2, Skipped: 4
+
+
+
+I tried installing Tesseract here:
+
+http://pkgs.org/centos-6/naulinux-school-x86_64/tesseract-3.01-2.el6.x86_64.rpm.html
+
+However, installing that causes the other tests to pass, but the Tesseract ones to fail (I think there is something wrong with the English config and am looking into it).

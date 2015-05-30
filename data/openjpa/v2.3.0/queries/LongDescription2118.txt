@@ -1,0 +1,15 @@
+In PreparedQueryImpl.setCollectionValuedParameter, we do a '%n' but don't check for n==0, as can be seen here:
+
+    private void setCollectionValuedParameter(Map<Integer,Object> result, 
+        Collection values, int[] indices, Object param) {
+        int n = values.size();
+        Object[] array = values.toArray();
+        if (n > indices.length || indices.length%n != 0) {    <---------------------line 389 in 2.0.x
+
+
+When n==0, the following exception will occur:
+
+Exception data: java.lang.ArithmeticException: divide by zero
+        at org.apache.openjpa.jdbc.kernel.PreparedQueryImpl.setCollectionValuedParameter(PreparedQueryImpl.java:389)
+
+I will upload a test to reproduce this issue and a proposed fix in the next day or two.

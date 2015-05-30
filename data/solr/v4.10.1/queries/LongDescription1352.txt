@@ -1,0 +1,11 @@
+It has been a long pending request to make DIH multithreaded. Now that we have implemented most of the features , the next best thing we can aim for is performance. DIH should be able to take advantage of multiple cores in a box .I expect the configuration to be as follows
+
+
+
+<entity name="foo" threads="4">
+<!--more stuff goes here-->
+</entity>
+
+
+
+at the entity where the threads is specified it should fork into multiple threads. If the threads<2 it executes w/o forking. In debug mode it automatically becomes singlethreaded.

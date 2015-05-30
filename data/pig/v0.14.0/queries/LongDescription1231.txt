@@ -1,0 +1,20 @@
+DefaultDataBagIterator.hasNext() is not repeatable when the below conditions met:
+1. There is no more tuple in the last spill file
+2. There is no tuples in memory (all contents are spilled to files)
+
+This is not acceptable cuz the name hasNext() implies that it is idempotent. In BagFormat, we do misuse DataBagIterator.hasNext() because of the assumption that hasNext() is always idempotent, which leads to some mysterious errors. 
+
+Condition 2 seems to be very restrictive, but when the databag is really big, the memory can hold less than a couple of tuples, the chance to hit 2. is high enough.
+
+Here is one error we saw:
+
+Caused by: java.io.IOException: Stream closed
+        at java.io.BufferedInputStream.getBufIfOpen(BufferedInputStream.java:145)
+        at java.io.BufferedInputStream.fill(BufferedInputStream.java:189)
+        at java.io.BufferedInputStream.read(BufferedInputStream.java:237)
+        at java.io.DataInputStream.readByte(DataInputStream.java:248)
+        at org.apache.pig.data.DefaultTuple.readFields(DefaultTuple.java:278)
+        at org.apache.pig.data.DefaultDataBag$DefaultDataBagIterator.readFromFile(DefaultDataBag.java:237)
+        ... 20 more
+
+This happens because: we call hasNext(), which reach EOF and we close the file. Then we call hasNext() again in the assumption that it is idempotent. However, the stream is closed so we get this error message.

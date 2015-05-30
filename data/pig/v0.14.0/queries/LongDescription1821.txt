@@ -1,0 +1,45 @@
+In code below, if generateKey() returns same value for two udfs, the udfs would end up sharing the properties object. 
+
+
+
+private HashMap<Integer, Properties> udfConfs = new HashMap<Integer, Properties>();
+
+    public Properties getUDFProperties(Class c) {
+        Integer k = generateKey(c);
+        Properties p = udfConfs.get(k);
+        if (p == null) {
+            p = new Properties();
+            udfConfs.put(k, p);
+        }
+        return p;
+    }
+
+    private int generateKey(Class c) {
+        return c.getName().hashCode();
+    }
+
+    public Properties getUDFProperties(Class c, String[] args) {
+        Integer k = generateKey(c, args);
+        Properties p = udfConfs.get(k);
+        if (p == null) {
+            p = new Properties();
+            udfConfs.put(k, p);
+        }
+        return p;
+    }
+
+    private int generateKey(Class c, String[] args) {
+        int hc = c.getName().hashCode();
+        for (int i = 0; i < args.length; i++) {
+            hc <<= 1;
+            hc ^= args[i].hashCode();
+        }
+        return hc;
+    }
+
+
+
+
+
+To prevent this, a new class (say X) that can hold the classname and args should be created, and instead of HashMap<Integer, Properties>,  HashMap<X, Properties> should be used. Then HahsMap will deal with the collisions. 
+

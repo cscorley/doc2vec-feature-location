@@ -1,0 +1,18 @@
+This issue only appears to happen in Network Server/Client mode.  Embedded mode does not have the issue.
+
+My timezone is American/Chicago.  Saving timestamps with values for the 6 hours prior to DST start are being read back in as values 1 hour later than written.  (I believe the issue happens on the write because values written in Network Server/Client mode and read in Embedded mode are incorrect, while values written and read in Embedded mode are corect.)
+
+Values between 3/13/2010 - 20:00 CST and 3/14/2010 - 02:00 CST will return timstamps 1 hour off.  The "setTimestamp" method is being passed a GMT calendar with the timestamp:
+
+I have a complete test class I can attach, but here is a summary:
+
+private final TimeZone gmtTZ = TimeZone.getTimeZone("GMT");
+private final Calendar gmtCal = Calendar.getInstance(gmtTZ);
+...
+String sql = "INSERT INTO app.dst_test (id, gmt_timestamp, milli_time) VALUES(?,?,?)";
+String sql2 = "SELECT * from app.dst_test where id=?";
+...
+ps.setTimestamp(2, ts, gmtCal);
+...
+Timestamp tsRead = rs.getTimestamp("gmt_timestamp", gmtCal);
+...

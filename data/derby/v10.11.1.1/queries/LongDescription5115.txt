@@ -1,0 +1,11 @@
+If the test cases in NetworkServerControlApiTest run in a different order than the order in which they appear in the source file, they may fail. Seen in the nightly regression tests on Java 7, for example here:
+
+http://dbtg.foundry.sun.com/derby/test/Daily/jvm1.7/testing/testlog/lin/1078855-suitesAll_diff.txt
+
+1) testTraceCommands(org.apache.derbyTesting.functionTests.tests.derbynet.NetworkServerControlApiTest)junit.framework.AssertionFailedError
+	at org.apache.derbyTesting.functionTests.tests.derbynet.NetworkServerControlApiTest.testTraceCommands(NetworkServerControlApiTest.java:116)
+...
+2) testPropertiesAfterConnection(org.apache.derbyTesting.functionTests.tests.derbynet.GetCurrentPropertiesTest)junit.framework.ComparisonFailure: expected:<true> but was:<null>
+	at org.apache.derbyTesting.functionTests.tests.derbynet.GetCurrentPropertiesTest.testPropertiesAfterConnection(GetCurrentPropertiesTest.java:170)
+
+The test should either make the order of the test cases explicit, or make the test cases independent of each other.

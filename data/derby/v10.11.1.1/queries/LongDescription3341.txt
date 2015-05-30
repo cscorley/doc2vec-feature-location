@@ -1,0 +1,9 @@
+Defining a column in the returned type as CHAR(10) requires that the returned value be of length 10 characters.
+
+Defining a table function with a return type of:
+   returns TABLE  column0 char( 10 ), column1 char( 10 ))
+seems to just return whatever the Java ResultSet implementation handed it.
+
+My guess this is true for all variable length types, no casting of the value occurs when it is returned to the SQL domain.
+
+Java single value functions and procedure out parameters do perform any required casting to ensure the value is of the declared type.

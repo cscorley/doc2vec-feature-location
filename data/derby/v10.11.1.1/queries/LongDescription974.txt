@@ -1,0 +1,5 @@
+Internally, the ClientDriver class's appendDatabaseAttributes() method uses keys() on the connection properties to get a list of the property names. However, this misses any properties in the default set. The correct method for a Properties object is propertyNames(). This will return the same type of object as keys(), but will include all properties.
+
+(It is unfortunate that Sun chose to make Properties a subclass of Hashtable, instead of giving Properties a Hashtable, as the former exposes too much implementation.)
+
+The fix is to simply replace calls to keys() on all Property objects to use propertyNames(). A quick search revealed that this is not the only place in the code base where this is done, so a more thorough scan should be made.

@@ -1,0 +1,8 @@
+DRDAConnThread::doneData currently creates a new SQLException object that is passed to the writeSQLCAGRP() method. Profiling shows that the creation of these Exception objects takes a lot of CPU because the Throwable constructor will call fillInStackTrace(), which is expensive. This is unnecessary since the exception is not being thrown, and the stack trace is never used. 
+
+It would be sufficient to keep a static SQLException instance in DRDAConnThread that could be reused each time doneData() is called (this is also suggested by the following comment in the code: 
+
+// sqlstate 02000 for end of data.
+// RESOLVE: Need statics for sqlcodes."
+
+Assigning to Knut-Anders, since he has the patch ready  in his sandbox.

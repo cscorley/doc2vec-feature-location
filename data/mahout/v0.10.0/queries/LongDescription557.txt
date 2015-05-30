@@ -1,0 +1,49 @@
+From Anil:
+
+Another bug: in Auc.java
+Classifier Evaluation :
+
+when the scores are tied -
+...
+
+       // how many negatives are tied?
+       int k0 = 0;
+       while (i0 < n0 && v0 == tieScore) 
+Unknown macro: {
+         k0++;
+         i0++;
+         v0 = scores[0].get(i0);
+       } 
+
+       // and how many positives
+       int k1 = 0;
+       while (i1 < n1 && v1 == tieScore) 
+Unknown macro: {
+         k1++;
+         i1++;
+         v1 = scores[1].get(i1);
+       } 
+
+It sometimes goes Index out of bounds: Increment operation should be after accessing it
+
+
+ while (i0 < n0 && v0 == tieScore) 
+Unknown macro: {
+         v0 = scores[0].get(i0);
+         k0++;
+         i0++;
+
+       } 
+
+       // and how many positives
+       int k1 = 0;
+       while (i1 < n1 && v1 == tieScore) 
+Unknown macro: {
+         v1 = scores[1].get(i1);
+         k1++;
+         i1++;
+
+       } 
+
+
+Verily, he speaks truth.

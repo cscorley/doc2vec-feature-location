@@ -1,0 +1,13 @@
+Launching a job consuming HBaseStorage fails out of the box. The user must specify -Dpig.additional.jars for HBase and all of its dependencies. Exceptions look something like this:
+
+
+2013-04-19 18:58:39,360 FATAL org.apache.hadoop.mapred.Child: Error running child : java.lang.NoClassDefFoundError: com/google/protobuf/Message
+	at org.apache.hadoop.hbase.io.HbaseObjectWritable.<clinit>(HbaseObjectWritable.java:266)
+	at org.apache.hadoop.hbase.ipc.Invocation.write(Invocation.java:139)
+	at org.apache.hadoop.hbase.ipc.HBaseClient$Connection.sendParam(HBaseClient.java:612)
+	at org.apache.hadoop.hbase.ipc.HBaseClient.call(HBaseClient.java:975)
+	at org.apache.hadoop.hbase.ipc.WritableRpcEngine$Invoker.invoke(WritableRpcEngine.java:84)
+	at $Proxy7.getProtocolVersion(Unknown Source)
+	at org.apache.hadoop.hbase.ipc.WritableRpcEngine.getProxy(WritableRpcEngine.java:136)
+	at org.apache.hadoop.hbase.ipc.HBaseRPC.waitForProxy(HBaseRPC.java:208)
+

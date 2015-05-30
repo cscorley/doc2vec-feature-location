@@ -1,0 +1,13 @@
+At the time of ALTER TABLE DROP COLUMN, Derby checks if the column being dropped in a trigger column and if so, then it will not drop the column if it is being done in RESTRICT mode or it will drop the trigger while dropping the column in CASCADE mode. This does not implement SQL standard to it's entirety. 
+
+**************************************
+SQL standard says following about ALTER TABLE DROP COLUMN RESTRICT and trigger dependency in CREATE TRIGGER section 
+
+If RESTRICT is specified, then C shall not be referenced in any of the following 
+d) Either an explicit trigger column list or a triggered action column set of any trigger descriptor. 
+(The triggered action column set included in the trigger descriptor is the set of all distinct, fully qualified names of columns contained in the <triggered action>.) 
+**************************************
+
+What is missing from Derby implementation from SQL standard point of view is detected triggered action column set.
+
+Starting 10.7(with DERBY-1482), Derby started keeping track of trigger action columns which are referenced through REFERENCING clause. This information can be used to improve the behavior of ALTER TABLE DROP COLUMN in 10.7 and higher. This will not cover all the trigger action columns since columns referenced without the REFERENCING clause are not tracked anywhere at this point. More work will need to be done to implement SQL standard completely. But we can take a step forward by using the information available in 10.7 and higher to detect trigger action columns which are referenced through REFERENCING clause

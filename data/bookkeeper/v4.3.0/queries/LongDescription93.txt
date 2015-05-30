@@ -1,0 +1,20 @@
+1) bookkeeper hang when openLedgerNoRecovery, since LedgerOpenOp didn't trigger callback when opening ledger no recovery.
+
+2) race condition in ReadLastConfirmOp
+
+ReadLastConfirmOp callback on readEntryComplete.
+a) first decrement numResponsePending
+b) then increment validResponses
+c) check validResponses to callback with OK
+b) check numResponsePending to callback with LedgerRecoveryException
+
+support two callbacks returns on readEntryComplete: A, B. (quorum/ensemble size : 2)
+
+a) A first decrement numResponsePending from 2 to 1.
+b) A increment validResponses from 0 to 1.
+c) B then decrement numResponsePending from 1 to 0.
+d) A check numResponsePending before B check validResponse, A found the numResponsePending is 0 now. A will callback with exception. But the right action is B check validResponse and callback with OK.
+
+3) if an LegerHandle is opened by openLedgerNoRecovery, the lastAddConfirmed will be set to -1. so all read requests will be failed since readEntry id > lastAddConfirmed.
+
+so I suggested that if an LegerHandle is opened by openLegerNoRecovery, the ledgerHandle is under unsafeRead mode. close/write operations will be failed, read operations should not check condition entry_id > lastAddConfirmed.

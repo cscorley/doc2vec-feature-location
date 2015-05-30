@@ -1,0 +1,23 @@
+There's no mimetype detection for Matroska format, although it's a popular video format.
+Here is some code I added in my custom mimetypes to detect them:
+
+
+
+	<mime-type type="video/x-matroska">
+		<glob pattern="*.mkv" />
+		<magic priority="40">
+			<match value="0x1A45DFA3934282886d6174726f736b61" type="string" offset="0" />
+		</magic>
+	</mime-type>
+	<mime-type type="audio/x-matroska">
+		<glob pattern="*.mka" />
+	</mime-type>
+
+
+I found the signature for the mkv on: 
+http://www.garykessler.net/library/file_sigs.html
+I was not able to find it clearly for mka, but detection by filename is still useful.
+
+Although, the full spec is available here:
+http://matroska.org/technical/specs/index.html
+Maybe it's a bit more complex than this constant magic, but it works on my tests files.

@@ -1,0 +1,14 @@
+This was originally part of ver3 of my patch submitted to TIKA-806.
+
+Works Spreadsheet files are weird. Versions up to 3.0 used a Quattro Pro magic, version 4.0 used its own magic, while version 7.0 (probably later ones as well) use an OLE2 structure and an MS Office magic. The 7.0 files also contain an entry labelled "Workbook". In Tika this makes both MimeTypes (due to the quirk recently discussed in TIKA-806) and the POIFSContainerDetector label them as Excel.
+
+"Conceptually" they should be vnd.ms-works, but "technically" they are vnd.ms-excel. A special media type seems like a good compromise, similar in vein to the compromise we reached with TIKA-798.
+
+I would like to mark them with a new media type: "application/x-tika-msworks-spreadsheet". It would be a subclass of vnd.ms-excel so that:
+
+
+	With pure MimeTypes and no name, ms-excel could be returned.
+	With MimeTypes with name and data, the correct type could be returned
+	With POIFSContainerDetector the correct type could be returned
+	They can also be added to the list of types supported by ExcelParser as it seems to be able to get some content from them
+

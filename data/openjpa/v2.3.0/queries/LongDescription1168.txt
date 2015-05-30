@@ -1,0 +1,4 @@
+When UUIDGenerator.createType1() is called by more than one thread at nearly the same time AND UUIDGenerator.createType1() wasn't called previously, a small timing window exists where a NPE will result.
+
+Scenario:
+Thread 1 calls UUIDGenerator.createType1() and RANDOM == null so initializeForType1() is called. While that thread is in initializeForType1(), it sets the static variable RANDOM so that value is no longer null. Now Thread 2 calls UUIDGenerator.createType1() and RANDOM is no longer null, so it proceeds to the call System.arraycopy(IP, 0, uuid, 10, IP.length);. At this point Thread 1 hasn't got to initializing IP yet, so Thread 2 gets hits a NPE.

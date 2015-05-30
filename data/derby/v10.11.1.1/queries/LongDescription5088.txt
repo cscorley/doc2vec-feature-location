@@ -1,0 +1,13 @@
+Reported by Knut Anders in DERBY-5082:
+—
+While running the repro script, I've also seen this exception printed to the console:
+
+Exception in thread "index-stat-thread" org.apache.derby.iapi.error.ShutdownException:
+at org.apache.derby.iapi.services.context.ContextService.getFactory(ContextService.java:210)
+at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.run(IndexStatisticsDaemonImpl.java:700)
+at java.lang.Thread.run(Thread.java:619)
+
+ij didn't error out in that case, though.
+—
+
+This happens when the database is shut down before the istat worker thread has been initialized.

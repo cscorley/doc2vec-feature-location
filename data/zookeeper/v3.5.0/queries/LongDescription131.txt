@@ -1,0 +1,8 @@
+I think there is a race condition that is probably easy to get into with the old leader election and a large number of servers:
+
+1) Leader dies
+2) Followers start looking for a new leader before all Followers have abandoned the Leader
+3) The Followers looking for a new leader see votes of Followers still following the (now dead) Leader and start voting for the dead Leader
+4) The dead Leader gets reelected.
+
+For the old leader election a server should not vote for another server that is not nominating himself.

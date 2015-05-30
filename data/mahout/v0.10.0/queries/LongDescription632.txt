@@ -1,0 +1,25 @@
+I'm getting this error right after startParallelCounting finishes :
+
+11/03/21 19:06:40 INFO mapred.JobClient:     Map output records=164272900
+11/03/21 19:06:40 INFO mapred.JobClient:     SPLIT_RAW_BYTES=2860
+11/03/21 19:06:40 INFO mapred.JobClient:     Reduce input records=67087840
+11/03/21 19:07:02 INFO pfpgrowth.PFPGrowth: No of Features: 1788471
+11/03/21 19:07:09 WARN mapred.JobClient: Use GenericOptionsParser for
+parsing the arguments. Applications should implement Tool for the same.
+11/03/21 19:07:12 INFO input.FileInputFormat: Total input paths to process :
+20
+11/03/21 19:07:17 INFO mapred.JobClient: Cleaning up the staging area
+hdfs://nccc001:54310/mnt/analytics/data/hadoop/tmp/mapred/staging/isapps/.staging/job_201103101218_0287
+Exception in thread "main" org.apache.hadoop.ipc.RemoteException:
+java.io.IOException: java.io.IOException: Exceeded max jobconf size:
+72276915 limit: 52428800
+at org.apache.hadoop.mapred.JobTracker.submitJob(JobTracker.java:3759)
+at sun.reflect.GeneratedMethodAccessor18.invoke(Unknown Source)
+at
+sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+at java.lang.reflect.Method.invoke(Method.java:597)
+at org.apache.hadoop.ipc.RPC$Server.call(RPC.java:557)
+at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:1416)
+at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:1412)
+
+Quoting Robin :  "I guess we just hit the limit of storing flist in the conf. Moving it do the distributed cache should fix this."

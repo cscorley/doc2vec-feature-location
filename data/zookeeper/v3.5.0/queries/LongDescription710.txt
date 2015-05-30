@@ -1,0 +1,42 @@
+Originally problem was described on Users mailing list starting with this post.
+Below I restate it in more organized form.
+
+We occasionally (few times a day) observe that our client application disconnects from Zookeeper cluster.
+Application is written in C++ and we are using libzookeeper_mt library. In version 3.2.2.
+
+The disconnects we are observing are probably related to some problems with our network infrastructure - we are observing periods with great packet loss between machines in our DC. 
+
+Sometimes after client application (i.e. zookeeper library) reconnects to zookeeper cluster we are observing that all subsequent requests return ZSESSIONMOVED error. Restarting client app helps - we always pass 0 as clientid to zookeeper_init function so old session is not reused.
+
+On 16-03-2010 we observed few occurences of problem. Example ones:
+
+	22:08; client IP 10.1.112.60 (app1); sessionID 0x22767e1c9630000
+	14:21; client IP 10.1.112.61 (app2); sessionID 0x324dcc1ba580085
+
+
+
+I attach logs of cluster and application nodes (only stuff concerining zookeeper):
+
+	zookeeper-node1.log.2010-03-16.gz - logs of zookeepr cluster node 1 10.1.112.62
+	zookeeper-node2.log.2010-03-16.gz - logs of zookeepr cluster node 2 10.1.112.63
+	zookeeper-node3.log.2010-03-16.gz - logs of zookeepr cluster node 3 10.1.112.64
+	app1.log.2010-03-16.gz - application logs of app1 10.1.112.60
+	app2.log.2010-03-16.gz - application logs of app2 10.1.112.61
+
+
+
+I also made some analysis of case at 22:08:
+
+	Network glitch which resulted in problem occurred at about 22:08.
+	From what I see since 17:48 node2 was the leader and it did not
+change later yesterday.
+	Client was connected to node2 since 17:50
+	At around 22:09 client tried to connect to every node (1,2,3).
+Connections to node1 and node3 were closed
+ with exception "Exception causing close of session 0x22767e1c9630000
+due to java.io.IOException: Read error".
+ Connection to node2 stood alive.
+	All subsequent operations were refused with ZSESSIONMOVED error.
+Error visible both on client and on server side.
+
+

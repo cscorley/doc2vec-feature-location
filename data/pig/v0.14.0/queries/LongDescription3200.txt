@@ -1,0 +1,8 @@
+MiniCluster creates hadoop-site.xml under build/classes which is used by Pig tests in creating a (mini) hadoop cluster to run against. 
+
+MiniCluster.buildCluster() deletes this file from previous run before re-generating it. However, this config file is not deleted when mini-cluster is shutdown. This can sometimes lead to unpredictable behavior when hadoop-site.xml is not expected on classpath (See PIG-3135). 
+
+The cleanest operation would be to delete this file when the mini-cluster is shutdown.
+
+Here is a more detailed explanation of the issue 
+https://issues.apache.org/jira/browse/PIG-3135?focusedCommentId=13581825&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-13581825

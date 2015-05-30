@@ -1,0 +1,10 @@
+We could throw SessionTimeoutException exception even when timeToNextPing may also be negative depending on the time when the following line is executed by the thread because we check time out before sending a ping.
+
+
+  to = readTimeout - clientCnxnSocket.getIdleRecv();
+
+
+
+In addition, we only ping twice no matter how long the session time out value is. For example, we set session time out = 60mins then we only try ping twice in 40mins window. Therefore, the connection could be dropped by OS after idle time out.
+
+The issue is causing randomly "connection loss" or "session expired" issues in client side which is bad for applications like HBase.

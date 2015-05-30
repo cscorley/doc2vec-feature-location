@@ -1,0 +1,14 @@
+A couple of methods in this class have an if clause for CDATA that are never called because the condition just previous to it is true:
+
+               } else if (node instanceof Text) 
+{
+                    Text text = (Text) node;
+                    values[i] = text.getText();
+                }
+ else if (node instanceof CDATA) {
+                    CDATA cdata = (CDATA) node;
+                    values[i] = cdata.getText();
+
+Since CDATA extends Text, the Text clause will always be executed for a CDATA object, and not the CDATA clause.
+
+In addition, the extractContent() and concatOccurrence() methods have many lines in common that could be extracted into a single common method.

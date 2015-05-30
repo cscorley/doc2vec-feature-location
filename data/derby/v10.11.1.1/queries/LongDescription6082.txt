@@ -1,0 +1,13 @@
+While working on DERBY-6053, there was some discussion over openOnServer_ field in org.apache.derby.client.am.Statement. This field has following comment in Statement class
+    // This means a DERBY server-side section for this statement is in the prepared state. 
+    // A client-side jdbc statement may remain open across commits (openOnClient=true), 
+    // but the server-side DERBY section moves to an unprepared state (openOnServer=false) across commits, 
+    // requiring an implicit re-prepare "under the covers" by the driver. 
+    // Unprepared jdbc query statements still have prepared sections on the server. 
+    // This openOnServer_ only has implications for preparedstatement 
+
+Kathey commented following on that field in DERBY-6053
+*******************************************************************************
+ I do not think that comment is true about statements not staying prepared across commits.
+If I prepare a statement and execute it twice with a commit in between from client, I do not see a reprepare in the derby.log . I think maybe the openOnServer_ property may be a relic of some place or time in the original code base when that was true.
+*******************************************************************************

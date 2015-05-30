@@ -1,0 +1,6 @@
+A while back we changed the syntax of update locking from FOR UPDATE OF  to  WITH RS USE AND KEEP UPDATE LOCKS.   Additional changes are required because 
+1.  if isolation=serializable is configured, then the syntax should be  WITH RR USE AND KEEP UDPATE LOCKS
+2.  when using DB2/400 on iSeries machines, the syntax is WITH RS USE AND KEEP EXCLUSIVE LOCKS  or WITH RR USE AND KEEP EXCLUSIVE LOCKS because DB2/400 only supports read or exclusive locks. 
+3.  DB2 supports both a FETCH FIRST  ROWS and update LOCKS clauses.
+
+So we change supportsLockingWithSelectRange = true in the AbstractDB2Dictionary class and change the DB2Dictionary to append the correct LOCKS syntax depending on vendor, release and isolation level.

@@ -1,0 +1,12 @@
+Scripts that both save out data with JsonStorage and trigger the LimitAdjuster (e.g. doing an order by followed by a limit) yield the following Exception:
+
+java.io.IOException: Could not find schema in UDF context
+        at org.apache.pig.builtin.JsonStorage.prepareToWrite(JsonStorage.java:125)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigOutputFormat$PigRecordWriter.<init>(PigOutputFormat.java:125)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigOutputFormat.getRecordWriter(PigOutputFormat.java:86)
+        at org.apache.hadoop.mapred.ReduceTask$NewTrackingRecordWriter.<init>(ReduceTask.java:569)
+        at org.apache.hadoop.mapred.ReduceTask.runNewReducer(ReduceTask.java:638)
+        at org.apache.hadoop.mapred.ReduceTask.run(ReduceTask.java:417)
+        at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:260)
+
+This happens b/c the LimitAdjuster does not copy the signature into it's newly created POStore, and hence JsonStorage looks for the schema for a null signature.

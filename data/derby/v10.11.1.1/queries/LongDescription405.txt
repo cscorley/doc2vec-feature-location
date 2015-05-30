@@ -1,0 +1,9 @@
+A user should not be able to create a synonym in SESSION schema eg
+create synonym session.st1 for app.t1;
+select * from session.st1; – refers to app.t1
+declare global temporary table st1(c11 int, c12 int) on commit preserve rows not logged;
+select * from session.st1; – refers to app.t1, is that right?
+
+I think the last select * from session.st1 should goto temporary table st1 since any references to objects in SESSION schema should first find a match against a temporary table if one by that name exists. 
+
+We already discourage users from defining objects other than temporary table in SESSION schema in the reference manual "Using SESSION as the schema name of a physical table will not cause an error, but is discouraged. The SESSION schema name should be reserved for the temporary table schema." But, IMHO, it will be nice to enforce this wherever possible in Derby code rather than leaving it upto the users to avoid confusion.

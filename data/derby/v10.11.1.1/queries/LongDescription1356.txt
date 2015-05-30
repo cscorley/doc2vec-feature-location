@@ -1,0 +1,25 @@
+ij version 10.2
+ij> connect 'jdbc:derby:SURTest;create=true';
+ij> autocommit off;
+ij> create table t1 (c1 int primary key, c2 int);
+0 rows inserted/updated/deleted
+ij> insert into t1 values (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9), (10, 10);
+10 rows inserted/updated/deleted
+ij> get scroll insensitive cursor sc1 as 'SELECT * FROM t1 FOR UPDATE';
+ij> after last sc1;
+No current row
+ij> update t1 set c2 = c1 + 20 where current of sc1;
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+ij> before first sc1;
+No current row
+ij> update t1 set c2 = c1 + 20 where current of sc1;
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+ij> after last sc1;
+No current row
+ij> delete from t1 where current of sc1;
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+ij> before first sc1;
+No current row
+ij> delete from t1 where current of sc1;
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+ij> close sc1;

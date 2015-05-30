@@ -1,0 +1,32 @@
+In merge join, when we convert right hand side file into a side file, we didn't remove it from the map-reduce plan, we only disconnect it from the plan. When we run the query, the redundant load will load the data but doing nothing. This operation should be removed entirely. 
+
+Eg: 
+a = load '/user/pig/tests/data/zebra/singlefile/studentsortedtab10k' using org.apache.hadoop.zebra.pig.TableLoader('', 'sorted') as (name, age, gpa);
+b = load '/user/pig/tests/data/zebra/singlefile/votersortedtab10k' using org.apache.hadoop.zebra.pig.TableLoader('', 'sorted') as (name, age, registration, contributions);
+c = join a by name, b by name using "merge";
+explain c;
+
+
+
+#--------------------------------------------------
+# Map Reduce Plan                                  
+#--------------------------------------------------
+MapReduce node 1-21
+Map Plan
+Load(hdfs://wilbur20.labs.corp.sp1.yahoo.com:9020/user/pig/tests/data/zebra/singlefile/votersortedtab10k:org.apache.hadoop.zebra.pig.TableLoader('','sorted')) - 1-13--------
+Global sort: false
+----------------
+
+MapReduce node 1-20
+Map Plan
+Store(fakefile:org.apache.pig.builtin.PigStorage) - 1-19
+|
+|---MergeJoin[tuple] - 1-16
+    |
+    |---Load(hdfs://wilbur20.labs.corp.sp1.yahoo.com:9020/user/pig/tests/data/zebra/singlefile/studentsortedtab10k:org.apache.hadoop.zebra.pig.TableLoader('','sorted')) - 1-12--------
+Global sort: false
+----------------
+
+
+
+1-21 should be removed.

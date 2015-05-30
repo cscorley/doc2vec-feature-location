@@ -1,0 +1,11 @@
+The new OFFSET/FETCH syntax does not support Parameters. 
+
+From ij against the toursdb I would like to do the following:
+
+    ij> prepare foo as 'select * from cities offset ? rows fetch first 10 rows only';
+
+but results in the following syntax error: 
+
+    ERROR 42X01: Syntax error: Encountered "?" at line 1, column 29.
+
+Parameterized OFFSET/FETCH is important for performance (can be prepared) and security (SQL strings not created on the fly).

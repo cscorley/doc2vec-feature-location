@@ -1,0 +1,40 @@
+Many sparse algorithms for dealing with Matrices just make sequential passes over the data, but don't need to see the entire matrix at once.  The way they would be implemented currently is:
+
+
+
+Matrix m = getInputCorpus();
+for(int i=0; i<m.numRows(); i++) {
+  Vector v = m.getRow(i);
+  doStuffWithRow(v); 
+}
+
+
+
+When the Matrix is backed essentially by a SequenceFile<Integer, Vector>, this algorithm outline doesn't make sense, because it requires lots of sequential random access reads.  What makes more sense, and works for in-memory matrices too, is something like the following:
+
+
+
+public interface Matrix extends Iterable<Vector> { 
+
+
+
+which allows for algorithms which only need iterators over Vectors do use them as such:
+
+
+
+Matrix m = getInputCorpus();
+Iterator<Vector> it = m.iterator();
+Vector v;
+while(it.hasNext() && (v = it.next()) != null) {
+  doStuffWithRow(v); 
+}
+
+
+
+The Iterator interface could be easily implemented in the AbstractMatrix base class, so implementing this idea would be transparent to all current Mahout code.  Additionally, pulling out two layers of AbstractMatrix - one which only knows how to do the things which can be done using iterators (like times(Vector), timesSquared(Vector), plus(Matrix), assignRow(), etc...), which would be the direct base class for DistributedMatrix (or HDFSMatrix), but all the random-access matrix methods currently in AbstractMatrix would go in another abstract base class of the first one (which could be called AbstractVectorIterable, say).
+
+I think Iteratable<Vector> could be made more flexible by extending that to a new interface VectorIterable, which provided iterateAll() and iterateNonEmpty(), in case document Ids were sparse, and could also allow for the possibility of adding other methods (things like skipTo(int rowNum), perhaps).  
+
+Question is: should this go for all Matrices, or just SparseRowMatrix?  It's really tricky to have a matrix which is iterable both as sparse rows and sparse columns.  I guess the point would be that by default, it iterates over rows, unless it's SparseColumnMatrix, which obviously iterates over columns.
+
+Thoughts?  Having to rely on random-access to a distributed-backed matrix is making me jump through silly extra hoops on some of the stuff I'm working on patches for.

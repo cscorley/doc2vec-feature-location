@@ -1,0 +1,10 @@
+Assuming entity Person and entity Exam has one-to-many association, the following JPQL statement:
+SELECT p.id r1, p.name r2, sum(e.score) r3 FROM Exam e LEFT JOIN e.person p GROUP BY p.id, p.name ORDER BY p.id
+
+will produce the following SQL, which is not executable if the underlining database is Oracle 9.2:
+SELECT t1.id, t1.name, SUM(t0.score) AS r3, t0.person FROM exams t0, persons t1 WHERE t0.person = t1.id GROUP BY t1.id, t1.name ORDER BY t0.person ASC
+
+The additional column "t0.person" will cause error ORA-00979: not a GROUP BY expression.
+
+The correct SQL should be:
+SELECT t1.id, t1.name, SUM(t0.score) AS r3 FROM exams t0, persons t1 WHERE t0.person = t1.id GROUP BY t1.id, t1.name ORDER BY t1.id ASC

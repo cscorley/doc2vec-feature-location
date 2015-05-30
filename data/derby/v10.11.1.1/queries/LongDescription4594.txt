@@ -1,0 +1,41 @@
+I am encountering the following exception when trying to execute a PreparedStatement:
+
+Exception in thread "main" java.sql.SQLException: The exception 'java.lang.ArrayIndexOutOfBoundsException: -1' was thrown while evaluating an expression.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(Unknown Source)
+	...
+Caused by: java.lang.ArrayIndexOutOfBoundsException: -1
+	at org.apache.derby.impl.sql.execute.BaseActivation.getColumnFromRow(Unknown Source)
+	at org.apache.derby.exe.ac80220011x0127x90baxe992x000075337d882.g0(Unknown Source)
+	at org.apache.derby.exe.ac80220011x0127x90baxe992x000075337d882.e1(Unknown Source)
+	at org.apache.derby.impl.services.reflect.DirectCall.invoke(Unknown Source)
+	at org.apache.derby.impl.sql.execute.ProjectRestrictResultSet.getNextRowCore(Unknown Source)
+	at org.apache.derby.impl.sql.execute.JoinResultSet.openCore(Unknown Source)
+	at org.apache.derby.impl.sql.execute.ProjectRestrictResultSet.openCore(Unknown Source)
+	at org.apache.derby.impl.sql.execute.BasicNoPutResultSetImpl.open(Unknown Source)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(Unknown Source)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(Unknown Source)
+	... 5 more
+
+The query I am executing is:
+SELECT R.report_id, ER.entity_id FROM reports AS R 
+   LEFT JOIN entity_reports AS ER ON R.report_id = ER.report_id 
+WHERE R.details LIKE ? 
+   AND COALESCE(ER.entity_id, 0) != ? 
+
+The table 'reports' can be prepared with the following SQL:
+ij> CREATE TABLE reports (report_id bigint PRIMARY KEY, document_num varchar(50), status varchar(100), type varchar(100) NOT NULL, specific varchar(100), owner varchar(100), summary clob, details clob, closing_remarks clob, occurred date, opened date, closed date, reference_guid varchar(50) NOT NULL);
+ij> INSERT INTO reports (report_id, type, summary, details, reference_guid) VALUES (1, 'Type 1', 'Summary 1', 'Details 1', 'guid 1');
+
+The table "entity_reports" can be prepared with:
+ij> CREATE TABLE entity_reports (report_id bigint, entity_id bigint, primary key (report_id, entity_id));
+The error happens regardless of whether this table has rows in it or not. Technically both report_id and entity_id are foreign keys but that doesn't seem to make a difference.
+
+Executing the above SQL on a new derby database and then running the query, whether it's via JDBC from Java or directly through ij, causes the problem to occur. 
+Here is a copy of the query suitable for execution in ij (i.e., the values are filled out):
+SELECT R.report_id, ER.entity_id FROM reports AS R 
+   LEFT JOIN entity_reports AS ER ON R.report_id = ER.report_id 
+WHERE R.details LIKE '%Details%' 
+   AND COALESCE(ER.entity_id, 0) != 1;
+
+I'm open to the idea that I'm doing something wrong, but the same code works against our test MSSQL db.
+Thank you for your time.

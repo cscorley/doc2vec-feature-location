@@ -1,0 +1,14 @@
+We currently have no parsers for feeds in Tika and since we are progressively getting rid of our legacy parsers in Nutch I thought it could make sense to have one.
+
+The patch attached is based on the ROME feed parser (https://rome.dev.java.net/) which is under Apache License. Rome provides a unified API for different feed formats and seems well maintained.
+
+The implementation of the FeedParser is by no means complete but should serve as a basis for further improvements. It currently stores the title and description from the feed and stores them in the metadata and uses the following XHTML representation for the entries : 
+
+<A href="ENTRY_URL">ENTRY_TITLE</A>
+<P>
+ENTRY_DESCRIPTION
+</P> 
+
+This is pretty basic but should at least allow us to retrieve the outlinks in Nutch as well as some text. 
+
+J. 

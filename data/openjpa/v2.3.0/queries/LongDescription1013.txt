@@ -1,0 +1,14 @@
+JPA 2.0 has introduced specification for strictly-typed dynamic query construction a.k.a Criteria API. The design challenge to support this feature comes from the following
+1. how to leverage existing OpenJPA query infrastructure?
+2. the type-strictness is supported on the basis of a instantiated meta-model – this is new for OpenJPA query infrastructure. Should we introduce more type-strictness in OpenJPA query infrastructure or not? 
+
+The design goals (currently)
+1. select current design pattern rather than some arbitrary hack to bridge existing OpenJPA query infrastructure and JPA 2.0 type-strict Criteria. Possibly it is Adapter pattern.
+2. Do not change OpenJPA query infrastructure with more type-strictness (it is not type-free after all). Rather inject type information from the artifacts that implement new Criteria API into OpenJPA query artifacts.
+
+The implementation strategy:
+1. Prototype the approach first.
+2. Solidify a design that can be boiler plated (ok, almost) for numerous supported query expression and clauses. Then delegate construction of these parts.   
+
+
+

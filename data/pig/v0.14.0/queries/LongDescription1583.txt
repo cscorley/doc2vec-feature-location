@@ -1,0 +1,43 @@
+Error message:
+10/08/31 09:32:12 INFO mapred.TaskInProgress: Error from 
+attempt_20100831093139211_0001_m_000000_3: 
+org.apache.pig.backend.executionengine.ExecException: ERROR 2078: Caught 
+error from UDF: org.apache.pig.piggybank.evaluation.string.LookupInFiles 
+[LookupInFiles : Cannot open file one]
+        at 
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POUserFunc.getNext(POUserFunc.java:262)
+        at 
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POUserFunc.getNext(POUserFunc.java:283)
+        at 
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.processPlan(POForEach.java:355)
+        at 
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.getNext(POForEach.java:291)
+        at 
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:236)
+        at 
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:231)
+        at 
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:53)
+        at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144)
+        at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:621)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:305)
+        at org.apache.hadoop.mapred.Child.main(Child.java:170)
+Caused by: java.io.IOException: LookupInFiles : Cannot open file one
+        at 
+org.apache.pig.piggybank.evaluation.string.LookupInFiles.init(LookupInFiles.java:92)
+        at 
+org.apache.pig.piggybank.evaluation.string.LookupInFiles.exec(LookupInFiles.java:115)
+        at 
+org.apache.pig.piggybank.evaluation.string.LookupInFiles.exec(LookupInFiles.java:49)
+        at 
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POUserFunc.getNext(POUserFunc.java:229)
+        ... 10 more
+Caused by: java.io.IOException: hdfs://localhost:47453/user/hadoopqa/one 
+does not exist
+        at 
+org.apache.pig.impl.io.FileLocalizer.openDFSFile(FileLocalizer.java:224)
+        at 
+org.apache.pig.impl.io.FileLocalizer.openDFSFile(FileLocalizer.java:172)
+        at 
+org.apache.pig.piggybank.evaluation.string.LookupInFiles.init(LookupInFiles.java:89)
+        ... 13 more

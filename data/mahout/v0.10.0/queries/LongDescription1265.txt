@@ -1,0 +1,105 @@
+Design of multilayer perceptron
+
+
+1. Motivation
+A multilayer perceptron (MLP) is a kind of feed forward artificial neural network, which is a mathematical model inspired by the biological neural network. The multilayer perceptron can be used for various machine learning tasks such as classification and regression. It is helpful if it can be included in mahout.
+
+2. API
+
+The design goal of API is to facilitate the usage of MLP for user, and make the implementation detail user transparent.
+
+The following is an example code of how user uses the MLP.
+-------------------------------------
+//  set the parameters
+double learningRate = 0.5;
+double momentum = 0.1;
+int[] layerSizeArray = new int[] 
+{2, 5, 1}
+;
+String costFuncName = “SquaredError”;
+String squashingFuncName = “Sigmoid”;
+//  the location to store the model, if there is already an existing model at the specified location, MLP will throw exception
+URI modelLocation = ...
+MultilayerPerceptron mlp = new MultiLayerPerceptron(layerSizeArray, modelLocation);
+mlp.setLearningRate(learningRate).setMomentum(momentum).setRegularization(...).setCostFunction(...).setSquashingFunction(...);
+
+//  the user can also load an existing model with given URI and update the model with new training data, if there is no existing model at the specified location, an exception will be thrown
+/*
+MultilayerPerceptron mlp = new MultiLayerPerceptron(learningRate, regularization, momentum, squashingFuncName, costFuncName, modelLocation);
+*/
+
+URI trainingDataLocation = …
+//  the detail of training is transparent to the user, it may running in a single machine or in a distributed environment
+mlp.train(trainingDataLocation);
+
+//  user can also train the model with one training instance in stochastic gradient descent way
+Vector trainingInstance = ...
+mlp.train(trainingInstance);
+
+//  prepare the input feature
+Vector inputFeature …
+//  the semantic meaning of the output result is defined by the user
+//  in general case, the dimension of output vector is 1 for regression and two-class classification
+//  the dimension of output vector is n for n-class classification (n > 2)
+Vector outputVector = mlp.output(inputFeature); 
+-------------------------------------
+
+
+3. Methodology
+
+The output calculation can be easily implemented with feed-forward approach. Also, the single machine training is straightforward. The following will describe how to train MLP in distributed way with batch gradient descent. The workflow is illustrated as the below figure.
+
+
+https://docs.google.com/drawings/d/1s8hiYKpdrP3epe1BzkrddIfShkxPrqSuQBH0NAawEM4/pub?w=960&h=720
+
+For the distributed training, each training iteration is divided into two steps, the weight update calculation step and the weight update step. The distributed MLP can only be trained in batch-update approach.
+
+
+3.1 The partial weight update calculation step:
+This step trains the MLP distributedly. Each task will get a copy of the MLP model, and calculate the weight update with a partition of data.
+
+Suppose the training error is E(w) = ½ \sigma_
+{d \in D}
+ cost(t_d, y_d), where D denotes the training set, d denotes a training instance, t_d denotes the class label and y_d denotes the output of the MLP. Also, suppose sigmoid function is used as the squashing function, 
+squared error is used as the cost function, 
+t_i denotes the target value for the ith dimension of the output layer, 
+o_i denotes the actual output for the ith dimension of the output layer, 
+l denotes the learning rate,
+w_
+{ij} denotes the weight between the jth neuron in previous layer and the ith neuron in the next layer. 
+
+The weight of each edge is updated as 
+
+\Delta w_{ij}
+ = l * 1 / m * \delta_j * o_i, 
+
+where \delta_j = - \sigma_
+{m} * o_j^{(m)} * (1 - o_j^{(m)}) * (t_j^{(m)} - o_j^{(m)}) for output layer, \delta = - \sigma_{m}
+ * o_j^
+{(m)} * (1 - o_j^{(m)}
+) * \sigma_k \delta_k * w_
+{jk}
+ for hidden layer. 
+
+It is easy to know that \delta_j can be rewritten as 
+
+\delta_j = - \sigma_
+{i = 1}
+^k \sigma_
+{m_i}
+ * o_j^
+{(m_i)} * (1 - o_j^{(m_i)}
+) * (t_j^
+{(m_i)} - o_j^{(m_i)}
+)
+
+The above equation indicates that the \delta_j can be divided into k parts.
+
+So for the implementation, each mapper can calculate part of \delta_j with given partition of data, and then store the result into a specified location.
+
+
+3.2 The model update step:
+
+After k parts of \delta_j been calculated, a separate program can be used to merge the k parts of \delta_j into one to update the weight matrices.
+
+This program can load the results calculated in the weight update calculation step and update the weight matrices. 

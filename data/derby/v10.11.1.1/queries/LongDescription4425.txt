@@ -1,0 +1,10 @@
+This bug is similar to DERBY-4419, only that it uses columns that are auto-generated from expressions and not identity columns. The proposed fix for DERBY-4419 only addresses the case with an identity column.
+
+ij> create table t1(x int);
+0 rows inserted/updated/deleted
+ij> create table t2(x int);
+0 rows inserted/updated/deleted
+ij> create table t3(x int, y generated always as (2*x));
+0 rows inserted/updated/deleted
+ij> insert into t3 select * from t1 union select * from t2;
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.

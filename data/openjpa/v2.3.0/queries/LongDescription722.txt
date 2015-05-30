@@ -1,0 +1,35 @@
+EntityManager.clear() now don't  flush new object but only detach it.
+But DetachManager still flush dirty object and assume detached objects are in clean state.
+When the "new" object is merged back and transaction commit,  because the object state lost its original state PNEW, it will not be added to insert list  and not flushed to DB.
+
+According to the EntityManager.clear() API,  changes made to entities that have not been flushed to the database will not be persisted.  When they merges back to persistent context, they all should kept there original state.
+
+I added the following test to org.apache.openjpa.persistence.simple.TestEntityManagerClear.
+
+    public void testClearMerge() 
+{
+        // Create EntityManager and Start a transaction (1)
+        begin();
+
+        // Insert a new object then clear persistent context
+        AllFieldTypes testObject1 = new AllFieldTypes();
+        testObject1.setStringField("my test object1");
+        persist(testObject1);
+        //Object1 is not flushed to DB but only detached by clear().
+        em.clear();
+        em.merge(testObject1);
+        //expect the PCState is same as before detached, 
+        //so it is PNew instead of PCLEAN and is add to insert list.
+        commit();
+        
+        //Start a new transaction
+        begin();
+        
+        // Attempt retrieve of Object1 from previous PC (should exist)
+        assertEquals(1, query("select x from AllFieldTypes x "
+            + "where x.stringField = 'my test object1'").
+                getResultList().size());
+        
+        // Rollback the transaction and close everything
+        rollback();
+    }

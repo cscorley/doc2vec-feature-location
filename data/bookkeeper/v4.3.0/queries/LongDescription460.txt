@@ -1,0 +1,14 @@
+A minor problem, it seems forgot to update LedgerDeleteTest after upgrade bookkeeper filesystem.
+
+
+// Verify that the first entry log (0.log) has been deleted from all of the Bookie Servers.
+for (File ledgerDirectory : tmpDirs) {
+    for (File f : ledgerDirectory.listFiles()) {
+        assertFalse("Found the entry log file (0.log) that should have been deleted in ledgerDirectory: " 
+            + ledgerDirectory, f.isFile() && f.getName().equals("0.log"));
+    }
+}
+
+ 
+Solution:
+Just reuse the checkLogFiles method in CompactionTest.

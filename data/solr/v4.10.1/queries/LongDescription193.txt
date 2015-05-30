@@ -1,0 +1,43 @@
+In an effort to make SOLR-139 (the "modify" command) more manageable, i extracted out a large chunk.  This patch adds a general SolrDocument interface and includes a concrete implementation (SimpleSolrDoc)
+
+SOLR-139 needs some way to transport document values independent of the lucene Document.  This is required for the INCREMENT command and useful for modifying documents.  SolrDocument is also generally useful for SOLR-20
+
+
+	- - - - -
+
+
+
+The one (potentially) controversial part is that I added a function to FieldType:
+
+ public Object toExternalValue(Fieldable f);
+
+This asks each field type to convert its Fieldable into its real type, for example IntField.java has:
+
+ public Integer toExternalValue(Fieldable f) 
+{
+   return Integer.valueOf( toExternal(f) );
+ }
+
+By default, it returns a string value.  If this addition is too much, there are other (less clean) ways to handle the INCREMENT command.  My real motivation for this addition is that it makes it possible to implement an embeddable SOLR-20 client that does not need an HTTP connection. 
+
+
+	- - -
+
+
+
+The SimpleSolrDoc implementation was written for SOLR-20.  It needs to play nice with EL, so it implements a few extra map function that may not seem necessary:
+
+ $
+{doc.values['name']]}
+ gets a collection
+ $
+{doc.valueMap['name']]}
+ gets a single value for the field
+
+
+	- - -
+
+
+
+The tests cover all "toExternalValue" changes in schema.*  
+SimpleSolrDoc and DocumentBuilder have 100% test coverage.

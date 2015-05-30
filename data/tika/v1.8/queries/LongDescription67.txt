@@ -1,0 +1,15 @@
+We should have an AutoDetectParser class that uses the MIME framework to automatically detect the type of the document being parsed, and that dispatches the parsing task to the parser class configured for the detected MIME type.
+
+The class would work like this:
+
+    InputStream stream = ...;
+    ContentHandler handler = ...;
+
+    Metadata metadata = new Metadata();
+    metadata.set(Metadata.CONTENT_TYPE, ...); // optional content type hint
+    metadata.set("filename", ...); // optional file name hint
+
+    AutoDetectParser parser = new AutoDetectParser();
+    parser.setConfig(...); // optional TikaConfig configuration
+
+    parser.parse(stream, handler, metadata);

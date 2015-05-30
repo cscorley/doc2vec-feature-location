@@ -1,0 +1,31 @@
+If Connection* properties are specified in a persistence unit and there is no <jta-data-source>, <non-jta-data-source> or default data source defined, 
+
+        PU name : dweb24
+       Root URL : file:/D:/dev/jdk/runtimes/base_v7_i7/profiles/AppSrv01/installedApps/kingoftownNode03Cell/dweb24Ear.ear/dweb24.war/WEB-INF/classes/
+        Tx Type : JTA
+           desc : 
+       Provider : com.ibm.websphere.persistence.PersistenceProviderImpl [WSJPA-1.1.0-SNAPSHOT-r1118:1345, openjpa-1.1.0-SNAPSHOT-r420667:636531]
+         JTA DS : <<null>> | null
+      nonJTA DS : <<null>> | null
+    exclude Cls : false
+      file URLs : []
+      mappigFNm : []
+ managedClasses : [entities.Department,entities.Employee]
+     Properties : 
+{openjpa.ConnectionDriverName=com.ibm.db2.jcc.DB2Driver, openjpa.ConnectionPassword=db2admin, openjpa.ConnectionUserName=db2admin, openjpa.ConnectionURL=jdbc:db2://supermatrix:50000/SAMPLE:retrieveMessagesFromServerOnGetMessage=true;, openjpa.jdbc.Schema=ADMINISTRATOR}
+
+then the following exception will be thrown from DataSourceFactory.newDataSource method:
+
+    <openjpa-1.1.0-SNAPSHOT-r420667:636531 fatal user error> org.apache.openjpa.util.UserException: A JDBC Driver or DataSource class name must be specified in the ConnectionDriverName property.
+	at org.apache.openjpa.jdbc.schema.DataSourceFactory.newDataSource(DataSourceFactory.java:72)
+	at org.apache.openjpa.jdbc.conf.JDBCConfigurationImpl.createConnectionFactory(JDBCConfigurationImpl.java:776)
+	at org.apache.openjpa.jdbc.conf.JDBCConfigurationImpl.getDBDictionaryInstance(JDBCConfigurationImpl.java:553)
+	at org.apache.openjpa.jdbc.meta.MappingRepository.endConfiguration(MappingRepository.java:1251)
+	at org.apache.openjpa.lib.conf.Configurations.configureInstance(Configurations.java:505)
+	at org.apache.openjpa.lib.conf.Configurations.configureInstance(Configurations.java:430)
+
+This called path is initiated from PersistenceProviderImpl.createContainerEntityManagerFactory.  Consequentially, transformer is not being registered in the appl server container and no load time entity enhancement is performed.
+
+openjpa.Runtime: Warn: An error occurred while registering a ClassTransformer with dweb24. The error is logged along with this warning. Load-time class transformation will not be available.
+
+Albert Lee.

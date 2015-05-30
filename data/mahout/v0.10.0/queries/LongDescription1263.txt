@@ -1,0 +1,9 @@
+The value for Lambda in OnlineLogisticRegression seems not the be serialised/deserialised correctly. 
+
+If I train a model with a specific lambda value, serialise it, then read it back in, the value of Lambda goes back to the default value (1.0e-5). 
+
+I've created a patch that adds the lambda value into the write/readFields (org.apache.hadoop.io.Writable). Patch includes a unit test that checks the values after serialising/deserialising to/from a ByteArray. 
+
+I think this is correct, unless I'm missing something obvious?
+
+Note: this patch is not backwards compatible - can easily adapt to be more backwards compatible if required. 

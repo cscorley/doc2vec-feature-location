@@ -1,0 +1,37 @@
+I ran into two unit test failures (TestJobSubmission and TestHBaseStorage) by bumping the version of HBase and ZK to 0.94 and 3.4.3 respectively in hadoop 1.0.3. I am opening a jira to capture what I found for future reference.
+
+
+	Two dependency libraries of HBase 0.94 are missing in ivy.xml - high-scale-lib and protobuf-java.
+	The HTable constructor in HBase 0.94 changed:
+
+
+-        HTable table = new HTable(TESTTABLE_2);
++        HTable table = new HTable(conf, TESTTABLE_2);
+
+
+	The default client port of MiniZooKeeperCluster in HBase 0.94 is no longer 21818. Since it is chosen randomly at runtime, it has to be set in PigContext.
+
+
+@@ -541,7 +543,7 @@ public class TestJobSubmission {
+         // use the estimation
+         Configuration conf = cluster.getConfiguration();
+         HBaseTestingUtility util = new HBaseTestingUtility(conf);
+-        util.startMiniZKCluster();
++        int clientPort = util.startMiniZKCluster().getClientPort();
+         util.startMiniHBaseCluster(1, 1); 
+     
+         String query = "a = load '/passwd';" + 
+@@ -553,6 +555,7 @@ public class TestJobSubmission {
+     
+         pc.getConf().setProperty("pig.exec.reducers.bytes.per.reducer", "100");
+         pc.getConf().setProperty("pig.exec.reducers.max", "10");
++        pc.getConf().setProperty(HConstants.ZOOKEEPER_CLIENT_PORT, Integer.toString(clientPort));
+         ConfigurationValidator.validatePigProperties(pc.getProperties());
+         conf = ConfigurationUtil.toConfiguration(pc.getProperties());
+         JobControlCompiler jcc = new JobControlCompiler(pc, conf);
+
+
+
+
+
+With the attached patch, both tests pass with hadoop 1.0.3. Please note that TestHBaseStorage fails in hadoop 0.23, and I haven't investigated that.

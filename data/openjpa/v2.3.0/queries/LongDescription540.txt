@@ -1,0 +1,21 @@
+The WASManagedRuntime class needs to dynamically load and process a couple of WebSphere-specific classes in order to interact with the WebSphere Transaction Manager.  Currently, when these classes are loaded (ExtendedJTATransaction and SynchronizationCallback), there is some problem with the Method invocations that are invoked against the JNDI object that is looked up (java:comp/websphere/ExtendedJTATransaction).  There seems to be a mismatch between the Interface classes that are loaded to obtain the Method objects and the actual object that is returned by the JNDI lookup.  The callstack is similar to the following:
+
+Caused by: <openjpa-1.0.1-r420667:592145 nonfatal user error> org.apache.openjpa.persistence.InvalidStateException: An error occured reflecting WebSphere proprietary interfaces. Please ensure that you are running the application from within WebSphere Application Server (version 5.0.2 or newer).
+	at org.apache.openjpa.ee.WASManagedRuntime$WASTransaction.getGlobalId(WASManagedRuntime.java:157)
+	at org.apache.openjpa.ee.WASManagedRuntime$WASTransaction.getStatus(WASManagedRuntime.java:104)
+	... 49 more
+Caused by: java.lang.IllegalArgumentException
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:64)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:615)
+	at org.apache.openjpa.ee.WASManagedRuntime$WASTransaction.getGlobalId(WASManagedRuntime.java:155)
+	... 50 more
+
+The call to getGlobalId in WASManagedRuntime is like this:
+
+                byte[] rval = (byte[]) _getGlobalId.invoke(_extendedTransaction, null);
+
+Debugging this problem has narrowed it down to a classloading issue for this scenario of using WAS v6.1.0.13, Spring 2.5.2, and OpenJPA 1.0.x.  I'll post more on the proposed solution shortly.
+
+Kevin

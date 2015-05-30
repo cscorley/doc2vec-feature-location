@@ -1,0 +1,34 @@
+Versions in use/compared:
+Solr 1.3
+(Nightly 5th August)
+Nightly 22nd September
+
+As RegexTransformer is not different between the two nightlies, the
+issue probably appeared before.
+
+ISSUE:
+Using RegexTransformer with the 'sourceColName' notation will not populate
+multiValued (actually containing multiple values) fields with a list but
+instead add only one value per document.
+
+The version with 'groupNames' does.
+
+worked for 1.3 (regression):
+<field column="participant" sourceColName="person" regex="([^\|]+)|.*" />
+<field column="role" sourceColName="person"
+regex="[^\|]|\d,\d+,\d+,(.*)" />
+
+
+works for nightly 22nd Sept:
+<field column="person" groupNames="participant,role"
+regex="([^\|])|\d,\d+,\d+,(.*)" />
+
+(Both fields are of type solr.StrField and multiValued.)
+
+
+Comparing the source code of RegexTransformer 1.3 vs. 22nd Sept, I found:
+
+for (Object result : results)
+         row.put(col, result);
+
+(lines 106-107 of transformRow() 22nd of Sept)

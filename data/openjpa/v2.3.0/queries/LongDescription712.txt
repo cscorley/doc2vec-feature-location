@@ -1,0 +1,27 @@
+Per the discussion on the dev forum (http://n2.nabble.com/Bug-in-HAVING-clause-(JPQL)-td835780.html)...  
+
+I found this easy to reproduce.  It seems that our jjpql parser is not properly processing the aggregate functions within the Having clause.
+
+It seems that these two (valid?) queries are throwing an exception:
+
+  select m.idPublisher, max(m.datePublished)
+    from Magazine m
+ group by m.idPublisher
+  having max(m.datePublished) is null
+
+  select m.idPublisher, max(m.datePublished)
+    from Magazine m
+ group by m.idPublisher
+  having max(m.datePublished) = current_date
+
+The exception thrown is:
+
+<openjpa-1.3.0-SNAPSHOT-runknown nonfatal user error> org.apache.openjpa.persistence.ArgumentException: Encountered "max ( m . datePublished ) is" at character 90, but expected: ["(", ")", "*", "+", "-", ".", "/", ":", "<", "<=", "<>", "=", ">", ">=", "?", "ABS", "ALL", "AND", "ANY", "AS", "ASC", "AVG", "BETWEEN", "BOTH", "BY", "CONCAT", "COUNT", "CURRENT_DATE", "CURRENT_TIME", "CURRENT_TIMESTAMP", "DELETE", "DESC", "DISTINCT", "EMPTY", "ESCAPE", "EXISTS", "FETCH", "FROM", "GROUP", "HAVING", "IN", "INNER", "IS", "JOIN", "LEADING", "LEFT", "LENGTH", "LIKE", "LOCATE", "LOWER", "MAX", "MEMBER", "MIN", "MOD", "NEW", "NOT", "NULL", "OBJECT", "OF", "OR", "ORDER", "OUTER", "SELECT", "SET", "SIZE", "SOME", "SQRT", "SUBSTRING", "SUM", "TRAILING", "TRIM", "UPDATE", "UPPER", "WHERE", <BOOLEAN_LITERAL>, <DECIMAL_LITERAL>, <IDENTIFIER>, <INTEGER_LITERAL>, <STRING_LITERAL>].
+       at org.apache.openjpa.kernel.jpql.JPQL.generateParseException(JPQL.java:9501)
+       at org.apache.openjpa.kernel.jpql.JPQL.jj_consume_token(JPQL.java:9378)
+...
+
+For test case, one could use these classes:
+
+/openjpa/trunk/openjpa-persistence-jdbc/src/test/java/org/apache/openjpa/persistence/query/Magazine.java
+/openjpa/trunk/openjpa-persistence-jdbc/src/test/java/org/apache/openjpa/persistence/query/Publisher.java

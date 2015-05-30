@@ -1,0 +1,7 @@
+This bug will happen if the following condition meet:
+1. LoadFunc is susceptible to duplicated fields in fieldsToRead. The only LoadFunc we notice now is Zebra.
+2. The first item in FOREACH statement contains reference to the same input more than once.
+
+For example, the following script will be affected:
+a = load '11' using org.apache.hadoop.zebra.pig.TableLoader('a0');
+b = foreach a generate a0+a0;

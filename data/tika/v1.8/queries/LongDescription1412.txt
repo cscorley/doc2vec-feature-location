@@ -1,0 +1,8 @@
+There's a missing "else" in OpenDocumentParser when it constructs a ZipInputStream from the InputStream, which results in NPE when the InputStream is an instance of TikaInputStream but has neither openContainer nor file:
+
+
+...
+Caused by: java.lang.NullPointerException
+        at org.apache.tika.parser.odf.OpenDocumentParser.parse(OpenDocumentParser.java:161) ~[tika-parsers-1.6.jar:1.6]
+        at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:244) ~[tika-core-1.6.jar:1.6]
+

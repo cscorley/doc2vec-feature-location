@@ -1,0 +1,58 @@
+Starting with the supplied start.jar, the ampersand from this field is not correctly escaped in the XML search results provided by the select page:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<add>
+  <doc>
+    <field name="id">amp-test-one</field>
+    <field name="content">Les événements chez Bonnie & Clyde.</field>
+  </doc>
+</add>
+</stuff>
+
+The "content" field is defined as a "text" field in the schema.
+
+Adding this document to the index and querying on "id:amp-test-one" returns
+...
+ <doc>
+  <str name="content">Les événements chez Bonnie & Clyde.& Clyde.</str>
+  <str name="id">amp-test-one</str>
+ </doc>
+
+With first "Bonnie & Clyde" unescaped and then the correct escaped &
+
+Browsing the index with Luke shows that the field is correctly stored.
+
+I think this might be a Jetty bug: patching the util/XML class of SOLR to avoid the use of Writer.write(String,start,len) fixes the problem. Maybe the Jetty ServletWriter gets confused by the presence of non-ascii chars?
+
+Here are my changes in util/XML.java. It looks like the class did use String.substring(...) before, Writer.write might be faster but it seems like it's broken in that environment.
+
+Here are my patches to util/XML.java:
+
+Index: src/java/org/apache/solr/util/XML.java
+===================================================================
+— src/java/org/apache/solr/util/XML.java      (revision 422655)
++++ src/java/org/apache/solr/util/XML.java      (working copy)
+@@ -159,8 +159,8 @@
+       }
+       if (subst != null) {
+         if (start<i) 
+{
+-          // out.write(str.substring(start,i));
+-          out.write(str, start, i-start);
++          out.write(str.substring(start,i));
++          // out.write(str, start, i-start);
+           // n+=i-start;
+         }
+         out.write(subst);
+@@ -172,8 +172,8 @@
+       out.write(str);
+       // n += str.length();
+     } else if (start<str.length()) 
+{
+-      // out.write(str.substring(start));
+-      out.write(str, start, str.length()-start);
++      out.write(str.substring(start));
++      // out.write(str, start, str.length()-start);
+       // n += str.length()-start;
+     }
+     // return n;

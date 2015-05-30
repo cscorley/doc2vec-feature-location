@@ -1,0 +1,58 @@
+We are using the Derby's Transactional DataSource  class ( org.apache.derby.jdbc.EmbeddedXADataSource ) to create a pool of  XAConnections in our application.
+Whenever a thread in a JTA transaction requests for a SQLConnection , we retrieve an XAConnection from the pool. From the XAConnection , we  register the XAResource with the TransactionManager & return a java.sql.Connection to the application. 
+A class implementing the ConnectionEventListener is registered with the XAConnection to get callback  connectionClosed ( ) when the thead closes the java.sql.Connection. In this callback,  we invoke XAResource.end & return the XAConnection to our pool  so that other threads can use it.
+
+We have encountered NullPointerException  , when performing operation on java.sql.Connection.
+The stacktrace is as follows
+at
+org.apache.derby.jdbc.XAStatementControl.<init>(XAStatementControl.java:71)
+   at
+org.apache.derby.jdbc.EmbedXAConnection.wrapStatement(EmbedXAConnection.java:162)
+   at
+org.apache.derby.iapi.jdbc.BrokeredConnection.createStatement(Unknown
+Source)
+   at
+com.gemstone.gemfire.internal.datasource.ConnectionPoolingTest$1.run(ConnectionPoolingTest.java:174)
+   at java.lang.Thread.run(Thread.java:595)
+
+
+I have done some debugging on source code of  db-derby-10.2.1.6-src & have following explanation of the bug & a suggested fix. However, I want to confirm that it is genuinely a bug & not a problem in our understanding of the Datasource spec behaviour.
+
+Reason for the bug:-
+
+The class EmbedPooledConnection.java   stores in the field currentConnectionHandle ( of  class BrokeredConnection)  a reference of the java.sql.Connection object , being returned to the application, 
+Now ,whenever the client closes the java.sql.Connection ,  the code flow is 
+
+EmbedPooledConnection.close() --> EmbedPooledConnection.notifyClose().
+In the function EmbedPooledConnection.notifyClose(), it notifies  my listener ( javax.sql.ConnectionEventListener) ) where I return the XAConnection to the pool ( after deregistering the XAResource). 
+The last line of EmbedPooledConnection.close()  makes the currentConnectionHandle  field as null.
+
+The issue here is that  javax.sql.ConnectionEventListener.connectionClosed is invoked before making the currentConenctionHandle field as null.  Thus XAConnection is returned to the pool , ready for pickup by a new thread. This new thread obtains a java.sql.Connection whose reference gets assigned to the currentConnectionHandle field, meanwhile the previous thread completes the EmbedPooledConnection.close  making the newly assigned currentConnectionHandle as null.
+
+Thus a previous thread's close makes a field null of an XAConnection, which has been assigned to a new thread.
+The bug is easily reproducible  in a multi threaded scenario ( 20 threads or so) with a pool size of around 4 XAConnections so that there is heavy  contention on XAConnection. 
+
+The fix is to rearrange the code of EmbedPooledConenction.java 's closingConnection () as
+
+bug :
+public  boolean closingConnection() 
+{
+     notifyClose();
+     currentConnectionHandle = null;
+    return false;
+
+}
+
+bug fix :
+public  boolean closingConnection() {
+     currentConnectionHandle = null;
+     notifyClose();
+     return false;
+}
+
+
+
+
+
+
+

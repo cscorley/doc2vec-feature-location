@@ -1,0 +1,37 @@
+I'm seeing an NPE trying to do an illustrate on a script.  So far the simplest version of the script that exhibits the issue is:
+
+
+
+raw = LOAD 'data.txt' USING PigStorage() AS (x:int, y:int);
+filtered = FILTER raw BY x < 5;
+grouped = GROUP filtered BY x;
+counted = FOREACH grouped
+         GENERATE group AS x,
+                  COUNT(filtered) AS the_count;
+rmf output;
+STORE counted INTO 'output';
+
+
+
+I had to pass a few nested Exceptions along to get it, but the bottom stack trace looks like:
+
+
+
+Caused by: java.lang.NullPointerException
+	at org.apache.hadoop.mapreduce.TaskInputOutputContext.getCounter(TaskInputOutputContext.java:88)
+	at org.apache.pig.tools.pigstats.PigStatusReporter.getCounter(PigStatusReporter.java:60)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReducePOStoreImpl.createRecordCounter(MapReducePOStoreImpl.java:121)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POStore.setUp(POStore.java:108)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapReduce$Reduce.cleanup(PigGenericMapReduce.java:525)
+	at org.apache.hadoop.mapreduce.Reducer.run(Reducer.java:178)
+	at org.apache.pig.pen.LocalMapReduceSimulator.launchPig(LocalMapReduceSimulator.java:222)
+	at org.apache.pig.pen.ExampleGenerator.getData(ExampleGenerator.java:257)
+	at org.apache.pig.pen.ExampleGenerator.getData(ExampleGenerator.java:275)
+	at org.apache.pig.pen.LineageTrimmingVisitor.checkNewBaseData(LineageTrimmingVisitor.java:418)
+	... 21 more
+
+
+
+It looks like the IllustratorContext in the hadoop20 PigMapReduce.java shim (line 73) is getting setup with a null StatusReporter.  This seems to be for the Reduce phase.  On the other hand, the PigMapBase.java sets up the IllustratorContext with an IllustratorDummyReporter for the Map phase.
+
+Eventually when the code in MapReducePOStoreImpl line 121 tries to get the reporter, it fails with the NPE.

@@ -1,0 +1,5 @@
+The acceptChildren() overloads don't visit all of the clauses in an AST node. This is probably a mistake. However, fixing it will require a systematic analysis of the AST nodes and probably some changes to the Visitors. Some queries rely on the fact that certain Visitors will not be called on some AST nodes even though the Visitors are called on sister nodes in the same parent AST node.
+
+An example of this defect is the CursorNode. If you call treePrint() on a CursorNode, you will see information on ORDER BY, FETCH, and OFFSET clauses. However, these clauses are not visited by CursorNode.acceptChildren(). This looks like an omission. This defect was brought to our attention by this email thread: http://apache-database.10148.n7.nabble.com/Using-ASTParser-and-TreeWalker-for-parsing-SQL-query-td131219.html. You can see the difference in treePrint() and acceptChildren() behavior by running the following query through the ASTParser and TreePrinter tools attached to DERBY-3946:
+
+    select tablename from sys.systables where 1=2 order by tablename;

@@ -1,0 +1,25 @@
+A Customer has 1-m relationship to Inventory:
+
+@Entity
+Customer {
+    ....
+    @OneToMany(mappedBy="customer")
+    private Collection<Inventory> inventories = new ArrayList<Inventory>();
+    ....
+}
+
+@Entity
+Inventory {
+    ...
+    @ManyToOne
+    private Customer customer;
+    ...
+}
+
+When an Inventory instance is modified, its version is bumped as expected.  However, when an Inventory is added or deleted from the Inventory list in Customer, the Customer instance version is unnecessarily bumped up. According to section 3.4.2 of the 1.0 spec,
+
+"The version attribute is updated by the persistence provider runtime when the object is 
+written to the database. All non-relationship ﬁelds and properties and all relationships 
+owned by the entity are included in version checks."
+
+When additions or deletions are made to the Inventory list of Customer, the version of the Customer instance should remain unchanged. As the inverse-side, Customer does not own the Inventory that is added/deleted. 

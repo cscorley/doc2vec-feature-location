@@ -1,0 +1,5 @@
+Returning a result list over RMI/IIOP invocation currently fails on trunk/2.0 with this exception:
+
+java.rmi.ServerException: RemoteException occurred in server thread; nested exception is: java.rmi.MarshalException: CORBA BAD_PARAM 0x4f4d0006 Maybe; nested exception is: java.io.NotSerializableException: org.apache.openjpa.jdbc.kernel.InstanceResultObjectProvider is not serializable at com.ibm.CORBA.iiop.UtilDelegateImpl.wrapException(UtilDelegateImpl.java:748) at javax.rmi.CORBA.Util.wrapException(Util.java:296) at ...
+
+The problem is the result of storing the ROP in the userObject field of a ResultList in the org.apache.openjpa.kernel.QueryImpl.toResult(..) method.  - res.setUserObject(rop).  The ROP is not serializable so the RMI/CORBA layer throws an exception.

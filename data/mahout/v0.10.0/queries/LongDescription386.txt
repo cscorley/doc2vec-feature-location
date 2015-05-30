@@ -1,0 +1,41 @@
+When one tries to run org.apache.mahout.cf.taste.hadoop.pseudo.RecommenderJob without a usersFile (the file containing the userIDs to generate recommendations for) it throws an Exception in the Reducer.
+
+I took a look at the code and it seems that there are some needless things done:
+
+org.apache.mahout.cf.taste.hadoop.pseudo.RecommenderReducer tries to create a set of userIDs to generate recommendations for and fails to do this if no usersFile is supplied, when it tries to parse the preferences file. As far as I understand the code the Mapper already maps out only the userIDs to generate recommendations for, so there the check in the reducer is not even necessary, right? Correct me if I'm wrong.
+
+---------------------------------------------------------------------------
+
+How to reproduce the error:
+
+1) Create a file containing some sample preferences and call it mahout-testing.txt, mine looks like this
+1,2,1
+1,3,2
+2,1,1
+2,3,1
+
+2) Run the Job without a usersFile, e.g.:
+
+hadoop jar core/target/mahout-core-0.4-SNAPSHOT.job org.apache.mahout.cf.taste.hadoop.pseudo.RecommenderJob -Dmapred.input.dir=./mahout-testing.txt -Dmapred.output.dir=/tmp/mahout/out --tempDir /tmp/mahout/tmp --recommenderClassName org.apache.mahout.cf.taste.impl.recommender.GenericItemBasedRecommender
+
+
+java.lang.RuntimeException: Error in configuring object
+	at org.apache.hadoop.util.ReflectionUtils.setJobConf(ReflectionUtils.java:93)
+	at org.apache.hadoop.util.ReflectionUtils.setConf(ReflectionUtils.java:64)
+	at org.apache.hadoop.util.ReflectionUtils.newInstance(ReflectionUtils.java:117)
+	at org.apache.hadoop.mapred.ReduceTask.runOldReducer(ReduceTask.java:426)
+	at org.apache.hadoop.mapred.ReduceTask.run(ReduceTask.java:411)
+	at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:215)
+Caused by: java.lang.reflect.InvocationTargetException
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.apache.hadoop.util.ReflectionUtils.setJobConf(ReflectionUtils.java:88)
+	... 5 more
+Caused by: java.lang.NumberFormatException: For input string: "1,2,1"
+	at java.lang.NumberFormatException.forInputString(NumberFormatException.java:48)
+	at java.lang.Long.parseLong(Long.java:419)
+	at java.lang.Long.parseLong(Long.java:468)
+	at org.apache.mahout.cf.taste.hadoop.pseudo.RecommenderReducer.configure(RecommenderReducer.java:88)
+	... 10 more

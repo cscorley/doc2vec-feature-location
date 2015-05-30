@@ -1,0 +1,107 @@
+The XATest is showing the following on the log:
+2009-07-16 00:15:42.838 GMT : Apache Derby Network Server - 10.6.0.0 alpha - (794457M) started and ready to accept connections on port 9920
+2009-07-16 00:15:44.394 GMT : Unexpected exception:
+ Table/View 'APP.FOO' does not exist.
+
+Here is the full stack trace  from derby.log.  The error comes closing a prepared statement on a brokered connection if the table referenced by the statement has been dropped.  This looks like an embedded bug causing network server shutdown to fail.  Also if this test is enabled in a suite DERBY-4155, the next time network server is started the tests will hang with java.net.BindException: Address already in use: NET_Bind in the derby.log
+
+
+2009-07-16 17:05:45.062 GMT Thread[derby.NetworkServerStarter,5,derby.daemons] (XID = 497), (SESSIONID = 53), (DATABASE = wombat), (DRDAID = 
+{7}
+), Failed Statement is: SELECT * FROM APP.FOO
+
+ERROR 42X05: Table/View 'APP.FOO' does not exist.
+
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:286)
+
+	at org.apache.derby.impl.sql.compile.FromBaseTable.bindTableDescriptor(FromBaseTable.java:2463)
+
+	at org.apache.derby.impl.sql.compile.FromBaseTable.bindNonVTITables(FromBaseTable.java:2183)
+
+	at org.apache.derby.impl.sql.compile.FromList.bindTables(FromList.java:310)
+
+	at org.apache.derby.impl.sql.compile.SelectNode.bindNonVTITables(SelectNode.java:390)
+
+	at org.apache.derby.impl.sql.compile.DMLStatementNode.bindTables(DMLStatementNode.java:199)
+
+	at org.apache.derby.impl.sql.compile.DMLStatementNode.bind(DMLStatementNode.java:137)
+
+	at org.apache.derby.impl.sql.compile.CursorNode.bindStatement(CursorNode.java:245)
+
+	at org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatement.java:316)
+
+	at org.apache.derby.impl.sql.GenericStatement.prepare(GenericStatement.java:88)
+
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(GenericLanguageConnectionContext.java:822)
+
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.<init>(EmbedPreparedStatement.java:129)
+
+	at org.apache.derby.jdbc.Driver40.newEmbedPreparedStatement(Driver40.java:105)
+
+	at org.apache.derby.impl.jdbc.EmbedConnection.prepareStatement(EmbedConnection.java:1542)
+
+	at org.apache.derby.impl.jdbc.EmbedConnection.prepareStatement(EmbedConnection.java:1423)
+
+	at org.apache.derby.iapi.jdbc.BrokeredPreparedStatement30.createDuplicateStatement(BrokeredPreparedStatement30.java:56)
+
+	at org.apache.derby.jdbc.XAStatementControl.getRealPreparedStatement(XAStatementControl.java:143)
+
+	at org.apache.derby.iapi.jdbc.BrokeredPreparedStatement.getPreparedStatement(BrokeredPreparedStatement.java:526)
+
+	at org.apache.derby.iapi.jdbc.BrokeredPreparedStatement.getStatement(BrokeredPreparedStatement.java:533)
+
+	at org.apache.derby.iapi.jdbc.BrokeredStatement.close(BrokeredStatement.java:130)
+
+	at org.apache.derby.impl.drda.DRDAStatement.close(DRDAStatement.java:1027)
+
+	at org.apache.derby.impl.drda.Database.close(Database.java:352)
+
+	at org.apache.derby.impl.drda.Session.close(Session.java:115)
+
+	at org.apache.derby.impl.drda.NetworkServerControlImpl.blockingStart(NetworkServerControlImpl.java:833)
+
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:45)
+
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:37)
+
+	at java.lang.reflect.Method.invoke(Method.java:599)
+
+	at org.apache.derby.iapi.jdbc.DRDAServerStarter.run(DRDAServerStarter.java:236)
+
+	at java.lang.Thread.run(Thread.java:735)
+
+Cleanup action completed
+
+2009-07-16 17:05:45.078 GMT : Unexpected exception:
+ Table/View 'APP.FOO' does not exist.
+
+An exception was thrown during network server startup. DRDA_UnexpectedException.S:Unexpected exception:
+ Table/View 'APP.FOO' does not exist.
+
+java.lang.reflect.InvocationTargetException
+
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:45)
+
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:37)
+
+	at java.lang.reflect.Method.invoke(Method.java:599)
+
+	at org.apache.derby.iapi.jdbc.DRDAServerStarter.run(DRDAServerStarter.java:236)
+
+	at java.lang.Thread.run(Thread.java:735)
+
+Caused by: java.lang.Exception: DRDA_UnexpectedException.S:Unexpected exception:
+ Table/View 'APP.FOO' does not exist.
+
+	at org.apache.derby.impl.drda.NetworkServerControlImpl.consolePropertyMessageWork(NetworkServerControlImpl.java:3216)
+
+	at org.apache.derby.impl.drda.NetworkServerControlImpl.consolePropertyMessage(NetworkServerControlImpl.java:1885)
+
+	at org.apache.derby.impl.drda.NetworkServerControlImpl.blockingStart(NetworkServerControlImpl.java:835)
+
+	... 6 more
+

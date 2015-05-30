@@ -1,0 +1,19 @@
+Hi, Mukai
+  Thanks for your efforts in expand the RF to regression. However, I have a doubt about your implementation regarding to Regressionsplit.java. The variance method 
+"
+ private static double variance(double[] s, double[] ss, double[] dataSize) {
+    double var = 0;
+    for (int i = 0; i < s.length; i++) {
+      if (dataSize[i] > 0) 
+{
+        var += ss[i] - ((s[i] * s[i]) / dataSize[i]);
+      }
+    }
+    return var;
+  }
+"
+
+While the variance in my mind should be something like 
+var += ss[i]/dataSize[i] - ((s[i] * s[i]) / (dataSize[i]*dataSize[i]));
+
+Please help correct me if I am wrong. Thanks

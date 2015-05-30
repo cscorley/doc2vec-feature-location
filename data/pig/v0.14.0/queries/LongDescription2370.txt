@@ -1,0 +1,33 @@
+Most of the SkewedJoin tests fail.
+
+a = load '/user/user1/pig/tests/data/singlefile/studenttab10k' using PigStorage() as (name, age, gpa);
+b = load '/user/user1/pig/tests/data/singlefile/votertab10k' as (name, age, registration, contributions);
+e = join a by name, b by name using 'skewed' parallel 8;
+store e into '/user/user1/pig/out/user1.1321044742/SkewedJoin_1.out';
+
+Backend error message
+---------------------
+AttemptID:attempt_1321041443489_0400_m_000000_0 Info:Error: java.lang.RuntimeException: java.io.IOException: Can't get JobTracker Kerberos principal for use as renewer
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.partitioners.SkewedPartitioner.setConf(SkewedPartitioner.java:119)
+        at org.apache.hadoop.util.ReflectionUtils.setConf(ReflectionUtils.java:70)
+        at org.apache.hadoop.util.ReflectionUtils.newInstance(ReflectionUtils.java:125)
+        at org.apache.hadoop.mapred.MapTask$NewOutputCollector.<init>(MapTask.java:627)
+        at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:695)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:328)
+        at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:147)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:396)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1152)
+        at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:142)
+Caused by: java.io.IOException: Can't get JobTracker Kerberos principal for use as renewer
+        at org.apache.hadoop.mapreduce.security.TokenCache.obtainTokensForNamenodesInternal(TokenCache.java:106)
+        at org.apache.hadoop.mapreduce.security.TokenCache.obtainTokensForNamenodesInternal(TokenCache.java:90)
+        at org.apache.hadoop.mapreduce.security.TokenCache.obtainTokensForNamenodes(TokenCache.java:83)
+        at org.apache.hadoop.mapreduce.lib.input.FileInputFormat.listStatus(FileInputFormat.java:205)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigFileInputFormat.listStatus(PigFileInputFormat.java:37)
+        at org.apache.hadoop.mapreduce.lib.input.FileInputFormat.getSplits(FileInputFormat.java:269)
+        at org.apache.pig.impl.io.ReadToEndLoader.init(ReadToEndLoader.java:154)
+        at org.apache.pig.impl.io.ReadToEndLoader.<init>(ReadToEndLoader.java:116)
+        at org.apache.pig.backend.hadoop.executionengine.util.MapRedUtil.loadPartitionFileFromLocalCache(MapRedUtil.java:101)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.partitioners.SkewedPartitioner.setConf(SkewedPartitioner.java:114)
+        ... 10 more

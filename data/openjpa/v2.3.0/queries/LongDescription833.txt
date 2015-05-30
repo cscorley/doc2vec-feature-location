@@ -1,0 +1,39 @@
+1. The current version of TestXMLCustomerOrder does not use assert methods
+  requiring programmer to watch the results on the screen. It also fails to
+  correctly determine whether some dictionaries support XML column.
+
+2. The patched version does roughly the same tests but uses asserts methods
+  like other JUnit tests.
+
+3. In order to correctly determine XML support, an EnitityManager is created
+  so that the DBDictionary executes its connectedConfiguration method. Let me
+  know if there is a better method for doing this.
+
+4. I know the original idea with the current version was to catch the generated
+  SQL and compare it with one saved in a file. It was not done, only the SQL
+  is logged to a file and there are three files in the repository with
+  database specific SQL. I abandoned this approach as I find comparing SQL
+  strings too vulnerable to subtle changes in other areas of OpenJPA (e.g
+  column ordering, alias names). On the other hand I found the generated SQL
+  files very helpful to get familiar with how the XML support is done. So, I
+  removed the SQL logging but the patch contains a file with some queries
+  executed against PostgreSQL. Let me know if this removing of SQL logging or
+  adding new file is not desired.
+
+5. I have found out that filling a List property in entity does not work. I
+  have annotated the respective test with @AllowFailure. I will file a
+  separate issue for this.
+
+6. As in the current version, there are three queries that are expected to
+  fail.
+
+7. Since running the test requires an JAXB implementation (not only the JAXB
+  API), I have added Sun's JAXB implementation to openjpa-jdbc/pom.xml
+  with runtime scope and also to the main pom.xml to specify the version.
+  I chose 2.0.5 as I found it the newset from the 2.0 line.
+
+8. Since XML column mapping requires a newer PostgreSQL JDBC driver I have
+  upgraded the version in openjpa-jdbc/pom.xml and
+  openjpa-persistence-jdbc/pom.xml.
+
+9. I welcome comments and suggestions.

@@ -1,0 +1,76 @@
+When calling prepared statement for the first time, following exception started to occur after upgrading to the latest snaphots (it worked in M3):
+
+java.lang.ExceptionInInitializerError: null
+     org.apache.openjpa.lib.util.ConcreteClassGenerator.newInstance(ConcreteClassGenerator.java:132)
+     org.apache.openjpa.jdbc.sql.PostgresDictionary$PostgresConnection.prepareStatement(PostgresDictionary.java:697)
+     org.apache.openjpa.lib.jdbc.DelegatingConnection.prepareStatement(DelegatingConnection.java:328)
+     org.apache.openjpa.jdbc.kernel.JDBCStoreManager$RefCountConnection.prepareStatement(JDBCStoreManager.java:1560)
+     org.apache.openjpa.lib.jdbc.DelegatingConnection.prepareStatement(DelegatingConnection.java:317)
+     org.apache.openjpa.jdbc.sql.SQLBuffer.prepareStatement(SQLBuffer.java:546)
+     org.apache.openjpa.jdbc.sql.SelectImpl.prepareStatement(SelectImpl.java:452)
+     org.apache.openjpa.jdbc.sql.SelectImpl.execute(SelectImpl.java:389)
+     org.apache.openjpa.jdbc.sql.SelectImpl.execute(SelectImpl.java:363)
+     org.apache.openjpa.jdbc.sql.LogicalUnion$UnionSelect.execute(LogicalUnion.java:427)
+     org.apache.openjpa.jdbc.sql.LogicalUnion.execute(LogicalUnion.java:230)
+     org.apache.openjpa.jdbc.sql.LogicalUnion.execute(LogicalUnion.java:220)
+     org.apache.openjpa.jdbc.kernel.SelectResultObjectProvider.open(SelectResultObjectProvider.java:94)
+     org.apache.openjpa.kernel.QueryImpl$PackingResultObjectProvider.open(QueryImpl.java:2027)
+     org.apache.openjpa.lib.rop.WindowResultList.<init>(WindowResultList.java:57)
+     org.apache.openjpa.jdbc.kernel.JDBCFetchConfigurationImpl.newResultList(JDBCFetchConfigurationImpl.java:278)
+     org.apache.openjpa.kernel.QueryImpl.toResult(QueryImpl.java:1239)
+     org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:1000)
+     org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:856)
+     org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:787)
+     org.apache.openjpa.kernel.DelegatingQuery.execute(DelegatingQuery.java:525)
+     org.apache.openjpa.persistence.QueryImpl.execute(QueryImpl.java:291)
+     org.apache.openjpa.persistence.QueryImpl.getResultList(QueryImpl.java:303)
+     gaia.cu7.dal.VariStore.fetchSourcesHistogram(VariStore.java:733)
+     gaia.cu7.dal.VariStore.getSourcesHistogram(VariStore.java:689)
+     gaia.cu7.omimpl.test.SourceImplTest.testHistogramCreation(SourceImplTest.java:930)
+     sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+     sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+     sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+     java.lang.reflect.Method.invoke(Method.java:597)
+     org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:44)
+     org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:15)
+     org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:41)
+     org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:20)
+     org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:28)
+     org.junit.internal.runners.statements.RunAfters.evaluate(RunAfters.java:31)
+     org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:73)
+     org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:46)
+     org.junit.runners.ParentRunner.runChildren(ParentRunner.java:180)
+     org.junit.runners.ParentRunner.access$000(ParentRunner.java:41)
+     org.junit.runners.ParentRunner$1.evaluate(ParentRunner.java:173)
+     org.junit.runners.ParentRunner.run(ParentRunner.java:220)
+Caused by: java.lang.IllegalArgumentException: wrong number of arguments
+     sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+     sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:39)
+     sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:27)
+     java.lang.reflect.Constructor.newInstance(Constructor.java:513)
+     org.apache.openjpa.lib.util.ConcreteClassGenerator.newInstance(ConcreteClassGenerator.java:130)
+
+
+This might be related to the svn revision:
+Revision 813149 - (view) (annotate) - [select for diffs]
+Modified Wed Sep 9 22:43:49 2009 UTC (5 weeks, 5 days ago) by ppoddar
+
+OPENJPA-1285: Dynamic JDBC 4 Wrappers use constructor to save reflection cost
+
+
+seems the offending statement from org.apache.openjpa.jdbc.sql.PostgresDictionary$PostgresConnection.prepareStatement(PostgresDictionary.java:697) 
+has wrong number of parameters:
+            ...
+return ConcreteClassGenerator.
+                newInstance(postgresPreparedStatementImpl,
+                    PreparedStatement.class,
+                        super.prepareStatement(sql, rsType, rsConcur, false),
+                    Connection.class, PostgresConnection.this,
+                    PostgresDictionary.class, _dict);
+
+Are the type classes really needed here?
+
+Could you confirm it passes your internal tests for postgres on the openjpa trunk if you think this problem is caused by something else?
+
+Best regards,
+Krzysztof

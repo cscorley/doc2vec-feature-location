@@ -1,0 +1,17 @@
+This was initially reported as an Alfresco issue, https://issues.alfresco.com/jira/browse/ALF-13004, but is actually a Tika problem. It seems that for some images, the geo metadata is being incorrectly rounded to an integer:
+
+   $ tika --metadata 2012-02-19\ 16.43.29.jpg | grep --text geo
+   geo:lat: 51.0
+   geo:long: -1.0
+
+The image was actually taken at (as extracted by exiftool)
+
+   $ exiftool 2012-02-19\ 16.43.29.jpg | grep GPS
+   ....
+   GPS Altitude                    : 295 m Above Sea Level
+   GPS Date/Time                   : 2012:02:20 16:44:22Z
+   GPS Latitude                    : 51 deg 34' 32.74" N
+   GPS Longitude                   : 1 deg 34' 4.39" W
+   GPS Position                    : 51 deg 34' 32.74" N, 1 deg 34' 4.39" W
+
+The sample file for this example is available at <https://issues.alfresco.com/jira/secure/attachment/29236/2012-02-19+16.43.29.jpg>. We do have the OK to use the photo in a test suite, but it's possibly a bit big as-is so we may need to resize it whilst preserving the exif data for a unit test.

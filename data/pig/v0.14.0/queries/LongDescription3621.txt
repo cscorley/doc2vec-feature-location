@@ -1,0 +1,48 @@
+Using this script:
+
+from avro import schema, datafile, io
+import pprint
+import sys
+import json
+
+field_id = None
+
+	Optional key to print
+if (len(sys.argv) > 2):
+  field_id = sys.argv[2]
+
+
+
+
+	Test reading avros
+rec_reader = io.DatumReader()
+
+
+
+
+	Create a 'data file' (avro file) reader
+df_reader = datafile.DataFileReader(
+  open(sys.argv[1]),
+  rec_reader
+)
+
+
+
+the last line fails with:
+
+Traceback (most recent call last):
+  File "/Users/rjurney/bin/cat_avro", line 22, in <module>
+    rec_reader
+  File "/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/avro/datafile.py", line 247, in _init_
+    self.datum_reader.writers_schema = schema.parse(self.get_meta(SCHEMA_KEY))
+  File "/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/avro/schema.py", line 784, in parse
+    return make_avsc_object(json_data, names)
+  File "/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/avro/schema.py", line 740, in make_avsc_object
+    return RecordSchema(name, namespace, fields, names, type, doc, other_props)
+  File "/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/avro/schema.py", line 653, in _init_
+    other_props)
+  File "/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/avro/schema.py", line 294, in _init_
+    new_name = names.add_name(name, namespace, self)
+  File "/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/avro/schema.py", line 268, in add_name
+    raise SchemaParseException(fail_msg)
+avro.schema.SchemaParseException: record is a reserved type name.

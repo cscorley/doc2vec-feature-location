@@ -1,0 +1,15 @@
+CALL SYSCS_UTIL.SYSCS_BACKUP_DATABASE('extinout/bkup1');
+ERROR 38000: The exception 'java.security.AccessControlException: access denied
+(java.util.PropertyPermission user.dir read)' was thrown while evaluating an exp
+ression)
+
+Can be seen in the store/encryptionKey.sql test, modify the _app.properties file to enable the security manager.
+
+Due to logging messages using File.getCanonicalPath in RawStore.java, lines 675 and 686.
+
+Possible solutions:
+
+	use a privileged block and required user.dir permission granted to user.dir to backup to a relative directory
+	use a privileged block,if a security exception is thrown then just display the relative name, otherwise display the full name. This would allow backups to succeed without requiring granting additional permissions to derby.jar
+	just log the relative path
+

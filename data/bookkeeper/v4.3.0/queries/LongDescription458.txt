@@ -1,0 +1,23 @@
+Some annoy BKReadException are found when changing ledger.
+
+1) suppose Topic T has ledger L1, storing messages starting from 1 - 100.
+2) T changed ledger to write entry to ledger L2.
+3) Before the entry is added successfully, Subscribe s subscribed topic T. ReadAhead cache tried to schedule a ReadAhead request to scan (103, 104).
+4) RangeScanOp in BookKeeperPersistentManager executed to read entry 2 & 3 from L2. but actually there was no entries in L2.
+
+BookKeeperPersistentManager.java
+
+// None of the old ledgers have this seq-id, we must use the
+                // current ledger
+                long endSeqId = topicInfo.currentLedgerRange.getStartSeqIdIncluded()
+                                + topicInfo.lastEntryIdAckedInCurrentLedger;
+
+                if (endSeqId < startSeqId) {
+                    request.getCallback().scanFinished(request.ctx, ReasonForFinish.NO_MORE_MESSAGES);                    return;
+                }
+
+ 
+
+The code in BookKeeperPersistentManager is supposed to not scan any messages whose seq id is larger than lastEntryIdAckedInCurrentLedger. But lastEntryIdAckedInCurrentLedger isn't reset when changing ledger. so when RangeScanOp is executed, last entry id acked in previous ledger was used which causing calculating an error seq id for the boundary checking in RangeScanOp.
+
+The fix would be quite easy to reset lastEntryIdAckedInCurrentLedger when changing ledger. But we need a test case to cover this case.

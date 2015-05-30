@@ -1,0 +1,9 @@
+Some frequently seen use cases of 'matches' comparison operator have follow properties -
+1. The rhs is a constant string . eg "c1 matches 'abc%' "
+2. Regexes such that look for matching prefix , suffix etc are very common. eg - "abc%', "%abc", '%abc%' 
+
+To optimize for these common cases , PORegex.java can be changed to -
+1. Compile the pattern (rhs of matches) re-use it if the pattern string has not changed. 
+2. Use string comparisons for simple common regexes (in 2 above).
+
+The implementation of Hive like clause uses similar optimizations.

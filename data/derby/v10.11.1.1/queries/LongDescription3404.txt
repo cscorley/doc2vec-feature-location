@@ -1,0 +1,11 @@
+The following code prints "null" to the console with the embedded driver:
+
+        Statement s = c.createStatement(ResultSet.TYPE_FORWARD_ONLY,
+                                        ResultSet.CONCUR_READ_ONLY,
+                                        ResultSet.CLOSE_CURSORS_AT_COMMIT);
+        ResultSet rs = s.executeQuery("select * from sysibm.sysdummy1");
+        rs.next();
+        c.createStatement().executeQuery("values 1").close(); // causes auto-commit
+        System.out.println(rs.getString(1));
+
+The call to rs.getString() should perhaps have thrown SQLException, since the auto-commit between next() and getString() should close the ResultSet when the holdability is CLOSE_CURSORS_AT_COMMIT, I think. Anyway, the value stored in SYSIBM.SYSDUMMY1 is 'Y' and not NULL, so it should definitely not return null.

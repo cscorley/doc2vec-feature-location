@@ -1,0 +1,33 @@
+Following pig script fails:
+===========
+REGISTER string.jar;
+
+A = LOAD 'data' USING PigStorage() AS (a0:chararray, a1, a2);
+B = FOREACH A GENERATE a0;
+C = DISTINCT B;
+D = FILTER C BY string.LENGTH(a0) <= 50 AND string.LENGTH(a0) > 1; 
+STORE D INTO 'D';
+===========
+2010-11-16 22:11:38,097 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - pig.usenewlogicalplan is set to true. New logical plan will be used.
+2010-11-16 22:11:38,202 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 2998: Unhandled internal error. null
+
+But this one works:
+===========
+REGISTER string.jar;
+
+A = LOAD 'data' USING PigStorage() AS (a0:chararray, a1, a2);
+B = FOREACH A GENERATE a0;
+C = DISTINCT B;
+D = FILTER C BY string.LENGTH(a0) <= 50;
+E = FILTER D BY string.LENGTH(a0) > 1; 
+STORE E INTO 'D';
+===========
+
+Input data:
+===========
+Jerry   Jerry   0.55
+Dave    David   0.15
+Danny   Dan     0.015
+S       Smith   0.2
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA        Amy     0.8
+===========

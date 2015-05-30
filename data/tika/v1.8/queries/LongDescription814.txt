@@ -1,0 +1,5 @@
+In TIKA-688 Jukka implemented a plain text detector. It is fired automatically inside MimeTypes. I find a number of files in my collections, which are binary but are still detected as plain text. They wouldn't be if the plain text detector were allowed to look at more than the initial 512 bytes. I think that the TextDetector should look at MimeTypes.getMinLength bytes. It is given a ByteArrayInputStream backed by an Array. It should read all bytes in that array. 
+
+The performance impact should be negligible (no I/O, no allocations, just pure array lookups), while my experiments show that there are cases when 512 bytes is not enough.
+
+If anyone objects due to performance reasons, I'll create another patch, which will allow the users to decouple the TextDetector from MimeTypes and supply their own, with different settings.

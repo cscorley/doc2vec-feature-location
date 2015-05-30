@@ -1,0 +1,33 @@
+When importing data from an empty file, with the replacement option enabled (non-zero last argument in the import procedure call), Derby fails with a NullPointerException when emptying the index(es) .
+
+Stack trace, insane build:
+java.sql.SQLException: Import error on line 1 of file [snip]: Java exception: ': java.lang.NullPointerException'. 
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:95)
+        ...
+Caused by: java.lang.NullPointerException
+	at org.apache.derby.impl.sql.execute.InsertResultSet.emptyIndexes(InsertResultSet.java:2348)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.updateAllIndexes(InsertResultSet.java:1820)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.bulkInsertCore(InsertResultSet.java:1356)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.open(InsertResultSet.java:444)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:436)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:317)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1235)
+	... 44 more
+
+Stack trace, sane build:
+java.sql.SQLException: The exception 'java.sql.SQLException: An internal error was identified by RawStore module.' was thrown while evaluating an expression.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:95)
+        ...
+Caused by: ERROR 40XT0: An internal error was identified by RawStore module.
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:276)
+	at org.apache.derby.impl.store.raw.xact.Xact.abort(Xact.java:917)
+	at org.apache.derby.impl.store.access.RAMTransaction.abort(RAMTransaction.java:1985)
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.doRollback(GenericLanguageConnectionContext.java:1496)
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.userRollback(GenericLanguageConnectionContext.java:1404)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.rollback(TransactionResourceImpl.java:244)
+	at org.apache.derby.impl.jdbc.EmbedConnection.rollback(EmbedConnection.java:1764)
+	... 40 more
+
+A quick investigation suggests DERBY-2537 added the code that fails.
+
+Problem reported by a user on the Derby user list, see http://thread.gmane.org/gmane.comp.apache.db.derby.user/11764

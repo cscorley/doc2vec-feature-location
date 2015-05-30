@@ -1,0 +1,6 @@
+Apple Mail generates email files in .emlx format. They roughly resemble standard rfc822 .eml files but are different.
+On the first line they have the content length in bytes,
+then on the second line, normal rfc822 content starts
+and afterwards there is some XML metadata.
+
+I would suggest to add support for .emlx files to tika-mimetypes.xml. Just copy the message/rfc822 definitions and state that they should appear at offsets 3:10, this should be enough to accomodate the the content length on the first line. Any reasonable email should be longer than 9 bytes. In this case the first line would have two bytes, then the line break, and normal rfc822 headers can start at offset 4. This will work for emails up to 99 MB, (99 999 999 bytes). 

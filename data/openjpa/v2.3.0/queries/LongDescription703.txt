@@ -1,0 +1,2 @@
+Profiling indicated that JDBCStoreQuery.populateSelect consumes a significant amount of CPU, and is executed every time a query is run. While, in fact, the actual PreparedStatement is created and run only in QueryImpl.toResult. It seems like the returned ResultObjectProvider from JDBCStoreQuery.executeQuery can be at least partially cached, or even cached in its entirety (provided care is taken with the context parameters). 
+It seems like such an improvement would significantly improve query performance.

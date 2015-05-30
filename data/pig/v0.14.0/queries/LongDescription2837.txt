@@ -1,0 +1,43 @@
+When i try to dump avro data using
+
+
+
+
+records = LOAD '/logs/records/07262012/01/1/Record.1343265732700.avro' using org.apache.pig.piggybank.storage.avro.AvroStorage(); 
+dump records;
+
+
+
+
+
+Pig Stack Trace 
+--------------- 
+ERROR 2998: Unhandled internal error. null
+java.lang.StackOverflowError 
+at org.apache.pig.piggybank.storage.avro.AvroStorageUtils.containsGenericUnion(AvroStorageUtils.java:258) 
+at org.apache.pig.piggybank.storage.avro.AvroStorageUtils.containsGenericUnion(AvroStorageUtils.java:262) 
+at org.apache.pig.piggybank.storage.avro.AvroStorageUtils.containsGenericUnion(AvroStorageUtils.java:262) 
+at org.apache.pig.piggybank.storage.avro.AvroStorageUtils.containsGenericUnion(AvroStorageUtils.java:271) 
+at org.apache.pig.piggybank.storage.avro.AvroStorageUtils.containsGenericUnion(AvroStorageUtils.java:284) 
+at org.apache.pig.piggybank.storage.avro.AvroStorageUtils.containsGenericUnion(AvroStorageUtils.java:262) 
+at org.apache.pig.piggybank.storage.avro.AvroStorageUtils.containsGenericUnion(AvroStorageUtils.java:271) 
+at org.apache.pig.piggybank.storage.avro.AvroStorageUtils.containsGenericUnion(AvroStorageUtils.java:284) 
+at org.apache.pig.piggybank.storage.avro.AvroStorageUtils.containsGenericUnion(AvroStorageUtils.java:262) 
+at org.apache.pig.piggybank.storage.avro.AvroStorageUtils.containsGenericUnion(AvroStorageUtils.java:271) 
+at org.apache.pig.piggybank.storage.avro.AvroStorageUtils.containsGenericUnion(AvroStorageUtils.java:284) 
+at org.apache.pig.piggybank.storage.avro.AvroStorageUtils.containsGenericUnion(AvroStorageUtils.java:262) 
+at org.apache.pig.piggybank.storage.avro.AvroStorageUtils.containsGenericUnion(AvroStorageUtils.java:271) 
+at org.apache.pig.piggybank.storage.avro.AvroStorageUtils.containsGenericUnion(AvroStorageUtils.java:284) 
+at org.apache.pig.piggybank.storage.avro.AvroStorageUtils.containsGenericUnion(AvroStorageUtils.java:262) 
+at org.apache.pig.piggybank.storage.avro.AvroStorageUtils.containsGenericUnion(AvroStorageUtils.java:271) 
+at org.apache.pig.piggybank.storage.avro.AvroStorageUtils.containsGenericUnion(AvroStorageUtils.java:284) 
+at org.apache.pig.piggybank.storage.avro.AvroStorageUtils.containsGenericUnion(AvroStorageUtils.java:262) 
+at org.apache.pig.piggybank.storage.avro.AvroStorageUtils.containsGenericUnion(AvroStorageUtils.java:271) 
+at org.apache.pig.piggybank.storage.avro.AvroStorageUtils.containsGenericUnion(AvroStorageUtils.java:284) 
+at org.apache.pig.piggybank.storage.avro.AvroStorageUtils.containsGenericUnion(AvroStorageUtils.java:262) 
+at org.apache.pig.piggybank.storage.avro.AvroStorageUtils.containsGenericUnion(AvroStorageUtils.java:271) 
+at org.apache.pig.piggybank.storage.avro.AvroStorageUtils.containsGenericUnion(AvroStorageUtils.java:284)
+
+
+
+I did verify the avro schema using avro-tools and dump the data as json format, data looks good.

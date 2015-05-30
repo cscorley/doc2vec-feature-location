@@ -1,0 +1,7 @@
+As Mahout is currently lacking a distributed collaborative filtering algorithm that uses matrix factorization, I spent some time reading through a couple of the Netflix papers and stumbled upon the "Large-scale Parallel Collaborative Filtering for the Netﬂix Prize" available at http://www.hpl.hp.com/personal/Robert_Schreiber/papers/2008%20AAIM%20Netflix/netflix_aaim08(submitted).pdf.
+
+It describes a parallel algorithm that uses "Alternating-Least-Squares with Weighted-λ-Regularization" to factorize the preference-matrix and gives some insights on how the authors distributed the computation using Matlab.
+
+It seemed to me that this approach could also easily be parallelized using Map/Reduce, so I sat down and created a prototype version. I'm not really sure I got the mathematical details correct (they need some optimization anyway), but I wanna put up my prototype implementation here per Yonik's law of patches.
+
+Maybe someone has the time and motivation to work a little on this with me. It would be great if someone could validate the approach taken (I'm willing to help as the code might not be intuitive to read) and could try to factorize some test data and give feedback then.

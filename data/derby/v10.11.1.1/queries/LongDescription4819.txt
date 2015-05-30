@@ -1,0 +1,24 @@
+While working on DERBY-4812, I noticed the following code in MasterReceiverThread,run().
+I am not familiar enough with replication to know if the MasterReceiverThread can recover from such errors.  If it cannot i think it would better to have a clear failure at the time of the error than just a subsequent NullPointerException.
+As the todo says, the exceptions should at least be logged.
+
+Also I just noticed this one bit of code, so don't know if there are similar issues or TODO's elsewhere in replication code.
+
+
+                } catch (SocketTimeoutException ste) 
+{
+                    // ignore socket timeout on reads
+                }
+ catch (ClassNotFoundException cnfe) 
+{
+                    // TODO: print problem to log
+                }
+ catch (IOException ex) 
+{
+                    // TODO: print problem to log
+                    // If we get an exception for this socket, the log shipper
+                    // will clean up. Stop this thread.
+                    stopMessageReceiver = true;
+                    msgReceiver = null;
+                }
+            }

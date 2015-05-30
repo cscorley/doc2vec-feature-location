@@ -1,0 +1,67 @@
+Java deadlock involving BasePage.releaseExclusive and Observable.deleteObserver, the observable being a BaseContainerHandle instance, seen when running  AutomaticIndexStatisticsTest.testShutdownWhileScanningThenDelete.
+The activities involved are a scan of a conglomerate and the index statistics daemon being stopped as part of the database shutdown.
+
+Here are the relevant parts of the stack trace:
+"index-stat-thread" daemon prio=10 tid=0x00007f4e34244000 nid=0x380b waiting for monitor entry [0x00007f4e30aef000]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at java.util.Observable.deleteObserver(Observable.java:95)
+
+	waiting to lock <0x00000000f51132d0> (a org.apache.derby.impl.store.raw.data.BaseContainerHandle)
+        at org.apache.derby.impl.store.raw.data.BasePage.releaseExclusive(BasePage.java:1819)
+	locked <0x00000000f6d5a280> (a org.apache.derby.impl.store.raw.data.StoredPage)
+        at org.apache.derby.impl.store.raw.data.CachedPage.releaseExclusive(CachedPage.java:531)
+        at org.apache.derby.impl.store.raw.data.StoredPage.releaseExclusive(StoredPage.java:1066)
+        at org.apache.derby.impl.store.raw.data.BasePage.unlatch(BasePage.java:1371)
+        at org.apache.derby.impl.store.access.btree.ControlRow.release(ControlRow.java:926)
+        at org.apache.derby.impl.store.access.btree.BTreeScan.savePositionAndReleasePage(BTreeScan.java:2146)
+        at org.apache.derby.impl.store.access.btree.BTreeForwardScan.fetchRows(BTreeForwardScan.java:442)
+        at org.apache.derby.impl.store.access.btree.BTreeScan.fetchNextGroup(BTreeScan.java:1681)
+        at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl$KeyComparator.fetchRows(IndexStatisticsDaemonImpl.java:1221)
+        at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.updateIndexStatsMinion(IndexStatisticsDaemonImpl.java:463)
+        at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.generateStatistics(IndexStatisticsDaemonImpl.java:323)
+        at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.processingLoop(IndexStatisticsDaemonImpl.java:794)
+        at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.run(IndexStatisticsDaemonImpl.java:710)
+        at java.lang.Thread.run(Thread.java:679)
+
+
+
+"main":
+        at org.apache.derby.impl.store.raw.data.BasePage.isLatched(BasePage.java:1383)
+
+	waiting to lock <0x00000000f6d5a280> (a org.apache.derby.impl.store.raw.data.StoredPage)
+        at org.apache.derby.impl.store.raw.data.BasePage.update(BasePage.java:1621)
+        at java.util.Observable.notifyObservers(Observable.java:159)
+        at java.util.Observable.notifyObservers(Observable.java:115)
+        at org.apache.derby.impl.store.raw.data.BaseContainerHandle.informObservers(BaseContainerHandle.java:1008)
+        at org.apache.derby.impl.store.raw.data.BaseContainerHandle.close(BaseContainerHandle.java:414)
+	locked <0x00000000f51132d0> (a org.apache.derby.impl.store.raw.data.BaseContainerHandle)
+        at org.apache.derby.impl.store.access.btree.OpenBTree.close(OpenBTree.java:490)
+        at org.apache.derby.impl.store.access.btree.BTreeScan.closeForEndTransaction(BTreeScan.java:2021)
+        at org.apache.derby.impl.store.access.btree.index.B2IForwardScan.closeForEndTransaction(B2IForwardScan.java:107)
+        at org.apache.derby.impl.store.access.RAMTransaction.closeControllers(RAMTransaction.java:245)
+        at org.apache.derby.impl.store.access.RAMTransactionContext.cleanupOnError(RAMTransactionContext.java:97)
+        at org.apache.derby.iapi.services.context.ContextManager.cleanupOnError(ContextManager.java:343)
+        at org.apache.derby.impl.services.daemon.IndexStatisticsDaemonImpl.stop(IndexStatisticsDaemonImpl.java:919)
+	locked <0x00000000f4a5a070> (a java.util.ArrayList)
+        at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.disableIndexStatsRefresher(DataDictionaryImpl.java:13891)
+        at org.apache.derby.impl.db.DatabaseContextImpl.cleanupOnError(DatabaseContextImpl.java:69)
+        at org.apache.derby.iapi.services.context.ContextManager.cleanupOnError(ContextManager.java:343)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.cleanupOnError(TransactionResourceImpl.java:437)
+        at org.apache.derby.impl.jdbc.EmbedConnection.<init>(EmbedConnection.java:633)
+        at org.apache.derby.impl.jdbc.EmbedConnection30.<init>(EmbedConnection30.java:73)
+        at org.apache.derby.impl.jdbc.EmbedConnection40.<init>(EmbedConnection40.java:51)
+        at org.apache.derby.jdbc.Driver40.getNewEmbedConnection(Driver40.java:70)
+        at org.apache.derby.jdbc.InternalDriver.connect(InternalDriver.java:248)
+        at org.apache.derby.jdbc.EmbeddedDataSource.getConnection(EmbeddedDataSource.java:480)
+        at org.apache.derby.jdbc.EmbeddedDataSource.getConnection(EmbeddedDataSource.java:424)
+        at org.apache.derbyTesting.junit.JDBCDataSource.shutdownDatabase(JDBCDataSource.java:266)
+        at org.apache.derbyTesting.functionTests.tests.store.AutomaticIndexStatisticsTest.testShutdownWhileScanningThenDelete(AutomaticIndexStatisticsTest.java:187)
+
+
+
+I have access to a machine on which this can be reproduced pretty simple. It's an Intel(R) Core(TM)2 Duo CPU E8500 @ 3.16GHz running Fedora 15.
+Java is:
+OpenJDK Runtime Environment (IcedTea6 1.10.2) (fedora-58.1.10.2.fc15-x86_64)
+OpenJDK 64-Bit Server VM (build 20.0-b11, mixed mode)
+
+In a way this bug is critical, since it causes two threads to hang forever. However, for it to happen the database must be shut down while the index statistics daemon is doing work and the timing must be right. There may be other ways to trigger the bug where Observable.update and BasePage.releaseExclusive are involved.

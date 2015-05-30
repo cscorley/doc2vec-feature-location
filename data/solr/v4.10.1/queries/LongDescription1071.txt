@@ -1,0 +1,64 @@
+When: wt=json & spellcheck.extendedResults=true & spellcheck.count > 1, the suggestions are returned in the following format:
+
+"suggestions":[
+	"amsterdm",{
+	 "numFound":5,
+	 "startOffset":0,
+	 "endOffset":8,
+	 "origFreq":0,
+	 "suggestion":
+{
+	  "frequency":8498,
+	  "word":"amsterdam"}
+,
+	 "suggestion":
+{
+	  "frequency":1,
+	  "word":"amsterd"}
+,
+	 "suggestion":
+{
+	  "frequency":8,
+	  "word":"amsterdams"}
+,
+	 "suggestion":
+{
+	  "frequency":1,
+	  "word":"amstedam"}
+,
+	 "suggestion":{
+	  "frequency":22,
+	  "word":"amsterdamse"}},
+	"beak",{
+	 "numFound":5,
+	 "startOffset":9,
+	 "endOffset":13,
+	 "origFreq":0,
+	 "suggestion":
+{
+	  "frequency":379,
+	  "word":"beek"}
+,
+	 "suggestion":
+{
+	  "frequency":26,
+	  "word":"beau"}
+,
+	 "suggestion":
+{
+	  "frequency":26,
+	  "word":"baak"}
+,
+	 "suggestion":
+{
+	  "frequency":15,
+	  "word":"teak"}
+,
+	 "suggestion":{
+	  "frequency":11,
+	  "word":"beuk"}},
+	"correctlySpelled",false,
+	"collation","amsterdam beek"]}}
+
+This is an invalid json as each term is associated with a JSON object which holds multiple "suggestion" attributes. When working with a JSON library only the last "suggestion" attribute is picked up.
+

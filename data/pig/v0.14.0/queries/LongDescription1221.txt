@@ -1,0 +1,104 @@
+From the documentation I understand that it should be possible to  filter a relation based on the equality of tuples. http://wiki.apache.org/pig/PigTypesFunctionalSpec , http://hadoop.apache.org/pig/docs/r0.5.0/piglatin_reference.html#deref:
+
+ However with this data file
+
+– indext.txt:
+(1,one) (1,ONE)
+(2,two) (22, twentytwo)
+(3,three)       (3,three)
+
+I run this pig script:
+A = LOAD 'indext.txt' AS (t1:(a:int, b:chararray), t2:(a:int, b:chararray)); B = FILTER A BY t1==t2; DUMP B;
+Expecting the output:
+((3,three),(3,three))
+
+However there is an error:
+2010-02-03 09:05:20,523 [main] ERROR org.apache.pig.tools.grunt.Grunt 
+
+	ERROR 2067: EqualToExpr does not know how to handle type: tuple
+> Pig Stack Trace
+> ---------------
+> ERROR 2067: EqualToExpr does not know how to handle type: tuple
+> org.apache.pig.impl.logicalLayer.FrontendException: ERROR 1066:  
+> Unable to
+> open iterator for alias B
+>        at org.apache.pig.PigServer.openIterator(PigServer.java:475)
+>        at
+> org.apache.pig.tools.grunt.GruntParser.processDump(GruntParser.java: 
+> 532)
+>        at
+> org
+> .apache
+> .pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.
+> java:190)
+>        at
+> org
+> .apache
+> .pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:166
+> )
+>        at
+> org
+> .apache
+> .pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:142
+> )
+>        at org.apache.pig.tools.grunt.Grunt.exec(Grunt.java:89)
+>        at org.apache.pig.Main.main(Main.java:397)
+> Caused by: org.apache.pig.impl.logicalLayer.FrontendException: ERROR
+> 1002:
+> Unable to store alias B
+>        at org.apache.pig.PigServer.store(PigServer.java:530)
+>        at org.apache.pig.PigServer.openIterator(PigServer.java:458)
+>        ... 6 more
+> Caused by: org.apache.pig.backend.executionengine.ExecException:  
+> ERROR 2067:
+> EqualToExpr does not know how to handle type: tuple
+>        at
+> org
+> .apache
+> .pig.backend.hadoop.executionengine.physicalLayer.expressionOperat
+> ors.EqualToExpr.getNext(EqualToExpr.java:108)
+>        at
+> org
+> .apache
+> .pig.backend.hadoop.executionengine.physicalLayer.relationalOperat
+> ors.POFilter.getNext(POFilter.java:148)
+>        at
+> org
+> .apache
+> .pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator
+> .processInput(PhysicalOperator.java:231)
+>        at
+> org
+> .apache
+> .pig.backend.local.executionengine.physicalLayer.counters.POCounte
+> r.getNext(POCounter.java:71)
+>        at
+> org
+> .apache
+> .pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator
+> .processInput(PhysicalOperator.java:231)
+>        at
+> org
+> .apache
+> .pig.backend.hadoop.executionengine.physicalLayer.relationalOperat
+> ors.POStore.getNext(POStore.java:117)
+>        at
+> org
+> .apache
+> .pig.backend.local.executionengine.LocalPigLauncher.runPipeline(Lo
+> calPigLauncher.java:146)
+>        at
+> org
+> .apache
+> .pig.backend.local.executionengine.LocalPigLauncher.launchPig(Loca
+> lPigLauncher.java:109)
+>        at
+> org
+> .apache
+> .pig.backend.local.executionengine.LocalExecutionEngine.execute(Lo
+> calExecutionEngine.java:165)
+
+
+
+Thanks
+Neil

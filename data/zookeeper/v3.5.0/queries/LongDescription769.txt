@@ -1,0 +1,12 @@
+In short: it seems leader can treat observers as quorum members.
+
+Steps to repro:
+
+1. Server configuration: 3 voters, 2 observers (attached).
+2. Bring up 2 voters and one observer. It's enough for quorum.
+3. Shut down the one from the quorum who is the follower.
+
+As I understand, expected result is that leader will start a new election round so that to regain quorum.
+But the real situation is that it just says goodbye to that follower, and is still operable. (When I'm shutting down 3rd one – observer – leader starts trying to regain a quorum).
+
+(Expectedly, if on step 3 we shut down the leader, not the follower, remaining follower starta new leader election, as it should be).

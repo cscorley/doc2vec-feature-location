@@ -1,0 +1,65 @@
+1. Two input files:
+
+1a: limit_empty.input_a
+1
+1
+1
+
+1b: limit_empty.input_b
+2
+2
+
+2.
+The pig script: limit_empty.pig
+
+– A contains only 1's & B contains only 2's
+A = load 'limit_empty.input_a' as (a1:int);
+B = load 'limit_empty.input_a' as (b1:int);
+
+C =COGROUP A by a1, B by b1;
+D = FOREACH C generate A, B, (IsEmpty(A)? 0:1), (IsEmpty(B)? 0:1), COUNT(A), COUNT(B);
+store D into 'limit_empty.output/d';
+– After the script done, we see the right results:
+– 
+{(1),(1),(1)}   {}      1       0       3       0
+– {}         {(2),(2)}      0       1       0       2
+
+C1 = foreach C { Alim = limit A 1; Blim = limit B 1; generate Alim, Blim; }
+D1 = FOREACH C1 generate Alim,Blim, (IsEmpty(Alim)? 0:1), (IsEmpty(Blim)? 0:1), COUNT(Alim), COUNT(Blim);
+store D1 into 'limit_empty.output/d1';
+– After the script done, we see the unexpected results:
+– {(1)}   {}        1       1       1       0
+– {}      {(2)}     1       1       0       1
+
+dump D;
+dump D1;
+
+3. Run the scrip and redirect the stdout (2 dumps) file. There are two issues:
+
+The major one:
+
+IsEmpty() returns FALSE for empty bag in limit_empty.output/d1/, while IsEmpty() returns correctly in limit_empty.output/d/.
+
+The difference is that one has been applied with "LIMIT" before using IsEmpty().
+
+The minor one:
+
+The redirected output only contains the first dump:
+
+({(1),(1),(1)}
+,{},1,0,3L,0L)
+({},
+{(2),(2)}
+,0,1,0L,2L)
+
+We expect two more lines like:
+(
+{(1)}
+,{},1,1,1L,0L)
+({},
+{(2)}
+,1,1,0L,1L)
+
+Besides, there is error says:
+
+[main] ERROR org.apache.pig.backend.hadoop.executionengine.HJob - java.lang.ClassCastException: java.lang.Integer cannot be cast to org.apache.pig.data.Tuple

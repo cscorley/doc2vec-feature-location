@@ -1,0 +1,22 @@
+I've encountered what appears to be a bug related to threading. After an INSERT operation, if the invoking thread terminates too quickly, Derby throws an XSDG.
+
+The bug is a bit difficult to isolate but it occurs consistently in the following situation (with a particular database and an operation of a particular size):
+
+Derby is running in embedded mode with autocommit on.  
+The application performs an INPUT operation from a thread that is not the main thread.  The INPUT is issued using a PreparedStatement.  The INPUT adds ~ 256 records of six fields each. (Note that INSERTs of this size seem to work fine in other contexts.)
+
+The preparedStatement.executeUpdate() seems to excute successfully; at least it returns without throwing an exception. 
+
+The thread that invoked the INPUT operation then terminates (but NOT the application).  The next INPUT operation then results in an
+
+"ERROR XSDG1: Page Page(7,Container(0, 1344)) could not be written to disk, please check if disk is full."
+
+The disk is definitely not full.
+
+HOWEVER, if I put the calling thread to sleep for a second before it exits, the problem does not occur.
+
+I'm not quite sure what to make of this.  I was under the impression that most of Derby's activity occurs in the application's threads.  Could Derby be creating a child thread from in the application thread, which dies when the parent thread terminates?
+
+Thanks
+
+

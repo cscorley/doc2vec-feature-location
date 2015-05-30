@@ -1,0 +1,46 @@
+When running a modified version of lang.OrderByAndSortAvoidance I get the following error:
+
+java.sql.SQLDataException: A truncation error was encountered trying to shrink CHAR 'Thread[DRDAConnThread_3,5,derby.daemons]' to length 32.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:79)
+	at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Util.java:256)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:391)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:346)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:2269)
+	at org.apache.derby.impl.jdbc.ConnectionChild.handleException(ConnectionChild.java:81)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1321)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeStatement(EmbedPreparedStatement.java:1673)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeUpdate(EmbedPreparedStatement.java:303)
+	at org.apache.derby.impl.sql.execute.xplain.XPLAINSystemTableVisitor.addStmtDescriptorsToSystemCatalog(XPLAINSystemTableVisitor.java:390)
+	at org.apache.derby.impl.sql.execute.xplain.XPLAINSystemTableVisitor.doXPLAIN(XPLAINSystemTableVisitor.java:317)
+	at org.apache.derby.impl.sql.execute.NoPutResultSetImpl.close(NoPutResultSetImpl.java:179)
+	at org.apache.derby.impl.sql.execute.SortResultSet.close(SortResultSet.java:467)
+	at org.apache.derby.impl.jdbc.EmbedResultSet.close(EmbedResultSet.java:575)
+	at org.apache.derby.impl.drda.DRDAResultSet.close(DRDAResultSet.java:338)
+	at org.apache.derby.impl.drda.DRDAStatement.rsClose(DRDAStatement.java:995)
+	at org.apache.derby.impl.drda.DRDAConnThread.doneData(DRDAConnThread.java:7446)
+	at org.apache.derby.impl.drda.DRDAConnThread.writeFDODTA(DRDAConnThread.java:7026)
+	at org.apache.derby.impl.drda.DRDAConnThread.writeQRYDTA(DRDAConnThread.java:6910)
+	at org.apache.derby.impl.drda.DRDAConnThread.processCommands(DRDAConnThread.java:870)
+	at org.apache.derby.impl.drda.DRDAConnThread.run(DRDAConnThread.java:294)
+Caused by: java.sql.SQLException: A truncation error was encountered trying to shrink CHAR 'Thread[DRDAConnThread_3,5,derby.daemons]' to length 32.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(SQLExceptionFactory40.java:119)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:70)
+	... 20 more
+Caused by: ERROR 22001: A truncation error was encountered trying to shrink CHAR 'Thread[DRDAConnThread_3,5,derby.daemons]' to length 32.
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:343)
+	at org.apache.derby.iapi.types.SQLChar.hasNonBlankChars(SQLChar.java:1767)
+	at org.apache.derby.iapi.types.SQLChar.normalize(SQLChar.java:1743)
+	at org.apache.derby.iapi.types.SQLChar.normalize(SQLChar.java:1695)
+	at org.apache.derby.iapi.types.DataTypeDescriptor.normalize(DataTypeDescriptor.java:648)
+	at org.apache.derby.impl.sql.execute.NormalizeResultSet.normalizeColumn(NormalizeResultSet.java:329)
+	at org.apache.derby.impl.sql.execute.NormalizeResultSet.normalizeRow(NormalizeResultSet.java:373)
+	at org.apache.derby.impl.sql.execute.NormalizeResultSet.getNextRowCore(NormalizeResultSet.java:188)
+	at org.apache.derby.impl.sql.execute.DMLWriteResultSet.getNextRowCore(DMLWriteResultSet.java:127)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.open(InsertResultSet.java:504)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:436)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:317)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1232)
+	... 14 more
+
+I suspect the error can be triggered easily in client/server, but for convenience I'll attach the patch for the test where I see the issue.

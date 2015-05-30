@@ -1,0 +1,16 @@
+PIG-3829 handles some cases, but NPE can be still thrown for custom counters in Tez mode. For example, the following query fails with NPE-
+
+
+SET opt.fetch false;
+SET pig.udf.profile true;
+a = LOAD 'foo' AS (x:chararray);
+b = FOREACH a GENERATE LOWER(x);
+DUMP b;
+
+
+
+The problem is that PigStatusReport.getInstance().getCounter() returns null since TezStatusReporter is used in Tez.
+
+
+PigStatusReporter.getInstance().getCounter(counterGroup, INVOCATION_COUNTER).increment(TIMING_FREQ);
+

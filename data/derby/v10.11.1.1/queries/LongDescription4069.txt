@@ -1,0 +1,39 @@
+The regression test OLAPTest.java contains this query:
+
+   create table t1 (a int, b int)
+   insert into t1 values (10,100),(20,200),(30,300),(40,400),(50,500)
+   select row_number() over () as r, t1.* from t1 order by b desc
+
+and the result is asserted to be
+
+   expectedRows = new String[][]{{"1", "50", "500"}, 
+                                 
+{"2", "40", "400"}
+, 
+                                 
+{"3", "30", "300"}
+,
+                                 
+{"4", "20", "200"}
+, 
+                                 {"5", "10", "100"}};
+
+The test succeeds, but I believe the canon is wrong here.
+
+ORDER BY should be applied at the cursor level, that is after a
+windowing clause in the select expression has been applied, so we would
+expect to see:
+
+   
+{"5", "50", "500"}
+, 
+{"4", "40", "400"}
+ ...
+
+Note: It should be added that since the window does not contain any
+<window order clause>, cf. SQL:2003 section 7.11, the actual ordering
+of the rows in the window is implementation dependent.  In Derby,
+without the query's ORDER BY, the rows are ordered as in the INSERT
+statement above, so I think this reflects a bug in the
+implementation.
+

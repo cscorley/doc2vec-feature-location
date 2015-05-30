@@ -1,0 +1,3 @@
+In StateManagerImpl.proxyFields(), we blindly replace the proxy fields as long as they loaded.  We can be slightly more efficient if we also verify that the field has been dirtied before doing the replacement.
+
+The original intent of this JIRA was to just resolve the issue with proxyFields.  But, as I continue to dive into this flush() path, there are a few other minor updates that need to be done (reference the comments on this JIRA).

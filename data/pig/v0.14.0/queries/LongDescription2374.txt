@@ -1,0 +1,26 @@
+Streaming seems to be broken in dotNext. There are several tests that are failing.
+The results from C below produce clean results.
+The results from D which are streamed through CMD produce control characters on some of the output.
+
+define CMD `perl GroupBy.pl '\t' 0` ship('/homes/monster/pigtest/pigtest_next/pigharness/dist/pig_harness/libexec/PigTest/GroupBy.pl');
+A = load '/user/user1/pig/tests/data/singlefile/studenttab10k';
+B = group A by $0;
+C = foreach B generate flatten(A);
+D = stream C through CMD;
+store C into '/user/user1/pig/out/user1.1321117428/ComputeSpec_7_C.out';
+store D into '/user/user1/pig/out/user1.1321117428/ComputeSpec_7_D.out';
+
+
+
+Other streaming tests that fail with control characters:
+EST FAILED <ComputeSpec_7>
+TEST FAILED <ComputeSpec_8>
+TEST FAILED <ComputeSpec_10>
+TEST FAILED <ComputeSpec_11>
+TEST FAILED <ComputeSpec_12>
+TEST FAILED <JobManagement_2>
+TEST FAILED <JobManagement_3>
+TEST FAILED <StreamingIO_4>
+TEST FAILED <NonStreaming_1>
+TEST FAILED <MultiQuery_21>
+...

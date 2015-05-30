@@ -1,0 +1,10 @@
+  query = em.createQuery(
+    "select e.department from Employee e where e.id < 10 order by e.department.id").setFirstResult(3);
+  query.setLockMode(LockModeType.PESSIMISTIC_READ);
+  q = query.getResultList();
+
+yields the following SQL statement but with no lock on the Employee row:
+
+openjpa.Runtime: Info: The database is unable to lock this query.  Each object matching the query will be locked individually after it is loaded; however, it is technically possible that another transaction could modify the data before the lock is obtained.  See the documentation on Object Locking for details.
+"SELECT t1.ID, t1.NAME, t0.FK_DEPT FROM CTS1.EMPLOYEE t0 LEFT OUTER JOIN CTS1.DEPARTMENT t1 ON t0.FK_DEPT = t1.ID WHERE (t0.ID < CAST(? AS BIGINT)) ORDER BY t0.FK_DEPT ASC " 
+openjpa.jdbc.SQL: Trace: <t 2035185998, conn 1784113751> executing prepstmnt 1845128698 SELECT t1.ID, t1.NAME, t0.FK_DEPT FROM CTS1.EMPLOYEE t0 LEFT OUTER JOIN CTS1.DEPARTMENT t1 ON t0.FK_DEPT = t1.ID WHERE (t0.ID < CAST(? AS BIGINT)) ORDER BY t0.FK_DEPT ASC  [params=(long) 10]

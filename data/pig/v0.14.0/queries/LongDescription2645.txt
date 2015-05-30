@@ -1,0 +1,12 @@
+In PigSplit.java, line 254:
+
+
+SerializationFactory sf = new SerializationFactory(conf);
+Serializer s = sf.getSerializer(wrappedSplits[0].getClass());
+s.open((OutputStream) os);
+
+
+sf.getSerializer returns null when it cannot find a serializer for a given object. Instead of handling this properly, a NPE is thrown when s.open() is called.
+
+This is easy to encounter when creating a custom InputSplit from the mapreduce package which is an abstract class that DOES NOT implement Writable.
+However it's easy to miss because InputSplit from the mapred package is an interface that extends Writable, and InputSplits often both extend and implement both the new and old InputSplit abstract class and interface (thereby becoming Writable).

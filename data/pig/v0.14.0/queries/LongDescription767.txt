@@ -1,0 +1,36 @@
+The following script:
+
+urlContents = LOAD 'inputdir' USING BinStorage() AS (url:bytearray, pg:bytearray);
+– describe and dump are in-sync
+DESCRIBE urlContents;
+DUMP urlContents;
+
+urlContentsG = GROUP urlContents BY url;
+DESCRIBE urlContentsG;
+
+urlContentsF = FOREACH urlContentsG GENERATE group,urlContents.pg;
+
+DESCRIBE urlContentsF;
+DUMP urlContentsF;
+
+
+Prints for the DESCRIBE commands:
+
+urlContents: 
+{url: chararray,pg: chararray}
+urlContentsG: {group: chararray,urlContents: {url: chararray,pg: chararray}}
+urlContentsF: {group: chararray,pg: {pg: chararray}}
+
+The reported schemas for urlContentsG and urlContentsF are wrong. They are also against the section "Schemas for Complex Data Types" in http://wiki.apache.org/pig-data/attachments/FrontPage/attachments/plrm.htm#_Schemas.
+
+As expected, actual data observed from DUMP urlContentsG and DUMP urlContentsF do contain the tuple inside the inner bags.
+
+The correct schema for urlContentsG is:  {group: chararray,urlContents: {t1:(url: chararray,pg: chararray)}}
+
+This may sound like a technicality, but it isn't. For instance, a UDF that assumes an inner bag of 
+{chararray}
+ will not work with 
+{(chararray)}
+. 
+
+

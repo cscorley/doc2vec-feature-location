@@ -1,0 +1,26 @@
+Hi all,
+
+while Tika already provides a parser for HTML that extracts the plain text from it, the output generally contains all text portions, including the surplus "clutter" such as navigation menus, links to related pages etc. around the actual main content. This "boilerplate text" typically is not related to the main content and may deteriorate search precision.
+
+I think Tika should be able to automatically detect and remove the boilerplate text. I propose to use "boilerpipe" for this purpose, an Apache 2.0 licensed Java library written by me. Boilerpipe provides both generic and specific strategies for common tasks (for example: news article extraction) and may also be easily extended for individual problem settings.
+
+Extracting content is very fast (milliseconds), just needs the input document (no global or site-level information required) and is usually quite accurate. In fact, it outperformed the state-of-the-art approaches for several test collections.
+
+The algorithms used by the library are based on (and extending) some concepts of my paper "Boilerplate Detection using Shallow Text Features", presented at WSDM 2010 – The Third ACM International Conference on Web Search and Data Mining New York City, NY USA. (online at http://www.l3s.de/~kohlschuetter/boilerplate/ )
+
+To use boilerpipe with Tika, I have developed a custom ContentHandler (BoilerpipeContentHandler; provided as a patch to tika-parsers) that can simply be passed to HtmlParser#parse. The BoilerpipeContentHandler can be configured in several ways, particularly which extraction strategy should be used and where the extracted content should go – into Metadata or to a Writer).
+
+I also provide a patch to TikaCLI, such that you can use boilerpipe via Tika from the command line (use a capital "-T" flag instead of "-t" to extract the main content only).
+
+I must note that boilerplate removal is considered a research problem:
+
+While one can always find clever rules to extract the main content from particular web pages with 100% accuracy, applying it to random, previously unseen pages on the web is non-trivial.
+
+In my paper, I have shown that on the Web (i.e. independent of a particular site owner, page layout etc.), textual content can apparently be grouped into two classes, long text (i.e., a lot of subsequent words without markup – most likely the actual content) and short text (i.e., a few words between two HTML tags, most likely navigational boilerplate text) respectively. Removing the words from the short text class alone already is a good strategy for cleaning boilerplate and using a combination of multiple shallow text features achieves an almost perfect accuracy. To a large extent the detection of boilerplate text does not require any inter-document knowledge (frequency of text blocks, common page layout etc.) nor any training at token level. The costs for detecting boilerplates are negligible, as it comes down simply to counting words.
+
+The algorithms provided in my paper seem to generally work well and especially for news article-like pages (for a Zipf-representative collection of English news pages crawled via Google News: 90-95% F1 on average, 95-98% F1 median), well ahead of the competition (78-89% avg. F1, 87-95% median F1).
+
+Patches are attached, questions welcome.
+
+Best,
+Christian

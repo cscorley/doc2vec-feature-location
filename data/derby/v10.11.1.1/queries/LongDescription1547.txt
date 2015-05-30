@@ -1,0 +1,5 @@
+getDatabaseProductVersion and getDriverVersion() report only the four digit Derby version number and not the svn build number.   It would be useful to return  the full version including the build number  as sysinfo does: e.g. "10.1.2.4 - (392472)", That way it will be clear from application logs that collect this information exactly what revision level they are running if they are using rolled up fixes on the maintenance branch between releases.
+
+There may be risk in doing this however if applications are parsing the version information, but hopefully they will use getDatabaseMajorVersion() , getDatbaseMinorVersion, getDriverMajorVersion, and getDriverMinorVersion for such proccessing.  
+
+

@@ -1,0 +1,20 @@
+Macro alias masker doesn't consider the current schema context. This results errors when deciding with alias to mask. Here is an example:
+
+
+
+define toBytearray(in, intermediate) returns e { 
+   a = load '$in' as (name:chararray, age:long, gpa: float);
+   b = group a by  name;
+   c = foreach b generate a, (1,2,3);
+   store c into '$intermediate' using BinStorage();
+   d = load '$intermediate' using BinStorage() as (b:bag{t:tuple(x,y,z)}, t2:tuple(a,b,c));
+   $e = foreach d generate COUNT(b), t2.a, t2.b, t2.c;
+};
+ 
+f = toBytearray ('data', 'output1');
+
+ 
+
+Now the alias masker mistakes b in COUNT(b) as an alias instead of b in the current schema.
+
+The workaround is to not use alias as as names in the schema definition. 

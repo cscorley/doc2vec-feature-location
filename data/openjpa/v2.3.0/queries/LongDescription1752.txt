@@ -1,0 +1,160 @@
+TestPessimisticLocks JUNIT tests pass all assertions for Derby backend, but failures are seen on DB2, MySQL, Oracle.
+It is likely that failures may also occur on other backends.
+
+There could be some problem in OpenJPA code in handling pessimistic lock requests.
+There is also inconsistency in reporting exceptions - lock timout or query timeout should be non-fatal; but with Derby the PessimisticLockException is reported  which is considered fatal. It is also possible that the test scenarios are problematic.
+
+TestPessisimiticLocks has 5 test cases, the last test case worked for all backend. Problem test cases are listed as below:
+
+1.  testFindAfterQueryWithPessimisticLocks()
+2.  testFindAfterQueryOrderByWithPessimisticLocks()
+3.  testQueryAfterFindWithPessimisticLocks()
+4.  testQueryOrderByAfterFindWithPessimisticLocks()
+
+
+The failure symptoms are summarized below -   Each test contains 2 variations.
+The dot notation, for example, 1.1 is the first scenario in testFindAfterQueryWithPessimisticLocks() 
+Each test scenario is either expecting an exception or No exception; if no exception is reported, the SELECT sql got results from database.
+
+
+
+Tests       Derby                                        DB2V9.7                                 Oracle10gXE 10.2.0.1.0            MySQL 5.1.39/JDBC 5.1.7
+====================================================================================================================================
+1.1         PessimisticLockException      LockTimeoutException        LockTimeoutException              LockTimeoutException
+1.2         No exception                              No exception                          No exception                                No exception
+2.1         PessimisticLockException      LockTimeoutException        LockTimeoutException              LockTimeoutException
+2.2         No  exception                             LockTimeoutException        No exception                                LockTimeoutException
+3.1         No  exception                             QueryTimeoutException       process hang                            PersistenceException: Server shutdown [code=1053, state=08S01]  
+3.2         PessimisticLockException      QueryTimeoutException       process hang                            PersistenceException: Server shutdown [code=1053, state=08S01]
+4.1         No  exception                             QueryTimeoutException       No exception                             QueryTimeoutException
+4.2         PessimisticLockException      QueryTimeoutException       process hang                           QueryTimeoutException
+
+NOTE: for Oracle, many test scenarios caused process to hang (test 3.1, 3.2, and 4.2) - ie. test never run to completion
+      for MySQL, Server shutdown (test 3.1 and 3.2)
+      here is the  stack trace:
+
+org.apache.openjpa.persistence.PersistenceException:Server shutdown in progress 
+{prepstmnt 33525219 SELECT t1.id, t1.name FROM Employee t0 LEFT OUTER JOIN Department t1 ON t0.FK_DEPT = t1.id WHERE (t0.id < ?) LIMIT ?, ? FOR UPDATE [params=?, ?, ?]} [code=1053, state=08S01]
+<openjpa-2.1.0-SNAPSHOT-rexported fatal general error> org.apache.openjpa.persistence.PersistenceException: Server shutdown in progress {prepstmnt 33525219 SELECT t1.id, t1.name FROM Employee t0 LEFT OUTER JOIN Department t1 ON t0.FK_DEPT = t1.id WHERE (t0.id < ?) LIMIT ?, ? FOR UPDATE [params=?, ?, ?]}
+ [code=1053, state=08S01]
+FailedObject: select e.department from Employee e where e.id < 10 [java.lang.String]
+	at org.apache.openjpa.jdbc.sql.DBDictionary.narrow(DBDictionary.java:4855)
+	at org.apache.openjpa.jdbc.sql.DBDictionary.newStoreException(DBDictionary.java:4815)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:137)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:118)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:70)
+	at org.apache.openjpa.jdbc.kernel.SelectResultObjectProvider.handleCheckedException(SelectResultObjectProvider.java:155)
+	at org.apache.openjpa.kernel.QueryImpl$PackingResultObjectProvider.handleCheckedException(QueryImpl.java:2109)
+	at org.apache.openjpa.lib.rop.EagerResultList.<init>(EagerResultList.java:40)
+	at org.apache.openjpa.kernel.QueryImpl.toResult(QueryImpl.java:1246)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:1005)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:861)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:792)
+	at org.apache.openjpa.kernel.DelegatingQuery.execute(DelegatingQuery.java:542)
+	at org.apache.openjpa.persistence.QueryImpl.execute(QueryImpl.java:288)
+	at org.apache.openjpa.persistence.QueryImpl.getResultList(QueryImpl.java:302)
+	at org.apache.openjpa.persistence.lockmgr.TestPessimisticLocks.testQueryAfterFindWithPessimisticLocks(TestPessimisticLocks.java:271)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at org.apache.openjpa.persistence.test.AbstractPersistenceTestCase.runTest(AbstractPersistenceTestCase.java:516)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at org.apache.openjpa.persistence.test.AbstractPersistenceTestCase.runBare(AbstractPersistenceTestCase.java:503)
+	at org.apache.openjpa.persistence.test.AbstractPersistenceTestCase.runBare(AbstractPersistenceTestCase.java:479)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at org.apache.openjpa.persistence.test.AbstractPersistenceTestCase.run(AbstractPersistenceTestCase.java:179)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.eclipse.jdt.internal.junit.runner.junit3.JUnit3TestReference.run(JUnit3TestReference.java:128)
+	at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:460)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:673)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:386)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:196)
+Caused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: Server shutdown in progress 
+{prepstmnt 33525219 SELECT t1.id, t1.name FROM Employee t0 LEFT OUTER JOIN Department t1 ON t0.FK_DEPT = t1.id WHERE (t0.id < ?) LIMIT ?, ? FOR UPDATE [params=?, ?, ?]}
+ [code=1053, state=08S01]
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.wrap(LoggingConnectionDecorator.java:274)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.wrap(LoggingConnectionDecorator.java:258)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.access$3(LoggingConnectionDecorator.java:257)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection$LoggingPreparedStatement.executeQuery(LoggingConnectionDecorator.java:1176)
+	at org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement.executeQuery(DelegatingPreparedStatement.java:278)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager$CancelPreparedStatement.executeQuery(JDBCStoreManager.java:1773)
+	at org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement.executeQuery(DelegatingPreparedStatement.java:268)
+	at org.apache.openjpa.jdbc.sql.SelectImpl.executeQuery(SelectImpl.java:499)
+	at org.apache.openjpa.jdbc.sql.SelectImpl.execute(SelectImpl.java:424)
+	at org.apache.openjpa.jdbc.sql.SelectImpl.execute(SelectImpl.java:382)
+	at org.apache.openjpa.jdbc.kernel.SelectResultObjectProvider.open(SelectResultObjectProvider.java:94)
+	at org.apache.openjpa.kernel.QueryImpl$PackingResultObjectProvider.open(QueryImpl.java:2068)
+	at org.apache.openjpa.lib.rop.EagerResultList.<init>(EagerResultList.java:34)
+	... 30 more
+NestedThrowables:
+com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException: Server shutdown in progress
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance(Unknown Source)
+	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(Unknown Source)
+	at java.lang.reflect.Constructor.newInstance(Unknown Source)
+	at com.mysql.jdbc.Util.handleNewInstance(Util.java:406)
+	at com.mysql.jdbc.Util.getInstance(Util.java:381)
+	at com.mysql.jdbc.SQLError.createSQLException(SQLError.java:984)
+	at com.mysql.jdbc.SQLError.createSQLException(SQLError.java:956)
+	at com.mysql.jdbc.MysqlIO.checkErrorPacket(MysqlIO.java:3515)
+	at com.mysql.jdbc.MysqlIO.nextRowFast(MysqlIO.java:1545)
+	at com.mysql.jdbc.MysqlIO.nextRow(MysqlIO.java:1401)
+	at com.mysql.jdbc.MysqlIO.readSingleRowSet(MysqlIO.java:2829)
+	at com.mysql.jdbc.MysqlIO.getResultSet(MysqlIO.java:468)
+	at com.mysql.jdbc.MysqlIO.readResultsForQueryOrUpdate(MysqlIO.java:2534)
+	at com.mysql.jdbc.MysqlIO.readAllResults(MysqlIO.java:1749)
+	at com.mysql.jdbc.MysqlIO.sqlQueryDirect(MysqlIO.java:2159)
+	at com.mysql.jdbc.ConnectionImpl.execSQL(ConnectionImpl.java:2554)
+	at com.mysql.jdbc.PreparedStatement.executeInternal(PreparedStatement.java:1761)
+	at com.mysql.jdbc.PreparedStatement.executeQuery(PreparedStatement.java:1912)
+	at org.apache.commons.dbcp.DelegatingPreparedStatement.executeQuery(DelegatingPreparedStatement.java:93)
+	at org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement.executeQuery(DelegatingPreparedStatement.java:280)
+	at org.apache.openjpa.lib.jdbc.JDBCEventConnectionDecorator$EventPreparedStatement.executeQuery(JDBCEventConnectionDecorator.java:270)
+	at org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement.executeQuery(DelegatingPreparedStatement.java:278)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection$LoggingPreparedStatement.executeQuery(LoggingConnectionDecorator.java:1174)
+	at org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement.executeQuery(DelegatingPreparedStatement.java:278)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager$CancelPreparedStatement.executeQuery(JDBCStoreManager.java:1773)
+	at org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement.executeQuery(DelegatingPreparedStatement.java:268)
+	at org.apache.openjpa.jdbc.sql.SelectImpl.executeQuery(SelectImpl.java:499)
+	at org.apache.openjpa.jdbc.sql.SelectImpl.execute(SelectImpl.java:424)
+	at org.apache.openjpa.jdbc.sql.SelectImpl.execute(SelectImpl.java:382)
+	at org.apache.openjpa.jdbc.kernel.SelectResultObjectProvider.open(SelectResultObjectProvider.java:94)
+	at org.apache.openjpa.kernel.QueryImpl$PackingResultObjectProvider.open(QueryImpl.java:2068)
+	at org.apache.openjpa.lib.rop.EagerResultList.<init>(EagerResultList.java:34)
+	at org.apache.openjpa.kernel.QueryImpl.toResult(QueryImpl.java:1246)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:1005)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:861)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:792)
+	at org.apache.openjpa.kernel.DelegatingQuery.execute(DelegatingQuery.java:542)
+	at org.apache.openjpa.persistence.QueryImpl.execute(QueryImpl.java:288)
+	at org.apache.openjpa.persistence.QueryImpl.getResultList(QueryImpl.java:302)
+	at org.apache.openjpa.persistence.lockmgr.TestPessimisticLocks.testQueryAfterFindWithPessimisticLocks(TestPessimisticLocks.java:271)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at org.apache.openjpa.persistence.test.AbstractPersistenceTestCase.runTest(AbstractPersistenceTestCase.java:516)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at org.apache.openjpa.persistence.test.AbstractPersistenceTestCase.runBare(AbstractPersistenceTestCase.java:503)
+	at org.apache.openjpa.persistence.test.AbstractPersistenceTestCase.runBare(AbstractPersistenceTestCase.java:479)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at org.apache.openjpa.persistence.test.AbstractPersistenceTestCase.run(AbstractPersistenceTestCase.java:179)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.eclipse.jdt.internal.junit.runner.junit3.JUnit3TestReference.run(JUnit3TestReference.java:128)
+	at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:460)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:673)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:386)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:196)

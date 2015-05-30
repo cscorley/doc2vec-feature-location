@@ -1,0 +1,11 @@
+If a filter follows a foreach that produces an added column then push up filter fails with a null pointer exception.
+
+
+
+...
+x = foreach w generate $0, COUNT($1);
+y = filter x by $1 > 10;
+
+
+
+In the above example, the column in the filter's expression is an added column. As a result, the optimizer rule is not able to map it back to the input resulting in a null value. The subsequent for loop is failing due to NPE.

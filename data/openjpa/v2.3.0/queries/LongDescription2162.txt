@@ -1,0 +1,5 @@
+Supporting delimited identifiers causes some unnecessary overhead if the application and associated database doesn't use them or support them.  This change will surface the DBDictionary property supportsDelimitedIdentifiers.  Currently, this property gets set by querying the database to see if the database supports this capability.  With this change, we will first check if this property has been explicitly set.  If explicitly set, then we'll use that value.  Otherwise, we will default back to querying the database to determine whether to support delimited identifiers or not.
+
+Here's an example of the property to set to turn off the delimited identifier support:
+
+<property name="openjpa.jdbc.DBDictionary" value="db2(SupportsDelimitedIdentifiers=false)"/>

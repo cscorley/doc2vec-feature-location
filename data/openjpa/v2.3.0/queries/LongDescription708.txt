@@ -1,0 +1,29 @@
+ SELECT p, m
+   FROM Publisher p
+        LEFT OUTER JOIN p.magazineCollection m
+  WHERE m.id = (SELECT MAX(m2.id)
+                  FROM Magazine m2
+                 WHERE m2.idPublisher.id = p.id
+                   AND m2.datePublished =
+                         (SELECT MAX(m3.datePublished)
+                            FROM Magazine m3
+                           WHERE m3.idPublisher.id = p.id))
+
+OpenJPA 1.2.0 translates this into native (MySQL) query:
+
+SELECT t0.id, t1.id, t1.date_published, t1.id_publisher, t1.name
+ FROM Publisher t0
+      LEFT OUTER JOIN Magazine t1
+         ON t0.id = t1.id_publisher
+ WHERE (t1.id = (SELECT MAX(t4.id)
+                  FROM Magazine t4
+                 WHERE (t2.id_publisher = t0.id
+                       AND t2.date_published =
+                          (SELECT MAX(t3.date_published)
+                             FROM Magazine t2, Magazine t3
+                            WHERE (t3.id_publisher = t0.id)))))
+
+and that query throws an exception:
+
+NestedThrowables:
+com.mysql.jdbc.exceptions.MySQLSyntaxErrorException: Unknown column 't2.id_publisher' in 'where clause'

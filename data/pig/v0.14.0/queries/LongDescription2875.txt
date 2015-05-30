@@ -1,0 +1,126 @@
+Currently, AvroStorage does not allow recursive records in Avro schema because it is not possible to define Pig schema for recursive records. (i.e. records that have self-referencing fields cause an infinite loop, so they are not supported.)
+
+Even though there is no natural way of handling recursive records in Pig schema, I'd like to propose the following workaround: mapping recursive records to bytearray.
+
+Take for example the following Avro schema:
+
+
+{
+  "type" : "record",
+  "name" : "RECURSIVE_RECORD",
+  "fields" : [ {
+    "name" : "value",
+    "type" : [ "null", "int" ]
+  }, {
+    "name" : "next",
+    "type" : [ "null", "RECURSIVE_RECORD" ]
+  } ]
+}
+
+
+
+and the following data:
+
+
+
+{"value":1,"next":{"RECURSIVE_RECORD":{"value":2,"next":{"RECURSIVE_RECORD":{"value":3,"next":null}}}}} 
+{"value":2,"next":{"RECURSIVE_RECORD":{"value":3,"next":null}}} 
+{"value":3,"next":null}
+
+
+
+Then, we can define Pig schema as follows:
+
+
+
+{value: int,next: bytearray}
+
+
+
+Even though Pig thinks that the "next" fields are bytearray, they're actually loaded as tuples since AvroStorage uses Avro schema when loading files.
+
+
+
+grunt> in = LOAD 'test_recursive_schema.avro' USING org.apache.pig.piggybank.storage.avro.AvroStorage ();
+grunt> dump in;
+(1,(2,(3,)))
+(2,(3,))
+(3,)
+
+
+
+At this point, we have discrepancy between Avro schema and Pig schema; nevertheless, we can still refer to each field of tuples as follows:
+
+
+
+grunt> first = FOREACH in GENERATE $0;
+grunt> dump first;
+(1)
+(2)
+(3)
+
+or
+
+grunt> second = FOREACH in GENERATE $1.$0;
+grunt> dump second;
+(2)
+(3)
+()
+
+
+
+Lastly, we can store these tuples as Avro files by specifying schema. Since we can no longer construct Avro schema from Pig schema, it is required for the user to provide Avro schema via the 'schema' parameter in STORE function.
+
+
+
+grunt> STORE first INTO 'output' USING org.apache.pig.piggybank.storage.avro.AvroStorage ( 'schema', '[ "null", "int" ]' );
+
+or
+
+grunt> STORE in INTO 'output' USING org.apache.pig.piggybank.storage.avro.AvroStorage ( 'schema', '
+{
+  "type" : "record",
+  "name" : "recursive_schema",
+  "fields" : [ { 
+    "name" : "value",
+    "type" : [ "null", "int" ]
+  }, {
+    "name" : "next",
+    "type" : [ "null", "recursive_schema" ]
+  } ] 
+}
+' );
+
+
+
+To implement this workaround, the following work is required:
+
+	Update the current generic union check so that it can handle recursive records. Currently, AvroStorage checks if the Avro schema contains 1) recursive records and 2) generic unions, and fails if so. But since I am going to remove the 1st check, the 2nd check should be able to handle recursive records without stack overflow.
+	Update AvroSchema2Pig so that recursive records can be detected and mapped to bytearrays in Pig schema.
+	Add the 'no_schema_check' parameter to STORE function so that results can be stored even though there exists discrepancy between Avro schema and Pig schema. Since Avro schema for STORE function cannot be constructed from Pig schema, it has to be specified by the user via the 'schema' parameter, and schema check has to be disabled by 'no_schema_check'.
+	Update AvroStorage wiki.
+	Add unit tests.
+
+
+
+I do not think that any incompatibility issues will be introduced by this.
+
+P.S. The reason why I chose to map recursive records to bytearray instead of empty tuple is because I cannot refer to any field if I use empty tuple. For example, if Pig schema is defined as follows:
+
+
+
+{value: int,next: ()}
+
+
+
+I get an exception when I attempt to refer to any field in loaded tuples since their schema is not defined (i.e. empty tuple).
+
+
+
+ERROR 1127: Index 0 out of range in schema
+
+
+
+This is all what I found by trials and errors, so there might be something that I am missing here. If so, please let me know.
+
+Thanks!

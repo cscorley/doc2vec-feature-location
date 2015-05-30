@@ -1,0 +1,31 @@
+I have a simple Pig script which uses the XMLLoader after the Piggybank is built.
+
+
+
+register piggybank.jar;
+A = load '/user/viraj/capacity-scheduler.xml.gz' using org.apache.pig.piggybank.storage.XMLLoader('property') as (docs:chararray);
+B = limit A 1;
+dump B;
+--store B into '/user/viraj/handlegz' using PigStorage();
+
+
+
+
+returns empty tuple
+
+
+()
+
+
+
+If you supply the uncompressed XML file, you get
+
+
+(<property>
+    <name>mapred.capacity-scheduler.queue.my.capacity</name>
+    <value>10</value>
+    <description>Percentage of the number of slots in the cluster that are
+      guaranteed to be available for jobs in this queue.
+    </description>    
+  </property>)
+

@@ -1,0 +1,11 @@
+This is an intentional change in DB2 9.7.  Refer to articles:
+
+http://publib.boulder.ibm.com/infocenter/db2luw/v9r7/topic/com.ibm.db2.luw.wn.doc/doc/c0053503.html
+http://publib.boulder.ibm.com/infocenter/db2luw/v9r7/topic/com.ibm.db2.luw.admin.perf.doc/doc/c0053760.html
+http://publib.boulder.ibm.com/infocenter/db2luw/v9r7/topic/com.ibm.db2.luw.admin.config.doc/doc/r0053556.html
+
+DB2 9.7 added a cur_commit database configuration setting.  By default, for new databases, cur_commit is "ON", which is described as follows in the 2nd article above:
+
+"Under the new currently committed semantics, only committed data is returned, as was the case previously, but now readers do not wait for writers to release row locks. Instead, readers return data that is based on the currently committed version; that is, data prior to the start of the write operation."
+
+This change affected the expected outcome of a deadlock test, which need to enhance adapting to this behavior change.

@@ -1,0 +1,48 @@
+The following query 
+Bar.java
+
+        pigServer.registerQuery(
+                "uniqcnt  = foreach transactionsG {"+
+                               "sym = transactions.product ;"+
+                               "dsym = distinct sym  ;"+
+                               "generate flatten(dsym.product) as product, COUNT(dsym) as count ;" +
+                               "};");
+
+ 
+
+Results in the schema:
+
+
+ 
+   Schema : {product: NULL,count: long}
+
+
+
+This schema, is storable using AvroStorage or PigStorage, but it fails if stored using JsonStorage: 
+
+
+
+Failed to parse: <line 1, column 8>  Syntax error, unexpected symbol at or near ','
+	at org.apache.pig.parser.QueryParserDriver.parseSchema(QueryParserDriver.java:94)
+	at org.apache.pig.parser.QueryParserDriver.parseSchema(QueryParserDriver.java:108)
+	at org.apache.pig.impl.util.Utils.parseSchema(Utils.java:208)
+	at org.apache.pig.impl.util.Utils.getSchemaFromString(Utils.java:182)
+	at org.apache.pig.builtin.JsonStorage.prepareToWrite(JsonStorage.java:140)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigOutputFormat$PigRecordWriter.<init>(PigOutputFormat.java:125)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigOutputFormat.getRecordWriter(PigOutputFormat.java:86)
+	at org.apache.hadoop.mapred.ReduceTask.runNewReducer(ReduceTask.java:553)
+	at org.apache.hadoop.mapred.ReduceTask.run(ReduceTask.java:408)
+	at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:216)
+
+
+
+
+It appears that JsonStorage is thus less robust than the other storage formats.  Can we confirm or deny if some types of data structures do/ do not work with JsonStorage? 
+
+So,I suggest:
+
+1) Ideally, I would think JsonStorage should support the same data that other Storage functions support.   
+
+the next best thing: 
+
+2) Maybe a wiki page of examples that can / cannot work with JsonStorage and/or a better error message would be sufficient to solve this "bug".

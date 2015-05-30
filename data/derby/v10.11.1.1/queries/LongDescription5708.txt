@@ -1,0 +1,1 @@
+The simpleThread test, which is run by LangHarnessJavaTest, stores its connection in a static field. It doesn't close the connection, or clear the static field, before returning. So the connection is left open for the rest of the test run (potentially for the entire duration of suites.All).

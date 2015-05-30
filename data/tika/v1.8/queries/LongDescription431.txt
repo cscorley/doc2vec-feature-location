@@ -1,0 +1,13 @@
+Tika currently misuses the HTTP Content-Encoding header, and does not seem to use the charset part of the Content-Type header properly.
+
+Content-Encoding is not for the charset. It is for values like gzip, deflate, compress, or identity.
+
+Charset is passed in with the Content-Type. For instance: text/html; charset=iso-8859-1
+
+Tika should, in my opinion, do the following:
+
+1. Stop using Content-Encoding, unless it wants me to be able to pass in gzipped content in an input stream.
+
+2. Parse and understand charset=... declarations if passed in the Metadata object
+
+3. Return charset=... declarations in the Metadata object if a charset is detected.

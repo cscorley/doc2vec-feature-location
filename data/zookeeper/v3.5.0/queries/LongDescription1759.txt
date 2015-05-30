@@ -1,0 +1,24 @@
+Today when using SASLAuthenticationProvider to authenticate Zookeeper Clients access to the data based on ACLS set on znodes there is no other choice but to set READ ACLs to be "world", "anyone" with the way how 
+
+
+public boolean matches(String id,String aclExpr)
+
+
+is currently implemented. It means that any unauthenticated user can read the data when application needs to make sure that not only creator of a znode can read the content.
+Proposal is to introduce new property: "zookeeper.readUser" that if incoming id matches to the value of that property it will be allowed to proceed in "match" method. 
+So creator of a znode instead of 
+
+
+ACL acl1 = new ACL(Perms.ADMIN | Perms.CREATE | Perms.WRITE | Perms.DELETE, Ids.AUTH_IDS);
+ACL acl2 = new ACL(Perms.READ, Ids.ANYONE_ID_UNSAFE);
+
+
+will need to do
+
+
+ACL acl1 = new ACL(Perms.ADMIN | Perms.CREATE | Perms.WRITE | Perms.DELETE, Ids.AUTH_IDS);
+ACL acl2 = new ACL(Perms.READ, new Id("sasl", "anyone"));
+
+
+Assuming that value of "zookeeper.readUser" property was "anyone".
+This way at least READ access on corresponding znode has to be authenticated.

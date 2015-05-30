@@ -1,0 +1,60 @@
+In contrib/zebra/src/java/org/apache/hadoop/zebra/tfile/Compression.java, the following occurs:
+
+
+
+conf.setInt("io.compression.codec.lzo.buffersize", 64 * 1024);
+
+
+
+This can cause the LZO decompressor, if called within the context of reading TFiles, to return with an error code when trying to uncompress LZO-compressed data, if the data's compressed size is too large to fit in 64 * 1024 bytes.
+
+For example, the Hadoop-LZO code uses a different default value (256 * 1024):
+
+https://github.com/twitter/hadoop-lzo/blob/master/src/java/com/hadoop/compression/lzo/LzoCodec.java#L185
+
+This can lead to a case where, if data is compressed with a cluster where the default io.compression.codec.lzo.buffersize = 256*1024 is used, then code that tries to read this data by using Pig's zebra, the Mapper will exit with code 134 because the LZO compressor returns a -4 (which encodes the LZO C library error LZO_E_INPUT_OVERRUN) when trying to uncompress the data. The stack trace of such a case is shown below:
+
+
+
+2013-02-17 14:47:50,709 INFO com.hadoop.compression.lzo.LzoCodec: Creating stream for compressor: com.hadoop.compression.lzo.LzoCompressor@6818c458 with bufferSize: 262144
+2013-02-17 14:47:50,849 INFO org.apache.hadoop.io.compress.CodecPool: Paying back codec: com.hadoop.compression.lzo.LzoCompressor@6818c458
+2013-02-17 14:47:50,849 INFO org.apache.hadoop.mapred.MapTask: Finished spill 3
+2013-02-17 14:47:50,857 INFO org.apache.hadoop.io.compress.CodecPool: Borrowing codec: com.hadoop.compression.lzo.LzoCompressor@6818c458
+2013-02-17 14:47:50,866 INFO com.hadoop.compression.lzo.LzoCodec: Creating stream for compressor: com.hadoop.compression.lzo.LzoCompressor@6818c458 with bufferSize: 262144
+2013-02-17 14:47:50,879 INFO org.apache.hadoop.io.compress.CodecPool: Paying back codec: com.hadoop.compression.lzo.LzoCompressor@6818c458
+2013-02-17 14:47:50,879 INFO org.apache.hadoop.mapred.MapTask: Finished spill 4
+2013-02-17 14:47:50,887 INFO org.apache.hadoop.mapred.Merger: Merging 5 sorted segments
+2013-02-17 14:47:50,890 INFO org.apache.hadoop.io.compress.CodecPool: Borrowing codec: com.hadoop.compression.lzo.LzoDecompressor@66a23610
+2013-02-17 14:47:50,891 INFO com.hadoop.compression.lzo.LzoDecompressor: calling decompressBytesDirect with buffer with: position: 0 and limit: 262144
+2013-02-17 14:47:50,891 INFO com.hadoop.compression.lzo.LzoDecompressor: read: 245688 bytes from decompressor.
+2013-02-17 14:47:50,891 INFO org.apache.hadoop.io.compress.CodecPool: Borrowing codec: com.hadoop.compression.lzo.LzoDecompressor@43684706
+2013-02-17 14:47:50,892 INFO com.hadoop.compression.lzo.LzoDecompressor: calling decompressBytesDirect with buffer with: position: 0 and limit: 65536
+2013-02-17 14:47:50,895 INFO org.apache.hadoop.mapred.TaskLogsTruncater: Initializing logs' truncater with mapRetainSize=-1 and reduceRetainSize=-1
+2013-02-17 14:47:50,897 FATAL org.apache.hadoop.mapred.Child: Error running child : java.lang.InternalError: lzo1x_decompress returned: -4
+        at com.hadoop.compression.lzo.LzoDecompressor.decompressBytesDirect(Native Method)
+        at com.hadoop.compression.lzo.LzoDecompressor.decompress(LzoDecompressor.java:307)
+        at org.apache.hadoop.io.compress.BlockDecompressorStream.decompress(BlockDecompressorStream.java:82)
+        at org.apache.hadoop.io.compress.DecompressorStream.read(DecompressorStream.java:75)
+        at org.apache.hadoop.mapred.IFile$Reader.readData(IFile.java:341)
+        at org.apache.hadoop.mapred.IFile$Reader.rejigData(IFile.java:371)
+        at org.apache.hadoop.mapred.IFile$Reader.readNextBlock(IFile.java:355)
+        at org.apache.hadoop.mapred.IFile$Reader.next(IFile.java:387)
+        at org.apache.hadoop.mapred.Merger$Segment.next(Merger.java:220)
+        at org.apache.hadoop.mapred.Merger$MergeQueue.merge(Merger.java:420)
+        at org.apache.hadoop.mapred.Merger$MergeQueue.merge(Merger.java:381)
+        at org.apache.hadoop.mapred.Merger.merge(Merger.java:77)
+        at org.apache.hadoop.mapred.MapTask$MapOutputBuffer.mergeParts(MapTask.java:1548)
+        at org.apache.hadoop.mapred.MapTask$MapOutputBuffer.flush(MapTask.java:1180)
+        at org.apache.hadoop.mapred.MapTask$NewOutputCollector.close(MapTask.java:582)
+        at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:649)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:323)
+        at org.apache.hadoop.mapred.Child$4.run(Child.java:270)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:396)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1213)
+        at org.apache.hadoop.mapred.Child.main(Child.java:264)
+
+
+
+
+(Some additional LOG.info statements were added to produce the above output which are not in this patch).

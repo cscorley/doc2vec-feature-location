@@ -1,0 +1,3 @@
+If an index is getting updated from multiple sources and needs to add documents reasonably quickly, there should be a good solr side mechanism to help prevent the client from spawning multiple overlapping <commit/> commands.
+
+My specific use case is sending each document to solr every time hibernate saves an object (see SOLR-20).  This happens from multiple machines simultaneously.  I'd like solr to make sure the documents are committed within a second.

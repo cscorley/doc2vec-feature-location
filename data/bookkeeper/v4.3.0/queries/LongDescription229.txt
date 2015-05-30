@@ -1,0 +1,76 @@
+after BOOKKEEPER-188 is applied, extractMetaFromEntryLogs is moved from EntryLogger to GarbageCollectorThread with some changed.
+
+Before BOOKKEEPER-188 is applied,  we just add the entryLogMeta to entryLogMetaMap only when we could extract the entry log file. If a log file is garbage collected, its entryLogMeta would not be put in the map.
+
+
+
+-    protected Map<Long, EntryLogMetadata> extractMetaFromEntryLogs(Map<Long, EntryLogMetadata> entryLogMetaMap) throws IOException {
+-        // Extract it for every entry log except for the current one.
+-        // Entry Log ID's are just a long value that starts at 0 and increments
+-        // by 1 when the log fills up and we roll to a new one.
+-        long curLogId = logId;
+-        for (long entryLogId = 0; entryLogId < curLogId; entryLogId++) {
+-            // Comb the current entry log file if it has not already been extracted.
+-            if (entryLogMetaMap.containsKey(entryLogId)) {
+-                continue;
+-            }
+-            LOG.info("Extracting entry log meta from entryLogId: " + entryLogId);
+-            EntryLogMetadata entryLogMeta = new EntryLogMetadata(entryLogId);
+-            ExtractionScanner scanner = new ExtractionScanner(entryLogMeta);
+-            // Read through the entry log file and extract the entry log meta
+-            try {
+-                scanEntryLog(entryLogId, scanner);
+-                LOG.info("Retrieved entry log meta data entryLogId: " + entryLogId + ", meta: " + entryLogMeta);
+-                entryLogMetaMap.put(entryLogId, entryLogMeta);
+-            } catch(IOException e) {
+-              LOG.warn("Premature exception when processing " + entryLogId +
+-                       "recovery will take care of the problem", e);
+-            }
+-
+-        }
+-        return entryLogMetaMap;
+-    }
+
+
+
+But after BOOKKEEPER-188 is applied,  an empty entryLogMeta would be put into entryLogMetaMap for those deleted entry log files. So GarbageCollectorThread would gc those deleted entry log files again. Then there is lots of such kind of error messages, these are noise error message but doesn't affect the logic.
+
+
+
++    protected Map<Long, EntryLogMetadata> extractMetaFromEntryLogs(Map<Long, EntryLogMetadata> entryLogMetaMap)
++            throws IOException {
++        // Extract it for every entry log except for the current one.
++        // Entry Log ID's are just a long value that starts at 0 and increments
++        // by 1 when the log fills up and we roll to a new one.
++        long curLogId = entryLogger.logId;
++        for (long entryLogId = 0; entryLogId < curLogId; entryLogId++) {
++            // Comb the current entry log file if it has not already been extracted.
++            if (entryLogMetaMap.containsKey(entryLogId)) {
++                continue;
++            }
++            LOG.info("Extracting entry log meta from entryLogId: " + entryLogId);
++
++            // Read through the entry log file and extract the entry log meta
++            entryLogMetaMap.put(entryLogId,
++                                extractMetaFromEntryLog(entryLogger, entryLogId));
++        }
++        return entryLogMetaMap;
++    }
++
++    static EntryLogMetadata extractMetaFromEntryLog(EntryLogger entryLogger, long entryLogId)
++            throws IOException {
++        EntryLogMetadata entryLogMeta = new EntryLogMetadata(entryLogId);
++        ExtractionScanner scanner = new ExtractionScanner(entryLogMeta);
++        try {
++            // Read through the entry log file and extract the entry log meta
++            entryLogger.scanEntryLog(entryLogId, scanner);
++            LOG.info("Retrieved entry log meta data entryLogId: "
++                     + entryLogId + ", meta: " + entryLogMeta);
++        } catch(IOException e) {
++            LOG.warn("Premature exception when processing " + entryLogId +
++                     "recovery will take care of the problem", e);
++        }
++
++        return entryLogMeta;
++    }
+

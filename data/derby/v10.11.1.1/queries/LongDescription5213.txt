@@ -1,0 +1,7 @@
+An uncommitted TRUNCATE TABLE command does not block online backup. We should verify that the online and backed up databases are both in a consistent state. At a minimum, we should test the following:
+
+o uncommitted truncate table followed by online backup and then access the backup copy and access the table.  should see the old data.
+o uncommitred truncate table, followed by online backup that keeps logs,
+  then commit the truncate, and then access the table in the backup.
+
+For more information, please see this email thread: http://old.nabble.com/truncating-a-table-vs-online-backup-to31524933.html#a31524933

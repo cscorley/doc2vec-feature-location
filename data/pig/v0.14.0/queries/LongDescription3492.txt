@@ -1,0 +1,5 @@
+I don't have a testcase I can upload at the moment, but here's my observation.
+
+SplitFilter -> schemaResetter -> LOGenerate.getSchema -> LogicalRelationalOperator.fixDuplicateUids() creating a new UID but that UID is not propagated to the entire plan (since SplitFilter.reportChanges only returns subplan).
+
+As a result, I am seeing ColumnPruning cutting off those used columns.

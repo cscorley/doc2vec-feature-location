@@ -1,0 +1,58 @@
+Currently four no-argument diagnostic tables exist that provide information about the running state of Derby, or its error messages.
+These tables are invoked using an awkward, non-standard syntax. As an example:
+
+SELECT * FROM NEW org.apache.derby.diag.LockTable() as LOCK_TABLE
+
+The improvement will provide an internal mapping from a regular table name in the SYSCS_DIAG schema
+to the runtime virtual table code. Thus the above example would be replaced by:
+
+SELECT * FROM SYSCS_DIAG.LOCK_TABLE
+
+These diagnostic table expressions are regular table expressions (as is the NEW VTI construct) and
+can be used wherever a normal table can.
+
+Any DDL, INSERT/UPDATE/DELETE, compression procedure etc. that references a diagnostic table
+will result in an exception.
+
+The old style syntax will remain in place for 10.2, but become deprecated.
+
+The tables to be implemented in this change are:
+
+SYSCS_DIAG.LOCK_TABLE   replaces org.apache.derby.diag.LockTable
+SYSCS_DIAG.STATEMENT_CACHE    replaces org.apache.derby.diag.StatementCache
+SYSCS_DIAG.TRANSACTION_TABLE    replaces org.apache.derby.diag.TransactionTable
+SYSCS_DIAG.ERROR_MESSAGES    replaces org.apache.derby.diag.ErrorMessages
+
+Adding such a table will be table driven, thus easy for others to provide additional diagnostics.
+
+Information about these diagnostic tables will not appear in the system catalogs or JDBC DatabaseMetaData.
+The ResultSetMetaData for the any query involving a diagnostic table will be valid.
+
+This is a first step in a progression towards supporing a fully application/user defined virtual table.
+
+These steps are not part of this jira issue, but added for information purposes.
+
+
+	second step - supporting diagnostic tables with parameters, e.g.
+
+
+
+  SELECT * FROM SYSCS_DIAG.SPACE_TABLE('sales', 'orders');
+
+
+	third step - providing a create virtual table statement (most databases support
+   some form of virtual table, or wrappers). The DDL would be non-standard but the
+   data access would be standard. [need to check table functions in part 13 of SQL standard]
+
+
+
+   E.g. syntax yet to be defined, but to give the general idea
+      CREATE VIRTUAL TABLE (TICKER VARCHAR(10), START TIMESTAMP, END TIMESTAMP)
+           LANGUAGE JAVA
+           PARAMETER STYLE JAVA
+           EXTERNAL NAME 'com.acme.stocks.historyFromYahooFinance';
+
+
+
+
+

@@ -1,0 +1,31 @@
+PIG-2334 was helpful in understanding this issue. Short version is input file size is only computed if the path begins with a whitelisted prefix, currently:
+
+
+	/
+	hdfs:
+	file:
+	s3n:
+
+
+
+As HCatalog locations use the form dbname.tablename the input file size is not computed, and the size-based parallelism optimization breaks.
+
+DETAILS:
+
+I discovered this issue comparing two runs on the same script, one loading regular HDFS paths, and one with HCatalog db.table names. I just happened to notice the "Setting number of reducers" line difference.
+
+Loading HDFS files reducers is set to 99
+
+2012-03-08 01:33:56,522 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - BytesPerReducer=1000000000 maxReducers=999 totalInputFileSize=98406674162
+2012-03-08 01:33:56,522 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Neither PARALLEL nor default parallelism is set for this job. Setting number of reducers to 99
+
+
+
+Loading with an HCatalog db.table name
+
+2012-03-08 01:06:02,283 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - BytesPerReducer=1000000000 maxReducers=999 totalInputFileSize=0
+2012-03-08 01:06:02,283 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Neither PARALLEL nor default parallelism is set for this job. Setting number of reducers to 1
+
+
+
+Possible fix: Pig should just ask the loader for the size of its inputs rather than special-casing certain location types.

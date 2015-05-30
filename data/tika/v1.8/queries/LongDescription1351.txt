@@ -1,0 +1,4 @@
+Applications which want to let users search documents based only on their metadata do not need to get the content parsed. 
+The only workaround I've found so far is to pass a no op content handler which can ignore the content events but it does not stop the parser such as PDFParser from parsing the content.
+
+Proposal: update parser API docs to let implementers know ContentHandler can be null and update the shipped implementations to parse the metadata only if ContentHandler is null

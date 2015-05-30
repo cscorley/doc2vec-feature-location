@@ -1,0 +1,11 @@
+The javadoc for java.io.DataInput.skipBytes(int) says (<URL:http://java.sun.com/javase/6/docs/api/java/io/DataInput.html#skipBytes(int)>):
+>  This method never throws an EOFException.
+
+The implementation of this method in org.apache.derby.iapi.services.io.ArrayInputStream says:
+		if ((position + n) > end) 
+{
+
+			throw new EOFException();
+		}
+
+The method in ArrayInputStream should be changed so that it skips as many bytes as possible (max n) and returns the actual number of bytes skipped, even when EOF is reached.

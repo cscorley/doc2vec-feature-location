@@ -1,0 +1,22 @@
+The derby_tests.policy file uses references to csinfo and db2j.
+These are left-overs from pre-contribution and rename to apache and should get cleaned up.
+
+I suspect that the db2j references can simply be taken out, but that should get double-checked.
+
+The csinfo references are used in jvm.java. There referenced in the testing/README.htm.
+
+I propose to change the name of these properties as follows:
+csinfo.codejar - URL to the jar files when they are in the classpath 
+     change to derby.codejar
+csinfo.codeclasses - URL to the classes directory when it is in the classpath
+     change to derby.codeclasses
+csinfo.codedir - File location of either csinfo.codejar or csinfo.codejar.
+     the comment said : // Only required due to a BUG.
+     Need to figure out which 'BUG' that is and document better
+     change to derby.codedir
+csinfo.trustedhost
+     change to derby.clienthost
+     document: - specifies the clients ip address/hostName. 
+csinfo.serverhost 
+     change to derby.serverhost
+     document: -Host name or ip where network server is started.

@@ -1,0 +1,58 @@
+Sybase SQL syntax requires that all derived tables have a correlation name. The DBDictionary default for requiresAliasForSubselect is false. Overriding it to true in the Sybase dictionary class fixes the problem OOTB else users have to override it in the configuration by default with Sybase.
+
+This test simply persists a JDO entity (having embedded entities) and then 
+tries to execute a query as follows:
+    public void testQuery() {
+        PersistenceManager pm = getPM();
+        Query q = pm.newQuery(EmbeddedOwnerPC.class,
+            'stringField == \'string1\' && embedded.intField == 1 '
+                + '&& complexEmbedded.stringField == \'recurseEmbedString\' '
+                + '&& complexEmbedded.ownerField.id1 == 3 '
+                + '&& complexEmbedded.stringSet.contains (\'foo\') '
+                + '&& complexEmbedded.embedded != null '
+                // just to test not null
+                +
+                '&& complexEmbedded.embedded.stringField == 
+\'embedString2\'');
+
+        Collection results = (Collection) q.execute();
+
+
+Exception is : 
+[testlogic] [2008-03-28 12:15:57,426] BEGIN 
+org.apache.cactus.ServletTestCase.testQuery
+[testlogic] 
+file:/D:/weblogic/dev/src/wls/qa/tests/functional/jdo/kodo/datacache/datacacheR1.test.xml#testdatacache
+[testlogic] <openjpa-1.1.0-SNAPSHOT-r420667:634150 nonfatal store error> 
+kodo.jdo.DataStoreException: The derived table expression is missing a 
+correlation name. Check derived table syntax in the Reference Manual.
+
+
+org.apache.cactus.ServletTestCase.testQuery
+[testlogic] file:/D:/weblogic/dev/src/wls/qa/tests/functional/jdo/kodo/datacache/datacacheR1.test.xml#testdatacache
+[testlogic] <openjpa-1.1.0-SNAPSHOT-r420667:634150 nonfatal store error> 
+kodo.jdo.DataStoreException: The derived table expression is missing a correlation name. Check derived table syntax in the Reference Manual.
+
+[testlogic] 	at org.apache.openjpa.jdbc.sql.SQLExceptions.narrow(SQLExceptions.java:146)
+[testlogic] 	at org.apache.openjpa.jdbc.sql.DBDictionary.newStoreException(DBDictionary.java:4081)
+[testlogic] 	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:102)
+[testlogic] 	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:88)
+[testlogic] 	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:64)
+[testlogic] 	at org.apache.openjpa.jdbc.kernel.SelectResultObjectProvider.handleCheckedException(SelectResultObjectProvider.java:155)
+[testlogic] 	at org.apache.openjpa.datacache.QueryCacheStoreQuery$CachingResultObjectProvider.handleCheckedException(QueryCacheStoreQuery.java:639)
+[testlogic] 	at org.apache.openjpa.lib.rop.WindowResultList.size(WindowResultList.java:95)
+[testlogic] 	at org.apache.openjpa.kernel.DelegatingResultList.size(DelegatingResultList.java:136)
+[testlogic] 	at kodo.kernel.TestEmbedded.testQuery(TestEmbedded.java:296)
+[testlogic] 	at org.apache.cactus.internal.AbstractCactusTestCase.runBareServer(AbstractCactusTestCase.java:149)
+[testlogic] 	at org.apache.cactus.internal.server.AbstractWebTestCaller.doTest(AbstractWebTestCaller.java:119)
+[testlogic] 	at org.apache.cactus.internal.server.AbstractWebTestController.handleRequest_aroundBody0(AbstractWebTestController.java:93)
+[testlogic] 	at org.apache.cactus.internal.server.AbstractWebTestController.handleRequest_aroundBody1$advice(AbstractWebTestController.java:224)
+[testlogic] 	at org.apache.cactus.internal.server.AbstractWebTestController.handleRequest(AbstractWebTestController.java:1)
+[testlogic] 	at org.apache.cactus.server.ServletTestRedirector.doPost_aroundBody2(ServletTestRedirector.java:101)
+[testlogic] 	at org.apache.cactus.server.ServletTestRedirector.doPost_aroundBody3$advice(ServletTestRedirector.java:224)
+[testlogic] 	at org.apache.cactus.server.ServletTestRedirector.doPost(ServletTestRedirector.java:1)
+[testlogic] 	at org.apache.cactus.server.ServletTestRedirector.doGet_aroundBody0(ServletTestRedirector.java:72)
+[testlogic] 	at org.apache.cactus.server.ServletTestRedirector.doGet_aroundBody1$advice(ServletTestRedirector.java:224)
+[testlogic] 	at org.apache.cactus.server.ServletTestRedirector.doGet(ServletTestRedirector.java:1)
+[testlogic] 	at javax.servlet.http.HttpServlet.service(HttpServlet.java:707)
+[testlogic] 	at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)

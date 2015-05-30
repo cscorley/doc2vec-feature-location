@@ -1,0 +1,37 @@
+While working on SQL authorization work, I ran across a test case where Derby will throw a NPE when a trigger is defined with it's action as update a table from another schema. I don't have much details on why but following is the test case. Derby is trying to put privilege requirement for a column into privilege requirements list and it expects the column's tableUUID to be not null but in this particular case, it is null.
+
+connect 'jdbc:derby:c:/dellater/dbmain;create=true' user 'mamta1' as mamta1;
+create table t11TriggerRevokeTest (c111 int not null primary key, c12 int);
+grant TRIGGER on t11TriggerRevokeTest to mamta2;
+create table t12TriggerRevokeTest (c121 int, c122 int, c123 int); 
+grant UPDATE(c122, c121) on t12TriggerRevokeTest to mamta2;
+connect 'jdbc:derby:c:/dellater/dbmain;create=true' user 'mamta2' as mamta2;
+create trigger tr11t11 after insert on mamta1.t11TriggerRevokeTest for each statement mode db2sql
+        update mamta1.t12TriggerRevokeTest set c122 = 99;
+
+The stack trace looks as follows
+ij(MAMTA2)> ERROR XJ001: Java exception: ': java.lang.NullPointerException'.java.lang.NullPointerException
+        at org.apache.derby.impl.sql.compile.CompilerContextImpl.addRequiredColumnPriv(CompilerContextImpl.java:741)
+        at org.apache.derby.impl.sql.compile.ResultColumn.bindResultColumnByName(ResultColumn.java:682)
+        at org.apache.derby.impl.sql.compile.ResultColumnList.bindResultColumnsByName(ResultColumnList.java:635)
+        at org.apache.derby.impl.sql.compile.ResultSetNode.bindResultColumns(ResultSetNode.java:682)
+        at org.apache.derby.impl.sql.compile.SelectNode.bindResultColumns(SelectNode.java:751)
+        at org.apache.derby.impl.sql.compile.UpdateNode.bind(UpdateNode.java:348)
+        at org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatement.java:344)
+        at org.apache.derby.impl.sql.GenericStatement.prepareStorable(GenericStatement.java:591)
+        at org.apache.derby.iapi.sql.dictionary.SPSDescriptor.compileStatement(SPSDescriptor.java:353)
+        at org.apache.derby.iapi.sql.dictionary.SPSDescriptor.prepareAndRelease(SPSDescriptor.java:283)
+        at org.apache.derby.impl.sql.execute.CreateTriggerConstantAction.createSPS(CreateTriggerConstantAction.java:367)
+        at org.apache.derby.impl.sql.execute.CreateTriggerConstantAction.executeConstantAction(CreateTriggerConstantAction.java:272)
+        at org.apache.derby.impl.sql.execute.MiscResultSet.open(MiscResultSet.java:56)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:357)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1181)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:584)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:516)
+        at org.apache.derby.impl.tools.ij.ij.executeImmediate(ij.java:313)
+        at org.apache.derby.impl.tools.ij.utilMain.doCatch(utilMain.java:433)
+        at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:310)
+        at org.apache.derby.impl.tools.ij.Main.go(Main.java:207)
+        at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:173)
+        at org.apache.derby.impl.tools.ij.Main14.main(Main14.java:55)
+        at org.apache.derby.tools.ij.main(ij.java:60)

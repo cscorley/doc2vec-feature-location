@@ -1,0 +1,11 @@
+The PushUpFilter optimization rule in the new logical plan moves the filter up to one of the join branch. It does this aggressively by find an operator that has all the projection UIDs. However, it didn't consider that the found operator might be another join. If that join is outer, then we cannot simply move the filter to one of its branches.
+
+As an example, the following script will be erroneously optimized:
+
+        A = load 'myfile' as (d1:int);
+        B = load 'anotherfile' as (d2:int);
+        C = join A by d1 full outer, B by d2;        
+        D = load 'xxx' as (d3:int);
+        E = join C by d1, D by d3;        
+        F = filter E by d1 > 5;
+        G = store F into 'dummy';

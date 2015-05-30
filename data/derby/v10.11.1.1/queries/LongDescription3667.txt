@@ -1,0 +1,6 @@
+When a role is the current role of a session, and that role is either
+a) revoked from current user or dropped, the present implementation
+does not actually reset the current role of value of the session which
+has set it to current, but instead lazily relies on the next usage to
+discover this fact by validating that the role usage is still
+applicable. This check is missing from CURRENT_USER.

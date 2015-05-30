@@ -1,0 +1,10 @@
+NumberFormatTransformer uses a NumberFormatter which relies on the system locale. This makes it impossible to use NumberFormatTransformer with data whose locale does not match the system locale.
+
+TestNumberFormatTransformer fails on some locales for similar reasons because the grouping symbol differs in different locales.
+
+This issue adds a locale attribute for NumberFormatTransformer which allows the user to specify the locale which should be used for formatting. The locale must be specified as land-country e.g. en-US
+
+
+<field column="myNumber" formatStyle="number" locale="de-DE" />
+
+ 

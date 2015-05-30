@@ -1,0 +1,15 @@
+There is a fault in equals method of DocSetBase class:
+
+
+
+if (this instanceof DocList && other instanceof DocList) {
+  // compare ordering
+  DocIterator i1=this.iterator();
+  DocIterator i2=this.iterator();       // <== *this should be other*
+  while(i1.hasNext() && i2.hasNext()) {
+    if (i1.nextDoc() != i2.nextDoc()) return false;
+  }
+  return true;
+  // don't compare matches
+}
+

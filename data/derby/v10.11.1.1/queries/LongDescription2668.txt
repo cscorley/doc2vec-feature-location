@@ -1,0 +1,6 @@
+In Derby 10.3, we are adding a new feature (DERBY-1478) which will allow character string types to have a territory based collation (except for persistent character string type columns from system schema). When 2 character types are compared, they should have the same collation type associated with them. If not then Derby 10.3 will throw an exception. Currently, in Derby 10.3 codeline, the exception thrown is something like "ERROR 42818: Comparisons between 'VARCHAR' and 'CHAR' are not supported." but this error message is misleading. The error is really for collation mismatch. We should fix following error so it indicates the real reason behind the exception.
+
+eg sql
+ij> connect 'nodb;create=true;territory=no;collation=TERRITORY_BASED'; 
+ij> select * from sys.systables where tablename = 'T1'; 
+ERROR 42818: Comparisons between 'VARCHAR' and 'CHAR' are not supported. 

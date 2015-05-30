@@ -1,0 +1,26 @@
+The current replication strategy in solr involves shell scripts . The following are the drawbacks with the approach
+
+	It does not work with windows
+	Replication works as a separate piece not integrated with solr.
+	Cannot control replication from solr admin/JMX
+	Each operation requires manual telnet to the host
+
+
+
+Doing the replication in java has the following advantages
+
+	Platform independence
+	Manual steps can be completely eliminated. Everything can be driven from solrconfig.xml .
+	
+		Adding the url of the master in the slaves should be good enough to enable replication. Other things like frequency of
+snapshoot/snappull can also be configured . All other information can be automatically obtained.
+	
+	
+	Start/stop can be triggered from solr/admin or JMX
+	Can get the status/progress while replication is going on. It can also abort an ongoing replication
+	No need to have a login into the machine
+	From a development perspective, we can unit test it
+
+
+
+This issue can track the implementation of solr replication in java

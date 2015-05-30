@@ -1,0 +1,24 @@
+While running few PIG scripts against Hadoop 2.0, I see consistently see ConcurrentModificationException 
+
+
+at java.util.HashMap$HashIterator.remove(HashMap.java:811)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POPartialAgg.aggregate(POPartialAgg.java:365)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POPartialAgg.aggregateSecondLevel(POPartialAgg.java:379)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POPartialAgg.getNext(POPartialAgg.java:203)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:308)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLocalRearrange.getNext(POLocalRearrange.java:263)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.runPipeline(PigGenericMapBase.java:283)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.map(PigGenericMapBase.java:278)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.map(PigGenericMapBase.java:64)
+	at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144)
+	at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:729)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:334)
+	at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:158)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:396)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1441)
+	at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:153)
+
+
+
+It looks like there is rawInputMap is being modified while elements are removed from it. 

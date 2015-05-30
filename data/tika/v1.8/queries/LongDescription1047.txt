@@ -1,0 +1,15 @@
+Currently I can use the JAX-RS server to detect the mediatype using the meta endpoint. The problem I have with this is that I need to send the entire document to get all metadata. 
+
+To detect the mediatype, only a few bytes are often necessary and so I'd like to only send, say 8K or so, to the server and let it tell me the mediatype.
+
+In order to accomplish this, it would be good to modify the /meta endpoint to address the individual fields that might be returned:
+
+/meta/mediatype
+/meta/author
+/meta/lastModified
+
+The parts currently following the path could be turned into a query parameter, which I think is more appropriate anyways (also easier to manipulate with tools like jquery).
+
+If sufficient data is not available, I'd just return with a BAD_REQUEST.
+
+If this would be of interest to TIKA, I think I could possibly implement this.

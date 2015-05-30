@@ -1,0 +1,37 @@
+SQLNonTransientConnectionException is described as:
+
+ The subclass of SQLException thrown for the SQLState class value '08', representing that the connection operation that failed will not succeed when the operation is retried without the cause of the failure being corrected.  See repro DerbyEmbeddedException.java 
+
+Yet, database shutdown which is SQLState 8006 throws an SQLTransientConnectionSQLException
+10.4.0.0 alpha - (1)
+Apache Derby
+got connection now shutdown
+08006:Database 'sampl127' shutdown.
+Exception in thread "main" java.sql.SQLTransientConnectionException: Database 'sampl127' shutdown.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:76)
+        at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Util.java:202)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:391)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:346)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:1574)
+        at org.apache.derby.impl.jdbc.EmbedConnection.<init>(EmbedConnection.java:385)
+        at org.apache.derby.impl.jdbc.EmbedConnection30.<init>(EmbedConnection30.java:73)
+        at org.apache.derby.impl.jdbc.EmbedConnection40.<init>(EmbedConnection40.java:54)
+        at org.apache.derby.jdbc.Driver40.getNewEmbedConnection(Driver40.java:68)
+        at org.apache.derby.jdbc.InternalDriver.connect(InternalDriver.java:211)
+        at org.apache.derby.jdbc.AutoloadedDriver.connect(AutoloadedDriver.java:119)
+        at java.sql.DriverManager.getConnection(DriverManager.java:582)
+        at java.sql.DriverManager.getConnection(DriverManager.java:207)
+        at DerbyEmbeddedException.main(DerbyEmbeddedException.java:29)
+Caused by: java.sql.SQLException: Database 'sampl127' shutdown.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(SQLExceptionFactory40.java:13
+5)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:70)
+        ... 13 more
+Caused by: ERROR 08006: Database 'sampl127' shutdown.
+        at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:290)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.shutdownDatabaseException(TransactionResourceImpl.java:224
+)
+        at org.apache.derby.impl.jdbc.EmbedConnection.<init>(EmbedConnection.java:355)
+        ... 8 more
+[C:/kmarsden/repro/NonTransientException] java or

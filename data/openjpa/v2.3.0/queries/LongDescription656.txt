@@ -1,0 +1,27 @@
+If a JDBC URL is specified with an incorrect protocol or subprotocol in combination with a JDBC Driver class when configuring a PU an NPE is thrown within the OpenJPA code when trying to create an entity manager.  The NPE bubbles out to a not-so-useful PersistenceException with internal StoreException containing message text "null".  
+
+For example:  (note the missing colon after the subprotocol)
+
+openjpa.ConnectionDriverName=com.ibm.db2.jcc.DB2Driver
+openjpa.ConnectionURL=jdbc:db2//my.database.com:800/MYDB  
+
+Results in:
+
+     [java] <openjpa-1.2.0-SNAPSHOT-r422266:667312 nonfatal general error> org.apache.openjpa.persistence.PersistenceException: There were errors initializing your configuration: <openjpa-1.2.0-SNAPSHOT-r422266:667312 fatal store error> org.apache.openjpa.util.StoreException: null
+     [java]     at org.apache.openjpa.jdbc.schema.DataSourceFactory.installDBDictionary(DataSourceFactory.java:240)
+     [java]     at org.apache.openjpa.jdbc.conf.JDBCConfigurationImpl.getConnectionFactory(JDBCConfigurationImpl.java:692)
+     [java]     at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+     [java]     at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:45)
+     [java]     at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+     [java]     at java.lang.reflect.Method.invoke(Method.java:599)
+     [java]     at org.apache.openjpa.lib.conf.ConfigurationImpl.instantiateAll(ConfigurationImpl.java:288)
+     [java]     at org.apache.openjpa.conf.OpenJPAConfigurationImpl.instantiateAll(OpenJPAConfigurationImpl.java:1429)
+     [java]     at org.apache.openjpa.kernel.AbstractBrokerFactory.makeReadOnly(AbstractBrokerFactory.java:646)
+     [java]     at org.apache.openjpa.kernel.AbstractBrokerFactory.newBroker(AbstractBrokerFactory.java:183)
+     [java]     at org.apache.openjpa.kernel.DelegatingBrokerFactory.newBroker(DelegatingBrokerFactory.java:142)
+     [java]     at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:192)
+     [java]     at com.ibm.ws.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:42)
+     [java]     at com.ibm.ws.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:27)
+     [java]     at suite.r70.base.wasvadd.wsjpa_scripts.wsenhancer.VerifyEnhancementTest.main(VerifyEnhancementTest.java:22)
+     [java] Caused by: java.lang.NullPointerException
+     [java]     at org.apache.openjpa.lib.jdbc.DelegatingConnection.getAutoCommit(DelegatingConnection.java:202)

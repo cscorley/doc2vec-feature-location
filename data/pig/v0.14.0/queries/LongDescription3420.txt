@@ -1,0 +1,6 @@
+Running the following script:
+a = load './newavro/data/avro/EmployeeMapF.ser' USING AvroStorage();
+dump a;
+c = foreach a generate name, office, 'Toyota', cars#'Toyota' as toyota, 'Mazda', cars#'Mazda', 'Nissan', cars#'Nissan' as nissan;
+Although object a has all the data loaded, c cannot retrieve the map values, column 4,6,8 are empty in the result.
+The map keys is of class Utf8, but the keys used to retrieve data is String, that is the reason why we cannot retrieve the values. The patch fix this problem. 

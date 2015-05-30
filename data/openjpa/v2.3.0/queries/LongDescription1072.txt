@@ -1,0 +1,15 @@
+When working with embeddables I found that if I define a unidirectional @ManyToOne relationship from an embeddable to an Entity which has a generated id, the relationship in the join table doesn't get persisted. I'll attach a zip with my code, but I'll also try to describe the scenario here.
+
+Entities: 
+Seller - Has an auto generated ID and a name
+Book - Has an id(isbn) and an ElementCollection of Listings
+Listing - An embeddable that has a ManyToOne relationship to Seller, a price and comments.
+
+The scenario is as follows:
+
+	Create all the sellers.
+	Create a book.
+	Add a listing to each book. Each listing takes a Seller Entity and a price.
+	When I commit the book, the seller_id column in my Listing join table is always zero.
+
+

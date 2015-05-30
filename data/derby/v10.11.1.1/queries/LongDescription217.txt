@@ -1,0 +1,172 @@
+A batch update statement containing an insert statement with a BLOB value inserts a null BLOB. Here ist the output of sysinfo: 
+
+------------------ Java Information ------------------
+Java Version:    1.4.2_04
+Java Vendor:     Sun Microsystems Inc.
+Java home:       C:\Programme\Java\j2re1.4.2_04
+Java classpath:  U:\derby\trunk\jars\sane\derby.jar
+OS name:         Windows XP
+OS architecture: x86
+OS version:      5.1
+Java user name:  gk
+Java user home:  C:\Dokumente und Einstellungen\gk
+Java user dir:   C:\
+java.specification.name: Java Platform API Specification
+java.specification.version: 1.4
+--------- Derby Information --------
+JRE - JDBC: J2SE 1.4.2 - JDBC 3.0
+[U:\derby\trunk\jars\sane\derby.jar] 10.1.0.0 alpha - (160290)
+
+And here is a test program to reproduce the isssue:
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class DerbyBlobIssueRepro {
+
+    public static void main(String[] args) {
+        System.setProperty("derby.system.home", "C:\\temp");
+
+        try 
+{
+            Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+        }
+        catch(ClassNotFoundException e) 
+{
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        PreparedStatement stmtBatchInsert = null; 
+            
+        try {
+            final Connection conn = getConnection();
+            
+            createOrRecreateTable(conn);
+            
+            stmtBatchInsert = getPreparedInsertRowWithBlobStmt(conn);
+            
+            insertRowWithBlob(stmtBatchInsert, 100);
+//            insertRowWithBlob(stmtBatchInsert, 200);
+            
+            stmtBatchInsert.executeBatch();
+
+            conn.commit();
+            
+            checkBlobLen(conn);
+            
+            conn.commit();
+            
+            conn.close();
+        }
+        catch(SQLException e) {            e.printStackTrace();            System.exit(1);        }
+        finally {
+            if (stmtBatchInsert != null) { try 
+{ stmtBatchInsert.close(); }
+ catch (SQLException e) {} }
+        }
+
+        System.exit(0);
+    }
+
+    private static void createOrRecreateTable(Connection p_conn) throws SQLException {
+        try 
+{
+            dropTable(p_conn);
+        }
+        catch(SQLException e) {
+            if (!e.getSQLState().equals("42Y07")) 
+{
+                e.printStackTrace();
+            }
+        }
+
+        createTable(p_conn);
+    }
+
+    private static void dropTable(Connection p_conn) throws SQLException {
+        PreparedStatement stmt = null;
+        try 
+{
+            stmt = p_conn.prepareStatement("DROP TABLE test.blobtest");
+
+            stmt.executeUpdate();
+        }
+        finally {
+            if (stmt != null) { try 
+{ stmt.close(); } catch (SQLException e) {} }
+        }
+    }
+    
+    private static void createTable(Connection p_conn) throws SQLException {
+        PreparedStatement stmt = null;
+        try {
+            stmt = p_conn.prepareStatement("CREATE TABLE test.blobtest(len INTEGER, bval BLOB(10M))");
+
+            stmt.executeUpdate();
+        }
+        finally {
+            if (stmt != null) { try { stmt.close(); }
+ catch (SQLException e) {} }
+        }
+    }
+
+
+    private static void insertRowWithBlob(PreparedStatement p_stmtInsert, int p_nLen) throws SQLException 
+{
+        p_stmtInsert.setInt(1, p_nLen);
+        p_stmtInsert.setBytes(2, new byte[p_nLen]);
+
+        p_stmtInsert.addBatch();
+    }
+
+    private static PreparedStatement getPreparedInsertRowWithBlobStmt(Connection p_conn) throws SQLException 
+{
+        return p_conn.prepareStatement("INSERT INTO test.blobtest(len,bval) VALUES (?,?)");
+    }
+
+
+    private static void checkBlobLen(Connection p_conn) throws SQLException {
+        PreparedStatement stmtQuery = null;
+        ResultSet rs = null;
+        try {
+            // try ter update the row, may be there is no row to update
+            stmtQuery = p_conn.prepareStatement("SELECT len, bval from test.blobtest");
+
+            rs = stmtQuery.executeQuery();
+
+            while(rs.next()) {
+                final int nLen = rs.getInt(1);
+                final byte[] arBytes = rs.getBytes(2);
+
+                if (rs.wasNull()) 
+{
+                    System.out.println("unexpected null blob");
+                }
+                else if (nLen != arBytes.length) 
+{
+                    System.out.println("unexpected number of bytes, expected: " + nLen + ", was: " + arBytes.length);
+                }
+            }
+        }
+        finally {
+            if (rs != null) { try 
+{ rs.close(); }
+ catch (SQLException e) {} }
+            if (stmtQuery != null) { try 
+{ stmtQuery.close(); }
+ catch (SQLException e) {} }
+        }
+    }
+
+    private static Connection getConnection() throws SQLException 
+{
+        final Connection conn = DriverManager.getConnection("jdbc:derby:derbyblobdb;create=true", "test", "test");
+        conn.setAutoCommit(false);
+        return conn;
+    }
+
+}

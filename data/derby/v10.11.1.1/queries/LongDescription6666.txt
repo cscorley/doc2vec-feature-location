@@ -1,0 +1,19 @@
+Run the following script with the derby.language.logQueryPlan system property set to true:
+
+
+
+connect 'jdbc:derby:memory:db;create=true';
+create table t1(x int primary key);
+create table t2(y int, constraint c check(y > 0) initially deferred, constraint fk foreign key(y) references t1 initially deferred);
+autocommit off;
+insert into t1 values -1, 1;
+insert into t2 values 1;
+update t2 set y = -1;
+delete from t1 where x = -1;
+commit;
+
+
+
+The commit statement will fail with the following error message: "ERROR 40XC0: Dead statement. This may be caused by catching a transaction severity error inside this statement."
+
+If you run the script without setting the derby.language.logQueryPlan system property, it will fail (correctly) with this error message: "ERROR 23514: The transaction was aborted because of a deferred constraint violation: Check constraint identified by 'C' defined on "APP"."T2" as '(y > 0)'."

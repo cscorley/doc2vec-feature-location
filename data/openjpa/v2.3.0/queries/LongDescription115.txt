@@ -1,0 +1,5 @@
+Running some benchmarks against OpenJPA using the Sun Java System (SunOne) application server. Under load, we're not able to push the cpu to 100%. The culprit seems to be the lock and synchronization processing within AbstractBrokerFactory.newBroker(..). According to sections 5.9.1 and 5.9.2 in the JPA specification, it looks like OpenJPA is attempting to do too much management of the created EntityManagers. Within a Container-managed environment, the Container takes care of the lifecycle of the EntityManagers. So, there does not seem to be a need to do the findBroker(..) invocation, nor is there a need to keep track of the created EntityManagers (_brokers) so that they can be closed when the Factory is closed. 
+
+Once we have verified these changes, there may be others that are needed. But, we have to get by this bottleneck first before going to the next layer... 
+
+Kevin

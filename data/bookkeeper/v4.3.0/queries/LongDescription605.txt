@@ -1,0 +1,16 @@
+There are some classes where the SLF4J Logger is not declared as static. Some of them are classes that will have many instances LedgerEntry, PendingReadOp : 
+
+
+$ git grep LoggerFactory.getLogger | grep -v static
+bookkeeper-server/src/main/java/org/apache/bookkeeper/client/LedgerEntry.java:    Logger LOG = LoggerFactory.getLogger(LedgerEntry.class);
+bookkeeper-server/src/main/java/org/apache/bookkeeper/client/PendingReadOp.java:    Logger LOG = LoggerFactory.getLogger(PendingReadOp.class);
+bookkeeper-server/src/main/java/org/apache/bookkeeper/proto/NIOServerFactory.java:    Logger LOG = LoggerFactory.getLogger(NIOServerFactory.class);
+bookkeeper-server/src/main/java/org/apache/bookkeeper/streaming/LedgerInputStream.java:    Logger LOG = LoggerFactory.getLogger(LedgerInputStream.class);
+bookkeeper-server/src/main/java/org/apache/bookkeeper/streaming/LedgerOutputStream.java:    Logger LOG = LoggerFactory.getLogger(LedgerOutputStream.class);
+bookkeeper-server/src/test/java/org/apache/bookkeeper/test/LoopbackClient.java:    Logger LOG = LoggerFactory.getLogger(LoopbackClient.class);
+hedwig-client/src/main/java/org/apache/hedwig/client/conf/ClientConfiguration.java:    Logger logger = LoggerFactory.getLogger(ClientConfiguration.class);
+hedwig-client/src/main/java/org/apache/hedwig/client/handlers/CloseSubscriptionResponseHandler.java:        LoggerFactory.getLogger(CloseSubscriptionResponseHandler.class);
+hedwig-client/src/main/java/org/apache/hedwig/client/netty/impl/AbstractSubscribeResponseHandler.java:        LoggerFactory.getLogger(AbstractSubscribeResponseHandler.class);
+hedwig-client/src/main/java/org/apache/hedwig/client/netty/impl/multiplex/MultiplexSubscribeResponseHandler.java:        LoggerFactory.getLogger(MultiplexSubscribeResponseHandler.class);
+hedwig-server/src/test/java/org/apache/hedwig/server/persistence/TestBookkeeperPersistenceManagerWhiteBox.java:        LoggerFactory.getLogger(TestBookkeeperPersistenceManagerWhiteBox.class);
+

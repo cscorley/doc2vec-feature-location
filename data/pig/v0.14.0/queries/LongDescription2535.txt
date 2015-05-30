@@ -1,0 +1,23 @@
+The below script is a snippet of a much larger script. The join in the script results in 0 output for Pig 0.8,0.9 and 0.10 though there are matching records.
+
+
+
+
+event_serve = LOAD 'input1'   USING MyMapLoader() AS (s:map[], m:map[], l:map[]);
+raw = LOAD 'input2'  USING MyMapLoader() AS (s:map[], m:map[], l:map[]);
+
+SPLIT raw INTO
+    serve_raw IF (( (chararray) (s#'type') == '0') AND ( (chararray) (s#'source') == '5')),
+    cm_click_raw IF (( (chararray) (s#'type') == '1') AND ( (chararray) (s#'source') == '5'));
+
+cm_serve = FOREACH serve_raw GENERATE  s#'cm_serve_id' AS cm_event_guid,  s#'cm_serve_timestamp_ms' AS cm_receive_time, s#'p_url' AS ctx ;
+cm_serve_lowercase = stream cm_serve through `tr [:upper:] [:lower:]`;
+cm_serve_final = FOREACH cm_serve_lowercase GENERATE  $0 AS cm_event_guid, $1 AS cm_receive_time, $2 AS ctx;
+filtered = FILTER event_serve BY (chararray) (s#'filter_key') neq 'xxxx' AND (chararray) (s#'filter_key') neq 'yyyy';
+event_serve_project = FOREACH filtered GENERATE s#'event_guid' AS event_guid, s#'receive_time' AS receive_time;
+event_serve_join = join cm_serve_final by (cm_event_guid, cm_receive_time), event_serve_project by (event_guid, receive_time) PARALLEL 800;
+STORE event_serve_join INTO 'output' ;
+
+
+
+The script produces correct results if I disable ColumnMapKeyPrune optimizer.

@@ -1,0 +1,15 @@
+If an INSERT statement takes the rows to insert from an EXCEPT query or an INTERSECT query, the statement fails with "Column position 'X' out of range" if the target table contains more columns than the result returned from EXCEPT or INTERSECT.
+
+Example:
+
+ij> create table t (x int, y int);
+0 rows inserted/updated/deleted
+ij> insert into t select x from t except select x from t;
+ERROR 42X77: Column position '2' is out of range for the query expression.
+ij> insert into t select x from t intersect select x from t;
+ERROR 42X77: Column position '2' is out of range for the query expression.
+
+The corresponding UNION query works:
+
+ij> insert into t select x from t union select x from t;
+0 rows inserted/updated/deleted

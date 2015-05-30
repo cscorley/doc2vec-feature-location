@@ -1,0 +1,101 @@
+According to documentation (1.2 Attach Behavior), when an entity instance is NEW (never detached):
+
+
+	If neither of the above cases apply, OpenJPA will check to see if an instance with the same primary key values exists in the database. If so, the object is considered detached. Otherwise, it is considered new.
+
+
+
+This doesn't work for me - a new record in database is created on commit instead of updating the existing one. The "regular" case - detach/modify/attach works fine - the existing record is updated.
+
+It is very easy to reproduce - just create a new instance of an entity, assign an already existing primary key, call em.merge() and commit. A new record will be created in database, with new, auto-generated primary key.
+
+I stumbled on this trying to implement a web service that uses OpenJPA-based backend. When servicing an "update" request, the web service instantiates a NEW object (by performing XML de-serialization) and calls em.merge to update the entity. A new record gets created instead of updating an existing one.
+
+------------ Entity class (START) ------------------------------
+
+package exaple;
+
+public class Consumer implements java.io.Serializable {
+
+  private long id;
+
+  public long getId() 
+{
+    return this.id;
+  }
+
+  public void setId(long id) 
+{
+    this.id = id;
+  }
+
+  private java.lang.String firstName;
+
+  public java.lang.String getFirstName() 
+{
+    return this.firstName;
+  }
+
+  public void setFirstName(java.lang.String firstName) 
+{
+    this.firstName = firstName;
+  }
+
+  private java.lang.String lastName;
+
+  public java.lang.String getLastName() 
+{
+    return this.lastName;
+  }
+
+  public void setLastName(java.lang.String lastName) 
+{
+    this.lastName = lastName;
+  }
+
+------------ Entity class (END) ------------------------------
+------------ persistence.xml (START) ------------------------------
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.0">
+
+    <persistence-unit name="example" transaction-type="RESOURCE_LOCAL">
+
+        <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
+
+        <!-- We must enumerate each entity in the persistence unit -->
+        <class>example.Consumer</class>
+
+        <properties>
+
+            <property name="openjpa.jdbc.DBDictionary" value="postgres"/>
+            <property name="openjpa.ConnectionDriverName" value="org.postgresql.Driver"/>
+            <property name="openjpa.ConnectionUserName" value="app_user"/>
+            <property name="openjpa.ConnectionPassword" value="app_user"/>
+            <property name="openjpa.ConnectionURL" value="jdbc:postgresql://localhost/alikic"/>
+            <property name="openjpa.Log" value="DefaultLevel=WARN,SQL=TRACE"/>
+
+        </properties>
+    </persistence-unit>
+
+</persistence>
+------------ persistence.xml (END) ------------------------------
+------------ orm.xml (START) ------------------------------
+<entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm orm_1_0.xsd"
+    version="1.0">
+    <entity class="example.Consumer">
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <basic name="firstName">
+                <column name="first_name"/>
+            </basic>
+            <basic name="lastName">
+                <column name="last_name"/>
+            </basic>
+        </attributes>
+    </entity>
+</entity-mappings>
+------------ orm.xml (END) ------------------------------

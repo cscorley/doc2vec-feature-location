@@ -1,0 +1,5 @@
+In the non-distributed recommender world, the Euclidean distance similarity is calculated as n/(1+d), where d is distance and n is dimension. 1/(1+d) is a valid mapping from distance [0,infinity) to similarity (0,1]. n is there to "correct" for the fact that things are farther apart in higher dimensions. It would be right-er, after some discussion, to use a factor of sqrt, and apply directly to the distance; 1/(1+d/sqrt).
+
+I propose fixing the calculation accordingly.
+
+In the distributed similarity, the formula is 1-1/(1+d), which is the wrong way around. That will be fixed. I'd apply the same heuristic, except that at the moment we don't have access to the value of n at that point. I don't like the inconsistency but it's minor; would rather get this change in now, which definitely improves things.

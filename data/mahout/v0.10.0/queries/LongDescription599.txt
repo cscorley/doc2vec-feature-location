@@ -1,0 +1,5 @@
+The AbstractMatrix.java class uses clone() instead of like() in the methods which create a new matrix and populate it with calculated data. This means that the contents of 'this' is copied into the return matrix, then promptly overwritten.
+
+This patch fixes this problem by substituting like() and changing the code to not rely on having the values of 'this' in the clone.
+
+Also, this allows generated matrices like a random matrix to reuse the code from AbstractMatrix; read-only matrices cannot populate their clones.

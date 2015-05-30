@@ -1,0 +1,10 @@
+Rev 680935 of StopFilterFactory introduced some changes that can cause poor performance do to the use of HashSet instead of CharArraySet in the inform() method.  I noticed this while profiling http://www.lucidimagination.com/search/document/f46f0edfc439356c/solr_user_upgrade_from_1_2_to_1_3_gives_3x_slowdown whereby 20% of the time spent in indexing occurred in Collections.addAll() in the Lucene StopFilter due to the execution of the else clause in the lines:
+
+
+if (stopWords instanceof CharArraySet) {
+      this.stopWords = (CharArraySet)stopWords;
+    } else {
+      this.stopWords = new CharArraySet(stopWords.size(), ignoreCase);
+      this.stopWords.addAll(stopWords);
+    }
+

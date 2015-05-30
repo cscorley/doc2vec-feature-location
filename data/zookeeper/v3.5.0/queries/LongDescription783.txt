@@ -1,0 +1,5 @@
+ZKDatabase.getCommittedLog() returns a reference to the LinkedList<Proposal> committedLog in ZKDatabase. This is then iterated over by at least one caller. 
+
+I have seen a bug that causes a NPE in LinkedList.clear on committedLog, which I am pretty sure is due to the lack of synchronization. This bug has not been apparent in normal ZK operation, but in code that I have that starts and stops a ZK server in process repeatedly (clear() is called from ZooKeeperServerMain.shutdown()). 
+
+It's better style to defensively copy the list in getCommittedLog, and to synchronize on the list in ZKDatabase.clear.

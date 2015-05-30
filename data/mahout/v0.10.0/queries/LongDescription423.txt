@@ -1,0 +1,5 @@
+I ran a simple collaborative filtering application using a GenericBooleanPrefDataModel built from (a subset of) the Netflix data, Tanimoto similarity, and the GenericItemBasedRecommender, and then called recommender.mostSimilarItems() (a lot).  
+
+Profiling indicated that the majority of the time was spent in GenericBooleanPrefDataModel.getNumUsersWithPreferenceFor(long... itemIDs).  The version in GenericDataModel is optimized for the cases of one and two itemIDs, but the version in GenericBooleanPrefDataModel always computes the intersection set.
+
+I can create a patch which optimizes the two cases of itemIDs.length == 1 and itemIDs.length == 2 (similar to the version in GenericDataModel), but perhaps the code should be refactored if these are really the most common cases.

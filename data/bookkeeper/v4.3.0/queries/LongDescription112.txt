@@ -1,0 +1,4 @@
+Bookie recovery updates the ledger metadata in zookeeper. LedgerHandle will not get notified of this update, so it will try to write out its own ledger metadata, only to fail with KeeperException.BadVersion. This effectively fences all write operations on the LedgerHandle (close and addEntry). close will fail for obvious reasons. addEntry will fail once it gets to the failed bookie in the schedule, tries to write, fails, selects a new bookie and tries to update ledger metadata.
+
+Update Line 605, testSyncBookieRecoveryToRandomBookiesCheckForDupes(), when done
+Also, uncomment addEntry in TestFencing#testFencingInteractionWithBookieRecovery()

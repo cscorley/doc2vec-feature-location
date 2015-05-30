@@ -1,0 +1,9 @@
+When using an abstract entity, all collections defined in this super class are incorrectly filled in with standard OpenJPA collection implementations. I'd like to have my own collection implementation inside my entities.
+
+E.g.: private Set<Item> items = new MyHashSet<Item>();
+should be a specialized collection proxy, but when an abstract entity comes in only the standard OpenJPA collection proxy is used.
+
+I proved this statement by creating two Eclipse sample projects which you can find in the attachments of this ticket. This problem occures in both of the newest version of OpenJPA.
+To execute the JUnit test go to src/openjpa/test/FailingTest.java and hit run. You will see an error displayed in the console. To get this test case green only openjpa.model.AbstractCategory has to be "unabstract". Just remove "abstract" in its class definition.
+
+I hope my informations help you to fix this issue in a reasonable time.

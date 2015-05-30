@@ -1,0 +1,13 @@
+stats.jsp is cool and all, but suffers from escaping issues, and also is not accessible from SolrJ or other standard Solr APIs.
+
+Here's a request handler that emits everything stats.jsp does.
+
+For now, it needs to be registered in solrconfig.xml like this:
+
+
+
+    <requestHandler name="/admin/stats" class="solr.SystemStatsRequestHandler" />
+
+
+
+But will register this in AdminHandlers automatically before committing.

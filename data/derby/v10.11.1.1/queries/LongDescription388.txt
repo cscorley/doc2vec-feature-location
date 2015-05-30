@@ -1,0 +1,51 @@
+If I define an UPDATE trigger and then I repeatedly perform a table update that fires the trigger over many rows, I occasionally see intermittent failures of two kinds: 1) a null pointer exception, and/or 2) a syntax error.
+
+The NPE stack trace is this:
+
+java.lang.NullPointerException
+	at org.apache.derby.impl.sql.GenericPreparedStatement.makeValid(GenericPreparedStatement.java:808)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.rePrepare(GenericPreparedStatement.java:229)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:342)
+	at org.apache.derby.impl.sql.execute.GenericTriggerExecutor.executeSPS(GenericTriggerExecutor.java:166)
+	at org.apache.derby.impl.sql.execute.RowTriggerExecutor.fireTrigger(RowTriggerExecutor.java:108)
+	at org.apache.derby.impl.sql.execute.TriggerEventActivator.notifyEvent(TriggerEventActivator.java:296)
+	at org.apache.derby.impl.sql.execute.UpdateResultSet.fireAfterTriggers(UpdateResultSet.java:824)
+	at org.apache.derby.impl.sql.execute.UpdateResultSet.open(UpdateResultSet.java:292)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:366)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1100)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeStatement(EmbedPreparedStatement.java:1271)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeUpdate(EmbedPreparedStatement.java:259)
+
+The syntax error stack trace is this:
+
+ERROR 42X01: Syntax error: org.apache.derby.iapi.db.Factory::getTriggerExecutionContext.
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:311)
+	at org.apache.derby.impl.sql.compile.MethodCallNode.resolveMethodCall(MethodCallNode.java:666)
+	at org.apache.derby.impl.sql.compile.StaticMethodCallNode.bindExpression(StaticMethodCallNode.java:455)
+	at org.apache.derby.impl.sql.compile.NonStaticMethodCallNode.bindExpression(NonStaticMethodCallNode.java:170)
+	at org.apache.derby.impl.sql.compile.NonStaticMethodCallNode.bindExpression(NonStaticMethodCallNode.java:170)
+	at org.apache.derby.impl.sql.compile.JavaToSQLValueNode.bindExpression(JavaToSQLValueNode.java:250)
+	at org.apache.derby.impl.sql.compile.CastNode.bindExpression(CastNode.java:224)
+	at
+[snip]
+org.apache.derby.impl.sql.compile.DMLStatementNode.bindExpressions(DMLStatementNode.java:247)
+	at org.apache.derby.impl.sql.compile.UpdateNode.bind(UpdateNode.java:507)
+	at org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatement.java:332)
+	at org.apache.derby.impl.sql.GenericStatement.prepare(GenericStatement.java:107)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.makeValid(GenericPreparedStatement.java:811)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.rePrepare(GenericPreparedStatement.java:229)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:342)
+	at org.apache.derby.impl.sql.execute.GenericTriggerExecutor.executeSPS(GenericTriggerExecutor.java:166)
+	at org.apache.derby.impl.sql.execute.RowTriggerExecutor.fireTrigger(RowTriggerExecutor.java:108)
+	at org.apache.derby.impl.sql.execute.TriggerEventActivator.notifyEvent(TriggerEventActivator.java:296)
+	at org.apache.derby.impl.sql.execute.UpdateResultSet.fireAfterTriggers(UpdateResultSet.java:824)
+	at org.apache.derby.impl.sql.execute.UpdateResultSet.open(UpdateResultSet.java:292)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:366)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1100)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeStatement(EmbedPreparedStatement.java:1271)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeUpdate(EmbedPreparedStatement.java:259)
+
+
+In both cases, it looks like the error happens when Derby decides (internally) to recompile the trigger-action statement in the middle of trigger processing--depending on the state of the underlying Statement object that performs the trigger action, the result will be an NPE or a syntax error.
+
+I'm working on writing up a simplified reproduction and will post soon...

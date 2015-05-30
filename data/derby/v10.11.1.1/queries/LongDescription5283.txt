@@ -1,0 +1,49 @@
+If Derby is terminated while SYSCS_DISABLE_LOG_ARCHIVE_MODE is being called service.properties can be left in a broken state.
+
+Depending on timing either of the two cases can happen:
+Case 1:
+"ERROR XBM0S: Unable to rename file 'C:\PATH_TO_DB\service.properties' to 'C:\PATH_TO_DB\service.propertiesold' " is thrown when next trying to call
+SYSCS_DISABLE_LOG_ARCHIVE_MODE(1). Both "service.properties" and "service.propertiesold" are present in the database directory. Removing "service.propertiesold" corrects the problem.
+
+Case 2:
+"SQLException: Database 'C:\PATH_TO_DB' not found" is thrown when booting the database. The file service.properties does not exist in the database directory but service.propertiesold does exist. Renaming the file back to "service.properties" corrects the problem.
+
+As mentioned above both cases have workarounds but they require manual intervention which is a problem for applications installed to a customer site. It would be great if a more reliable method to update the file could be found.
+
+The following sample code will reproduce the issue fairly reliably by terminating the java process:
+
+import java.sql.*;
+import org.apache.derby.jdbc.*;
+
+public class DerbyLogArchiveModeTest {
+
+    public static void main(String[] args) {
+        final EmbeddedDataSource ds = new EmbeddedDataSource();
+        ds.setDatabaseName("derbyTest");
+        ds.setCreateDatabase("create");
+
+        try {
+            final Connection conn = ds.getConnection();
+
+            try {
+                final Statement stmt = conn.createStatement();
+
+                try {
+                    while (true) 
+{
+                        stmt.execute("call SYSCS_UTIL.SYSCS_DISABLE_LOG_ARCHIVE_MODE(1)");
+                    }
+                } finally 
+{
+                    stmt.close();
+                }
+            } finally 
+{
+                conn.close();
+            }
+        } catch (SQLException e) 
+{
+            e.printStackTrace();
+        }
+    }
+}

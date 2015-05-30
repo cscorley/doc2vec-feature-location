@@ -1,0 +1,13 @@
+This patch contains an implementation of conjugate gradient, an iterative algorithm for solving large linear systems. In particular, it is well suited for large sparse systems where a traditional QR or Cholesky decomposition is infeasible. Conjugate gradient only works for matrices that are square, symmetric, and positive definite (basically the same types where Cholesky decomposition is applicable). Systems like these commonly occur in statistics and machine learning problems (e.g. regression). 
+
+Both a standard (in memory) solver and a distributed hadoop-based solver (basically the standard solver run using a DistributedRowMatrix a la DistributedLanczosSolver) are included.
+
+There is already a version of this algorithm in taste package, but it doesn't operate on standard mahout matrix/vector objects, nor does it implement a distributed version. I believe this implementation will be more generically useful to the community than the specialized one in taste.
+
+This implementation solves the following types of systems:
+
+Ax = b, where A is square, symmetric, and positive definite
+A'Ax = b where A is arbitrary but A'A is positive definite. Directly solving this system is more efficient than computing A'A explicitly then solving.
+(A + lambda * I)x = b and (A'A + lambda * I)x = b, for systems where A or A'A is singular and/or not full rank. This occurs commonly if A is large and sparse. Solving a system of this form is used, for example, in ridge regression.
+
+In addition to the normal conjugate gradient solver, this implementation also handles preconditioning, and has a sample Jacobi preconditioner included as an example. More work will be needed to build more advanced preconditioners if desired.

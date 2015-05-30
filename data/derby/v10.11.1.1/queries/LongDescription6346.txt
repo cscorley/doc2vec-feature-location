@@ -1,0 +1,14 @@
+Derby trips over an NPE while processing a left join whose inner table has a generated column. The NPE is not printed to derby.log, indicating another problem. The bug goes as far back as 10.5.1.1, the release which introduced generated columns. The NPE does NOT crash the connection. The application can continue issuing statements on the connection.
+
+The following script shows this problem:
+
+connect 'jdbc:derby:memory:db;create=true';
+
+create table t1( c1 int, c2 int generated always as ( -c1 ) );
+create table t2( c1 int );
+
+insert into t1( c1 ) values ( 2 ), ( 20 );
+insert into t2( c1 ) values ( 2 ), ( 200 );
+
+– raises a SQLException wrapping an NPE
+select * from t2 left join t1 on t1.c1 = t2.c1;

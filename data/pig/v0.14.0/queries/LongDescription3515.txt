@@ -1,0 +1,24 @@
+Executing shell commands in pig scripts, may stuck due to Java buffer limitations.
+
+Example:
+%declare VAR   `cat 100kbytes.txt`
+
+Produce:
+2013-10-09 15:25:56,825 [main] INFO  org.apache.pig.tools.parameters.PreprocessorContext - Executing command : cat 100kbytes.txt
+
+The execution hungs, so you have to interrupt the program.
+
+^C
+2013-10-09 15:26:10,066 [main] ERROR org.apache.pig.Main - ERROR 2999: Unexpected internal error. Error executing shell command: cat 100kbytes.txt. Command exit with exit code of 130
+
+Explanation:
+The problem lies in org.apache.pig.tools.parameters.PreprocessorContext#executeShellCommand method, line: 191 (trunk, at revision 1531874).
+
+We wait for the process to complete before we get all the output, but the process waits for an indefinite amount of time, due to the fact that there is no space left in the buffer and the output can't be delivered.
+
+References:
+[1] http://www.javaworld.com/javaworld/jw-12-2000/jw-1229-traps.html?page=2
+[2] http://vyvaks.wordpress.com/2006/05/27/does-runtimeexec-hangs-in-java/
+
+Solution:
+I attach a test case that illustrates the problem and a patch as a solution. I would really like some comments.

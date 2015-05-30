@@ -1,0 +1,24 @@
+Currently, when there is too much contention on a sequence/identity, Derby raises an error saying so. There are two properties which the user can adjust in order to reduce the risk of this error:
+
+derby.locks.waitTimeout
+derby.language.sequence.preallocator
+
+It would be good to point the user at these knobs. The following change would improve this error reporting:
+
+1) Raise a lock timeout SQLException
+
+2) Chain a "too much contention" SQLException (X0Y84) to the lock timeout.
+
+3) Make the "too much contention" exception suggest that the user adjust the properties mentioned above.
+
+To make the code easier to understand, the exception raising could replace the loop exit inside the following "if" block in SequenceUpdater.getCurrentValueAndAdvance():
+
+            if (
+                (_lockTimeoutInMillis >= 0L) &&
+                ( (System.currentTimeMillis() - startTime.longValue()) > _lockTimeoutInMillis )
+                )
+            {
+                break;
+            }
+
+This approach was recommended by the discussion on DERBY-5423.

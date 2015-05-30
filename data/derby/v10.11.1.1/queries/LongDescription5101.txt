@@ -1,0 +1,14 @@
+If for example the test case testSelfReferencing in TruncateTableTest runs before the other test cases, the test will fail like this:
+
+2) testSelfReferencing(org.apache.derbyTesting.functionTests.tests.lang.TruncateTableTest)java.sql.SQLSyntaxErrorException: Schema 'ALICE' does not exist
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:92)
+        at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Util.java:256)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:396)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:348)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:2290)
+        at org.apache.derby.impl.jdbc.ConnectionChild.handleException(ConnectionChild.java:82)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:619)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:559)
+        at org.apache.derbyTesting.functionTests.tests.lang.TruncateTableTest.testSelfReferencing(TruncateTableTest.java:167)
+
+The test should either make the order of the test cases explicit or make the test cases independent of the order in which they run.

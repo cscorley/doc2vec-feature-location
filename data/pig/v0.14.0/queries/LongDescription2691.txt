@@ -1,0 +1,13 @@
+TOKENIZE produces a fixed named schema that results in duplicates if used more than once in the same generate statement.
+We could paramenterize the schema on the name of the field being tokenized.
+
+
+
+grunt> q = LOAD 'file' AS (source:chararray, target:chararray);
+grunt> e = FOREACH q GENERATE TOKENIZE(source), TOKENIZE(target);
+2012-05-09 20:18:37,235 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1108: 
+<line 2, column 14> Duplicate schema alias: bag_of_tokenTuples
+grunt> e = FOREACH q GENERATE TOKENIZE(source) as s_entities, TOKENIZE(target) as t_entities;
+grunt> describe e
+e: {s_entities: {tuple_of_tokens: (token: chararray)},t_entities: {tuple_of_tokens: (token: chararray)}}
+

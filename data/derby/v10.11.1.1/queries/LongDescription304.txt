@@ -1,0 +1,13 @@
+If by mistake you give he location for the db backup as the db itself , then windows created directories recursively until it crashes! 
+
+Repro:
+
+			CallableStatement cs = conn.prepareCall("CALL SYSCS_UTIL.SYSCS_BACKUP_DATABASE_AND_ENABLE_LOG_ARCHIVE_MODE(?, ?)");
+			cs.setString(1, "c:/maildb");
+			cs.setInt(2, 1);
+			cs.execute();
+			cs.close();
+
+result:
+
+C:\maildb\maildb\maildb\maildb\maildb\maildb\maildb\maildb\maildb\maildb\maildb\maildb\maildb\maildb\..................... Until windows can not show the path!!!

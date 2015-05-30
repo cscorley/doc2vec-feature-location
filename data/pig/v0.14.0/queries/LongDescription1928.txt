@@ -1,0 +1,17 @@
+Pig gives incorrect error message for the following query:
+
+A =LOAD 'x' USING PigStorage() AS ( Fint:int, Flong:long, Fdouble:double, Ffloat:float, Fchar:chararray, Fchararray:chararray, Fbytearray:bytearray, Fmap:map[], Fbag:BAG
+{ t:tuple( name, age, avg ) }
+, Ftuple name:chararray, age:int, avg:float) );
+B =GROUP A ALL; 
+X =FOREACH B GENERATE A.Fint, SUM( A.Fint + ( 1 + 0) );
+STORE X INTO 'y.out' USING PigStorage();
+
+Error message given:
+
+2011-03-21 16:53:14,602 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1039: incompatible types in Add Operator left hand side:Unknown null#63:tuple(Fint#42:int)  right hand side:Unknown
+
+In 0.8, the following error msg is given:
+
+2011-03-21 22:10:30,945 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1039: In alias X, incompatible types in Add Operator left hand side:bag right hand side:int
+

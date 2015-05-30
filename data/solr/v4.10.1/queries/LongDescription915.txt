@@ -1,0 +1,12 @@
+In SolrCore: close() - all the way towards the end of the function - there seems to be a sequential list of close method invocation. 
+
+    if( closeHooks != null ) {
+       for( CloseHook hook : closeHooks ) 
+{
+         hook.close( this );
+      }
+    }
+
+I believe this has scope to be parallelized ( actually the entire sequence of close operations , updateHandler,close() etc.) - by means of launching them in separate threads from an ExecutorService , for a much faster shutdown as the process definitely does not need to be sequential. 
+
+This becomes all the more important in the multi-core context when we might want to shutdown and restart a SolrCore altogether. 

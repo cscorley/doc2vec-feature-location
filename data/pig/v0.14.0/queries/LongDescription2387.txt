@@ -1,0 +1,35 @@
+Hi,
+
+When an input file of size greater than default split size is loaded using BinStorage() and some processing is done, the task returns negative progress
+
+Script
+
+
+
+A = load 'input' using BinStorage() as (a:chararray);
+B = filter A by (a matches '.*blinds.*');
+store B into 'op';
+
+
+
+
+Looking at the code, BinStorage which uses BinStorageRecordReader, has getProgress()
+
+
+
+public float getProgress() {
+    if (start == end) {
+      return 0.0f;
+    } else {
+          return Math.min(1.0f, (pos - start) / (float)(end - start));
+    }
+  }
+
+
+
+In BinStorageRecordReader, pos is always 0 and not getting updated at any point.
+So when the input file of size greater than default split size is loaded and processed, the getProgress() method returns negative value, thus showing negative progress.
+
+Regards,
+Anitha 
+

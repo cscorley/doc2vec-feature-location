@@ -1,0 +1,30 @@
+The 10.6 upgrade tests are currently commented out. When the 10.6 upgrade test is enabled, it fails with the following exception:
+
+Caused by: java.sql.SQLException: 'SYSCS_UTIL.SYSCS_SET_XPLAIN_SCHEMA' is not re
+cognized as a function or procedure.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExc
+eptionFactory.java:45)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransport
+AcrossDRDA(SQLExceptionFactory40.java:119)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLE
+xceptionFactory40.java:70)
+        ... 98 more
+Caused by: ERROR 42Y03: 'SYSCS_UTIL.SYSCS_SET_XPLAIN_SCHEMA' is not recognized a
+s a function or procedure.
+        at org.apache.derby.iapi.error.StandardException.newException(StandardEx
+ception.java:286)
+        at org.apache.derby.impl.sql.compile.StaticMethodCallNode.bindExpression
+(StaticMethodCallNode.java:216)
+        at org.apache.derby.impl.sql.compile.JavaToSQLValueNode.bindExpression(J
+avaToSQLValueNode.java:246)
+        at org.apache.derby.impl.sql.compile.CallStatementNode.bindStatement(Cal
+lStatementNode.java:145)
+        at org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatemen
+t.java:316)
+        at org.apache.derby.impl.sql.GenericStatement.prepare(GenericStatement.j
+ava:88)
+        at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepa
+reInternalStatement(GenericLanguageConnectionContext.java:822)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java
+:606)
+        ... 92 more

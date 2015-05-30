@@ -1,0 +1,7 @@
+Noticed this error when doing something like 
+A = flatten(STRSPLIT($0, ',', 3)) AS (col1:chararray, col2:chararray, col3:chararray);
+STORE A INTO 'foo' USING JsonStorage();
+
+If the string being split doesn't generate 3 columns, then JsonStorage errors out with an index exception.  This is because it tries to read the fields of the tuple passed to it or not.  See JsonStorage, line 148.
+
+MY patch checks the length of the tuple.  If any schema column positions are past the length of the tuple, it fills in null.

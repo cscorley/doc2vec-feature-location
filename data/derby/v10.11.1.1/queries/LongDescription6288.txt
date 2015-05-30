@@ -1,0 +1,5 @@
+When running the upgrade tests with JaCoCo, they print an IllegalClassFormatException to the console, as reported here: http://mail-archives.apache.org/mod_mbox/db-derby-dev/201307.mbox/%3C51D786F1.3020502%40gmail.com%3E
+
+The reason appears to be that the 10.0.2.1 version of derby.jar contains a class that is not valid, according to this ASM bug report: http://forge.ow2.org/tracker/?func=detail&atid=100023&aid=316416&group_id=23
+
+We should exclude 10.0.2.1 when running with JaCoCo in order to reduce the noise.

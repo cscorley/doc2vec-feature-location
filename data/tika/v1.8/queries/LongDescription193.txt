@@ -1,0 +1,8 @@
+Using AutoDetectParser to call PDFParser causes the mime-type to be added twice.  It should be added exactly once.
+
+Proposed Fix:
+parser/pdf/PDFParser.java should be changed from:
+metadata.add(Metadata.CONTENT_TYPE, "application/pdf");
+to:
+metadata.set(Metadata.CONTENT_TYPE, "application/pdf");
+as per other Tika bundled parsers.

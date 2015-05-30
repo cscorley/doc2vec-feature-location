@@ -1,0 +1,10 @@
+We have a thread which parser > 200k files, and we always get "too many open files open" error from operating system. Using lsof I noticed tha apache-tika temp files (created by class temporaryFiles) are not really deleted by operating system, even if delete method returns true.
+Searching in the code, I found that the problem (which does not manifest with all the files) is probably in TikaInputStream#close method. Here opencontainer is set to null, but in case of opencontainer instance of org.apache.poi.poifs.filesystem.NPOIFSFileSystem the problems disappear if I call close() on opencontainer. I modified the NPOIFSFileSystem class to implement java.io.Closeable, and modified TikaInputStream#close method to make 
+
+	if (openContainer instanceof java.io.Closeable) 
+{
+			((java.io.Closeable) openContainer).close();
+		}
+        openContainer = null;
+
+I don't know if this is the best solution, but it seems to solve the problem for me.

@@ -1,0 +1,63 @@
+PIG-1156 added aliases in Pig scripts to the corresponding LogicalOperators and PhysicalOperators. The aliases in the operators, however, are not displayed in the output created by the explain command. 
+
+Since a Pig script can generate many MR jobs, it will be helpful, for debugging purposes, to annotate the explain output plans with aliases, so that users can correlate the jobs with the statements in their scripts.
+
+Here is an example: given the following script
+
+
+
+A = load 'input';
+B = group A by $0;
+C = foreach B generate group, flatten(A);
+explain C
+
+
+
+The output without alias annotation is 
+
+
+
+MapReduce node 1-28
+Map Plan
+Local Rearrange[tuple]{bytearray}(false) - 1-22
+|   |
+|   Project[bytearray][0] - 1-23
+|
+|---Load(file:///test/input:org.apache.pig.builtin.PigStorage) - 1-19--------
+Reduce Plan
+Store(fakefile:org.apache.pig.builtin.PigStorage) - 1-27
+|
+|---New For Each(false,true)[bag] - 1-26
+    |   |
+    |   Project[bytearray][0] - 1-24
+    |   |
+    |   Project[bag][1] - 1-25
+    |
+    |---Package[tuple]{bytearray} - 1-21--------
+Global sort: false
+
+ 
+
+While the output with alias annotation will be
+
+
+
+MapReduce node 1-28
+Map Plan
+B: Local Rearrange[tuple]{bytearray}(false) - 1-22
+|   |
+|   Project[bytearray][0] - 1-23
+|
+|---A: Load(file:///test/input:org.apache.pig.builtin.PigStorage) - 1-19--------
+Reduce Plan
+C: Store(fakefile:org.apache.pig.builtin.PigStorage) - 1-27
+|
+|---C: New For Each(false,true)[bag] - 1-26
+    |   |
+    |   Project[bytearray][0] - 1-24
+    |   |
+    |   Project[bag][1] - 1-25
+    |
+    |---B: Package[tuple]{bytearray} - 1-21--------
+Global sort: false
+

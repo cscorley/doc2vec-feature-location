@@ -1,0 +1,17 @@
+The following script produce wrong result:
+
+
+a = load '1.txt' as (a0:bag{t:tuple(i0:int, i1:int)});
+b = foreach a generate flatten(a0) as (b0, b1), flatten(a0) as (b2, b3);
+c = filter b by b0>b2;
+dump c;
+
+
+
+1.txt:
+{(1,2),(2,3)}
+
+Expected result:
+(2,3,1,2)
+
+We get nothing.

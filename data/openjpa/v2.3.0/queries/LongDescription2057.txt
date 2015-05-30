@@ -1,0 +1,44 @@
+This issue proposes an overhaul of the classloading architecture.
+
+Background:
+------------------
+OpenJPA runtime needs to load classes and resources at various time points in its life cycle and employs various classloading strategies at different parts of its code base. 
+These are few broad categories of classes/resources OpenJPA needs to load
+1. Resources: user-specified resources such as persistence.xml or orm.xml
+2. Persistent Domain classes
+3. Native Plug-ins: Implementation of interfaces e.g. UpdateManager that are supplied by OpenJPA and packaged in its own distribution
+4. User Plug-ins: Implementation of interfaces e.g. MappingStrategy or ValueHandlers that the user has supplied via configuration and packaged in deployed units
+5. Temporary classloader for java agent or weaving code loading domain classes to enhance them prior to their use
+
+To load these different artifacts by their name, OpenJPA at different places employ available classloaders such as 
+   i) the current thread's context class loader 
+   ii) the clasloader that loaded OpenJPA native classes/interfaces 
+  iii) the classloader that loaded a deployed application which can vary based on the container (Spring, OSGi, JEE) environment
+  iv) system classloader   
+
+The problem is the decision about which classloader is appropriate in a given context is quite scattered. This weakness appears in numerous places where a method is supplied with a ClassLoader and if the supplied loader is null, the method chooses a classloader (often the context classloader) or a class has its own classforname() method that tries a series of classloaders etc. 
+
+This is a perennial problem and manifested in several reported bugs whose resolutions often introduced further localized logic to account for the point defects, thereby  accentuating the same trends that I believe is the root cause of the problem itself. 
+
+Proposed solution/design:
+-------------------------------------
+Unify classloading decision in a singular abstraction. 
+Allow that abstraction to cope with classloading regimes of different containers (Spring, OSGi, JEE etc). 
+
+The natural candidate for unifying classloading is existing Configuration object. This object is a per persistence unit singleton and available throughout the runtime. 
+However, certain class/resource loading must take place even before a Configuration instance is instantiated. For example, to locate and load the persistence.xml itself. 
+Also note that the persistence.xml or orm.xml may contain fully-qualified names of persistent domain classes or  plug-in names (both native and custom/user variety) and they can occur either by their  fully-qualified class name or registered alias. The specialized parsers often has to load the class given their parsed string names or aliases. 
+
+The bootstrap sequence of OpenJPA runtime is to construct a specific ConfigurationProvider and a series of specialized parsers to parse meta-data of various sorts (annotations, mapping xml, persistence.xml). These ConfigurationProviders are responsibilities of ProductDerivation – the core mechanics that contributes their individual aspects to build up a Configuration. 
+
+Given this existing well-designed bootstrap strategy, here is a proposal
+  1. Let each ProductDerivation make their decision on how they will load whatever they need to load using whatever classloader they may need. For example, a OSGi ProductDerivation will use a bundle classloader to load its relevant resources. This phase occurs before a persistence unit (i.e. EntityManagerFactory) is constructed.
+  2. Once the ProductDerivations have finished their loading using their own ConfigurationProvider, they transfer the accumulated information to a Configuration instance which essentially becomes the holder of entire runtime information for an EntityManagerFactory. During this transfer phase, let the ProductDerivations set the classloader as well into the Configuration instance.
+  3. Once the Configuration instance has the classloader, this classloader is used throughout the codebase.
+
+But what kind of classloader is used by the Configuration that will suit complex needs of class/resource loading? 
+OpenJPA already has a powerful abstraction called MultiClassLoader which can employ an ordered series of (possibly unrelated) classloaders. So that MultiClassLoader is the correct classloader for Configuration instance. The ProductDerivation or ConfigurationProvider can add/remove their contributions. 
+
+I understand that a change of this nature could be destabilizing in short-term. Also the change is difficult to validate across various container environments. I hope the community users will help by suggesting and testing such an overhaul to streamline OpenJPA classloading for long-term sustainability and maintenance. 
+
+

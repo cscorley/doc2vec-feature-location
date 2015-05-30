@@ -1,0 +1,118 @@
+The test case
+
+	public void testFind()
+{
+		PersistenceProviderImpl openJPA = new PersistenceProviderImpl();
+		EntityManagerFactory factory = 
+			openJPA.createEntityManagerFactory("test", "ptp/test/issue6/persistence.xml",
+						System.getProperties() );
+		
+        EntityManager em = factory.createEntityManager();
+        em.getTransaction().begin();
+        
+		String query="select obj from T6Entity obj where obj.name=?1";
+        Query queryObject = em.createQuery(query);
+        queryObject.setParameter(1, "Mom");
+        List resultList = queryObject.getResultList();
+        
+        em.getTransaction().commit();
+        em.close();
+	}
+
+
+produces the following exception
+
+<1.0.0-SNAPSHOT-SNAPSHOT fatal user error> org.apache.openjpa.persistence.ArgumentException: Collection field "ptp.test.issue6.T6Entity.children" declares that it is mapped by "ptp.test.issue6.T6Entity.parent", but this is not a valid inverse relation.
+	at org.apache.openjpa.jdbc.meta.MappingRepository.useInverseKeyMapping(MappingRepository.java:903)
+	at org.apache.openjpa.jdbc.meta.MappingRepository.defaultTypeStrategy(MappingRepository.java:838)
+	at org.apache.openjpa.jdbc.meta.MappingRepository.defaultStrategy(MappingRepository.java:771)
+	at org.apache.openjpa.jdbc.meta.RuntimeStrategyInstaller.installStrategy(RuntimeStrategyInstaller.java:62)
+
+public interface ITree <T extends ITree> {
+	public List<T> getChildren();
+	public T getParent();
+}
+
+
+public class T6Entity implements ITree {
+
+	private Long id;
+	T6Entity parent;
+	List<T6Entity> children;
+
+	public T6Entity getParent() 
+{
+		return parent;
+	}
+	public Long getId() 
+{
+		return id;
+	}
+	public void setId(Long id) 
+{
+		this.id = id;
+	}
+	public List<T6Entity> getChildren() 
+{
+		return children;
+	}
+	public void setChildren(List<T6Entity> children) 
+{
+		this.children = children;
+	}
+	public void setParent(T6Entity parent) 
+{
+		this.parent = parent;
+	}
+	public void addChild(T6Entity aChild) {
+		if ( children == null )
+{
+			children = new ArrayList<T6Entity>();
+		}
+		children.add( aChild );
+		aChild.setParent(this);
+	}
+
+}
+
+
+	<entity class="T6Entity">
+		<table name="T6Entity" />
+		<attributes>
+			<id name="id">
+				<column name="S_ID" />
+				<generated-value strategy="SEQUENCE" generator="seqGen1" />
+				<sequence-generator name="seqGen1"	sequence-name="SEQ_OBJECT_ID" />
+			</id>
+
+			<many-to-one name="parent" fetch="EAGER">
+				<join-column name="PARENT_ID" />
+				<cascade>
+					<cascade-persist />
+					<cascade-merge />
+				</cascade>
+			</many-to-one>
+			<one-to-many name="children"
+				target-entity="T6Entity"
+				mapped-by="parent" fetch="LAZY">
+				<cascade>
+					<cascade-persist />
+					<cascade-merge />
+				</cascade>
+			</one-to-many>
+		</attributes>
+	</entity>
+
+
+
+The java compiler generate the following 2 method for getParent()
+
+public volatile ptp.test.issue6.ITree ptp.test.issue6.T6Entity.getParent()
+public ptp.test.issue6.T6Entity ptp.test.issue6.T6Entity.getParent()
+
+and depending on the order of the methods return from the reflection getDeclaredMethod(),  it cause the wrong return type to be infer as the inverse relationship. 
+
+There is a  work around, by specifying the target-entity in the many-to-one mapping.
+
+But may be something that should be fix.
+

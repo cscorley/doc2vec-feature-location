@@ -1,0 +1,30 @@
+The @Strategy annotation works fine for classes but does not work if the field is a Java interface.  Consider:
+
+	@Persistent
+	@Strategy("SimpleHandler")
+	@Column(name="address_packed")
+	private BaseAddress address;
+	public BaseAddress getAddress() 
+{ return address; }
+	public void setAddress(BaseAddress address) 
+{ this.address = address; }
+
+This works perfectly if BaseAddress is defined as a class but results in an InvalidStateException if it is an interface:
+
+<openjpa-2.0.0-beta2-rexported fatal user error> org.apache.openjpa.persistence.InvalidStateException: Encountered unmanaged object in persistent field "com.example.SimpleEntity.address" during flush.  However, this field does not allow cascade persist. Set the cascade attribute for this field to CascadeType.PERSIST or CascadeType.ALL (JPA annotations) or "persist" or "all" (JPA orm.xml), or enable cascade-persist globally, or manually persist the related field value prior to flushing. You cannot flush unmanaged objects or graphs that have persistent associations to unmanaged objects.
+FailedObject: com.example.USAddress@4e0a39de
+	at org.apache.openjpa.kernel.SingleFieldManager.preFlushPC(SingleFieldManager.java:767)
+	at org.apache.openjpa.kernel.SingleFieldManager.preFlush(SingleFieldManager.java:614)
+	at org.apache.openjpa.kernel.SingleFieldManager.preFlush(SingleFieldManager.java:575)
+	at org.apache.openjpa.kernel.SingleFieldManager.preFlush(SingleFieldManager.java:491)
+	at org.apache.openjpa.kernel.StateManagerImpl.preFlush(StateManagerImpl.java:2956)
+	at org.apache.openjpa.kernel.PNewState.beforeFlush(PNewState.java:40)
+	at org.apache.openjpa.kernel.StateManagerImpl.beforeFlush(StateManagerImpl.java:1048)
+	at org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:2051)
+	at org.apache.openjpa.kernel.BrokerImpl.flushSafe(BrokerImpl.java:2011)
+	at org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:1782)
+	at org.apache.openjpa.kernel.DelegatingBroker.flush(DelegatingBroker.java:1015)
+	at org.apache.openjpa.persistence.EntityManagerImpl.flush(EntityManagerImpl.java:637)
+	... etc ...
+
+Here com.example.USAddress is a class which implements the BaseAddress interface.

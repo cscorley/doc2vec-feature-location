@@ -1,0 +1,38 @@
+The below script when run in local mode gives me a different output. It looks like in local mode I have to store a relation obtained through streaming in order to use it afterwards.
+
+ For example consider the below script : 
+
+DEFINE MySTREAMUDF `test.sh`;
+A  = LOAD 'myinput' USING PigStorage() AS (myId:chararray, data2, data3,data4 );
+B = STREAM A THROUGH MySTREAMUDF AS (wId:chararray, num:int);
+--STORE B into 'output.B';
+C = JOIN B by wId LEFT OUTER, A by myId;
+D = FOREACH C GENERATE B::wId,B::num,data4 ;
+D = STREAM D THROUGH MySTREAMUDF AS (f1:chararray,f2:int);
+--STORE D into 'output.D';
+E = foreach B GENERATE wId,num;
+F = DISTINCT E;
+G = GROUP F ALL;
+H = FOREACH G GENERATE COUNT_STAR(F) as TotalCount;
+I = CROSS D,H;
+STORE I  into 'output.I';
+
+
+test.sh
+---------
+#/bin/bash
+cut -f1,3
+
+
+And input is 
+abcd    label1  11      feature1
+acbd    label2  22      feature2
+adbc    label3  33      feature3
+
+
+Here if I store relation B and D then everytime i get the result  :
+acbd            3
+abcd            3
+adbc            3
+
+But if i dont store relations B and D then I get an empty output.  Here again I have observed that this behaviour is random ie sometimes like 1out of 5 runs there will be output. 

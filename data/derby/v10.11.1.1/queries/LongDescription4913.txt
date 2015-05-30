@@ -1,0 +1,182 @@
+I have a report from a user upgrading to 10.5 from 10.3 that they got the following error during upgrade. I don't have much in the way of details yet, but thought I would post an issue since I've never seen this error before.  I do have the original 10.3 database and it seems to upgrade fine to 10.5 with ij.  
+
+
+    java.sql.SQLException: Failed to start database 
+'/
+org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException
+(Unknown Source)
+       at 
+org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Unknown 
+Source)
+       at 
+org.apache.derby.impl.jdbc.Util.seeNextException(Unknown 
+Source)
+       at 
+org.apache.derby.impl.jdbc.EmbedConnection.bootDatabase(Unknown 
+Source)
+       at 
+org.apache.derby.impl.jdbc.EmbedConnection.<init>(Unknown 
+Source)
+       at 
+org.apache.derby.impl.jdbc.EmbedConnection30.<init>(Unknown 
+Source)
+       at 
+org.apache.derby.impl.jdbc.EmbedConnection40.<init>(Unknown 
+Source)
+       at 
+org.apache.derby.jdbc.Driver40.getNewEmbedConnection(Unknown 
+Source)
+       at org.apache.derby.jdbc.InternalDriver.connect(Unknown 
+Source)
+       at 
+org.apache.derby.jdbc.EmbeddedDataSource.getConnection(Unknown 
+Source)
+       at 
+org.apache.derby.jdbc.EmbedPooledConnection.openRealConnection(U
+nknown Source)
+       at 
+org.apache.derby.jdbc.EmbedPooledConnection.<init>(Unknown 
+Source)
+       at 
+org.apache.derby.jdbc.EmbedPooledConnection40.<init>(Unknown 
+Source)
+       at 
+org.apache.derby.jdbc.Driver40.getNewPooledConnection(Unknown 
+Source)
+       at 
+org.apache.derby.jdbc.EmbeddedConnectionPoolDataSource.createPoo
+ledConnection(Unknown Source)
+       at 
+org.apache.derby.jdbc.EmbeddedConnectionPoolDataSource.getPooled
+Connection(Unknown Source)
+       at 
+<snip>
+    Caused by: java.sql.SQLException: Failed to start database 
+'<snip>759243AF2F8
+4F1DE' with class loader <snip>.ExtClassLoader@3e955f6, see the next 
+exception for details.
+       at 
+org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(U
+nknown Source)
+       at 
+org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTran
+sportAcrossDRDA(Unknown Source)
+       ... 41 more
+    Caused by: java.sql.SQLException: Exception during restore 
+of a serializable or SQLData object of class 
+       at 
+org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(U
+nknown Source)
+       at 
+org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTran
+sportAcrossDRDA(Unknown Source)
+       at 
+org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException
+(Unknown Source)
+       at 
+org.apache.derby.impl.jdbc.Util.generateCsSQLException(Unknown 
+Source)
+       ... 38 more
+    Caused by: ERROR XSDA8: Exception during restore of a 
+serializable or SQLData object of class 
+       at 
+org.apache.derby.iapi.error.StandardException.newException(Unkno
+wn Source)
+       at 
+org.apache.derby.impl.store.raw.data.StoredPage.readRecordFromAr
+ray(Unknown Source)
+       at 
+org.apache.derby.impl.store.raw.data.StoredPage.restoreRecordFro
+mSlot(Unknown Source)
+       at 
+org.apache.derby.impl.store.raw.data.BasePage.fetchFromSlot(Unkn
+own Source)
+       at 
+org.apache.derby.impl.store.access.conglomerate.GenericScanContr
+oller.fetchRows(Unknown Source)
+       at 
+org.apache.derby.impl.store.access.heap.HeapScan.fetchNext(Unkno
+wn Source)
+       at 
+org.apache.derby.impl.sql.catalog.DataDictionaryImpl.getDescript
+orViaHeap(Unknown Source)
+       at 
+org.apache.derby.impl.sql.catalog.DataDictionaryImpl.getAllSPSDe
+scriptors(Unknown Source)
+       at 
+org.apache.derby.impl.sql.catalog.DataDictionaryImpl.dropJDBCMet
+adataSPSes(Unknown Source)
+       at 
+org.apache.derby.impl.sql.catalog.DataDictionaryImpl.updateMetad
+ataSPSes(Unknown Source)
+       at 
+org.apache.derby.impl.sql.catalog.DD_Version.doFullUpgrade(Unkno
+wn Source)
+       at 
+org.apache.derby.impl.sql.catalog.DD_Version.upgradeIfNeeded(Unk
+nown Source)
+       at 
+org.apache.derby.impl.sql.catalog.DataDictionaryImpl.loadDiction
+aryTables(Unknown Source)
+       at 
+org.apache.derby.impl.sql.catalog.DataDictionaryImpl.boot(Unknow
+n Source)
+       at 
+org.apache.derby.impl.services.monitor.BaseMonitor.boot(Unknown 
+Source)
+       at 
+org.apache.derby.impl.services.monitor.TopService.bootModule(Unk
+nown Source)
+       at 
+org.apache.derby.impl.services.monitor.BaseMonitor.startModule(U
+nknown Source)
+       at 
+org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule
+(Unknown Source)
+       at org.apache.derby.impl.db.BasicDatabase.boot(Unknown 
+Source)
+       at 
+org.apache.derby.impl.services.monitor.BaseMonitor.boot(Unknown 
+Source)
+       at 
+org.apache.derby.impl.services.monitor.TopService.bootModule(Unk
+nown Source)
+       at 
+org.apache.derby.impl.services.monitor.BaseMonitor.bootService(U
+nknown Source)
+       at 
+org.apache.derby.impl.services.monitor.BaseMonitor.startProvider
+Service(Unknown Source)
+       at 
+org.apache.derby.impl.services.monitor.BaseMonitor.findProviderA
+ndStartService(Unknown Source)
+       at 
+org.apache.derby.impl.services.monitor.BaseMonitor.startPersiste
+ntService(Unknown Source)
+       at 
+org.apache.derby.iapi.services.monitor.Monitor.startPersistentSe
+rvice(Unknown Source)
+       ... 38 more
+    Caused by: java.io.StreamCorruptedException: 
+java.lang.ClassCastException: 
+org.apache.derby.catalog.types.OldRoutineType incompatible with 
+org.apache.derby.iapi.types.DataTypeDescriptor
+       at 
+org.apache.derby.iapi.services.io.FormatIdInputStream.readObject
+(Unknown Source)
+       at 
+org.apache.derby.impl.sql.GenericResultDescription.readExternal(
+Unknown Source)
+       at 
+org.apache.derby.iapi.services.io.FormatIdInputStream.readObject
+(Unknown Source)
+       at 
+org.apache.derby.impl.sql.GenericStorablePreparedStatement.readE
+xternal(Unknown Source)
+       at 
+org.apache.derby.iapi.services.io.FormatIdInputStream.readObject
+(Unknown Source)
+       at 
+org.apache.derby.iapi.types.UserType.readExternal(Unknown 
+Source)
+       ... 63 more

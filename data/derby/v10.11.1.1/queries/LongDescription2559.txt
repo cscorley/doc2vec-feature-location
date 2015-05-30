@@ -1,0 +1,15 @@
+Consider the following code snippet from test DataSourceReferenceTest:
+--------------------
+        Referenceable refDS = (Referenceable) ds;
+        Reference dsAsReference = refDS.getReference();
+        String factoryClassName = dsAsReference.getFactoryClassName();
+        ObjectFactory factory = 
+            (ObjectFactory) Class.forName(factoryClassName).newInstance();  
+        Object recreatedDS = 
+            factory.getObjectInstance(dsAsReference, null, null, null);
+---------------------
+
+When ds is a ClientDataSource40 (i.e. when running with jdk16), recreatedDS is null.
+
+Note, that this showed up only after converting the test to junit, because the original test hardcoded the ds to be a ClientDataSource. I confirmed this not to be related to my changes for DERBY-2296 (which prompted me to convert the test), by backing out my changes to ClientBaseDataSource and client/am/Connection and rerunning the test (needed some minor adjustments of expected values table/array).
+

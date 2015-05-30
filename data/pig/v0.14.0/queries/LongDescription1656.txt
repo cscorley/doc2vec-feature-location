@@ -1,0 +1,20 @@
+TOBAG udf ignores columns with null value
+
+
+R4= foreach B generate $0,  TOBAG( id, null, id,null );
+grunt> dump R4;
+1000    {(1),(1)}
+1000    {(2),(2)}
+1000    {(3),(3)}
+1000    {(4),(4)}
+
+
+
+
+ TOBAG does not use input type to determine output schema
+
+
+grunt> B1 = foreach B generate TOBAG( 1, 2, 3);         
+grunt> describe B1;
+B1: {{null}}
+

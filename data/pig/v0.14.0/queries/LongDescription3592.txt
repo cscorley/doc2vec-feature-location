@@ -1,0 +1,14 @@
+Having mapreduce.fileoutputcommitter.marksuccessfuljobs set to true and having both fs path (where you want _SUCCESS file created) and hbase in STORE statements results in 
+
+Caused by: java.io.IOException: No FileSystem for scheme: hbase
+    at org.apache.hadoop.fs.FileSystem.createFileSystem(FileSystem.java:2157)
+    at org.apache.hadoop.fs.FileSystem.access$200(FileSystem.java:85)
+    at org.apache.hadoop.fs.FileSystem$Cache.getInternal(FileSystem.java:2194)
+    at org.apache.hadoop.fs.FileSystem$Cache.get(FileSystem.java:2176)
+    at org.apache.hadoop.fs.FileSystem.get(FileSystem.java:306)
+    at org.apache.hadoop.fs.Path.getFileSystem(Path.java:194)
+    at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher.createSuccessFile(MapReduceLauncher.java:651)
+    at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher.launchPig(MapReduceLauncher.java:434)
+    at org.apache.pig.PigServer.launchPlan(PigServer.java:1283)

@@ -1,0 +1,38 @@
+AbstractBooleanPrefJDBCDataModel extends the AbstractJDBCDataModel. It calls the super.constructor by intentionally setting the last two argument value as null because AbstractBooleanPrefJDBCDataModel is meant where we don' have the preference value. Below is the code snippet:
+
+protected AbstractBooleanPrefJDBCDataModel(DataSource dataSource,
+                                             String preferenceTable,
+                                             String userIDColumn,
+                                             String itemIDColumn,
+                                             String preferenceColumn,
+                                             String getPreferenceSQL,
+                                             String getUserSQL,
+                                             String getAllUsersSQL,
+                                             String getNumItemsSQL,
+                                             String getNumUsersSQL,
+                                             String setPreferenceSQL,
+                                             String removePreferenceSQL,
+                                             String getUsersSQL,
+                                             String getItemsSQL,
+                                             String getPrefsForItemSQL,
+                                             String getNumPreferenceForItemSQL,
+                                             String getNumPreferenceForItemsSQL) 
+{
+    super(dataSource, preferenceTable, userIDColumn, itemIDColumn, preferenceColumn, getPreferenceSQL,
+        getUserSQL, getAllUsersSQL, getNumItemsSQL, getNumUsersSQL, setPreferenceSQL, removePreferenceSQL,
+        getUsersSQL, getItemsSQL, getPrefsForItemSQL, getNumPreferenceForItemSQL, getNumPreferenceForItemsSQL,
+        null, null);
+    this.setPreferenceSQL = setPreferenceSQL;
+  }
+
+AbstractJDBCDataModel is checking for the null arguments and throwing the IlllegalArgumentException. Here is the code 
+
+AbstractJDBCComponent.checkNotNullAndLog("getMaxPreferenceSQL", getMaxPreferenceSQL);
+AbstractJDBCComponent.checkNotNullAndLog("getMinPreferenceSQL", getMinPreferenceSQL);
+
+For this case getMaxPreferenceSQL and getMinPreferenceSQL value is null as set in the AbstractBooleanPrefJDBCDataModel class.
+
+Fix for this would be a great help.
+
+Thanks,
+Rashmi

@@ -1,0 +1,11 @@
+When trying to persist multiple different entities to the data base using the batching update manager, if an INSERT failed, the update manager will erroronously attempt to INSERT the same row to the database again. E.g.
+
+     em.persist(entity_type_1_id_1);   // failed with a SQLException on INSERT
+     em.persist(entity_type_2_id_2);
+     em.flush();
+
+will cause 2 insert of :
+
+    INSERT ENTITY_TYPE_1  ......  WHERE ID="ID_1"
+Failed with an SQLException and insert the same row again.
+    INSERT ENTITY_TYPE_1  ......  WHERE ID="ID_1"

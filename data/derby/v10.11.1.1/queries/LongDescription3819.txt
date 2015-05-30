@@ -1,0 +1,11 @@
+'test_predicatePushdown(org.apache.derbyTesting.functionTests.tests.lang.PredicatePushdownTest)junit.framework.AssertionFailedError: Expected Table Scan ResultSet for T3' since 670215 2008-06-21 18:01:08 MEST http://dbtg.thresher.com/derby/test/Daily/UpdateInfo/670215.txt
+
+The failure is seen on SunOS 5.10 / Sun Jvm 1.6.0.
+
+See e.g. http://dbtg.thresher.com/derby/test/Daily/jvm1.6/testing/testlog/sol/682186-suitesAll_diff.txt
+
+The test (suites.All) is run with '-XX:-UseThreadPriorities -XX:MaxPermSize=128M -Xmx256M -d64'.
+When run with '-XX:MaxPermSize=128M -Xmx256M' as is used for the other platforms in this set of tests we do not see a failure.
+
+The failure was also seen on Solaris Express Community Edition snv_86 X86bits - SunOS 5.11 snv_86 (solN+1) between 670215 and 676638.
+(Run w/  -XX:-UseThreadPriorities -XX:MaxPermSize=128M -Xmx256M -d32)

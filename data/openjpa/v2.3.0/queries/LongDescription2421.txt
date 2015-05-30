@@ -1,0 +1,13 @@
+@openjpa-slice/src/main/java/org/apache/openjpa/slice/jdbc/DistributedJDBCConfigurationImpl.java
+
+    public FinderTargetPolicy getFinderTargetPolicyInstance() {
+        if (finderTargetPolicyPlugin.get() == null) 
+{
+            finderTargetPolicyPlugin.instantiate(ReplicationPolicy.class,
+                    this, true);
+        }
+        return (FinderTargetPolicy) finderTargetPolicyPlugin.get();
+    }
+
+
+try to init the FinderTargetPolicy with ReplicationPolicy.class

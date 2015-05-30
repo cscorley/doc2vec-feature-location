@@ -1,0 +1,11 @@
+OrderByAndSortAvoidance executes about 3000 INSERT and UPDATE statements to populate table1 and table2 in its decorateSQL() method. Since each of the statements has to be parsed and compiled, this could take quite some time on less powerful hardware.
+
+There are essentially three kinds of statements, and they could be parametrized like this:
+
+INSERT INTO table1 VALUES 
+
+INSERT INTO table2 VALUES (?,?,?)
+
+UPDATE table2 SET value='true' WHERE id=? AND name='has_address'
+
+We should parametrize the statements, prepare them once and execute them multiple times in order to speed up the test.

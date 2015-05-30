@@ -1,0 +1,31 @@
+Ugh.  This is the second time I've had to fix the definition of an L_p norm in an Apache project.
+
+
+
+  
+@Override
+  public double norm(double power)  {
+    if (power < 0.0) {
+      throw new IllegalArgumentException("Power must be >= 0");
+    }
+    // we can special case certain powers
+    if (Double.isInfinite(power)) {
+      return maxValue();
+    } else if (power == 2.0) {
+      return Math.sqrt(dot(this));
+    } else if (power == 1.0) {
+      return zSum();
+    } else if (power == 0.0) {
+...
+}
+
+
+
+Spot the errors?  Hint: both maxValue() and zSum() can return negative values, which is a no-no for norms unless we're going to do Relativity and have Lorentzian metrics allowed in Mahout:
+
+	maxValue() returns the maximum (meaning: closest to POSITIVE_INFINITY) value, which means large negative numbers aren't noticed and factored in.
+	zSum() adds all the values - not their absolute values.
+
+
+
+I'll check in a fix with some of my other code, but I wanted this tracked, as apparently the norm(double) method is so often used that this was never noticed in unit tests OR by users (the fact that nobody's ever noticed this makes me log this as a "minor" bug).  

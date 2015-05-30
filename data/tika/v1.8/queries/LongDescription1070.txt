@@ -1,0 +1,15 @@
+The error occurs when parsing big "XLS" files and is caused by the ElementInfo stored in "currentElement".
+
+Each time a new element is started (method startElement) the current elment is newly overwritten with 
+
+currentElement = new ElementInfo(currentElement, namespaces);
+
+where the existing element is used as the parent element. Since the currentElement is not reset to the parent element after finishing the element (method: endElement) the method getPrefix recursively traverses the parents and finally causes the StackOverFlowError
+
+For my understanding: something like:
+
+currentElement = currentElement.parent;
+
+in the endElement method solves the issue!
+
+Best

@@ -1,0 +1,3 @@
+Projecting columns after LOAD via HBaseStorage produces unexpected results. This is related to the loadKey functionality and how the pushProjection method in HBaseStorage has to offset to build a column list that aligns with the tuple (the column list doesn't contain the row key).
+
+This shift appears to create an inconsistency with the FieldSchema for the tuple which results in the wrong tuple value being fetched for a given column. I'll attach a patch with unit tests that illustrate the problem.

@@ -1,0 +1,17 @@
+Following compiler warning was never shown to users for two reasons.
+
+//./src/org/apache/pig/newplan/logical/visitor/CastLineageSetter.java
+  106  if(inLoadFunc == null){
+  107      String msg = "Cannot resolve load function to use for casting from " +
+  108                  DataType.findTypeName(inType) + " to " +
+  109                  DataType.findTypeName(outType) + ". ";
+  110      msgCollector.collect(msg, MessageType.Warning);
+  111  }
+
+
+
+
+	CompilationMessageCollector.logMessages or logAllMessages not being called after CastLineageSetter.visit.
+	CompilationMessageCollector.collect with no KIND don't print out any messages when aggregate.warning=true (default)
+
+

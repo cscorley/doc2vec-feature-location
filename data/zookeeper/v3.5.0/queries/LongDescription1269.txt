@@ -1,0 +1,6 @@
+From the mailing list:
+
+FileTxnSnapLog.restore contains a code block handling a NODEEXISTS failure during deserialization. The problem is explained there in a code comment. The code block however is only executed for a CREATE txn, not for a multiTxn containing a CREATE.
+
+Even if the mentioned code block would also be executed for multi transactions, it needs adaption for multi transactions. What, if after the first failed transaction in a multi txn during deserialization, there would be subsequent transactions in the same multi that would also have failed?
+We don't know, since the first failed transaction hides the information about the remaining transactions.

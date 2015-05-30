@@ -1,0 +1,22 @@
+Here is the test scenario:
+ final static String STR_SCHEMA = "m1:map(string),m2:map(map(int))";
+  //final static String STR_STORAGE = "[m1#
+{a}];m2#{x|y}; m1#{b}, m2#{z};[m1]";
+ final static String STR_STORAGE = "[m1#{a}
+, m2#
+{x}
+];[m2#
+{x|y}
+]; [m1#
+{b}, m2#{z}];[m1,m2]";
+
+projection: String projection2 = new String("m1#{b}
+, m2#
+{x|z}
+");
+User got null pointer exception on reading m1#
+{b}
+.
+
+Yan, please refer to the test class:
+TestNonDefaultWholeMapSplit.java 

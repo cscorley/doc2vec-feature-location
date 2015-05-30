@@ -1,0 +1,82 @@
+IBM U2JPA is a JPA implementation based on OpenJPA for IBM  U2 Databases.  IBM U2 Databases allow the use of '.' in the column names, such as "FIRST.NAME', "LAST.NAME", "PURCHASE.DATE".  This causes the enhancer to exception out when parsing these column names, as shown below.  We have tried, in our implementation,  to change the catalogSeparator to different values than '.' to prevent the enhancer from breaking the above names into 'tablename'.'columnname'. But nothing worked.  Later i found the following code in openjpa\jdbc\meta\mappinginfo.java, clearly the separator is hardcoded as '.'.  I set the priority of this issue to 'critical' because this problem has severely impacted the adoption of U2JPA by our customers. 
+
+          mergeColumn(.........) 
+          {
+                 int dotIdx = colName.lastIndexOf('.');
+                 if (dotIdx == 0)
+                            colName = colName.substring(1);
+                 else if (dotIdx != -1) 
+{
+                           findTable(context, colName.substring(0, dotIdx), table,
+                                null, null);
+                           colName = colName.substring(dotIdx + 1);
+                 }
+                .............
+        } 
+
+
+class U2Dictionary extends DBDictionary {
+	private ArrayList<U2DictRecord> u2fields = new ArrayList<U2DictRecord>();
+
+	U2Dictionary() 
+{
+		platform = "IBM U2";
+		catalogSeparator = ":";
+	}
+..........
+
+@Entity
+@Table(name="CUSTOMER")
+public class Customer implements Serializable {
+
+	@Id
+	@Column(name="@ID")
+	private String _id;
+
+	@Column(name="FIRST.NAME")
+	private String name;
+
+	public Customer(){};
+
+
+	public String get_id() 
+{
+		return _id;
+	}
+
+	public void set_id(String _id) 
+{
+		this._id = _id;
+	}
+
+	public String getName() 
+{
+		return name;
+	}
+
+	public void setName(String name) 
+{
+		this.name = name;
+	}
+
+}
+
+Exception in thread "main" <openjpa-1.2.0-r422266:683325 fatal user error> org.apache.openjpa.persistence.ArgumentException: When mapping "u2u.u2jpa.demo1.Customer.name" to table "CUSTOMER", found a column mapped to illegal table "FIRST".
+	at org.apache.openjpa.jdbc.meta.MappingInfo.findTable(MappingInfo.java:743)
+	at org.apache.openjpa.jdbc.meta.MappingInfo.mergeColumn(MappingInfo.java:583)
+	at org.apache.openjpa.jdbc.meta.MappingInfo.createColumns(MappingInfo.java:518)
+	at org.apache.openjpa.jdbc.meta.ValueMappingInfo.getColumns(ValueMappingInfo.java:143)
+	at org.apache.openjpa.jdbc.meta.strats.StringFieldStrategy.map(StringFieldStrategy.java:79)
+	at org.apache.openjpa.jdbc.meta.FieldMapping.setStrategy(FieldMapping.java:121)
+	at org.apache.openjpa.jdbc.meta.RuntimeStrategyInstaller.installStrategy(RuntimeStrategyInstaller.java:80)
+	at org.apache.openjpa.jdbc.meta.FieldMapping.resolveMapping(FieldMapping.java:454)
+	at org.apache.openjpa.jdbc.meta.FieldMapping.resolve(FieldMapping.java:419)
+	at org.apache.openjpa.jdbc.meta.ClassMapping.resolveNonRelationMappings(ClassMapping.java:855)
+	at org.apache.openjpa.jdbc.meta.MappingRepository.prepareMapping(MappingRepository.java:339)
+	at org.apache.openjpa.meta.MetaDataRepository.preMapping(MetaDataRepository.java:662)
+	at org.apache.openjpa.meta.MetaDataRepository.resolve(MetaDataRepository.java:549)
+	at org.apache.openjpa.meta.MetaDataRepository.getMetaData(MetaDataRepository.java:308)
+	at org.apache.openjpa.kernel.BrokerImpl.newObjectId(BrokerImpl.java:1114)
+	at org.apache.openjpa.kernel.DelegatingBroker.newObjectId(DelegatingBroker.java:268)
+	at org.apache.openjpa.persistence.EntityManagerImpl.find(EntityManagerImpl.java:451)
+	at u2u.u2jpa.demo1.Demo1Main.main(Demo1Main.java:24)

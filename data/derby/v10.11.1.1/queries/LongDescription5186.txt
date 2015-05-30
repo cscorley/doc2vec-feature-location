@@ -1,0 +1,10 @@
+On my AIX machine with ibm 1.4.2. the test dblook_test_territory.java fails consistently with this diff:
+
+6169a6170
+>       at java.io.FileInputStream.<init>(FileInputStream.java(Compiled Code))
+
+I've seen this during other test cycles, but never bothered reporting it.
+
+functionTests.harness.Sed.java has this:
+        deleteLines.addElement("^(.at .)(Compiled Code)$");
+But apparently that's not matching the line put out by the jvm on AIX.

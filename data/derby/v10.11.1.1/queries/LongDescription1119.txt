@@ -1,0 +1,61 @@
+Noticed it in 10.2, but also reproduces with 10.1.
+
+Set the following property and then try creating a schema as follows:
+
+derby.debug.true=DumpBindTree,DumpParseTree,DumpOptimizedTree
+
+C:\p4clients\sat_52\bug>java -Dij.protocol=jdbc:derby: org.apache.derby.tools.ij
+ij version 10.2
+ij> connect 'tdb;user=sam';
+ij> create schema mysam1;
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+
+I suspect the problem is because DDLStatementNode.java expects an object name that most DDL statements set, but not CreateSchemaNode.java.
+
+	public String toString()
+	{
+		if (SanityManager.DEBUG)
+		{
+			return objectName.toString() + super.toString();          <==============
+		} 
+		else
+		{
+			return "";
+		}
+	}
+
+
+CreateSchemaNode.java:
+		/*
+
+	
+	
+		DDLStatementNode expects tables, null out
+		objectName explicitly to clarify that we
+		can't hang with schema.object specifiers.
+		*/
+		initAndCheck(null);	
+	
+	
+
+
+
+Here is exception stack:
+
+java.lang.NullPointerException
+	at org.apache.derby.impl.sql.compile.DDLStatementNode.toString(DDLStatementNode.java:149)
+	at org.apache.derby.impl.sql.compile.CreateSchemaNode.toString(CreateSchemaNode.java:94)
+	at org.apache.derby.impl.sql.compile.QueryTreeNode.treePrint(QueryTreeNode.java:329)
+	at org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatement.java:318)
+	at org.apache.derby.impl.sql.GenericStatement.prepare(GenericStatement.java:118)
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(GenericLanguageConnectionContext.java:725)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:533)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:480)
+	at org.apache.derby.impl.tools.ij.ij.executeImmediate(ij.java:313)
+	at org.apache.derby.impl.tools.ij.utilMain.doCatch(utilMain.java:433)
+	at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:310)
+	at org.apache.derby.impl.tools.ij.Main.go(Main.java:203)
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:169)
+	at org.apache.derby.impl.tools.ij.Main14.main(Main14.java:55)
+	at org.apache.derby.tools.ij.main(ij.java:60)
+Cleanup action completed

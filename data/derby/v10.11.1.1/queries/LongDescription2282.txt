@@ -1,0 +1,57 @@
+The logic that handles "transive closure" for search predicates is in the "searchClauseTransitiveClosure()" method of impl/sql/compile/PredicateList.java.  That method contains the following logic:
+
+            else if (operator instanceof BinaryComparisonOperatorNode)
+            {
+                BinaryComparisonOperatorNode bcon = (BinaryComparisonOperatorNode) operator;
+                ValueNode left = bcon.getLeftOperand();
+                ValueNode right = bcon.getRightOperand();
+
+                // RESOLVE: Consider using variant type of the expression, instead of
+                // ConstantNode or ParameterNode in the future.
+                if (left instanceof ColumnReference && 
+                      (right instanceof ConstantNode || right instanceof ParameterNode))
+                {
+                    searchClauses.addElement(predicate);
+                }
+                else if (right instanceof ConstantNode && left instanceof ColumnReference)
+                {
+                    // put the ColumnReference on the left to simplify things
+                    bcon.swapOperands();
+                    searchClauses.addElement(predicate);
+                }
+                continue;
+            }
+
+Notice that the inner "else-if" condition is wrong.  It's supposed to be checking to see if the right node is a ColumnReference and the left node is a Constant, but that's not what it does-instead, it does a check that is really a sub-condition of the "if" condition-i.e. whenever the "else if" condition is true the "if" condition will be true and thus we won't ever execute the "else if" branch.
+
+I confirmed this by looking at the code coverage results for 10.2:
+
+  http://people.apache.org/~fuzzylogic/codecoverage/428586/_files/2f4.html#2d
+
+The lines in question are never executed.
+
+What this means is that a query which specifies constants on the left side of a comparison predicate will behave differently than a query which specifies constants on the right side of the same comparison.  As an example:
+
+create table t1 (i int);
+create table t2 (j int);
+
+insert into t1 values 1, 5, 7, 11, 13, 17, 19;
+insert into t2 values 23, 29, 31, 37, 43, 47, 53;
+insert into t1 select 23 * i from t1 where i < 19;
+insert into t2 select 23 * j from t2 where j < 55;
+
+– Following will show two qualifiers for T2 and three for T1
+– because transitive closure adds two new qualifiers, "t2.j >= 23"
+– and "t1.i <= 30" to the list.
+select * from t1, t2 where t1.i = t2.j and t1.i >= 23 and t2.j <= 30;
+
+– But if we put the constants on the left-hand side, we don't
+– detect the transitive closure and thus we have a single qualifier
+– for T2 and only two qualifiers for T1.
+select * from t1, t2 where t1.i = t2.j and 23 <= t1.i and 30 >= t2.j;
+
+The above two queries should in theory show the same query plan--but if we execute the above statements while logging query plans, we'll see a difference (as explained in the sql comments above).
+
+I did a quick scan of the various branches and found that this incorrect logic appears in every branch back to 10.0 (hence the massive "Affects Versions" list).  That said, the result of this bug isn't an error nor is it wrong results, so I'm just marking it "Minor".
+
+The fix looks to be pretty straightforward....

@@ -1,0 +1,40 @@
+I've seen the following stack trace, for instance on 3/26/2011: http://people.apache.org/~myrnavl/derby_test_results/v10_7/windows/testlog/ibm16/1085854-suites.All_diff.txt
+
+1) testTimeAndDateWithCalendar(org.apache.derbyTesting.functionTests.tests.jdbcapi.CallableTest)junit.framework.AssertionFailedError: hour expected:<2> but was:<3>
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.CallableTest.assertSameTime(CallableTest.java:504)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.CallableTest.assertSameTimestamp(CallableTest.java:521)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.CallableTest.testTimeAndDateWithCalendar(CallableTest.java:456)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.CallableTest.testTimeAndDateWithCalendar(CallableTest.java:412)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:60)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:37)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:109)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:16)
+
+And another example, from
+http://people.apache.org/~myrnavl/derby_test_results/v10_5/windows/testlog/ibm16/1085628-suites.All_diff.txt:
+
+1) testTimeAndDateWithCalendar(org.apache.derbyTesting.functionTests.tests.jdbcapi.CallableTest)junit.framework.AssertionFailedError: hour expected:<18> but was:<17>
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.CallableTest.assertSameTime(CallableTest.java:512)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.CallableTest.assertSameTimestamp(CallableTest.java:529)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.CallableTest.testTimeAndDateWithCalendar(CallableTest.java:464)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.CallableTest.testTimeAndDateWithCalendar(CallableTest.java:412)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:60)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:37)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:109)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+
+As this is happening on two different code lines and on both linux and windows and I've recently updated the jvms, this could be a jvm issue, but that needs to be verified.

@@ -1,0 +1,5 @@
+The requirement that the argument to ResultSet.setFetchSize(int) be less than Statement.getMaxRows() was dropped in Java 6/JDBC 4, (it is not present in the Java 6 javadoc, but can still be seen in the Java 5 javadoc).
+
+The reason why the client driver doesn't throw an exception in this case is because am.ResultSet incorrectly checks against ResultSet.maxRows_ and NOT am.Statement.getMaxRows(). So when am.Statement.setMaxRows(int) is called after a result set has already been created, am.ResultSet.setFechSize(int) will check against a stale value.
+
+The question is what to do about this. The client driver clearly has a bug, but should we fix it by duplicating the old behavior found in the embedded driver, or change both drivers to comply with latest spec which allows any non-negative value as argument to ResultSet.setFetchSize(int)?

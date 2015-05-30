@@ -1,0 +1,19 @@
+Fails when running in a loop for about 40 minutes. Failure is a ConcurrentModificationException
+
+
+
+  <testcase time="3.018" classname="org.apache.bookkeeper.test.LedgerCreateDeleteTest" name="testCreateDeleteLedgers">
+    <error type="java.util.ConcurrentModificationException">java.util.ConcurrentModificationException
+	at java.util.HashMap$HashIterator.nextEntry(HashMap.java:793)
+	at java.util.HashMap$EntryIterator.next(HashMap.java:834)
+	at java.util.HashMap$EntryIterator.next(HashMap.java:832)
+	at org.apache.bookkeeper.bookie.LedgerCacheImpl.close(LedgerCacheImpl.java:781)
+	at org.apache.bookkeeper.bookie.InterleavedLedgerStorage.shutdown(InterleavedLedgerStorage.java:73)
+	at org.apache.bookkeeper.bookie.Bookie.shutdown(Bookie.java:644)
+	at org.apache.bookkeeper.bookie.Bookie.shutdown(Bookie.java:630)
+	at org.apache.bookkeeper.proto.BookieServer.shutdown(BookieServer.java:110)
+	at org.apache.bookkeeper.test.BookKeeperClusterTestCase.stopBKCluster(BookKeeperClusterTestCase.java:146)
+	at org.apache.bookkeeper.test.BookKeeperClusterTestCase.tearDown(BookKeeperClusterTestCase.java:94)
+	at junit.framework.TestCase.runBare(TestCase.java:140)
+	at junit.framework.TestResult$1.protect(TestResult.java:110)
+

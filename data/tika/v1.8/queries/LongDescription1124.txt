@@ -1,0 +1,8 @@
+Tika 1.3 is not able to get attachments from the attached PDF.
+The trunk is able to get attachments from the PDF.  However, if that PDF is then embedded in another document, the docs embedded in the PDF are not extracted.
+
+I'm not sure of a solution, but I found two things that might help with the diagnosis:
+1) If you modify the code in PDFParser so that it doesn't wrap the handler in a BodyContentHandler, everything works (in trunk).
+2) If you modify BodyContentHandler to use my toy SimpleBodyMatchingContentHandler, the problem is also solved.
+
+The cause may be in the MatchingContentHandler.

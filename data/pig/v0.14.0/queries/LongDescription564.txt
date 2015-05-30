@@ -1,0 +1,50 @@
+Consider the following Pig script which uses parameter substitution
+
+
+%default qual '/user/viraj'
+%default mydir 'mydir_myextraqual'
+VISIT_LOGS = load '$qual/$mydir' as (a,b,c);
+dump VISIT_LOGS;
+
+
+
+If you run the script as:
+==================================================================================================================
+java -cp pig.jar:$
+{HADOOP_HOME}/conf/ -Dhod.server='' org.apache.pig.Main -param mydir=mydir-myextraqual mypigparamsub.pig
+==================================================================================================================
+You get the following error:
+==================================================================================================================
+2008-12-15 19:49:43,964 [main] ERROR org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - java.io.IOException: /user/viraj/mydir does not exist
+        at org.apache.pig.backend.executionengine.PigSlicer.validate(PigSlicer.java:109)
+        at org.apache.pig.impl.io.ValidatingInputFileSpec.validate(ValidatingInputFileSpec.java:59)
+        at org.apache.pig.impl.io.ValidatingInputFileSpec.<init>(ValidatingInputFileSpec.java:44)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigInputFormat.getSplits(PigInputFormat.java:200)
+        at org.apache.hadoop.mapred.JobClient.submitJob(JobClient.java:742)
+        at org.apache.hadoop.mapred.jobcontrol.Job.submit(Job.java:370)
+        at org.apache.hadoop.mapred.jobcontrol.JobControl.startReadyJobs(JobControl.java:247)
+        at org.apache.hadoop.mapred.jobcontrol.JobControl.run(JobControl.java:279)
+        at java.lang.Thread.run(Thread.java:619)
+
+java.io.IOException: Unable to open iterator for alias: VISIT_LOGS [Job terminated with anomalous status FAILED]
+        at org.apache.pig.PigServer.openIterator(PigServer.java:389)
+        at org.apache.pig.tools.grunt.GruntParser.processDump(GruntParser.java:269)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:178)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:84)
+        at org.apache.pig.tools.grunt.Grunt.exec(Grunt.java:64)
+        at org.apache.pig.Main.main(Main.java:306)
+Caused by: java.io.IOException: Job terminated with anomalous status FAILED
+        ... 6 more
+==================================================================================================================
+Also tried using:  -param mydir='mydir-myextraqual'
+This behavior occurs if the parameter value contains characters such as +,=, ?. 
+
+A workaround for this behavior is using a param_file which contains <param_name>=<param_value> on each line, with the <param_value> enclosed by quotes. For example:
+mydir='mydir-myextraqual' and then running the pig script as:
+java -cp pig.jar:${HADOOP_HOME}
+/conf/ -Dhod.server='' org.apache.pig.Main -param_file myparamfile mypigparamsub.pig
+
+The following issues need to be fixed:
+1) In -param option if parameter value contains special characters, it is truncated
+2) In param_file, if  param_value contains a special characters, it should be enclosed in quotes
+3) If 2 is a known issue then it should be documented in http://wiki.apache.org/pig/ParameterSubstitution

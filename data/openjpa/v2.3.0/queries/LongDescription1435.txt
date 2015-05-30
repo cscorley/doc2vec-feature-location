@@ -1,0 +1,103 @@
+When multiple same 1xm relationship is defined in an entity, fetching the entity yields one extra null element in the collection.
+
+@Entity
+public class Util1xmLf {
+    private int id;
+    private int version;
+    public Collection<Util1xmRt> uniRightLzy = new HashSet<Util1xmRt>();
+    public Collection<Util1xmRt> uniRightEgr = new HashSet<Util1xmRt>();
+
+    @Id public int getId() 
+{        return id;    }
+    @Version public int getVersion() {        return version;    }
+    @OneToMany// (fetch = FetchType.LAZY)
+    public Collection<Util1xmRt> getUniRightLzy() {        return uniRightLzy;    }
+    public void setUniRightLzy(Collection<Util1xmRt> uniRightLzy) {        this.uniRightLzy = uniRightLzy;    }
+    public void addUniRightLzy(Util1xmRt uniRightLzy) {        getUniRightLzy().add(uniRightLzy);    }
+    @OneToMany(fetch = FetchType.EAGER)
+    public Collection<Util1xmRt> getUniRightEgr() {        return uniRightEgr;    }
+    public void setUniRightEgr(Collection<Util1xmRt> uniRightEgr) {        this.uniRightEgr = uniRightEgr;    }
+    public void addUniRightEgr(Util1xmRt uniRightEgr) {        getUniRightEgr().add(uniRightEgr);    }
+}
+
+@Entity
+public class Util1xmRt {
+    private int id;
+    private int version;
+
+    @Id public int getId() {        return id;    }
+    @Version public int getVersion() 
+{        return version;    }
+    public String getLastName() 
+{        return lastName;    }
+    public void setLastName(String lastName) 
+{        this.lastName = lastName;    }
+}
+
+    public void testLoadedOneToManyCount() 
+{
+        EntityManager em = emf.createEntityManager();
+        Util1xmLf e1 = em.find(Util1xmLf.class, TestUtil1xm_TestRow_Id);
+        // SELECT t0.firstName, t1.UTIL1XMLF_ID, t2.id, t2.lastName FROM Util1xmLf t0 
+        //      LEFT OUTER JOIN Util1xmLf_Util1xmRt t1 ON t0.id = t1.UTIL1XMLF_ID 
+        //      LEFT OUTER JOIN Util1xmRt t2 ON t1.UNIRIGHTEGR_ID = t2.id WHERE t0.id = ? 
+        //      [params=(int) 100]
+
+        assertNotNull("Found Util1xmLf(id=" + TestUtil1xm_TestRow_Id + ")", e1);
+        
+        Collection<Util1xmRt> eRs = e1.getUniRightLzy();
+        // SELECT t1.id, t1.lastName FROM Util1xmLf_Util1xmRt t0 
+        //      INNER JOIN Util1xmRt t1 ON t0.UNIRIGHTLZY_ID = t1.id WHERE t0.UTIL1XMLF_ID = ? 
+        //      [params=(int) 100]
+        assertNotNull("Util1xmRt uniRightLzy != null", eRs);
+        assertEquals("Util1xmRt uniRightLzy.size == 2", eRs.size(), 2);
+        
+        Collection<Util1xmRt> eEs = e1.getUniRightEgr();
+        assertNotNull("Util1xmRt uniRightEgr != null", eEs);
+        // Failing test: Getting 3 in eager collection, one null entry
+        assertEquals("Util1xmRt uniRightEgr.size == 2", eEs.size(), 2); <<<< Failure returning 3 entries
+
+        em.close();
+    }
+
+Here are the SQLs issued
+batching prepstmnt 800337844 INSERT INTO Util1xmRt (id, lastName) VALUES (?, ?) [params=(int) 411, (String) loaded lastName1]
+batching prepstmnt 800337844 INSERT INTO Util1xmRt (id, lastName) VALUES (?, ?) [params=(int) 412, (String) loaded lastName2]
+batching prepstmnt 800337844 INSERT INTO Util1xmRt (id, lastName) VALUES (?, ?) [params=(int) 421, (String) loaded eager lastName3]
+batching prepstmnt 800337844 INSERT INTO Util1xmRt (id, lastName) VALUES (?, ?) [params=(int) 422, (String) loaded eager lastName4]
+executing prepstmnt 1258900233 INSERT INTO Util1xmLf (id, firstName) VALUES (?, ?) [params=(int) 400, (String) loaded firstName]
+batching prepstmnt 1396069174 INSERT INTO Util1xmLf_Util1xmRt (UTIL1XMLF_ID, UNIRIGHT_ID) VALUES (?, ?) [params=(int) 400, (int) 412]
+batching prepstmnt 1396069174 INSERT INTO Util1xmLf_Util1xmRt (UTIL1XMLF_ID, UNIRIGHT_ID) VALUES (?, ?) [params=(int) 400, (int) 411]
+batching prepstmnt 1771465110 INSERT INTO Util1xmLf_Util1xmRt (UTIL1XMLF_ID, UNIRIGHTEGR_ID) VALUES (?, ?) [params=(int) 400, (int) 422]
+batching prepstmnt 1771465110 INSERT INTO Util1xmLf_Util1xmRt (UTIL1XMLF_ID, UNIRIGHTEGR_ID) VALUES (?, ?) [params=(int) 400, (int) 421]
+executing prepstmnt 1429165359 SELECT t0.firstName, t1.UTIL1XMLF_ID, t2.id, t2.lastName FROM Util1xmLf t0 LEFT OUTER JOIN Util1xmLf_Util1xmRt t1 ON t0.id = t1.UTIL1XMLF_ID LEFT OUTER JOIN Util1xmRt t2 ON t1.UNIRIGHTEGR_ID = t2.id WHERE t0.id = ?  [params=(int) 400]
+
+In DB2 CLI,
+
+db2 => SELECT t0.firstName, t1.UTIL1XMLF_ID, t2.id, t2.lastName FROM Util1xmLf t0 LEFT OUTER JOIN Util1xmLf_Util1xmRt t1 ON t0.id = t1.UTIL1XMLF_ID LEFT OUTER JOIN Util1xmRt t2 ON t1.UNIRIGHTEGR_ID = t2.id WHERE t0.id = 400
+
+FIRSTNAME                 UTIL1XMLF_ID ID          LASTNAME
+------------------------- ------------ ----------- -------------------------
+loaded firstName                   400           - -
+loaded firstName                   400           - -
+loaded firstName                   400         422 loaded eager lastName4
+loaded firstName                   400         421 loaded eager lastName3
+
+  4 record(s) selected.
+
+Change the 2nd Left Outer Join to Right Outer Join yields
+
+db2 => SELECT t0.firstName, t1.UTIL1XMLF_ID, t2.id, t2.lastName FROM Util1xmLf t0 LEFT OUTER JOIN Util1xmLf_Util1xmRt t1 ON t0.id = t1.UTIL1XMLF_ID RIGHT OUTER JOIN Util1xmRt t2 ON t1.UNIRIGHTEGR_ID = t2.id WHERE t0.id = 400
+
+FIRSTNAME                 UTIL1XMLF_ID ID          LASTNAME
+------------------------- ------------ ----------- -------------------------
+loaded firstName                   400         422 loaded eager lastName4
+loaded firstName                   400         421 loaded eager lastName3
+
+  2 record(s) selected.
+
+db2 =>
+
+Noticed the force uniRightLzy fetch used the following SQL, which yielded the correct result:
+
+SELECT t1.id, t1.lastName FROM Util1xmLf_Util1xmRt t0 INNER JOIN Util1xmRt t1 ON t0.UNIRIGHT_ID = t1.id WHERE t0.UTIL1XMLF_ID = ?  [params=(int) 400]

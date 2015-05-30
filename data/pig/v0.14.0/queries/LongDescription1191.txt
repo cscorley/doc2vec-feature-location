@@ -1,0 +1,6 @@
+When using a custom load/store function, one that returns complex data (map of maps, list of maps), for certain sequences  of LOAD, FILTER, FOREACH pig script throws an exception of the form -
+
+org.apache.pig.backend.executionengine.ExecException: ERROR 1075: Received a bytearray from the UDF. Cannot determine how to convert the bytearray to <actual-type>
+at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POCast.getNext(POCast.java:639)
+...
+Looking through the code of POCast, apparently the operator was unable to find the right load function for doing the conversion and consequently bailed out with the exception failing the entire pig script.

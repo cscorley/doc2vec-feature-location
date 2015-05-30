@@ -1,0 +1,14 @@
+2012-06-05 16:24:29,596 - WARN  [NIOServerFactory-3181:NIOServerFactory@128] - Exception in server socket loop: /0.0.0.0
+java.util.NoSuchElementException
+        at java.util.LinkedList.getFirst(LinkedList.java:109)
+        at org.apache.bookkeeper.bookie.LedgerCacheImpl.grabCleanPage(LedgerCacheImpl.java:478)
+        at org.apache.bookkeeper.bookie.LedgerCacheImpl.grabLedgerEntryPage(LedgerCacheImpl.java:169)
+        at org.apache.bookkeeper.bookie.LedgerCacheImpl.putEntryOffset(LedgerCacheImpl.java:199)
+        at org.apache.bookkeeper.bookie.InterleavedLedgerStorage.addEntry(InterleavedLedgerStorage.java:109)
+        at org.apache.bookkeeper.bookie.LedgerDescriptorImpl.addEntry(LedgerDescriptorImpl.java:81)
+        at org.apache.bookkeeper.bookie.Bookie.addEntryInternal(Bookie.java:656)
+        at org.apache.bookkeeper.bookie.Bookie.addEntry(Bookie.java:691)
+        at org.apache.bookkeeper.proto.BookieServer.processPacket(BookieServer.java:368)
+        at org.apache.bookkeeper.proto.NIOServerFactory$Cnxn.readRequest(NIOServerFactory.java:310)
+        at org.apache.bookkeeper.proto.NIOServerFactory$Cnxn.doIO(NIOServerFactory.java:208)
+        at org.apache.bookkeeper.proto.NIOServerFactory.run(NIOServerFactory.java:123)

@@ -1,0 +1,28 @@
+
+
+
+    public void addToFilledDirs(File dir) {
+        if (!filledDirs.contains(dir)) {
+            LOG.warn(dir + " is out of space."
+                    + " Adding it to filled dirs list");
+            // Update filled dirs list
+            List<File> updatedFilledDirs = new ArrayList<File>(filledDirs);
+            updatedFilledDirs.add(dir);
+            filledDirs = updatedFilledDirs;
+            // Update the writable ledgers list
+            List<File> newDirs = new ArrayList<File>(writableLedgerDirectories);
+            newDirs.removeAll(filledDirs);
+            writableLedgerDirectories = newDirs;
+            // Notify listeners about disk full
+            for (LedgerDirsListener listener : listeners) {
+                listener.diskFull(dir);
+            }   
+        }   
+    }
+
+
+
+
+When a directory is putting into filledDirs, it might not be removed from writableLedgerDirectories. The directory still has chance to be picked up to move index file.
+
+we need same synchronization and check to guarantee that we don't move to same directory.

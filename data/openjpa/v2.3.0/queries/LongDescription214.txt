@@ -1,0 +1,18 @@
+Dain first reported this problem on the dev mailing list:
+
+http://www.nabble.com/Float-primary-key--tf3557137.html
+
+>My response:
+>Okay, I looked at the spec a bit closer and it looks like we need to allow for floats as primary keys:
+
+>"The primary key (or field or property of a composite primary key) should be one of the following types:
+>any Java primitive type; any primitive wrapper type; java.lang.String; java.util.Date;
+>java.sql.Date. In general, however, approximate numeric types (e.g., floating point types) should
+>never be used in primary keys."
+
+>Although the spec clearly recommends against the use of floating points, floats are a primitive type (or the Float wrapper) and need to be allowed.  With no >special "AllowStupidApproximatePrimaryKeys" flag.  
+
+>Am I trying to read too much into the spec or Dain's request?  This seems to be something that we need to support.
+
+>>Abe's response:
+>>Given the spec section you quoted, you're definitely right.  It's something we need to support.

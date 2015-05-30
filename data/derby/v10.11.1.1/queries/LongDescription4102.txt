@@ -1,0 +1,12 @@
+The code below results in an assert error (with sane jars) or a ClassCastException (with insane jars):
+
+        PreparedStatement ps = c.prepareStatement("values cast(? as blob)");
+        int len = 32 * 1024;
+        ps.setBinaryStream(1, new ByteArrayInputStream(new byte[len]), len);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) 
+{
+            rs.getBlob(1);
+        }
+
+If len < 32K there is no error.

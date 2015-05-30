@@ -1,0 +1,17 @@
+as we are using java5 .we can use annotations to bind SolrDocument to java beans directly.
+
+This can make the usage of solrj a  bit simpler
+
+The QueryResponse class in solrj can have an extra method as follows
+
+public <T> List<T> getResultBeans(Class<T> klass)
+
+and the bean can have annotations as
+
+class MyBean{
+@Field("id") //name is optional
+String id;
+
+@Field("category")
+List<String> categories
+}

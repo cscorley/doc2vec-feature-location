@@ -1,0 +1,16 @@
+It would be good to print the class loader used to boot and shutdown derby.   When using class loaders, it is important to use the same class loader when shutting down or it doesn't really shutdown at all.  Doing this will make it easier to diagnose such problems.  I think it is ok to just leave it as the normal behavior as it does not add too much bulk to the log.
+
+2010-03-25 20:57:57.781 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.6.0.0 alpha - (927552M): instance a816c00e-012
+7-971d-fe59-000000107bb8
+on database directory C:\kmarsden\repro\DERBY-4588\wombat   with class loader sun.misc.Launcher$AppClassLoader@42ed42ed
+
+Database Class Loader started - derby.database.classpath=''
+
+2010-03-25 20:58:10.109 GMT:
+Shutting down instance a816c00e-0127-971d-fe59-000000107bb8 with class loader sun.misc.Launcher$AppClassLoader@42ed42ed
+
+----------------------------------------------------------------
+
+Note it is important to set derby.infolog.append=true or the different class loaders will clobber the log.
+

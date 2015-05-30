@@ -1,0 +1,24 @@
+There is a small oversight in TestSequenceGenerator which results in the test being run on a database without sequences and not being run on a database with sequences.
+
+The snippet:
+
+        try 
+{
+            enabled =
+                ((JDBCConfiguration) emf.getConfiguration())
+                    .getDBDictionaryInstance().nextSequenceQuery == null;
+        }
+ catch (Throwable t) 
+{
+            enabled = false;
+        }
+
+should read:
+
+        try {
+            enabled =
+                ((JDBCConfiguration) emf.getConfiguration())
+                    .getDBDictionaryInstance().nextSequenceQuery != null;
+        } catch (Throwable t) {
+            enabled = false;
+        }

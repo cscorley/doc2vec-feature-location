@@ -1,0 +1,12 @@
+These constructors use the Java default platform encoding to convert the bytes to a String, this typically leads to bugs on platforms with different encodings.
+
+Replace with code using fixed conversion, or alternative mechanisms. 
+If the call is required its use should be commented as to why it is required.
+
+org.apache.derby.client.am.ClobOutputStream - some existing bug?
+org.apache.derby.client.am.DateTime - see DERBY-877
+org.apache.derby.client.am.sqlca
+
+I generated this list using the Java search in eclipse for references to the constructors
+String(byte[])
+String(byte[],int,int)

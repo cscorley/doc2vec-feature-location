@@ -1,0 +1,13 @@
+
+a = load '1.txt' as (a0:int, a1, a2:bag{});
+b = load '2.txt' as (b0:int, b1);
+c = foreach a generate a0, flatten(a2) as (q1, q2);
+d = join c by a0, b by b0;
+e = foreach d generate a0, q1, q2;
+f = foreach e generate a0, (int)q1, (int)q2;
+store f into 'output';
+
+
+
+This pig script fails with 
+2014-02-27 11:49:45,657 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 2229: Couldn't find matching uid -1 for project (Name: Project Type: bytearray Uid: 13 Input: 0 Column: 1)

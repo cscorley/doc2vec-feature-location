@@ -1,0 +1,7 @@
+Running the test by itself shows no problems.
+
+From some debugging it seems the spawned network server (separate jvm) is coming up correctly and listening on the right address, however the pings to see if it started are never seen by the ClientThread. I checked the timing and they do overlap.
+
+The server address is the wildcard address 0.0.0.0.
+
+If a server is listening to localhost:1527 then another server fails to start if it is listening to 0.0.0.0:1527, I wondered if it would start on the real address and just wait for the loopback to become free.

@@ -1,0 +1,56 @@
+On weme6.2, 8 test fixtures from InBetweenTest are failing with following error
+java.sql.SQLException: The syntax of the string representation of a datetime value is incorrect.
+
+The failing test fixtures are 
+1)testReproductionBeetle5135
+2)testBeetle4316
+3)testNestedQueries
+4)testCheckQueries
+5)testBigInList
+6)testInBetween
+7)testInList
+8)testBetween
+
+The stack trace for testBetween looks as follows
+1) testBetween(org.apache.derbyTesting.functionTests.tests.lang.InbetweenTest)java.sql.SQLException: The syntax of the string representation of a datetime value is incorrect.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.ConnectionChild.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.lang.InbetweenTest.createTestObjects(InbetweenTest.java:195)
+	at org.apache.derbyTesting.functionTests.tests.lang.InbetweenTest.testBetween(InbetweenTest.java:214)
+	at java.lang.reflect.AccessibleObject.invokeV(AccessibleObject.java:195)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:109)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+Caused by: ERROR 22007: The syntax of the string representation of a datetime value is incorrect.
+	at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+	at org.apache.derby.iapi.types.DateTimeParser.parseInt(Unknown Source)
+	at org.apache.derby.iapi.types.SQLTimestamp.parseDateOrTimestamp(Unknown Source)
+	at org.apache.derby.iapi.types.SQLTimestamp.parseTimestamp(Unknown Source)
+	at org.apache.derby.iapi.types.SQLTimestamp.<init>(Unknown Source)
+	at org.apache.derby.iapi.types.SQLChar.getTimestamp(Unknown Source)
+	at org.apache.derby.iapi.types.SQLChar.getTimestamp(Unknown Source)
+	at org.apache.derby.iapi.types.SQLTimestamp.setFrom(Unknown Source)
+	at org.apache.derby.iapi.types.DataType.setValue(Unknown Source)
+	at org.apache.derby.iapi.types.DataType.normalize(Unknown Source)
+	at org.apache.derby.iapi.types.DataTypeDescriptor.normalize(Unknown Source)
+	at org.apache.derby.impl.sql.execute.NormalizeResultSet.normalizeColumn(Unknown Source)
+	at org.apache.derby.impl.sql.execute.NormalizeResultSet.normalizeRow(Unknown Source)
+	at org.apache.derby.impl.sql.execute.NormalizeResultSet.getNextRowCore(Unknown Source)
+	at org.apache.derby.impl.sql.execute.DMLWriteResultSet.getNextRowCore(Unknown Source)
+	at org.apache.derby.impl.sql.execute.InsertResultSet.open(Unknown Source)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(Unknown Source)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(Unknown Source)
+	... 39 more

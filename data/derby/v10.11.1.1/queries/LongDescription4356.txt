@@ -1,0 +1,28 @@
+Seen with svn r805448 on tinderbox/trunk ( http://dbtg.foundry.sun.com/derby/test/tinderbox_trunk16/jvm1.6/testing/Limited/index.html ).
+
+See e.g. 
+http://dbtg.foundry.sun.com/derby/test/tinderbox_trunk16/jvm1.6/testing/Limited/testSummary-805576.html ,
+http://dbtg.foundry.sun.com/derby/test/Daily/jvm1.6/testing/Limited/testSummary-805470.html .
+
+The failure signature is
+
+testStartStopManagementFromApplication(org.apache.derbyTesting.functionTests.tests.management.ManagementMBeanTest)junit.framework.AssertionFailedError: expected:<2> but was:<14>
+	at org.apache.derbyTesting.functionTests.tests.management.ManagementMBeanTest.startStopManagement(ManagementMBeanTest.java:86)
+	at org.apache.derbyTesting.functionTests.tests.management.ManagementMBeanTest.testStartStopManagementFromApplication(ManagementMBeanTest.java:56)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:109)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+
+This seems to be a similar failure signature as for DERBY-3561 and DERBY-3499. I choose to create a new issue for the new occurrences.

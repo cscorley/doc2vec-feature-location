@@ -1,0 +1,65 @@
+During 10.2.1.0 beta testing this test failed with org.apache.derby.iapi.services.context.ShutdownException on 2 of 4 platforms running Solaris zones:
+
+Platform "sparc_zone2":
+    derbynetclientmats/derbynetmats/DerbyNetClient/derbynetmats/testSecMec.diff
+
+Platform "sparc_zone3":
+    derbynetclientmats/derbynetmats/DerbyNetClient/derbynetmats/testSecMec.diff
+    derbyall/derbynetclientmats/DerbyNetClient/derbynetmats/derbynetmats/testSecMec.diff
+
+The test did not fail on other platforms, which may indicate timing sensitivity (tests are run concurrently in 4 zones (1 global, 3 local) on one single machine). Here is one of the diffs (from platform "sparc_zone2"):
+
+
+
+	
+	
+		
+		
+			
+			
+				
+				
+					
+					
+						
+						
+							
+							
+								
+								
+									Diff file derbynetclientmats/derbynetmats/DerbyNetClient/derbynetmats/testSecMec.diff
+								
+								
+							
+							
+						
+						
+					
+					
+				
+				
+			
+			
+			Start: testSecMec jdk1.6.0-rc DerbyNetClient derbynetmats:derbynetmats 2006-08-14 21:31:48 ***
+308a309,312
+> java.sql.SQLException: Java exception: ': org.apache.derby.iapi.services.context.ShutdownException'.
+> 	... 14 more----------------------------------------------
+> Testing with derby.drda.securityMechanism=INVALID_VALUE
+> EXPECTED EXCEPTION DRDA_InvalidValue.U:Invalid value, INVALID_VALUE, for derby.drda.securityMechanism.
+310,312d313
+< Testing with derby.drda.securityMechanism=INVALID_VALUE
+< EXPECTED EXCEPTION DRDA_InvalidValue.U:Invalid value, INVALID_VALUE, for derby.drda.securityMechanism.
+< -----
+Test Failed.
+			End:   testSecMec jdk1.6.0-rc DerbyNetClient derbynetmats:derbynetmats 2006-08-14 21:32:54 ***
+		
+		
+	
+	
+
+
+
+
+The failure occurred in the DerbyNetClient framework when shutting down the database for the second (and last) time in the method testUSRSSBPWD_with_BUILTIN(). This test method was added August 9, 2006 (DERBY-528).
+
+Attatching derby.log from the failure in derbynetclientmats/derbynetmats on sparc_zone2.

@@ -1,0 +1,17 @@
+When creating an extremely large table (c.50 indexes, c.50 FK constraints), IJ crashes with an out of memory error. The table can be created successfully if it is done in stages, each one in a different IJ session.
+
+From Kristian Waagan:
+
+"With default settings on my machine, I also get the OOME.
+A brief investigation revealed a few things:
+
+  1) The OOME occurs during constraint additions (with ALTER TABLE ... 
+ADD CONSTRAINT). I could observe this by monitoring the heap usage.
+
+  2) The complete script can be run by increasing the heap size. I tried with 256 MB, but the monitoring showed usage peaked at around 150 MB.
+
+  3) The stack traces produced when the OOME occurs varies (as could be expected).
+
+  4) It is the Derby engine that "produce" the OOME, not ij (i.e. when I ran with the network server, the server failed).
+
+I have not had time to examine the heap content, but I do believe there is a bug in Derby. It seems some resource is not freed after use."

@@ -1,0 +1,43 @@
+(note: lumping these in a single issue since i did them both at the same time)
+
+More then one person has asekd me recently about how they can configure strings which:
+   a) sort case insensitively
+   B) ignore leading (and trailing although it's not as big of an issue) whitespace
+   c ) ignore certain characters anywhere in the string (ie: strip punctuation)
+
+The first can be solved already using the KeywordTokenizer in conjunction with the LowerCaseFilter.  I've written a TrimFilter and PatternReplaceFilter to address the later two.  (Strictly speaking, TrimFilter isn't needed since you cna make a pattern thta matches leading or trailing whitespace, but for people who are only interested in the whitespace issue, i'm sure String.trim() is more efficient the a regex)
+
+An example of how they can be used...
+
+    <!-- This is an example of using the KeywordTokenizer along
+         With various TokenFilterFactories to produce a sortable field
+         that does not include some properties of the source text
+      -->
+    <fieldtype name="alphaOnlySort" class="solr.TextField" sortMissingLast="true" omitNorms="true">
+      <analyzer>
+        <!-- KeywordTokenizer does no actual tokenizing, so the entire
+             input string is preserved as a single token
+          -->
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <!-- The LowerCase TokenFilter does what you expect, which can be
+             when you want your sorting to be case insensitive
+          -->
+        <filter class="solr.LowerCaseFilterFactory" />
+        <!-- The TrimFilter removes any leading or trailing whitespace -->
+        <filter class="solr.TrimFilterFactory" />
+        <!-- The PatternReplaceFilter gives you the flexibility to use
+             Java Regular expression to replace any sequence of characters
+             matching a pattern with an arbitrary replacement string, 
+             which may include back refrences to portions of the orriginal
+             string matched by the pattern.
+
+             See the Java Regular Expression documentation for more
+             infomation on pattern and replacement string syntax.
+
+             http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/package-summary.html
+          -->
+        <filter class="solr.PatternReplaceFilterFactory"
+                pattern="([^a-z])" replacement="" replace="all"
+        />
+      </analyzer>
+    </fieldtype>

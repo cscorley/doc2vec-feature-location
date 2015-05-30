@@ -1,0 +1,14 @@
+For anything more then a moderately sized dataset Pig usually spits following messages:
+
+
+2010-05-27 18:28:31,659 INFO org.apache.pig.impl.util.SpillableMemoryManager: low memory handler called (Usage
+threshold exceeded) init = 4194304(4096K) used = 672012960(656262K) committed = 954466304(932096K) max =
+954466304(932096K)
+
+2010-05-27 18:10:52,653 INFO org.apache.pig.impl.util.SpillableMemoryManager: low memory handler called (Collection
+threshold exceeded) init = 4194304(4096K) used = 954466304(932096K) committed = 954466304(932096K) max =
+954466304(932096K)
+
+
+
+This seems to confuse users a lot. Once these messages are printed, users tend to believe that Pig is having hard time with memory, is spilling to disk etc. but in fact Pig might be cruising along at ease. We should be little more careful what to print in logs. Currently these are printed when a notification is sent by JVM and some other conditions are met which may not necessarily indicate low memory condition. Furthermore, with InternalCachedBag embraced everywhere in favor of DefaultBag, these messages have lost their usefulness. At the every least, we should lower the log level at which these are printed. 

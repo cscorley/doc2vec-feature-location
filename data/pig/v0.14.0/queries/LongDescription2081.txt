@@ -1,0 +1,40 @@
+For following script (test.pig)
+
+
+
+1 DEFINE my_macro (X,key) returns Y
+  2         {
+  3         tmp1 = foreach  $X generate TOKENIZE((chararray)$key) as tokens;
+  4         tmp2 = foreach tmp1 generate flatten(tokens);
+  5         tmp3 = order tmp2 by $0;
+  6         $Y = distinct tmp3;
+  7         }
+  8 
+  9 A = load 'sometext' using TextLoader() as (row) ;
+ 10 E = my_macro(A,row);
+ 11 
+ 12 A1 = load 'sometext2' using TextLoader() as (row1);
+ 13 E1 = my_macro(A1,row1);
+ 14 
+ 15 A3 = load 'sometext3' using TextLoader() as (row3);
+ 16 E3 = my_macro(A3,$0);
+ 17 
+ 18 F = cogroup E by $0, E1 by $0,E3 by $0;
+ 19 dump F;
+
+
+
+pig test.pig gives correct line number in error message:
+
+
+
+ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1200: <file test.pig, line 16, column 17>  mismatched input '$0' expecting set null
+
+
+
+while pig -r test.pig gives incorrect line number in error message:
+
+
+
+ERROR org.apache.pig.Main - ERROR 1200: <file test.pig.substituted, line 1, column 17>  mismatched input '$0' expecting set null
+

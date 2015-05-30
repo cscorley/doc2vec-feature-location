@@ -1,0 +1,12 @@
+Pig does not handle deep cast from bag -> bag, tuple -> tuple. Eg, the following script does not produce desired result:
+
+
+a = load '1.txt' as (a0:bag{t:tuple(i0:double)});
+b = foreach a generate (bag{tuple(int)})a0;
+dump b;
+
+
+
+The result tuple still contain int inside tuple of bag. 
+
+PIG-613 fix the case we cast bytearray > bag/tuple, we take complex type including inner types, but bag>bag, tuple->tuple is still not effective.

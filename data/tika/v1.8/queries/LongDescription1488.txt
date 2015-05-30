@@ -1,0 +1,12 @@
+As we discuss moving into more complex combinations of parsers, there may be a usefulness for Tika to report information about the parsing process via the Metadata object.  There are a few areas where we're already doing this, such as the "X-ParsedBy" key or a few others that I've added in the RTFParser, the PDFParser and the RecursiveParserWrapper.
+
+I'm opening this issue for discussion and input from the community.
+
+Proposal 1: We add a prefix String "X-TIKA-" to TikaCoreProperties that parsers should use as a property prefix when they want to report something about the parsing process via the Metadata object, e.g.:
+
+X-TIKA-millisToParse
+X-TIKA-embeddedDocException
+
+Proposal 2: We start adding specific properties to TikaCoreProperties or maybe create a TikaMetaMetaProperties class to store these. 
+
+Do we want to do something like this?  Is there a better mechanism?

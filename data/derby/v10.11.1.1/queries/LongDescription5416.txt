@@ -1,0 +1,8 @@
+When compressing a table with an index that is larger than the maximum heap size and therefore cannot be hold in memory as a whole an OutOfMemoryError can occur. 
+
+For this to happen the heap usage must be close to the maximum heap size at the start of the index recreation and then while the entries are sorted a garbage collection run must clean out most of the heap. This can happen because a concurrent process releases a huge chunk of memory or just because the buffer of a previous table compression has not yet been garbage collected. 
+The internally used heuristics to guess when more memory can be used for the merge inserter estimates that more memory is available and then the sort buffer gets doubled. The buffer size gets doubled until the heap usage is back to the level when the merge inserter was first initialized or when the OOM occurs.
+
+The problem lies in MergeInsert.insert(...). The check if the buffer can be doubled contains the expression "estimatedMemoryUsed < 0" where estimatedMemoryUsed is the difference in current heap usage and heap usage at initialization. Unfortunately, in the aforementioned scenario this will be true until the heap usage will reach close to maximum heap size before doubling the buffer size will be stopped.
+
+I've tested it with 10.6.2.1, 10.7.1.1 and 10.8.1.2 but the actual bug most likely exists in prior versions too.

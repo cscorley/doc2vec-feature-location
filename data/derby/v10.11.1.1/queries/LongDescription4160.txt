@@ -1,0 +1,25 @@
+The following code in DataNucleus:
+rs = conn.getMetaData().getIndexInfo(catalogName, schemaName, tableName, false,
+true);
+triggers an Exception (http://gist.github.com/95679):
+
+Caused by: java.sql.SQLException: Column 'PARAM1' already exists.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(SQLExceptionFactory40.java:119)
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:70)
+        ... 105 more
+Caused by: ERROR X0Y68: Column 'PARAM1' already exists.
+        at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:303)
+        at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.duplicateDescriptorException(DataDictionaryImpl.java:1678)
+        at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.addDescriptor(DataDictionaryImpl.java:1662)
+        at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.addSPSParams(DataDictionaryImpl.java:3682)
+        at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.updateSPS(DataDictionaryImpl.java:3830)
+        at org.apache.derby.iapi.sql.dictionary.SPSDescriptor.updateSYSSTATEMENTS(SPSDescriptor.java:1112)
+        at org.apache.derby.iapi.sql.dictionary.SPSDescriptor.getPreparedStatement(SPSDescriptor.java:736)
+        at org.apache.derby.iapi.sql.dictionary.SPSDescriptor.getPreparedStatement(SPSDescriptor.java:642)
+        at org.apache.derby.impl.sql.compile.ExecSPSNode.generate(ExecSPSNode.java:177)
+        at org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatement.java:447)
+        at org.apache.derby.impl.sql.GenericStatement.prepare(GenericStatement.java:88)
+        at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(GenericLanguageConnectionContext.java:794)
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement.<init>(EmbedPreparedStatement.java:128)
+        ... 99 more

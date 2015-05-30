@@ -1,0 +1,11 @@
+With client, if the isolation level is set with an SQL Statement such as "SET CURRENT ISOLATION = RS"  the value of  Connection.getTransactionIsolation() will not be correct.
+
+jdbcapi/checkDataSource has tests for sending SQL statements to change the isolation level:
+
+e.g.
+	s.executeUpdate("set current isolation = RS");
+	printState("SQL to change isolation in local", cs1);
+I will disable these tests and reference this bug number.
+
+
+It is not really clear how to handle this without parsing the statement on the client side.

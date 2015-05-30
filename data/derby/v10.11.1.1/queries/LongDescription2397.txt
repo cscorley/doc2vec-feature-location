@@ -1,0 +1,35 @@
+The current flow for a DROP statement, such as a DROP FUNCTION is roughly as follows:
+
+  Compile time:
+             c1) find the TupleDescriptor for the object to verify it exists (e.g. AliasDescriptor, TriggerDescriptor)
+             c2) create an instance of a type specific ConstantAction (e.g. DropAliasConstantAction), information
+                   is passed into the ConstantAction to allow it to re-create the TupleDescriptor, but doesn't pass the actual TupleDescriptor.
+                   (E.g. the schema name, alias type and routine name is passed to the DropAliasConstantAction)
+
+    Execute time (which may be sometime later than compile time) calls executeConstantAction on the object specific ConstantAction
+             e1) execute verify a matching object exists by finding a matching TupleDescriptor
+             e2) drop the object
+
+This could be simplified by utilizing the polymorphic nature of TupleDescriptors. Then all the DropXXXConstantActions could be replaced with
+a single DropDescriptorConstantAction that was created with a TupleDescriptor at compile time.  Two new abstract methods would be added to
+TupleDescriptor, getCurrent() and drop().
+
+Then the execute steps would be:
+
+      en1) Get the current TupleDescriptor using the getCurrent() method of the Tupledescriptor passed in at compile time.
+                This method may return the same object, a different instance that refers to the same SQL object or an instance
+                that refers to a different SQL object of the same name.
+                    descriptor = descriptor.getCurrent()
+
+    en2) Drop the descriptor.
+                   descriptor.drop().
+
+Thus the checking and drop code would move from the SQL object specific ConstantActions into the SQL object specific TupleDescriptors and
+then all of the DropXXXConstantActions classes would be replaced with a single generic one. Thus removing around six classes.
+
+Grant/revoke changes has almost started this approach, where some instances of TupleDescriptor (e.g. ViewDescriptor) and the matching constant action 
+to drop an item share code.  This alerted me to the pattern that is really required, that of a drop() method in TupleDescriptor.
+
+I'll have a patch sometime over the weekend that shows an incremental approach for a couple of SQL objects.
+
+

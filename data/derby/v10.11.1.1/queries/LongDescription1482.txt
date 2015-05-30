@@ -1,0 +1,15 @@
+Suppose I have 1) a table "t1" with blob data in it, and 2) an UPDATE trigger "tr1" defined on that table, where the triggered-SQL-action for "tr1" does NOT reference any of the blob columns in the table. [ Note that this is different from DERBY-438 because DERBY-438 deals with triggers that do reference the blob column(s), whereas this issue deals with triggers that do not reference the blob columns--but I think they're related, so I'm creating this as subtask to 438 ]. In such a case, if the trigger is fired, the blob data will be streamed into memory and thus consume JVM heap, even though it (the blob data) is never actually referenced/accessed by the trigger statement.
+
+For example, suppose we have the following DDL:
+
+    create table t1 (id int, status smallint, bl blob(2G));
+    create table t2 (id int, updated int default 0);
+    create trigger tr1 after update of status on t1 referencing new as n_row for each row mode db2sql update t2 set updated = updated + 1 where t2.id = n_row.id;
+
+Then if t1 and t2 both have data and we make a call to:
+
+    update t1 set status = 3;
+
+the trigger tr1 will fire, which will cause the blob column in t1 to be streamed into memory for each row affected by the trigger. The result is that, if the blob data is large, we end up using a lot of JVM memory when we really shouldn't have to (at least, in theory we shouldn't have to...).
+
+Ideally, Derby could figure out whether or not the blob column is referenced, and avoid streaming the lob into memory whenever possible (hence this is probably more of an "enhancement" request than a bug)... 

@@ -1,0 +1,21 @@
+Additional trace can help users understand and relate query or entity actions with SQL pushdowns:
+1.  why SQL pushdown has JOINs that are generated, a trace dumping out eager relations for the generated SQL is very helpful.
+2. a JPQL or a simple em.find() generated caused more than one SQL requests.
+3. entity instance actions (INSERT, UPDATE, DELETE) generated SQL
+
+Examples:
+1. JOIN is generated because of the eager relation 'entitya':
+4891  p1  TRACE  [main] openjpa.Query - Executing query: select s from CascadeB s
+4906  p1  TRACE  [main] openjpa.jdbc.Extra - Eager relations: [test.entities.CascadeB.entitya]
+5141  p1  TRACE  [main] openjpa.jdbc.SQL - <t 26882784, conn 9493> executing prepstmnt 25862088 SELECT t0.id, t1.id, t1.name, t0.name FROM CascadeB t0 LEFT OUTER JOIN CascadeA t1 ON t0.ENTITYA_ID = t1.id 
+
+2. flush for new instance of entity action:
+7250  p1  TRACE  [main] openjpa.jdbc.Extra - flush: org.apache.openjpa.kernel.PNewState for oid=1
+7250  p1  TRACE  [main] openjpa.jdbc.SQL -: INSERT INTO BasicA (age,id,name) VALUES (?,?,?) [1,1,name1]
+
+2: loading relation 'entitya':
+7734  p1  TRACE  [main] openjpa.jdbc.Extra - load field: 'entitya' for oid=1 class test.entities.BasicB
+7734  p1  TRACE  [main] openjpa.jdbc.Extra - find: oid=1 class test.entities.BasicA
+7734  p1  TRACE  [main] openjpa.jdbc.Extra - getInitializeStateResult: oid=1 class test.entities.BasicA
+7969  pdq1  TRACE  [main] openjpa.jdbc.SQL - <t 26882784, conn 3125250> executing prepstmnt 28008463 SELECT t0.name FROM BasicA t0 WHERE t0.id = ?  optimize for 1 row [params=(int) 1]
+

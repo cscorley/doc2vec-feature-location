@@ -1,0 +1,32 @@
+On a database with territory=no_NO and collation=TERRITORY_BASED, I get these results from a query which uses the LIKE predicate:
+
+ij> select * from t where x like '%a%';
+X                   
+--------------------
+Waagan              
+Wåhan               
+Wanvik              
+Wågan               
+ekstrabetaling      
+ekstra­arbeid       
+­a                  
+a                   
+-a                  
+ a                  
+B                   
+C                   
+
+12 rows selected
+
+The last two rows ('B' and 'C') should not have been included in the result, since they do not match the pattern '%a%'.
+
+Similar wrong results are seen with '%aa%':
+
+ij> select * from t where x like '%aa%';
+X                   
+--------------------
+Waagan              
+ekstraarbeid        
+B                   
+
+3 rows selected

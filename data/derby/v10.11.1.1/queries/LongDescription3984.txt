@@ -1,0 +1,15 @@
+It would be good to make jsr169 the default platform for most Derby build targets. This will allow the build to raise compile-time errors when a checkin violates the small-device contract. Only a small number of features (listed in DERBY-3966) really require JDK1.4. Something like the following may work:
+
+1) Finish up DERBY-3966 so that java4compile.classpath defaults to an approximation of $
+{jdk14xmlSupport}
+: $
+{java15compile.classpath}
+
+2) Make compile.classpath default to jsr169compile.classpath
+
+3) Fortunately, jsr169compile.classpath itself already defaults to $
+{jsr169stubs}
+:$
+{java14compile.classpath}
+
+4) Change a (hopefully) small number of targets to use java14compile.classpath rather than compile.classpath

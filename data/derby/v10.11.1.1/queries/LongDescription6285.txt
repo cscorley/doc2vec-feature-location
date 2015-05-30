@@ -1,0 +1,11 @@
+InternalDriver creates a thread pool for running timed logins like this:
+
+    private static final ThreadPoolExecutor _executorPool =
+            new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
+                                   new SynchronousQueue<Runnable>());
+    static 
+{
+        _executorPool.setThreadFactory(new DaemonThreadFactory());
+    }
+
+The java.util.concurrent.Executors class has factory methods that create thread pools and hide the details such as choosing keep-alive time and which kind of queue to use.

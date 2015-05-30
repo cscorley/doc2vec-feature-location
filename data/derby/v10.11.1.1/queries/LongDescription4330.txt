@@ -1,0 +1,16 @@
+I came across a query that failed with a NullPointerException (insane jars) or an assert failure (sane jars) when a PreparedStatement was re-executed after a lock timeout. I'm able to reproduce this on 10.3.1.4 and later. 10.2.2.0 and earlier don't fail. Another fallout from DERBY-827? I've also seen other manifestations of the problem, apparently depending on the actual rows in the tables, including "No current connection" and "The heap container with container id Container(0, 1120) is closed".
+
+Stack trace for the assert failure:
+
+org.apache.derby.shared.common.sanity.AssertFailure: ASSERT FAILED JoinResultSet already open
+        at org.apache.derby.shared.common.sanity.SanityManager.ASSERT(SanityManager.java:120)
+        at org.apache.derby.impl.sql.execute.JoinResultSet.openCore(JoinResultSet.java:144)
+        at org.apache.derby.impl.sql.execute.ProjectRestrictResultSet.openCore(ProjectRestrictResultSet.java:169)
+        at org.apache.derby.impl.sql.execute.SortResultSet.openCore(SortResultSet.java:248)
+        at org.apache.derby.impl.sql.execute.ProjectRestrictResultSet.openCore(ProjectRestrictResultSet.java:169)
+        at org.apache.derby.impl.sql.execute.BasicNoPutResultSetImpl.open(BasicNoPutResultSetImpl.java:248)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:416)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:297)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1235)
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeStatement(EmbedPreparedStatement.java:1675)
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement.execute(EmbedPreparedStatement.java:1330)

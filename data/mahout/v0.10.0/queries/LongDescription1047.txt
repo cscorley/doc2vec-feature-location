@@ -1,0 +1,25 @@
+After running the new LDA CVB implementation, it hangs and does not terminate the process like every other time I run Mahout
+
+Terminal output:
+
+
+12/07/19 11:38:49 INFO mapred.LocalJobRunner: 
+12/07/19 11:38:49 INFO mapred.Task: Task 'attempt_local_0022_m_000000_0' done.
+12/07/19 11:38:49 INFO mapred.JobClient:  map 100% reduce 0%
+12/07/19 11:38:49 INFO mapred.JobClient: Job complete: job_local_0022
+12/07/19 11:38:49 INFO mapred.JobClient: Counters: 8
+12/07/19 11:38:49 INFO mapred.JobClient:   File Output Format Counters 
+12/07/19 11:38:49 INFO mapred.JobClient:     Bytes Written=2247793
+12/07/19 11:38:49 INFO mapred.JobClient:   File Input Format Counters 
+12/07/19 11:38:49 INFO mapred.JobClient:     Bytes Read=1920337
+12/07/19 11:38:49 INFO mapred.JobClient:   FileSystemCounters
+12/07/19 11:38:49 INFO mapred.JobClient:     FILE_BYTES_READ=1342812616
+12/07/19 11:38:49 INFO mapred.JobClient:     FILE_BYTES_WRITTEN=1326092302
+12/07/19 11:38:49 INFO mapred.JobClient:   Map-Reduce Framework
+12/07/19 11:38:49 INFO mapred.JobClient:     Map input records=2772
+12/07/19 11:38:49 INFO mapred.JobClient:     Spilled Records=0
+12/07/19 11:38:49 INFO mapred.JobClient:     SPLIT_RAW_BYTES=140
+12/07/19 11:38:49 INFO mapred.JobClient:     Map output records=2772
+12/07/19 11:38:49 INFO driver.MahoutDriver: Program took 4089950 ms (Minutes: 68.16583333333334)
+
+$MAHOUT_HOME/mahout cvb -i /home/seth/Scripted/mahout_data/vectors/vectors/vectors-for-cvb/ -o /home/seth/Scripted/mahout_data/clusters/ -ow -k 90 -dt /home/seth/Scripted/mahout_data/distributions -dict /home/seth/Scripted/mahout_data/vectors/vectors/dictionary.file-0 -mt /home/seth/Scripted/mahout_data/temp/ -x 20 -cd 0.05

@@ -1,0 +1,20 @@
+Thank you!
+
+(PS: If you are not interested in bug reports without patches, please let me know. In the meantime I will keep posting these as I find them.)
+
+
+$ java -jar tika-app-1.0-SNAPSHOT.jar http://www.documents.dgs.ca.gov/bsc/prpsd_chngs/documents/2007/pex/PEX%20EIR%20297%20EPA%202008-AQaccessed%202-15-08.mht
+Exception in thread "main" org.apache.tika.exception.TikaException: Unexpected RuntimeException from org.apache.tika.parser.mail.RFC822Parser@40bb2bc3
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:199)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:197)
+	at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:135)
+	at org.apache.tika.cli.TikaCLI$OutputType.process(TikaCLI.java:107)
+	at org.apache.tika.cli.TikaCLI.process(TikaCLI.java:302)
+	at org.apache.tika.cli.TikaCLI.main(TikaCLI.java:91)
+Caused by: java.lang.NullPointerException
+	at org.apache.tika.parser.mail.MailContentHandler.field(MailContentHandler.java:130)
+	at org.apache.james.mime4j.parser.MimeStreamParser.parse(MimeStreamParser.java:121)
+	at org.apache.tika.parser.mail.RFC822Parser.parse(RFC822Parser.java:60)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:197)
+	... 5 more
+

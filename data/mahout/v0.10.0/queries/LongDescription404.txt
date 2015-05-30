@@ -1,0 +1,36 @@
+Per discussion : http://lucene.472066.n3.nabble.com/Re-input-now-Dmapred-input-dir-td852297.html#a852297
+
+With the advent of the parsedArgs map returned by AbstractJob.parseArguments is there
+a need to pass Option arguments around anymore? Could AbstractJob maintain
+Options state in a sense?
+
+For example, from RecommenderJob:
+
+
+
+    Option numReccomendationsOpt = AbstractJob.buildOption("numRecommendations", "n", 
+      "Number of recommendations per user", "10");
+    Option usersFileOpt = AbstractJob.buildOption("usersFile", "u",
+      "File of users to recommend for", null);
+    Option booleanDataOpt = AbstractJob.buildOption("booleanData", "b",
+      "Treat input as without pref values", Boolean.FALSE.toString());
+
+    Map<String,String> parsedArgs = AbstractJob.parseArguments(
+        args, numReccomendationsOpt, usersFileOpt, booleanDataOpt);
+    if (parsedArgs == null) {
+      return -1;
+    }
+
+
+
+Could be changed to something like:
+
+
+
+buildOption("numRecommendations", "n", "Number of recommendations per user",
+"10");
+buildOption("usersFile", "u", "File of users to recommend for", null);
+buildOption("booleanData", "b", "Treat input as without pref values",
+Boolean.FALSE.toString());
+Map<String,String> parsedArgs = parseArguments(); 
+

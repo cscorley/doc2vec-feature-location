@@ -1,0 +1,6 @@
+Given the following in a file to Pig, pig doesn't report any error, even if -c option is given:
+
+A = load 'x' as (u, v);
+B = foreach A generate $3;
+
+It's questionable whether to validate the query in batch mode as it doesn't contain any store/dump statement. However, if -c option is given, validation should be nevertheless performed.

@@ -1,0 +1,31 @@
+Pig script:
+
+a = load 'studentcomplextab10k' as (smap:map[],c2,c3);
+f = foreach a generate smap#'name, smap#'age', smap#'gpa' ;            
+s = order f by $0;           
+store s into 'sc.out'         
+
+Stack:
+
+Caused by: java.lang.ArrayStoreException
+        at java.lang.System.arraycopy(Native Method)
+        at java.util.Arrays.copyOf(Arrays.java:2763)
+        at java.util.ArrayList.toArray(ArrayList.java:305)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.partitioners.WeightedRangePartitioner.convertToArray(WeightedRangePartitioner.java:154)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.partitioners.WeightedRangePartitioner.configure(WeightedRangePartitioner.java:96)
+        ... 5 more
+
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.Launcher.getErrorMessages(Launcher.java:230)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.Launcher.getStats(Launcher.java:179)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher.launchPig(MapReduceLauncher.java:204)
+        at org.apache.pig.backend.hadoop.executionengine.HExecutionEngine.execute(HExecutionEngine.java:265)
+        at org.apache.pig.PigServer.executeCompiledLogicalPlan(PigServer.java:769)
+        at org.apache.pig.PigServer.execute(PigServer.java:762)
+        at org.apache.pig.PigServer.access$100(PigServer.java:91)
+        at org.apache.pig.PigServer$Graph.execute(PigServer.java:933)
+        at org.apache.pig.PigServer.executeBatch(PigServer.java:245)
+        at org.apache.pig.tools.grunt.GruntParser.executeBatch(GruntParser.java:112)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:168)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:140)
+        at org.apache.pig.tools.grunt.Grunt.exec(Grunt.java:88)
+        at org.apache.pig.Main.main(Main.java:389)

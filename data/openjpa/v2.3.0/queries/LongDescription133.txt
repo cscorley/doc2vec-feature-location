@@ -1,0 +1,61 @@
+Using xml to define my listener callback methods (doesn't make any difference whether we're using MappedSuperclass or Entity):
+
+	<mapped-superclass class="com.ibm.ws.persistence.tests.callbacks.CallbackSuperclass">
+			<entity-listeners>
+				<entity-listener class="com.ibm.ws.persistence.tests.callbacks.CallbackListener">
+					<!--
+					<pre-persist  method-name="prePersistXML" />
+					-->
+					<post-persist method-name="postPersistXML" />
+					<!--
+					<pre-remove   method-name="preRemove" />
+					<post-remove  method-name="postRemove" />
+					<pre-update   method-name="preUpdate" />
+					<post-update  method-name="postUpdate" />
+					<post-load    method-name="postLoad" />
+					-->
+				</entity-listener>
+			</entity-listeners>
+	</mapped-superclass>
+
+My Entity heirarchy is defined as follows:
+
+public interface CallbackMarker { }
+
+@MappedSuperclass
+public class CallbackSuperclass implements CallbackMarker 
+{ .. }
+
+@Entity
+public class CallbackEntity extends CallbackSuperclass { .. }
+
+My listener method is defined as follows:
+
+public class CallbackListener {
+:
+    private void postPersistXML(CallbackMarker cbm) 
+{
+        System.out.println("PostPersist (ListenerXML) on CallbackMarker: " + cbm);
+        ((CallbackEntity)cbm).postSuccessful = true;
+    }
+:
+}
+
+I'm probably clouding the issue with all of these details, but the real problem is that we're not properly finding the postPersistXML(CallbackMarker cbm) method.  When I run the example, I am getting the following exception.  The original
+call stack is huge, so I will just include the "caused by":
+
+Caused by: java.lang.NoSuchMethodException: com.ibm.ws.persistence.tests.callbacks.CallbackListener.postPersistXML(com.ibm.ws.persistence.tests.callbacks.CallbackSuperclass)
+	at java.lang.Class.throwNoSuchMethodException(Class.java:271)
+	at java.lang.Class.getMethod(Class.java:748)
+	at org.apache.openjpa.event.MethodLifecycleCallbacks.getMethod(MethodLifecycleCallbacks.java:123)
+
+Digging through the problem, I am finding that we're not properly reflecting on the Class to find the appropriate Method.  First, we
+do a getMethods(), which only returns the public methods.  Of course, nothing matches up, so we end up in the catch {} block.  Here,
+we attempt a getDeclaredMethod() passing in the specific type for the argument.  This doesn't work in this case since the specific
+type (CallbackSuperclass) isn't on the Method signature (the interface CallbackMarker is).  Also, calling getDeclaredMethod only looks in the specific Class and does not go up the heirarchy (like getMethods() does).  So, we have a couple of problems with this
+method.
+
+My proposed change is to use the getDeclaredMethods() invocation and manually go up the heirarchy (if necessary).  If we go all the way up the tree without finding the method, then we throw the exception.  This seems to clear up the processing and makes the code
+more readable (no try/catch is required).  You could argue that this approach might take more processing since we might have to get the Superclass and make additional getDeclaredMethods() invocations.  But, my guess is that most of the methods being requested will be on the base class and no additional invocations will be necessary.
+
+FYI, this problem only exists with the XML configuration since the annotated version doesn't do this parameter checking.  Annotated callback methods just register the method and assume that it will work.  If it doesn't, then we get a runtime exception with IllegalArgumentException.  Whether we should do this type checking for the annotated callbacks is a topic for a separate JIRA report...

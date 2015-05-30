@@ -1,0 +1,12 @@
+Changes made in DERBY-353 break the documented behaviour of IDENTITY_VAL_LOCAL(). Now the returned value is modified when a multi-row insert is performed.
+IDENTITY_VAL_LOCAL() should not be updated when this occurs.
+
+For this script the last value returned should be 2 (as in 10.1) but in 10.2 is 4
+
+create table ta (a int, b int generated always as identity);
+insert into ta(a) values 100;
+values IDENTITY_VAL_LOCAL();
+insert into ta(a) values 200;
+values IDENTITY_VAL_LOCAL();
+insert into ta(a) values 300,400;
+values IDENTITY_VAL_LOCAL();

@@ -1,0 +1,3 @@
+Can be exposed as a column's type in a ResultSet being nullable when in reality it can never be null.
+
+Can impact performance as the SQL compiler can general optimal paths with correct nullability, e.g. a non-null INTEGER expression does not need normalization if being stored in a non-null INTEGER column, routine calling can be optimized for a RETURNS NULL ON NULL INPUT function if the inputs are never null.

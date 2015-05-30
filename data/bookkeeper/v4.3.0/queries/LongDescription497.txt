@@ -1,0 +1,1 @@
+The callbacks use Object#wait/notify without checking a condition. If the callback completes very quickly, the notify will happen before wait is ever called. The best solution is to use a CountDownLatch. Im seeing this problem when applying patch for BOOKKEEPER-205, probably due to a change in timing on the test.

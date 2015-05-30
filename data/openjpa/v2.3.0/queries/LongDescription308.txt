@@ -1,0 +1,14 @@
+I'm seeing the following error when running against Postgres. This is solved by intercepting the DBDictionary.setNull() call and replacing Types.BLOB with Types.BINARY.
+
+
+Caused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: ERROR: column "image" is of type bytea but expression is of type oid 
+{prepstmnt 33517025 INSERT INTO LAZ_Product (id, image, name, price) VALUES (?, ?, ?, ?) [params=(long) 1186442009345, (null) null, (String) Browser Spiffer-Upper, (float) 31.5]}
+ [code=0, state=42804]
+at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.wrap(LoggingConnectionDecorator.java:192)
+at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.access$800(LoggingConnectionDecorator.java:57)
+at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection$LoggingPreparedStatement.executeUpdate(LoggingConnectionDecorator.java:858)
+at org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement.executeUpdate(DelegatingPreparedStatement.java:269)
+at org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement.executeUpdate(DelegatingPreparedStatement.java:269)
+at org.apache.openjpa.jdbc.kernel.JDBCStoreManager$CancelPreparedStatement.executeUpdate(JDBCStoreManager.java:1363)
+at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flushInternal(PreparedStatementManagerImpl.java:95)
+... 39 more

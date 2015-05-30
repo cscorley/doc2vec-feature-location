@@ -1,0 +1,3 @@
+The log truncation relies on position calculation for a particular zxid to figure out the new size of the log file. There is a bug in PositionInputStream implementation which skips counting the bytes in the log which have value 0. This can lead to underestimating the actual log size. The log records which should be there can get truncated, leading to data loss on the participant which is executing the trunc.
+
+Clients can see different values depending on whether they connect to the node on which trunc was executed. 

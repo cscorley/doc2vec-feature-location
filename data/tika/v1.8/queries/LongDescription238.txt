@@ -1,0 +1,3 @@
+Delegating Parser implementations (i.e. ones that call another Parser instance to process some parts of the input document) like the PackageParser subclasses currently simply instantiate a new AutoDetectParser() whenever a more specific delegate parser has not been specified. This is troublesome as it 1) makes customization more difficult and 2) performs poorly since a new AutoDetectParser (with a new freshly parsed copy of the default configuration) is currently instantiated whenever such a delegating parser is used.
+
+Instead of working around the issue with things like keeping a static copy of the pre-parsed default configuration, I'd like to solve this issue by introducing a new DelegatingParser abstraction for this and hooking it to the configuration mechanism.

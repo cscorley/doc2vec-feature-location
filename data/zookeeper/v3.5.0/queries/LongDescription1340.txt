@@ -1,0 +1,9 @@
+Multi operations run by users are generating ERROR level messages in the server log even though they are typical user level operations that are not in any way impacting the server, example:
+
+
+2011-12-22 09:55:06,538 [myid:] - ERROR [ProcessThread(sid:0 cport:-1)::PrepRequestProcessor@545] - >>>> Got user-level KeeperException when processing sessionid:0x13466e9828c0000 type:multi cxid:0x3 zxid:0x2 txntype:2 reqpath:n/a Error Path:/nonexisting Error:KeeperErrorCode = NoNode for /nonexisting
+2011-12-22 09:55:06,538 [myid:] - ERROR [ProcessThread(sid:0 cport:-1)::PrepRequestProcessor@549] - >>>> ABORTING remaing MultiOp ops
+
+
+
+This is misleading. We should demote these messages to INFO level at the highest. (this is what we do for other such user operations, e.g. nonode)

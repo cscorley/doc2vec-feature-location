@@ -1,0 +1,7 @@
+On line 385 of FacetComponent.java, the line:
+
+if (counts[i].count < dff.minCount) break;
+
+will cause some facets to not be returned in the case where facet.sort=index and facet.mincount>0.
+
+To fix, you could add a condition where you checked whether the facets were sorted by count.

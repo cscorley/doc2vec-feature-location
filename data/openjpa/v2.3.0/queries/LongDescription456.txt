@@ -1,0 +1,25 @@
+In the PersistenceMappingDefault.populateJoinColumn() method, it missed the call to validate the column length. Consequencely the column length  that was longer than DB2's max column length resulted an invalid column length exception .
+
+The fix wil be:
+
+    public void populateJoinColumn(FieldMapping fm, Table local, Table foreign,
+        Column col, Object target, int pos, int cols) 
+{
+        // only use spec defaults with column targets
+        if (!(target instanceof Column))
+            return;
+
+        // if this is a bidi relation, prefix with inverse field name, else
+        // prefix with owning entity name
+        FieldMapping[] inverses = fm.getInverseMappings();
+        String name;
+        if (inverses.length > 0)
+            name = inverses[0].getName();
+        else
+            name = fm.getDefiningMapping().getTypeAlias();
+
+        // suffix with '_' + target column
+        name += "_" + ((Column) target).getName();
+        name = dict.getValidColumnName(name, foreign);  ===> add this call before set the name to the column.
+        col.setName(name);
+    }

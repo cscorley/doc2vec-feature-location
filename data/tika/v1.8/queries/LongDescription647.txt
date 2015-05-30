@@ -1,0 +1,17 @@
+From TikaCLI.java
+
+        for (Class<?> modelClass: modelClasses) {
+            // we don't care about internal Tika met classes
+            // if we do, then we can take this conditional out
+            if (modelClass.getSimpleName().contains("Tika")) {
+                System.out.println(modelClass.getSimpleName());
+
+The condition is the reverse from what the comment says and needs to be negated.  The way it's written, it only returns the internal ones.
+
+java -jar tika-app-0.9.jar --list-met-models
+TikaMetadataKeys
+ PROTECTED
+ RESOURCE_NAME_KEY
+TikaMimeKeys
+ MIME_TYPE_MAGIC
+ TIKA_MIME_FILE

@@ -1,0 +1,35 @@
+When running SecureServerTest with jars instrumented with EMMA using the ant emma-all target, I see:
+
+[junit] (net)derbynet.SecureServerTest.testServerStartup used 8475 ms junit.framework.TestListener: endTest(testServerStartup)
+    [junit] START-SPAWNED:SpawnedNetworkServer ERROR OUTPUT:
+    [junit] java.security.policy: error adding Entry:
+    [junit] 	java.net.MalformedURLException: no protocol: /export/home/dag/java/sb/sb1/tools/java/emma.jar
+    [junit] java.security.AccessControlException: access denied (java.io.FilePermission coverage.ec read)
+    [junit] 	at java.security.AccessControlContext.checkPermission(AccessControlContext.java:374)
+    [junit] 	at java.security.AccessController.checkPermission(AccessController.java:546)
+    [junit] 	at java.lang.SecurityManager.checkPermission(SecurityManager.java:532)
+    [junit] 	at java.lang.SecurityManager.checkRead(SecurityManager.java:871)
+    [junit] 	at java.io.File.exists(File.java:731)
+    [junit] 	at com.vladium.emma.data.DataFactory.persist(DataFactory.java:525)
+    [junit] 	at com.vladium.emma.data.DataFactory.persist(DataFactory.java:86)
+    [junit] 	at com.vladium.emma.rt.RTCoverageDataPersister.dumpCoverageData(RTCoverageDataPersister.java:54)
+    [junit] 	at com.vladium.emma.rt.RTExitHook.run(RTExitHook.java:32)
+    [junit] 	at java.lang.Thread.run(Thread.java:662)
+    [junit] Exception in thread "EMMA shutdown handler thread" java.lang.RuntimeException: EMMA failed to dump coverage data: java.security.AccessControlException: access denied (java.io.FilePermission coverage.ec read)
+    [junit] 	at com.vladium.emma.rt.RTCoverageDataPersister.dumpCoverageData(RTCoverageDataPersister.java:71)
+    [junit] 	at com.vladium.emma.rt.RTExitHook.run(RTExitHook.java:32)
+    [junit] 	at java.lang.Thread.run(Thread.java:662)
+    [junit] END-SPAWNED  :SpawnedNetworkServer ERROR OUTPUT:
+
+This is presumably because the test spawns a server which runs with the default server policy.
+
+Another thing is that is seems dangerous to let the spawned process write to EMMA's "coverage.ec", since we don't know when the parent process will write to it. This behavior could be what's been causing our corrutions in the EMMA runs earlier. The missing permissions just highlight what's happening.
+
+In this case the spawned process was started with this command line (I instrumented the code):
+
+XXX server startup command = /usr/jdk/instances/jdk1.6.0/jre/bin/java -classpath /<my sandbox>/tools/java/emma.jar:/<my sandbox>/jars/sane/derbyTesting.jar:/<my sandbox>/jars/emma/lib/derbyclient.jar:/<my sandbox>/jars/emma/lib/derbynet.jar:/<my sandbox>/jars/emma/lib/derby.jar:/<my sandbox>/jars/emma/lib/derbytools.jar:/<my sandbox>/jars/emma/lib/derbyrun.jar:/<my sandbox>/tools/java/junit.jar:/usr/share/lib/ant/ant-launcher.jar:/usr/share/lib/ant/ant.jar:/usr/share/lib/ant/ant-junit.jar org.apache.derby.drda.NetworkServerControl start -h localhost -p 1527 
+
+Possible approaches:
+         run the spawned VMs with plain jars (downside: we won't get coverage for those)
+         run the spawned with a special default policy file when we run with EMMA ++
+         run the spawned VM with -noSecurityManager if with EMMA jars

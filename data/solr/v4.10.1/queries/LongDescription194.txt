@@ -1,0 +1,9 @@
+Using 
+
+  java -Dfile.encoding=iso-8859-1 -jar post.jar http://localhost:8983/solr/update utf8-example.xml
+
+posts incorrect data, apparently utf8-example.xml is read using the JVM's encoding.
+
+As a workaround before we fix this, use
+
+  java -Dfile.encoding=UTF-8 -jar post.jar http://localhost:8983/solr/update utf8-example.xml

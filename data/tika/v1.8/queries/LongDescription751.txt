@@ -1,0 +1,28 @@
+I noticed some minor things in this method:
+
+
+	It does too much work (writes the tmpFile out) if the
+    EmbeddedDocumentExtractor didn't want to actually parse file
+    file.
+
+
+
+
+	It writes the tmpFile when it won't use it in the OLE10_NATIVE
+    case (because we use a TikeInputStream from the in-RAM byte[]
+    instead).
+
+
+
+Also I fixed a typo in the method name (embeded -> embedded) – is
+that OK?  It's a protected method, and a few of the office parsers
+invoke it.
+
+Finally I cutover to TemporaryResources to track the possible tmpFile
+and open TikaInputStream against it.
+
+Separately, it's inefficient now that we must serialize a sub-dir
+(DirectoryEntry) in the NPOIFileSystem to a tmp file only to re-parse
+it back to an NPOIFileSystem in OfficeParser; I'd like to look into
+instead (somehow) directly passing the NPOIFileSystem's DirectoryEntry
+to OfficeParser... but that looks like a bigger change.

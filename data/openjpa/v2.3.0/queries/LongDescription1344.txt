@@ -1,0 +1,43 @@
+[get|set]LockMode method in Query interface do not throw correct exception per spec.
+
+
+	No check on the query type and throw IllegalStateException
+	Thrown TransactionRequiredException for LockModeType.None. (3.8.8 Queries and Lock Mode....If a lock mode other than NONE is specified for a query, the query must be executed within a transaction or the TransactionRequiredException will be thrown.)
+
+
+
+/**
+
+	Set the lock mode type to be used for the query execution.
+	@param lockMode
+	@return the same query instance
+	@throws IllegalStateException if the query is found not to be
+	a Java Persistence query language SELECT query
+	or a Criteria API query
+*/
+Query setLockMode(LockModeType lockMode);
+
+
+
+-----------------------------
+
+getLockMode method in EntityManager interface do not throw correct exception per spec.
+
+
+	No check in active transaction and throw TransactionRequiredException
+	No check if entity is attached and throw IllegalArgumentException
+
+
+
+/**
+
+	Get the current lock mode for the entity instance.
+	@param entity
+	@return lock mode
+	@throws TransactionRequiredException if there is no
+	transaction
+	@throws IllegalArgumentException if the instance is not a
+	managed entity and a transaction is active
+*/
+public LockModeType getLockMode(Object entity);
+

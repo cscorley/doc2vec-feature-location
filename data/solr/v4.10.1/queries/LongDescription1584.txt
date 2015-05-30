@@ -1,0 +1,16 @@
+The current implementation of setIncludeScore(boolean) adds the value "score" to the FL parameter.
+This causes a problem when using the setFields followed by include score.
+If I do this:
+
+setFields("*");
+setIncludeScore(true);
+
+I would expect the outcome to be "fl=*,score"
+Instead the outcome is: "fl=* &fl=score" which fails to use the score field as FL is not a multi-valued field.
+
+The current implementation in the SolrJ SolrQuery object is:
+add("fl", "score")
+instead it should be:
+set("fl", get("fl") + ",score")
+
+obviously not as simplistic as that, but you catch my drift...

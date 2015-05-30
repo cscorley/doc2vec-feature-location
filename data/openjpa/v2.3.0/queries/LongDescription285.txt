@@ -1,0 +1,20 @@
+Kevin Miller reported:
+Geronimo is running out of PermGen space in some simple deploy/ undeploy scenarios involving OpenJPA. The cause of the problem seems to be the _metas table in PCRegistry. _metas is a ConcurrentReferenceHashMap with WEAK reference keys and HARD reference values. The keys are the PersistenceCapable classes. While the values are the metadata for these classes which are maintained by the internal Meta class.
+
+The cause of the ClassLoader memory leak is simple – if any of the objects/classes held by the Meta class (e.g. fieldTypes) have also been loaded by the same ClassLoader used to load the PersistenceCapable class, the PersistenceCapable class (the weak key) will never be GCed. The value of the HashMap entry will always maintain a hard reference to the ClassLoader. Since the ClassLoader will never be GC'ed, the the the pcClass Class object will never be GC'able...
+
+The problem can be easily recreated using current Geronimo trunk and the Geronimo Daytrader application.
+
+Patrick Linskey suggested:
+Change PCRegistry.fieldTypes to be String[] instead of Class[], and dematerialize them as needed.
+
+Robert Burrell Donkin/Marc Prud'hommeaux  both pointed out that alternatives such as to
+listen for the death of a ClassLoader and manually unregistering metadata would be more costly in terms of complexity.
+
+This patch follows Patrick's suggestion.
+1. Changes the Meta.fieldTypes to String[] from Class[]
+2. Adapts the enhanced bytecode accordingly to the modified method signatures
+3. PCRegistry getFieldTypes() load the fields' declared type using the same loader that loaded the owner pc class. 
+
+Note: For a class C and its field f,  CL(c) == CL(f) is not always true. (Kevin Miller)
+          But CL(c) will be able to load declared type of f  either directly or via one of its parent (Craig Russel)

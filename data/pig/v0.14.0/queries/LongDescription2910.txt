@@ -1,0 +1,15 @@
+I want to toString() schemas and send them to the backend via UDFContext. At the moment this requires writing your own toString() method that Utils.getSchemaFromString() can read. Making a readable schema for the backend would be an improvement.
+
+I spoke with Thejas, who believes this is a bug. The workaround for the moment is, for example:
+
+String schemaString = inputSchema.toString().substring(1, inputSchema.toString().length() - 1);
+
+// Set the input schema for processing
+UDFContext context = UDFContext.getUDFContext();
+Properties udfProp = context.getUDFProperties(this.getClass());
+
+udfProp.setProperty("horton.json.udf.schema", schemaString);
+
+...
+
+schema = Utils.getSchemaFromString(strSchema);

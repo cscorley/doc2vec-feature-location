@@ -1,0 +1,45 @@
+Streaming KMeans fails when executed in Sequential mode because it presently doesn't ignore 'logsCRCFilter' (in sequential execution).
+
+
+
+INFO: Starting StreamingKMeans clustering for vectors in /tmp/mahout-work/reuters-out-seqdir-sparse-streamingkmeans/tfidf-vectors; results are output to /tmp/mahout-work/reuters-streamingkmeans
+Dec 15, 2013 4:11:27 AM org.slf4j.impl.JCLLoggerAdapter info
+INFO: Finished running Mappers
+Exception in thread "main" java.util.concurrent.ExecutionException: java.lang.IllegalStateException: file:/tmp/mahout-work/reuters-out-seqdir-sparse-streamingkmeans/tfidf-vectors/_SUCCESS
+	at java.util.concurrent.FutureTask$Sync.innerGet(FutureTask.java:222)
+	at java.util.concurrent.FutureTask.get(FutureTask.java:83)
+	at org.apache.mahout.clustering.streaming.mapreduce.StreamingKMeansDriver.runSequentially(StreamingKMeansDriver.java:436)
+	at org.apache.mahout.clustering.streaming.mapreduce.StreamingKMeansDriver.run(StreamingKMeansDriver.java:417)
+	at org.apache.mahout.clustering.streaming.mapreduce.StreamingKMeansDriver.run(StreamingKMeansDriver.java:239)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:65)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:79)
+	at org.apache.mahout.clustering.streaming.mapreduce.StreamingKMeansDriver.main(StreamingKMeansDriver.java:492)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.apache.hadoop.util.ProgramDriver$ProgramDescription.invoke(ProgramDriver.java:68)
+	at org.apache.hadoop.util.ProgramDriver.driver(ProgramDriver.java:139)
+	at org.apache.mahout.driver.MahoutDriver.main(MahoutDriver.java:195)
+Caused by: java.lang.IllegalStateException: file:/tmp/mahout-work/reuters-out-seqdir-sparse-streamingkmeans/tfidf-vectors/_SUCCESS
+	at org.apache.mahout.common.iterator.sequencefile.SequenceFileValueIterable.iterator(SequenceFileValueIterable.java:62)
+	at com.google.common.collect.Iterables$8.iterator(Iterables.java:713)
+	at org.apache.mahout.clustering.streaming.mapreduce.StreamingKMeansThread.call(StreamingKMeansThread.java:62)
+	at org.apache.mahout.clustering.streaming.mapreduce.StreamingKMeansThread.call(StreamingKMeansThread.java:37)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:895)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:918)
+	at java.lang.Thread.run(Thread.java:695)
+Caused by: java.io.EOFException
+	at java.io.DataInputStream.readFully(DataInputStream.java:180)
+	at java.io.DataInputStream.readFully(DataInputStream.java:152)
+	at org.apache.hadoop.io.SequenceFile$Reader.init(SequenceFile.java:1512)
+	at org.apache.hadoop.io.SequenceFile$Reader.<init>(SequenceFile.java:1490)
+	at org.apache.hadoop.io.SequenceFile$Reader.<init>(SequenceFile.java:1479)
+	at org.apache.hadoop.io.SequenceFile$Reader.<init>(SequenceFile.java:1474)
+	at org.apache.mahout.common.iterator.sequencefile.SequenceFileValueIterator.<init>(SequenceFileValueIterator.java:56)
+	at org.apache.mahout.common.iterator.sequencefile.SequenceFileValueIterable.iterator(SequenceFileValueIterable.java:60)
+	... 8 more
+
+

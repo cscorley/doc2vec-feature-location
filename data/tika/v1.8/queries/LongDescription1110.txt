@@ -1,0 +1,11 @@
+This link assigns the official mime type for these files to "application/vnd.ms-htmlhelp". In the wild there are also two other types used:
+
+
+	application/chm
+	application/x-chm
+
+
+
+tika-mimetypes.xml uses the correct official mime type, but ChmParser declares that it supports only "application/chm". For this reason content that uses the official mime type (e.g. coming via Detector or parsed using AutoDetectParser, or simply declared in metadata) fails to parse due to unknown mime type.
+
+The fix seems simple - ChmParser should declare also all of the above types in its SUPPORTED_TYPES.

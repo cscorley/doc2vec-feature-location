@@ -1,0 +1,9 @@
+The SQL Standard allows strings to be explicitly cast to BOOLEAN values. Strings are the only type (other than BOOLEAN itself) which can be cast to BOOLEAN. As part of our expanding support for the BOOLEAN datatype, we should allow these casts.
+
+Casting string types to boolean is defined by part 2, section 6.12 (<cast specification>), general rule 20:
+
+a) Trim whitespace off the string
+
+b) Then apply the rules in section 5.3 (<literal>). This means that the trimmed string must be 'TRUE', 'FALSE', or 'UNKNOWN', regardless of case.
+
+c) Otherwise, raise an exception.

@@ -1,0 +1,54 @@
+Trying to insert a  BigDecimal value with unscaled value longer than 31 digits using 
+public void setObject(int parameterIndex,
+                      Object x,
+                      int targetSqlType)
+               throws SQLException
+or 
+public void setObject(int parameterIndex,
+                      Object x,
+                      int targetSqlType,
+                      int scale)
+               throws SQLException
+
+fails with Network client.
+
+ps.setObject(1,1000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000,java.sql.Types.DOUBLE)
+org.apache.derby.client.am.ConversionException: [converters] 
+The numeric literal 
+"100000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000
+00000000" is not valid because its value is out of range.
+        at 
+org.apache.derby.client.am.Decimal.bigDecimalToPackedDecimalByte
+s(Decimal.java:391)
+        at 
+org.apache.derby.client.net.Request.writeBigDecimal(Request.java
+:1632)
+        at 
+org.apache.derby.client.net.NetStatementRequest.buildFDODTA(NetS
+tatementRequest.java:692)
+        at 
+org.apache.derby.client.net.NetStatementRequest.buildSQLDTAcomma
+ndData(NetStatementRequest.java:514)
+        at 
+org.apache.derby.client.net.NetStatementRequest.writeExecute(Net
+StatementRequest.java:137)
+        at 
+org.apache.derby.client.net.NetPreparedStatement.writeExecute_(N
+etPreparedStatement.java:124)
+        at 
+org.apache.derby.client.am.PreparedStatement.writeExecute(Prepar
+edStatement.java:956)
+        at 
+org.apache.derby.client.am.PreparedStatement.flowExecute(Prepare
+dStatement.java:1173)
+        at 
+org.apache.derby.client.am.PreparedStatement.executeUpdateX(Prep
+aredStatement.java:324)
+        at 
+org.apache.derby.client.am.PreparedStatement.executeUpdate(Prepa
+redStatement.java:315)
+
+See attached patch with modified prepStmt.java test for reproduction.

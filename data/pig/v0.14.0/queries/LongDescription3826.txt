@@ -1,0 +1,35 @@
+The following script generates wrong result:
+A = load 'A.txt' using PigStorage(',') as (id:chararray, value:double);
+B = load 'B.txt' using PigStorage(',') as (id:chararray, name:chararray);
+
+t1 = group A by id;
+t2 = foreach t1 
+{ r1 = filter $1 by (value>1); r2 = limit r1 1; generate group as id, FLATTEN(r2.value) as value; }
+;
+
+t3 = join B by id LEFT OUTER, t2 by id;
+dump t3;
+
+A.txt:
+1,1.5
+2,0
+3,-2.0
+4,8.9
+
+B.txt:
+1,Ofer
+2,Jordan
+3,Noa
+4,Daniel
+
+Expected output:
+(1,Ofer,1,1.5)
+(2,Jordan,,)
+(3,Noa,,)
+(4,Daniel,4,8.9)
+
+But we get:
+(1,Ofer,1,1.5)
+(4,Daniel,4,8.9)
+
+With the option "-t PushDownForEachFlatten", the issue goes away.

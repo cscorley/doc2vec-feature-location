@@ -1,0 +1,67 @@
+Hey, I'm trying to get content of a text file (mysql config file).
+
+
+	public void testTikaParserUtils() throws Exception {
+		String resourceLocation = "files/my.cnf";
+		String content = ParseUtils.getStringContent(new File(resourceLocation), new TikaConfig());
+		System.out.println(content);
+	}
+
+
+
+OR
+
+
+	public void testTikaParserUtils() throws Exception {
+		String resourceLocation = "files/my.cnf";
+		String content = ParseUtils.getStringContent(new File(resourceLocation), TikaConfig.getDefaultConfig());
+		System.out.println(content);
+	}
+
+
+
+but I get null pointer exception, because "parser" is null
+
+ParseUtils.java
+
+public static String getStringContent(
+            InputStream stream, TikaConfig config, String mimeType)
+            throws TikaException, IOException {
+        try {
+            Parser parser = config.getParser(MediaType.parse(mimeType));
+            ContentHandler handler = new BodyContentHandler();
+            parser.parse(stream, handler, new Metadata());
+            return handler.toString();
+        } catch (SAXException e) {
+            throw new TikaException("Unexpected SAX error", e);
+        }
+    }}
+
+ 
+ 
+java.lang.NullPointerException
+	at org.apache.tika.utils.ParseUtils.getStringContent(ParseUtils.java:112)
+	at org.apache.tika.utils.ParseUtils.getStringContent(ParseUtils.java:171)
+	at org.apache.tika.utils.ParseUtils.getStringContent(ParseUtils.java:189)
+	at cz.instance.transl.tests.TikaTest.testTikaParserUtils(TikaTest.java:53)
+	at org.apache.maven.surefire.testng.TestNGExecutor.run(TestNGExecutor.java:73)
+	at org.apache.maven.surefire.testng.TestNGXmlTestSuite.execute(TestNGXmlTestSuite.java:95)
+	at org.apache.maven.surefire.testng.TestNGProvider.invoke(TestNGProvider.java:101)
+	at org.apache.maven.surefire.booter.ProviderFactory$ClassLoaderProxy.invoke(ProviderFactory.java:101)
+	at $Proxy0.invoke(Unknown Source)
+	at org.apache.maven.surefire.booter.SurefireStarter.invokeProvider(SurefireStarter.java:139)
+	at org.apache.maven.surefire.booter.SurefireStarter.runSuitesInProcess(SurefireStarter.java:82)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:81)
+... Removed 24 stack frames
+
+It works only if I specifically determine the type of parser 
+
+
+
+	@Test
+	public void testTikaParserUtils() throws Exception {
+		Tika tika = new Tika(new TextDetector());
+		String content = tika.parseToString(new File(txt));
+		System.out.println(content);
+	}
+

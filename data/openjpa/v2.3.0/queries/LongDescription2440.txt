@@ -1,0 +1,77 @@
+Hi some connections are not closed when dropping fk, here is a proposed patch:
+
+Index: openjpa-jdbc/src/main/java/org/apache/openjpa/jdbc/schema/SchemaTool.java
+===================================================================
+— openjpa-jdbc/src/main/java/org/apache/openjpa/jdbc/schema/SchemaTool.java	(revision 1531344)
++++ openjpa-jdbc/src/main/java/org/apache/openjpa/jdbc/schema/SchemaTool.java	(working copy)
+@@ -18,6 +18,23 @@
+  */
+ package org.apache.openjpa.jdbc.schema;
+
++import org.apache.commons.lang.StringUtils;
++import org.apache.openjpa.conf.OpenJPAConfiguration;
++import org.apache.openjpa.jdbc.conf.JDBCConfiguration;
++import org.apache.openjpa.jdbc.conf.JDBCConfigurationImpl;
++import org.apache.openjpa.jdbc.identifier.DBIdentifier;
++import org.apache.openjpa.jdbc.sql.DBDictionary;
++import org.apache.openjpa.jdbc.sql.SQLExceptions;
++import org.apache.openjpa.lib.conf.Configurations;
++import org.apache.openjpa.lib.jdbc.DelegatingDataSource;
++import org.apache.openjpa.lib.log.Log;
++import org.apache.openjpa.lib.meta.MetaDataSerializer;
++import org.apache.openjpa.lib.util.Files;
++import org.apache.openjpa.lib.util.Localizer;
++import org.apache.openjpa.lib.util.Options;
++import org.apache.openjpa.util.InvalidStateException;
++
++import javax.sql.DataSource;
+ import java.io.File;
+ import java.io.IOException;
+ import java.io.PrintWriter;
+@@ -33,24 +50,7 @@
+ import java.util.LinkedHashSet;
+ import java.util.LinkedList;
+ import java.util.Set;
+-import javax.sql.DataSource;
+
+-import org.apache.commons.lang.StringUtils;
+-import org.apache.openjpa.conf.OpenJPAConfiguration;
+-import org.apache.openjpa.jdbc.conf.JDBCConfiguration;
+-import org.apache.openjpa.jdbc.conf.JDBCConfigurationImpl;
+-import org.apache.openjpa.jdbc.identifier.DBIdentifier;
+-import org.apache.openjpa.jdbc.sql.DBDictionary;
+-import org.apache.openjpa.jdbc.sql.SQLExceptions;
+-import org.apache.openjpa.lib.conf.Configurations;
+-import org.apache.openjpa.lib.jdbc.DelegatingDataSource;
+-import org.apache.openjpa.lib.log.Log;
+-import org.apache.openjpa.lib.meta.MetaDataSerializer;
+-import org.apache.openjpa.lib.util.Files;
+-import org.apache.openjpa.lib.util.Localizer;
+-import org.apache.openjpa.lib.util.Options;
+-import org.apache.openjpa.util.InvalidStateException;
+-
+ /**
+
+	The SchemaTool is used to manage the database schema. Note that the
+	tool never adds or drops unique constraints from existing tables, because
+@@ -1099,7 +1099,12 @@
+      */
+     public boolean dropForeignKey(ForeignKey fk)
+         throws SQLException {
+
+
+	return executeSQL(_dict.getDropForeignKeySQL(fk,_ds.getConnection()));
++        final Connection connection = _ds.getConnection();
++        try 
+{
++            return executeSQL(_dict.getDropForeignKeySQL(fk, connection));
++        }
+ finally 
+{
++            connection.close();
++        }
+     }
+
+
+
+     /**

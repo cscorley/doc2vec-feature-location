@@ -1,0 +1,16 @@
+We ran a test using Timestamp as the version field in an entity, the following (pseudo) test failed when an OptimisticLockException is expected:
+
+    em1.persist( e0(pk1) );
+
+    e1 = em1.find(pk1);
+    e2 = em2.find(pk1);
+
+    e1.setAttr( "new1");
+    e2.setAttr( "new2");
+
+    em1.merge( e1 );
+    em2.merge( e2 );    <<<< Expect an OptimisticLockException
+
+The cause of this problem is because the TimestampVersionStrategy.nextVersion returns a java.sql.Timestamp(System.currentTimeMillis()); In the Wintel environment, the currentTimeMillis() only has approximately 15ms resolution. When 2 subsequent Timestamp version objects are requested within this 15ms interval, both has the same version value. Therefore the em2.merge does not detected the versions difference between o1 and o2, hence no exception is thrown.
+
+Due to this behavior, the same test case may failed intermittenly depends on the currentTimeMillis() resolution and the time when a timestamp version is created.  From some preliminary tests, the resolution for  wintel, linux and z/os are about 15ms, 2ms and 2ms respectively.

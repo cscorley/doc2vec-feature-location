@@ -1,0 +1,60 @@
+hi,
+
+i cant execute the following statement with an aggregate (count) argument:
+
+SELECT checkCount(count) FROM SYS.SYSTABLES;
+
+.. without  getting this error/stacktrace:
+
+ERROR 42Y29: The SELECT list of a non-grouped query contains at least one invalid expression. When the SELECT list contains at least one aggregate then all entries must be valid aggregate expressions.
+java.sql.SQLSyntaxErrorException: The SELECT list of a non-grouped query contains at least one invalid expression. When the SELECT list contains at least one aggregate then all entries must be valid aggregate expressions.
+	at org.apache.derby.client.am.SQLExceptionFactory40.getSQLException(Unknown Source)
+	at org.apache.derby.client.am.SqlException.getSQLException(Unknown Source)
+	at org.apache.derby.client.am.Statement.execute(Unknown Source)
+	at org.apache.derby.impl.tools.ij.ij.executeImmediate(Unknown Source)
+	at org.apache.derby.impl.tools.ij.utilMain.doCatch(Unknown Source)
+	at org.apache.derby.impl.tools.ij.utilMain.runScriptGuts(Unknown Source)
+	at org.apache.derby.impl.tools.ij.utilMain.go(Unknown Source)
+	at org.apache.derby.impl.tools.ij.Main.go(Unknown Source)
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Unknown Source)
+	at org.apache.derby.impl.tools.ij.Main.main(Unknown Source)
+	at org.apache.derby.tools.ij.main(Unknown Source)
+Caused by: org.apache.derby.client.am.SqlException: The SELECT list of a non-grouped query contains at least one invalid expression. When the SELECT list contains at least one aggregate then all entries must be valid aggregate expressions.
+	at org.apache.derby.client.am.Statement.completeSqlca(Unknown Source)
+	at org.apache.derby.client.net.NetStatementReply.parsePrepareError(Unknown Source)
+	at org.apache.derby.client.net.NetStatementReply.parsePRPSQLSTTreply(Unknown Source)
+	at org.apache.derby.client.net.NetStatementReply.readPrepareDescribeOutput(Unknown Source)
+	at org.apache.derby.client.net.StatementReply.readPrepareDescribeOutput(Unknown Source)
+	at org.apache.derby.client.net.NetStatement.readPrepareDescribeOutput_(Unknown Source)
+	at org.apache.derby.client.am.Statement.readPrepareDescribeOutput(Unknown Source)
+	at org.apache.derby.client.am.Statement.flowExecute(Unknown Source)
+	at org.apache.derby.client.am.Statement.executeX(Unknown Source)
+	... 9 more
+
+here the code to create the function in derby:
+
+CREATE FUNCTION checkCount
+(count INTEGER)
+RETURNS INTEGER
+LANGUAGE JAVA PARAMETER STYLE JAVA
+NO SQL
+EXTERNAL NAME 'ExceptionOnZeroCount.checkCount';
+
+and here the code of the (quite simple) java method:
+
+public class ExceptionOnZeroCount {
+
+    public static int checkCount(int count)
+            throws SQLException 
+{
+
+        if (count == 0) 
+            throw new SQLException("No results found", "38777");
+        }
+        return count;
+    }
+}
+
+hope this will be fixed  Good night!
+
+mamurdian

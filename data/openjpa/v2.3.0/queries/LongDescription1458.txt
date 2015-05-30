@@ -1,0 +1,7 @@
+Named parameters are not handled correctly as shown below
+
+9093  erww  TRACE  [main] openjpa.Query - Executing query: [select o from OrderJPA o where o.OrderId in (select max(o1.OrderId) from OrderJPA o1 where ((o1.CustomerId = :customerId) and (o1.DistrictId = :districtId) and (o1.WarehouseId = :warehouseId))) and (o.WarehouseId = :warehouseId) and (o.CustomerId = :customerId) and (o.DistrictId = :districtId)] with parameters: 
+{customerId=10, districtId=1, warehouseId=12}
+9194  erww  TRACE  [main] openjpa.jdbc.SQL - <t 29744585, conn 23467239> executing prepstmnt 15580729 SELECT t0.O_D_ID, t0.O_ID, t0.O_W_ID, t0.O_ALL_LOCAL, t0.O_CARRIER_ID, t0.O_C_ID, t0.O_ENTRY_D, t0.O_OL_CNT FROM ORDERS t0 WHERE (t0.O_ID IN (SELECT MAX(t1.O_ID) FROM ORDERS t1 WHERE (t1.O_C_ID = ? AND t1.O_D_ID = ? AND t1.O_W_ID = ?) ) AND t0.O_W_ID = ? AND t0.O_C_ID = ? AND t0.O_D_ID = ?)  optimize for 1 row [params=(short) 10, (short) 1, (short) 12, (short) 12, (short) 12, (short) 12]
+
+Release 1.2 and 1.3 works fine. This problem only happens in the trunk.

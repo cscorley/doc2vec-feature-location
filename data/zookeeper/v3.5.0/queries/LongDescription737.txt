@@ -1,0 +1,33 @@
+nc closes the write channel as soon as it's sent it's information, for example "echo stat|nc localhost 2181"
+in general this is fine, however the server code will close the socket as soon as it receives notice that nc has
+closed it's write channel. if not all the 4 letter word result has been written back to the client yet, this will cause
+some or all of the result to be lost - ie the client will not see the full result. this was introduced in 3.3.0 as part
+of a change to reduce blocking of the selector by long running 4letter words.
+
+here's an example of the logs from the server during this
+
+echo -n stat | nc localhost 2181
+2010-04-09 21:55:36,124 - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:NIOServerCnxn$Factory@251] - Accepted socket connection from /127.0.0.1:42179
+2010-04-09 21:55:36,124 - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:NIOServerCnxn@968] - Processing stat command from /127.0.0.1:42179
+2010-04-09 21:55:36,125 - WARN  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:NIOServerCnxn@606] - EndOfStreamException: Unable to read additional data from client sessionid 0x0, likely client has closed socket
+2010-04-09 21:55:36,125 - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:NIOServerCnxn@1286] - Closed socket connection for client /127.0.0.1:42179 (no session established for client)
+[phunt@gsbl90850 zookeeper-3.3.0]$ 2010-04-09 21:55:36,126 - ERROR [Thread-15:NIOServerCnxn@422] - Unexpected Exception: 
+java.nio.channels.CancelledKeyException
+	at sun.nio.ch.SelectionKeyImpl.ensureValid(SelectionKeyImpl.java:55)
+	at sun.nio.ch.SelectionKeyImpl.interestOps(SelectionKeyImpl.java:59)
+	at org.apache.zookeeper.server.NIOServerCnxn.sendBuffer(NIOServerCnxn.java:395)
+	at org.apache.zookeeper.server.NIOServerCnxn$SendBufferWriter.checkFlush(NIOServerCnxn.java:907)
+	at org.apache.zookeeper.server.NIOServerCnxn$SendBufferWriter.flush(NIOServerCnxn.java:945)
+	at java.io.BufferedWriter.flush(BufferedWriter.java:236)
+	at java.io.PrintWriter.flush(PrintWriter.java:276)
+	at org.apache.zookeeper.server.NIOServerCnxn$2.run(NIOServerCnxn.java:1089)
+2010-04-09 21:55:36,126 - ERROR [Thread-15:NIOServerCnxn$Factory$1@82] - Thread Thread[Thread-15,5,main] died
+java.nio.channels.CancelledKeyException
+	at sun.nio.ch.SelectionKeyImpl.ensureValid(SelectionKeyImpl.java:55)
+	at sun.nio.ch.SelectionKeyImpl.interestOps(SelectionKeyImpl.java:64)
+	at org.apache.zookeeper.server.NIOServerCnxn$SendBufferWriter.wakeup(NIOServerCnxn.java:927)
+	at org.apache.zookeeper.server.NIOServerCnxn$SendBufferWriter.checkFlush(NIOServerCnxn.java:909)
+	at org.apache.zookeeper.server.NIOServerCnxn$SendBufferWriter.flush(NIOServerCnxn.java:945)
+	at java.io.BufferedWriter.flush(BufferedWriter.java:236)
+	at java.io.PrintWriter.flush(PrintWriter.java:276)
+	at org.apache.zookeeper.server.NIOServerCnxn$2.run(NIOServerCnxn.java:1089)

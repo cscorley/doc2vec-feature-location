@@ -1,0 +1,8 @@
+If you have a class (using property access) that has an abstract @MappedSuperclass that happens to have no annotated methods, you get the following exception when enhancing:
+
+org.apache.openjpa.util.MetaDataException: "implicit property access" for class "org.apache.openjpa.persistence.simple.SubclassPerson" is not consistent with "implicit field access" used by its persistent superclass "org.apache.openjpa.persistence.simple.AbstractSuperclass".  All persistent classes in an inheritance hierarchy must use a single implicit field or property based access style or explicitly declare an access style.
+
+Presumably the enhancer is deciding incorrectly that the superclass is using field access. A workaround is to annotate the superclass with @Access(AccessType.PROPERTY)  so the enhancer doesn't make this assumption, but that is not JPA 1.0 backwards compatible.
+
+This did not occur in any of the OpenJPA 1.* versions
+

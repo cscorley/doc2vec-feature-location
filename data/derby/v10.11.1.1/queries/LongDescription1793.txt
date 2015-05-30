@@ -1,0 +1,444 @@
+This test is failing against sun 1.4.2 jvm on a laptop, running XP.  I have seen this in the trunk and this most recent one is fully reproducible just
+running just this test as well as this test as part of a bigger suite in a client based off of the 10.2 branch.  In the 10.2 branch the test consistently 
+passed when I raised the max time from 60 iterations to 120, which means the test will try 120 pings, each waiting 500 ms in between each try.
+
+Exact env:
+ java version "1.4.2_07"
+Java(TM) 2 Runtime Environment, Standard Edition (build 1.4.2_07-b05)
+Java HotSpot(TM) Client VM (build 1.4.2_07-b05, mixed mode)
+
+Full diff just so someone can compare, but the real thing to look for is:
+Testing with derby.drda.securityMechanism=CLEAR_TEXT_PASSWORD_SECURITY
+FAIL: Server failed to respond to ping - ending test
+Completed testSecMec
+
+------------------ Java Information ------------------
+Java Version:    1.4.2_07
+Java Vendor:     Sun Microsystems Inc.
+Java home:       c:\p4\mv10_2\jdk142\jre
+Java classpath:  c:/p4/mv10_2/classes;c:/p4/mv10_2/tools/java/jdbctests.zip;c:/p4/mv10_2/tools/java/jakarta-oro-2.0.8.jar;c:/p4/mv10_2/tools/java/jgl3.1.0.jar;c:/p4/mv10_2/tools/java/jndi/providerutil.jar;c:/p4/mv10_2/tools/java/jndi/ldap.jar;c:/p4/mv10_2/tools/java/jndi/jndi.jar;c:/p4/mv10_2/tools/java/RmiJdbc.jar;c:/p4/mv10_2/drda/jcc/2.4/db2jcc.jar;c:/p4/mv10_2/drda/jcc/2.4/db2jcc_license_c.jar;c:/p4/mv10_2/tools/java/jnl1.0F.zip;c:/p4/mv10_2/tools/java/junit.jar;c:/p4/mv10_2/tools/java/servlet-2_2b.jar;c:/p4/mv10_2/tools/java/xslt4j-2_5_0/xercesImpl.jar;c:/p4/mv10_2/tools/java/xslt4j-2_5_0/xml-apis.jar;c:/p4/mv10_2/tools/java/xslt4j-2_5_0/xalan.jar
+OS name:         Windows XP
+OS architecture: x86
+OS version:      5.1
+Java user name:  mikem
+Java user home:  C:\Documents and Settings\Administrator
+Java user dir:   C:\p4\mv10_2\newout
+java.specification.name: Java Platform API Specification
+java.specification.version: 1.4
+--------- Derby Information --------
+JRE - JDBC: J2SE 1.4.2 - JDBC 3.0
+[C:\p4\mv10_2\classes] 10.2.1.2 beta - (1)
+[C:\p4\mv10_2\drda\jcc\2.4\db2jcc.jar] 2.4 - (17)
+[C:\p4\mv10_2\drda\jcc\2.4\db2jcc_license_c.jar] 2.4 - (17)
+------------------------------------------------------
+----------------- Locale Information -----------------
+Current Locale :  [English/United States [en_US]]
+Found support for locale: [de_DE]
+	 version: 10.2.1.2 - (1)
+Found support for locale: [es]
+	 version: 10.2.1.2 - (1)
+Found support for locale: [fr]
+	 version: 10.2.1.2 - (1)
+Found support for locale: [it]
+	 version: 10.2.1.2 - (1)
+Found support for locale: [ja_JP]
+	 version: 10.2.1.2 - (1)
+Found support for locale: [ko_KR]
+	 version: 10.2.1.2 - (1)
+Found support for locale: [pt_BR]
+	 version: 10.2.1.2 - (1)
+Found support for locale: [zh_CN]
+	 version: 10.2.1.2 - (1)
+Found support for locale: [zh_TW]
+	 version: 10.2.1.2 - (1)
+------------------------------------------------------
+Framework: DerbyNetClient
+
+	
+	
+		
+		
+			Start: testSecMec jdk1.4.2_07 DerbyNetClient 2006-08-31 12:23:36 ***
+128 del
+< Checking security mechanism authentication with DriverManager
+129 del
+< T4: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=neelima;password=lee;securityMechanism=3
+130 del
+< T1: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+131 del
+< T2: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=max - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+132 del
+< T3: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=neelima;password=lee
+133 del
+< T5: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=neelima;password=lee;securityMechanism=9 - EXCEPTION Security exception encountered, see next exception for details.
+134 del
+< T6: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=neelima;securityMechanism=4 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+135 del
+< T8: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=neelima;password=lee;securityMechanism=4 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+136 del
+< T9: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=neelima;password=lee;securityMechanism=8 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+137 del
+< SECMEC_USRIDPWD: OK
+138 del
+< SECMEC_EUSRIDPWD:EXCEPTION testSecurityMechanism()  Security exception encountered, see next exception for details.
+139 del
+< SECMEC_USRSSBPWD:EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+140 del
+< Test DERBY-1080
+141 del
+< withConnectionPooling
+142 del
+< DERBY-1080  EXCEPTION ()  Security exception encountered, see next exception for details.
+143 del
+< *****testAllCombinationsOfUserPasswordsSecMecInput**
+144 del
+< Test: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;password=hobbes
+145 del
+< TEST_DS(user=calvin;password=hobbes) OK
+146 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;password=hobbes;securityMechanism=4 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+147 del
+< TEST_DS (user=calvin;password=hobbes,securityMechanism=4)EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+148 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;password=hobbes;securityMechanism=3
+149 del
+< TEST_DS (user=calvin;password=hobbes,securityMechanism=3) OK
+150 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;password=hobbes;securityMechanism=9 - EXCEPTION Security exception encountered, see next exception for details.
+151 del
+< TEST_DS (user=calvin;password=hobbes,securityMechanism=9)EXCEPTION testSecurityMechanism()  Security exception encountered, see next exception for details.
+152 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;password=hobbes;securityMechanism=8 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+153 del
+< TEST_DS (user=calvin;password=hobbes,securityMechanism=8)EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+154 del
+< Test: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+155 del
+< TEST_DS(user=calvin)EXCEPTION getDataSourceConnection()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+156 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;securityMechanism=4 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+157 del
+< TEST_DS (user=calvin,securityMechanism=4)EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+158 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;securityMechanism=3 - EXCEPTION Password can not be null.
+159 del
+< TEST_DS (user=calvin,securityMechanism=3)EXCEPTION testSecurityMechanism()  Password can not be null.
+160 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;securityMechanism=9 - EXCEPTION Password can not be null.
+161 del
+< TEST_DS (user=calvin,securityMechanism=9)EXCEPTION testSecurityMechanism()  Password can not be null.
+162 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;securityMechanism=8 - EXCEPTION Password can not be null.
+163 del
+< TEST_DS (user=calvin,securityMechanism=8)EXCEPTION testSecurityMechanism()  Password can not be null.
+164 del
+< Test: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;password=hobbes
+165 del
+< TEST_DS(password=hobbes) OK
+166 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;password=hobbes;securityMechanism=4 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+167 del
+< TEST_DS (password=hobbes,securityMechanism=4)EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+168 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;password=hobbes;securityMechanism=3
+169 del
+< TEST_DS (password=hobbes,securityMechanism=3) OK
+170 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;password=hobbes;securityMechanism=9 - EXCEPTION Security exception encountered, see next exception for details.
+171 del
+< TEST_DS (password=hobbes,securityMechanism=9)EXCEPTION testSecurityMechanism()  Security exception encountered, see next exception for details.
+172 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;password=hobbes;securityMechanism=8 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+173 del
+< TEST_DS (password=hobbes,securityMechanism=8)EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+174 del
+< Test: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat; - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+175 del
+< TEST_DS()EXCEPTION getDataSourceConnection()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+176 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;;securityMechanism=4 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+177 del
+< TEST_DS (,securityMechanism=4)EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+178 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;;securityMechanism=3 - EXCEPTION Password can not be null.
+179 del
+< TEST_DS (,securityMechanism=3)EXCEPTION testSecurityMechanism()  Password can not be null.
+180 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;;securityMechanism=9 - EXCEPTION Password can not be null.
+181 del
+< TEST_DS (,securityMechanism=9)EXCEPTION testSecurityMechanism()  Password can not be null.
+182 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;;securityMechanism=8 - EXCEPTION Password can not be null.
+183 del
+< TEST_DS (,securityMechanism=8)EXCEPTION testSecurityMechanism()  Password can not be null.
+184 del
+< -----
+185 del
+< Testing with derby.drda.securityMechanism=ENCRYPTED_USER_AND_PASSWORD_SECURITY
+186 del
+< Checking security mechanism authentication with DriverManager
+187 del
+< T4: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=neelima;password=lee;securityMechanism=3 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+188 del
+< T1: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+189 del
+< T2: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=max - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+190 del
+< T3: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=neelima;password=lee - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+191 del
+< T5: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=neelima;password=lee;securityMechanism=9 - EXCEPTION Security exception encountered, see next exception for details.
+192 del
+< T6: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=neelima;securityMechanism=4 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+193 del
+< T8: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=neelima;password=lee;securityMechanism=4 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+194 del
+< T9: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=neelima;password=lee;securityMechanism=8 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+195 del
+< SECMEC_USRIDPWD:EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+196 del
+< SECMEC_EUSRIDPWD:EXCEPTION testSecurityMechanism()  Security exception encountered, see next exception for details.
+197 del
+< SECMEC_USRSSBPWD:EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+198 del
+< Test DERBY-1080
+199 del
+< withConnectionPooling
+200 del
+< DERBY-1080  EXCEPTION ()  Security exception encountered, see next exception for details.
+201 del
+< *****testAllCombinationsOfUserPasswordsSecMecInput**
+202 del
+< Test: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;password=hobbes - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+203 del
+< TEST_DS(user=calvin;password=hobbes)EXCEPTION getDataSourceConnection()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+204 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;password=hobbes;securityMechanism=4 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+205 del
+< TEST_DS (user=calvin;password=hobbes,securityMechanism=4)EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+206 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;password=hobbes;securityMechanism=3 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+207 del
+< TEST_DS (user=calvin;password=hobbes,securityMechanism=3)EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+208 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;password=hobbes;securityMechanism=9 - EXCEPTION Security exception encountered, see next exception for details.
+209 del
+< TEST_DS (user=calvin;password=hobbes,securityMechanism=9)EXCEPTION testSecurityMechanism()  Security exception encountered, see next exception for details.
+210 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;password=hobbes;securityMechanism=8 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+211 del
+< TEST_DS (user=calvin;password=hobbes,securityMechanism=8)EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+212 del
+< Test: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+213 del
+< TEST_DS(user=calvin)EXCEPTION getDataSourceConnection()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+214 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;securityMechanism=4 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+215 del
+< TEST_DS (user=calvin,securityMechanism=4)EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+216 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;securityMechanism=3 - EXCEPTION Password can not be null.
+217 del
+< TEST_DS (user=calvin,securityMechanism=3)EXCEPTION testSecurityMechanism()  Password can not be null.
+218 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;securityMechanism=9 - EXCEPTION Password can not be null.
+219 del
+< TEST_DS (user=calvin,securityMechanism=9)EXCEPTION testSecurityMechanism()  Password can not be null.
+220 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;securityMechanism=8 - EXCEPTION Password can not be null.
+221 del
+< TEST_DS (user=calvin,securityMechanism=8)EXCEPTION testSecurityMechanism()  Password can not be null.
+222 del
+< Test: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;password=hobbes - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+223 del
+< TEST_DS(password=hobbes)EXCEPTION getDataSourceConnection()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+224 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;password=hobbes;securityMechanism=4 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+225 del
+< TEST_DS (password=hobbes,securityMechanism=4)EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+226 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;password=hobbes;securityMechanism=3 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+227 del
+< TEST_DS (password=hobbes,securityMechanism=3)EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+228 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;password=hobbes;securityMechanism=9 - EXCEPTION Security exception encountered, see next exception for details.
+229 del
+< TEST_DS (password=hobbes,securityMechanism=9)EXCEPTION testSecurityMechanism()  Security exception encountered, see next exception for details.
+230 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;password=hobbes;securityMechanism=8 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+231 del
+< TEST_DS (password=hobbes,securityMechanism=8)EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+232 del
+< Test: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat; - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+233 del
+< TEST_DS()EXCEPTION getDataSourceConnection()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+234 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;;securityMechanism=4 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+235 del
+< TEST_DS (,securityMechanism=4)EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+236 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;;securityMechanism=3 - EXCEPTION Password can not be null.
+237 del
+< TEST_DS (,securityMechanism=3)EXCEPTION testSecurityMechanism()  Password can not be null.
+238 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;;securityMechanism=9 - EXCEPTION Password can not be null.
+239 del
+< TEST_DS (,securityMechanism=9)EXCEPTION testSecurityMechanism()  Password can not be null.
+240 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;;securityMechanism=8 - EXCEPTION Password can not be null.
+241 del
+< TEST_DS (,securityMechanism=8)EXCEPTION testSecurityMechanism()  Password can not be null.
+242 del
+< -----
+243 del
+< Testing with derby.drda.securityMechanism=STRONG_PASSWORD_SUBSTITUTE_SECURITY
+244 del
+< Checking security mechanism authentication with DriverManager
+245 del
+< T4: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=neelima;password=lee;securityMechanism=3 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+246 del
+< T1: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+247 del
+< T2: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=max - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+248 del
+< T3: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=neelima;password=lee - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+249 del
+< T5: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=neelima;password=lee;securityMechanism=9 - EXCEPTION Security exception encountered, see next exception for details.
+250 del
+< T6: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=neelima;securityMechanism=4 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+251 del
+< T8: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=neelima;password=lee;securityMechanism=4 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+252 del
+< T9: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=neelima;password=lee;securityMechanism=8
+253 del
+< SECMEC_USRIDPWD:EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+254 del
+< SECMEC_EUSRIDPWD:EXCEPTION testSecurityMechanism()  Security exception encountered, see next exception for details.
+255 del
+< SECMEC_USRSSBPWD: OK
+256 del
+< Test DERBY-1080
+257 del
+< withConnectionPooling
+258 del
+< DERBY-1080  EXCEPTION ()  Security exception encountered, see next exception for details.
+259 del
+< *****testAllCombinationsOfUserPasswordsSecMecInput**
+260 del
+< Test: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;password=hobbes - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+261 del
+< TEST_DS(user=calvin;password=hobbes)EXCEPTION getDataSourceConnection()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+262 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;password=hobbes;securityMechanism=4 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+263 del
+< TEST_DS (user=calvin;password=hobbes,securityMechanism=4)EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+264 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;password=hobbes;securityMechanism=3 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+265 del
+< TEST_DS (user=calvin;password=hobbes,securityMechanism=3)EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+266 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;password=hobbes;securityMechanism=9 - EXCEPTION Security exception encountered, see next exception for details.
+267 del
+< TEST_DS (user=calvin;password=hobbes,securityMechanism=9)EXCEPTION testSecurityMechanism()  Security exception encountered, see next exception for details.
+268 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;password=hobbes;securityMechanism=8
+269 del
+< TEST_DS (user=calvin;password=hobbes,securityMechanism=8) OK
+270 del
+< Test: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+271 del
+< TEST_DS(user=calvin)EXCEPTION getDataSourceConnection()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+272 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;securityMechanism=4 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+273 del
+< TEST_DS (user=calvin,securityMechanism=4)EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+274 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;securityMechanism=3 - EXCEPTION Password can not be null.
+275 del
+< TEST_DS (user=calvin,securityMechanism=3)EXCEPTION testSecurityMechanism()  Password can not be null.
+276 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;securityMechanism=9 - EXCEPTION Password can not be null.
+277 del
+< TEST_DS (user=calvin,securityMechanism=9)EXCEPTION testSecurityMechanism()  Password can not be null.
+278 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=calvin;securityMechanism=8 - EXCEPTION Password can not be null.
+279 del
+< TEST_DS (user=calvin,securityMechanism=8)EXCEPTION testSecurityMechanism()  Password can not be null.
+280 del
+< Test: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;password=hobbes - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+281 del
+< TEST_DS(password=hobbes)EXCEPTION getDataSourceConnection()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+282 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;password=hobbes;securityMechanism=4 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+283 del
+< TEST_DS (password=hobbes,securityMechanism=4)EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+284 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;password=hobbes;securityMechanism=3 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+285 del
+< TEST_DS (password=hobbes,securityMechanism=3)EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+286 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;password=hobbes;securityMechanism=9 - EXCEPTION Security exception encountered, see next exception for details.
+287 del
+< TEST_DS (password=hobbes,securityMechanism=9)EXCEPTION testSecurityMechanism()  Security exception encountered, see next exception for details.
+288 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;password=hobbes;securityMechanism=8
+289 del
+< TEST_DS (password=hobbes,securityMechanism=8) OK
+290 del
+< Test: jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat; - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+291 del
+< TEST_DS()EXCEPTION getDataSourceConnection()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+292 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;;securityMechanism=4 - EXCEPTION Connection authentication failure occurred.  Reason: security mechanism not supported.
+293 del
+< TEST_DS (,securityMechanism=4)EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: security mechanism not supported.
+294 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;;securityMechanism=3 - EXCEPTION Password can not be null.
+295 del
+< TEST_DS (,securityMechanism=3)EXCEPTION testSecurityMechanism()  Password can not be null.
+296 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;;securityMechanism=9 - EXCEPTION Password can not be null.
+297 del
+< TEST_DS (,securityMechanism=9)EXCEPTION testSecurityMechanism()  Password can not be null.
+298 del
+< # jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;;securityMechanism=8 - EXCEPTION Password can not be null.
+299 del
+< TEST_DS (,securityMechanism=8)EXCEPTION testSecurityMechanism()  Password can not be null.
+300 del
+< Test USRSSBPWD_with_BUILTIN - derby.drda.securityMechanism=STRONG_PASSWORD_SUBSTITUTE_SECURITY
+301 del
+< Turning ON Derby BUILTIN authentication
+302 del
+< USRSSBPWD (T0): jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=neelima;password=lee;shutdown=true;securityMechanism=8 - EXCEPTION DERBY SQL error: SQLCODE: -1, SQLSTATE: 08006, SQLERRMC: Database 'wombat' shutdown.
+303 del
+< USRSSBPWD + BUILTIN (T1): jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=neelima;password=lee;securityMechanism=8
+304 del
+< TEST_DS - USRSSBPWD + BUILTIN (T2): OK
+305 del
+< USRSSBPWD + BUILTIN (T3): jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=invalid;password=user;securityMechanism=8 - EXCEPTION Connection authentication failure occurred.  Reason: userid or password invalid.
+306 del
+< TEST_DS - USRSSBPWD + BUILTIN (T4):EXCEPTION testSecurityMechanism()  Connection authentication failure occurred.  Reason: userid or password invalid.
+307 del
+< Turning OFF Derby BUILTIN authentication
+308 del
+< USRSSBPWD + BUILTIN (T5): jdbc:derby://xxxFILTERED_HOSTNAMExxx:xxxFILTEREDPORTxxx/wombat;user=neelima;password=lee;shutdown=true;securityMechanism=8 - EXCEPTION DERBY SQL error: SQLCODE: -1, SQLSTATE: 08006, SQLERRMC: Database 'wombat' shutdown.
+309 del
+< -----
+310 del
+< Testing with derby.drda.securityMechanism=INVALID_VALUE
+311 del
+< EXPECTED EXCEPTION DRDA_InvalidValue.U:Invalid value, INVALID_VALUE, for derby.drda.securityMechanism.
+312 del
+< -----
+313 del
+< Testing with derby.drda.securityMechanism=
+314 del
+< EXPECTED EXCEPTION DRDA_InvalidValue.U:Invalid value, , for derby.drda.securityMechanism.
+314a128
+> FAIL: Server failed to respond to ping - ending test
+Test Failed.
+			End:   testSecMec jdk1.4.2_07 DerbyNetClient 2006-08-31 12:25:44 ***
+		
+		
+	
+	
+

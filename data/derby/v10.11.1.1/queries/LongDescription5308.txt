@@ -1,0 +1,12 @@
+When investigating DERBY-5208, I noticed that the largeData suite does not run for client. The comment in suites/derbyNetClient.exclude says:
+
+	excluding TestErrorStreamTarget.java since it's not relevant for clients
+	excluding largedata/LobLimits.java to run with the network server because curr
+ently lobs are materialized and this test tests for 2G lobs.
+	see DERBY-326 and DERBY-550 issues
+#
+largedata/LobLimits.java
+
+
+
+Perhaps now that these issues are fixed the test can be run in client. Perhaps it should be a separate suite as just the embedded test takes over 10 hours to run.

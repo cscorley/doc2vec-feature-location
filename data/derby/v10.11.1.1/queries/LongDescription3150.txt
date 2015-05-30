@@ -1,0 +1,20 @@
+The documentation for the property derby.user.userName says "User names are SQL92Identifiers and can be delimited." and has examples with delimited identifiers.
+
+For a regular identifier (non-quoted) the user name to password mapping is not normalized so that the user name is upper-case, this causes login failures when a user name is provided that matches the normalized name, but does not match the value in the property name.
+
+derby.user.dan=password
+
+Logging in with user name dan works, but DAN or Dan will not.  Note that with any of these user names provided to JDBC, the SQL CURRENT_USER will return DAN.
+
+jdbc:derby:db;user=dan  // ok
+jdbc:derby:db;user=Dan //not ok
+jdbc:derby:db;user=DAN // not ok
+
+Note that if the user name is normalized then the scheme would have to deal with this situation:
+
+derby.user.dan=passwordOne
+derby.user.DAN=passwordTwo
+
+These two properties refer to the same user, but two passwords are being defined.
+
+Test case in AuthenticationTest with this bug number.

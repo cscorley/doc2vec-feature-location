@@ -1,0 +1,9 @@
+When getBlob/getClob is called on the ResultSet, the current row is
+locked if the JDBC driver does not cache the entire LOB value in
+memory.  This is done to prevent the Blob/Clob object from being
+changed.  Until now, this lock has been held to the end of the
+transaction.
+
+JDBC4 introduced free() methods for the Blob/Clob class.  The locking
+should be changed so that the locks is releases when the Blob/Clob
+object is freed.

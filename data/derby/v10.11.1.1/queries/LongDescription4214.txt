@@ -1,0 +1,15 @@
+The on-disk signature of CLOBGETSUBSTRING changed as a result of the work done on DERBY-3769. Previously, the return type of that function was VARCHAR(32672). The return type changed to VARCHAR(10890) with revision 707097, which made it into release 10.5.1.1. That change was also backported to the 10.4 branch at 711548. However, no upgrade logic was written to support this metadata change. As a result, we have two discrepancies with our upgrade policy:
+
+1) If you upgrade a database to 10.5.1.1, the signature of CLOBGETSUBSTRING will not be the signature which you would see in a freshly created 10.5.1.1 database. Presumably this means that the problem addressed by DERBY-3769 is not solved in upgraded databases.
+
+2) If we create another release on the 10.4 branch, then we will have a change in on-disk metadata introduced by a bug-fix release.
+
+I see two solutions:
+
+A) Add metadata upgrade logic to the 10.4 and 10.5 branches so that DERBY-3769 will be fixed in upgraded databases as well as freshly created databases. This will violate our policy of not changing on-disk metadata in maintenance releases.
+
+B) Correct the metadata in the hard-upgrade logic of 10.6. We may want to revert the 10.4 backport.
+
+In any event, we may also want to re-open DERBY-3769 to indicate that the bug is not fixed in hard-upgraded databases but only in freshly created databases.
+
+What are people's thoughts about how to address this discrepancy?

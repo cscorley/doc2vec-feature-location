@@ -1,0 +1,13 @@
+Need to write tests to determine if Trie sorting will work correctly with DistributedSearch, given the usage of Investigate Sorting on Trie field types with DistributedSearch. If not, we need to figure out how to fix this.
+
+Refer to Uwe Schindler's comment on SOLR-940:
+
+
+One note to sorting:
+I am not really sure, if sorting works with Solr. The Sortfield returned by TrieUtils.getSortField contains an own parser (new feature in Lucene 2.9). When looking through the solr code, searching for SortField in trunk, I noticed, that QueryComponent has own comparators and FieldCache code (duplicating the Lucene code), and ignoring the parser given in SortField (the parser is not passed to FieldCache.getInts() & Co.).
+
+If this is the case, it will simply not work.
+
+OK. If distributed search does not work, the problems are bigger: The problem is not the comparator alone, the problem is the FieldCache. The distributed search should fill the values into FieldCache and then let the comparator do the work. Comparing lucenes code with the solr ones shows, that there are some parts of LUCENE-1478 missing. The Comparators use the default parser instead of the one given in SortField.getParser() to parse the values (when retrieving FieldCache.getInts() & Co).
+
+I am not really sure, why Solr needs to duplicate the sorting code from Lucene? Maybe this is no longer needed? In this case, everything would be ok when removed.

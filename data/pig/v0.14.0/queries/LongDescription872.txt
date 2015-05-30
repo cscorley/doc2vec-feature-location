@@ -1,0 +1,7 @@
+Currently, the replicated file is read directly from DFS by all maps. If the number of the concurrent maps is huge, we can overwhelm the NameNode with open calls.
+
+Using distributed cache will address the issue and might also give a performance boost since the file will be copied locally once and the reused by all tasks running on the same machine.
+
+The basic approach would be to use cacheArchive to place the file into the cache on the frontend and on the backend, the tasks would need to refer to the data using path from the cache.
+
+Note that cacheArchive does not work in Hadoop local mode. (Not a problem for us right now as we don't use it.)

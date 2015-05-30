@@ -1,0 +1,5 @@
+Async methods like asyncLedgerCreate and Open shouldnt be throwing InterruptedException and BKExceptions. 
+
+The present method signatures lead to messy application code since one is forced to have error handling code in 2 places: inside the callback to handler a non-OK return code, and outside for handling the exceptions thrown by the call. 
+
+There should be only one way to indicate error conditions, and that should be through a non-ok return code to the callback.

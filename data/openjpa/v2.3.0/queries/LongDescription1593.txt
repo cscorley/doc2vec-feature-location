@@ -1,0 +1,6 @@
+Follow-on to OPENJPA-1524 to create a generic OSGiManagedRuntime class that would work for vendors/frameworks other than Apache Aries.  
+
+Tim's original suggestion was - One implementation suggestion would be to use a ServiceTracker to keep track of the JTA services. This would allow for lazy lookup and also provide a notification if the service is unregistered. 
+This should then be possible to implement as a relatively simple subclass of RegistryManagedRuntime that overrides getTransactionManager(). I don't know if you have a nice mechanism to pass a BundleContext yet, but I don't think that should pose a significant problem.
+
+Now that we have a BundleUtils.java to require OSGi classes in our runtime, we should be able to lookup "javax.transaction.TransactionSynchronizationRegistry" from the ServiceRegistry to use, instead of relying on the current JNDI lookup which is Aries specific.

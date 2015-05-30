@@ -1,0 +1,9 @@
+Via the JPA TCK running against DB2, we found the following problem with casting and the ABS function:
+
+Instead of generating:
+..WHERE (CAST(t0.TOTALPRICE AS DOUBLE) > CAST(ABS AS DOUBLE)) 
+
+We need to generate:
+..WHERE (CAST(t0.TOTALPRICE AS DOUBLE) > ABS(CAST(? AS DOUBLE)) 
+
+While doing a bit more investigation we are finding similar problems with other function expressions such as MOD and TRIM.

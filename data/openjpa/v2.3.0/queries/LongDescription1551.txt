@@ -1,0 +1,7 @@
+Some application utilize the same table definitions across a several schemas or separate database instances to isolate customer data.
+
+A pure JPA solution to this problem would be to create a separate EntityManagerFactory for each schema & database instance. This approach scales poorly, and results in a lot of duplicate processing time, and memory used. 
+
+As an alternative we could provide the ability to specify the connectionFactory to use when the EntityManager is created. Effectively this allows the EntityManagers to share a MetaDataRepository but communicate with different databases. 
+
+There are some limitations to this support, obviously the table definitions must be identical for each database used, if the OR mappings include a schema that schema must exist (and be writeable) in each database come to mind, but in the long run for applications which follow this specific pattern this function could be a large benefit. 

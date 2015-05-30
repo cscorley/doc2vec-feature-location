@@ -1,0 +1,13 @@
+When a statement that produces scrollable, updatable result sets executes a query which cannot produce an updatable result set (a join for instance), ResultSet.beforeFirst() fails with the following error:
+
+Exception in thread "main" java.sql.SQLException: A network protocol error was encountered and the connection has been terminated: Network protocol exception: DSS length not 0 at end of same id chain parse.  The connection has been terminated.
+        at org.apache.derby.client.am.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+        at org.apache.derby.client.am.SqlException.getSQLException(SqlException.java:344)
+        at org.apache.derby.client.am.ResultSet.beforeFirst(ResultSet.java:2101)
+        at Repro.main(Repro.java:16)
+Caused by: org.apache.derby.client.am.DisconnectException: A network protocol error was encountered and the connection has been terminated: Network protocol exception: DSS length not 0 at end of same id chain parse.  The connection has been terminated.
+        at org.apache.derby.client.am.ResultSet.flowPositioningFetch(ResultSet.java:3888)
+        at org.apache.derby.client.am.ResultSet.moveToBeforeFirst(ResultSet.java:4149)
+        at org.apache.derby.client.am.ResultSet.beforeFirstX(ResultSet.java:2118)
+        at org.apache.derby.client.am.ResultSet.beforeFirst(ResultSet.java:2096)
+        ... 1 more

@@ -1,0 +1,22 @@
+testImportTableExportTableLobsInUnqalifiedExtFile has been failing since April 10th 2007 with following exception trace
+testImportTableExportTableLobsInUnqalifiedExtFile(org.apache.derbyTesting.functionTests.tests.tools.ImportExportLobTest)java.sql.SQLException: The exception 'java.sql.SQLException: Java exception: 'java.io.CharConversionException: '.' was thrown while evaluating an expression.
+	at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+	at org.apache.derby.iapi.error.StandardException.unexpectedUserException(Unknown Source)
+	at org.apache.derby.impl.services.reflect.ReflectMethod.invoke(Unknown Source)
+	at org.apache.derby.impl.sql.execute.CallStatementResultSet.open(Unknown Source)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.execute(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.tools.ImportExportBaseTest.doImportTableLobsFromExtFile(ImportExportBaseTest.java:225)
+	at org.apache.derbyTesting.functionTests.tests.tools.ImportExportLobTest.testImportTableExportTableLobsInUnqalifiedExtFile(ImportExportLobTest.java:291)
+	at java.lang.reflect.AccessibleObject.invokeV(AccessibleObject.java:205)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:88)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+
+The test does not fail on Sun's jdks.

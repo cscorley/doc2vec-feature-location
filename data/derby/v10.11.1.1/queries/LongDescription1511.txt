@@ -1,0 +1,201 @@
+An exception occurs when extracting a Blob from a database. 
+
+The following code, will ALWAYS fail with the Exception:
+
+java.io.IOException: ERROR 40XD0: Container has been closed
+        at org.apache.derby.impl.store.raw.data.OverflowInputStream.fillByteHold
+er(Unknown Source)
+        at org.apache.derby.impl.store.raw.data.BufferedByteHolderInputStream.re
+ad(Unknown Source)
+        at java.io.DataInputStream.read(Unknown Source)
+        at java.io.FilterInputStream.read(Unknown Source)
+        at java.io.ObjectInputStream$PeekInputStream.read(Unknown Source)
+        at java.io.ObjectInputStream$PeekInputStream.readFully(Unknown Source)
+        at java.io.ObjectInputStream$BlockDataInputStream.readDoubles(Unknown So
+urce)
+        at java.io.ObjectInputStream.readArray(Unknown Source)
+        at java.io.ObjectInputStream.readObject0(Unknown Source)
+        at java.io.ObjectInputStream.readObject(Unknown Source)
+        at BlobTest.readRows(BlobTest.java:82)
+        at BlobTest.main(BlobTest.java:24)
+
+CODE:
+
+import java.io.*;
+import java.sql.*;
+import java.util.*;
+
+public class BlobTest
+{
+  private static final String TABLE1 = "CREATE TABLE TABLE_1 ( "
+                                     + "ID INTEGER NOT NULL, "
+                                     + "COL_2 INTEGER NOT NULL, "
+                                     + "PRIMARY KEY (ID) )";
+
+  private static final String TABLE2 = "CREATE TABLE TABLE_2 ( "
+                                     + "ID INTEGER NOT NULL, "
+                                     + "COL_BLOB BLOB, "
+                                     + "PRIMARY KEY (ID) )";
+
+  public static void main(String... args) {
+    try 
+{
+      createDBandTables();
+      Connection con = getConnection();
+
+      addRows(con, 10000, 1);
+      addRows(con, 10000, 2);
+      readRows(con, 1);
+
+      con.close();
+    }
+    catch(Exception exp) 
+{
+      exp.printStackTrace();
+    }
+  }
+
+  private static void addRows(Connection con, int size, int id) 
+                                                         throws Exception
+  {
+    String sql = "INSERT INTO TABLE_1 VALUES(?, ?)";
+
+    PreparedStatement pstmt = con.prepareStatement(sql);
+    pstmt.setInt(1, id);
+    pstmt.setInt(2, 2);
+    pstmt.executeUpdate();
+    pstmt.close();
+
+    double[] array = new double[size];
+    array[size-1] = 1.23;
+
+    sql = "INSERT INTO TABLE_2 VALUES(?, ?)";
+
+    pstmt = con.prepareStatement(sql);
+    pstmt.setInt(1, id);
+
+    ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+    ObjectOutputStream objStream = new ObjectOutputStream(byteStream);
+    objStream.writeObject(array);         // Convert object to byte stream 
+    objStream.flush();
+    objStream.close();
+
+    byte[] bytes = byteStream.toByteArray();
+
+    ByteArrayInputStream inStream = new ByteArrayInputStream(bytes);
+
+    pstmt.setBinaryStream(2, inStream, bytes.length);
+    pstmt.executeUpdate();
+    pstmt.close();
+  }
+
+  private static void readRows(Connection con, int id) throws Exception
+  {
+    String sql = "SELECT * FROM TABLE_2";
+//    String sql = "SELECT * FROM TABLE_2 WHERE ID > 0";
+
+    Statement stmt = con.createStatement();
+
+    ResultSet rs = stmt.executeQuery(sql);
+
+    while (rs.next()) 
+{
+      rs.getInt(1);
+
+      InputStream stream = rs.getBinaryStream(2);
+
+      ObjectInputStream objStream = new ObjectInputStream(stream);
+
+      Object obj = objStream.readObject();
+
+      double[] array = (double[]) obj;
+
+      System.out.println(array.length);
+
+      readTable1(con, id);
+    }
+    rs.close();
+    stmt.close();
+  }
+
+  private static void readTable1(Connection con, int id) throws Exception {
+    String sql = "SELECT ID FROM TABLE_1 WHERE ID=" + id;    
+
+    Statement stmt = con.createStatement();
+
+    ResultSet rs = stmt.executeQuery(sql);
+
+    if (rs.next()) {
+    }
+    rs.close();
+    stmt.close();
+  }
+
+  private static Connection getConnection() throws Exception 
+{
+    String driver="org.apache.derby.jdbc.EmbeddedDriver";
+
+    Properties p = System.getProperties();
+    p.put("derby.system.home", "C:\\databases\\sample");
+    
+    Class.forName(driver);
+
+    String url = "jdbc:derby:derbyBlob";
+    Connection con = DriverManager.getConnection(url);
+
+    return con;
+  }
+
+  private static void createDBandTables() throws Exception 
+{
+    String driver="org.apache.derby.jdbc.EmbeddedDriver";
+
+    Properties p = System.getProperties();
+    p.put("derby.system.home", "C:\\databases\\sample");
+    
+    Class.forName(driver);
+
+    String url = "jdbc:derby:derbyBlob;create=true";
+    Connection con = DriverManager.getConnection(url);
+
+    Statement stmt = con.createStatement();
+
+    stmt.execute(TABLE1);
+    stmt.execute(TABLE2);
+
+    stmt.close();
+    con.close();
+  }
+}
+
+However if the selection clause is changed from:
+
+    String sql = "SELECT * FROM TABLE_2";
+TO
+    String sql = "SELECT * FROM TABLE_2 WHERE ID > 0";
+
+The code works without Exception.
+
+
+Output from: java org.apache.derby.tools.sysinfo 
+------------------ Java Information ------------------ 
+Java Version: 1.5.0_05 
+Java Vendor: Sun Microsystems Inc. 
+Java home: C:\Program Files\Java\jre1.5.0_05 
+Java classpath: C:\tools\derby\db-derby-10.1.2.1-bin\lib\derby.jar;C:\tools\der 
+by\db-derby-10.1.2.1-bin\lib\derbytools.jar; 
+OS name: Windows XP 
+OS architecture: x86 
+OS version: 5.1 
+Java user name: David 
+Java user home: C:\Documents and Settings\David 
+Java user dir: C:\david\novice\derby 
+java.specification.name: Java Platform API Specification 
+java.specification.version: 1.5 
+--------- Derby Information -------- 
+JRE - JDBC: J2SE 5.0 - JDBC 3.0 
+[C:\tools\derby\db-derby-10.1.2.1-bin\lib\derby.jar] 10.1.2.1 - (330608) 
+[C:\tools\derby\db-derby-10.1.2.1-bin\lib\derbytools.jar] 10.1.2.1 - (330608) 
+------------------------------------------------------ 
+----------------- Locale Information ----------------- 
+------------------------------------------------------ 

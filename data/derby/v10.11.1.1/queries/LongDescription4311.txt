@@ -1,0 +1,20 @@
+BaseJDBCTestCase.assertErrorCode() doesn't throw an exception if the error code does not match the expected code.
+
+    public static void assertErrorCode(String message, int expected, SQLException exception) {
+       while (exception != null)
+       {
+           try 
+{
+               assertEquals(message, expected,exception.getErrorCode());
+           }
+ catch (AssertionFailedError e) 
+{
+               // check and see if our error code is in a chained exception
+               exception = exception.getNextException();               
+           }
+       }
+    }
+
+If the error code doesn't match, assertEquals() will raise an error, but the exception is caught and silently ignored.
+
+Since none of the tests uses assertErrorCode() I suggest we remove it. We can re-implement one that works later if the need arises.

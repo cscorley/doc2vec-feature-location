@@ -1,0 +1,3 @@
+LanczosSolver, DistributedLanczosSolver, and HebbianSolver all keep copious amounts of memory-resident data which is lost if the app crashes or is killed (OOM, forgetting to run in a screen session, and losing net connectivity to the server running it, etc...).  
+
+These algorithms (and many other Mahout processes!) should enable a pluggable "persist state" mechanism (to HDFS, RDBMS, local disk, key-value store, etc), and similarly, a way to pick up and start from such a state.

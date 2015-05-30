@@ -1,0 +1,11 @@
+MBeanRegistry#register is keeping the beans which are failed to complete the registration. During unregistration time, these failed beans will results in following exception.
+
+
+    [junit] 2014-01-29 08:34:56,667 [myid:] - WARN  [main:MBeanRegistry@134] - Error during unregister
+    [junit] javax.management.InstanceNotFoundException: org.apache.ZooKeeperService:name0=StandaloneServer_port-1
+    [junit] 	at com.sun.jmx.interceptor.DefaultMBeanServerInterceptor.getMBean(DefaultMBeanServerInterceptor.java:1095)
+    [junit] 	at com.sun.jmx.interceptor.DefaultMBeanServerInterceptor.exclusiveUnregisterMBean(DefaultMBeanServerInterceptor.java:427)
+    [junit] 	at com.sun.jmx.interceptor.DefaultMBeanServerInterceptor.unregisterMBean(DefaultMBeanServerInterceptor.java:415)
+    [junit] 	at com.sun.jmx.mbeanserver.JmxMBeanServer.unregisterMBean(JmxMBeanServer.java:536)
+    [junit] 	at org.apache.zookeeper.jmx.MBeanRegistry.unregister(MBeanRegistry.java:115)
+

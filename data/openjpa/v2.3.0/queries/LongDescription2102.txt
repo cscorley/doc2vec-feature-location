@@ -1,0 +1,29 @@
+Take the following lines of code in AbstractCFMetaDataFactory:
+
+if (puUrlString != null && urlString.indexOf(puUrlString) != -1)
+    urls.add(url);
+
+When either 'urlString' of puUrlString is encoded, and the other is not, the 'indexOf' will fail even if the URLs are the same if both are either encoded or decoded.  Let me explain:
+The 'urlString' is effectively obtained from the ClassLoader, and the puUrlString is obtained from the OpenJPA configuration.  If the user's URL path contains spaces in it (' '), the URL may be encoded with '%20' (see the URL and URI javadoc).  The Classloader is likely to return encoded URLs.  However, given that the two URLs come from different places, it is not guaranteed that both URLs will be encoded.  If one URL is encoded (e.g. encoded with a %20 for spaces) and the other URL is not encoded (e.g. the URL contains spaces), the above 'indexOf' will fail even though technically the two URLs may ultimately represent the same location when both are encoded (or decoded).  When the 'indexOf' fails the URL is not added to the list of URLs to process which has downstream effects in that necessary meta data is missing.  For example, in the issue I'm working I saw the following exception due to missing meta data:
+
+Caused by: org.apache.openjpa.persistence.ArgumentException: Type       
+"class testcases.res.ejb.subscriber.SubscriberBehavior" loaded by       
+com.xxx.xx.classloader.CompoundClassLoader@221e275[appwar:RES Test      
+Subscriber]                                                             
+   Local ClassPath: .......                         
+   Parent: com.xxx.xx.classloader.ProtectionClassLoader@47d3d6          
+   does not have persistence metadata.     
+ at org.apache.openjpa.jdbc.meta.MappingTool.getMapping(MappingTool.java:687)                                                               
+ at org.apache.openjpa.jdbc.meta.MappingTool.buildSchema(MappingTool.java:753)                                                               
+ at org.apache.openjpa.jdbc.meta.MappingTool.run(MappingTool.java:651)  
+ at org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.synchronizeMappings(JDBCBrokerFactory.java:154)                                            
+ at org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.synchronizeMappings(JDBCBrokerFactory.java:164)                                            
+ at org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.newBrokerImpl(JDBCBrokerFactory.java:122)                                            
+ at org.apache.openjpa.kernel.AbstractBrokerFactory.newBroker(AbstractBrokerFactory.java:210)                                        
+ at org.apache.openjpa.kernel.DelegatingBrokerFactory.newBroker(DelegatingBrokerFactory.java:156)                                      
+ at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:227)                  
+
+
+Thanks,
+
+Heath Thomann

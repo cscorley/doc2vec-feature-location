@@ -1,0 +1,44 @@
+The performance of loading datetime values can be improved by about 25% by moving a single line in ToDate.java:
+
+    public static DateTimeZone extractDateTimeZone(String dtStr) {
+      Pattern pattern = Pattern.compile("(Z|(?<=(T[0-9\\.:]
+{0,12}))((\\+|-)d{2}(:?d{2})?))$");;
+
+should become:
+
+    static Pattern pattern = Pattern.compile("(Z|(?<=(T[0-9\\.:]{0,12}
+))((\\+|-)d
+{2}(:?d{2}
+)?))$");
+    public static DateTimeZone extractDateTimeZone(String dtStr) {
+
+There is no need to recompile the regular expression for every value. I'm not sure if this function is ever called concurrently, but Pattern objects are thread-safe anyways.
+
+As a test, I created a file of 10M timestamps:
+
+  for i in 0..10000000
+    puts '2000-01-01T00:00:00+23'
+  end
+
+I then ran this script:
+
+  grunt> A = load 'data' as (a:datetime); B = filter A by a is null; dump B;
+
+Before the change it took 160s.
+After the change, the script took 120s.
+
+----------------
+
+Another performance improvement can be made for invalid datetime values. If a datetime value is invalid, an exception is created and thrown, which is a costly way to fail a validity check. To test the performance impact, I created 10M invalid datetime values:
+
+  for i in 0..10000000
+    puts '2000-99-01T00:00:00+23'
+  end
+
+In this test, the regex pattern was always recompiled. I then ran this script:
+
+  grunt> A = load 'data' as (a:datetime); B = filter A by a is not null; dump B;
+
+The script took 190s.
+
+I understand this could be considered an edge case and might not be worth changing. However, if there are use cases where invalid dates are part of normal processing, then you might consider fixing this.

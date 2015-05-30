@@ -1,0 +1,69 @@
+Hi,
+
+When one uses curly braces in load statement when BinStorage() is used, it fails with the following exception
+
+
+
+Pig Stack Trace
+---------------
+ERROR 2245:
+<file rep1.pig, line 1, column 4> Cannot get schema from loadFunc org.apache.pig.builtin.BinStorage
+
+org.apache.pig.impl.logicalLayer.FrontendException: ERROR 1066: Unable to open iterator for alias a
+        at org.apache.pig.PigServer.openIterator(PigServer.java:901)
+        at org.apache.pig.tools.grunt.GruntParser.processDump(GruntParser.java:655)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:303)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:188)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:164)
+        at org.apache.pig.tools.grunt.Grunt.exec(Grunt.java:81)
+        at org.apache.pig.Main.run(Main.java:561)
+        at org.apache.pig.Main.main(Main.java:111)
+Caused by: org.apache.pig.PigException: ERROR 1002: Unable to store alias a
+        at org.apache.pig.PigServer.storeEx(PigServer.java:1000)
+        at org.apache.pig.PigServer.store(PigServer.java:963)
+        at org.apache.pig.PigServer.openIterator(PigServer.java:876)
+        ... 7 more
+Caused by: org.apache.pig.impl.logicalLayer.FrontendException: ERROR 2245:
+<file rep1.pig, line 1, column 4> Cannot get schema from loadFunc org.apache.pig.builtin.BinStorage
+        at org.apache.pig.newplan.logical.relational.LOLoad.getSchemaFromMetaData(LOLoad.java:154)
+        at org.apache.pig.newplan.logical.relational.LOLoad.getSchema(LOLoad.java:109)
+        at org.apache.pig.newplan.logical.relational.LOStore.getSchema(LOStore.java:68)
+        at org.apache.pig.newplan.logical.visitor.SchemaAliasVisitor.validate(SchemaAliasVisitor.java:60)
+        at org.apache.pig.newplan.logical.visitor.SchemaAliasVisitor.visit(SchemaAliasVisitor.java:84)
+        at org.apache.pig.newplan.logical.relational.LOStore.accept(LOStore.java:77)
+        at org.apache.pig.newplan.DependencyOrderWalker.walk(DependencyOrderWalker.java:75)
+        at org.apache.pig.newplan.PlanVisitor.visit(PlanVisitor.java:50)
+        at org.apache.pig.PigServer$Graph.compile(PigServer.java:1659)
+        at org.apache.pig.PigServer$Graph.compile(PigServer.java:1653)
+        at org.apache.pig.PigServer$Graph.access$200(PigServer.java:1378)
+        at org.apache.pig.PigServer.storeEx(PigServer.java:995)
+        ... 9 more
+Caused by: java.io.IOException: java.net.URISyntaxException: Illegal character in path at index 72: hdfs://xyz/user/anithar/input/part-m-0000{0,1}
+        at org.apache.pig.builtin.BinStorage.getSchema(BinStorage.java:377)
+        at org.apache.pig.newplan.logical.relational.LOLoad.getSchemaFromMetaData(LOLoad.java:150)
+        ... 20 more
+Caused by: java.net.URISyntaxException: Illegal character in path at index 72: hdfs://xyz/user/anithar/input/part-m-0000{0,1}
+        at java.net.URI$Parser.fail(URI.java:2809)
+        at java.net.URI$Parser.checkChars(URI.java:2982)
+        at java.net.URI$Parser.parseHierarchical(URI.java:3066)
+        at java.net.URI$Parser.parse(URI.java:3014)
+        at java.net.URI.<init>(URI.java:578)
+        at org.apache.pig.builtin.BinStorage.getSchema(BinStorage.java:375)
+        ... 21 more
+
+
+
+Script
+
+
+
+a = load 'input/part-m-0000{0,1}' using BinStorage();
+dump a;
+
+
+
+ The script runs well in 0.8 version. 
+
+Regards,
+Anitha
+

@@ -1,0 +1,22 @@
+This block:
+
+
+
+HashSet<Long> followerSet = new HashSet<Long>();
+for(LearnerHandler f : learners)
+    followerSet.add(f.getSid());
+
+
+
+is executed without holding the lock on learners, so if there were ever a condition where a new learner was added during the initial sync phase, I'm pretty sure we'd see a concurrent modification exception. Certainly other parts of the code are very careful to lock on learners when iterating. 
+
+It would be nice to use a ConcurrentHashMap to hold the learners instead, but I can't convince myself that this wouldn't introduce some correctness bugs. For example the following:
+
+Learners contains A, B, C, D
+Thread 1 iterates over learners, and gets as far as B.
+Thread 2 removes A, and adds E.
+Thread 1 continues iterating and sees a learner view of A, B, C, D, E
+
+This may be a bug if Thread 1 is counting the number of synced followers for a quorum count, since at no point was A, B, C, D, E a correct view of the quorum.
+
+In practice, I think this is actually ok, because I don't think ZK makes any strong ordering guarantees on learners joining or leaving (so we don't need a strong serialisability guarantee on learners) but I don't think I'll make that change for this patch. Instead I want to clean up the locking protocols on the follower / learner sets - to avoid another easy deadlock like the one we saw in ZOOKEEPER-1294 - and to do less with the lock held; i.e. to copy and then iterate over the copy rather than iterate over a locked set. 

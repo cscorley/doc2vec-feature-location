@@ -1,0 +1,10 @@
+An internal plan (instance of GenericPreparedStatement) can be invalidated by other SQL operations such as DROP TABLE or DROP INDEX.
+When this happens the references to objects that are no longer useful such as the generated class and saved objects are held onto and thus use memory.
+If the statement is re-compiled then these objects will be handled by garbage collection.
+
+If the statement is not recompiled though, then these objects will remain until the plan (GenericPreparedStatement) is garbage collected.
+The plan being garbage collected can be held up for two reasons:
+   1) The plan is in the statement cache. Note that only in some cases does it make sense to remove an invalid plan from the statement cache, e.g. a DROP TABLE should remove any plan that uses that table, but a DROP TRIGGER should not remove an INSERT from the cache, as it is likely the plan will be re-used and re-compiled. This  is a separate issue given that the memory usage can occur even if the plan is not in the cache.
+   2) The application holds onto a JDBC PreparedStatement that uses the plan.
+
+Given an application should not be able to affect memory usage like this then the GenericPreparedStatement.makeInvalid() call should null out fields that hold references to objects that have become invalid.

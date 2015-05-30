@@ -1,0 +1,27 @@
+A number of times when I start a bookie with a clean state, it fails to start and I get the following exceptions:
+
+
+2012-04-06 10:54:42,201 - ERROR [main:Bookie@348] - Error accessing cookie on disks
+java.io.FileNotFoundException: *path*/current/VERSION (No such file or directory)
+        at java.io.FileOutputStream.open(Native Method)
+        at java.io.FileOutputStream.<init>(FileOutputStream.java:179)
+        at java.io.FileOutputStream.<init>(FileOutputStream.java:131)
+        at org.apache.bookkeeper.bookie.Cookie.writeToDirectory(Cookie.java:114)
+        at org.apache.bookkeeper.bookie.Bookie.checkEnvironment(Bookie.java:337)
+        at org.apache.bookkeeper.bookie.Bookie.<init>(Bookie.java:401)
+        at org.apache.bookkeeper.proto.BookieServer.<init>(BookieServer.java:75)
+        at org.apache.bookkeeper.proto.BookieServer.main(BookieServer.java:294)
+2012-04-06 10:54:42,203 - ERROR [main:BookieServer@308] - Exception running bookie server :
+org.apache.bookkeeper.bookie.BookieException$InvalidCookieException: java.io.FileNotFoundException: *path*/current/VERSION (No such file or directory)
+        at org.apache.bookkeeper.bookie.Bookie.checkEnvironment(Bookie.java:349)
+        at org.apache.bookkeeper.bookie.Bookie.<init>(Bookie.java:401)
+        at org.apache.bookkeeper.proto.BookieServer.<init>(BookieServer.java:75)
+        at org.apache.bookkeeper.proto.BookieServer.main(BookieServer.java:294)
+Caused by: java.io.FileNotFoundException: *path*/current/VERSION (No such file or directory)
+        at java.io.FileOutputStream.open(Native Method)
+        at java.io.FileOutputStream.<init>(FileOutputStream.java:179)
+        at java.io.FileOutputStream.<init>(FileOutputStream.java:131)
+        at org.apache.bookkeeper.bookie.Cookie.writeToDirectory(Cookie.java:114)
+        at org.apache.bookkeeper.bookie.Bookie.checkEnvironment(Bookie.java:337)
+
+

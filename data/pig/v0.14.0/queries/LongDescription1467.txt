@@ -1,0 +1,16 @@
+Order by fail with the message:
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.partitioners.WeightedRangePartitioner.setConf(WeightedRangePartitioner.java:135)
+    at org.apache.hadoop.util.ReflectionUtils.setConf(ReflectionUtils.java:62)
+    at org.apache.hadoop.util.ReflectionUtils.newInstance(ReflectionUtils.java:117)
+    at org.apache.hadoop.mapred.MapTask$NewOutputCollector.<init>(MapTask.java:551)
+    at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:630)
+    at org.apache.hadoop.mapred.MapTask.run(MapTask.java:314)
+    at org.apache.hadoop.mapred.Child$4.run(Child.java:217)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at javax.security.auth.Subject.doAs(Subject.java:396)
+    at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1062)
+    at org.apache.hadoop.mapred.Child.main(Child.java:211)
+
+This happens with the following hadoop settings:
+fs.file.impl.disable.cache=true
+fs.hdfs.impl.disable.cache=true

@@ -1,0 +1,3 @@
+PreparedStatements could take much longer than Statements because of incorrect search clause transitive closure optimization. For the customer case I investigated this problem, Statement would complete in about 13 seconds, where as equivalent PreparedStatement ran "forever". (stoped it after hours)
+
+I think there a problem with PredicateList.searchClauseTransitiveClosure method. This method tries to add new search clauses based on equality join between tables involved.  Current code only looks for ConstantNodes on the right side of searchClauses. This would miss ParameterNodes, so Derby might miss search clause transitive closure optimizations for PreparedStatements.

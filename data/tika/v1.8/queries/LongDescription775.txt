@@ -1,0 +1,5 @@
+This patch defines and implements the concept of embedding tika metadata into a file stream, the reverse of extraction.
+
+In the tika-core project an interface defining an Embedder and a generic sed ExternalEmbedder implementation meant to be extended or configured are added.  These classes are essentially a reverse flow of the existing Parser and ExternalParser classes.
+
+In the tika-parsers project an ExternalEmbedderTest unit test is added which uses the default ExternalEmbedder (calls sed) to embed a value placed in Metadata.DESCRIPTION then verify the operation by parsing the resulting stream.

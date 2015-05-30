@@ -1,0 +1,17 @@
+this is the code in Leader.java 
+
+
+ if (LOG.isDebugEnabled()) {
+            LOG.debug("Ack zxid: 0x" + Long.toHexString(zxid));
+            for (Proposal p : outstandingProposals.values()) {
+                long packetZxid = p.packet.getZxid();
+                LOG.debug("outstanding proposal: 0x"
+                        + Long.toHexString(packetZxid));
+            }
+            LOG.debug("outstanding proposals all");
+        }
+
+
+
+
+We should move this debug to trace since it will cause really high latencies in response times from zookeeper servers in case folks want to use DEBUG logging for servers.

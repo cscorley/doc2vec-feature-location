@@ -1,0 +1,56 @@
+I'm running on OpenJPA 1.2.1
+
+The following query is added to the QueryCache:
+
+Query: org.apache.openjpa.kernel.QueryImpl@3afe3afe;
+candidate class: class com.ibm.usmi.datamodel.system.OperatingSystem;
+query: SELECT distinct
+OPERATINGSYSTEM1.OID,OPERATINGSYSTEM1.Guid,OPERATINGSYSTEM1.ObjectType,OPERATINGSYSTEM1.Name,REMOTESERVICEACCESSPOINT1.OID,REMOTESERVICEACCESSPOINT1.Guid,REMOTESERVICEACCESSPOINT1.ObjectType,REMOTESERVICEACCESSPOINT1.Name
+FROM OperatingSystem
+OPERATINGSYSTEM1,System_accessedVia_RemoteServiceAccessPoint
+SYSTEM_ACCESSEDVIA_REMOTESERVICEACCESSPOINT1,RemoteServiceAccessPoint
+REMOTESERVICEACCESSPOINT1,RelationshipInfo RELATIONSHIPINFO1 WHERE
+OPERATINGSYSTEM1.OID = SYSTEM_ACCESSEDVIA_REMOTESERVICEACCESSPOINT1.sourceId
+AND REMOTESERVICEACCESSPOINT1.OID =
+SYSTEM_ACCESSEDVIA_REMOTESERVICEACCESSPOINT1.targetId AND
+(OPERATINGSYSTEM1.Guid = ?1) AND (OPERATINGSYSTEM1.OID = ?2) AND
+((OPERATINGSYSTEM1.BuildNumber = ?3)) AND (REMOTESERVICEACCESSPOINT1.Guid =
+?4) AND (REMOTESERVICEACCESSPOINT1.OID = ?5) AND
+((REMOTESERVICEACCESSPOINT1.Port = ?6)) AND RELATIONSHIPINFO1.changedDate >
+?7 and RELATIONSHIPINFO1.sourceOID=OPERATINGSYSTEM1.OID and
+RELATIONSHIPINFO1.relationshipType = ?8 and
+RELATIONSHIPINFO1.targetOID=REMOTESERVICEACCESSPOINT1.OID
+
+Later on, a record in RelationshipInfo is changed, which changes what should
+be returned from this query.  I'd expect this to cause the cached query to
+get evicted from the QueryCache, but it is not.  If I get the
+QueryResultCache, and evictAll RelationshipInfo.class, it still doesn't get
+removed.  This seems to be because the AccessPath only contains
+OperatingSystem.  I'd expect this to contain all entities that this query
+deals with:
+                {OperatingSystem,
+System_accessedVia_RemoteServiceAccessPoint, RemoteServiceAccessPoint,
+RelationshipInfo}
+But the AccessPath only seems to contain the entity of what is returned from
+the query.
+
+What do I need to do so this query gets evicted like I'd expect.
+
+This problem can be easily reproduced by the following query:
+
+  String jpql = "select p.name, c.name from OneOneParent p, OneOneChild c where " + 
+            "p.id = c.id and c.name = ?1";
+
+	The query cache key is:
+
+"org.apache.openjpa.datacache.QueryKey@d11db9a4
+[
+    query:[select p.name, c.name from OneOneParent p, OneOneChild c where p.id = c.id and c.name = ?1],
+    access path:[queryCache.OneOneParent],
+    subs:true,
+    ignoreChanges:false,
+    startRange:0,
+    endRange:9223372036854775807,timeout:-1
+]".
+
+This problem can be resolved if access path in QueryKey also contains queryCache.OneOneChild.

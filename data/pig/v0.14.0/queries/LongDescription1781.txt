@@ -1,0 +1,21 @@
+(Apologies if this is the wrong place to file Piggybank bugs)
+
+Bug in http://svn.apache.org/viewvc/pig/trunk/contrib/piggybank/java/src/main/java/org/apache/pig/piggybank/evaluation/datetime/truncate/ISOToDay.java?view=markup
+
+and other http://svn.apache.org/viewvc/pig/trunk/contrib/piggybank/java/src/main/java/org/apache/pig/piggybank/evaluation/datetime/truncate/ classes that copy-paste the same code.
+
+These classes parse dates like so:
+ 	DateTimeZone.setDefault(DateTimeZone.UTC); 	
+ 	DateTime dt = new DateTime((String)input.get(0).toString()); 
+
+This has two problems:
+(1) It messes up JVM static state by changing the DateTimeZone default time zone.
+(2) It ignore timezone information in the input string, so times like "2009-12-09T23:59:59-0800" get truncated to "2009-12-10T00:00:00Z", which is the wrong day of year. 
+
+Instead, they should use something like this, which respects the input timezone and does not modify any global state:
+
+  DateTime dt ISODateTimeFormat.dateTime().withOffsetParsed().parseDateTime(isoDateString);
+
+I have not provided a patch, because I'm not really set up to hack on Piggybank locally.
+
+As a workaround, I am copy-pasting the classes into my own packages, and making the desired change.

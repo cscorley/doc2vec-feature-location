@@ -1,0 +1,3 @@
+The offset and length argument have been swapped in the calls to InputStream.read(byte,offset, length) and write(byte,offset, length). This code is inside a do-while (true) loop, and the only normal way out is when InputStream.read returns -1. This will never happen since the stream is asked to read zero bytes. Derby ends up eating up all available CPU, limited to a single core / CPU.
+
+The bug hasn't been observed because Derby is materializing all values when calling this code. Enabling streaming capabilities in the sorter revealed it.

@@ -1,0 +1,3 @@
+POPartialAgg.aggregateRawRow() is counting values in numEntriesInTarget, but all the values that numEntriesInTarget is compared to count tuples.
+
+This is similar to PIG-3649 but has less of a performance impact, as it generally does not cause map-side aggregation to be disabled entirely (since aggregateRawRow() is unlikely to be called before checkSizeReduction(); however, it can cause second-level aggregation to be run too often.

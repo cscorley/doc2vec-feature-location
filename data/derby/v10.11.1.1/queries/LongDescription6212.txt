@@ -1,0 +1,6 @@
+ij version 10.10
+ij> connect 'jdbc:derby:memory:db;create=true';
+ij> call syscs_util.syscs_set_database_property('abc', (values 'def'));
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'. (errorCode = 0)
+
+The query should either compile and execute just fine, or it should raise a proper exception. It should not fail with a NullPointerException.

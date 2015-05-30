@@ -1,0 +1,22 @@
+This bug was found when using ZK 3.5.0 with curator-test 2.3.0.
+curator-test is building a QuorumPeerConfig from a Properties object and then when we try to run the quorum peer using that configuration, we get an NPE:
+
+2014-01-19 21:58:39,768 [myid:] - ERROR [Thread-3:TestingZooKeeperServer$1@138] - From testing server (random state: false)
+java.lang.NullPointerException
+	at org.apache.zookeeper.server.quorum.QuorumPeer.setQuorumVerifier(QuorumPeer.java:1320)
+	at org.apache.zookeeper.server.quorum.QuorumPeerMain.runFromConfig(QuorumPeerMain.java:156)
+	at org.apache.curator.test.TestingZooKeeperServer$1.run(TestingZooKeeperServer.java:134)
+	at java.lang.Thread.run(Thread.java:722)
+
+
+The reason that this happens is because QuorumPeerConfig:parseProperties only peforms a subset of what 'QuorumPeerConfig:parse(String path)' does. The exact additional task performed that we need in parseProperties is the dynamic config backwards compatibility check:
+
+            // backward compatibility - dynamic configuration in the same file as static configuration params
+            // see writeDynamicConfig() - we change the config file to new format if reconfig happens
+            if (dynamicConfigFileStr == null) {
+                configBackwardCompatibilityMode = true;
+                configFileStr = path;................
+                parseDynamicConfig(cfg, electionAlg, true);
+                checkValidity();................
+            }
+

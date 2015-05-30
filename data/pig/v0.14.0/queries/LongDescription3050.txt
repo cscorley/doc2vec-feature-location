@@ -1,0 +1,13 @@
+There was a race condition reported when running Pig in local mode on the user mailing list. This motivated me to fix potential multithreading bugs that can be identified by FindBugs.
+
+FindBugs identifies the following potential bugs:
+
+	Mutable static field
+	Inconsistent synchronization
+	Incorrect lazy initialization of static field
+	Incorrect lazy initialization and update of static field
+	Unsynchronized get method, synchronized set method
+
+
+
+There are in total 1153 warnings that FindBugs complains, but they're outside of the scope of this jira.

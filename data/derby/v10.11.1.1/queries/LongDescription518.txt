@@ -1,0 +1,8 @@
+The test jdbcapi/resultset.java gives the following error when run in J2ME/CDC/FP :
+
+Testing nullif(?,DECIMAL(10,5)) with setBoolean
+ERROR XCL12: An attempt was made to put a data value of type 'boolean' into a data value of type 'DECIMAL'.
+
+I found that setValue(boolean) is not implemented in BigIntegerDecimal, which is the class used for DECIMAL in J2ME. This is implemented in SQLDecimal and a similar implementation can be provided in BigIntegerDecimal.
+
+On looking at the setValue methods in these classes, I also found that setValue(Object) is implemented in SQLDecimal but not in BigIntegerDecimal.

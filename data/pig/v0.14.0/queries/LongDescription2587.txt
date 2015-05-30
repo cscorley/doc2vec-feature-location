@@ -1,0 +1,9 @@
+We'd like to be able to uniquely identify a re-executed script (possibly with different inputs/outputs) by creating a signature of the LogicalPlan. Here's the proposal:
+
+
+	Add a new method LogicalPlan.getSignature() that returns a hash of its LogicalPlanPrinter output.
+	In PigServer.execute() set the signature on the job conf after the LP is compiled, but before it's executed.
+
+
+
+(1) would allow an impl of PigProgressNotificationListener.setScriptPlan() to save the LP signature with the script metadata. Upon subsequent runs (2) would allow an impl of PigReducerEstimator (see PIG-2574) to retrieve the current LP signature and fetch the historical data for the script. It could then use the previous run data to better estimate the number of reducers.

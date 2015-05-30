@@ -1,0 +1,38 @@
+In scrollable updatable resultset, a call to rs.isLast() may cause rs.getXXX() return values from the last row, instead of for the current row.  This may be related to the fact that on calls to isLast() the scroll insensitive resultset moves to the last row, and then moves back to the current row (see DERBY-1276 for related information). The call to isLast() seems to have a sideeffect when the resultset is updatable.
+
+I have test which does the following:
+        Statement stmt1 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
+        ResultSet rs = stmt1.executeQuery("select * from testRelative");
+
+        rs.next(); // First Record
+        System.out.println("First record is: " + rs.getString("name"));
+        rs.relative(2); // Third Record        
+        System.out.println("Third record is: " + rs.getString("name"));
+        System.out.println(" isLast=" + rs.isLast());
+        System.out.println("Third record is: " + rs.getString("name"));
+
+The output is:
+First record is: work1
+Third record is: work3
+ isLast=false
+Third record is: work4
+isLast()==false
+
+The issue may also be reproduced by applying the following patch to testRelative:
+
+Index: java/testing/org/apache/derbyTesting/functionTests/tests/jdbcapi/testRelative.java
+===================================================================
+— java/testing/org/apache/derbyTesting/functionTests/tests/jdbcapi/testRelative.java  (revision 399224)
++++ java/testing/org/apache/derbyTesting/functionTests/tests/jdbcapi/testRelative.java  (working copy)
+@@ -60,7 +60,7 @@
+                        pStmt.executeBatch();
+                        con.commit();
+
+
+	stmt1 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
++                       stmt1 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
+                        rs = stmt1.executeQuery("select * from testRelative");
+
+
+
+                        rs.next(); // First Record

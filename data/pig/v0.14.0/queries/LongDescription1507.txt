@@ -1,0 +1,31 @@
+The following script produce wrong result:
+
+test1.dat:
+1
+2
+3
+
+test2.dat:
+1
+2
+
+pig script:
+
+
+a = LOAD 'test1.dat' USING PigStorage() AS (d1:int);
+b = LOAD 'test2.dat' USING PigStorage() AS (d2:int);
+c = JOIN a BY d1 FULL OUTER, b BY d2;
+d = FILTER c BY d2 IS NULL;
+STORE d INTO 'test.out' USING PigStorage();
+
+
+
+expected:
+3
+
+We get:
+1
+2
+3
+
+This is because we erroneously push the filter before full outer join. Similar issue is addressed in PIG-1289, but we only fix left/right outer join.

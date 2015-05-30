@@ -1,0 +1,20 @@
+The following repro shows the problem (provided by Holger Rehn, cf. issue DERBY-5945).
+
+        sta.execute( "create procedure PROC( inout x int ) " + 
+            "parameter style java modifies sql data language java " + 
+            "external name 'DUMMY.PROC'" );
+        sta.execute( "
+{call PROC(1)}
+" );
+
+gives NPE on trunk (even before the fixes introduced for DERBY-5945), but not on 10.9, so I believe it's a regression:
+
+:
+Caused by: java.lang.NullPointerException
+...sql.compile.StaticMethodCallNode.coerceMethodParameter(StaticMethodCallNode.java:702)
+...sql.compile.StaticMethodCallNode.resolveRoutine(StaticMethodCallNode.java:620)
+...sql.compile.StaticMethodCallNode.bindExpression(StaticMethodCallNode.java:210)
+...sql.compile.JavaToSQLValueNode.bindExpression(JavaToSQLValueNode.java:237)
+...sql.compile.CallStatementNode.bindStatement(CallStatementNode.java:126)
+...sql.GenericStatement.prepMinion(GenericStatement.java:400)
+:

@@ -1,0 +1,52 @@
+The following script raises an assertion on the last line. We are failing during the encryption of the password. The assertion prints out the plaintext of the password. I ran the script with the following command line:
+
+java \
+  -Dderby.connection.requireAuthentication=true  \
+  -Dderby.authentication.provider=BUILTIN \
+  -Dderby.user.test_dbo=test_dbopassword \
+  org.apache.derby.tools.ij $SCRIPT
+
+Here is the script:
+
+connect 'jdbc:derby:memory:db;create=true;user=test_dbo;password=test_dbopassword';
+
+call syscs_util.syscs_set_database_property( 'derby.connection.requireAuthentication', 'true' );
+call syscs_util.syscs_set_database_property( 'derby.authentication.provider', 'BUILTIN' );
+
+– shutdown works correctly if you comment out the following two lines
+call syscs_util.syscs_set_database_property( 'derby.user.test_dbo', 'test_dbopassword' );
+call syscs_util.syscs_set_database_property( 'derby.database.propertiesOnly', 'true' );
+
+– fails to authenticate correct credentials
+connect 'jdbc:derby:memory:db;shutdown=true;user=test_dbo;password=test_dbopassword';
+
+Here is the assertion printed on the screen:
+
+ERROR XJ001: Java exception: 'ASSERT FAILED Unknown authentication scheme for token test_dbopassword: org.apache.derby.shared.common.sanity.AssertFailure'.
+
+Here is the stack trace in derby.log:
+
+org.apache.derby.shared.common.sanity.AssertFailure: ASSERT FAILED Unknown authentication scheme for token test_dbopassword
+	at org.apache.derby.shared.common.sanity.SanityManager.THROWASSERT(SanityManager.java:162)
+	at org.apache.derby.shared.common.sanity.SanityManager.THROWASSERT(SanityManager.java:147)
+	at org.apache.derby.impl.jdbc.authentication.BasicAuthenticationServiceImpl.encryptPasswordUsingStoredAlgorithm(BasicAuthenticationServiceImpl.java:282)
+	at org.apache.derby.impl.jdbc.authentication.BasicAuthenticationServiceImpl.authenticateUser(BasicAuthenticationServiceImpl.java:199)
+	at org.apache.derby.impl.jdbc.authentication.AuthenticationServiceBase.authenticate(AuthenticationServiceBase.java:279)
+	at org.apache.derby.impl.jdbc.EmbedConnection.checkUserCredentials(EmbedConnection.java:1220)
+	at org.apache.derby.impl.jdbc.EmbedConnection.<init>(EmbedConnection.java:422)
+	at org.apache.derby.impl.jdbc.EmbedConnection30.<init>(EmbedConnection30.java:73)
+	at org.apache.derby.impl.jdbc.EmbedConnection40.<init>(EmbedConnection40.java:51)
+	at org.apache.derby.jdbc.Driver40.getNewEmbedConnection(Driver40.java:70)
+	at org.apache.derby.jdbc.InternalDriver.connect(InternalDriver.java:255)
+	at org.apache.derby.jdbc.AutoloadedDriver.connect(AutoloadedDriver.java:143)
+	at java.sql.DriverManager.getConnection(DriverManager.java:582)
+	at java.sql.DriverManager.getConnection(DriverManager.java:154)
+	at org.apache.derby.impl.tools.ij.ij.dynamicConnection(ij.java:1528)
+	at org.apache.derby.impl.tools.ij.ij.ConnectStatement(ij.java:1358)
+	at org.apache.derby.impl.tools.ij.ij.ijStatement(ij.java:1143)
+	at org.apache.derby.impl.tools.ij.utilMain.runScriptGuts(utilMain.java:347)
+	at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:245)
+	at org.apache.derby.impl.tools.ij.Main.go(Main.java:229)
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:184)
+	at org.apache.derby.impl.tools.ij.Main.main(Main.java:75)
+	at org.apache.derby.tools.ij.main(ij.java:59)

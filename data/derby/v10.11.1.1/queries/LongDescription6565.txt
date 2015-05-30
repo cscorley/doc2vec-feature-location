@@ -1,0 +1,12 @@
+A NullPointerException is raised with this (possibly illegal?) UPDATE statement:
+
+
+ij version 10.10
+ij> connect 'jdbc:derby:memory:db;create=true';
+ij> create table t(x int);
+0 rows inserted/updated/deleted
+ij> insert into t values 1;
+1 row inserted/updated/deleted
+ij> update t set x = row_number() over ();
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+

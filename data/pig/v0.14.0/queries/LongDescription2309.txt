@@ -1,0 +1,24 @@
+In the below script, the keyword NOT is wrongly interpreted as  UDF. 
+
+register empty.jar;
+a = load 'myinput' as (f1:chararray);
+SPLIT a INTO a1 IF (EMPTY((chararray)f1) ), a2 IF(NOT(EMPTY((chararray)f1)) );
+dump a2;
+
+
+UDF EMPTY
+---------
+import java.io.IOException;
+import org.apache.pig.FilterFunc;
+import org.apache.pig.data.Tuple;
+public class EMPTY extends FilterFunc {
+	    @Override
+	    public Boolean exec(Tuple input) throws IOException 
+{
+	            return new Boolean ( ((String)input.get(0)).isEmpty() );
+	    }
+
+}
+
+This is issue is observed in 0.9 most likely because of the new parser, Pig 0.8 works fine with this script. 
+Would be helpful to know any workarounds in 0.9. 

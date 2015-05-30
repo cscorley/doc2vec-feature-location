@@ -1,0 +1,18 @@
+The following sequence of steps causes a sequence generator to return the same value on successive NEXT VALUE FOR calls.
+
+1) Bring up ij and issue the following commands:
+
+connect 'jdbc:derby:db;create=true';
+
+create sequence s;
+values next value for s; 
+
+2) Control-c out of ij so that the engine comes down hard without an orderly shutdown.
+
+3) Now bring up ij again and issue the following commands:
+
+connect 'jdbc:derby:db';
+
+values next value for s; 
+
+Thanks to Knut for finding this one.

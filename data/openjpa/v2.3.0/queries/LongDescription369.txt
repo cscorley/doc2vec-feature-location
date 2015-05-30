@@ -1,0 +1,43 @@
+On Solaris, its Java runtime AnnotatedElement.isAnnotationPresent() method implementation requires "RuntimePermission accessDeclaredMembers" permission, even though it is not documented.
+
+This requirement does not applied to the JDK on (at least) Win32 and Linux.
+
+-------------------------------------------------------------
+Current Java 2 Security policy reported a potential violation of Java 2 Security Permission. Please refer to InfoCenter for further information.
+
+Permission:
+      accessDeclaredMembers : access denied (java.lang.RuntimePermission accessDeclaredMembers)
+
+Code:
+     suite.r70.base.jpaspec.entity.service.impl.AbstractDatatypeSupportTestEntityService  in  
+{file:/opt/WAS4/profiles/AppSrv01/installedApps/muonNode01Cell/EJB3JPAEntityBeanApp.ear/EJB3JPAEntityBean.jar}
+
+Stack Trace:
+java.security.AccessControlException: access denied (java.lang.RuntimePermission accessDeclaredMembers)
+	at java.security.AccessControlContext.checkPermission(AccessControlContext.java:264)
+	at java.security.AccessController.checkPermission(AccessController.java:427)
+	at java.lang.SecurityManager.checkPermission(SecurityManager.java:532)
+	at com.ibm.ws.security.core.SecurityManager.checkPermission(SecurityManager.java:189)
+	at java.lang.SecurityManager.checkMemberAccess(SecurityManager.java:1662)
+	at java.lang.Class.checkMemberAccess(Class.java:2125)
+	at java.lang.Class.getDeclaredMethods(Class.java:1762)
+	at sun.reflect.annotation.AnnotationType.<init>(AnnotationType.java:81)
+	at sun.reflect.annotation.AnnotationType.getInstance(AnnotationType.java:64)
+	at sun.reflect.annotation.AnnotationParser.parseAnnotation(AnnotationParser.java:202)
+	at sun.reflect.annotation.AnnotationParser.parseAnnotations2(AnnotationParser.java:69)
+	at sun.reflect.annotation.AnnotationParser.parseAnnotations(AnnotationParser.java:52)
+	at java.lang.Class.initAnnotationsIfNecessary(Class.java:3031)
+	at java.lang.Class.getAnnotation(Class.java:2989)
+	at java.lang.Class.isAnnotationPresent(Class.java:3001)
+	at org.apache.openjpa.persistence.AnnotationPersistenceMetaDataParser.parseClassAnnotations(AnnotationPersistenceMetaDataParser.java:466)
+	at org.apache.openjpa.persistence.AnnotationPersistenceMetaDataParser.parse(AnnotationPersistenceMetaDataParser.java:349)
+	at org.apache.openjpa.persistence.PersistenceMetaDataFactory.load(PersistenceMetaDataFactory.java:229)
+	at org.apache.openjpa.meta.MetaDataRepository.getMetaDataInternal(MetaDataRepository.java:470)
+	at org.apache.openjpa.meta.MetaDataRepository.getMetaData(MetaDataRepository.java:290)
+	at org.apache.openjpa.kernel.BrokerImpl.persist(BrokerImpl.java:2371)
+	at org.apache.openjpa.kernel.BrokerImpl.persist(BrokerImpl.java:2224)
+	at org.apache.openjpa.kernel.DelegatingBroker.persist(DelegatingBroker.java:1005)
+	at org.apache.openjpa.persistence.EntityManagerImpl.persist(EntityManagerImpl.java:541)
+	at suite.r70.base.jpaspec.entity.service.impl.AbstractDatatypeSupportTestEntityService.doCreateIDatatypeSupportTestEntity(AbstractDatatypeSupportTestEntityService.java:47)
+
+Albert Lee.

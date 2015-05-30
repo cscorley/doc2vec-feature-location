@@ -1,0 +1,9 @@
+We need to clarify how unknown schema is used in Pig. For every field, if user don't tell us the data type, we use bytearray to denote an unknown type. In the case when we don't even know how many fields, Pig will derive unknown (null) schema.
+
+For example:
+a = load '1.txt' as (a0, b0);
+a: 
+{a0: bytearray,b0: bytearray}
+
+a = load '1.txt';
+a: Schema for a unknown

@@ -1,0 +1,10 @@
+CachedEntityStatistics depends on @GeneratedValue which is not supported in Oracle by default unless special trigger and OracleDictionary setting is implemented.
+
+Otherwise, the following similar exception will be observed.
+
+Caused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: ORA-01400: cannot insert NULL into ("JPAUSER"."CACHEDENTITYSTATISTICS"."ID")
+ 
+{prepstmnt 406657085 INSERT INTO CachedEntityStatistics (firstName, lastName, version) VALUES (?, ?, ?) [params=?, ?, ?]}
+ [code=1400, state=23000]
+
+SInce TestStatistics, the test case uses CachedEntityStatistics, is not testing GeneratedValue per se, will remove the annotation and implement a simple id assignment in CachedEntityStatistics  class.

@@ -1,0 +1,20 @@
+See DERBY-1566. That JIRA introduced a program, written by David, which generates human-readable tables of message strings for inclusion in the Reference Guide. The tool doesn't patch in friendly arguments. That leaves the message strings peppered with unfriendly placeholders like 
+{0}
+. 
+{1}
+, etc.. Laura painstakingly editted the tables, by hand substituting in friendlier arguments like <userName> and <tableName>.
+
+We need to move Laura's substitutions into the source code so that David's program can automatically plug them in. This will save us a lot of grief when we generate future releases. Dan and Andrew have proposed approaches to this problem. Those approaches are discussed in DERBY-1566. Here is Andrew's comment on Dan's proposal:
+
+"While Dan's suggestion here:
+
+http://mail-archives.apache.org/mod_mbox/db-derby-dev/200608.mbox/%3c44F62247.2080500@apache.org%3e
+
+to generate the message file and doc from a single XML file would be ideal, a simpler approach to implement would be to maintain the meanings of the markers in another properties file, identified by message key and marker number. So, e.g. the new properties file would contain:
+
+01500.0=<constraintName>
+01500.1=<tableName>
+
+Then ErrorMessageGenerator could look up the value of the markers by SQLState and MessageFormat marker number in the properties file, although this approach would require maintaining two files instead of one."
+
+I glossed this further: "If we adopt Andrew's approach, I would recommend co-locating the argument descriptiors in the same properties file which contains the messages. This will help keep the argument descriptors from drifting out of sync with the messages themselves--that is a substantial advantage of Dan's approach."

@@ -1,0 +1,16 @@
+Due to a design flaw in the statement cache, a deadlock can occur if a prepared statement becomes out-of-date.
+
+I will illustrate this with the following example:
+
+The application is using the embedded Derby driver. The application has two threads, and each thread uses its own connection.
+
+There is a table named MYTABLE with column MYCOLUMN.
+
+1. A thread prepares and executes the query SELECT MYCOLUMN FROM MYTABLE. The prepared statement is stored in the statement cache (see org.apache.derby.impl.sql.GenericStatement for this logic)
+2. After some time, the prepared statement becomes invalid or out-of-date for some reason (see org.apache.derby.impl.sql.GenericPreparedStatement)
+3. Thread 1 begins a transaction and executes LOCK TABLE MYTABLE IN EXCLUSIVE MODE
+4. Thread 2 begins a transaction and executes SELECT MYCOLUMN FROM MYTABLE. The statement is in the statement cache but it is out-of-date. The thread begins to recompile the statement. To compile the statement, the thread needs a shared lock on MYTABLE. Thread 1 already has an exclusive lock on MYTABLE. Thread 2 waits.
+5. Thread 1 executes SELECT MYCOLUMN FROM MYTABLE. The statement is in the statement cache but it is being compiled. Thread 1 waits on the statement's monitor.
+6. We have a deadlock. Derby eventually detects a lock timeout, but the error message is not descriptive. The stacks at the time of the deadlock are:
+
+This deadlock is unique because it can still occur in a properly designed database. You are only safe if all of your transactions are very simple and cannot be interleaved in a sequence that causes the deadlock, or if your particular statements do not require a table lock to compile. (For the sake of simplicity, I used LOCK TABLE in my example, but any UPDATE statement would fit.)

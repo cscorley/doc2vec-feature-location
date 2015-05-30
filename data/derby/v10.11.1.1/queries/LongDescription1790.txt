@@ -1,0 +1,14 @@
+This database metadata call will not  return SYNONYMS in the schema indicated.
+
+rs = dmd.getTables((String) null, schema, (String) null,
+                new String[] 
+{"SYNONYM"}
+);
+
+Work around is to pass in null as the last argument and then test for each row
+
+"SYNONYM".equals(rs.getString("TABLE_TYPE"))
+
+Due to code in EmbedDatabasemetaData aorund line 1721 that assume the type character in SYS.SYSTABLES.TABLETYPE
+is equal to the first character of the JDBC TABLE_TYPE name. This is true for views and tables, but in the Derby system table
+the character 'S' is used for system tables and 'A' for SYNONYMS. 

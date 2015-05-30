@@ -1,0 +1,5 @@
+API between the network server and engine is not well defined, leading to inconsistent & multiple ways of handling the different objects returned, such as reflection, explicit casting etc. This in turn has lead to bugs such as DERBY-966 . DERBY-1005, and DERBY-1006, and access to underlying objects by the application that should be hidden.
+
+Define interfaces, such as EngineConnection, that both EmbedConnection and BrokeredConnection implement. Thus the network server can rely on the fact that any connection it obtains will implement EngineConnection, and call the required methods through that interface.
+
+Most likely will need EngineConnection, EnginePreparedStatement and EngineResultSet.. These interfaces would be internal to derby and not exposed to applications.

@@ -1,0 +1,3 @@
+The database version detection code assumes the version string always looks like "4.1.3-nt" whereas currently a MySQL on Linux reports itself as "5.1.30". This causes an exception catch and a fallback to default values (in particular supportsXMLColumn stays false). Also, the code could take advantage of JDBC 3 methods that return version numbers.
+
+I will provide a patch.

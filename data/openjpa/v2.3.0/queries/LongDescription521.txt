@@ -1,0 +1,8 @@
+In a use case that has 2 persistence classes - parent and child.  Parent and child is one-many relationship. 
+Parent entity has a collection of children.
+
+When order-by is set for collection of children and data cache is enabled, inserting children, updating children's field value that is used by ordering will cause collection out of order. But data cache doesn't aware this and returned out of order collection.
+
+If data cache is disabled, it always use SQL query with "ORDER BY" applied so collection is returned in correct order.
+
+Test case will be attached.

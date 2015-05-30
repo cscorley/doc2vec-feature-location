@@ -1,0 +1,5 @@
+The output schema will adopt a "schema union" semantics, namely, if an output column only appears in one component table, the result rows will have the values of the column if the rows are from that component table and null otherwise; on the other hand, if an output column appears in multiple component tables, the types of the column in all the component tables must be identical. Otherwise, an exception will be thrown. The result rows will have the values of the column if the rows are from the component tables that have the column themselves, or null if otherwise. 
+
+The order preserving sort-unioned results could be further indexed by the component tables if the projection contains column(s) named "source_table". If so specified, the component table index will be output at the position(s) as specified in the projection list. If the underlying table is not a union of sorted tables, use of the special column name in projection will cause an exception thrown. 
+
+If an attempt is made to create a table of a column named "source_table", an excpetion will be thrown as the name is reserved by zebra for the virtual name. 

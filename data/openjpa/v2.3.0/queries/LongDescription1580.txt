@@ -1,0 +1,11 @@
+Hi again,
+I try to implement a paged resultset using the firstResult and maxResults method of the Query class. It seems that this is not working as expected. 
+
+Here is the relevant part of the logging.
+
+DEBUG,Query,main] Executing query: select s from SimpleEntity s order by s.id
+[DEBUG,SQL,main] <t 2132679615, conn 651497704> executing prepstmnt 558185842 SELECT LIMIT 0 2 t0.id, t0.version, t0.base, t0.street, t0.my_name FROM some_objects t0 ORDER BY t0.id ASC
+[DEBUG,Query,main] Executing query: select s from SimpleEntity s order by s.id
+[DEBUG,SQL,main] <t 2132679615, conn 651497704> executing prepstmnt 2094184728 SELECT LIMIT 0 2 t0.id, t0.version, t0.base, t0.street, t0.my_name FROM some_objects t0 ORDER BY t0.id ASC
+
+Both queries are identical. So my guess is once more the trouble comes from the query cache.

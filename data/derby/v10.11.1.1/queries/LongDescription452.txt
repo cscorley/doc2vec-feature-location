@@ -1,0 +1,25 @@
+Derby import/export tool has to be modified to work in J2ME/Foundation.
+
+I tried running the testcase importExport.java and it fails with following exception:
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Test importExport starting
+testing non-existing data file
+Data file not found: extinout/Z.dat
+testing null data file
+Data file cannot be null. 
+testing empty table
+testing empty table with Delimited format
+testing empty table import Field/Char Delimiters
+PASS: setup complete
+testing import/export with default options
+FAIL: exception thrown:
+ERROR 38000: The exception 'SQL Exception: An attempt was made to get a data value of type 'java.lang.Object' from a data value of type 'DECIMAL'.' was thrown while evaluating an expression.
+ERROR 22005: An attempt was made to get a data value of type 'java.lang.Object' from a data value of type 'DECIMAL'.
+Test importExport finished
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+The exception is thrown because Derby system procedure for export calls getObject() on a DECIMAL type. This is not supported in J2ME/Foundation. Derby Embedded JSR 169 Functional Spec asks to use alternate JDBC getXXX and setXXX methods (like getString and setString) for DECIMAL type. I think the Derby import/export utility can be modified to call getString and setString for DECIMAL type when using J2ME/Foundation.
+
+
+
+

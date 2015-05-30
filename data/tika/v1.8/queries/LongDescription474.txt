@@ -1,0 +1,37 @@
+I was trying some mp3s in tika-app cli coming from Nutch 0.9/1.0 samples and with "A corrupt MP3 file that has been truncated half way through the ID3v2 frames" returned this:
+
+$ java -jar tika-app-0.7.jar -v -m ~/nutch-0.9/src/plugin/parse-mp3/sample/test.mp3
+Exception in thread "main" org.apache.tika.exception.TikaException: TIKA-198: Illegal IOException from org.apache.tika.parser.mp3.Mp3Parser@1bf3d87
+    at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:138)
+    at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:99)
+    at org.apache.tika.cli.TikaCLI.process(TikaCLI.java:169)
+    at org.apache.tika.cli.TikaCLI.main(TikaCLI.java:62)
+Caused by: java.io.IOException: Tried to read 259186 bytes, but only 65526 bytes present
+    at org.apache.tika.parser.mp3.ID3v2Frame.readFully(ID3v2Frame.java:160)
+    at org.apache.tika.parser.mp3.ID3v2Frame.<init>(ID3v2Frame.java:110)
+    at org.apache.tika.parser.mp3.ID3v2Frame.createFrameIfPresent(ID3v2Frame.java:81)
+    at org.apache.tika.parser.mp3.Mp3Parser.getAllTagHandlers(Mp3Parser.java:128)
+    at org.apache.tika.parser.mp3.Mp3Parser.parse(Mp3Parser.java:64)
+    at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:132)
+    ... 3 more
+
+Also tried with the latest trunk from github reproducing the problem:
+
+$ java -jar tika-app-0.8-SNAPSHOT.jar -v -m ~/nutch-0.9/src/plugin/parse-mp3/sample/test.mp3
+Exception in thread "main" org.apache.tika.exception.TikaException: TIKA-198: Illegal IOException from org.apache.tika.parser.mp3.Mp3Parser@e79839
+    at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:169)
+    at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:110)
+    at org.apache.tika.cli.TikaCLI.process(TikaCLI.java:193)
+    at org.apache.tika.cli.TikaCLI.main(TikaCLI.java:72)
+Caused by: java.io.IOException: Tried to read 259186 bytes, but only 65526 bytes present
+    at org.apache.tika.parser.mp3.ID3v2Frame.readFully(ID3v2Frame.java:160)
+    at org.apache.tika.parser.mp3.ID3v2Frame.<init>(ID3v2Frame.java:110)
+    at org.apache.tika.parser.mp3.ID3v2Frame.createFrameIfPresent(ID3v2Frame.java:81)
+    at org.apache.tika.parser.mp3.Mp3Parser.getAllTagHandlers(Mp3Parser.java:133)
+    at org.apache.tika.parser.mp3.Mp3Parser.parse(Mp3Parser.java:64)
+    at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:163)
+    ... 3 more
+
+The mp3 is here: http://github.com/apache/nutch/raw/tags/release-1.0/src/plugin/parse-mp3/sample/test.mp3
+
+All the other mp3 samples were parsed well by Tika.

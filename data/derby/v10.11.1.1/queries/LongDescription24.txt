@@ -1,0 +1,45 @@
+Opening this bug on behalf of Daniel Debrunner.
+
+---------------------------------------------------------------
+After closing a connection Derby generates a connectionErrorOccurred() event on the PooledConnection when a createStatement() call is made against the closed Connection.  
+
+The code gets a Connection from the PooledConnection, creates a 
+Statement, and then closes the Connection.  This causes a 
+connectionClose() event, like it's supposed to.  Then it closes 
+it again, which does not raise an exception (the spec doesn't 
+really say what should happen if you close it twice, so it's 
+hard to claim this is an error...).  A second connectionClose() 
+event is not generated, which is fine.  
+
+The testcase then calls createStatement() again on the closed 
+Connection.  This generates a connectionErrorOccurred() event 
+on the PooledConnection, which seems wrong.  The connection 
+pool code at this point is going to figure that the 
+PooledConnection is bad and needs to be discarded, even though 
+it's fine.  (The second createStatement() call receives a 
+SQLException, which is fine.)
+
+The code which receives the error event has to assume that the 
+event is associated with the current user of the 
+PooledConnection.  When the first Connection.close() occurs, we 
+will move the PooledConnection into the free pool, and then 
+assign it to the next Connection requester.  If the first 
+Connection client erroneously calls createStatement() on their 
+closed Connection facade, the Derby Connection facade 
+generates that error event which refers to the PooledConnection 
+now being used by the second client.  But the code will have to 
+assume that the second Connection client received an 
+unrecoverable error, and that the PooledConnection needs to be 
+closed, when in fact the first connection client has made a 
+programming error.  There's no way for to tell which client 
+caused the error.
+
+The upshot is that any events should be generated after the close event caused by close(), no matter what is done to that closed Connection facade, since the client's not supposed to be using it anymore.
+
+The reference for connection pooling semantics is: 
+http://java.sun.com/products/jdbc/jdbc20.stdext.pdf
+
+It doesn't explicitly say what should happen if an error occurs 
+on a closed Connection, but it seems like the current behavior 
+will confuse the connection pool built on top of 
+PooledConnection.

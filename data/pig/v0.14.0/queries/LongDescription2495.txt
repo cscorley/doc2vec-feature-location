@@ -1,0 +1,167 @@
+To increase performance of my computation, I would like to use a merge join between two tables to increase speed computation but it produces an error.
+
+Here is the script:
+
+start_sessions = LOAD 'hbase://startSession.bea000000.dev.ubithere.com' USING org.apache.pig.backend.hadoop.hbase.HBaseStorage('meta:infoid meta:imei meta:timestamp', '-loadKey') AS (sid:chararray, infoid:chararray, imei:chararray, start:long);
+end_sessions = LOAD 'hbase://endSession.bea000000.dev.ubithere.com' USING org.apache.pig.backend.hadoop.hbase.HBaseStorage('meta:timestamp meta:locid', '-loadKey') AS (sid:chararray, end:long, locid:chararray);
+sessions = JOIN start_sessions BY sid, end_sessions BY sid USING 'merge';
+STORE sessions INTO 'sessionsTest' USING PigStorage ('*');
+
+ 
+
+Here is the result of this script :
+
+2012-01-30 16:12:43,920 [main] INFO  org.apache.pig.Main - Logging error messages to: /root/pig_1327939963919.log
+2012-01-30 16:12:44,025 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to hadoop file system at: hdfs://lxc233:9000
+2012-01-30 16:12:44,102 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to map-reduce job tracker at: lxc233:9001
+2012-01-30 16:12:44,760 [main] INFO  org.apache.pig.tools.pigstats.ScriptState - Pig features used in the script: MERGE_JION
+2012-01-30 16:12:44,923 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler - File concatenation threshold: 100 optimistic? false
+2012-01-30 16:12:44,982 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size before optimization: 2
+2012-01-30 16:12:44,982 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size after optimization: 2
+2012-01-30 16:12:45,001 [main] INFO  org.apache.pig.tools.pigstats.ScriptState - Pig script settings are added to the job
+2012-01-30 16:12:45,006 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - mapred.job.reduce.markreset.buffer.percent is not set, set to default 0.3
+2012-01-30 16:12:45,039 [main] INFO  org.apache.zookeeper.ZooKeeper - Client environment:zookeeper.version=3.3.2-1031432, built on 11/05/2010 05:32 GMT
+2012-01-30 16:12:45,039 [main] INFO  org.apache.zookeeper.ZooKeeper - Client environment:host.name=lxc233.machine.com
+2012-01-30 16:12:45,039 [main] INFO  org.apache.zookeeper.ZooKeeper - Client environment:java.version=1.6.0_22
+2012-01-30 16:12:45,039 [main] INFO  org.apache.zookeeper.ZooKeeper - Client environment:java.vendor=Sun Microsystems Inc.
+2012-01-30 16:12:45,039 [main] INFO  org.apache.zookeeper.ZooKeeper - Client environment:java.home=/usr/lib/jvm/java-6-sun-1.6.0.22/jre
+2012-01-30 16:12:45,039 [main] INFO  org.apache.zookeeper.ZooKeeper - Client environment:java.class.path=/opt/hadoop/conf:/usr/lib/jvm/java-6-sun/jre/lib/tools.jar:/opt/hadoop:/opt/hadoop/hadoop-0.20-append-core.jar:/opt/hadoop/lib/commons-cli-1.2.jar:/opt/hadoop/lib/commons-codec-1.3.jar:/opt/hadoop/lib/commons-el-1.0.jar:/opt/hadoop/lib/commons-httpclient-3.0.1.jar:/opt/hadoop/lib/commons-logging-1.0.4.jar:/opt/hadoop/lib/commons-logging-api-1.0.4.jar:/opt/hadoop/lib/commons-net-1.4.1.jar:/opt/hadoop/lib/core-3.1.1.jar:/opt/hadoop/lib/hadoop-fairscheduler-0.20-append.jar:/opt/hadoop/lib/hadoop-gpl-compression-0.2.0-dev.jar:/opt/hadoop/lib/hadoop-lzo-0.4.14.jar:/opt/hadoop/lib/hsqldb-1.8.0.10.jar:/opt/hadoop/lib/jasper-compiler-5.5.12.jar:/opt/hadoop/lib/jasper-runtime-5.5.12.jar:/opt/hadoop/lib/jets3t-0.6.1.jar:/opt/hadoop/lib/jetty-6.1.14.jar:/opt/hadoop/lib/jetty-util-6.1.14.jar:/opt/hadoop/lib/junit-4.5.jar:/opt/hadoop/lib/kfs-0.2.2.jar:/opt/hadoop/lib/log4j-1.2.15.jar:/opt/hadoop/lib/mockito-all-1.8.2.jar:/opt/hadoop/lib/oro-2.0.8.jar:/opt/hadoop/lib/servlet-api-2.5-6.1.14.jar:/opt/hadoop/lib/slf4j-api-1.4.3.jar:/opt/hadoop/lib/slf4j-log4j12-1.4.3.jar:/opt/hadoop/lib/xmlenc-0.52.jar:/opt/hadoop/lib/jsp-2.1/jsp-2.1.jar:/opt/hadoop/lib/jsp-2.1/jsp-api-2.1.jar:/opt/pig/bin/../conf:/usr/lib/jvm/java-6-sun/jre/lib/tools.jar:/opt/hadoop/lib/commons-codec-1.3.jar:/opt/hbase/lib/guava-r06.jar:/opt/hbase/hbase-0.90.3.jar:/opt/hadoop/lib/log4j-1.2.15.jar:/opt/hadoop/lib/commons-cli-1.2.jar:/opt/hadoop/lib/commons-logging-1.0.4.jar:/opt/pig/pig-withouthadoop.jar:/opt/hadoop/conf_computation:/opt/hbase/conf:/opt/pig/bin/../lib/hadoop-0.20-append-core.jar:/opt/pig/bin/../lib/hadoop-gpl-compression-0.2.0-dev.jar:/opt/pig/bin/../lib/hbase-0.90.3.jar:/opt/pig/bin/../lib/pigudfs.jar:/opt/pig/bin/../lib/zookeeper-3.3.2.jar:/opt/pig/bin/../pig-withouthadoop.jar:
+2012-01-30 16:12:45,039 [main] INFO  org.apache.zookeeper.ZooKeeper - Client environment:java.library.path=/opt/hadoop/lib/native/Linux-amd64-64
+2012-01-30 16:12:45,039 [main] INFO  org.apache.zookeeper.ZooKeeper - Client environment:java.io.tmpdir=/tmp
+2012-01-30 16:12:45,039 [main] INFO  org.apache.zookeeper.ZooKeeper - Client environment:java.compiler=<NA>
+2012-01-30 16:12:45,039 [main] INFO  org.apache.zookeeper.ZooKeeper - Client environment:os.name=Linux
+2012-01-30 16:12:45,039 [main] INFO  org.apache.zookeeper.ZooKeeper - Client environment:os.arch=amd64
+2012-01-30 16:12:45,039 [main] INFO  org.apache.zookeeper.ZooKeeper - Client environment:os.version=2.6.32-5-amd64
+2012-01-30 16:12:45,039 [main] INFO  org.apache.zookeeper.ZooKeeper - Client environment:user.name=root
+2012-01-30 16:12:45,039 [main] INFO  org.apache.zookeeper.ZooKeeper - Client environment:user.home=/root
+2012-01-30 16:12:45,039 [main] INFO  org.apache.zookeeper.ZooKeeper - Client environment:user.dir=/root
+2012-01-30 16:12:45,039 [main] INFO  org.apache.zookeeper.ZooKeeper - Initiating client connection, connectString=lxc233.machine.com:2222,lxc231.machine.com:2222,lxc234.machine.com:2222 sessionTimeout=180000 watcher=hconnection
+2012-01-30 16:12:45,048 [main-SendThread()] INFO  org.apache.zookeeper.ClientCnxn - Opening socket connection to server lxc231.machine.com/192.168.1.231:2222
+2012-01-30 16:12:45,049 [main-SendThread(lxc231.machine.com:2222)] INFO  org.apache.zookeeper.ClientCnxn - Socket connection established to lxc231.machine.com/192.168.1.231:2222, initiating session
+2012-01-30 16:12:45,081 [main-SendThread(lxc231.machine.com:2222)] INFO  org.apache.zookeeper.ClientCnxn - Session establishment complete on server lxc231.machine.com/192.168.1.231:2222, sessionid = 0x134c294771a073f, negotiated timeout = 180000
+2012-01-30 16:12:46,569 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Setting up single store job
+2012-01-30 16:12:46,590 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - 1 map-reduce job(s) waiting for submission.
+2012-01-30 16:12:46,870 [Thread-13] INFO  org.apache.zookeeper.ZooKeeper - Initiating client connection, connectString=lxc233.machine.com:2222,lxc231.machine.com:2222,lxc234.machine.com:2222 sessionTimeout=180000 watcher=hconnection
+2012-01-30 16:12:46,871 [Thread-13-SendThread()] INFO  org.apache.zookeeper.ClientCnxn - Opening socket connection to server lxc233.machine.com/192.168.1.233:2222
+2012-01-30 16:12:46,871 [Thread-13-SendThread(lxc233.machine.com:2222)] INFO  org.apache.zookeeper.ClientCnxn - Socket connection established to lxc233.machine.com/192.168.1.233:2222, initiating session
+2012-01-30 16:12:46,872 [Thread-13-SendThread(lxc233.machine.com:2222)] INFO  org.apache.zookeeper.ClientCnxn - Session establishment complete on server lxc233.machine.com/192.168.1.233:2222, sessionid = 0x2343822449935e1, negotiated timeout = 180000
+2012-01-30 16:12:46,880 [Thread-13] INFO  org.apache.zookeeper.ZooKeeper - Initiating client connection, connectString=lxc233.machine.com:2222,lxc231.machine.com:2222,lxc234.machine.com:2222 sessionTimeout=180000 watcher=hconnection
+2012-01-30 16:12:46,880 [Thread-13-SendThread()] INFO  org.apache.zookeeper.ClientCnxn - Opening socket connection to server lxc233.machine.com/192.168.1.233:2222
+2012-01-30 16:12:46,880 [Thread-13-SendThread(lxc233.machine.com:2222)] INFO  org.apache.zookeeper.ClientCnxn - Socket connection established to lxc233.machine.com/192.168.1.233:2222, initiating session
+2012-01-30 16:12:46,882 [Thread-13-SendThread(lxc233.machine.com:2222)] INFO  org.apache.zookeeper.ClientCnxn - Session establishment complete on server lxc233.machine.com/192.168.1.233:2222, sessionid = 0x2343822449935e2, negotiated timeout = 180000
+2012-01-30 16:12:47,091 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - 0% complete
+2012-01-30 16:12:47,703 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - HadoopJobId: job_201201201546_0890
+2012-01-30 16:12:47,703 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - More information at: http://lxc233:50030/jobdetails.jsp?jobid=job_201201201546_0890
+2012-01-30 16:12:55,723 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - 25% complete
+2012-01-30 16:13:49,312 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - 33% complete
+2012-01-30 16:13:55,322 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - 50% complete
+2012-01-30 16:13:57,327 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - job job_201201201546_0890 has failed! Stop running all dependent jobs
+2012-01-30 16:13:57,327 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - 100% complete
+2012-01-30 16:13:57,337 [main] ERROR org.apache.pig.tools.pigstats.SimplePigStats - ERROR: Could create instance of class org.apache.pig.backend.hadoop.hbase.HBaseStorage$1, while attempting to de-serialize it. (no default constructor ?)
+2012-01-30 16:13:57,337 [main] ERROR org.apache.pig.tools.pigstats.PigStatsUtil - 1 map reduce job(s) failed!
+2012-01-30 16:13:57,338 [main] INFO  org.apache.pig.tools.pigstats.SimplePigStats - Script Statistics: 
+
+HadoopVersion	PigVersion	UserId	StartedAt	FinishedAt	Features
+0.20-append	0.9.2-SNAPSHOT	root	2012-01-30 16:12:44	2012-01-30 16:13:57	MERGE_JION
+
+Failed!
+
+Failed Jobs:
+JobId	Alias	Feature	Message	Outputs
+job_201201201546_0890	end_sessions	INDEXER	Message: Job failed!	
+
+Input(s):
+Failed to read data from "hbase://endSession.bea000000.dev.ubithere.com"
+
+Output(s):
+
+Counters:
+Total records written : 0
+Total bytes written : 0
+Spillable Memory Manager spill count : 0
+Total bags proactively spilled: 0
+Total records proactively spilled: 0
+
+Job DAG:
+job_201201201546_0890	->	null,
+null
+
+
+2012-01-30 16:13:57,338 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - Failed!
+2012-01-30 16:13:57,339 [main] ERROR org.apache.pig.tools.grunt.GruntParser - ERROR 2997: Encountered IOException. Could create instance of class org.apache.pig.backend.hadoop.hbase.HBaseStorage$1, while attempting to de-serialize it. (no default constructor ?)
+Details at logfile: /root/pig_1327939963919.log
+2012-01-30 16:13:57,339 [main] ERROR org.apache.pig.tools.grunt.GruntParser - ERROR 2244: Job failed, hadoop does not return any error message
+Details at logfile: /root/pig_1327939963919.log
+
+ 
+
+And here is the result in the log file :
+
+Backend error message
+---------------------
+java.io.IOException: Could create instance of class org.apache.pig.backend.hadoop.hbase.HBaseStorage$1, while attempting to de-serialize it. (no default constructor ?)
+	at org.apache.pig.data.BinInterSedes.readWritable(BinInterSedes.java:235)
+	at org.apache.pig.data.BinInterSedes.readDatum(BinInterSedes.java:336)
+	at org.apache.pig.data.BinInterSedes.readDatum(BinInterSedes.java:251)
+	at org.apache.pig.data.BinInterSedes.addColsToTuple(BinInterSedes.java:556)
+	at org.apache.pig.data.BinSedesTuple.readFields(BinSedesTuple.java:64)
+	at org.apache.pig.impl.io.PigNullableWritable.readFields(PigNullableWritable.java:114)
+	at org.apache.hadoop.io.serializer.WritableSerialization$WritableDeserializer.deserialize(WritableSerialization.java:67)
+	at org.apache.hadoop.io.serializer.WritableSerialization$WritableDeserializer.deserialize(WritableSerialization.java:40)
+	at org.apache.hadoop.mapreduce.ReduceContext.nextKeyValue(ReduceContext.java:113)
+	at org.apache.hadoop.mapreduce.ReduceContext.nextKey(ReduceContext.java:92)
+	at org.apache.hadoop.mapreduce.Reducer.run(Reducer.java:175)
+	at org.apache.hadoop.mapred.ReduceTask.runNewReducer(ReduceTask.java:566)
+	at org.apache.hadoop.mapred.ReduceTask.run(ReduceTask.java:408)
+	at org.apache.hadoop.mapred.Child.main(Child.java:170)
+Caused by: java.lang.InstantiationException: org.apache.pig.backend.hadoop.hbase.HBaseStorage$1
+	at java.lang.Class.newInstance0(Class.java:340)
+	at java.lang.Class.newInstance(Class.java:308)
+	at org.apache.pig.data.BinInterSedes.readWritable(BinInterSedes.java:231)
+	... 13 more
+
+Pig Stack Trace
+---------------
+ERROR 2997: Encountered IOException. Could create instance of class org.apache.pig.backend.hadoop.hbase.HBaseStorage$1, while attempting to de-serialize it. (no default constructor ?)
+
+java.io.IOException: Could create instance of class org.apache.pig.backend.hadoop.hbase.HBaseStorage$1, while attempting to de-serialize it. (no default constructor ?)
+	at org.apache.pig.data.BinInterSedes.readWritable(BinInterSedes.java:235)
+	at org.apache.pig.data.BinInterSedes.readDatum(BinInterSedes.java:336)
+	at org.apache.pig.data.BinInterSedes.readDatum(BinInterSedes.java:251)
+	at org.apache.pig.data.BinInterSedes.addColsToTuple(BinInterSedes.java:556)
+	at org.apache.pig.data.BinSedesTuple.readFields(BinSedesTuple.java:64)
+	at org.apache.pig.impl.io.PigNullableWritable.readFields(PigNullableWritable.java:114)
+	at org.apache.hadoop.io.serializer.WritableSerialization$WritableDeserializer.deserialize(WritableSerialization.java:67)
+	at org.apache.hadoop.io.serializer.WritableSerialization$WritableDeserializer.deserialize(WritableSerialization.java:40)
+	at org.apache.hadoop.mapreduce.ReduceContext.nextKeyValue(ReduceContext.java:113)
+	at org.apache.hadoop.mapreduce.ReduceContext.nextKey(ReduceContext.java:92)
+	at org.apache.hadoop.mapreduce.Reducer.run(Reducer.java:175)
+	at org.apache.hadoop.mapred.ReduceTask.runNewReducer(ReduceTask.java:566)
+	at org.apache.hadoop.mapred.ReduceTask.run(ReduceTask.java:408)
+	at org.apache.hadoop.mapred.Child.main(Child.java:170)
+Caused by: java.lang.InstantiationException: org.apache.pig.backend.hadoop.hbase.HBaseStorage$1
+	at java.lang.Class.newInstance0(Class.java:340)
+	at java.lang.Class.newInstance(Class.java:308)
+	at org.apache.pig.data.BinInterSedes.readWritable(BinInterSedes.java:231)
+================================================================================
+Pig Stack Trace
+---------------
+ERROR 2244: Job failed, hadoop does not return any error message
+
+org.apache.pig.backend.executionengine.ExecException: ERROR 2244: Job failed, hadoop does not return any error message
+	at org.apache.pig.tools.grunt.GruntParser.executeBatch(GruntParser.java:139)
+	at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:192)
+	at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:164)
+	at org.apache.pig.tools.grunt.Grunt.exec(Grunt.java:81)
+	at org.apache.pig.Main.run(Main.java:561)
+	at org.apache.pig.Main.main(Main.java:111)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:156)
+================================================================================
+
+
+
+The same script without using merge works without any problem.

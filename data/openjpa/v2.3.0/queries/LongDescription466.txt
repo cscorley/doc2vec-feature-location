@@ -1,0 +1,12 @@
+Here's how I annotate the ID:
+    @Id
+    @SequenceGenerator(name = "FooSeq", sequenceName = "seq_foo", allocationSize = 20)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "FooSeq")
+    private Long id;
+
+Here's how I create the (Oracle) sequence:
+CREATE SEQUENCE seq_foo START WITH 1 INCREMENT BY 1;
+
+I get a primary key unique constraint violated in a multithreaded app i.e. it doesn't happen in single-threaded!
+
+You can simply reproduce this error by either create blocking queue or blocking thread pool say size 5 to insert 10000+ object.

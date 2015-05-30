@@ -1,0 +1,53 @@
+When running any of the tests (e.g. 
+  j9 org.apache.derbyTesting.functionTests.harness.RunTest lang/supersimple.sql
+    or
+  j9 [-Dclienthost...-Dserverhost...] junit.textui.TestRunner org.apache.derbyTesting.functionTests.tests.tools._Suite)
+with j9 and derbyrun.jar in the classpath, the tests (most - actually 5 tests out of derbyall will pass) will bail out, and no results will be returned. The stack trace (from RunTest lang/supersimple) is like this:
+------------------------------
+Exception in thread "main" java.lang.NoClassDefFoundError: javax.naming.Referenceable
+        at java.lang.ClassLoader.defineClassImpl(Native Method)
+        at java.lang.ClassLoader.defineClass(ClassLoader.java:226)
+        at java.security.SecureClassLoader.defineClass(SecureClassLoader.java:109)
+        at java.net.URLClassLoader.findClassImpl(URLClassLoader.java:1029)
+        at java.net.URLClassLoader.findInExtensions(URLClassLoader.java:328)
+        at java.net.URLClassLoader.findClassImpl(URLClassLoader.java:1038)
+        at java.net.URLClassLoader$4.run(URLClassLoader.java:549)
+        at java.security.AccessController.doPrivileged(AccessController.java:213)
+        at java.net.URLClassLoader.findClass(URLClassLoader.java:547)
+        at com.ibm.oti.vm.URLSystemClassLoader.findClass(URLSystemClassLoader.java:27)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:606)
+        at com.ibm.oti.vm.URLSystemClassLoader.loadClass(URLSystemClassLoader.java:60)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:563)
+        at java.lang.ClassLoader.defineClassImpl(Native Method)
+        at java.lang.ClassLoader.defineClass(ClassLoader.java:226)
+        at java.security.SecureClassLoader.defineClass(SecureClassLoader.java:109)
+        at java.net.URLClassLoader.findClassImpl(URLClassLoader.java:1029)
+        at java.net.URLClassLoader.findInExtensions(URLClassLoader.java:328)
+        at java.net.URLClassLoader.findClassImpl(URLClassLoader.java:1038)
+        at java.net.URLClassLoader$4.run(URLClassLoader.java:549)
+        at java.security.AccessController.doPrivileged(AccessController.java:213)
+        at java.net.URLClassLoader.findClass(URLClassLoader.java:547)
+        at com.ibm.oti.vm.URLSystemClassLoader.findClass(URLSystemClassLoader.java:27)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:606)
+        at com.ibm.oti.vm.URLSystemClassLoader.loadClass(URLSystemClassLoader.java:60)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:563)
+        at java.lang.Class.forNameImpl(Native Method)
+        at java.lang.Class.forName(Class.java:114)
+        at org.apache.derbyTesting.junit.SecurityManagerSetup.getURL(SecurityManagerSetup.java:318)
+        at org.apache.derbyTesting.junit.SecurityManagerSetup.determineClasspath(SecurityManagerSetup.java:280)
+        at org.apache.derbyTesting.junit.SecurityManagerSetup.<clinit>(SecurityManagerSetup.java:57)
+        at java.lang.J9VMInternals.initializeImpl(Native Method)
+        at java.lang.J9VMInternals.initialize(J9VMInternals.java:177)
+        at org.apache.derbyTesting.functionTests.harness.jvm.getSecurityProps(jvm.java:385)
+        at org.apache.derbyTesting.functionTests.harness.jvm.setSecurityProps(jvm.java:345)
+        at org.apache.derbyTesting.functionTests.harness.RunTest.buildTestCommand(RunTest.java:2350)
+        at org.apache.derbyTesting.functionTests.harness.RunTest.testRun(RunTest.java:498)
+        at org.apache.derbyTesting.functionTests.harness.RunTest.main(RunTest.java:368)
+------------------------
+
+I had been tracking down a similar problem when derbynet.jar is in the classpath, but derbynet.jar should not be in the classpath when running with this jvm, so that was irritating but understandable.
+
+But, to note, I had tracked that (new to me when I first noticed it about a week ago) failure down to probably related to a change in junit.SecurityManagerSetup.java with revision 492822, which changed the error to be caught with derbynet.jar/derbyclient.jar from NoClassDefFoundError to the more logical ClassNotFoundException.
+Possibly this issue was exposed by the same change. 
+
+Not sure what the solution is yet.

@@ -1,0 +1,10 @@
+We recently committed a parser for Matlab .mat files, however I've just downloaded the most recent Tika and am not getting any parsed --text or --metadata for the .mat file used in the unit test.  The steps I've used are below.  Am I missing something at the command line?  Can anyone else successfully get a text or metadata output for a .mat file?
+
+Steps: 
+
+svn co https://svn.apache.org/repos/asf/tika/trunk tika
+setenv MAVEN_OPTS "-Xms128m -Xmx256m"
+cd tika
+mvn install
+
+java -jar tika-app/target/tika-app-1.6-SNAPSHOT.jar --text /Users/IGSWAHWSWBURGESS/Development/tika/tika-parsers/src/test/resources/test-documents/breidamerkurjokull_radar_profiles_2009.mat

@@ -1,0 +1,95 @@
+As production Pig scripts grow longer and longer, Pig Latin has a need to integrate standard programming techniques of separation and code sharing offered by functions and modules.  A proposal of adding macro expansion to Pig Latin is posted here: http://wiki.apache.org/pig/TuringCompletePig
+
+Below is a brief summary of the proposed syntax (and examples):
+
+
+	Macro Definition
+
+
+
+The existing DEFINE keyword will be expanded to allow definitions of Pig macros. 
+
+Syntax
+
+
+
+define <name> (<params>) returns <aliases> {
+    <Pig Latin fragment>
+};
+
+
+
+Example
+
+
+
+define my_macro(A, sortkey) returns C {
+    B = filter $A by my_filter(*);
+    $C = order B by $sortkey;
+}
+
+
+
+
+	Macro Expansion
+
+
+
+Syntax
+
+
+
+<aliases> = <macro name> (<params>);
+
+
+
+Example: Use above macro in a Pig script:
+
+
+
+X = load 'foo' as (user, address, phone);
+Y = my_macro(X, user);
+store Y into 'bar';
+
+
+
+This script is expanded into the following Pig Latin statements: 
+
+
+
+X = load 'foo' as (user, address, phone);
+macro_my_macro_B_1 = filter X by my_filter(*);
+Y = order macro_my_macro_B_1 by user;
+store Y into 'bar';
+
+
+
+Notes
+
+1. Any alias in the macro which isn't visible from outside will be prefixed with macro name and suffixed with instance id to avoid namespace collision. 
+2. Macro expansion is not a complete replacement for function calls. Recursive expansions are not supported.  
+
+
+	Macro Import
+
+
+
+The new IMPORT keyword can be used to add macros defined in another Pig Latin file.
+
+Syntax
+
+
+
+import <Pig Latin file name>;
+
+
+
+Example
+
+
+
+import my_macro.pig;
+
+
+
+Note: All macro names are in the global namespace. 

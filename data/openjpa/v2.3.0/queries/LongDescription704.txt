@@ -1,0 +1,40 @@
+A field f can be added to FetchPlan via
+FetchPlan.addField(String name);
+FetchPlan.addField(Class c, String fieldName);
+
+At runtime, whether the field f is included in a fetch subgraph is verified by its fully-qualified name which considers its declaring class. This limits the following usage as originally reported by Michael Vorburger in [1]
+
+abstract class Base 
+{ String code; }
+
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+class A extends Base 
+{ B b; }
+
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+class B extends Base { }
+
+With the above entity model, there is no existing means to include 
+{A.b, A.b.code}
+ and exclude 
+{A.code}
+ from being fetched using addField() mechanism. Because a plan
+
+fetchPlan.addField(A.class, "b");
+fetchPlan.addField(B.class, "code");
+
+will result in checking for field whose fully-qualified name of 'Base.code' and will not include A.b.code.
+
+Instead if the plan is defined as
+fetchPlan.addField(A.class, "b");
+fetchPlan.addField(Base.class, "code");
+
+The resultant fetch will include  
+{A.code, A.b, A.b.code}
+ i.e. 'code' field from both A and B. 
+
+
+
+
+
+[1] http://n2.nabble.com/Fetch-Group-questions-tc534861.html

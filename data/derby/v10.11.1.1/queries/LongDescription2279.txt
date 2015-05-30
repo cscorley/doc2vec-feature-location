@@ -1,0 +1,10 @@
+When running tests with jdk1.7 I discovered that the test harness used 1.6 master files and tested JDBC4 functionality, but Derby loaded a JDBC3 driver, causing a lot of failures.
+
+The problem is caused by code in engine/org/apache/derby/iapi/services/info/JVMInfo.java that controls what version of JDBC to use, based on the version of java that the jvm is running. A check at the end seems to be intended to make sure that Derby is compatible with future jdk versions, but it is outdated and makes sure that any "unknown" jvm newer than 1.4 uses JDBC3. The check should be changed to make sure that any jvm newer than 1.6 uses JDBC4:
+
+
+	if (Float.valueOf(javaVersion).floatValue() > 1.4f)
+	id = 5;
++                                       if (Float.valueOf(javaVersion).floatValue() > 1.6f)
++                                               id = J2SE_16;
+

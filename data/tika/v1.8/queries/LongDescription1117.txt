@@ -1,0 +1,3 @@
+I am using the Tika parser framework embedded in another application, i.e. I am controlling the output InputStream which is then wrapped as a TikaInputStream and parsed. Under these circumstances, I run into problems due to the IWorkPackageParser closing the InputStream. See org.apache.tika.parser.iwork.IWorkPackageParser.parse(IWorkPackageParser.java:219)
+
+I can avoid this by wrapping my stream in a CloseShieldInputStream, but I suspect this may cause problems more widely. I believe that any Tika Parser implementation should not close the InputStream it is passed, and therefore the .close() call in the IWorkPackageParser should be removed.

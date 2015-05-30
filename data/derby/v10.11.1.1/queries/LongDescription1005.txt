@@ -1,0 +1,14 @@
+Holdability for a connection should automatically become CLOSE_CURSORS_AT_COMMIT for a global transaction.
+For client xa Connection.getHoldability returns OLD_CURSORS_OVER_COMMIT within a global transaction.
+
+This issue was discovered when converting checkDataSource30.java to run with client and related code was disabled for client testing.
+
+To reproduce,  take out if (TestUtil.isEmbeddedFramework())   for this code in jdbcapi/checkDataSource30.java
+
+if (TestUtil.isEmbeddedFramework())
+			{
+				// run only for embedded
+				// Network XA BUG: getHoldability does not return CLOSE_CURSORS_AT_COMMIT for global transaction
+				System.out.println("Notice that connection's holdability at this point is CLOSE_CURSORS_AT_COMMIT because it is part of the global transaction");
+				System.out.println("CONNECTION(in xa transaction) HOLDABILITY " + (conn1.getHoldability() == ResultSet.HOLD_CURSORS_OVER_COMMIT));
+			}

@@ -1,0 +1,15 @@
+Currently, Pig only allow users to register script from file. Although it satisfy most people's requirements, sometimes people hope to build pig script dynamically using code, then they need to create temp file for the script they build. So here I suggest to allow PigServer be able to register pig script from InputStream.
+InputStream is a more general type than File, pig script can been from file (FileInputStream)
+or from in-memory (ByteArrayInputStream) even it can been from remote machines (SocketInputStream)
+Here's a blog which explains why using InputStream is better than using File in interface http://java.dzone.com/articles/using-files-your-interfaces-0
+
+So I suggest to add the following 4 methods in PigServer:
+
+
+
+public void registerScript(InputStream in) throws IOException
+public void registerScript(InputStream in, Map<String,String> params) throws IOException
+public void registerScript(InputStream in, List<String> paramsFiles) throws IOException
+public void registerScript(InputStream in, Map<String,String> params,List<String> paramsFiles) throws IOException 
+
+

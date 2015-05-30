@@ -1,0 +1,34 @@
+Objective is to add more tunable parameters to the PFPGrowth algorithm.
+
+From Neal on Mahout User list:
+
+I often use Christian Borgelt's itemset implementations for playing
+with data.  He's implemented a nice set of switches, see below.
+Setting a minimum support threshold and mimimum itemset size are both
+convenient and tend to make the algorithm run a bit faster.
+
+http://www.borgelt.net/software.html
+
+nealr@nrichter-laptop:~$ fpgrowth_fim
+usage: fpgrowth_fim [options] infile outfile
+find frequent item sets with the fpgrowth algorithm
+version 1.13 (2008.05.02)        (c) 2004-2008   Christian Borgelt
+-m#      minimal number of items per item set (default: 1)
+-n#      maximal number of items per item set (default: no limit)
+-s#      minimal support of an item set (default: 10%)
+        (positive: percentage, negative: absolute number)
+-d#      minimal binary logarithm of support quotient (default: none)
+-p#      output format for the item set support (default: "%.1f")
+-a       print absolute support (number of transactions)
+-g       write output in scanable form (quote certain characters)
+-q#      sort items w.r.t. their frequency (default: -2)
+        (1: ascending, -1: descending, 0: do not sort,
+         2: ascending, -2: descending w.r.t. transaction size sum)
+-u       use alternative tree projection method
+-z       do not prune tree projections to bonsai
+-j       use quicksort to sort the transactions (default: heapsort)
+-i#      ignore records starting with a character in the given string
+-b/f/r#  blank characters, field and record separators
+        (default: " \t\r", " \t", "\n")
+infile   file to read transactions from
+outfile  file to write frequent item se

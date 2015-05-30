@@ -1,0 +1,25 @@
+Zebra does not support concurrent deletions of column groups now.  As a result, the TestDropColumnGroup testcase can sometimes fail due to this.
+In this testcase, multiple threads will be launched together, with each one deleting one particular column group.  The following exception can be thrown (with callstack):
+
+
+/*************************************************************************************************************************/
+... 
+java.io.FileNotFoundException: File /.../pig-trunk/build/contrib/zebra/test/data/DropCGTest/CG02 does not exist.
+  at org.apache.hadoop.fs.RawLocalFileSystem.getFileStatus(RawLocalFileSystem.java:361)
+  at org.apache.hadoop.fs.RawLocalFileSystem.listStatus(RawLocalFileSystem.java:290)
+  at org.apache.hadoop.fs.FileSystem.listStatus(FileSystem.java:716)
+  at org.apache.hadoop.fs.FileSystem.listStatus(FileSystem.java:741)
+  at org.apache.hadoop.fs.ChecksumFileSystem.listStatus(ChecksumFileSystem.java:465)
+  at org.apache.hadoop.zebra.io.BasicTable$SchemaFile.setCGDeletedFlags(BasicTable.java:1610)
+  at org.apache.hadoop.zebra.io.BasicTable$SchemaFile.readSchemaFile(BasicTable.java:1593)
+  at org.apache.hadoop.zebra.io.BasicTable$SchemaFile.<init>(BasicTable.java:1416)
+  at org.apache.hadoop.zebra.io.BasicTable.dropColumnGroup(BasicTable.java:133)
+  at org.apache.hadoop.zebra.io.TestDropColumnGroup$DropThread.run(TestDropColumnGroup.java:772)
+...
+/*************************************************************************************************************************/
+
+We plan to fix this in Zebra to support concurrent deletions of column groups. The root cause is that a thread or process reads in some stale file system information (e.g., it sees /CG0 first) and then can fail later on (it tries to access /CG0, however /CG0 may be deleted by another thread or process).  Therefore, we plan to adopt a retry logic to resolve this issue. More detailed, we allow a dropping column group thread to retry n times when doing its deleting job - n is the total number of column groups. 
+
+Note that here we do NOT try to resolve the more general concurrent column group deletions + reads issue. If a process is reading some data that could be deleted by another process, it can fail as we expect.
+Here we only try to resolve the concurrent column group deletions issue. If you have multiple threads or processes to delete column groups, they should succeed.
+

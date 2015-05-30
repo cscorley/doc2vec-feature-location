@@ -1,0 +1,13 @@
+The jdk7 test job on jenkins is failing intermittently with 
+
+
+java.lang.NullPointerException
+	at org.apache.zookeeper.server.quorum.Zab1_0Test.recursiveDelete(Zab1_0Test.java:917)
+	at org.apache.zookeeper.server.quorum.Zab1_0Test.recursiveDelete(Zab1_0Test.java:918)
+	at org.apache.zookeeper.server.quorum.Zab1_0Test.recursiveDelete(Zab1_0Test.java:918)
+	at org.apache.zookeeper.server.quorum.Zab1_0Test.testPopulatedLeaderConversation(Zab1_0Test.java:419)
+	at org.apache.zookeeper.server.quorum.Zab1_0Test.testUnnecessarySnap(Zab1_0Test.java:483)
+
+
+
+Seems to not be handling the case where the file is deleted out from under. Also the recursive deletes should be at the very end of the finally I would think.

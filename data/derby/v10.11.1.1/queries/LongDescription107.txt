@@ -1,0 +1,23 @@
+BACKGROUND:
+
+Derby has a defined set of SQL statements that are used to return metadata about a given database.  These statements are the basis on which many of the Java methods in the java.sql.DatabaseMetaData class are implemented.  For example, DatabaseMetaData.getColumns() is ultimately mapped to a call to a SQL statement called "getColumns" that is defined in the file: 
+
+java\engine\org\apache\derby\impl\jdbc\metadata.properties 
+
+As can be seen from its definition, this statement returns a result set that agrees with the result set defined for the Java getColumns() method. 
+
+The ODBC equivalent to DatabaseMetaData is a set of ODBC methods that offer similar functionality.  For example, the ODBC equivalent to "DatabaseMetaData.getColumns()" is the ODBC call "SQLColumns()". 
+
+PROBLEM: 
+
+Right now, all metadata SQL statements return result sets that match the Java/JDBC standard, since in the past, Derby has only been used by JDBC drivers.  However, now that Cloudscape/Derby has beta support for ODBC clients (via Network Server; see http://www-106.ibm.com/developerworks/db2/library/techarticle/dm-0409cline2/index.html), and since the expected result sets for ODBC are different in some ways than those for JDBC, Derby metadata calls need to expand to accommodate ODBC clients. 
+
+An example of the need for this change can be found using Microsoft Access: if one tries to do a "table link" or "import" to a Derby database via Network Server (using the DB2 ODBC driver), the attempt will fail with "Reserved Error (-7734); there is no message for this error".  It turns out that the cause of this problem is the metadata result set mentioned above.
+
+PROPOSAL:
+
+What I would like to propose is that we add support in the Derby engine to allow the metadata methods to return result sets in two forms: one that conforms to the JDBC standard (which is what we do currently; that would be the default), and another that conforms to the ODBC standard.  For more info on the latter, see the following link:
+
+http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/odbcsqlcolumns.asp
+
+Metadata calls over Network Server are executed via system procedures that are built-in to Derby-and these system procedures then map to the SQL statements mentioned above.  The procedures already have an "OPTION" parameter that accepts a string parameter, so what I would propose is that we add logic to recognize a "DATATYPE" keyword as part of this stringbasically, if we see the string "DATATYPE='ODBC'" in the OPTION parameter, then the stored procedure would map to a new set of SQL statements in the "metadata.properties" file-and these new statements would return result sets that conform to the ODBC standard.  Otherwise, if "DATATYPE='JDBC'" or else no DATATYPE keyword is specified, the current SQL metadata statements would be used by default.

@@ -1,0 +1,32 @@
+While looking at the optimization code in Derby for some other work I'm doing, I've noticed a couple of small pieces of code that could potentially lead to failures for some queries.  Thus far I have been unable to come up with any examples to demonstrate these problems with the current codeline (hence the term "potential" problems) because the relevant lines of code are hard to exercise-they require large, complex databases and/or some tricky timing scenarios that I have thus far been unable to produce in the context of the test harness.  And in fact, a look at the code coverage results for the pieces of code shows that neither is actually exercised by the current derbyall suite-which I believe is more indicative of how hard it is to exercise the code in question than it is of incomplete/lacking tests.
+
+All of that said, analysis of the relevant code does indeed seem to indicate that some (minor) changes are in order.  In particular, consider the following two potential problems.
+
+1) Potential logic error when determining the best join order for a subquery that has more than one FROM table.
+
+This particular issue is very timing-sensitive.  It will only occur if there is an outer query which has a subquery and the optimization phase of the subquery "times out" in the middle of costing a join order.  The relevant point in the code can be found in OptimizerImpl.java, around line 420:
+
+    if (permuteState != JUMPING)
+    {
+        // By setting firstLookOrder to our target join order
+        // and then setting our permuteState to JUMPING, we'll
+        // jump to the target join order and get the cost.  That
+        // cost will then be saved as bestCost, allowing us to
+        // proceed with normal timeout logic.
+        for (int i = 0; i < numOptimizables; i++)
+            firstLookOrder[i] = bestJoinOrder[i];
+        permuteState = JUMPING;
+
+        // If we were in the middle of a join order when this
+        // happened, then reset the join order before jumping.
+        if (joinPosition > 0)
+            rewindJoinOrder();
+    }
+
+The problem occurs at the last part of this "if" block, with the call to rewind the join order.  The rewindJoinOrder() method will "pull" each optimizable that has an assigned position in the current join order and, for each one, decrement joinPosition--until all optimizables have been pulled and joinPosition has a value of "0".  So far so good.
+
+The trick is that, unlike the other calls to rewindJoinOrder() in OptimizerImpl, this particular call occurs before the joinPosition variable is incremented (it's incremented every time a call to find the "next permutation" is made, until all optimizables (FROM tables) have been assigned a position in the join order).  What this means is that, with the code as it currently stands, the call to rewindJoinOrder() will put joinPosition at 0, but shortly thereafter joinPosition will be incremented to "1".  The subsequent search for a "next permutation" will then try to place an optimizable at position 1 in the join order-but since there would be no optimizable at position 0 (we would have inadvertently skipped over it because of the increment after rewinding), the logic for finding/setting the next optimizable in the join order would break down.  So I think this needs to be addressed-and it should be as simple as setting joinPosition to -1 after the aforementioned call to rewindJoinOrder().  This -1 value is what joinPosition is set to before each round of optimization, so there is a precedent and, I believe, that is the right thing to do.  Once that's done all of the existing logic will work as normal.
+
+2) Potential NullPointerException if optimizer comes up with unreasonably high cost estimates (esp. Double.POSITIVE_INFINITY) and then, at execution time, Derby tries to do a hash join based on such an estimate with a ResultSet that has no rows.
+
+In this case, the code in question is in the constructor logic for BackingStoreHashtable.java.  In cases where the backing hash table receives an unreasonably high cost estimate (a "red flag" estimate as noted in the comments), it's possible that, for cases where the row_source field of the object is null or has no rows (which indicates an empty result set), the hash_table field will end up being null when we reach the end of the constructor.  But if we create a BackingStoreHashtable with a null hash_table, then any calls to the BackingStoreHashtable's methods that expect a valid (non-null) hash_table could fail with an NPE.  Thus there should be some additional logic to ensure that, upon completion of the constructor code, hash_table has been initialized to some appropriate non-null value--namely, an empy hash table if there are no rows to process.

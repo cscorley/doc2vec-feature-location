@@ -1,0 +1,11 @@
+As discovered though TIKA-555, we weren't correctly handling the case of non canonical mimetypes properly
+
+There are three bits to this:
+
+	The default parser as created by TikaConfig.getDefaultConfig() needs the full mime registry passing in automatically, so it can walk the mime tree. Fixed in r1084801
+	The Composite Parser needs to handle child parsers that declare they support an alias rather than the canonical mimetype. Initial fix in r1084798, Jukka has an idea for a cleaner way
+	When Composite Parser looks for a parser for a mime type, it'll need to canonicalise this before checking. (this isn't a problem for the Auto Detect parser, but can be for others)
+
+
+
+We also probably need a couple more unit tests for this, as TIKA-555 had broken auto detect parsing of bmp (though not direct ImageParser), though none of our tests noticed...

@@ -1,0 +1,33 @@
+  NoSuchMethodException:
+  org.apache.openjpa.jdbc.schema.DBCPDriverDataSource.newInstance()
+
+<openjpa-2.2.0-r422266:1244990 nonfatal general error> org.apache.openjpa.persistence.PersistenceException: There were errors initializing your configuration: <openjpa-2.2.0-r422266:1244990 fatal user error> org.apache.openjpa.util.UserException: A connection could not be obtained for driver class "org.postgresql.Driver" and URL "jdbc:postgresql://localhost/foo".  You may have specified an invalid URL.
+        at org.apache.openjpa.jdbc.schema.DataSourceFactory.newConnectException(DataSourceFactory.java:255)
+        at org.apache.openjpa.jdbc.schema.DataSourceFactory.newDataSource(DataSourceFactory.java:123)
+        at org.apache.openjpa.jdbc.conf.JDBCConfigurationImpl.createConnectionFactory(JDBCConfigurationImpl.java:844)
+        at org.apache.openjpa.jdbc.conf.JDBCConfigurationImpl.getConnectionFactory(JDBCConfigurationImpl.java:732)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+        at java.lang.reflect.Method.invoke(Method.java:597)
+        at org.apache.openjpa.lib.conf.ConfigurationImpl.instantiateAll(ConfigurationImpl.java:295)
+        at org.apache.openjpa.conf.OpenJPAConfigurationImpl.instantiateAll(OpenJPAConfigurationImpl.java:1671)
+        at org.apache.openjpa.kernel.AbstractBrokerFactory.makeReadOnly(AbstractBrokerFactory.java:646)
+        at org.apache.openjpa.kernel.AbstractBrokerFactory.newBroker(AbstractBrokerFactory.java:203)
+        at org.apache.openjpa.kernel.DelegatingBrokerFactory.newBroker(DelegatingBrokerFactory.java:156)
+        at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:227)
+        at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:154)
+        at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:60)
+        at org.example.FooServiceTest.before(FooServiceTest.java:24)
+Caused by: org.apache.commons.lang.exception.NestableRuntimeException: An instance of the class "class org.apache.openjpa.jdbc.schema.DBCPDriverDataSource" could not be instantiated.  Make sure the class has a public no-args constructor.
+        at org.apache.openjpa.lib.conf.Configurations.newInstance(Configurations.java:240)
+        at org.apache.openjpa.lib.conf.ObjectValue.newInstance(ObjectValue.java:124)
+        at org.apache.openjpa.lib.conf.PluginValue.instantiate(PluginValue.java:103)
+        at org.apache.openjpa.lib.conf.ObjectValue.instantiate(ObjectValue.java:83)
+        at org.apache.openjpa.jdbc.conf.JDBCConfigurationImpl.newDriverDataSourceInstance(JDBCConfigurationImpl.java:639)
+        at org.apache.openjpa.jdbc.schema.DataSourceFactory.newDataSource(DataSourceFactory.java:89)
+        ... 46 more
+Caused by: java.lang.InstantiationException: java.lang.NoSuchMethodException: org.apache.openjpa.jdbc.schema.DBCPDriverDataSource.newInstance()
+        at org.apache.openjpa.lib.util.J2DoPrivHelper$11.run(J2DoPrivHelper.java:377)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at org.apache.openjpa.lib.conf.Configurations.newInstance(Configurations.java:234)

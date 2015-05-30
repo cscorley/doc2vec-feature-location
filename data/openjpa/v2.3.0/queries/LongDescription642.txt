@@ -1,0 +1,10 @@
+The following alter table statement is rejected:
+
+ALTER TABLE dbo.JPADeptBean 
+    ADD CONSTRAINT FK_EmpBean_mgr FOREIGN KEY (MGR_EMPID) REFERENCES dbo.JPAEmpBean (empid) ON DELETE SET NULL
+
+with com.sybase.jdbc3.jdbc.SybSQLException: Incorrect syntax near the keyword 'ON'.
+
+According to Sybase IQ 12.7, Sybase  only supports foreign key on delete/update restrict.
+
+http://infocenter.sybase.com/help/index.jsp?topic=/com.sybase.dc38151_1270/html/iqref/BABCGFHG.htm

@@ -1,0 +1,9 @@
+I'm trying to configure a process with Hadoop security (Hive metastore server) to talk to ZooKeeper 3.4.2 with Kerberos authentication. In this scenario Hadoop controls the SASL configuration (org.apache.hadoop.security.UserGroupInformation.HadoopConfiguration), instead of setting up the ZooKeeper "Client" loginContext via jaas.conf and system property 
+
+-Djava.security.auth.login.config
+
+Using the Hadoop configuration would work, except that ZooKeeper client code expects the loginContextName to be "Client" while Hadoop security will use  "hadoop-keytab-kerberos". I verified that by changing the name in the debugger the SASL authentication succeeds while otherwise the login configuration cannot be resolved and the connection to ZooKeeper is unauthenticated. 
+
+To integrate with Hadoop, the following in ZooKeeperSaslClient would need to change to make the name configurable:
+
+     login = new Login("Client",new ClientCallbackHandler(null));

@@ -1,0 +1,388 @@
+From time to time SearchSanityTest fails and causes Mahout build to be unstable.
+Here is relevant build output from one such recent build failure (MahoutQuality #2248 on ubuntu4 node):
+
+[INFO] --- maven-surefire-plugin:2.16:test (default-test) @ mahout-core ---
+[INFO] Surefire report directory: /home/jenkins/jenkins-slave/workspace/Mahout-Quality/trunk/core/target/surefire-reports
+
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+Running org.apache.mahout.vectorizer.encoders.InteractionValueEncoderTest
+Running org.apache.mahout.vectorizer.collocations.llr.GramTest
+Running org.apache.mahout.ep.EvolutionaryProcessTest
+Running org.apache.mahout.vectorizer.encoders.ContinuousValueEncoderTest
+Running org.apache.mahout.vectorizer.collocations.llr.GramKeyPartitionerTest
+Running org.apache.mahout.vectorizer.encoders.WordLikeValueEncoderTest
+Running org.apache.mahout.driver.MahoutDriverTest
+Running org.apache.mahout.vectorizer.encoders.ConstantValueEncoderTest
+Running org.apache.mahout.vectorizer.encoders.TextValueEncoderTest
+Running org.apache.mahout.vectorizer.collocations.llr.LLRReducerTest
+Running org.apache.mahout.vectorizer.collocations.llr.CollocReducerTest
+Running org.apache.mahout.vectorizer.collocations.llr.GramKeyGroupComparatorTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.354 sec - in org.apache.mahout.vectorizer.collocations.llr.GramTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.458 sec - in org.apache.mahout.vectorizer.encoders.InteractionValueEncoderTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.387 sec - in org.apache.mahout.vectorizer.collocations.llr.GramKeyPartitionerTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.259 sec - in org.apache.mahout.vectorizer.encoders.ConstantValueEncoderTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.406 sec - in org.apache.mahout.vectorizer.encoders.WordLikeValueEncoderTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.514 sec - in org.apache.mahout.vectorizer.encoders.ContinuousValueEncoderTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.31 sec - in org.apache.mahout.vectorizer.collocations.llr.GramKeyGroupComparatorTest
+Running org.apache.mahout.vectorizer.DictionaryVectorizerTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.693 sec - in org.apache.mahout.vectorizer.collocations.llr.LLRReducerTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.969 sec - in org.apache.mahout.ep.EvolutionaryProcessTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.817 sec - in org.apache.mahout.vectorizer.encoders.TextValueEncoderTest
+Running org.apache.mahout.vectorizer.collocations.llr.CollocMapperTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.792 sec - in org.apache.mahout.vectorizer.collocations.llr.CollocReducerTest
+Running org.apache.mahout.vectorizer.EncodedVectorsFromSequenceFilesTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.155 sec - in org.apache.mahout.driver.MahoutDriverTest
+Running org.apache.mahout.vectorizer.SparseVectorsFromSequenceFilesTest
+Running org.apache.mahout.vectorizer.HighDFWordsPrunerTest
+Running org.apache.mahout.vectorizer.DocumentProcessorTest
+Running org.apache.mahout.vectorizer.collocations.llr.GramKeyTest
+Running org.apache.mahout.math.MatrixWritableTest
+Running org.apache.mahout.math.hadoop.stochasticsvd.SSVDCommonTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.245 sec - in org.apache.mahout.math.MatrixWritableTest
+Running org.apache.mahout.math.hadoop.stochasticsvd.LocalSSVDPCASparseTest
+Running org.apache.mahout.math.hadoop.stochasticsvd.LocalSSVDSolverDenseTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.373 sec - in org.apache.mahout.vectorizer.collocations.llr.GramKeyTest
+Running org.apache.mahout.math.hadoop.stochasticsvd.LocalSSVDSolverSparseSequentialTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.53 sec - in org.apache.mahout.math.hadoop.stochasticsvd.SSVDCommonTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.288 sec - in org.apache.mahout.vectorizer.collocations.llr.CollocMapperTest
+Running org.apache.mahout.math.hadoop.decomposer.TestDistributedLanczosSolverCLI
+Running org.apache.mahout.math.hadoop.solver.TestDistributedConjugateGradientSolverCLI
+Running org.apache.mahout.math.hadoop.similarity.TestVectorDistanceSimilarityJob
+Running org.apache.mahout.math.hadoop.solver.TestDistributedConjugateGradientSolver
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.348 sec - in org.apache.mahout.vectorizer.DocumentProcessorTest
+Running org.apache.mahout.math.hadoop.similarity.cooccurrence.RowSimilarityJobTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.71 sec - in org.apache.mahout.math.hadoop.similarity.TestVectorDistanceSimilarityJob
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 9.791 sec - in org.apache.mahout.vectorizer.EncodedVectorsFromSequenceFilesTest
+Running org.apache.mahout.math.hadoop.similarity.cooccurrence.measures.VectorSimilarityMeasuresTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.207 sec - in org.apache.mahout.math.hadoop.similarity.cooccurrence.measures.VectorSimilarityMeasuresTest
+Running org.apache.mahout.math.hadoop.TestDistributedRowMatrix
+Running org.apache.mahout.math.hadoop.stats.BasicStatsTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 22.183 sec - in org.apache.mahout.math.hadoop.solver.TestDistributedConjugateGradientSolverCLI
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 12.611 sec - in org.apache.mahout.math.hadoop.stats.BasicStatsTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 18.145 sec - in org.apache.mahout.math.hadoop.similarity.cooccurrence.RowSimilarityJobTest
+Running org.apache.mahout.math.ssvd.SequentialOutOfCoreSvdTest
+Running org.apache.mahout.math.VarintTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.077 sec - in org.apache.mahout.math.VarintTest
+Running org.apache.mahout.math.stats.OnlineAucTest
+Running org.apache.mahout.math.stats.SamplerTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.26 sec - in org.apache.mahout.math.stats.SamplerTest
+Running org.apache.mahout.math.VectorWritableTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 23.6 sec - in org.apache.mahout.math.hadoop.solver.TestDistributedConjugateGradientSolver
+Running org.apache.mahout.math.neighborhood.LocalitySensitiveHashSearchTest
+Tests run: 100, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.745 sec - in org.apache.mahout.math.VectorWritableTest
+Running org.apache.mahout.math.neighborhood.SearchQualityTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.42 sec - in org.apache.mahout.math.stats.OnlineAucTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 26.927 sec - in org.apache.mahout.math.hadoop.stochasticsvd.LocalSSVDSolverSparseSequentialTest
+Running org.apache.mahout.math.neighborhood.SearchSanityTest
+Running org.apache.mahout.cf.taste.hadoop.TopItemsQueueTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.134 sec - in org.apache.mahout.cf.taste.hadoop.TopItemsQueueTest
+Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 17.593 sec - in org.apache.mahout.math.hadoop.TestDistributedRowMatrix
+Running org.apache.mahout.cf.taste.hadoop.item.ToUserVectorsReducerTest
+Running org.apache.mahout.cf.taste.hadoop.item.RecommenderJobTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 28.697 sec - in org.apache.mahout.vectorizer.HighDFWordsPrunerTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.377 sec - in org.apache.mahout.cf.taste.hadoop.item.ToUserVectorsReducerTest
+Running org.apache.mahout.cf.taste.hadoop.similarity.item.ItemSimilarityJobTest
+Running org.apache.mahout.cf.taste.hadoop.als.ParallelALSFactorizationJobTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 35.498 sec - in org.apache.mahout.math.hadoop.stochasticsvd.LocalSSVDPCASparseTest
+Running org.apache.mahout.cf.taste.common.CommonTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.138 sec - in org.apache.mahout.cf.taste.common.CommonTest
+Running org.apache.mahout.cf.taste.impl.eval.GenericRecommenderIRStatsEvaluatorImplTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.219 sec - in org.apache.mahout.cf.taste.impl.eval.GenericRecommenderIRStatsEvaluatorImplTest
+Running org.apache.mahout.cf.taste.impl.recommender.RandomRecommenderTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.222 sec - in org.apache.mahout.cf.taste.impl.recommender.RandomRecommenderTest
+Running org.apache.mahout.cf.taste.impl.recommender.ItemUserAverageRecommenderTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.242 sec - in org.apache.mahout.cf.taste.impl.recommender.ItemUserAverageRecommenderTest
+Running org.apache.mahout.cf.taste.impl.recommender.NullRescorerTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.099 sec - in org.apache.mahout.cf.taste.impl.recommender.NullRescorerTest
+Running org.apache.mahout.cf.taste.impl.recommender.svd.FilePersistenceStrategyTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.212 sec - in org.apache.mahout.cf.taste.impl.recommender.svd.FilePersistenceStrategyTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 39.485 sec - in org.apache.mahout.vectorizer.DictionaryVectorizerTest
+Running org.apache.mahout.cf.taste.impl.recommender.svd.SVDRecommenderTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.403 sec - in org.apache.mahout.cf.taste.impl.recommender.svd.SVDRecommenderTest
+Running org.apache.mahout.cf.taste.impl.recommender.svd.ALSWRFactorizerTest
+Running org.apache.mahout.cf.taste.impl.recommender.svd.ParallelSGDFactorizerTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.248 sec - in org.apache.mahout.cf.taste.impl.recommender.svd.ALSWRFactorizerTest
+Running org.apache.mahout.cf.taste.impl.recommender.AllUnknownItemsCandidateItemsStrategyTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.152 sec - in org.apache.mahout.cf.taste.impl.recommender.AllUnknownItemsCandidateItemsStrategyTest
+Running org.apache.mahout.cf.taste.impl.recommender.GenericItemBasedRecommenderTest
+Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.274 sec - in org.apache.mahout.cf.taste.impl.recommender.GenericItemBasedRecommenderTest
+Running org.apache.mahout.cf.taste.impl.recommender.ItemAverageRecommenderTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.346 sec - in org.apache.mahout.cf.taste.impl.recommender.ItemAverageRecommenderTest
+Running org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommenderTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.283 sec - in org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommenderTest
+Running org.apache.mahout.cf.taste.impl.recommender.PreferredItemsNeighborhoodCandidateItemsStrategyTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.227 sec - in org.apache.mahout.cf.taste.impl.recommender.PreferredItemsNeighborhoodCandidateItemsStrategyTest
+Running org.apache.mahout.cf.taste.impl.recommender.SamplingCandidateItemsStrategyTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.198 sec - in org.apache.mahout.cf.taste.impl.recommender.SamplingCandidateItemsStrategyTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 44.107 sec - in org.apache.mahout.math.hadoop.decomposer.TestDistributedLanczosSolverCLI
+Running org.apache.mahout.cf.taste.impl.recommender.CachingRecommenderTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.262 sec - in org.apache.mahout.cf.taste.impl.recommender.CachingRecommenderTest
+Running org.apache.mahout.cf.taste.impl.recommender.TopItemsTest
+Running org.apache.mahout.cf.taste.impl.common.InvertedRunningAverageTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.175 sec - in org.apache.mahout.cf.taste.impl.recommender.TopItemsTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.154 sec - in org.apache.mahout.cf.taste.impl.common.InvertedRunningAverageTest
+Running org.apache.mahout.cf.taste.impl.common.FastByIDMapTest
+Running org.apache.mahout.cf.taste.impl.common.RunningAverageTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.119 sec - in org.apache.mahout.cf.taste.impl.common.RunningAverageTest
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.47 sec - in org.apache.mahout.cf.taste.impl.common.FastByIDMapTest
+Running org.apache.mahout.cf.taste.impl.common.RefreshHelperTest
+Running org.apache.mahout.cf.taste.impl.common.FastIDSetTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.231 sec - in org.apache.mahout.cf.taste.impl.common.RefreshHelperTest
+Running org.apache.mahout.cf.taste.impl.common.RunningAverageAndStdDevTest
+Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.45 sec - in org.apache.mahout.cf.taste.impl.common.FastIDSetTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.233 sec - in org.apache.mahout.cf.taste.impl.common.RunningAverageAndStdDevTest
+Running org.apache.mahout.cf.taste.impl.common.CacheTest
+Running org.apache.mahout.cf.taste.impl.common.BitSetTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.147 sec - in org.apache.mahout.cf.taste.impl.common.BitSetTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 19.359 sec - in org.apache.mahout.cf.taste.hadoop.similarity.item.ItemSimilarityJobTest
+Running org.apache.mahout.cf.taste.impl.common.LongPrimitiveArrayIteratorTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.097 sec - in org.apache.mahout.cf.taste.impl.common.LongPrimitiveArrayIteratorTest
+Running org.apache.mahout.cf.taste.impl.common.WeightedRunningAverageTest
+Running org.apache.mahout.cf.taste.impl.common.FastMapTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.247 sec - in org.apache.mahout.cf.taste.impl.common.WeightedRunningAverageTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.642 sec - in org.apache.mahout.cf.taste.impl.common.CacheTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 49.493 sec - in org.apache.mahout.math.hadoop.stochasticsvd.LocalSSVDSolverDenseTest
+Running org.apache.mahout.cf.taste.impl.common.SamplingLongPrimitiveIteratorTest
+Running org.apache.mahout.cf.taste.impl.similarity.GenericItemSimilarityTest
+Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.812 sec - in org.apache.mahout.cf.taste.impl.common.FastMapTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.447 sec - in org.apache.mahout.cf.taste.impl.similarity.GenericItemSimilarityTest
+Running org.apache.mahout.cf.taste.impl.similarity.LogLikelihoodSimilarityTest
+Running org.apache.mahout.cf.taste.impl.similarity.TanimotoCoefficientSimilarityTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.449 sec - in org.apache.mahout.cf.taste.impl.similarity.LogLikelihoodSimilarityTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.335 sec - in org.apache.mahout.cf.taste.impl.similarity.TanimotoCoefficientSimilarityTest
+Running org.apache.mahout.cf.taste.impl.similarity.AveragingPreferenceInferrerTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.278 sec - in org.apache.mahout.cf.taste.impl.similarity.AveragingPreferenceInferrerTest
+Running org.apache.mahout.cf.taste.impl.similarity.file.FileItemSimilarityTest
+Running org.apache.mahout.cf.taste.impl.similarity.SpearmanCorrelationSimilarityTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.164 sec - in org.apache.mahout.cf.taste.impl.common.SamplingLongPrimitiveIteratorTest
+Running org.apache.mahout.cf.taste.impl.similarity.EuclideanDistanceSimilarityTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.601 sec - in org.apache.mahout.cf.taste.impl.similarity.SpearmanCorrelationSimilarityTest
+Running org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarityTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.628 sec - in org.apache.mahout.cf.taste.impl.similarity.EuclideanDistanceSimilarityTest
+Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.538 sec - in org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarityTest
+Running org.apache.mahout.cf.taste.impl.model.MemoryIDMigratorTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.308 sec - in org.apache.mahout.cf.taste.impl.model.MemoryIDMigratorTest
+Running org.apache.mahout.cf.taste.impl.model.GenericDataModelTest
+Running org.apache.mahout.cf.taste.impl.model.BooleanUserPreferenceArrayTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.257 sec - in org.apache.mahout.cf.taste.impl.model.BooleanUserPreferenceArrayTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.633 sec - in org.apache.mahout.cf.taste.impl.model.GenericDataModelTest
+Running org.apache.mahout.cf.taste.impl.model.BooleanItemPreferenceArrayTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.25 sec - in org.apache.mahout.cf.taste.impl.model.BooleanItemPreferenceArrayTest
+Running org.apache.mahout.cf.taste.impl.model.file.FileIDMigratorTest
+Running org.apache.mahout.cf.taste.impl.model.file.FileDataModelTest
+Running org.apache.mahout.cf.taste.impl.model.PlusAnonymousConcurrentUserDataModelTest
+Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.391 sec - in org.apache.mahout.cf.taste.impl.model.PlusAnonymousConcurrentUserDataModelTest
+Running org.apache.mahout.cf.taste.impl.model.GenericUserPreferenceArrayTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.483 sec - in org.apache.mahout.cf.taste.impl.similarity.file.FileItemSimilarityTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.198 sec - in org.apache.mahout.cf.taste.impl.model.GenericUserPreferenceArrayTest
+Running org.apache.mahout.cf.taste.impl.model.GenericItemPreferenceArrayTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.275 sec - in org.apache.mahout.cf.taste.impl.model.GenericItemPreferenceArrayTest
+Running org.apache.mahout.cf.taste.impl.neighborhood.ThresholdNeighborhoodTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.343 sec - in org.apache.mahout.cf.taste.impl.neighborhood.ThresholdNeighborhoodTest
+Running org.apache.mahout.cf.taste.impl.neighborhood.NearestNNeighborhoodTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.365 sec - in org.apache.mahout.cf.taste.impl.neighborhood.NearestNNeighborhoodTest
+Running org.apache.mahout.common.iterator.CountingIteratorTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.145 sec - in org.apache.mahout.common.iterator.CountingIteratorTest
+Running org.apache.mahout.common.iterator.TestSamplingIterator
+Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.377 sec - in org.apache.mahout.cf.taste.impl.model.file.FileDataModelTest
+Running org.apache.mahout.common.iterator.TestFixedSizeSampler
+Running org.apache.mahout.common.iterator.TestStableFixedSizeSampler
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.331 sec - in org.apache.mahout.common.iterator.TestFixedSizeSampler
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.37 sec - in org.apache.mahout.cf.taste.impl.model.file.FileIDMigratorTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.313 sec - in org.apache.mahout.common.iterator.TestStableFixedSizeSampler
+Running org.apache.mahout.common.AbstractJobTest
+Running org.apache.mahout.common.IntPairWritableTest
+Running org.apache.mahout.common.lucene.AnalyzerUtilsTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.134 sec - in org.apache.mahout.common.IntPairWritableTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.156 sec - in org.apache.mahout.common.lucene.AnalyzerUtilsTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.29 sec - in org.apache.mahout.common.iterator.TestSamplingIterator
+Running org.apache.mahout.common.distance.TestWeightedEuclideanDistanceMeasureTest
+Running org.apache.mahout.common.distance.TestChebyshevMeasure
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.504 sec - in org.apache.mahout.common.AbstractJobTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.397 sec - in org.apache.mahout.common.distance.TestWeightedEuclideanDistanceMeasureTest
+Running org.apache.mahout.common.distance.TestWeightedManhattanDistanceMeasure
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.312 sec - in org.apache.mahout.common.distance.TestChebyshevMeasure
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.293 sec - in org.apache.mahout.common.distance.TestWeightedManhattanDistanceMeasure
+Running org.apache.mahout.common.distance.CosineDistanceMeasureTest
+Running org.apache.mahout.common.distance.TestEuclideanDistanceMeasure
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.229 sec - in org.apache.mahout.common.distance.CosineDistanceMeasureTest
+Running org.apache.mahout.common.distance.TestTanimotoDistanceMeasure
+Running org.apache.mahout.common.distance.TestMinkowskiMeasure
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.507 sec - in org.apache.mahout.common.distance.TestEuclideanDistanceMeasure
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.362 sec - in org.apache.mahout.common.distance.TestTanimotoDistanceMeasure
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.304 sec - in org.apache.mahout.common.distance.TestMinkowskiMeasure
+Running org.apache.mahout.common.distance.TestManhattanDistanceMeasure
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.296 sec - in org.apache.mahout.common.distance.TestManhattanDistanceMeasure
+Running org.apache.mahout.common.StringUtilsTest
+Running org.apache.mahout.common.distance.TestMahalanobisDistanceMeasure
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 39.367 sec - in org.apache.mahout.math.ssvd.SequentialOutOfCoreSvdTest
+Running org.apache.mahout.common.DummyRecordWriterTest
+Tests run: 21, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 34.852 sec - in org.apache.mahout.cf.taste.hadoop.item.RecommenderJobTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.291 sec - in org.apache.mahout.common.distance.TestMahalanobisDistanceMeasure
+Running org.apache.mahout.clustering.iterator.TestClusterClassifier
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.229 sec - in org.apache.mahout.common.DummyRecordWriterTest
+Running org.apache.mahout.clustering.lda.cvb.TestCVBModelTrainer
+Running org.apache.mahout.clustering.spectral.TestAffinityMatrixInputJob
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.919 sec - in org.apache.mahout.common.StringUtilsTest
+Running org.apache.mahout.clustering.spectral.TestVectorMatrixMultiplicationJob
+Running org.apache.mahout.clustering.spectral.TestMatrixDiagonalizeJob
+Running org.apache.mahout.clustering.spectral.TestVectorCache
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.399 sec - in org.apache.mahout.clustering.spectral.TestAffinityMatrixInputJob
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.186 sec - in org.apache.mahout.clustering.spectral.TestVectorMatrixMultiplicationJob
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.697 sec - in org.apache.mahout.clustering.spectral.TestMatrixDiagonalizeJob
+Running org.apache.mahout.clustering.spectral.TestUnitVectorizerJob
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.497 sec - in org.apache.mahout.clustering.spectral.TestVectorCache
+Running org.apache.mahout.clustering.streaming.cluster.StreamingKMeansTest
+Running org.apache.mahout.clustering.streaming.cluster.BallKMeansTest
+Running org.apache.mahout.clustering.TestClusterInterface
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.248 sec - in org.apache.mahout.clustering.TestClusterInterface
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 67.708 sec - in org.apache.mahout.vectorizer.SparseVectorsFromSequenceFilesTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.54 sec - in org.apache.mahout.clustering.spectral.TestUnitVectorizerJob
+Running org.apache.mahout.clustering.fuzzykmeans.TestFuzzyKmeansClustering
+Running org.apache.mahout.clustering.kmeans.TestRandomSeedGenerator
+Running org.apache.mahout.clustering.kmeans.TestEigenSeedGenerator
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.068 sec - in org.apache.mahout.clustering.kmeans.TestEigenSeedGenerator
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.205 sec - in org.apache.mahout.clustering.kmeans.TestRandomSeedGenerator
+Running org.apache.mahout.clustering.topdown.postprocessor.ClusterCountReaderTest
+Running org.apache.mahout.clustering.kmeans.TestKmeansClustering
+Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 10.247 sec - in org.apache.mahout.clustering.iterator.TestClusterClassifier
+Running org.apache.mahout.clustering.topdown.postprocessor.ClusterOutputPostProcessorTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.255 sec - in org.apache.mahout.clustering.topdown.postprocessor.ClusterCountReaderTest
+Running org.apache.mahout.clustering.topdown.PathDirectoryTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.28 sec - in org.apache.mahout.clustering.topdown.PathDirectoryTest
+Running org.apache.mahout.clustering.classify.ClusterClassificationDriverTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.875 sec - in org.apache.mahout.clustering.topdown.postprocessor.ClusterOutputPostProcessorTest
+Running org.apache.mahout.clustering.canopy.TestCanopyCreation
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.983 sec - in org.apache.mahout.clustering.classify.ClusterClassificationDriverTest
+Running org.apache.mahout.clustering.TestGaussianAccumulators
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.793 sec - in org.apache.mahout.clustering.TestGaussianAccumulators
+Running org.apache.mahout.classifier.ConfusionMatrixTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.213 sec - in org.apache.mahout.classifier.ConfusionMatrixTest
+Running org.apache.mahout.classifier.naivebayes.training.IndexInstancesMapperTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.833 sec - in org.apache.mahout.classifier.naivebayes.training.IndexInstancesMapperTest
+Running org.apache.mahout.classifier.naivebayes.training.ThetaMapperTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 15.39 sec - in org.apache.mahout.clustering.canopy.TestCanopyCreation
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.684 sec - in org.apache.mahout.classifier.naivebayes.training.ThetaMapperTest
+Running org.apache.mahout.classifier.naivebayes.training.WeightsMapperTest
+Running org.apache.mahout.classifier.naivebayes.ComplementaryNaiveBayesClassifierTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.239 sec - in org.apache.mahout.classifier.naivebayes.ComplementaryNaiveBayesClassifierTest
+Running org.apache.mahout.classifier.naivebayes.NaiveBayesModelTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.881 sec - in org.apache.mahout.classifier.naivebayes.training.WeightsMapperTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.21 sec - in org.apache.mahout.classifier.naivebayes.NaiveBayesModelTest
+Running org.apache.mahout.classifier.naivebayes.StandardNaiveBayesClassifierTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.215 sec - in org.apache.mahout.classifier.naivebayes.StandardNaiveBayesClassifierTest
+Running org.apache.mahout.classifier.naivebayes.NaiveBayesTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 25.106 sec - in org.apache.mahout.clustering.kmeans.TestKmeansClustering
+Running org.apache.mahout.classifier.sequencelearning.hmm.HMMModelTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.505 sec - in org.apache.mahout.classifier.sequencelearning.hmm.HMMModelTest
+Running org.apache.mahout.classifier.sequencelearning.hmm.HMMEvaluatorTest
+Running org.apache.mahout.classifier.sequencelearning.hmm.HMMUtilsTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.194 sec - in org.apache.mahout.classifier.sequencelearning.hmm.HMMEvaluatorTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.159 sec - in org.apache.mahout.classifier.sequencelearning.hmm.HMMUtilsTest
+Running org.apache.mahout.classifier.sequencelearning.hmm.HMMTrainerTest
+Running org.apache.mahout.classifier.sequencelearning.hmm.HMMAlgorithmsTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.257 sec - in org.apache.mahout.classifier.sequencelearning.hmm.HMMAlgorithmsTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.369 sec - in org.apache.mahout.classifier.sequencelearning.hmm.HMMTrainerTest
+Running org.apache.mahout.classifier.evaluation.AucTest
+Running org.apache.mahout.classifier.df.data.DescriptorUtilsTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.224 sec - in org.apache.mahout.classifier.df.data.DescriptorUtilsTest
+Running org.apache.mahout.classifier.df.data.DataConverterTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.251 sec - in org.apache.mahout.classifier.evaluation.AucTest
+Running org.apache.mahout.classifier.df.data.DataLoaderTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.105 sec - in org.apache.mahout.classifier.df.data.DataConverterTest
+Running org.apache.mahout.classifier.df.data.DatasetTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.143 sec - in org.apache.mahout.classifier.df.data.DatasetTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.615 sec - in org.apache.mahout.classifier.df.data.DataLoaderTest
+Running org.apache.mahout.classifier.df.data.DataTest
+Running org.apache.mahout.classifier.df.tools.VisualizerTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 37.53 sec - in org.apache.mahout.clustering.fuzzykmeans.TestFuzzyKmeansClustering
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 9.357 sec - in org.apache.mahout.classifier.naivebayes.NaiveBayesTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.054 sec - in org.apache.mahout.classifier.df.tools.VisualizerTest
+Running org.apache.mahout.classifier.df.DecisionForestTest
+Running org.apache.mahout.classifier.df.node.NodeTest
+Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.088 sec - in org.apache.mahout.classifier.df.data.DataTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.205 sec - in org.apache.mahout.classifier.df.node.NodeTest
+Running org.apache.mahout.classifier.df.mapreduce.partial.Step1MapperTest
+Running org.apache.mahout.classifier.df.mapreduce.partial.TreeIDTest
+Running org.apache.mahout.classifier.df.mapreduce.partial.PartialBuilderTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.078 sec - in org.apache.mahout.classifier.df.DecisionForestTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.83 sec - in org.apache.mahout.classifier.df.mapreduce.partial.TreeIDTest
+Running org.apache.mahout.classifier.df.mapreduce.inmem.InMemInputFormatTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.536 sec - in org.apache.mahout.classifier.df.mapreduce.partial.Step1MapperTest
+Running org.apache.mahout.classifier.df.mapreduce.inmem.InMemInputSplitTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.152 sec - in org.apache.mahout.classifier.df.mapreduce.inmem.InMemInputSplitTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.719 sec - in org.apache.mahout.classifier.df.mapreduce.inmem.InMemInputFormatTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.641 sec - in org.apache.mahout.classifier.df.mapreduce.partial.PartialBuilderTest
+Running org.apache.mahout.classifier.df.builder.DecisionTreeBuilderTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.217 sec - in org.apache.mahout.classifier.df.builder.DecisionTreeBuilderTest
+Running org.apache.mahout.classifier.df.builder.DefaultTreeBuilderTest
+Running org.apache.mahout.classifier.df.builder.InfiniteRecursionTest
+Running org.apache.mahout.classifier.df.split.RegressionSplitTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.409 sec - in org.apache.mahout.classifier.df.builder.DefaultTreeBuilderTest
+Running org.apache.mahout.classifier.df.split.OptIgSplitTest
+Running org.apache.mahout.classifier.df.split.DefaultIgSplitTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.032 sec - in org.apache.mahout.classifier.df.builder.InfiniteRecursionTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.908 sec - in org.apache.mahout.classifier.df.split.RegressionSplitTest
+Running org.apache.mahout.classifier.sgd.OnlineLogisticRegressionTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.583 sec - in org.apache.mahout.classifier.df.split.OptIgSplitTest
+Running org.apache.mahout.classifier.sgd.CsvRecordFactoryTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.454 sec - in org.apache.mahout.classifier.df.split.DefaultIgSplitTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.495 sec - in org.apache.mahout.classifier.sgd.CsvRecordFactoryTest
+Running org.apache.mahout.classifier.sgd.AdaptiveLogisticRegressionTest
+Running org.apache.mahout.classifier.sgd.GradientMachineTest
+Running org.apache.mahout.classifier.sgd.ModelSerializerTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.484 sec - in org.apache.mahout.classifier.sgd.GradientMachineTest
+Running org.apache.mahout.classifier.sgd.PassiveAggressiveTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.752 sec - in org.apache.mahout.classifier.sgd.PassiveAggressiveTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.418 sec - in org.apache.mahout.classifier.sgd.ModelSerializerTest
+Running org.apache.mahout.classifier.RegressionResultAnalyzerTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.417 sec - in org.apache.mahout.classifier.RegressionResultAnalyzerTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 92.983 sec - in org.apache.mahout.math.neighborhood.LocalitySensitiveHashSearchTest
+Tests run: 18, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 92.341 sec <<< FAILURE! - in org.apache.mahout.math.neighborhood.SearchSanityTest
+testRemoval[2](org.apache.mahout.math.neighborhood.SearchSanityTest)  Time elapsed: 0.185 sec  <<< FAILURE!
+java.lang.AssertionError: Previous second neighbor should be first expected:<0.0> but was:<12.079332354796572>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:743)
+	at org.junit.Assert.assertEquals(Assert.java:494)
+	at org.apache.mahout.math.neighborhood.SearchSanityTest.testRemoval(SearchSanityTest.java:166)
+
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 10.528 sec - in org.apache.mahout.classifier.sgd.AdaptiveLogisticRegressionTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 68.469 sec - in org.apache.mahout.clustering.lda.cvb.TestCVBModelTrainer
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 71.343 sec - in org.apache.mahout.clustering.streaming.cluster.BallKMeansTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 35.635 sec - in org.apache.mahout.classifier.sgd.OnlineLogisticRegressionTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 117.681 sec - in org.apache.mahout.cf.taste.hadoop.als.ParallelALSFactorizationJobTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 92.578 sec - in org.apache.mahout.clustering.streaming.cluster.StreamingKMeansTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 129.494 sec - in org.apache.mahout.cf.taste.impl.recommender.svd.ParallelSGDFactorizerTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 193.786 sec - in org.apache.mahout.math.neighborhood.SearchQualityTest
+
+Results :
+
+Failed tests: 
+  SearchSanityTest.testRemoval:166->Assert.assertEquals:494->Assert.failNotEquals:743->Assert.fail:88 Previous second neighbor should be first expected:<0.0> but was:<12.079332354796572>
+
+Tests run: 734, Failures: 1, Errors: 0, Skipped: 0
+
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary:
+[INFO] 
+[INFO] Mahout Build Tools ................................ SUCCESS [15.971s]
+[INFO] Apache Mahout ..................................... SUCCESS [3.131s]
+[INFO] Mahout Math ....................................... SUCCESS [1:42.383s]
+[INFO] Mahout Core ....................................... FAILURE [3:47.758s]
+[INFO] Mahout Integration ................................ SKIPPED
+[INFO] Mahout Examples ................................... SKIPPED
+[INFO] Mahout Release Package ............................ SKIPPED
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 5:53.176s
+[INFO] Finished at: Tue Sep 17 18:04:27 UTC 2013
+[INFO] Final Memory: 48M/325M
+[INFO] ------------------------------------------------------------------------
+

@@ -1,0 +1,10 @@
+Within the Pig streaming command execution, debug information is printed out to stderr which specified the input file, as well as split information. The function is org.apache.pig.backend.hadoop.streaming.HadoopExecutableManager.writeDebugHeader(). Pig 0.7 outputs null for the split file, and -1 for the split start-offset and split length. Example output:
+
+===== Task Information Header =====
+Command: test.pl (stdin-org.apache.pig.builtin.PigStreaming/stdout-org.apache.pig.builtin.PigStreaming)
+Start time: Mon Oct 25 21:24:45 EDT 2010
+Input-split file: null
+Input-split start-offset: -1
+Input-split length: -1
+
+Within the writeDebugHeader() function, the input file information is obtained by querying for the "map.input.file" configuration variable. This configuration variable was set by the old hadoop m/r api, but not by the 0.20 api, which Pig 0.7 now uses. The new way to get this information is with something like: ((FileSplit) context.getInputSplit).getPath(). See HADOOP-5973.

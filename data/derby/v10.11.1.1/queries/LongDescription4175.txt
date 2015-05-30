@@ -1,0 +1,44 @@
+The test expects REPLICATION_DB_NOT_BOOTED (XRE11), but sees
+REPLICATION_SLAVE_SHUTDOWN_OK (XRE 42):
+
+1) testReplication_Local_StateTest_part1_1(org.apache.derbyTesting.functionTests.tests.replicationTests.ReplicationRun_Local_StateTest_part1_1)junit.framework.AssertionFailedError: jdbc:derby://localhost:4527//export/home/dag/java/sb/tests/derby-3417a-replicationTests.ReplicationSuite-sb4.jars.sane-1.6.0_13-21079/db_slave/wombat;stopSlave=true failed: -1 XRE42 DERBY SQL error: SQLCODE: -1, SQLSTATE: XRE42, SQLERRMC: /export/home/dag/java/sb/tests/derby-3417a-replicationTests.ReplicationSuite-sb4.jars.sane-1.6.0_13-21079/db_slave/wombat^TXRE42
+	at org.apache.derbyTesting.functionTests.tests.replicationTests.ReplicationRun_Local_StateTest_part1_1._testPostStartedMasterAndSlave_StopSlave(ReplicationRun_Local_StateTest_part1_1.java:226)
+	at org.apache.derbyTesting.functionTests.tests.replicationTests.ReplicationRun_Local_StateTest_part1_1.testReplication_Local_StateTest_part1_1(ReplicationRun_Local_StateTest_part1_1.java:130)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:105)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+
+
+I think this is a race condition: when the slave receives a message to
+shut down (this is what happens here when the server is master's
+server is shut down) it takes some time for this to happen, and in the
+meantime a stopSlave on the slave will get
+REPLICATION_SLAVE_SHUTDOWN_OK.
+
+In the code, there is a sleep just ahead of the failing stopSlave to
+avoid this scenario:
+
+        // Take down master - slave connection:
+        killMaster(masterServerHost, masterServerPort);
+        Thread.sleep(5000L); // TEMPORARY to see if slave sees that master is gone!
+
+and I guess on my laptop, the 5 seconds was not enough. I think it
+would be better to accept both states here as acceptable, than make
+the test brittle. If this is a bug - that we sometimes see
+REPLICATION_SLAVE_SHUTDOWN_OK - and it may well be, since ahead of the
+master stop, we would see SLAVE_OPERATION_DENIED_WHILE_CONNECTED
+(XRE41), I think - then this should be logged as a separate issue.
+
+In contrast, I think that if connection to the master is lost, a
+stopSlave on slave would see REPLICATION_SLAVE_SHUTDOWN_OK as the
+normal response.
+
+(edit 2009.04.24 by dagw): It turns out that a similar problem is present in
+ReplicationRun_Local_StateTest_part1_2, but there the symptom is that
+a connect succeeds, but is expected to fail. It does should fail
+eventually if given enough time . The error expected is 08004.C.7 in
+this case (CANNOT_CONNECT_TO_DB_IN_SLAVE_MODE).'

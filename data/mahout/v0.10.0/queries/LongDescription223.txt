@@ -1,0 +1,31 @@
+SparseVector:
+
+
+  @Override
+  public boolean haveSharedCells(Vector other) {
+    if (other instanceof SparseVector) {
+      return other == this;
+    } else {
+      return other.haveSharedCells(this);
+    }
+  }
+
+
+
+DenseVector:
+
+
+  @Override
+  public boolean haveSharedCells(Vector other) {
+    if (other instanceof DenseVector) {
+      return other == this;
+    } else {
+      return other.haveSharedCells(this);
+    }
+  }
+
+
+
+I think the result is self-explanatory.
+
+I'd just check a fix in, but I don't have an svn account yet.  Actually, no I wouldn't because I'm not exactly sure what this method is supposed to do - it's clearly for VectorView instances somehow... but what about Sparse and Dense versions on the same vector (same meaning strictEquivalent() returns true for them)?

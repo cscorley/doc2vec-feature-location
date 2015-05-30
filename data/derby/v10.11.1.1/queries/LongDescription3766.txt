@@ -1,0 +1,88 @@
+The EmbedBlob.setPosition implementation has two performance problems when the
+Blob is represented by a store stream, at least one of them rather significant:
+
+  1) The store stream is reset to position zero for each position request.
+     Data is then read until the requested position has been reached.
+
+  2) 'read' is used instead of 'skip', which causes Derby to miss out on the
+     optimization potential with streams that have a more efficient skip mechanism.
+
+My gut feeling is that once point 1) has been fixed, point 2) will have
+disappeared. Also note that the reason why the unconditional reset approach was
+chosen was because the blob implementation couldn't keep track of the underlying
+streams position. This issue still has to be addressed.
+
+
+Performance degradation
+=======================
+Observations suggest the following approximation can be used to quantify the
+number of bytes that have to be processed on the server. Goes for both the
+embedded and the client driver when using the EmbedBlob.getBytes call.
+    s = size of the blob
+    b = buffer/block size
+    n = s/b      (number of iterations needed to read the whole Blob)
+
+    s + b * n * (n+1) / 2 = number of bytes processed on the server side
+    From now on, I ignore the s.
+
+For a 1 MB Blob when using a buffer of 32 000 bytes, we get:
+   n = 1 * 1'024 * 1'024 / 32'000 ~ 33
+   32'000 * 33 * (33+1) / 2 = 17'952'000 ~ 17 MB
+
+To quickly verify the approximation I summed up the bytes processed by
+EmbedBlob.getBytes(long,int) and EmbedBlob.setPosition(long) with the 64 MB
+Blob used by the repro for DERBY-550 (modified to use 32'000 read buffer):
+
+	approximation: 32'000 * 2097 * (2097+1) / 2 =  70392096000 ~  66 GB
+	Derby byte count                            =  70459204864 ~  66 GB
+	Derby byte count (buffer 33'000, see below) = 136526134864 ~ 127 GB
+
+
+
+I'll explain the biggest number further down.
+As you see, the number of bytes processed is huge. Note that all of the
+gigabytes are just the 64 MB repeated over and over again. Since the actual data
+volume is so small, all the data will be in the caches of Derby and the
+operating system. Note that only 64 MB is actually transferred to the client
+when using the client driver.
+
+Another consequence of processing all this data repeatedly, is the effect it has
+on the page cache. Pages has to be evicted and read back in. The performance hit
+taken by this depends on the page cache size, operating system buffers and other
+database activities on the system.
+
+The explanation for the largest number above, is another performance issue in
+the client driver, related to locators. I'll explain it more detailed in a
+separate Jira issue, but in short the issue causes the stream to be reset even
+more frequently for read buffer sizes over 32'672 bytes.
+
+
+Suggested fix
+=============
+My initial analysis suggests that the problem can be fixed by using the
+functionality provided by PosistionedStoreStream. There are a few complicating
+issues:
+ a) The length encoding bytes must be accounted for properly.
+ b) One must make sure all stream access happens through the
+    PositionedStoreStream, otherwise the position will be incorrect and the
+    wrong data will be returned.
+
+With a prototype fix, the repro duration went down from minutes (7 minutes
+for the 127 GB case) down to between 2 and 4 seconds with a sane build, running
+on localhost.
+
+
+
+Affected versions
+=================
+The code suffering from the performance issues is old, but because it isn't
+used in the same way in all versions some releases are more affected than
+others.
+
+Version     Embedded.getBytes   Client.getXXX
+10.5                X                   X
+10.4.1.3            X                   X
+10.3.3.0            X                   X
+10.2.2.1            X                   _
+10.1.3.1            X                   _
+(X = issue present)

@@ -1,0 +1,3 @@
+Bookie index page steal (LedgerCacheImpl::grabCleanPage) can cause index file to reflect unacknowledged entries (due to flushLedger). Suppose ledger and entry fail to flush due to Bookkeeper server crash, it will cause ledger recovery not able to use the bookie afterward, due to InterleavedStorageLedger::getEntry throws IOException.
+If the ackSet bookies all experience this problem (DC environment), the ledger will not be able to recover.
+The problem here essentially a violation of WAL. One reasonable fix is to track ledger flush progress (either per-ledger entry, or per-topic message). Do not flush index pages which tracks entries whose ledger (log) has not been flushed.

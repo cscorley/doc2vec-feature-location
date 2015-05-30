@@ -1,0 +1,50 @@
+We encountered two times a deadlock inside of derby. It seems that we can't workaround it. The involved two threads are attached, it looks like a classical deadlock:
+
+"Thread-22" daemon prio=6 tid=0x0cdaa400 nid=0x1c0 waiting for monitor entry [0x1317f000..0x1317fd4c]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.finish(Unknown Source)
+
+	waiting to lock <0x052f4d70> (a org.apache.derby.impl.sql.GenericPreparedStatement)
+	at org.apache.derby.impl.sql.execute.BaseActivation.close(Unknown Source)
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.addActivation(Unknown Source)
+	at org.apache.derby.impl.sql.execute.BaseActivation.initFromContext(Unknown Source)
+	at org.apache.derby.impl.services.reflect.LoadedGeneratedClass.newInstance(Unknown Source)
+	at org.apache.derby.impl.services.reflect.ReflectGeneratedClass.newInstance(Unknown Source)
+	at org.apache.derby.impl.sql.GenericActivationHolder.<init>(Unknown Source)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.getActivation(Unknown Source)
+	locked <0x05306f88> (a org.apache.derby.impl.sql.GenericPreparedStatement)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.<init>(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement20.<init>(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement30.<init>(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement40.<init>(Unknown Source)
+	at org.apache.derby.jdbc.Driver40.newEmbedPreparedStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.prepareStatement(Unknown Source)
+	locked <0x047beb00> (a org.apache.derby.impl.jdbc.EmbedConnection40)
+	at org.apache.derby.impl.jdbc.EmbedConnection.prepareStatement(Unknown Source)
+        [custom methods]
+
+
+
+"ThreadPoolThread-SyncScheduler-3-1" prio=2 tid=0x0e620400 nid=0xfec waiting for monitor entry [0x10a7e000..0x10a7fa14]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.finish(Unknown Source)
+
+	waiting to lock <0x05306f88> (a org.apache.derby.impl.sql.GenericPreparedStatement)
+	at org.apache.derby.impl.sql.execute.BaseActivation.close(Unknown Source)
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.addActivation(Unknown Source)
+	at org.apache.derby.impl.sql.execute.BaseActivation.initFromContext(Unknown Source)
+	at org.apache.derby.impl.services.reflect.LoadedGeneratedClass.newInstance(Unknown Source)
+	at org.apache.derby.impl.services.reflect.ReflectGeneratedClass.newInstance(Unknown Source)
+	at org.apache.derby.impl.sql.GenericActivationHolder.<init>(Unknown Source)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.getActivation(Unknown Source)
+	locked <0x052f4d70> (a org.apache.derby.impl.sql.GenericPreparedStatement)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.<init>(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement20.<init>(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement30.<init>(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement40.<init>(Unknown Source)
+	at org.apache.derby.jdbc.Driver40.newEmbedPreparedStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.prepareStatement(Unknown Source)
+	locked <0x04225178> (a org.apache.derby.impl.jdbc.EmbedConnection40)
+	at org.apache.derby.impl.jdbc.EmbedConnection.prepareStatement(Unknown Source)
+        [custom methods]
+

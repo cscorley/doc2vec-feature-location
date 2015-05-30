@@ -1,0 +1,20 @@
+JsonMetadata, used in PigStorage to work with serialized schemas, does not correctly interpret paths like '/foo/bar/
+{1,2,3}
+' and throws an exception:
+
+
+
+Caused by: org.apache.pig.impl.logicalLayer.FrontendException: ERROR 1131: Could not find schema file for file:///foo/bar/{1,2}
+	at org.apache.pig.builtin.JsonMetadata.nullOrException(JsonMetadata.java:217)
+	at org.apache.pig.builtin.JsonMetadata.getSchema(JsonMetadata.java:186)
+	at org.apache.pig.builtin.PigStorage.getSchema(PigStorage.java:438)
+	at org.apache.pig.newplan.logical.relational.LOLoad.getSchemaFromMetaData(LOLoad.java:150)
+	... 17 more
+Caused by: java.io.IOException: Unable to read file:///foo/bar/z/{1,2}
+	at org.apache.pig.builtin.JsonMetadata.findMetaFile(JsonMetadata.java:106)
+	at org.apache.pig.builtin.JsonMetadata.getSchema(JsonMetadata.java:183)
+	... 19 more
+Caused by: java.net.URISyntaxException: Illegal character in path at index 36: file:///foo/bar/{1,2}
+	at java.net.URI$Parser.fail(URI.java:2809)
+	at java.net.URI$Parser.checkChars(URI.java:2982)
+

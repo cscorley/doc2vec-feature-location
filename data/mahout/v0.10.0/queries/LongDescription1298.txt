@@ -1,0 +1,7 @@
+these matrices lack optimized transpose and rely onto AbstractMatrix's O(mn) implementation which is not cool for very sparse subblocks. 
+
+proposal is to implement a custom transpose with two things in mind: 
+
+1) transpose result to row sparse matrix should be col sparse matrix, and vice versa (and not from default like() as default implementation would take);
+
+2) obviously, iterate only thru non-zero elements only of all rows(columns).

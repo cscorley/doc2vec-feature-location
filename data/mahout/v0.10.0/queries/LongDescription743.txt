@@ -1,0 +1,3 @@
+The RandomUtils package has a trick for running unit tests repeatably. All random generators created with RandomUtils.getRandom() are started with seed 0. Unfortunately, all random generators started with RandomUtils.getRandom(seed) effectively run from a seed of 0. Thus, code which deliberately creates Random objects with seeds does not work correctly under unit tests.
+
+The problem is that the logic in RandomWrapper tests for unit test mode and settable seed mode in the wrong order.

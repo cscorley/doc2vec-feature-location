@@ -1,0 +1,46 @@
+As in:
+http://people.apache.org/~myrnavl/derby_test_results/main/windows/testSummary-1362330.html
+
+All J2ME tests fail to start with the exception below loading the .derbynet._Suite.
+The root cause  java.lang.UnsupportedClassVersionError: JVMCFRE003 bad major version for class=org/apache/derby/drda/NetworkServerControl, offset=6
+
+The derbynet tests do not need to run with J2ME but I think the tests need to be changed to not load derbynet._Suite at all now that network server compiles with the higher version.
+
+
+Failed to invoke class org.apache.derbyTesting.functionTests.tests.derbynet._Suite
+java.lang.reflect.InvocationTargetException
+	at java.lang.reflect.AccessibleObject.invokeL(AccessibleObject.java:205)
+	at java.lang.reflect.Method.invoke(Method.java:252)
+	at org.apache.derbyTesting.functionTests.suites.AllPackages.invokeSuite(AllPackages.java:176)
+	at org.apache.derbyTesting.functionTests.suites.AllPackages.suite(AllPackages.java:63)
+	at org.apache.derbyTesting.functionTests.suites.All.suite(All.java:51)
+	at java.lang.reflect.AccessibleObject.invokeL(AccessibleObject.java:203)
+	at java.lang.reflect.Method.invoke(Method.java:252)
+	at junit.runner.BaseTestRunner.getTest(BaseTestRunner.java:126)
+	at junit.textui.TestRunner.start(TestRunner.java:184)
+	at junit.textui.TestRunner.main(TestRunner.java:143)
+Caused by: java.lang.UnsupportedClassVersionError: JVMCFRE003 bad major version; class=org/apache/derby/drda/NetworkServerControl, offset=6
+	at java.lang.ClassLoader.defineClassImpl(Native Method)
+	at java.lang.ClassLoader.defineClass(ClassLoader.java:239)
+	at java.security.SecureClassLoader.defineClass(SecureClassLoader.java:109)
+	at java.net.URLClassLoader.findClassImpl(URLClassLoader.java:1073)
+	at java.net.URLClassLoader.findClassImpl(URLClassLoader.java:1078)
+	at java.net.URLClassLoader$LoadContext.run(URLClassLoader.java:570)
+	at java.security.AccessController.doPrivileged(AccessController.java:227)
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:586)
+	at com.ibm.oti.vm.URLSystemClassLoader.findClass(URLSystemClassLoader.java:26)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:641)
+	at com.ibm.oti.vm.URLAppClassLoader.loadClass(URLAppClassLoader.java:146)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:607)
+	at java.lang.Class.forNameImpl(Native Method)
+	at java.lang.Class.forName(Class.java:127)
+	at org.apache.derbyTesting.junit.SecurityManagerSetup.getURL(SecurityManagerSetup.java:427)
+	at org.apache.derbyTesting.junit.Derby.hasCorrectJar(Derby.java:97)
+	at org.apache.derbyTesting.junit.Derby.hasServer(Derby.java:60)
+	at org.apache.derbyTesting.functionTests.tests.derbynet.NetworkServerControlApiTest.suite(NetworkServerControlApiTest.java:315)
+	at org.apache.derbyTesting.functionTests.tests.derbynet._Suite.suite(_Suite.java:49)
+	at java.lang.reflect.AccessibleObject.invokeL(AccessibleObject.java:203)
+	... 9 more
+Failed to invoke suite():java.lang.reflect.InvocationTargetException
+
+I marked critical as it blocks all J2ME tests

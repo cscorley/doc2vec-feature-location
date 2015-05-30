@@ -1,0 +1,3 @@
+In doing some testing I have found that there is a valid use case where one would want to use the query results cache (openjpa.QueryCache), but not the DataCache. I'm using this JIRA to remove the dependency between these two caches.
+
+The gist of this change is that the QueryCache will now talk with the StoreContext to see if the results of a cached query are contained in the L1 cache OR by any of the DelegatingStoreManager's cache. The default JDBCStoreManager and the XMLStoreManager both do not have any concept of a cache and will always not have any cached results.

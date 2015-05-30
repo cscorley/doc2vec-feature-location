@@ -1,0 +1,17 @@
+grunt> l = load 'students.txt' ;
+grunt> f = filter l by 1 == 2;
+grunt> o = order f by $0 ;
+grunt> dump o;
+
+This results in 3 MR jobs . The 2nd (sampling) MR creates empty sample file, and 3rd MR (order-by) fails with following error in Map job -
+
+java.lang.RuntimeException: java.lang.RuntimeException: Empty samples file
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.partitioners.WeightedRangePartitioner.configure(WeightedRangePartitioner.java:104)
+	at org.apache.hadoop.util.ReflectionUtils.setConf(ReflectionUtils.java:58)
+	at org.apache.hadoop.util.ReflectionUtils.newInstance(ReflectionUtils.java:82)
+	at org.apache.hadoop.mapred.MapTask$MapOutputBuffer.(MapTask.java:348)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:193)
+	at org.apache.hadoop.mapred.TaskTracker$Child.main(TaskTracker.java:2207)
+Caused by: java.lang.RuntimeException: Empty samples file
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.partitioners.WeightedRangePartitioner.configure(WeightedRangePartitioner.java:89)
+	... 5 more

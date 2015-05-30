@@ -1,0 +1,32 @@
+Our user was observing incorrect outputs depending on if the query had intermediate output or not.  Below is a simplified testcase I came up with.
+
+
+knoguchi pig> cat test.txt
+9,1,ignored
+9,1,ignored
+9,1,ignored
+knoguchi pig> cat bz-6590644/test.pig
+A = load 'test.txt' using PigStorage(',') as (a1:int, a2:int, a3:chararray);
+B = foreach A generate a1,a2;
+SPLIT B into C1 if a2 == 1, D1 otherwise;
+C2 = foreach C1 generate a2;
+store C2 into '/tmp/testC';
+store D1 into '/tmp/testD';
+knoguchi@nameother-lm pig>
+
+
+
+Incorrect output shown below.  /tmp/testD should be empty but somehow has data in it.
+
+
+knoguchi@nameother-lm pig> cat /tmp/testC/part-m-00000
+1
+1
+1
+knoguchi pig> cat /tmp/testD/part-m-00000
+9       1
+9       1
+9       1
+knoguchi pig>
+
+

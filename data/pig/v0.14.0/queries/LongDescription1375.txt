@@ -1,0 +1,13 @@
+In Zebra, we already have multiple outputs support for map/reduce.  But we do not support this feature if users use Zebra through Pig.
+
+This jira is to address this issue. We plan to support writing to multiple output tables through Pig as well.
+
+We propose to support the following Pig store statements with multiple outputs:
+
+store relation into 'loc1,loc2,loc3....' using org.apache.hadoop.zebra.pig.TableStorer('storagehint_string',
+'complete name of your custom partition class', 'some arguments to partition class'); /* if certain partition class arguments is needed */
+
+store relation into 'loc1,loc2,loc3....' using org.apache.hadoop.zebra.pig.TableStorer('storagehint_string',
+'complete name of your custom partition class'); /* if no partition class arguments is needed */
+
+Note that users need to specify up to three arguments - storage hint string, complete name of partition class and partition class arguments string.

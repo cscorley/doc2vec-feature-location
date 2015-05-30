@@ -1,0 +1,16 @@
+
+
+A = load 'i3.txt' as (k,v);
+L = FILTER A BY k == 'k1';
+B = GROUP A BY k PARTITION BY SimpleCustomPartitioner PARALLEL 3;
+C = FOREACH B GENERATE FLATTEN(A) PARALLEL 3;
+STORE C INTO 'output1';
+STORE L INTO 'output2';
+
+
+
+For the above script the custom partitioner mentioned in the GROUP BY statement is ignored by Pig.
+To workaround this issue I had to disable Multiquery or put exec statements in between.
+
+The configuration is getting missed out while the Physical plan is getting converted into the MR plan.
+(Note the POGlobalRearrange is visited on a different MROper than what the actual MRPlan returns)

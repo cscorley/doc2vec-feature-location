@@ -1,0 +1,143 @@
+In checkDataSource there is a case where a statement is created outside a global transaction,
+the global transaction is started and ended  and then the statement reused.  In this case with client we can an error 
+ java.sql.SQLException: 'Statement' already closed.  I will exclude this case and reference this bug number in the 
+test
+
+Note:  The server side error indicates the error occurs on session close, but I don't understand how the session is getting closed in this case.  Also the test comments say a new underlying connection is created after xa_end, but I don't know what that means with regard to the statement prepared before the global transaction started.
+
+
+The code:
+
+PreparedStatement psParams = cs1.prepareStatement("select * from ru where i > ?");
+		psParams.setCursorName("params");
+		psParams.setInt(1, 2);
+		resultSetQuery("Params-local-1", psParams.executeQuery());
+
+		sruBatch.addBatch("insert into ru values 4");
+		queryOnStatement("sru1-local-1", cs1, sru1);
+		cs1.commit(); // need to commit to switch to an global connection;
+		xid = new cdsXid(1, (byte) 103, (byte) 119);
+		xar.start(xid, XAResource.TMNOFLAGS); // simple case - underlying connection is re-used for global.
+		System.out.println("Expecting exception because global transaction sru1-global-2 is trying to use a statement with holdability true");
+		queryOnStatement("sru1-global-2", cs1, sru1);
+		sruBatch.addBatch("insert into ru values 5");
+		Statement sru2 = cs1.createStatement();
+		sru2.setCursorName("OAK2");
+		queryOnStatement("sru2-global-3", cs1, sru2);
+		System.out.println("Expecting exception because global transaction sru1-global-4 is trying to use a statement with holdability true");
+		queryOnStatement("sru1-global-4", cs1, sru1);
+		showStatementState("GLOBAL ", sruState);
+		showStatementState("PS GLOBAL ", psruState);
+		showStatementState("CS GLOBAL ", csruState);
+		try 
+{
+			resultSetQuery("Params-global-1", psParams.executeQuery());
+			System.out.println("FAIL: should have gotten exception because holdability is true on prepared statement and that is not allowed in global transactions");
+		}
+ catch (SQLException ex) 
+{
+			System.out.println("PASS: got exception because holdability is true on prepared statement and that is not allowed in global transactions");
+			System.out.println(ex.getMessage());
+		}
+
+		xar.end(xid, XAResource.TMSUCCESS);
+		// now a new underlying connection is created
+		queryOnStatement("sru1-local-5", cs1, sru1);
+		queryOnStatement("sru2-local-6", cs1, sru2);
+		sruBatch.addBatch("insert into ru values 6,7");
+		Statement sru3 = cs1.createStatement();
+		sru3.setCursorName("SF3");
+		queryOnStatement("sru3-local-7", cs1, sru3);
+		// Two transactions should hold locks (global and the current XA);
+		showStatementState("LOCAL ", sruState);
+		showStatementState("PS LOCAL ", psruState);
+		showStatementState("CS LOCAL ", csruState);
+		resultSetQuery("Params-local-2", psParams.executeQuery());    /// this is the line that failes with Statement alread closed.
+
+		checkLocks(cs1);
+		cs1.commit();
+
+The client error:
+  getMaxRows() 85
+java.sql.SQLException: 'Statement' already closed.
+	at org.apache.derby.client.am.SqlException.getSQLException(SqlException.java:285)
+	at org.apache.derby.client.am.PreparedStatement.executeQuery(PreparedStatement.java:301)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.checkDataSource.runTest(checkDataSource.java:514)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.checkDataSource.main(checkDataSource.java:133)
+Caused by: org.apache.derby.client.am.SqlException: 'Statement' already closed.
+	at org.apache.derby.client.am.Statement.completeSqlca(Statement.java:1612)
+	at org.apache.derby.client.am.Statement.completeOpenQuery(Statement.java:1283)
+	at org.apache.derby.client.net.NetStatementReply.parseOpenQueryFailure(NetStatementReply.java:506)
+	at org.apache.derby.client.net.NetStatementReply.parseOPNQRYreply(NetStatementReply.java:229)
+	at org.apache.derby.client.net.NetStatementReply.readOpenQuery(NetStatementReply.java:59)
+	at org.apache.derby.client.net.StatementReply.readOpenQuery(StatementReply.java:49)
+	at org.apache.derby.client.net.NetStatement.readOpenQuery_(NetStatement.java:151)
+	at org.apache.derby.client.am.Statement.readOpenQuery(Statement.java:1279)
+	at org.apache.derby.client.am.PreparedStatement.flowExecute(PreparedStatement.java:1685)
+	at org.apache.derby.client.am.PreparedStatement.executeQueryX(PreparedStatement.java:307)
+	at org.apache.derby.client.am.PreparedStatement.executeQuery(PreparedStatement.java:292)
+	... 2 more
+java.sql.SQLException: 'Statement' already closed.
+	at org.apache.derby.client.am.SqlException.getSQLException(SqlException.java:285)
+	at org.apache.derby.client.am.PreparedStatement.executeQuery(PreparedStatement.java:301)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.checkDataSource.runTest(checkDataSource.java:514)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.checkDataSource.main(checkDataSource.java:133)
+Caused by: org.apache.derby.client.am.SqlException: 'Statement' already closed.
+	at org.apache.derby.client.am.Statement.completeSqlca(Statement.java:1612)
+	at org.apache.derby.client.am.Statement.completeOpenQuery(Statement.java:1283)
+	at org.apache.derby.client.net.NetStatementReply.parseOpenQueryFailure(NetStatementReply.java:506)
+	at org.apache.derby.client.net.NetStatementReply.parseOPNQRYreply(NetStatementReply.java:229)
+	at org.apache.derby.client.net.NetStatementReply.readOpenQuery(NetStatementReply.java:59)
+	at org.apache.derby.client.net.StatementReply.readOpenQuery(StatementReply.java:49)
+	at org.apache.derby.client.net.NetStatement.readOpenQuery_(NetStatement.java:151)
+	at org.apache.derby.client.am.Statement.readOpenQuery(Statement.java:1279)
+	at org.apache.derby.client.am.PreparedStatement.flowExecute(PreparedStatement.java:1685)
+	at org.apache.derby.client.am.PreparedStatement.executeQueryX(PreparedStatement.java:307)
+	at org.apache.derby.client.am.PreparedStatement.executeQuery(PreparedStatement.java:292)
+	... 2 more
+Exception in thread "main" 
+
+
+The Server error in the derby.log
+'Statement' already closed.
+
+SQL Exception: 'Statement' already closed.
+
+	at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Util.java:80)
+
+	at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Util.java:87)
+
+	at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Util.java:166)
+
+	at org.apache.derby.impl.jdbc.EmbedConnection.newSQLException(EmbedConnection.java:1919)
+
+	at org.apache.derby.impl.jdbc.ConnectionChild.newSQLException(ConnectionChild.java:163)
+
+	at org.apache.derby.impl.jdbc.EmbedStatement.checkStatus(EmbedStatement.java:1247)
+
+	at org.apache.derby.impl.jdbc.EmbedStatement.getFetchDirection(EmbedStatement.java:741)
+
+	at org.apache.derby.iapi.jdbc.BrokeredStatement.setStatementState(BrokeredStatement.java:506)
+
+	at org.apache.derby.iapi.jdbc.BrokeredPreparedStatement30.createDuplicateStatement(BrokeredPreparedStatement30.java:68)
+
+	at org.apache.derby.jdbc.XAStatementControl.getRealPreparedStatement(XAStatementControl.java:127)
+
+	at org.apache.derby.iapi.jdbc.BrokeredPreparedStatement.getPreparedStatement(BrokeredPreparedStatement.java:502)
+
+	at org.apache.derby.iapi.jdbc.BrokeredPreparedStatement.getStatement(BrokeredPreparedStatement.java:509)
+
+	at org.apache.derby.iapi.jdbc.BrokeredStatement.close(BrokeredStatement.java:130)
+
+	at org.apache.derby.impl.drda.DRDAStatement.close(DRDAStatement.java:959)
+
+	at org.apache.derby.impl.drda.Database.close(Database.java:301)
+
+	at org.apache.derby.impl.drda.Session.close(Session.java:110)
+
+	at org.apache.derby.impl.drda.DRDAConnThread.closeSession(DRDAConnThread.java:7106)
+
+	at org.apache.derby.impl.drda.DRDAConnThread.run(DRDAConnThread.java:251)
+
+Apache Derby Network Server - 10.2.0.0 alpha shutdown at 2006-02-24 12:44:49.278 GMT
+

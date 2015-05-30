@@ -1,0 +1,18 @@
+We've observed two errors in the RDF implementation, one of which stops it from working on Hadoop 2 (at least I think it is Hadoop 2 only), and one of which just makes the workload quite imbalanced.
+
+A key piece of logic in PartialBuilder.java queries mapred.map.tasks to know the total number of mappers. However this has never been guaranteed to be set to the number of mappers; it is how a caller sets a default number of mappers, which may be overridden by Hadoop, and which defaults to 1. 
+
+I suspect that this may have actually been set, in some or all cases, to the number of mappers in Hadoop 1, but I am not sure. Certainly, sometimes it will happen to be set to a value that equals the number of mappers used.
+
+But when it doesn't it causes the distribution of trees to mappers to be quite wrong. For example, with 20 trees and 8 mappers in one example, I find that mapred.map.tasks=1. Logging messages indicate that mapper 0 handles all trees (0-19), mapper 1 handles non-existent 20-39, etc.
+
+The result is that most mappers do nothing and one does everything. This results in empty part-m-xxxxx files. And, that in turn fails the job. (This part I also suspect is new, or situation-specific, behavior in Hadoop 2. In any event, this code should never have idle mappers and fixing that avoids whatever is going on there.)
+
+There's a second less serious issue in how trees are assigned to mappers. When the number of trees is not a multiple of the number of mappers, the remainer is assigned entirely to mapper 0. So with 20 trees and 8 mappers, all mappers build 2 trees, but mapper 0 builds 6. This is unnecessarily imbalanced.
+
+Patch coming once I can verify the fix, but current proposal is to:
+
+
+	Compute the number of maps ahead of time using TextInputFormat and set mapred.map.tasks
+	Fix the method that computes trees per mapper to spread as evenly as possible (i.e. all mappers build either N or N+1 trees)
+

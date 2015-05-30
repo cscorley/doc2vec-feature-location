@@ -1,0 +1,15 @@
+Geronimo testing (currently on 2.1.0) has turned up the following problem:
+
+java.lang.IllegalStateException: localized message key: meta-field-not-param; substitutions: [class com.foo.Baz_, serialVersionUID, long]
+       at org.apache.openjpa.persistence.meta.MetamodelImpl.getParameterziedType(MetamodelImpl.java:341)
+       at org.apache.openjpa.persistence.meta.MetamodelImpl.populate(MetamodelImpl.java:310)
+       at org.apache.openjpa.persistence.meta.MetamodelImpl.instantiate(MetamodelImpl.java:257)
+       at org.apache.openjpa.persistence.meta.MetamodelImpl.find(MetamodelImpl.java:226)
+       at org.apache.openjpa.persistence.meta.MetamodelImpl.<init>(MetamodelImpl.java:91)
+       at org.apache.openjpa.persistence.EntityManagerFactoryImpl.getMetamodel(EntityManagerFactoryImpl.java:346)
+       at org.apache.openjpa.persistence.EntityManagerFactoryImpl.getCriteriaBuilder(EntityManagerFactoryImpl.java:333)
+       at org.apache.openjpa.persistence.EntityManagerImpl.getCriteriaBuilder(EntityManagerImpl.java:1638)
+       at org.apache.openjpa.persistence.EntityManagerImpl.getCriteriaBuilder(EntityManagerImpl.java:101)
+       at com.foo.Test.query(Test.java:xxx)
+
+serialVersionUID is a synthetic field added by new Aries Proxy/Weaving code. I'm pretty confident that their weaving is the cause of this error. Is it possible to ignore synthetic method? Or can you provide some additional information about the cause of this exception?

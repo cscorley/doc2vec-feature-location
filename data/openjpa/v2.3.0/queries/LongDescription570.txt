@@ -1,0 +1,46 @@
+Even when unique @NamedQuery is defined in application, the following misleading warning message (sample) is posted in the log:
+
+    openjpa.MetaData - Found duplicate query "getEmployeeOrdered" in "class employee.list.Employee".  Ignoring.
+
+This message should only be used when duplicated @NamedQuery definitions are found.
+
+The reason this message is posted is because the same entity is being "parsed" twice, once from:
+
+	AnnotationPersistenceMappingParser(AnnotationPersistenceMetaDataParser).parseNamedQueries(AnnotatedElement, NamedQuery...) line: 1571	
+	AnnotationPersistenceMappingParser(AnnotationPersistenceMetaDataParser).parseClassAnnotations() line: 547	
+	AnnotationPersistenceMappingParser(AnnotationPersistenceMetaDataParser).parse(Class) line: 352	
+	PersistenceMappingFactory(PersistenceMetaDataFactory).load(Class, int, ClassLoader) line: 229	
+	MappingRepository(MetaDataRepository).getQueryMetaDataInternal(Class, String, ClassLoader) line: 1664	
+	MappingRepository(MetaDataRepository).getQueryMetaData(Class, String, ClassLoader, boolean) line: 1603	
+	EntityManagerImpl.createNamedQuery(String) line: 97	
+	EntityManagerImpl.createNamedQuery(String) line: 37	
+
+and subsequently from:
+
+	AnnotationPersistenceMappingParser(AnnotationPersistenceMetaDataParser).parseNamedQueries(AnnotatedElement, NamedQuery...) line: 1571	
+	AnnotationPersistenceMappingParser(AnnotationPersistenceMetaDataParser).parseClassAnnotations() line: 547	
+	AnnotationPersistenceMappingParser(AnnotationPersistenceMetaDataParser).parse(Class) line: 352	
+	PersistenceMappingFactory(PersistenceMetaDataFactory).load(Class, int, ClassLoader) line: 229	
+	MappingRepository(MetaDataRepository).getMetaDataInternal(Class, ClassLoader) line: 475	
+	MappingRepository(MetaDataRepository).getMetaData(Class, ClassLoader, boolean) line: 295	
+	MappingRepository(MetaDataRepository).getMetaData(String, ClassLoader, boolean) line: 364	
+	QueryImpl.classForName(String, String[]) line: 1563	
+	ExpressionStoreQuery$1.classForName(String, String[]) line: 108	
+	JPQLExpressionBuilder.getClassMetaData(String, boolean) line: 168	
+	JPQLExpressionBuilder.resolveClassMetaData(JPQLExpressionBuilder$JPQLNode) line: 139	
+	JPQLExpressionBuilder.getCandidateMetaData(JPQLExpressionBuilder$JPQLNode) line: 225	
+	JPQLExpressionBuilder.getCandidateMetaData() line: 195	
+	JPQLExpressionBuilder.getCandidateType() line: 188	
+	JPQLExpressionBuilder.access$600(JPQLExpressionBuilder) line: 69	
+	JPQLExpressionBuilder$ParsedJPQL.populate(ExpressionStoreQuery) line: 1749	
+	JPQLParser.populate(Object, ExpressionStoreQuery) line: 56	
+	JDBCStoreQuery(ExpressionStoreQuery).populateFromCompilation(Object) line: 153	
+	QueryImpl.newCompilation() line: 657	
+	QueryImpl.compilationFromCache() line: 638	
+	QueryImpl.compileForCompilation() line: 604	
+	QueryImpl.compileForExecutor() line: 666	
+	QueryImpl.compile() line: 573	
+	EntityManagerImpl.createNamedQuery(String) line: 105	
+	EntityManagerImpl.createNamedQuery(String) line: 37	
+
+Albert Lee.

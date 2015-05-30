@@ -1,0 +1,3 @@
+If a network cable between the master and slave is unplugged (or a switch crashes etc), ObjectInputStream#readObject will not get an exception. Neither the socket nor the input stream can be queried for information on whether or not the connection is working. AFAIK, the only way to find out if the network is down is to send a message.
+
+The slave commands stopSlave and failover are rejected if the network connection is working. To be absolutely sure that the connection is working, we need to ping the master when these commands are requested.

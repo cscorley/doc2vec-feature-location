@@ -1,0 +1,23 @@
+When you query a number field
+locally, it can return null. However, when you go through a shard if
+you have an empty number it throws an error. 
+
+I found wrapping the BinaryResponseWrite with a try/catch solved the
+problem and allows null values to be returned.
+
+BinaryResponseWriter.java:141
+        try 
+{
+          val = useFieldObjects ? ft.toObject(f) : ft.toExternal(f);
+        }
+ catch (NumberFormatException e) 
+{
+        val = null;
+        }
+
+It seems only the BinaryResponseWriter is actually that fussy about
+null items. Once it comes back to the client for display, it is
+handled without error. 
+
+Hoss suggested this should be fixed for 1.3 but now that it has shipped I have marked it as 1.3.1 (
+See: http://www.nabble.com/best-way-to-debug-shard-format-errors-td19087854.html)

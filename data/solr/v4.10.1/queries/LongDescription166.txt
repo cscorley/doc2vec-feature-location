@@ -1,0 +1,5 @@
+The current trunk requires the solr.solr.home property to be set - even if JNDI is configured properly.  
+
+I think this is because SolrServlet loads before SolrDispatchFilter and calls SolrCore.getSolrCore();
+
+is there a way to make sure SolrDispatchFilter gets initalized first?

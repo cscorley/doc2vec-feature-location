@@ -1,0 +1,8 @@
+The generation clause is allowed to have a call to the ROW_NUMBER function. But it fails when a new row is inserted. It should be disallowed in CREATE TABLE and ALTER TABLE ADD COLUMN.
+
+
+ij> create table t (x int generated always as (row_number() over ()));
+0 rows inserted/updated/deleted
+ij> insert into t values default;
+ERROR XJ001: Java exception: 'ASSERT FAILED cannot get interface without operand: org.apache.derby.shared.common.sanity.AssertFailure'.
+

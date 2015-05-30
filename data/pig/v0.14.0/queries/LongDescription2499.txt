@@ -1,0 +1,11 @@
+The following code fails from time to time (with a NPE since fileReader.readLine() returns null) :
+
+
+            strCmd = "sh bash -c 'touch TouchedFileInsideGrunt_61 | ls | grep TouchedFileInsideGrunt_61 > fileContainingTouchedFileInsideGruntShell_71'";
+            cmd = new ByteArrayInputStream(strCmd.getBytes());
+            reader = new InputStreamReader(cmd);
+            grunt = new Grunt(new BufferedReader(reader), context);
+            grunt.exec();
+            fileReader = new BufferedReader(new FileReader("fileContainingTouchedFileInsideGruntShell_71"));
+            assertTrue(fileReader.readLine().equals("TouchedFileInsideGrunt_61"));
+

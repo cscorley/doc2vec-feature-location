@@ -1,0 +1,15 @@
+1. o.a.z.q.Vote is a struct-style class, whose fields are public and not final. 
+
+In general, we should prefer making the fields of these kind of classes final, and hiding them behind getters for the following reasons:
+
+
+	Marking them as final allows clients of the class not to worry about any synchronisation when accessing the fields
+	Hiding them behind getters allows us to change the implementation of the class without changing the API.
+
+
+
+Object creation is very cheap. It's ok to create new Votes rather than mutate existing ones. 
+
+2. Votes are mainly used in the LeaderElection class. In this class a map of addresses to votes is passed in to countVotes, which modifies the map contents inside an iterator (and therefore changes the object passed in by reference). This is pretty gross, so at the same time I've slightly refactored this method to return information about the number of validVotes in the ElectionResult class, which is returned by countVotes. 
+
+3. The previous implementation of countVotes was quadratic in the number of votes. It is possible to do this linearly. No real speed-up is expected as a result, but it salves the CS OCD in me 

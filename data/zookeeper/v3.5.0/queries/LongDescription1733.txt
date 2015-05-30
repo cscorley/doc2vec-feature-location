@@ -1,0 +1,27 @@
+FLETest#testLE fail intermittently on windows boxes. The reason is that in LEThread#run() we have:
+
+
+                                if(leader == i){
+                                    synchronized(finalObj){
+                                        successCount++;
+                                        if(successCount > (count/2)) finalObj.notify();
+                                    }
+
+                                    break;
+                                }
+
+
+
+Basically once we have a confirmed leader, the leader thread dies due to the "break" of while loop. 
+
+While in the verification step, we check if the leader thread alive or not as following:
+
+
+       if(threads.get((int) leader).isAlive()){
+           Assert.fail("Leader hasn't joined: " + leader);
+       }
+
+
+On windows boxes, the above verification step fails frequently because leader thread most likely already exits.
+
+Do we know why we have the leader alive verification step only lead thread can bump up successCount >= count/2?

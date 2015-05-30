@@ -1,0 +1,11 @@
+The following exception occured in the bookie statistics logic due to the System time changes. In our bookie cluster its running a periodic syncup scripts just to unify the SystemTime in all the machines. This is causing the problem and resulting ArrayIndexOutOfBoundException.
+
+
+Exception in thread "BookieJournal-3181" java.lang.ArrayIndexOutOfBoundsException: -423
+at org.apache.bookkeeper.proto.BKStats$OpStats.updateLatency(BKStats.java:126)
+at org.apache.bookkeeper.proto.BookieServer.writeComplete(BookieServer.java:655)
+at org.apache.bookkeeper.bookie.Journal.run(Journal.java:507)
+
+
+
+This jira is raised to discuss whether to use System.nanoTime() instead of System.currentTimeMillis()

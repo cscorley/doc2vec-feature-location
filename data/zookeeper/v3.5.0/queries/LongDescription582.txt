@@ -1,0 +1,9 @@
+when zookeeper starts up it will restore the most recent state (latest zxid) it finds in the data directory. unfortunately, in the quorum version of zookeeper updates are logged using an epoch based on the latest log file in a directory. if there is a snapshot with a higher epoch than the log files, the zookeeper server will start logging using an epoch one higher than the highest log file.
+
+so if a data directory has a snapshot with an epoch of 27 and there are no log files, zookeeper will start logging changes using epoch 1. if the cluster restarts the state will be restored from the snapshot with the epoch of 27, which in effect, restores old data.
+
+normal operation of zookeeper will never result in this situation.
+
+this does not effect standalone zookeeper.
+
+a fix should make sure to use an epoch one higher than the current state, whether it comes from the snapshot or log, and should include a sanity check to make sure that a follower never connects to a leader that has a lower epoch than its own.

@@ -1,0 +1,29 @@
+       In Mahout-Kmeans for syntheticcontrol example, using the default parameters means to compute 6 clusters at last. But why there are 12 clusters during Kmeans iterations. According to my observation, the former 6 clusters and the latter 6 clusters are the same before the first iteration,those 6 clusters are generatored by RandomSeedGenerator.java. Then the CIMapper will assign its own points to this 12 clusters. Is here existing logical errors?
+       The 12 clusters are created by the function "setup" in CIMapper.java, more specifically, is the line "classifier.readFromSeqFiles(conf, new Path(priorClustersPath));", here the "priorClustersPath" means hdfs direction "output/clusters-0/", there are 8 files in this direction: "_policy","part-randomSeed"(one file record six cluster),"part-00000" to "part-00005"(total six files,every one record a cluster), while reading this direction, "_policy" will be filtered out, so program will read "part-00000" to "part-00005" to create six clusters, then read "part-randomSeed" to create the other six clusters, this is the reason why there will be 12 clusters before first iteration.
+      Solution: delete associated code to avoid duplicately creating clusters in "output/clusters-0/", here i delete codes where create files: "part-00000" to "part-00005" in ClusterClassfier.java:
+  public void writeToSeqFiles(Path path) throws IOException {
+    writePolicy(policy, path);
+    /*
+    Configuration config = new Configuration();
+    FileSystem fs = FileSystem.get(path.toUri(), config);
+    SequenceFile.Writer writer = null;
+    ClusterWritable cw = new ClusterWritable();
+    for (int i = 0; i < models.size(); i++) {
+      try 
+{
+        Cluster cluster = models.get(i);
+        cw.setValue(cluster);
+        writer = new SequenceFile.Writer(fs, config,
+            new Path(path, "part-" + String.format(Locale.ENGLISH, "%05d", i)), IntWritable.class,
+            ClusterWritable.class);
+        Writable key = new IntWritable(i);
+        writer.append(key, cw);
+      }
+ finally 
+{
+        Closeables.closeQuietly(writer);
+      }
+    }
+    */
+  }
+    I don't know if it is still okay for other progams who using this file, but for KMeans in Syntheticcontrol example, program will create 6 clusters during every iterations as i expected.

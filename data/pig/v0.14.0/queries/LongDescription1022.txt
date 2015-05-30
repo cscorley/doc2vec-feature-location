@@ -1,0 +1,8 @@
+grunt> l = load 'students.txt' using PigStorage() as (name:chararray, gender:chararray, age:chararray, score:chararray);
+grunt> f = foreach l generate name, gender, age,score, '200'  as gid:chararray;
+grunt> g = group f by (name, gid);
+grunt> f2 = foreach g generate group.name as name: chararray, group.gid as gid: chararray;
+grunt> filt = filter f2 by gid == '200';
+grunt> explain filt;
+
+In the plan generated filt is pushed up after the load and before the first foreach, even though the filter is on gid which is generated in first foreach.

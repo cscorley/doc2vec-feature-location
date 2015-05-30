@@ -1,0 +1,44 @@
+On the derby-user list,  Chris reported tihs problem with his application and also a repro for the problem.  I am logging the jira issue so it doesnt get lost in all the mail.  (http://www.mail-archive.com/derby-user@db.apache.org/msg01258.html)
+
+-----from chris's post---------
+I'm running a set of ~50000 queries on one table, using inserts and updates, and i want to be able to roll them back so i turned off autocommit using setAutoCommit(false).  As the update runs, the memory used by the JVM increases continually until i get the following exception about 20% of the way through:
+
+ERROR 40XT0: An internal error was identified by RawStore module.
+   at org.apache.derby.iapi.error.StandardException.newException(StandardException.java)
+   at org.apache.derby.impl.store.raw.xact.Xact.setActiveState(Xact.java)
+   at org.apache.derby.impl.store.raw.xact.Xact.openContainer(Xact.java)
+   at org.apache.derby.impl.store.access.conglomerate.OpenConglomerate.init(OpenConglomerate.java)
+   at org.apache.derby.impl.store.access.heap.Heap.open(Heap.java)
+   at org.apache.derby.impl.store.access.RAMTransaction.openConglomerate(RAMTransaction.java)
+   at org.apache.derby.impl.store.access.RAMTransaction.openConglomerate(RAMTransaction.java)
+   at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.getDescriptorViaIndex(DataDictionaryImpl.java)
+   at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.locateSchemaRow(DataDictionaryImpl.java)
+   at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.getSchemaDescriptor(DataDictionaryImpl.java)
+   at org.apache.derby.impl.sql.compile.QueryTreeNode.getSchemaDescriptor(QueryTreeNode.java)
+   at org.apache.derby.impl.sql.compile.QueryTreeNode.getSchemaDescriptor(QueryTreeNode.java)
+   at org.apache.derby.impl.sql.compile.FromBaseTable.bindTableDescriptor(FromBaseTable.java)
+   at org.apache.derby.impl.sql.compile.FromBaseTable.bindNonVTITables(FromBaseTable.java)
+   at org.apache.derby.impl.sql.compile.FromList.bindTables(FromList.java)
+   at org.apache.derby.impl.sql.compile.SelectNode.bindNonVTITables(SelectNode.java)
+   at org.apache.derby.impl.sql.compile.DMLStatementNode.bindTables(DMLStatementNode.java)
+   at org.apache.derby.impl.sql.compile.DMLStatementNode.bind(DMLStatementNode.java)
+   at org.apache.derby.impl.sql.compile.ReadCursorNode.bind(ReadCursorNode.java)
+   at org.apache.derby.impl.sql.compile.CursorNode.bind(CursorNode.java)
+   at org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatement.java)
+   at org.apache.derby.impl.sql.GenericStatement.prepare(GenericStatement.java)
+   at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(GenericLanguageConnectionContext.java)
+   at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java)
+   at org.apache.derby.impl.jdbc.EmbedStatement.executeQuery(EmbedStatement.java)
+   at vi.hotspot.database.DataInterface._query(DataInterface.java:181)
+   at vi.hotspot.database.DataInterface.query(DataInterface.java:160)
+   at vi.hotspot.database.UpdateManager.updatePartialTable(UpdateManager.java:518)
+   at vi.hotspot.database.UpdateManager.updatePartialTables(UpdateManager.java:619)
+   at vi.hotspot.database.UpdateManager.run(UpdateManager.java:924)
+   at java.lang.Thread.run(Thread.java:534)
+vi.hotspot.exception.ServerTransactionException
+   at vi.hotspot.database.UpdateManager.updatePartialTable(UpdateManager.java:555)
+   at vi.hotspot.database.UpdateManager.updatePartialTables(UpdateManager.java:619)
+   at vi.hotspot.database.UpdateManager.run(UpdateManager.java:924)
+   at java.lang.Thread.run(Thread.java:534)
+
+Derby is running in standalone mode. 

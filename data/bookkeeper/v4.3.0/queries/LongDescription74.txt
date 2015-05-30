@@ -1,0 +1,7 @@
+There are a couple of problematic cases to deal with:
+i)Other region is pushing messages faster that my bookkeeper can handle it (unlikely, but we should have an answer for
+this setting)
+ii) If there is an error from BK while persisting messages, we cannot continue (because the ordering gurantee might be
+violated). In this case, the BK layer should give up the topic.
+
+To retain ordering guarantees, this should be done below the Region manager in the persistence manager layer

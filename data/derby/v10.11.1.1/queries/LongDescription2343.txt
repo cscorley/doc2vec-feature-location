@@ -1,0 +1,5 @@
+While updating the sysinfo_api test to our current JUnit usage, I rediscovered the problem which has kept this test from running on a regular basis: when running the test from jar files, only the first jar file on the classpath properly reports its information through the sysinfo API.
+
+It is not a security manager issue, as disabling the security manager did not solve the problem. There may be jar-sealing issues involved, but I haven't looked into the issue very deeply. Just noting the issue here for later investigation.
+
+I will commit a patch which updates the current sysinfo_api test to be called SysinfoAPITest, and also add a note to tools._Suite about the problem.

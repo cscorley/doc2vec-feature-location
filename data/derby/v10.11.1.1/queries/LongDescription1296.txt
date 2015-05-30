@@ -1,0 +1,104 @@
+After creating 3 databases under c:\databases\sample - I wanted to get a list of available databases, I followed the example in the "DriverPropertyInfo array example" in the developer guide and used the following routine:
+...
+  private static void test2() {
+    String driverName ="org.apache.derby.jdbc.EmbeddedDriver";
+    String url = "jdbc:derby:";
+
+    Properties p = System.getProperties();
+    p.put("derby.system.home", "C:\\databasessample");
+    p.put("derby.system.bootAll", "true");
+
+    try {
+      Class.forName(driverName);
+
+      Driver driver = DriverManager.getDriver(url);
+      Properties info = new Properties();
+
+      DriverPropertyInfo[] attributes = driver.getPropertyInfo(url, info);
+
+      for (DriverPropertyInfo attribute : attributes) {
+        System.out.print(attribute.name);
+        System.out.print(" : ");
+        if (attribute.choices != null) 
+{
+          System.out.print(Arrays.toString(attribute.choices));
+        }
+        System.out.print(" : ");
+        System.out.println(attribute.value);
+      }
+    }
+    catch(Exception exp) 
+{
+      exp.printStackTrace();
+    }
+
+    try 
+{
+      DriverManager.getConnection("jdbc:derby:;shutdown=true");
+    }
+    catch(Exception exp) {
+    }
+  }
+
+When run the following exception occured:
+
+Exception in thread "main" java.lang.ExceptionInInitializerError
+        at java.lang.Class.forName0(Native Method)
+        at java.lang.Class.forName(Unknown Source)
+        at Test.test2(Test.java:20)
+        at Test.main(Test.java:8)
+Caused by: java.lang.NullPointerException
+        at org.apache.derby.impl.services.monitor.BaseMonitor.bootProviderServic
+es(Unknown Source)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.bootPersistentServ
+ices(Unknown Source)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.runWithState(Unkno
+wn Source)
+        at org.apache.derby.impl.services.monitor.FileMonitor.<init>(Unknown Sou
+rce)
+        at org.apache.derby.iapi.services.monitor.Monitor.startMonitor(Unknown S
+ource)
+        at org.apache.derby.iapi.jdbc.JDBCBoot.boot(Unknown Source)
+        at org.apache.derby.jdbc.EmbeddedDriver.boot(Unknown Source)
+        at org.apache.derby.jdbc.EmbeddedDriver.<clinit>(Unknown Source)
+        ... 4 more
+
+If i comment out:
+// p.put("derby.system.bootAll", "true");
+
+The program runs, but no databases are listed.
+
+The output from java org.apache.derby.tools.sysinfo:
+
+------------------ Java Information ------------------
+Java Version:    1.5.0_05
+Java Vendor:     Sun Microsystems Inc.
+Java home:       C:\Program Files\Java\jre1.5.0_05
+Java classpath:  C:\tools\derby\db-derby-10.1.2.1-bin\lib\derby.jar;C:\tools\der
+by\db-derby-10.1.2.1-bin\lib\derbytools.jar;;C:\tools\Java\jdk1.5.0_05\lib\tools
+.jar;C:\tools\log4j\logging-log4j-1.2.12\dist\lib\log4j-1.2.12.jar;C:\dev_deploy
+\plugins\com.x4m.util_1.0.0.jar;C:\dev_deploy\plugins\com.x4m.uomcrs_1.0.0.jar;C
+:\dev_deploy\plugins\com.x4m.database_1.0.0.jar;C:\dev_deploy\plugins\com.x4m.fe
+ature_1.0.0.jar;C:\dev_deploy\plugins\org.eclipse.core.runtime_3.1.0.jar;C:\dev_
+deploy\plugins\org.eclipse.osgi_3.1.0.jar;C:\dev_deploy\plugins\com.x4m.database
+_1.0.0.jar;C:\david\novice\syncservices\build\class
+OS name:         Windows XP
+OS architecture: x86
+OS version:      5.1
+Java user name:  David
+Java user home:  C:\Documents and Settings\David
+Java user dir:   C:\david\novice\derby
+java.specification.name: Java Platform API Specification
+java.specification.version: 1.5
+--------- Derby Information --------
+JRE - JDBC: J2SE 5.0 - JDBC 3.0
+[C:\tools\derby\db-derby-10.1.2.1-bin\lib\derby.jar] 10.1.2.1 - (330608)
+[C:\tools\derby\db-derby-10.1.2.1-bin\lib\derbytools.jar] 10.1.2.1 - (330608)
+------------------------------------------------------
+----------------- Locale Information -----------------
+------------------------------------------------------
+
+I have read most of the documentation and can find no other way to get a list of available catalogs - thus I do not know of a workaround for this problem.
+
+David Heath
+Transform Software and Services

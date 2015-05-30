@@ -1,0 +1,9 @@
+This patch is an implementation of the "reversed tokens" strategy for efficient leading wildcards queries.
+
+ReversedWildcardsTokenFilter reverses tokens and returns both the original token (optional) and the reversed token (with positionIncrement == 0). Reversed tokens are prepended with a marker character to avoid collisions between legitimate tokens and the reversed tokens - e.g. "DNA" would become "and", thus colliding with the regular term "and", but with the marker character it becomes "\u0001and".
+
+This TokenFilter can be added to the analyzer chain that it used during indexing.
+
+SolrQueryParser has been modified to detect the presence of such fields in the current schema, and treat them in a special way. First, SolrQueryParser examines the schema and collects a map of fields where these reversed tokens are indexed. If there is at least one such field, it also sets QueryParser.setAllowLeadingWildcards(true). When building a wildcard query (in getWildcardQuery) the term text may be optionally reversed to put wildcards further along the term text. This happens when the field uses the reversing filter during indexing (as detected above), AND if the wildcard characters are either at 0-th or 1-st position in the term. Otherwise the term text is processed as before, i.e. turned into a regular wildcard query.
+
+Unit tests are provided to test the TokenFilter and the query parsing.

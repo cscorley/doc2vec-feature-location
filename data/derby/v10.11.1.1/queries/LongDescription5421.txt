@@ -1,0 +1,48 @@
+The nstest - both embedded (on Windows XP) and client/server configuration (on SUSE Linux 10) ran into a NullPointerException during the call to update_one_row.
+The test only ran for 5 days, vs. 10.8.1.2 8 days, and I've never seen this error before:
+
+sample (console) output:
+total memory: 20962816 free: 3036264 Wed Sep 14 00:28:00 PDT 2011
+TObj -->NULL error message detected
+TObj -->Here is the NULL exception - java.lang.NullPointerException
+TObj -->Stack trace of the NULL exception - java.lang.NullPointerException
+        at org.apache.derbyTesting.system.nstest.utils.DbUtil.update_one_row(DbUtil.java:275)
+        at org.apache.derbyTesting.system.nstest.tester.TesterObject.doIUDOperation(TesterObject.java:162)
+        at org.apache.derbyTesting.system.nstest.tester.Tester2.startTesting(Tester2.java:109)
+        at org.apache.derbyTesting.system.nstest.NsTest.run(NsTest.java:555)
+TObj -->At this point - executing update_one_row, exception thrown was : null
+TObj -->NULL error message detected
+TObj -->Here is the NULL exception - java.lang.NullPointerException
+TObj -->Stack trace of the NULL exception - java.lang.NullPointerException
+        at org.apache.derbyTesting.system.nstest.utils.DbUtil.update_one_row(DbUtil.java:275)
+        at org.apache.derbyTesting.system.nstest.tester.TesterObject.doIUDOperation(TesterObject.java:162)
+        at org.apache.derbyTesting.system.nstest.tester.Tester1.startTesting(Tester1.java:118)
+        at org.apache.derbyTesting.system.nstest.NsTest.run(NsTest.java:551)
+TObj -->At this point - executing update_one_row, exception thrown was : null
+
+Looking at the source of nstest.utils.DbUtil.update_one_row it's calling ps2.close():
+
+----------------------------
+....
+		column = colnames[ind % NUMTYPES]; // randomly gets one of the columns
+		// of the table
+
+		try 
+{
+			
+			ps2 = conn.prepareStatement(" update nstesttab set " + column
+					+ " = ? " + " where serialkey = " + skey);
+			
+		}
+ catch (Exception e) 
+{
+			ps2.close();
+			printException(
+					"closing update prepared stmt in dbUtil.update_one_row() ",
+					e);
+			return rowsUpdated;
+		}
+....
+----------------------------
+
+At first glance, this seems a test issue, but I think it possible the test is hiding something more interesting, so I'm not marking this as component 'test'.

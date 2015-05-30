@@ -1,0 +1,29 @@
+Initially suggested by Hoss at https://issues.apache.org/jira/browse/SOLR-350?focusedCommentId=12562834#action_12562834 and taken forward by Henri in SOLR-646
+
+
+	Allows users to define global as well as core-specific properties in solr.xml which can be used in solrconfig.xml and schema.xml
+
+<solr persistent="false">
+
+  <property name="var" value="value" />
+
+  <cores adminPath="/admin/cores">
+    <core name="core0" instanceDir="core0">
+      <property name="var" value="value" />
+    </core>
+    <core name="core1" instanceDir="core1" />
+  </cores>
+</solr>
+
+
+	The following core-specific properties will be added automatically:
+	
+		solr.core.instanceDir
+		solr.core.name
+		solr.core.configName
+		solr.core.schemaName
+	
+	
+	The variable substitution will be done in this fall-back order – core-specific, implicit, global, system properties.
+	The properties defined in solr.xml should also be persisted back as is (without evaluation).
+

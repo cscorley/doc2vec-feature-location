@@ -1,0 +1,4 @@
+if there are 1000's of cores then the cost of loading unloading schema.xml can be prohibitive
+similar to SOLR-919 we can also cache the DOM object of schema.xml if the location on disk is same.  All the dynamic properties can be replaced lazily when they are read.
+
+We can go one step ahead in this case. Th IndexSchema object is immutable . So if there are no core properties then the same IndexSchema object can be used across all the cores

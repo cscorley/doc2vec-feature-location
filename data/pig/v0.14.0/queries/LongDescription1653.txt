@@ -1,0 +1,11 @@
+The following script fail:
+
+
+register '/homes/jianyong/pig/aaa/scriptingudf.py' using jython as myfuncs;
+a = load '/user/pig/tests/data/singlefile/studenttab10k' using PigStorage() as (name, age, gpa:double);
+b = foreach a generate myfuncs.square(gpa);
+dump b;
+
+
+
+If we change the register to use relative path (such as "aaa/scriptingudf.py"), it success.

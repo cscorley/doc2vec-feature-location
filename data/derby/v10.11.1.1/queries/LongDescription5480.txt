@@ -1,0 +1,7 @@
+MessageVetter, which is executed by the build script, contains the following code to load a message file:
+
+        properties.load(new FileInputStream(file));
+
+The FileInputStream isn't closed. Since MessageVetter runs embedded in the Ant process, file handles may be held open and cause problems later in the build. MessageVetter goes through more than 800 files, so the number of open file handles may be high when it has completed.
+
+Even though FileInputStream has a finalize() method that calls close(), so the streams will be closed eventually, we should close the streams explicitly to release system resources as early as possible.

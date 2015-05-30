@@ -1,0 +1,21 @@
+Adding options to the Bayes TrainClassifier driver to filter features using minimum df or tf. Features that only appear in a handful of documents or less than X times within the entire input set will be removed from the training feature set entirely. This will allow the Bayes classifiers to scale to larger corpora.
+
+More background: 
+
+When running the wikipedia example, I discovered that the number of features produced with -ng 1 was pretty outstanding: 9,500,000 using the default settings after running the following commands:
+
+
+
+./bin/mahout org.apache.mahout.classifier.bayes.WikipediaXmlSplitter -d wikipedia/enwiki-20100622-pages-articles.xml.bz2 -owikipedia/chunks -c 64
+./bin/mahout org.apache.mahout.classifier.bayes.WikipediaDatasetCreatorDriver -i wikipedia/chunks -o wikipedia/bayes-input -c examples/src/test/resources/country.txt
+./bin/mahout org.apache.mahout.classifier.bayes.TrainClassifier -i wikipedia/bayes-input -o wikipedia/bayes-model -type cbayes -ng 1  -source hdfs
+
+
+
+This if course makes testing the classifier tricky on machines of modest means because TestClassifier attempts to load all features into memory on the machines the mapper is running on.
+
+It appears that Grant ran into a similar issue last year: 
+http://www.lucidimagination.com/search/document/7fff9bc0b3350370/getting_started_with_classification#ba6838a9c8b9090c
+
+This patch will add --minDf and --minSupport options to TrainClassifier. Also --skipCleanup to prevent the deletion of the output of the BayesFeatureDriver, which can be useful in order to allow inspection the resulting feature set in order to tune rules for feature production.
+

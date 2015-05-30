@@ -1,0 +1,3 @@
+I have an application where I am using runtime class enhancement via the javaagent and I set openjpa.RuntimeUnenhancedClasses=unsupported. My application works fine when running on 1.1.0 but when I moved to 1.2.0 (and 2.0.0) I started getting errors because my classes aren't being enhanced. 
+
+After debugging I determined that I had a jar on the end of my classpath that had a META-INF/persistence.xml file in it. The extra persistence.xml file has no PUs defined, and should have been ignored. When I removed that jar from my classpath things starting working again. It also works if I put my META-INF/persistence.xml file on the end of my classpath.

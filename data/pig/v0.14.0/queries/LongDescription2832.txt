@@ -1,0 +1,29 @@
+PigServer does not initialize udf.import.list. 
+
+So, if you have a pig script that uses UDFs and want to pass the udf.import.list via a property file you can do so using the -propertyFile command line to pig. But you should also be able to do it using pigunits PigServer class that already has the corresponding contructor, e.g. doing something similar to :
+
+
+
+Properties props = new Properties();
+props.load(new FileInputStream("./testdata/test.properties"));
+pig = new PigServer(ExecType.LOCAL, props);
+String[] params = {"data_dir=testdata"};
+test = new PigTest("test.pig", params, pig, cluster);
+test.assertSortedOutput("aggregated", new File("./testdata/expected.out"));
+
+
+
+While udf.import.list is defined in test.properties and test.pig uses names of UDFs which should be resolved using that list.
+
+This does not work!
+
+I'd say the org.apache.pig.PigServer class is the problem. It should initialize the import list of the PigContext. 
+
+
+
+if(properties.get("udf.import.list") != null) {
+    PigContext.initializeImportList((String)properties.get("udf.import.list"));
+}
+
+
+Right now this is done in org.apache.pig.Main.

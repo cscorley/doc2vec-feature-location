@@ -1,0 +1,7 @@
+I just opened up a review on reviews.apache.org – https://reviews.apache.org/r/22219/. I copied the description below. 
+
+This patch adds basic language translation functionality to Tika. Translation is provided by a Microsoft API, but accessed through Apache 2 licensed com.memetix.microsoft-translator-java-api (https://code.google.com/p/microsoft-translator-java-api/ ). If a user wants to use the translation feature, they have to add a client id and client secret to the tika-core/src/main/resources/org/apache/tika/language/translator.properties file (see http://msdn.microsoft.com/en-us/library/hh454950.aspx ). I added com.memetix as a dependency in tika-core. I put the Translator class in org.apache.tika.language. There is no integration with the server or CLI, yet. Further, only Strings are translated right now – if you pass in a full document with xml tags, the structure will be mangled. But, I think that would be a cool feature – translate the body, title, subtitle, etc, but not the structural elements. 
+
+There is still more work to do, but I wanted some more eyes on this to make sure I'm heading in the right direction and this is a desired feature. Let me know what you think!
+
+There are two simple unit tests for now which translate "hello" to French ("salut"). One for inputting the source and target languages, one for inputing just the target language (and detecting the source language automatically).

@@ -1,0 +1,57 @@
+
+
+> svn info
+Path: .
+URL: http://svn.apache.org/repos/asf/mahout/trunk
+Repository Root: http://svn.apache.org/repos/asf
+Repository UUID: 13f79535-47bb-0310-9956-ffa450edef68
+Revision: 1235544
+Node Kind: directory
+Schedule: normal
+Last Changed Author: tdunning
+Last Changed Rev: 1231800
+Last Changed Date: 2012-01-15 16:01:38 -0800 (Sun, 15 Jan 2012)
+
+
+
+
+
+> ./examples/bin/cluster-reuters.sh
+...
+1. kmeans clustering
+...
+Inter-Cluster Density: NaN
+Intra-Cluster Density: 0.0
+CDbw Inter-Cluster Density: 0.0
+CDbw Intra-Cluster Density: NaN
+CDbw Separation: 0.0
+12/01/24 16:08:47 INFO clustering.ClusterDumper: Wrote 20 clusters
+12/01/24 16:08:47 INFO driver.MahoutDriver: Program took 126749 ms (Minutes: 2.1124833333333335)
+
+
+
+All five "Representative Points Driver" jobs fail.
+
+
+
+2012-01-24 16:07:11,555 INFO org.apache.hadoop.util.NativeCodeLoader: Loaded the native-hadoop library
+2012-01-24 16:07:11,881 INFO org.apache.hadoop.mapred.MapTask: io.sort.mb = 100
+2012-01-24 16:07:11,896 INFO org.apache.hadoop.mapred.MapTask: data buffer = 79691776/99614720
+2012-01-24 16:07:11,896 INFO org.apache.hadoop.mapred.MapTask: record buffer = 262144/327680
+2012-01-24 16:07:11,956 INFO org.apache.hadoop.mapred.TaskLogsTruncater: Initializing logs' truncater with mapRetainSize=-1 and reduceRetainSize=-1
+2012-01-24 16:07:11,979 INFO org.apache.hadoop.io.nativeio.NativeIO: Initialized cache for UID to User mapping with a cache timeout of 14400 seconds.
+2012-01-24 16:07:11,979 INFO org.apache.hadoop.io.nativeio.NativeIO: Got UserName vernica for UID 1000 from the native implementation
+2012-01-24 16:07:11,981 WARN org.apache.hadoop.mapred.Child: Error running child
+java.lang.NullPointerException
+	at org.apache.mahout.clustering.evaluation.RepresentativePointsMapper.mapPoint(RepresentativePointsMapper.java:73)
+	at org.apache.mahout.clustering.evaluation.RepresentativePointsMapper.map(RepresentativePointsMapper.java:60)
+	at org.apache.mahout.clustering.evaluation.RepresentativePointsMapper.map(RepresentativePointsMapper.java:40)
+	at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144)
+	at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:763)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:369)
+	at org.apache.hadoop.mapred.Child$4.run(Child.java:259)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1059)
+	at org.apache.hadoop.mapred.Child.main(Child.java:253)
+

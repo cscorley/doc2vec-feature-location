@@ -1,0 +1,25 @@
+Since r676008 (2008-07-11 18:01:05 MEST) regression tests on Jvm 1.5 has failed on trunk, 10.4 and 10.3 in suitesAll / org.apache.derbyTesting.functionTests.tests.lang.XMLTypeAndOpsTest with 
+
+1) testXMLCasting(org.apache.derbyTesting.functionTests.tests.lang.XMLTypeAndOpsTest)java.sql.SQLException: Table/View 'NONXTABLE' already exists in Schema 'APP'.
+2) testXMLSerialize(org.apache.derbyTesting.functionTests.tests.lang.XMLTypeAndOpsTest)java.sql.SQLException: Table/View 'VCTAB' already exists in Schema 'APP'.
+3) testXMLQueryInsert(org.apache.derbyTesting.functionTests.tests.lang.XMLTypeAndOpsTest)java.sql.SQLException: Failed to locate 'JAXP' API or implementation classes.  XML operations are not permitted unless these classes are in your classpath.
+4) testXMLQueryUpdate(org.apache.derbyTesting.functionTests.tests.lang.XMLTypeAndOpsTest)java.sql.SQLException: Failed to locate 'JAXP' API or implementation classes.  XML operations are not permitted unless these classes are in your classpath.
+5) testAttrSerialization(org.apache.derbyTesting.functionTests.tests.lang.XMLTypeAndOpsTest)java.sql.SQLException: Failed to locate 'JAXP' API or implementation classes.  XML operations are not permitted unless these classes are in your classpath.
+6) testTriggerSPSWithXML(org.apache.derbyTesting.functionTests.tests.lang.XMLTypeAndOpsTest)java.sql.SQLException: Failed to locate 'JAXP' API or implementation classes.  XML operations are not permitted unless these classes are in your classpath.
+1) testNonXMLColsWithXMLVals(org.apache.derbyTesting.functionTests.tests.lang.XMLTypeAndOpsTest)junit.framework.ComparisonFailure: Unexpected SQL state. expected:<[42821]> but was:<[XML00]>
+2) testXMLParse(org.apache.derbyTesting.functionTests.tests.lang.XMLTypeAndOpsTest)junit.framework.ComparisonFailure: Unexpected SQL state. expected:<[42X25]> but was:<[XML00]>
+3) testTopLevelSelect(org.apache.derbyTesting.functionTests.tests.lang.XMLTypeAndOpsTest)junit.framework.ComparisonFailure: Unexpected SQL state. expected:<[42Z71]> but was:<[XML00]>
+4) testXMLParseSerializeCombos(org.apache.derbyTesting.functionTests.tests.lang.XMLTypeAndOpsTest)junit.framework.ComparisonFailure: Unexpected SQL state. expected:<[2200M]> but was:<[XML00]>
+5) testXMLExists(org.apache.derbyTesting.functionTests.tests.lang.XMLTypeAndOpsTest)junit.framework.ComparisonFailure: Unexpected SQL state. expected:<[42Z77]> but was:<[XML00]>
+6) testXMLQuery(org.apache.derbyTesting.functionTests.tests.lang.XMLTypeAndOpsTest)junit.framework.ComparisonFailure: Unexpected SQL state. expected:<[42Z71]> but was:<[XML00]>
+7) testNestedXMLQuery(org.apache.derbyTesting.functionTests.tests.lang.XMLTypeAndOpsTest)junit.framework.ComparisonFailure: Unexpected SQL state. expected:<[2200V]> but was:<[XML00]>
+8) testInvalidXMLBindings(org.apache.derbyTesting.functionTests.tests.lang.XMLBindingTest)junit.framework.ComparisonFailure: Unexpected SQL state. expected:<[42Z7]0> but was:<[XML0]0>
+
+See e.g. 
+http://dbtg.thresher.com/derby/test/Daily/jvm1.5/testing/Limited/testSummary-676008.html
+http://dbtg.thresher.com/derby/test/10.4Branch/jvm1.5/testing/Limited/testSummary-676639.html
+and
+http://dbtg.thresher.com/derby/test/debug/10.3Branch_logfile_org.apache.derbyTesting.functionTests.tests.lang.XMLTypeAndOpsTest.out
+
+
+The failure appears to be introduced by svn r675956 (Fri Jul 11 07:07:51 PDT 2008):  derby-3745_trunk_diff.txt.

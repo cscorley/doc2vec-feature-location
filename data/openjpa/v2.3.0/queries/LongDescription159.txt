@@ -1,0 +1,3 @@
+OpenJPA occasionally needs to perform work in a non-business transaction (see AbstractJDBCSeq.java). In a transactional environment, one way that this is achieved is by suspending the current JTA transaction, starting a new one, doing the work, cleaning up the new tx, and resuming the original one. Some environments do not allow direct transaction control, but mechanisms such as stateless session beans can often be used to kick off atomic operations that should execute in a separate transaction.
+
+We could easily add ManagedRuntime.executeInNewTransaction(Runnable) that captured this slightly-coarser-grained transaction control. The default implementation could simply do  suspend(), begin(), invoke Runnable.run(), commit()/rollback(), resume().

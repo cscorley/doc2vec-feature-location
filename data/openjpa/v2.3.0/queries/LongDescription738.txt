@@ -1,0 +1,13 @@
+Hi All,
+
+      I have changed the jpa code to eliminate the scan of the jpa query cache to invalidate cached queries that is triggered by entity bean values changes. The problem with the current code is that whenever an entity bean value changes, the query cache needs to be scanned and all the queries that are related to the changed entity bean should be invalidated. This is resulting in poor performance when the querycache has too many queries in it. 
+
+      The new approach is to track the timestamp of the query and the timestamp of last update for each entity class and compare the timestamps when retrieving the query for reuse.  If the timestamp of the query result is older than the last update time of any entity in the access path of the query,  the query result would not be reused and the query result would be evicted from the query cache. 
+
+      I introduced a configurable attribute in the persistence.xml in QueryCache property "evictOnTimestamp=true". Therefore the QueryCache property in persistence.xml file looks as follows:
+
+      <property name="openjpa.QueryCache" value = "CacheSize=1000, evictOnTimestamp=true" />
+
+      If the "evictOnTimestamp" value is set to true in the xml file the new code is invoked otherwise the old code. The default behaviour would be the old code. That is the value for "evictOnTimestamp" is false by default so that if this property is not set persistence.xml, old code gets invoked. 
+
+      In the process of changing the code to evict the queries using the timestamp, I had to introduce 4 methods in QueryCache interface. We want this change to be applied to JPA trunk and 1.2.x branch. Anyone who is extending the QueryCache that implements this interface would have to implement these 4 methods. Please respond as soon as possible if this interface change is an issue. 

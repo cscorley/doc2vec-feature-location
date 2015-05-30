@@ -1,0 +1,43 @@
+Thanks to Frank Griffin for pointing out this issue in a derby-dev email thread: http://www.nabble.com/SQLException-thrown-from-Table-Function-ResultSet-to15241332.html#a15241332
+
+If a user-coded function throws a SQLException, Derby will try to cast the exception to a Derby exception class before shipping the exception to the network client. This raises a ClassCastException and kills the connection. I have observed this in 10.4, 10.3, 10.2, and 10.1. You can reproduce this problem with the following function class and sql script.
+
+The function class:
+
+import java.sql.*;
+
+public  class   BadFunction
+{
+    /**
+
+	<p>
+	This function just throws a SQLException.
+	</p>
+     */
+    public  static  int badFunction()
+        throws SQLException
+    {
+        throw new SQLException( "I refuse to return an int!" );
+    }
+
+
+
+}
+
+Here is the SQL script:
+
+connect 'jdbc:derby://localhost:8246/derby10.4';
+
+drop function badFunction;
+
+create function badFunction()
+returns int
+language java
+parameter style java
+no sql
+external name 'BadFunction.badFunction'
+;
+
+values ( badFunction() );
+
+values ( badFunction() );

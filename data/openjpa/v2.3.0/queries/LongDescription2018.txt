@@ -1,0 +1,32 @@
+Given the following code:
+
+
+User user = new User("Dave", "Matthews", "foo@bar.de");
+em.persist(user);
+em.flush();
+
+CriteriaBuilder builder = em.getCriteriaBuilder();
+
+CriteriaQuery<User> criteria = builder.createQuery(User.class);
+Root<User> root = criteria.from(User.class);
+criteria.where(root.get("firstname").in(builder.parameter(String[].class)));
+
+TypedQuery<User> query = em.createQuery(criteria);
+for (ParameterExpression parameter : criteria.getParameters()) {
+  query.setParameter(parameter, new String[] {"Dave", "Carter"});
+}
+
+List<User> result = query.getResultList();
+assertThat(result.isEmpty(), is(false));
+
+
+
+I get a
+
+
+
+<openjpa-2.0.0-r422266:935683 nonfatal user error> org.apache.openjpa.persistence.ArgumentException: The specified parameter of type "class [Ljava.lang.String;" is not a valid query parameter.
+
+
+
+Using Collection as ParameterExpression type and binding the parameters via Arrays.asList(...) works fine.

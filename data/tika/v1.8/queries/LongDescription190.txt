@@ -1,0 +1,2 @@
+During investigation of TIKA-189, I found out the following:
+The patch TIKA-188 does everything correct (if looking at the output), but the internal handling is incorrect. XHTMLContentHandler inserts ignorableWhitespace with the tabs and newlines, but the superclass SafeContentHandler has a bug that forwards ignorableWhitespace() to the decorators characters() event (copy'n'paste-error). Fixing this, the tests fail, because WriteoutContentHandler has no ignorableWhitespace() and removes all whitespace.

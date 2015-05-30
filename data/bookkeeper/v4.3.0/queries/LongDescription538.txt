@@ -1,0 +1,3 @@
+I've seen this with BookieAutoRecoveryTest. Basically, we interrupt and join the replicationworker thread, and then close the BookKeeper instance. This can have caused a bookkeeper operation that never finished. The executor runs it after #close has closed the BookieClient. The operation opens a connection and therefore we get a hang on releaseExternalResources(). 
+
+Solution is pretty simple. We should shutdown all executors before closing the bookieClient. I'll attach a patch which does this.

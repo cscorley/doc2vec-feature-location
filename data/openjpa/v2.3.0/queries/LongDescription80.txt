@@ -1,0 +1,9 @@
+the following query :
+
+em.createQuery("select k from KategorieGruppe k  where k.bezeichnung like ?1 order by k.bezeichnung asc");
+
+generates an sql-statement with a bad escaping character '\' for MySQL :
+
+SELECT t0.id, t0.bezeichnung FROM ekv2kategoriegruppe t0 WHERE (t0.bezeichnung LIKE ? ESCAPE '\') ORDER BY t0.bezeichnung ASC
+
+the correct escaping would be ''.

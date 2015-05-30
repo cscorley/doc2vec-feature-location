@@ -1,0 +1,14 @@
+The code exhibiting this issue is very simple:
+
+        InputStream input = new FileInputStream(file);
+        ContentHandler textHandler = new BodyContentHandler();
+        tikaParser.parse(input, textHandler, metadata);
+        input.close();
+        System.out.println(metadata);
+
+The output:
+title=?a?▬÷&▼♂?ŢjK???ž?↑M?A→<═]1
+=╬\bK Author=═g?═?♦ Content-Type=application/pdf creator=?k?═?♦Ý`;Ý?)/¶?Ě?3n
+Î☼46ËO
+
+Other than that, the extracted text is 100% correct.

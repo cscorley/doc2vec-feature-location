@@ -1,0 +1,63 @@
+Frederic Moreau reports (http://mail-archives.apache.org/mod_mbox/db-derby-user/200510.mbox/browser):
+
+Hello,
+
+The optimizer does not take my indexes into account when I do a select on 
+a 'UNION ALL' type of view ; therefore, table scans are done and 
+performances are bad.
+
+Note : my indexes are taken into account if I try equivalent selects on 
+tables (instead of views).
+
+Please find below a sample illustrating the problem using the 
+RUNTIMESTATISTICS calls.
+
+Could anynone help me on this subject ?
+Thank you.
+
+
+My cloudscape version is the 10.0.2.1 one.
+I also tried it on the 10.1.1.0 version (same result).
+
+  c:\>java -classpath 
+"%CLOUDSCAPE_INSTALL%\lib\derbyclient.jar;%CLOUDSCAPE_INSTALL%\lib\derbytools.jar" 
+-Dij.driver=org.apache.derby.jdbc.ClientDriver 
+-Dij.protocol=jdbc:derby://localhost:1527/ -Dij.user=APP -Dij.password=APP 
+-Dij.maximumDisplayWidth=32768 org.apache.derby.tools.ij  ij> connect 
+'testdb' ;
+
+  ij> ;
+  ij> create table test.table1(a integer, b integer, c integer);
+  ij> create index test.table1idx on test.table1(b);
+  ij> ;
+  ij> create table test.table2(a integer, b integer, c integer);
+  ij> create index test.table2idx on test.table2(b);
+  ij> ;
+  ij> create view test.view0 as select all a,b from test.table1 union all 
+select a,b from test.table2;
+  ij> ;
+  ij> CALL SYSCS_UTIL.SYSCS_SET_RUNTIMESTATISTICS(1);
+  ij> select a from test.table1 where b=25;
+  ij> VALUES SYSCS_UTIL.SYSCS_GET_RUNTIMESTATISTICS();
+        ...
+        Index Scan ResultSet for TABLE1 using index TABLE1IDX at read 
+committed isolation level using instantaneous share row locking chosen by 
+the optimizer
+        ...
+  ij> select a from test.table2 where b=25;
+  ij> VALUES SYSCS_UTIL.SYSCS_GET_RUNTIMESTATISTICS();
+        ...
+        Index Scan ResultSet for TABLE2 using index TABLE2IDX at read 
+committed isolation level using instantaneous share row locking chosen by 
+the optimizer
+        ...
+  ij> select a from test.view0 where b=25;
+  ij> VALUES SYSCS_UTIL.SYSCS_GET_RUNTIMESTATISTICS();
+        ...
+        Table Scan ResultSet for TABLE1 at read committed isolation level 
+using share row locking chosen by the optimizer
+        ...
+        Table Scan ResultSet for TABLE2 at read committed isolation level 
+using share row locking chosen by the optimizer
+        ...
+  ij> ;

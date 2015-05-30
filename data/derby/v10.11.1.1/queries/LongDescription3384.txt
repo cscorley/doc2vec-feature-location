@@ -1,0 +1,29 @@
+ij version 10.4
+ij> connect 'jdbc:derby:masterDB;user=oystein;password=pass';
+ij> call SYSCS_UTIL.SYSCS_FREEZE_DATABASE();
+0 rows inserted/updated/deleted
+ij> connect 'jdbc:derby:masterDB;user=oystein;password=pass;startMaster=true;slaveHost=localhost';
+ij(CONNECTION1)> select * from t order by i;
+I          
+-----------
+1          
+2          
+3          
+4          
+5          
+6          
+7          
+8          
+10         
+12         
+20         
+22         
+30         
+32         
+40         
+42         
+
+16 rows selected
+ij(CONNECTION1)> insert into t values (9), (10), (11), (12);
+
+The last statement never completes.

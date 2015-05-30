@@ -1,0 +1,5 @@
+There are a bunch of places where we loop over the size of the vector when we should be taking advantage of the sparseness, or at least be agnostic about it and use an iterator.
+
+This patch addresses these issues in the Vector implementations and in the DistanceMeasure implementations
+
+Also adds iterateNonZero() and interateAll and drops the Iterable portion of Vector since it wasn't clear what it was iterating

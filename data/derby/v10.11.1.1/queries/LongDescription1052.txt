@@ -1,0 +1,27 @@
+The .tmp from the jdbcapi/checkDataSource30.java is:
+----------------------
+START XA HOLDABILITY TEST
+ERROR (no SQLState): java.security.PrivilegedActionException : Error opening socket to server localhost on port 1527 with message : Connection refused
+Completed checkDataSource30
+----------------------
+
+The .tmp from the jdbcapi/savepointJdbc30_XA.java is:
+-------------------------------------
+FAIL – unexpected exception
+SQLSTATE(null):java.sql.SQLException: java.security.PrivilegedActionException : Error opening socket to server localhost on port 1527 with message : Connection refused
+	at org.apache.derby.client.am.SqlException.getSQLException(SqlException.java:285)
+	at org.apache.derby.client.ClientPooledConnection.<init>(ClientPooledConnection.java:104)
+	at org.apache.derby.client.ClientXAConnection.<init>(ClientXAConnection.java:47)
+	at org.apache.derby.jdbc.ClientXADataSource.getXAConnection(ClientXADataSource.java:50)
+	at org.apache.derby.jdbc.ClientXADataSource.getXAConnection(ClientXADataSource.java:43)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.savepointJdbc30_XA.main(savepointJdbc30_XA.java:58)
+Caused by: org.apache.derby.client.am.DisconnectException: java.security.PrivilegedActionException : Error opening socket to server localhost on port 1527 with message : Connection refused
+	at org.apache.derby.client.net.NetAgent.<init>(NetAgent.java:113)
+	at org.apache.derby.client.net.NetConnection.newAgent_(NetConnection.java:928)
+	at org.apache.derby.client.am.Connection.initConnection(Connection.java:174)
+	at org.apache.derby.client.am.Connection.<init>(Connection.java:144)
+	at org.apache.derby.client.net.NetConnection.<init>(NetConnection.java:207)
+	at org.apache.derby.client.net.NetXAConnection.<init>(NetXAConnection.java:39)
+	at org.apache.derby.client.ClientPooledConnection.<init>(ClientPooledConnection.java:94)
+	... 4 more
+-----------------------------

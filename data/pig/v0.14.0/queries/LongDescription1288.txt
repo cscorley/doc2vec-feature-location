@@ -1,0 +1,20 @@
+From Garrett Buster Kaminaga:
+
+The EvalFunc constructor has code to determine the return type of the function.
+This walks up the object hierarchy until it encounters EvalFunc, then calls getActualTypeArguments and extracts type
+param 0.
+
+However, if the user class is itself a generic extension of EvalFunc, then the returned object is not the correct type,
+but a TypeVariable.
+
+Example:
+  class MyAbstractEvalFunc<T> extends EvalFunc<T> ...
+  class MyEvalFunc extends MyAbstractEvalFunc<String> ...
+
+when MyEvalFunc() is called, inside EvalFunc constructor the return type is set to a TypeVariable rather than
+String.class.
+
+The workaround we've implemented is for the MyAbstractEvalFunc<T> to determine its type parameters using code
+similar to that in the EvalFunc constructor, and then reset protected data member returnType manually in the
+MyAbstractEvalFunc constructor.  (though this has the same drawback of not working if someone then extends
+MyAbstractEvalFunc)

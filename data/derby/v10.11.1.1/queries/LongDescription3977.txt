@@ -1,0 +1,21 @@
+Calling Clob.truncate with a value that is greater then the Clob length raises different SQLExceptions in the client and the embedded driver.
+ o Client: SQLState.BLOB_LENGTH_TOO_LONG - XJ079
+ o Embedded: SQLState.BLOB_POSITION_TOO_LARGE - XJ076
+
+I believe the fix is simple enough  - change one of the exceptions.
+Which one most closely describes the situation?
+
+A release note is needed for this fix.
+
+Also note the following from the Java API docs:
+"void truncate(long len)
+              throws SQLException
+
+    Truncates the CLOB value that this Clob designates to have a length of len characters.
+
+    Note: If the value specified for pos is greater then the length+1 of the CLOB value then the behavior is undefined. Some JDBC drivers may throw a SQLException while other drivers may support this operation.
+"
+
+This opens for a change of behavior as well.
+There seems to an inconsistency in the docs, possibly due to rephrasing - it references both len and pos. The latter isn't used anywhere else in the JavaDoc for truncate.
+And what should the result of truncate(length+1) be?

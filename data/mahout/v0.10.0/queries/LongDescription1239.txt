@@ -1,0 +1,5 @@
+qzchenwl@gmail.com reported that LogLikelihood.logLikelihoodRatio() looked like its formula was incorrect, at least with respect to http://tdunning.blogspot.mx/2008/03/surprise-and-coincidence.html
+
+It appears that the calculation is correct but in a different form, that is not immediately recognizable as correct. The proposal here is to change the code to match the blog post and avoid confusion (and ends up avoiding 2 method calls).
+
+(Along the way, I think this fixes a tiny other problem in a related test. We have a test case that detects when round-off would produce a negative LLR and should be clamped to 0, but the test asserts that the result is >0 not >=0.)

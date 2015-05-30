@@ -1,0 +1,18 @@
+LanguageConnectionContext has these four methods (as well as other commit/rollback methods) to manage transactions and specifically nested transactions.
+
+void beginNestedTransaction(boolean readOnly) throws StandardException;
+void commitNestedTransaction() throws StandardException;
+TransactionController getTransactionCompile();
+TransactionController getTransactionExecute();
+
+getTransactionCompile() returns the same as getTransactionExecute() if not in a nested transaction.
+
+nested transactions started out as "compile time" transactions  but are now used at runtime, for example in permission lookup and identity columns,
+thus the name getTransactionCompile() can confuse readers.
+
+A cleaner api might be to just have a single getTransaction() method that returns the current transaction, which is main transaction (non-nested) except
+between calls to
+   beginNestedTransaction() 
+  commitNestedTransaction()
+
+I think that is the logic today, one one transaction is active, either the nested one of the main one.

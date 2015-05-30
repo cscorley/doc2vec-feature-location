@@ -1,0 +1,56 @@
+See the following thread for the original report:
+http://mail-archives.apache.org/mod_mbox/hadoop-zookeeper-user/200812.mbox/browser
+Steps to reproduce:
+1) Start a replicated zookeeper service consisting of 3 zookeeper (3.0.1) servers all running on the same host (of course, all using their own ports and log directories)
+2) Create one znode in this ensemble (using the zookeeper client console, I issued 'create /node1 node1data').
+3) Stop, then restart a single zookeeper server; moving onto the next one a few seconds later. 
+4) Go back to 3. After 4-5 iterations, the following should occur, with the failing server exiting:
+java.lang.NullPointerException
+        at 
+org.apache.zookeeper.server.persistence.FileTxnLog$FileTxnIterator.next(FileTxnLog.java:447)
+        at 
+org.apache.zookeeper.server.persistence.FileTxnLog$FileTxnIterator.init(FileTxnLog.java:358)
+        at 
+org.apache.zookeeper.server.persistence.FileTxnLog$FileTxnIterator.<init>(FileTxnLog.java:333)
+        at 
+org.apache.zookeeper.server.persistence.FileTxnLog.read(FileTxnLog.java:250)
+        at 
+org.apache.zookeeper.server.persistence.FileTxnSnapLog.restore(FileTxnSnapLog.java:102)
+        at 
+org.apache.zookeeper.server.ZooKeeperServer.loadData(ZooKeeperServer.java:183)
+        at org.apache.zookeeper.server.quorum.Leader.lead(Leader.java:245)
+        at 
+org.apache.zookeeper.server.quorum.QuorumPeer.run(QuorumPeer.java:421)
+2008-12-08 14:14:24,880 - INFO  
+[QuorumPeer:/0:0:0:0:0:0:0:0:2183:Leader@336] - Shutdown called
+java.lang.Exception: shutdown Leader! reason: Forcing shutdown
+        at 
+org.apache.zookeeper.server.quorum.Leader.shutdown(Leader.java:336)
+        at 
+org.apache.zookeeper.server.quorum.QuorumPeer.run(QuorumPeer.java:427)
+Exception in thread "QuorumPeer:/0:0:0:0:0:0:0:0:2183" 
+java.lang.NullPointerException
+        at 
+org.apache.zookeeper.server.quorum.Leader.shutdown(Leader.java:339)
+        at 
+org.apache.zookeeper.server.quorum.QuorumPeer.run(QuorumPeer.java:427)
+
+The inputStream field is null, apparently because next is being called 
+at line 358 even after next returns false. Having very little knowledge 
+about the implementation, I don't know if the existence of hdr.getZxid() 
+ >= zxid is supposed to be an invariant across all invocations of the 
+server; however the following change to FileTxnLog.java seems to make 
+the problem go away.
+diff FileTxnLog.java /tmp/FileTxnLog.java
+358c358,359
+<                 next();
+—
+ >               if (!next())
+ >                   return;
+447c448,450
+<                 inputStream.close();
+—
+ >               if (inputStream != null) 
+{
+ >                   inputStream.close();
+ >               }

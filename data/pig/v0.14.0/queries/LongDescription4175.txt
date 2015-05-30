@@ -1,0 +1,20 @@
+Three files will be attached to help visualize this issue.
+
+1. mktestdata.py - to generate test data to feed the pig script
+2. test_cross.pig - the PIG script using CROSS and STORE
+3. test_cross.out - the PIG console output showing the input/output records delta
+
+To reproduce this PIG CROSS operation problem, you need to use the supplied Python script,
+mktestdata.py, to generate an input file that is at least 13,948,228,930 bytes (> 13GB).
+
+The CROSS between raw_data (m records) and cross_count (1 record) should yield exactly (m records) as the output.  
+The STORE results from the CROSS operations yielded about 1/3 of input record in raw_data as the output.  
+
+If I joined the both of the CROSS operations together, the STORE results from the CROSS operations yielded about 2/3
+of the input records in raw-data as the output.  
+– data = CROSS raw_data, field04s_count, subsection1_field04s_count, subsection2_field04s_count;
+
+
+We have reproduced this using both Pig 0.11 (Hadoop 1.x) and Pig 0.12 (Hadoop 2.x) clusters.  
+The default HDFS block size is 128MB.  
+

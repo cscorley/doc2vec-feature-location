@@ -1,0 +1,39 @@
+Consider the following persistent class model. The accessor methods are removed for the sake of brevity.
+
+public class EmbeddedOwnerPC {
+
+    private int id1;
+    private int id2;
+    private String stringField;
+    private EmbeddedPC embedded;
+    private ComplexEmbeddedPC complexEmbedded;
+}
+
+public class EmbeddedPC {
+    private int intField;
+    private String stringField;
+}
+
+public class ComplexEmbeddedPC  extends RecursivelyEmbeddedPC {
+
+    private String stringField;
+    private EmbeddedOwnerPC ownerField;
+    private Set stringSet = new HashSet();
+}
+
+public class RecursivelyEmbeddedPC {
+
+    private EmbeddedPC embedded;
+}
+
+
+When trying to retrieve the EmbeddedOwner entity with a given fetch plan that includes the complexEmbedded and the embedded fields in the RecursivelyEmbeddedPC class it generate the following 2 SQL statements to load the entity.
+
+
+SELECT t0.TYP, t0.VERSN, t0.EMBEDDED_NULL, t0.ID1, t0.ID2, t0.INTFIELD1, 
+t0.STRINGFIELD3, t0.STRINGFIELD FROM EMBEDDEDOWNERPC t0 WHERE t0.ID1 = ? AND t0.ID2 = ? FOR UPDATE
+
+SELECT t0.ID1, t0.ID2 FROM EMBEDDEDOWNERPC t0 WHERE t0.ID1 = ? AND t0.ID2 = ? 
+FOR UPDATE
+
+The second call is reduntant and not needed. The fix is to the EmbedFieldStrategy class load method to ensure that all fields that are required to be loaded as per the fetch plan and included from the result set and ONLY when this is not true then generate the extra call otherwise return a hollow embedded entity. In the above test case the extra call was generated to get the stringSet field which was not specified in the fetch plan but the call is made out nevertheless which just selects the primary keys with the same where clause.

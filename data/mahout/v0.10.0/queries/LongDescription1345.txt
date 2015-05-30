@@ -1,0 +1,10 @@
+When enabling randomised testing for all modules I found a few tests became unstable or even fail deterministically due to lingering threads. The attached patch:
+
+
+	defines the randomised testing dependency in our parent pom
+	re-uses said dependencies in all depending modules (makes upgrading easier as the version number needs to be changed in just one place)
+	adds several code changes that fixed the failures due to lingering threads for me on my machine. I'd greatly appreciate input a) from those who wrote the respective code and b) others who ran the tests with these changes to make sure there are no other tests that suffer from the same issues.
+
+
+
+Warning: I touched quite a few bits and pieces I'm not intimately familiar with over the last few weeks  (whenever I had a few spare minutes) - second pair of eyes needed.

@@ -1,0 +1,5 @@
+Metadata constructor initialises a bunch of SimpleTimeFormat objects. This is slow - they need to parse their configuration strings, system must be queried for timezone, and so on. In my simple test in which I create new Metadata object for each new document this accounts for approximately 25-30% of all time spent in Tika.
+
+As pointed out by Nick Burch, SimpleTimeFormat is not threadsafe, so they can't be static.
+
+Possible solutions include using org.apache.commons.lang.time.FastDateFormat instead (if its features are sufficient), or using thread local objects.

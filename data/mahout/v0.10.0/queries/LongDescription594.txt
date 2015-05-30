@@ -1,0 +1,65 @@
+For non-ASCII output data, java.io.FileWriter should be replaced with java.io.OutputStreamWriter in UTF-8.
+
+For example, if you dump centroids of clusters using ClusterDumper, you may get the following output:
+
+...
+C-0{n=2 c=[brown:2.099, c?t:1.957, dogs:1.916, fox:0.652, jumped:2.099, l?zy:1.884, over:2.099, quick:2.099, red:1.916, ?:0.871, ?:0.871, ?:0.871, ?:0.871] r=[c?t:0.652, fox:0.652, l?zy:1.131, ?:0.871, ?:0.871, ?:0.871, ?:0.871]}
+    Top Terms:
+        quick                                   =>  2.0986123085021973
+        over                                    =>  2.0986123085021973
+        jumped                                  =>  2.0986123085021973
+        brown                                   =>  2.0986123085021973
+        c?t                                     =>   1.957078456878662
+        red                                     =>  1.9162907600402832
+        dogs                                    =>  1.9162907600402832
+        l?zy                                    =>  1.8843144178390503
+        ?                                       =>  0.8706584572792053
+        ?                                       =>  0.8706584572792053
+    Weight:  Point:
+    1.0: P(0) = [brown:2.099, dogs:1.916, fox:2.609, jumped:2.099, over:2.099, quick:2.099, red:1.916, ?:2.322, ?:2.322, ?:2.322, ?:2.322]
+    1.0: P(1) = [brown:2.099, dogs:1.916, fox:2.609, jumped:2.099, over:2.099, quick:2.099, red:1.916, ?:2.322, ?:2.322, ?:2.322, ?:2.322]
+    1.0: P(2) = [brown:2.099, c?t:2.609, dogs:1.916, jumped:2.099, over:2.099, quick:2.099, red:1.916, ?:2.322, ?:2.322, ?:2.322, ?:2.322]
+...
+
+
+
+where "?" characters were garbled by FileWriter. NOTE: this test case is a tweaked version of TestClusterDumper. E.g., lazy => läzy
+
+The cause of this is the line in ClusterDumper.java:
+
+
+
+Writer writer = this.outputFile == null ? new OutputStreamWriter(System.out) : new FileWriter(this.outputFile);
+
+
+
+This can be around by setting the environment variables LC_ALL/LANG to en_US.UTF-8, but many environments have LC_ALL/LANG=C by default, and in some cases, you even may not have choices but C for various reasons.
+
+To address this issue, I would like to propose to hard code the output encoding to UTF-8 as follows:
+
+
+
+Writer writer = this.outputFile == null ? new OutputStreamWriter(System.out) : new OutputStreamWriter(new FileInputStream(this.outputFile), UTF8);
+
+
+
+This way, the output file encoding will not be affected by environments.
+
+And if this proposal is agreed, a similar fix should be applied to the following files:
+
+
+	./core/src/main/java/org/apache/mahout/classifier/sgd/ModelSerializer.java
+	./core/src/test/java/org/apache/mahout/fpm/pfpgrowth/PFPGrowthTest.java
+	./examples/src/main/java/org/apache/mahout/classifier/sgd/TrainLogistic.java
+	./examples/src/main/java/org/apache/mahout/clustering/display/DisplaySpectralKMeans.java
+	./utils/src/main/java/org/apache/mahout/clustering/lda/LDAPrintTopics.java
+	./utils/src/main/java/org/apache/mahout/utils/SequenceFileDumper.java
+	./utils/src/main/java/org/apache/mahout/utils/clustering/ClusterDumper.java
+	./utils/src/main/java/org/apache/mahout/utils/vectors/VectorDumper.java
+	./utils/src/main/java/org/apache/mahout/utils/vectors/arff/Driver.java
+	./utils/src/main/java/org/apache/mahout/utils/vectors/lucene/ClusterLabels.java
+	./utils/src/main/java/org/apache/mahout/utils/vectors/lucene/Driver.java
+
+
+
+Hope not many folks prefer ISO-8859-1 or other 'legacy' character sets.

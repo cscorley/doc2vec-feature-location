@@ -1,0 +1,7 @@
+When trying to run the Synthetic Control Data examples (http://cwiki.apache.org/MAHOUT/syntheticcontroldata.html) in a pseudo-distributed Hadoop cluster I got the java.lang.ClassNotFoundException exception in kmeans and dirichlet. canopy and meanshift worked perfectly.
+
+The past solution was to flatten the examples jar: unjar all the libs and pack them in a single jar file. I found that, for the clustering examples, you only need to unpack the mahout-core jar, and because the compiled classes are already available in core/target/classes I changed maven/build.xml as follows:
+
+	grab the core/target/classes directly instead of the packed jar
+	exclude apache-mahout-core-*.jar, this should exclude both apache-mahout-core.jar and apache-mahout-core-tests.jar (do the examples really need the core-tests jar ?)
+

@@ -1,0 +1,8 @@
+There were unnecessary CAST added to the SQL statements that can be removed to improve the performance. The change will eliminate the CAST for the constants. For example, the original query is :
+Executing query: select d from DogABS d where LENGTH(d.name) < 10
+
+The current generated SQL statement:
+executing prepstmnt 1335250838 SELECT t0.id2, t0.datastoreid, t0.domestic, t0.name, t0.price, t0.total FROM DOGABS t0 WHERE (CAST(LENGTH(CAST(t0.name AS VARCHAR(1000))) AS BIGINT) < CAST(? AS BIGINT))  [params=(long) 10]
+
+After the changes:
+executing prepstmnt 1749706826 SELECT t0.id2, t0.datastoreid, t0.domestic, t0.name, t0.price, t0.total FROM DOGABS t0 WHERE (LENGTH(t0.name) < ?)  [params=(long) 10]

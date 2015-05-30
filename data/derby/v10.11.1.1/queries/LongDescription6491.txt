@@ -1,0 +1,52 @@
+A Derby SELECT requires that the user enjoy USAGE privilege on the types of all columns in the tables being read. This even includes USAGE privilege on the types of columns which are not being read. The latter privilege certainly seems overbroad. But I don't think that USAGE privilege should even be required on the types of columns being SELECTed. I can't find any language in the SQL Standard requiring this.
+
+This interpretation is in line with the general principle that the user who creates a table must enjoy privilege to use and execute functions and types mentioned in the table definition, but other users who access that table only need the correct INSERT/UPDATE/DELETE/SELECT privileges and otherwise operate under the aegis of the table owner.
+
+This interpretation of the Standard agrees with the behavior of DB2, as described here: http://pic.dhe.ibm.com/infocenter/iseries/v7r1m0/index.jsp?topic=%2Fdb2%2Frbafzgntudtp.htm I think that Derby also incorrectly requires USAGE privilege on the types of arguments/return values of routines when invoking those routines. But that is a separate issue which I do not want to address with this JIRA.
+
+The following script shows the overbroad USAGE requirements of SELECT statements:
+
+
+connect 'jdbc:derby:memory:db;user=test_dbo;create=true';
+
+call syscs_util.syscs_create_user( 'TEST_DBO', 'test_dbopassword' );
+call syscs_util.syscs_create_user( 'RUTH', 'ruthpassword' );
+
+connect 'jdbc:derby:memory:db;shutdown=true';
+
+connect 'jdbc:derby:memory:db;user=test_dbo;password=test_dbopassword' as dbo;
+
+create type SourceUnreferencedType_045 external name 'java.util.HashMap' language java;
+create type SourceValueType_045 external name 'java.util.HashMap' language java;
+
+create table sourceTable_045
+(
+    sourceUnreferencedColumn SourceUnreferencedType_045,
+    sourceValueColumn SourceValueType_045
+);
+
+grant select( sourceValueColumn ) on sourceTable_045 to ruth;
+
+connect 'jdbc:derby:memory:db;user=ruth;password=ruthpassword' as ruth;
+
+-- incorrectly fails because ruth does not have USAGE privilege on SourceUnreferencedType_045
+select sourceValueColumn from test_dbo.sourceTable_045;
+
+set connection dbo;
+
+grant usage on type SourceUnreferencedType_045 to ruth;
+
+set connection ruth;
+
+-- incorrectly fails because ruth does not have USAGE privilege on SourceValueType_045
+select sourceValueColumn from test_dbo.sourceTable_045;
+
+set connection dbo;
+
+grant usage on type SourceValueType_045 to ruth;
+
+set connection ruth;
+
+-- succeeds now that ruth has USAGE privilege on both types
+select sourceValueColumn from test_dbo.sourceTable_045;
+

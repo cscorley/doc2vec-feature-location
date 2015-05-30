@@ -1,0 +1,22 @@
+Lucene API provides means to configure deletion policy. Solr should be able to expose it through configuration in solrconfig.xml. Moreover the new replication (SOLR-561) strategy is going to rely on this .
+
+I propose the configuration go into the <mainIndex>  section
+
+sample configuration
+solrconfig.xml
+<mainIndex>
+    <!-- configure deletion policy here-->
+    <deletionPolicy>
+       <!-- Store only the commits with optimize.Non optimized commits will get deleted by lucene when 
+               the last IndexWriter/IndexReader using this commit point is closed  -->
+        <keepOptimizedOnly>true</keepOptimizedOnly>
+         <!--Maximum no: of commit points stored . Older ones will be cleaned when they go out of scope-->
+        <maxCommitsToKeep></maxCommitsToKeep>
+         <!-- max age of a stored commit-->
+        <maxCommitAge></maxCommitAge>    
+    </deletionPolicy>
+    
+  </mainIndex>
+
+
+

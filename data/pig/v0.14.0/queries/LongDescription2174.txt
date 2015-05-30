@@ -1,0 +1,21 @@
+When mixing static and dynamic column mappings, HBaseStorage sometimes doesn't pick up the static column values and nulls are returned. I believe this bug has been masked by HBase being a bit over-eager when it comes to respecting column filters (i.e. HBase is returning more columns than it should).
+
+For example, this query returns nulls for the sc column, even when it contains data:
+
+a = LOAD 'hbase://pigtable_1' USING
+  org.apache.pig.backend.hadoop.hbase.HBaseStorage
+  ('pig:sc pig:prefixed_col_*','-loadKey') AS
+  (rowKey:chararray, sc:chararray, pig_cf_map:map[]);
+
+
+
+What is very strange (about HBase), is that the same script will return values just fine if sc is instead col_a, assuming of course that both columns contain data:
+
+a = LOAD 'hbase://pigtable_1' USING
+  org.apache.pig.backend.hadoop.hbase.HBaseStorage
+  ('pig:col_a pig:prefixed_col_*','-loadKey') AS
+  (rowKey:chararray, col_a:chararray, pig_cf_map:map[]);
+
+
+
+Potential HBase issues aside, I think there is a bug in the logic on the Pig side. Patch to follow. 

@@ -1,0 +1,19 @@
+Here is the use case:
+
+
+
+define test ( in, out, x ) returns c { 
+    a = load '$in' as (name, age, gpa);
+    b = group a by gpa;
+    $c = foreach b generate group, COUNT(a.$x);
+    store $c into '$out';
+};
+
+define test2( in, out ) returns x { 
+    $x = test( '$in', '$out', 'name' );
+    $x = test( '$in', '$out.1', 'age' );
+    $x = test( '$in', '$out.2', 'gpa' );
+};
+
+x = test2('studenttab10k', 'myoutput');
+

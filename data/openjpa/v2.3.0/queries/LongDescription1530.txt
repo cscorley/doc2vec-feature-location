@@ -1,0 +1,9 @@
+The MySQLDictionary currently supports only TYPE innodb. There is a skeleton for support of this element but there is no way to change it from the default.
+
+Also, according to the MySQL documentation http://dev.mysql.com/doc/refman/5.1/en/create-table.html  TYPE is deprecated. The recommended (and supported) keyword is ENGINE. 
+
+"Since MySQL 5.1.8, it produces a warning. It will be removed in a future MySQL release. You should not use TYPE in any new applications, and you should immediately begin conversion of existing applications to use ENGINE instead."
+
+I propose to change TYPE to ENGINE, and to provide a way for the user to specify which engine to use.
+
+I need some feedback on this: A property, mysql.engine, with a default of innodb (for compatibility) can be specified by the user in order to create tables using any of the supported engines. Can the property be put onto the command line? Can the property be added to persistence.xml? Can the property be added to the maven profile properties?

@@ -1,0 +1,17 @@
+The serialized PHP output writer can outputs invalid string lengths for certain (unusual) input values.  Specifically, I had a document containing the following 6 byte character sequence: \xED\xAF\x80\xED\xB1\xB8
+
+I was able to create a document in the index containing this value without issue; however, when fetching the document back out using the serialized PHP writer, it returns a string like the following:
+
+s:4:"í¯€í±¸";
+
+Note that the string length specified is 4, while the string is actually 6 bytes long.
+
+When using PHP's native serialize() function, it correctly sets the length to 6:
+
+
+	php -r 'var_dump(serialize("\xED\xAF\x80\xED\xB1\xB8"));'
+string(13) "s:6:"í¯€í±¸";"
+
+
+
+The "wt=php" writer, which produces output to be parsed with eval(), doesn't have any trouble with this string.

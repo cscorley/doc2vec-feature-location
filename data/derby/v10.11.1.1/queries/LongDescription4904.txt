@@ -1,0 +1,26 @@
+If the XPLAIN schema contains lowercase characters (e.g, CALL SYSCS_UTIL.SYSCS_SET_XPLAIN_SCHEMA('my_stats_schema')), the plan exporter will fail with
+
+ERROR 42Y07: Schema 'MY_STATS_SCHEMA' does not exist
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:286)
+	at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.getSchemaDescriptor(DataDictionaryImpl.java:1528)
+(...)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeQuery(EmbedStatement.java:153)
+	at org.apache.derby.impl.tools.planexporter.AccessDatabase.noOfNodes(AccessDatabase.java:417)
+	at org.apache.derby.impl.tools.planexporter.AccessDatabase.initializeDataArray(AccessDatabase.java:323)
+	at org.apache.derby.tools.PlanExporter.main(PlanExporter.java:59)
+
+If the schema contains spaces or special characters, like single-quotes or double-quotes, it will get a syntax error instead:
+
+ij> CALL SYSCS_UTIL.SYSCS_SET_RUNTIMESTATISTICS(1);
+ij> CALL SYSCS_UTIL.SYSCS_SET_XPLAIN_SCHEMA('my "quoted" schema');
+ij> SELECT * FROM SYSIBM.SYSDUMMY1;
+
+$ java org.apache.derby.tools.PlanExporter jdbc:derby:db 'my "quoted" schema' 6f2b430a-012c-4ec6-f4a1-00000d4d4fe5 -xml plan.xml -html plan.html
+ERROR 42X01: Syntax error: Encountered "schema" at line 1, column 34.
+    at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:286)
+    at org.apache.derby.impl.sql.compile.ParserImpl.parseStatement(ParserImpl.java:155)
+(...)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeQuery(EmbedStatement.java:153)
+	at org.apache.derby.impl.tools.planexporter.AccessDatabase.noOfNodes(AccessDatabase.java:417)
+	at org.apache.derby.impl.tools.planexporter.AccessDatabase.initializeDataArray(AccessDatabase.java:323)
+	at org.apache.derby.tools.PlanExporter.main(PlanExporter.java:59)

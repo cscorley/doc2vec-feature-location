@@ -1,0 +1,42 @@
+I've re-created an issue with Externalizers.  That is, when the Externalizer method (i.e. the method listed in the @Externalizer) causes/throws an exception, OpenJPA generates, and executes, incorrect/incomplete SQL.  To better explain, let me describe some test code snippets which are from the test I'll provide.  First, take this entity:
+
+@Entity
+public class TestItem implements Serializable {
+.....
+	@org.apache.openjpa.persistence.Persistent
+	@org.apache.openjpa.persistence.Externalizer("check")
+	private TestExternal ext;
+
+
+And take the following class TestExternal:
+
+public static class TestExternal {
+.....
+	public String check() throws Exception {
+		throw new PersistenceException("test exception externalizer");
+
+
+
+With this code, lets look at the case where we persist a new TestItem, and the case where we update an existing one.  When we create a new TestItem and persist it, OpenJPA generates and executes the following SQL:
+
+INSERT INTO TESTITEM (data) VALUES 
+
+However, this SQL should be generated:
+
+INSERT INTO TESTITEM (iref, data, ext, name) VALUES (?, ?, ?, ?)
+
+When we update an existing TestItem, OpenJPA generates, and executes, the following SQL:
+
+UPDATE TESTITEM SET data = ?
+
+However, this SQL should be generated:
+
+UPDATE TESTITEM SET data = ? WHERE iref = ?
+
+Because an unhandled exception is thrown by the Externalizer method, the transaction will be rolled back.  However, if the SQL were to actually commit, every row in TestItem would be updated with the value in 'data'.  Furthermore, in the case where there are hundreds/thousands of rows in the DB, the execution of the SQL may take a long time to complete and will maintain a lock on the TestItem table during the execution, possibly locking out other clients.
+
+I've included a simple test, named ExternalizerTest.zip, which demonstrates the issue.
+
+Thanks,
+
+Heath

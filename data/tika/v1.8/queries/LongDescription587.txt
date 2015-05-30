@@ -1,0 +1,8 @@
+java.lang.NullPointerException
+	at org.apache.tika.parser.microsoft.OutlookExtractor.header(OutlookExtractor.java:150)
+
+String value might be null - see line 51: msg.setReturnNullOnMissingChunk(true);
+
+In my case, the message is missing the "from" chunk.
+
+Possible fixes include assigning a default value "" for relevant chunks, if missing or a simple check for null in the header-method.

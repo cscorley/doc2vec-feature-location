@@ -1,0 +1,14 @@
+RAMTransaction.addColumnToConglomerate() contains this piece of code:
+
+            // remove old entry in the Conglomerate directory, and add new one
+			if (tempCongloms != null)
+				tempCongloms.remove(new Long(conglomId));
+			tempCongloms.put(new Long(conglomId), conglom);
+
+1. According to the code coverage report (http://people.apache.org/~fuzzylogic/codecoverage/529822/_files/3fc.html#5) these lines are not tested. If possible, a test that covers them should be added to the regression suite.
+
+2. The null check looks either unnecessary (seems to be the case after a brief inspection of the code), or incomplete since the last line will throw a NullPointerException regardless of the check if tempCongloms is null.
+
+3. The call to remove() before put() is redundant, since HashMap.put() will remove the old mapping implicitly.
+
+4. It seems to me that the object that is put into the HashMap always is the same as the one that is removed, so perhaps all these lines could be deleted.

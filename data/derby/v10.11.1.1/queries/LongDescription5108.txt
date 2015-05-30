@@ -1,0 +1,12 @@
+The test AutomaticIndexStatisticsTest.testShutdownWhileScanningThenDelete fails intermittently on Windows platforms because the test is unable to delete a database directory.
+Even after several retries and sleeps (the formula should be (attempt -1) * 2000, resulting in a total sleep time of 12 seconds), the conglomerate system\singleUse\copyShutdown\seg0\c481.dat cannot be deleted.
+
+For instance from http://dbtg.foundry.sun.com/derby/test/Daily/jvm1.6/testing/testlog/w2003/1078855-suitesAll_diff.txt :
+(truncated paths)
+testShutdownWhileScanningThenDelete <assertDirectoryDeleted> attempt 1 left 3 files/dirs behind: 0=system\singleUse\copyShutdown\seg0\c481.dat 1=system\singleUse\copyShutdown\seg0 2=system\singleUse\copyShutdown
+<assertDirectoryDeleted> attempt 2 left 3 files/dirs behind: 0=system\singleUse\copyShutdown\seg0\c481.dat 1=system\singleUse\copyShutdown\seg0 2=system\singleUse\copyShutdown
+<assertDirectoryDeleted> attempt 3 left 3 files/dirs behind: 0=system\singleUse\copyShutdown\seg0\c481.dat 1=system\singleUse\copyShutdown\seg0 2=system\singleUse\copyShutdown
+<assertDirectoryDeleted> attempt 4 left 3 files/dirs behind: 0=system\singleUse\copyShutdown\seg0\c481.dat 1=system\singleUse\copyShutdown\seg0 2=system\singleUse\copyShutdown
+used 205814 ms F.
+
+Maybe the database isn't shut down, or some specific timing of events causes a file to be reopened when it shouldn't have been (i.e. after the database shutdown has been initiated).

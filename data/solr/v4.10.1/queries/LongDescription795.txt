@@ -1,0 +1,48 @@
+I see that there's an option to automatically rebuild the spelling index on a commit.  That's a nice feature that we'll consider using, but we run commits every few thousand document updates, which would yield ~100 spelling index rebuilds a day.  OTOH, we run an optimize about once/day which seems like a more appropriate schedule for rebuilding the spelling index.
+
+Is there or could there be an option to rebuild the spelling index on optimize?
+
+Grant:
+Seems reasonable, could almost do it via the postOptimize call back already in the config, except the SpellCheckComponent's EvenListener is private static and has an empty postCommit implementation (which is what is called after optimization, since it is just like a commit in many ways)
+
+Thus, a patch would be needed.
+
+Shalin:
+postCommit/postOptimize callbacks happen after commit/optimize but before a
+new searcher is opened. Therefore, it is not possible to re-build spellcheck
+index on those events without opening a IndexReader directly on the solr
+index. That is why the event listener in SpellCheckComponent uses the
+newSearcher listener to build on commits.
+
+I don't think there is anything in the API currently to do what Jason wants.
+
+Hoss:
+FWIW: I believe it has to work that way because postCommit events might
+modify the index. (but i'm just guessing)
+
+couldn't the Listener's newSearcher() method just do something like
+this...
+
+if (rebuildOnlyAfterOptimize &&
+   ! (newSearcher.getReader().isOptimized() &&
+      ! oldSearcher.getReader().isOptimized()) {
+ return;
+} else {
+ // current impl
+}
+
+...assuming a new "rebuildOnlyAfterOptimize" option was added?
+
+Grant:
+That seems reasonable.
+
+Another thing to think about, is maybe it is useful to provide some event metadata to the events that contain information about what triggered them.  Something like a SolrEvent class such that postCommit looks like
+postCommit(SolrEvent evt)
+
+and
+public void newSearcher(SolrEvent evt, SolrIndexSearcher newSearcher, SolrIndexSearcher currentSearcher);
+
+Of course, since SolrEventListener is an interface...
+
+Shalin:
+Yup, that will work.

@@ -1,0 +1,18 @@
+this scprit does not work
+
+register /homes/yinghe/owl/string.jar;
+a = load '/user/yinghe/a.txt' as (id, color);
+b = group a all;
+c = foreach b 
+{
+    d = distinct a.color;
+    generate group, string.BagCount2(d), string.ColumnLen2(d, 0);
+}
+
+the udfs are regular, not algebraic.
+
+then if I call  "dump c;" or "explain c", I would get  this error message.
+ERROR org.apache.pig.tools.grunt.Grunt - ERROR 2019: Expected to find plan with single leaf. Found 2 leaves.
+
+The error only occurs for the first time, after getting this error, if I call "dump c" or "explain c" again, it would succeed.
+

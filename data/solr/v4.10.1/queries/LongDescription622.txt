@@ -1,0 +1,11 @@
+SpellCheckComponent must be able to build/load spell check index on startup and commits. With SOLR-605, SpellCheckComponent can register an event listener for firstSearcher and newSearcher events and rebuild/reload indices as appropriate.
+
+
+	If index uses a FSDirectory and exists on disk then just reload it or else build it on firstSearcher event.
+	If index is built from a Solr field then re-build it on newSearcher event.
+
+
+
+This will help avoid having to add QuerySenderListener in configuration and will not force people to issue build on first query.
+
+All this should be configurable so that people who don't want to rebuild on commits should be able to turn this feature off per configured spell checker.

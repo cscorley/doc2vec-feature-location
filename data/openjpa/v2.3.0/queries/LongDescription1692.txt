@@ -1,0 +1,31 @@
+There have been a couple instances (that come to my mind) where there was the need to do some work after creating the broker factory. Sometimes there is a necessity to ensure single threadedness @see (PersistenceProviderImpl.postBrokerFactoryInitialization(...)), other times we need to perform some additional configuration / initialization after the BrokerFactory has completed (openjpa.InitializeEagerly=true). 
+
+I recently ran across a problem with the second case. In AbstractBrokerFactory.ctor(...) we attempt to create a broker even though the subclassed BrokerFactory hasn't able to execute it's constructor.
+
+Example pseudo code:
+
+abstract class AbstractBrokerFactory {
+	AbstractBrokerFactory(Config c)
+{
+		// setup
+		if(InitializeEagerly==true)
+			this.newBroker(); <-- BAD! The subclass hasn't executed it's constructor but it may be asked to create a new broker.
+	}
+		
+}
+
+class ConcreteBrokerFactory extends AbstractBrokerFactory {
+	Config _conf;
+	ConcreteBrokerFactory (Config c)
+{
+		super(c);
+		// setup
+		_conf = c;
+	}
+	newBroker()
+{
+		_conf.getSomething(); <-- _conf IS NULL because the constructor hasn't fully executed yet.
+	}
+}
+
+I propose that we need a postCreationCallBack method on the BrokerFactory interface. This will be a single place that Bootstrap can drive this 'after creation ish' work.

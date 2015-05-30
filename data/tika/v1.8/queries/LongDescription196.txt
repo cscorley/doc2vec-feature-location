@@ -1,0 +1,25 @@
+As reported by Dmitry Kudryavtsev on the mailing list, the TikaConfig class does not work on Java 1.4 even in the retrotranslated -jdk14 version.
+
+Dmitry explains:
+> I would like to suggest a minor patch for TikaConfig for backward
+> compatibilities  with java 1.4
+> Here it is:
+> ===>
+> ...
+> parsers.put(mime.getTextContent().trim(), parser);
+> ...
+> <===
+> 
+> in  constructor TikaConfig(Element element) should be replaced with code
+> like:
+> 
+> ===>
+> Node txtNode = mime.getFirstChild();
+> if ( txtNode != null )
+{
+>    parsers.put(txtNode.getNodeValue().trim(), parser);
+> }
+> <===
+> 
+> This is important because Node.getTextContent not available in java 1.4 and
+> tika-jdk1.4 become useless.

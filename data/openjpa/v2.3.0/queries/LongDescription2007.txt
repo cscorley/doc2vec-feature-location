@@ -1,0 +1,7 @@
+Setting query hint "openjpa.FetchPlan.Isolation" on a query results in this misleading warning being printed in the log:
+
+WARN   [main] openjpa.Runtime - "openjpa.FetchPlan.Isolation" is not a supported query hint. May be you meant "openjpa.FetchPlan.LRSSize"?
+
+The supported hint map in JDBCPersistenceProductDerivation adds key openjpa.FetchPlan.TransactionIsolation, which is incorrect.  It should be adding openjpa.FetchPlan.Isolation instead.
+
+Note: Even though a warning is issued, provided the database supports query-level isolation level switching, the hint handler does apply the isolation level to the query.

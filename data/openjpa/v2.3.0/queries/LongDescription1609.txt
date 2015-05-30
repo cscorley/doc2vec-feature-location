@@ -1,0 +1,71 @@
+I am observing the following problem while working with OpenJPA 2.x on DB2v91 for z/OS:
+
+When performing a EntityManager.find() with a lock timeout property set, I'm expecting to receive a LockTimeoutException if my find operation fails to fetch the data from the database within the specified timeout period.  Instead of getting the LockTimeoutException, I am getting a PessimisticLockException – an Exception that is considerably more severe then is expected.
+
+I looked at the stack trace, and found the following information:
+
+**Exception: Caught unexpected exception from find.
+    org.apache.openjpa.persistence.PessimisticLockException:Unable to obtain an object lock on "null [java.lang.String]".
+FailedObject: 1 [org.apache.openjpa.util.IntId] [java.lang.String]
+	at org.apache.openjpa.jdbc.sql.DBDictionary.narrow(DBDictionary.java:4809)
+	at org.apache.openjpa.jdbc.sql.DBDictionary.newStoreException(DBDictionary.java:4787)
+	at org.apache.openjpa.jdbc.sql.DB2Dictionary.newStoreException(DB2Dictionary.java:563)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:136)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:86)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.initialize(JDBCStoreManager.java:339)
+	at com.ibm.ws.persistence.jdbc.kernel.WsJpaJDBCStoreManager.initialize(WsJpaJDBCStoreManager.java:147)
+	at org.apache.openjpa.kernel.DelegatingStoreManager.initialize(DelegatingStoreManager.java:111)
+	at org.apache.openjpa.kernel.ROPStoreManager.initialize(ROPStoreManager.java:57)
+	at org.apache.openjpa.kernel.BrokerImpl.initialize(BrokerImpl.java:1005)
+	at org.apache.openjpa.kernel.BrokerImpl.find(BrokerImpl.java:963)
+	at org.apache.openjpa.kernel.BrokerImpl.find(BrokerImpl.java:880)
+	at org.apache.openjpa.kernel.DelegatingBroker.find(DelegatingBroker.java:222)
+	at org.apache.openjpa.persistence.EntityManagerImpl.find(EntityManagerImpl.java:496)
+	at suite.r80.base.jpaspec.entitymanager.testlogic.FindLockTestLogic.testScenarioL009(FindLockTestLogic.java:2150)
+...
+Caused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: DB2 SQL Error: SQLCODE=-913, SQLSTATE=57033, SQLERRMC=00C9008E;00000304;DSN00292.JPA20EME.X'00000002'.X'01', DRIVER=3.57.91 
+{prepstmnt 2135785293 SELECT t0.version, t1.id, t1.version, t1.ENTITYALAZY_ID, t1.strData, t0.strData FROM JPA20EMEntityA t0 LEFT OUTER JOIN JPA20EMEntityC t1 ON t0.id = t1.ENTITYA_ID WHERE t0.id = ?  optimize for 1 row FOR READ ONLY WITH RR USE AND KEEP UPDATE LOCKS [params=(int) 1]}
+ [code=-913, state=57033]
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.wrap(LoggingConnectionDecorator.java:257)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.wrap(LoggingConnectionDecorator.java:241)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.access$700(LoggingConnectionDecorator.java:70)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection$LoggingPreparedStatement.executeQuery(LoggingConnectionDecorator.java:1063)
+	at org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement.executeQuery(DelegatingPreparedStatement.java:278)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager$CancelPreparedStatement.executeQuery(JDBCStoreManager.java:1706)
+	at org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement.executeQuery(DelegatingPreparedStatement.java:268)
+	at org.apache.openjpa.jdbc.sql.SelectImpl.executeQuery(SelectImpl.java:471)
+	at org.apache.openjpa.jdbc.sql.SelectImpl.execute(SelectImpl.java:396)
+	at com.ibm.ws.persistence.jdbc.sql.SelectImpl.execute(SelectImpl.java:77)
+	at org.apache.openjpa.jdbc.sql.SelectImpl.execute(SelectImpl.java:354)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.getInitializeStateResult(JDBCStoreManager.java:577)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.initializeState(JDBCStoreManager.java:379)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.initialize(JDBCStoreManager.java:334)
+	... 43 more
+
+The problem is that OpenJPA does not properly process the combination of SQLCODE=-913, SQLSTATE=57033, and SQLERRMC=00C9008E.
+The RedBook "DB2 for z/OS Stored Procedures: Through the CALL and Beyond" page 188 states:
+
+-913
+UNSUCCESSFUL EXECUTION CAUSED BY DEADLOCK OR TIMEOUT. REASON CODE reason-code, TYPE 
+OF RESOURCE resource-type, AND RESOURCE NAME resource-name
+
+Explanation: The application was the victim in a deadlock or experienced a time-out. The
+reason code indicates whether a deadlock or time-out occurred.
+
+SQLERRD(3) also contains the reason-code which indicates whether a deadlock or time-out 
+occurred. The most common reason codes are:
+
+00C90088 - deadlock 
+00C9008E - time-out
+
+Response: The application should either commit or roll back to the previous COMMIT. Then,
+generally, the application should terminate. See message DSNT376I in DB2 UDB for z/OS
+Version 8 Messages and Codes, GC18-7422, for possible ways to avoid future deadlocks or
+time-outs.
+
+The error being reported by DB2V9 on zOS is "SQLCODE=-913, SQLSTATE=57033, SQLERRMC=00C9008E", which indicates that
+the reason for the unsuccessful execution is a Timeout, not a Deadlock.  
+
+Presently, the DB2Dictionary.isFatalException() method does not support that combination.
+
+I've made a change to the isFatalException() method that considers that error combination, and the expected LockTimeoutException now surfaces.  I will post the patch on to this JIRA in a few minutes.

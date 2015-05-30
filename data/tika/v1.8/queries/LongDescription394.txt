@@ -1,0 +1,41 @@
+On parsing such html code:
+
+text<p>more<br>yet<select><option>city1<option>city2</select>
+
+resulting text is:
+
+textmore
+yetcity1city2
+
+But must be:
+
+text
+more
+yet city1 city2
+
+Code sample:
+
+import java.io.*;
+import org.apache.tika.metadata.*;
+import org.apache.tika.parser.*;
+
+public class test {
+
+   public static void main(String[] args) throws Exception {
+      Metadata metadata = new Metadata();
+      metadata.set(Metadata.CONTENT_TYPE, "text/html");
+      String content = "text<p>more<br>yet<select><option>city1<option>city2</select>";
+
+      InputStream in = new ByteArrayInputStream(content.getBytes("UTF-8"));
+      AutoDetectParser parser = new AutoDetectParser();
+      Reader reader = new ParsingReader(parser, in, metadata, new ParseContext());
+      char[] buf = new char[10000];
+      int len;
+      StringBuffer text = new StringBuffer();
+      while((len = reader.read(buf)) > 0) 
+{
+         text.append(buf, 0, len);
+      }
+      System.out.print(text);
+   }
+}

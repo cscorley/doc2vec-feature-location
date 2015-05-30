@@ -1,0 +1,6 @@
+The schema for the current user is usually auto-created on the first DDL operation if it doesn't already exist. If the DDL is a CREATE TABLE statement that creates a self-referencing table, however, the schema is not created, and the CREATE TABLE statement fails:
+
+ij version 10.7
+ij> connect 'jdbc:derby:testdb;create=true;user=alice';
+ij> create table self_referencing_t1(x int primary key, y int references self_referencing_t1);
+ERROR 42Y07: Schema 'ALICE' does not exist

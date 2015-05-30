@@ -1,0 +1,14 @@
+The Solr-recommender needs to find where the RecommenderJob is putting it’s output. 
+
+Mahout 0.8 RecommenderJob code was:
+   public static final String DEFAULT_PREPARE_DIR = "preparePreferenceMatrix”;
+
+Mahout 0.9 RecommenderJob code just puts “preparePreferenceMatrix” inline in the code:
+   Path prepPath = getTempPath("preparePreferenceMatrix");
+
+This change to Mahout 0.9 works:
+   public static final String DEFAULT_PREPARE_DIR = "preparePreferenceMatrix”;
+and
+   Path prepPath = getTempPath(DEFAULT_PREPARE_DIR);
+
+You could also make this a getter method on the RecommenderJob Class instead of using a public constant.

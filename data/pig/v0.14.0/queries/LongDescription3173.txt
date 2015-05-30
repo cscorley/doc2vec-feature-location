@@ -1,0 +1,9 @@
+A = load 'db.table' using org.apache.hcatalog.pig.HCatLoader();
+B = filter A by (region=='usa' AND dt=='201302051800') OR (region=='uk' AND dt=='201302051800');
+C = foreach B generate name, age;
+DUMP C;
+
+gives the below warning and scans the whole table.
+
+2013-02-06 22:22:16,233 [main] WARN  org.apache.pig.newplan.PColFilterExtractor  - No partition filter push down: You have an partition column (region ) in a construction like: (pcond  and ...) or (pcond and ...) where pcond is a condition on a partition column.
+2013-02-06 22:22:16,233 [main] WARN  org.apache.pig.newplan.PColFilterExtractor  - No partition filter push down: You have an partition column (datestamp ) in a construction like: (pcond  and ...) or (pcond and ...) where pcond is a condition on a partition column.

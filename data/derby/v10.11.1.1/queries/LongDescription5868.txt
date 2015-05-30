@@ -1,0 +1,3 @@
+The client classes that implement java.sql.Wrapper, implement the interface in the leaf classes instead of the base classes. This is because unwrap() has a generic signature, so it could not be in the base classes as long as they had to be compatible with Java 1.4.
+
+For example, in the statement class hierarchy, we implement unwrap() in Statement40, PreparedStatement40 and CallableStatement40. Now that we compile the client with source level 1.5, we can move the unwrap() method to the Statement class and eliminate the duplication.

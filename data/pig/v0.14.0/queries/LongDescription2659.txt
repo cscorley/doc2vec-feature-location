@@ -1,0 +1,22 @@
+The goal is to provide better information about what is actually running in a job.
+In particular when alias names are being reused.
+
+For example with the following script:
+
+
+A = LOAD 'foo' using PigStorage();
+B = GROUP A BY $0;
+A = FOREACH B GENERATE COUNT(A);
+STORE A INTO 'bar';
+
+
+
+The job conf will contain the following information
+
+
+pig.alias.location: M: A[1,4],A[3,4],B[2,4] C: A[3,4],B[2,4] R: A[3,4]
+
+
+
+A caveat is that the Logical Plan Optimizer throws away the original information when merging Logical Operators.
+this is already the case today with pig.alias 

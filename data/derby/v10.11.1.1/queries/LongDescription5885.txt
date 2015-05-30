@@ -1,0 +1,21 @@
+In most Derby messages, arguments appear in ascending order. That is, 
+{0} occurs in the message first, then {1}, then {2}, and so on. Sometimes, however, arguments occur out of sequence. When this happens, the names in the <arg> sub-elements may not agree with the order that the arguments actually occur in the message. This causes MessageBuilder to garble the dita source for the Reference Guide page titled "SQL error messages and exceptions".
+
+For instance, here is the messages.xml element for SQLState 22014:
+
+            <msg>
+                <name>22014</name>
+                <text>The start position for LOCATE is invalid; it must be a positive integer. The index  to start the search from is '{2}'.  The string to search for is '{0}
+'.  The string to search from is '
+{1}'. </text>
+                <arg>startIndex</arg>
+                <arg>searchString</arg>
+                <arg>fromString</arg>
+            </msg>
+
+This gives rise to the following garbled text in the generated reference guide page:
+
+"The start position for LOCATE is invalid; it must be a positive integer. The index to start the search from is '<fromString>'. The string to search for is '<startIndex>'. The string to search from is '<searchString>'. "
+
+We should re-order the <arg> sub-elements so that the first <arg> sub-lement corresponds to {0}, the second <arg> sub-element corresponds to {1}
+, and so on.

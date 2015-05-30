@@ -1,0 +1,23 @@
+Mime type detection only seems to work when the file extension is lower case.  Both PDF and DOC extensions failed.
+
+To test this, add the following method to TestParsers:
+
+    public void testGetParsers() throws TikaException, MalformedURLException 
+{
+        assertNotNull(ParseUtils.getParser(new URL("file:x.pdf"), tc));
+        assertNotNull(ParseUtils.getParser(new URL("file:x.PDF"), tc));
+        assertNotNull(ParseUtils.getParser(new URL("file:x.doc"), tc));
+        assertNotNull(ParseUtils.getParser(new URL("file:x.DOC"), tc));
+        assertNotNull(ParseUtils.getParser(new URL("file:x.txt"), tc));
+        assertNotNull(ParseUtils.getParser(new URL("file:x.TXT"), tc));
+        assertNotNull(ParseUtils.getParser(new URL("file:x.html"), tc));
+        assertNotNull(ParseUtils.getParser(new URL("file:x.HTML"), tc));
+        assertNotNull(ParseUtils.getParser(new URL("file:x.HtMl"), tc));
+        assertNotNull(ParseUtils.getParser(new URL("file:x.htm"), tc));
+        assertNotNull(ParseUtils.getParser(new URL("file:x.HTM"), tc));
+        assertNotNull(ParseUtils.getParser(new URL("file:x.ppt"), tc));
+        assertNotNull(ParseUtils.getParser(new URL("file:x.PPT"), tc));
+        assertNotNull(ParseUtils.getParser(new URL("file:x.xls"), tc));
+        assertNotNull(ParseUtils.getParser(new URL("file:x.XLS"), tc));
+        // more?
+    }

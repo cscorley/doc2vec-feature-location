@@ -1,0 +1,6 @@
+Per email to users@openjpa, an entity with this annotation :
+
+@Column(columnDefinition=BINARY(250)) 
+private byte[] blobs; 
+
+creates a column of type BLOB when using MySQL.. This behavior was introduced in OPENJPA-740, which optimizes the blob storage based on the size of the column, but does not take into account any existing annotations. 

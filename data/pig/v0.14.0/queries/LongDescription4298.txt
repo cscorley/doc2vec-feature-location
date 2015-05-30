@@ -1,0 +1,32 @@
+Here is a repo script (using PigPen )-
+
+
+REGISTER pigpen.jar;
+
+load4254 = LOAD 'input.clj'
+    USING PigStorage('\n')
+    AS (value:chararray);
+
+DEFINE udf4265 pigpen.PigPenFnDataBag('(clojure.core/require (quote [pigpen.runtime]) (quote [clojure.edn]))','(pigpen.runtime/exec [(pigpen.runtime/process->bind (pigpen.runtime/pre-process :pig :native)) (pigpen.runtime/map->bind clojure.edn/read-string) (pigpen.runtime/key-selector->bind clojure.core/identity) (pigpen.runtime/process->bind (pigpen.runtime/post-process :pig :native-key-frozen-val))])');
+
+generate4263 = FOREACH load4254 GENERATE
+    FLATTEN(udf4265(value));
+generate4257 = FOREACH generate4263 GENERATE
+    $0 AS key,
+    $1 AS value;
+
+order4258 = ORDER generate4257 BY key DESC; <-- sort order isn't changed by DESC
+dump order4258;
+
+
+This script returns the same result for both ASC and DESC orders.
+
+The problem is as follows-
+
+	PigBytesRawComparator calls BinInterSedesTupleRawComparator.compare().
+	BinInterSedesTupleRawComparator applies descending order.
+	PigBytesRawComparator applies descending order again to what BinInterSedesTupleRawComparator returns.
+
+
+
+Therefore, descending order is never applied.

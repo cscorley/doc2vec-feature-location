@@ -1,0 +1,36 @@
+What I would like to do is generate certain metrics for every listing impression in the context of a page like clicks on the page etc. So, I first group by to get clicks and impression together. Now, I would want to iterate through the mini-table (one per serve-id) and compute metrics. Since nested foreach within foreach is not supported I ended up writing a UDF that took both the bags and computed the metric. It would have been elegant to keep the logic of iterating over the records outside in the PIG script. 
+
+Here is some pseudocode of how I would have liked to write it:
+
+
+
+-- Let us say in our page context there was click on rank 2 for which there were 3 ads 
+A1 = LOAD '...' AS (page_id, rank); -- clicks. 
+A2 = Load '...' AS (page_id, rank); -- impressions
+
+B = COGROUP A1 by (page_id), A2 by (page_id); 
+
+-- Let us say B contains the following schema 
+-- (group, {(A1...)} {(A2...)})  
+-- Each record would be in B would be:
+-- page_id_1, {(page_id_1, 2)} {(page_id_1, 1) (page_id_1, 2) (page_id_1, 3))}
+
+C = FOREACH B GENERATE {
+                D = FLATTEN(A1), FLATTEN(A2); -- This wont work in current pig as well. Basically, I would like a mini-table which represents an entire serve. 
+                FOREACH D GENERATE
+                        page_id_1,
+                        A2:rank,
+                        SOMEUDF(A1:rank, A2::rank);  -- This UDF returns a value (like v1, v2, v3 depending on A1::rank and A2::rank)
+};
+# output
+# page_id, 1, v1
+# page_id,  2, v2
+# page_id, 3, v3
+
+DUMP C;
+
+
+
+P.S: I understand that I could have alternatively, flattened the fields of B and then done a GROUP on page_id and then iterated through the records calling 'SOMEUDF' appropriately but that would be 2 map-reduce operations AFAIK. 
+
+This is a candidate project for Google summer of code 2011. More information about the program can be found at http://wiki.apache.org/pig/GSoc2011

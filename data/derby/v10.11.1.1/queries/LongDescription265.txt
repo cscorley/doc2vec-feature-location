@@ -1,0 +1,111 @@
+problem when retreiving rows with BLOB 
+values with network server with autocommit on.  The workaround 
+was to turn autocommit off.  The Problem manifested itself with 
+this trace but there was  an underlying NPE in the 
+derby.log
+java.lang.NullPointerException
+ at com.ibm.db2.jcc.c.md.a(md.java:289)
+ at 
+com.ibm.db2.jcc.c.SqlException.getMessage(SqlException.java:194)
+
+ at 
+java.lang.Throwable.getLocalizedMessage(Throwable.java:266)
+ at java.lang.Throwable.toString(Throwable.java:343)
+ at java.lang.String.valueOf(String.java:2131)
+ at java.io.PrintStream.print(PrintStream.java:462)
+ at java.io.PrintStream.println(PrintStream.java:599)
+ at java.lang.Throwable.printStackTrace(Throwable.java:461)
+ at java.lang.Throwable.printStackTrace(Throwable.java:451)
+ at temp.CloudscapeTest.<init>(CloudscapeTest.java:28)
+ at temp.CloudscapeTest.main(CloudscapeTest.java:92)
+
+When run with a SANE Build with the attached repro, the 
+derby.log shows this trace.
+}), Committing
+
+2005-02-08 21:19:45.626 GMT Thread[DRDAConnThread_2,5,main] 
+(XID = 2845), (SESSIONID = 1), (DATABASE = toursDB), (DRDAID = 
+NF000001.G838-866941820371235014
+{10}), Executing prepared 
+statement: SELECT "MAP_ID", "MAP_NAME", "REGION", "AREA", 
+"PHOTO_FORMAT", "PICTURE" FROM "MAPS" :End prepared statement
+
+2005-02-08 21:19:45.686 GMT Thread[DRDAConnThread_2,5,main] 
+(XID = 2845), (SESSIONID = 1), (DATABASE = toursDB), (DRDAID = 
+NF000001.G838-866941820371235014{10}
+), Executing prepared 
+statement: SELECT "MAP_ID", "MAP_NAME", "REGION", "AREA", 
+"PHOTO_FORMAT", "PICTURE" FROM "MAPS" :End prepared statement
+
+2005-02-08 21:19:45.726 GMT Thread[DRDAConnThread_2,5,main] 
+(XID = 2845), (SESSIONID = 1), (DATABASE = toursDB), (DRDAID = 
+NF000001.G838-866941820371235014
+{10}), Committing
+
+2005-02-08 21:19:45.726 GMT Thread[DRDAConnThread_2,5,main] 
+(XID = 2845), (SESSIONID = 1), (DATABASE = toursDB), (DRDAID = 
+NF000001.G838-866941820371235014{10}
+), Cleanup action starting
+
+2005-02-08 21:19:45.726 GMT Thread[DRDAConnThread_2,5,main] 
+(XID = 2845), (SESSIONID = 1), (DATABASE = toursDB), (DRDAID = 
+NF000001.G838-866941820371235014
+{10}
+), Failed Statement is: 
+null
+
+org.apache.derby.iapi.services.sanity.AssertFailure: ASSERT 
+FAILED
+
+	at 
+org.apache.derby.iapi.services.sanity.SanityManager.ASSERT(Sanit
+yManager.java:99)
+
+	at 
+org.apache.derby.impl.store.raw.data.BaseContainerHandle.getTran
+saction(BaseContainerHandle.java:830)
+
+	at 
+org.apache.derby.impl.store.raw.data.OverflowInputStream.initStr
+eam(OverflowInputStream.java:158)
+
+	at 
+org.apache.derby.iapi.services.io.FormatIdInputStream.initStream
+(FormatIdInputStream.java:226)
+
+	at 
+org.apache.derby.impl.jdbc.EmbedBlob.<init>(EmbedBlob.java:12
+8)
+
+	at 
+org.apache.derby.impl.jdbc.EmbedResultSet20.getBlob(EmbedResultS
+et20.java:1552)
+
+	at 
+org.apache.derby.impl.drda.DRDAConnThread.writeFDODTA(DRDAConnTh
+read.java:5871)
+
+	at 
+org.apache.derby.impl.drda.DRDAConnThread.writeQRYDTA(DRDAConnTh
+read.java:5754)
+
+	at 
+org.apache.derby.impl.drda.DRDAConnThread.processCommands(DRDACo
+nnThread.java:595)
+
+	at 
+org.apache.derby.impl.drda.DRDAConnThread.run(DRDAConnThread.jav
+a:226)
+
+It seems that network server is somehow closing the resultset 
+or committing too early. This problem may be related to DERBY-213
+
+
+There seem to be some scenario in which Store throws this 
+ASSERTION instead of the proper user error if the blob is 
+accessed outside of the transaction, but we don't have a repro 
+outside of network server right now.
+
+
+
+This occurred with JCC 2.4. I have not tried it with derby client

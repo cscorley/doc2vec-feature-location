@@ -1,0 +1,18 @@
+In some case, we need to hedwig-client as proxy server to provide messaging service to other users.
+
+client -> proxy server 1 -> hedwig
+       \> proxy server 2 />
+
+when client would connect to either proxy server to receive messages, the proxy server would setup subscription channel to hedwig server.
+
+we just want client to be simple, so when the channel between client and proxy server is broken, client will try to connect to proxy servers thru VIP. it might connect to other proxy server. for example, first time client connects to proxy server 1, but the client found the connection is broken, it connects to proxy server 2. when proxy server 2 tried to setup subscription channel to hedwig, hedwig found that this subscription has existed before occupied by proxy server 1.
+
+the panic here is that proxy server 1 only disconnect old subscription channel only when it detected the channel between client and itself is broken. The detection might be delayed due to several reasons. so it might increment the latency that messages are pushed to real client.
+
+so we try to introduce a subscription mode called CREATE_OR_ATTACH_OR_KILL mode.
+
+when a subscriber use this subscription mode, it would kill old existed subscription channel. when using this subscription mode, we would turn off auto-reconnect functionality in hedwig client and just tell client about the channel disconnected event so client could do its logic when channel is detected.
+
+in order to provide some admin tool for admin guys to debug/operate, we provide ADMIN mode. if a subscriber attach to a subscription using ADMIN mode, its subscription channel would never be killed, then it is safe to guarantee admin operations.
+
+

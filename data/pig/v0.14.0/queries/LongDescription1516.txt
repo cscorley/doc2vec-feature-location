@@ -1,0 +1,12 @@
+Problem:
+pig bag implementations that are subclasses of DefaultAbstractBag, have finalize methods implemented. As a result, the garbage collector moves them to a finalization queue, and the memory used is freed only after the finalization happens on it.
+If the bags are not finalized fast enough, a lot of memory is consumed by the finalization queue, and pig runs out of memory. This can happen if large number of small bags are being created.
+
+Solution:
+The finalize function exists for the purpose of deleting the spill files that are created when the bag is too large. But if the bags are small enough, no spill files are created, and there is no use of the finalize function.
+ A new class that holds a list of files will be introduced (FileList). This class will have a finalize method that deletes the files. The bags will no longer have finalize methods, and the bags will use FileList instead of ArrayList<File>.
+
+Possible workaround for earlier releases:
+Since the fix is going into 0.8, here is a workaround -
+Disabling the combiner will reduce the number of bags getting created, as there will not be the stage of combining intermediate merge results. But I would recommend disabling it only if you have this problem as it is likely to slow down the query .
+To disable combiner, set the property: -Dpig.exec.nocombiner=true

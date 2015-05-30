@@ -1,0 +1,5 @@
+It would be good to have a mechanism that automatically detects a "zip bomb", i.e. a compressed document that expands to excessive amounts of extracted text. The classic example is the 42.zip file that's just 42kB in size, but expands to about 4 petabytes when all layers are fully uncompressed.
+
+A simple preventive measure could be a Parser decorator that counts the number of input bytes and the output characters, and fails with a TikaException when the ratio exceeds some configurable limit.
+
+As another preventive measure, the decorator could also keep track of the time (and perhaps even memory, if possible) it takes to process the input document. A TikaException would be thrown if processing time exceeds some configurable limit.

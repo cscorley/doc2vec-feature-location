@@ -1,0 +1,3 @@
+The default for maxClientCnxns is 10, which is too low for many applications. For example, HBase users often run MR jobs where each task needs to use ZooKeeper to talk to HBase. This means that each slot on the tasktracker will have at least one ZK connection. With today's beefy machines, that's easily 20+ connections per node.
+
+I would suggest bumping the default to 60, which will still protect against runaway nodes (eg a leak in a tight loop) but won't impact MR jobs that need to talk to ZK.

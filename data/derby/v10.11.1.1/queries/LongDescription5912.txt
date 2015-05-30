@@ -1,0 +1,23 @@
+The following test has been seen to fail as below  in some runs where the machine is under heavy load  and slow running options are specified and the isValid() call takes more than a second to return.
+
+1) testIsValidImplemented(org.apache.derbyTesting.functionTests.tests.jdbc4.ConnectionTest)junit.framework.AssertionFailedError
+	at org.apache.derbyTesting.functionTests.tests.jdbc4.ConnectionTest.testIsValidImplemented(ConnectionTest.java:168)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:60)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:37)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:113)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+
+
+The test does:
+   // Test with a 1 second timeout
+        assertTrue(getConnection().isValid(1));
+
+assuming it will return in one second.  For embedded the int parameter is not implemented so indeed this always passes. For the Network implementation in NetConnection40.java we actually do timeout and perform a query as part of the implementation so might indeed return false. 
+

@@ -1,0 +1,6 @@
+Entries in the bookie's journal are written in the format <len><entry>
+
+If the bookie crashes while writing the length part, then the bookie will not be able to recover the journal.
+An unlikely situation to happen as this is only 1 int, but an issue none the less.
+
+There is a testcase in BOOKKEEPER-165 which will trigger this when enabled (BookieJournalTest#testTruncatedInLenJournal).

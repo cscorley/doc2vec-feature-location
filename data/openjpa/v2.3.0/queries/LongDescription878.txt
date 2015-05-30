@@ -1,0 +1,10 @@
+Support default query hint for query timeout as defined in section 3.6.4 of the spec.
+A new hint can be supplied for Java SE and Java EE environments -
+    javax.persistence.query.timeout // query timeout in seconds
+Can be used in the following:
+    Methods - Query.setHint()
+    Annotations (via QueryHint) - NamedQuery, NativeNamedQuery 
+    Properties - Persistence.createEntityManagerFactory, persistence.xml
+The following methods can return a javax.persistence.QueryTimeoutException: getResultList(), getSingleResult(), executeUpdate().
+If a QTE is thrown, the current transaction (if active) should not be marked for rollback.
+If the DB query timeout causes a rollback, then a PersistenceException should be thrown instead (see 3.6.1).

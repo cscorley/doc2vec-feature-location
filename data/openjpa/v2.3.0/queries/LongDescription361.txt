@@ -1,0 +1,34 @@
+In UUIDGenerator, GREG_OFFSET is defined as
+
+    // offset to move from 1/1/1970, which is 0-time for Java, to gregorian
+    // 0-time 10/15/1582, and multiplier to go from 100nsec to msec units
+    private static final long GREG_OFFSET = 0x01b21dd213814000L;
+
+This constant is used as:
+
+        // calculate time as current millis plus offset times 100 ns ticks
+        long currentTime = (_currentMillis + GREG_OFFSET) * MILLI_MULT;
+
+Based of the usage, GREG_OFFSET should be in msec unit and this value should be
+
+    (1970-1582) * 365.25 * 24 * 3600 * 1000 (ms) = 12,219,292,800,000 (ms) = 0xB1D 069B 5400 (ms)
+
+The defined constant value 0x1b21dd213814000L is the last value in 100ns unit not ms. 
+
+This also offsets the currentTime calculation off by a factor of 10**4.
+
+To correct the discrepency, either:
+
+1) GREG_OFFSET should assign the value of 0xB1D 069B 5400L instead of 0x1b2 1dd2 1381 4000L, or
+2) long currentTime = (_currentMillis * MILLI_MULT ) + GREG_OFFSET ;
+
+Since UUID is an arbituary value, therefore I don't believe the current implementation is "incorrect" but just inconsistent in its implementation description. 
+
+Please comment on if:
+1) the suggested change will have any undesirable side-effect for UUID
+2) there is any legacy/backward compatibility problem
+3) this is worth to change at all.
+
+If there is no objection, I'll correct the "problem" early next week.
+
+Albert Lee.

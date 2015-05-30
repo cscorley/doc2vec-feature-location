@@ -1,0 +1,33 @@
+The IBM Windows runs on trunk  have been hanging  in NativeAuthenticationServiceTest.  This is preventing tests from continuing or being posted. The actual test run hangs at :
+....
+emb)lang.AutoIncrementTest.test_4437_03_deferredInsert used 218 ms .
+(emb)lang.HalfCreatedDatabaseTest.test_4589 used 6859 ms .
+(emb)lang.HalfCreatedDatabaseTest.test_5526 used 16 ms .
+(emb)lang.NativeAuthenticationServiceTest.testAll used 24061 ms .
+(emb)lang.NativeAuthenticationServiceTest.testAll used 17781 ms .
+(emb)lang.NativeAuthenticationServiceTest.testAll used 11187 ms .
+(net)lang.NativeAuthenticationServiceTest.testAll used 18187 ms .
+(net)lang.NativeAuthenticationServiceTest.testAll 
+
+and so no test continue and no results get posted to:
+http://people.apache.org/~myrnavl/derby_test_results/main/windows/testSummary-1239981.html
+
+The last run where this did not happen was:
+http://people.apache.org/~myrnavl/derby_test_results/main/windows/testSummary-1236968.html
+
+
+The actual command being executed is:
+       1  4748  2676  0 20:23:24 CONIN$ 46:30 C:\WINDOWS\system32\java.exe -Dder
+byTesting.ldapServer=socket.usca.ibm.com -DderbyTesting.ldapPort=389 -DderbyTest
+ing.dnString=oakland.ibm.com -DderbyTesting.ldapUser=mamta -DderbyTesting.ldapPa
+ssword=xxxxx  -Xmx512M -Dderby.tests.networkServerStartTimeout=480 -Dderby.te
+sts.basePort=3100 -Dderby.tests.trace=true -DderbyTesting.oldReleasePath=d:/jart
+est/releases_for_upgrade_tests junit.textui.TestRunner org.apache.derbyTesting.f
+unctionTests.suites.All
+
+I couldn't reproduce this running the single test on my machine.  Marking this blocker as the Oracle Nightlies seem to be having serious issues too that date back further.
+http://dbtg.foundry.sun.com/derby/test/Daily/jvm1.6/testing/Limited/
+
+
+Right now we have no reliable regression testing going on.
+

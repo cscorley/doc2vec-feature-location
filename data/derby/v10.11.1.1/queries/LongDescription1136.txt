@@ -1,0 +1,155 @@
+ I have a table created in the Derby database with a field as "float". I am able to successfully insert into this field the value FLOAT.MAX_VALUE (3.4028235E38). But when I try to query this field and try to use resultSet.getFloat() to retrieve this value I get a SQLException thrown.
+ The derby driver that I am using is the one that is part of our Glassfish 9.0 build.
+ The stack trace is :
+ org.apache.derby.client.am.LossOfPrecisionConversionException: Invalid data conversion:Requested conversion would result in a loss of precision of 3.4028235E38
+        at org.apache.derby.client.am.CrossConverters.getFloatFromDouble(Unknown Source)
+        at org.apache.derby.client.am.Cursor.getFloat(Unknown Source)
+        at org.apache.derby.client.am.ResultSet.getFloat(Unknown Source)
+        at DerbyFloat.testFloat(DerbyFloat.java:121)
+        at DerbyFloat.main(DerbyFloat.java:139)
+
+ I have attached a simple java program that I have used to reproduce this problem. 
+
+
+ import java.sql.*; 
+ import java.lang.reflect.Method;
+ import java.lang.reflect.Modifier;
+
+ public class DerbyFloat {
+
+     /* Derby */
+     static final String userName = "APP";
+     static final String password = "APP";
+     static final String connectionURL =
+             "jdbc:derby://localhost:1527/sun-appserv-samples;retrieveMessagesFromServerOnGetMessage=true;";
+     static final String driverName = "org.apache.derby.jdbc.ClientDriver";
+     Connection conn;
+
+     public DerbyFloat() {}
+
+     void init() throws SQLException 
+{
+         conn = getConnection(driverName, connectionURL, userName, password);
+     }
+
+     private static Connection getConnection(String driverName, String connectionURL,
+            String userName, String password) throws SQLException {
+        Connection conn = null;
+
+        try 
+{
+            Class.forName (driverName);
+        }
+        catch (ClassNotFoundException e) 
+{
+            System.out.println("Could not load the driver class. Error is " + e);
+        }
+
+        try 
+{
+            conn = DriverManager.getConnection(connectionURL, userName, password);
+            conn.setAutoCommit(false);
+        }
+ catch (SQLException e) {
+            System.out.println("Error while getting connection");
+            SQLException currentException = e;
+            do 
+{
+                System.out.println("Exception is" + currentException);
+                System.out.println(
+                        "getMessage()" + currentException.getMessage());
+                System.out.println(
+                        "getErrorCode()" + currentException.getErrorCode());
+                System.out.println(
+                        "getSQLState()" + currentException.getSQLState());
+                currentException = currentException.getNextException();
+            }
+ while (currentException != null);
+            throw e;
+        }
+
+        return conn;
+     }
+
+    public void insertRows() throws java.sql.SQLException {
+        PreparedStatement ps;
+         try 
+{
+             ps = conn.prepareStatement("DROP TABLE DERBYFLOAT");
+             ps.executeUpdate();           
+         }
+ catch (SQLException e) 
+{
+             System.out.println("Table does not exist");
+         }
+       
+
+         ps = conn.prepareStatement("CREATE TABLE DERBYFLOAT (ID INT PRIMARY KEY, FLOATDATA FLOAT)");
+ //        ps = conn.prepareStatement("CREATE TABLE DERBYFLOAT (ID INT PRIMARY KEY, FLOATDATA FLOAT(24))");       
+         ps.executeUpdate();        
+
+         ps = conn.prepareStatement("DELETE FROM DERBYFLOAT");
+         ps.executeUpdate();        
+         ps = conn.prepareStatement(
+             "INSERT INTO DERBYFLOAT(ID, FLOATDATA) VALUES(1, 1)");
+         ps.executeUpdate();    
+         ps = conn.prepareStatement(
+             "INSERT INTO DERBYFLOAT(ID, FLOATDATA) VALUES(2, 124567890123456)");
+         ps.executeUpdate();          
+         ps = conn.prepareStatement(
+             "INSERT INTO DERBYFLOAT(ID, FLOATDATA) VALUES(3, 3.4028235E37)");
+         ps.executeUpdate(); 
+         ps = conn.prepareStatement(
+             "INSERT INTO DERBYFLOAT(ID, FLOATDATA) VALUES(4, 3.4028235E38)");
+         ps.executeUpdate();          
+
+     }
+
+     public void testFloat() throws java.sql.SQLException {        
+         PreparedStatement ps = conn.prepareStatement(
+                "SELECT ID, FLOATDATA FROM DERBYFLOAT");
+         ResultSet rs = ps.executeQuery();
+         ResultSetMetaData rsmd = rs.getMetaData();
+         while(rs.next()) {
+ /*
+                Object o = rs.getObject;
+
+                String columnTypeName = rsmd.getColumnTypeName;
+                System.out.println("column " +  + " type: " + columnTypeName +
+                      " (" + rsmd.getColumnType + ") " + "\t\tJava Type: " +  o.getClass());
+ */               
+                 System.out.println("\n Value of field 1 uing getInt() : " + rs.getInt(1));  
+                 try 
+{
+                     System.out.println("\n Value of field 2 using getFloat() : " + rs.getFloat(2));    
+                 }
+ catch (SQLException e) 
+{
+                     System.out.println("\n Value of field 2 using getFloat() resulted in a SQLException");
+                     e.printStackTrace();
+                     System.out.println("\n Value of field 2 using getObject() : " + rs.getObject(2));
+                 }
+
+        }
+
+     }
+
+     public static final void main (String args [])
+     {
+         DerbyFloat dbFloat = new DerbyFloat();
+         try 
+{
+             dbFloat.init();
+             dbFloat.insertRows();
+             dbFloat.testFloat();
+         }
+ catch (SQLException ex) 
+{
+             System.out.println("SQLException : "+ ex);
+             ex.printStackTrace();            
+         }
+     }
+
+ }
+
+

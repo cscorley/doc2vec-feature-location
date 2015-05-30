@@ -1,0 +1,68 @@
+I have script in this manner, loads from 2 files A.txt and B.txt
+
+
+A = LOAD 'A.txt' as (a:tuple(a1:int, a2:chararray));
+B = LOAD 'B.txt' as (b:tuple(b1:int, b2:chararray));
+C = JOIN A by a.a1, B by b.b1;
+DESCRIBE C;
+DUMP C;
+
+
+
+A.txt contains the following lines:
+
+
+(1,a)
+(2,aa)
+
+
+
+
+B.txt contains the following lines:
+
+
+(1,b)
+(2,bb)
+
+
+
+Now running the above script in local and map reduce mode on Hadoop 18 & Hadoop 20, produces the following:
+
+Hadoop 18
+=====================================================================
+(1,1)
+(2,2)
+=====================================================================
+Hadoop 20
+=====================================================================
+(1,1)
+(2,2)
+=====================================================================
+Local Mode: Pig with Hadoop 18 jar release 
+=====================================================================
+2009-08-13 17:15:13,473 [main] INFO  org.apache.pig.Main - Logging error messages to: /homes/viraj/pig-svn/trunk/pigscripts/pig_1250208913472.log
+09/08/13 17:15:13 INFO pig.Main: Logging error messages to: /homes/viraj/pig-svn/trunk/pigscripts/pig_1250208913472.log
+C: 
+{a: (a1: int,a2: chararray),b: (b1: int,b2: chararray)}
+2009-08-13 17:15:13,932 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1002: Unable to store alias C
+09/08/13 17:15:13 ERROR grunt.Grunt: ERROR 1002: Unable to store alias C
+Details at logfile: /homes/viraj/pig-svn/trunk/pigscripts/pig_1250208913472.log
+=====================================================================
+Caused by: java.lang.NullPointerException
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POPackage.getNext(POPackage.java:206)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:231)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.getNext(POForEach.java:191)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:231)
+        at org.apache.pig.backend.local.executionengine.physicalLayer.counters.POCounter.getNext(POCounter.java:71)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:231)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POStore.getNext(POStore.java:117)
+        at org.apache.pig.backend.local.executionengine.LocalPigLauncher.runPipeline(LocalPigLauncher.java:146)
+        at org.apache.pig.backend.local.executionengine.LocalPigLauncher.launchPig(LocalPigLauncher.java:109)
+        at org.apache.pig.backend.local.executionengine.LocalExecutionEngine.execute(LocalExecutionEngine.java:165)
+        ... 9 more
+=====================================================================
+Local Mode: Pig with Hadoop 20 jar release
+=====================================================================
+((1,a),(1,b))
+((2,aa),(2,bb)
+=====================================================================

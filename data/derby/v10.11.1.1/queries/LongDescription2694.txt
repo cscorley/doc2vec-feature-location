@@ -1,0 +1,5 @@
+org.apache.derby.impl.drda.DDMWriter uses wrong algorithm to avoid splitting varchar in the middle of a multibyte char.
+
+When DMWriter finds that it has to split a varchar while sending it to client it checks if the last byte is a part of a multibyte char and in case it is it tries to find the last byte of previous char and sends only till that byte leaving rest of it for the next send.
+
+The code it uses is having a bug so it fails when the last byte its checking for is the third byte of a char of 3 byte length.

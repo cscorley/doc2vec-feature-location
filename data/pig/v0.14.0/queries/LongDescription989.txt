@@ -1,0 +1,14 @@
+Currently, we do not allow type merge between numerical type and non-numerical type. And the error message is confusing. 
+
+Eg, if you run:
+
+a = load '1.txt' as (a0:chararray, a1:chararray);
+b = load '2.txt' as (b0:long, b1:chararray);
+c = join a by a0, b by b0;
+dump c;
+
+And the error message is "ERROR 1051: Cannot cast to Unknown"
+
+We shall:
+1. Allow the type merge between numerical type and non-numerical type
+2. Or at least, provide more meaningful error message to the user

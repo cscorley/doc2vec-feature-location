@@ -1,0 +1,14 @@
+The following sequence of statements works on 10.2.2.0 and earlier, and raises a NullPointerException with 10.3.1.4 and later:
+
+ij> create table t1(x int);
+0 rows inserted/updated/deleted
+ij> insert into t1 values 1,2;
+2 rows inserted/updated/deleted
+ij> create table t2(x int);
+0 rows inserted/updated/deleted
+ij> insert into t2 values 2,3;
+2 rows inserted/updated/deleted
+ij> create table t3(x int, y int generated always as identity);
+0 rows inserted/updated/deleted
+ij> insert into t3 select * from t1 union select * from t2;
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.

@@ -1,0 +1,16 @@
+Error message:
+Testcase: testNestedSortEndToEnd3 took 53.076 sec
+	Caused an ERROR
+Unable to open iterator for alias E. Backend error : org.apache.pig.data.DataByteArray cannot be cast to org.apache.pig.data.Tuple
+org.apache.pig.impl.logicalLayer.FrontendException: ERROR 1066: Unable to open iterator for alias E. Backend error : org.apache.pig.data.DataByteArray cannot be cast to org.apache.pig.data.Tuple
+	at org.apache.pig.PigServer.openIterator(PigServer.java:742)
+	at org.apache.pig.test.TestSecondarySort.testNestedSortEndToEnd3(TestSecondarySort.java:550)
+Caused by: java.lang.ClassCastException: org.apache.pig.data.DataByteArray cannot be cast to org.apache.pig.data.Tuple
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POProject.getNext(POProject.java:392)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLocalRearrange.getNext(POLocalRearrange.java:357)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:236)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:231)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:53)
+	at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144)
+	at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:621)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:305)

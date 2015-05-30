@@ -1,0 +1,10 @@
+Currently you can print Abstract Syntax Trees to derby.log by setting the DumpParseTree tracepoint at server startup. E.g.:
+
+java -cp $CLASSPATH -Dderby.debug.true=DumpParseTree -Dderby.stream.error.logSeverityLevel=0 org.apache.derby.tools.ij  z.sql
+
+This can be a useful debugging tool. However, it only works on debug servers built with the following flags:
+
+sanity=true
+debug=true
+
+We should provide some mechanism for printing these trees in production (non-debug) servers.

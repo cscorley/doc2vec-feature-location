@@ -1,0 +1,3 @@
+Two entities have the same table name but with different schema, only one table is created. In addition, when two entities use the generatedType.AUTO for ID, only one OPENJPA_SEQUENCE-TABLE is created.
+
+The problem due to the SchemaGroup.findTable() which only looked for a table name from all the schemas. Once the table was found in one of the schema then it exited and assumed that the table existed. Same problem in the TableJDBCSeq.addSchema().

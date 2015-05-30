@@ -1,0 +1,16 @@
+It appears that running SYSCS_UTIL.SYSCS_COMPRESS_TABLE on a table with a null-able unique constraint will disable the unique constraint. The script
+below should reproduce the problem. The expected behaviour is for the second insert to fail due to the unique constraint but instead it is allowed. The second insert will fail as expected if either the call to SYSCS_COMPRESS_TABLE is skipped or if the column is declared NOT NULL.
+
+I have reproduced the problem using embedded Derby 10.5.1.1, 10.5.3.0 and 10.6.1.0 using ij.
+
+CREATE TABLE TABLE1(NAME1 INT UNIQUE);
+
+CALL SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP', 'TABLE1', 1);
+
+INSERT INTO TABLE1(NAME1) VALUES(1);
+
+INSERT INTO TABLE1(NAME1) VALUES(1);
+
+SELECT * FROM TABLE1;
+
+DROP TABLE TABLE1;

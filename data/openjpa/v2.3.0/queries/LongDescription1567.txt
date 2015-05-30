@@ -1,0 +1,15 @@
+JPA imposes a strict group-like behavior on a persistence context. If x is managed by a persistence context C then, any instance y reachable from x has to be managed by C as well. Even if y is being accessed only by reference in context C. 
+
+JPA Specification version 2.0 Section 3.2.8
+
+"It is the responsibility of the application to insure that an instance is managed in only a single persistence context. The behavior is undefined if the same Java instance is made managed in more than one persistence context."
+
+The actual wordings of "undefined", however, leave some possibility of y being managed by context C1 while being referred by another x managed in context C2. 
+The primary motivation to allow traversal (only by reference) from x to an instance y managed by another context are
+  a) to support a more natural use case for merge() where y may not be managed by C bout nor is y modified by the merge operation
+  b) reduce detach cost (which remains the only current way to support use case (a))
+
+
+Opening up this issue for a discussion....
+
+

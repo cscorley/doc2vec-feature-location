@@ -1,0 +1,7 @@
+Currently two classes exists for each system table, one to represent the table (e.g.SYSTABLESRowFactory) , one to represent a row (e.g. TableDescriptor)
+
+Look at having a single row factory (CatalogRowFactory) and using polymorphism (method overloading) on the descriptor objects to perform the work
+that is done today (e.g. converting a descriptor to and from a Row object).
+
+In addition the DataDictionary has a specific method to drop each type of unique descriptor (e.g. dropSPSDescriptor, dropAliasDescriptor)
+Would it be possible to have a single dropDescriptor(UniqueSQLObjectDescriptor) method and again use polymorphism  on the descriptors.

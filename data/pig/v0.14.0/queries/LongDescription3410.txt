@@ -1,0 +1,10 @@
+Consider following script-
+
+
+hcat_load = LOAD 'X' using org.apache.hcatalog.pig.HCatLoader();
+hcat_filter = FILTER hcat_load BY (part='Y');
+hcat_limited = limit hcat_filter 5;
+dump hcat_limited;                     
+
+
+This script is not benefited from LimitOptimizer (pushing limit to loadfunc) because LimitOptimizer is applied before PartitionFilterOptimizer. 

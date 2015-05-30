@@ -1,0 +1,21 @@
+Native queries cannot be executed with Firebird database. The following exception occur:
+DEBUG - Log4JLogFactory$LogAdapter.trace(72) | Executing query: [insert into ANAGRAFICHE (COD_TITOLARE, NOME, CODICE_FISCALE, DATA_NASCITA) values (?, ?, ?, ?)] with parameters: 
+{2=xz0FEdrz92sd, 0=43, 3=Tue Aug 30 00:00:00 UTC 1644, 1=B95JHSkDV}
+WARN - GeronimoConnectionEventListener.connectionErrorOccurred(88) | connectionErrorOccurred called with null
+org.firebirdsql.jdbc.FBSQLException: You cannot set value of an non-existing parameter.
+	at org.firebirdsql.jdbc.FBProcedureCall$NullParam.setValue(FBProcedureCall.java:424)
+	at org.firebirdsql.jdbc.AbstractCallableStatement.setLong(AbstractCallableStatement.java:1094)
+	at org.tranql.connector.jdbc.PreparedStatementHandle.setLong(PreparedStatementHandle.java:247)
+	at org.apache.ode.utils.LoggingStatementWrapper.setLong(LoggingStatementWrapper.java:495)
+	at org.apache.openjpa.lib.jdbc.DelegatingCallableStatement.setLong(DelegatingCallableStatement.java:299)
+	at org.apache.openjpa.jdbc.sql.DBDictionary.setLong(DBDictionary.java:998)
+	at org.apache.openjpa.jdbc.sql.DBDictionary.setUnknown(DBDictionary.java:1283)
+	at org.apache.openjpa.jdbc.sql.SQLBuffer.setParameters(SQLBuffer.java:568)
+	at org.apache.openjpa.jdbc.kernel.SQLStoreQuery$SQLExecutor.executeUpdate(SQLStoreQuery.java:231)
+	at org.apache.openjpa.kernel.QueryImpl.update(QueryImpl.java:1038)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:808)
+	at org.apache.openjpa.kernel.QueryImpl.updateAll(QueryImpl.java:883)
+	at org.apache.openjpa.kernel.DelegatingQuery.updateAll(DelegatingQuery.java:573)
+	at org.apache.openjpa.persistence.QueryImpl.executeUpdate(QueryImpl.java:319)
+
+Exception is thrown because for "insert" statement prepareCall is executed instead of prepareStatement. For other databases it is the same, but Firebird's FBProcedureCall is not the same as FBPreparedStatement. Patch for issue follows.

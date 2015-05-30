@@ -1,0 +1,1 @@
+When a WordDelimiterFilter ingests a token stream and creates a new token (newTok) it appears to copy most of the old token attributes, except the payload.  I believe this is a bug.  My solution is for the WordDelimiterFilter to use the Token clone() method to create a carbon copy and then modify the appropriate attributes (offsets and term text). 

@@ -1,0 +1,67 @@
+The code to determine the size of a class is using getDeclaredMembers which requires the permission accessDeclaredMembers. Ideally should not require to grant this permission to derby.jar. Need to see which
+class's size was being calculated.  The code is not in a priv block which would require granting the  permission all the way up the stack.
+
+Maybe if the class's declared memebrs can not be accessed and the value can not be pre-calculkated then some estimate could be made. (using public fields?).
+
+java.security.AccessControlException: Access denied 
+(java.lang.RuntimePermission accessDeclaredMembers)
+       at 
+java.security.AccessController.checkPermission(AccessController.
+java:107)
+       at 
+java.lang.SecurityManager.checkPermission(SecurityManager.java:5
+47)
+       at 
+com.ibm.ws.security.core.SecurityManager.checkPermission(Securit
+yManager.java:188)
+       at 
+java.lang.SecurityManager.checkMemberAccess(SecurityManager.java
+:1677)
+       at java.lang.Class.checkMemberAccess(Class.java:104)
+       at java.lang.Class.getDeclaredFields(Class.java:508)
+       at 
+org.apache.derby.iapi.services.cache.ClassSize.getSizeCoefficien
+ts(Unknown Source)
+       at 
+org.apache.derby.iapi.services.cache.ClassSize.estimateBase(Unkn
+own Source)
+       at 
+org.apache.derby.iapi.store.access.BackingStoreHashtable.<cli
+nit>(Unknown Source)
+       at java.lang.J9VMInternals.initializeImpl(Native 
+Method)
+       at 
+java.lang.J9VMInternals.initialize(J9VMInternals.java:148)
+       at 
+org.apache.derby.impl.sql.execute.HashTableResultSet.openCore(Un
+known Source)
+       at 
+org.apache.derby.impl.sql.execute.JoinResultSet.openRight(Unknow
+n Source)
+       at 
+org.apache.derby.impl.sql.execute.JoinResultSet.openCore(Unknown
+ Source)
+       at 
+org.apache.derby.impl.sql.execute.ProjectRestrictResultSet.openC
+ore(Unknown Source)
+       at 
+org.apache.derby.impl.sql.execute.SortResultSet.openCore(Unknown
+ Source)
+       at 
+org.apache.derby.impl.sql.execute.BasicNoPutResultSetImpl.open(U
+nknown Source)
+       at 
+org.apache.derby.impl.sql.GenericPreparedStatement.execute(Unkno
+wn Source)
+       at 
+org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(Unkno
+wn Source)
+       at 
+org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeStateme
+nt(Unknown Source)
+       at 
+org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeQuery(U
+nknown Source)
+       at 
+org.apache.derby.impl.jdbc.EmbedDatabaseMetaData.getTables(Unkno
+wn Source)

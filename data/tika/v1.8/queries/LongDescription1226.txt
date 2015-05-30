@@ -1,0 +1,54 @@
+I have a PDF document that contains a filled in form. Among the various fields of type text and radio button there are multiple fields for digital signatures. When I load this document into tika-app I get the following exception:
+
+
+Caused by: java.lang.RuntimeException: Can't get signature as String, use getSignature() instead.
+	at org.apache.pdfbox.pdmodel.interactive.form.PDSignatureField.getValue(PDSignatureField.java:131)
+	at org.apache.tika.parser.pdf.PDF2XHTML.addFieldString(PDF2XHTML.java:467)
+	at org.apache.tika.parser.pdf.PDF2XHTML.processAcroField(PDF2XHTML.java:425)
+	at org.apache.tika.parser.pdf.PDF2XHTML.extractAcroForm(PDF2XHTML.java:411)
+	at org.apache.tika.parser.pdf.PDF2XHTML.endDocument(PDF2XHTML.java:184)
+	at org.apache.pdfbox.util.PDFTextStripper.writeText(PDFTextStripper.java:330)
+	at org.apache.tika.parser.pdf.PDF2XHTML.process(PDF2XHTML.java:95)
+	at org.apache.tika.parser.pdf.PDFParser.parse(PDFParser.java:143)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+	... 43 more
+
+
+
+The problem seems to be that PDF2XHTML seems to expect that it can call getValue() on all PDField objects. According to the PDFBox 1.8.3 java doc this is not true for the sub class PDSignatureField:
+
+http://pdfbox.apache.org/docs/1.8.3/javadocs/org/apache/pdfbox/pdmodel/interactive/form/PDSignatureField.html
+
+The java doc says that getSignature() should be called instead. 
+
+Assuming that the information inside the signature is not relevant for the extraction process and can be discarded the following patch helps:
+
+
+Index: tika-parsers/src/main/java/org/apache/tika/parser/pdf/PDF2XHTML.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- tika-parsers/src/main/java/org/apache/tika/parser/pdf/PDF2XHTML.java	(revision 1560617)
++++ tika-parsers/src/main/java/org/apache/tika/parser/pdf/PDF2XHTML.java	(revision )
+@@ -40,6 +40,7 @@
+ import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineNode;
+ import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
+ import org.apache.pdfbox.pdmodel.interactive.form.PDField;
++import org.apache.pdfbox.pdmodel.interactive.form.PDSignatureField;
+ import org.apache.pdfbox.util.PDFTextStripper;
+ import org.apache.pdfbox.util.TextPosition;
+ import org.apache.tika.exception.TikaException;
+@@ -464,7 +465,9 @@
+           }
+           String value = "";
+           try {
++              if (!(field instanceof PDSignatureField)) {
+-              value = field.getValue();
++                  value = field.getValue();
++              }
+           } catch (IOException e) {
+                //swallow
+           }
+
+

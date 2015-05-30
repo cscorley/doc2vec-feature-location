@@ -1,0 +1,3 @@
+When bookie startup, entry logger is randomly picking one of the configured ledger directory and creates a new log to write. Now journal will be replaying the entries and add to the entry logger.
+
+Unfortunately, if the randomly selected ledger directory is full, then it will immediately fail the bookie startup. Here Bookie is not efficiently filtering the writable ledger directories and utilizing all the available ledger directories.

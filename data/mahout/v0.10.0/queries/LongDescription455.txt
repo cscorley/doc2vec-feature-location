@@ -1,0 +1,19 @@
+I set a large n for NearestNUserNeighborhood, with the intention of including all users in the neighbourhood. However, I encountered the following problems:
+
+(1) If n is set to Integer.MAX_VALUE, the program crashes with the following stack trace:
+Exception in thread "main" java.lang.IllegalArgumentException
+	at java.util.PriorityQueue.<init>(PriorityQueue.java:152)
+	at org.apache.mahout.cf.taste.impl.recommender.TopItems.getTopUsers(TopItems.java:93)
+	at org.apache.mahout.cf.taste.impl.neighborhood.NearestNUserNeighborhood.getUserNeighborhood(NearestNUserNeighborhood.java:111)
+
+This is because TopItems.getTopUsers() tries to create a PriorityQueue with a capacity of Integer.MAX_VALUE + 1.
+
+(2) If n is set to a large integer value (e.g., 1 billion), it crashes with the following stack trace:
+Exception in thread "main" java.lang.OutOfMemoryError: Java heap space
+	at java.util.PriorityQueue.<init>(PriorityQueue.java:153)
+	at org.apache.mahout.cf.taste.impl.recommender.TopItems.getTopUsers(TopItems.java:93)
+	at org.apache.mahout.cf.taste.impl.neighborhood.NearestNUserNeighborhood.getUserNeighborhood(NearestNUserNeighborhood.java:111)
+
+This is due to the same reason - trying to create a PriorityQueue with size n + 1.
+
+In my opinion, this should be fixed by changing n to the number of users in the DataModel when NearestNUserNeighborhood is created, or by letting users specify n = -1 (or a similar value) when they want the user neighbourhood to include all users.

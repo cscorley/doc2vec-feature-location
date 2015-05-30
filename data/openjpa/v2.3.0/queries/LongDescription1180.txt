@@ -1,0 +1,18 @@
+JPA 2.0 has defined new APIs for Query parameter processing as well as new Parameter<T> and ParameterExpression<T> interface.
+OpenJPA, so far, did not abstract or distinguish query parameters with an explicit type definition, and only maintained  parameter values in Map or array. 
+
+To support JPA 2.0, parameter processing in OpenJPA will undergo following changes (which may impact other parts of the code)
+
+This task will
+a) introduce an explicit QueryParameter interface
+b) provide implementation of the same for query and CriteriaQuery. 
+
+Having an explicit Parameter instance moves the value of the parameter as an attribute of the parameter itself and hence the Map<key,value> that a query maintained for holding the parameters will now change from Map<String,Object> to Map<String,QueryParameter>. To make the callers oblivious of this data structural change (as they expect to receive a Map<String,Object> where values are Parameter values rather than the Parameter instances themselves), new methods will appear in facade QueryImpl.   
+
+CriteriaQuery poses another aspect to query parameter processing. The parameters used in CriteriaQuery is modeled as Expression and created by QueryBuilder factory. However, the parameters used in a CriteriaQuery c must be registered to the executable Query instance  q, because the parameter values can only be set via methods on q. This registration requires that the expression tree of c be walked to detect all its parameters when q is constructed of c. This aspect requires a change in the flow of control in the initial architecture of CriteriaQuery implementation. 
+Care must be taken to ensure that the CriteriaQuery expression tree is not walked twice (once merely to detect the parameters and once to form the executable query expression for the data store). 
+
+Also parameters of CriteriaQuery may not be explicitly named (positional parameters are not permitted by spec for CriteriaQuery anyway). The unnamed parameter requires the implementation to auto-assign a name to the parameter because the maps that contain these parameters require a non-null key. 
+
+
+

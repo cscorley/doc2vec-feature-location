@@ -1,0 +1,9 @@
+It has been reported that PostRemove is not invoked after database delete but invoked after flush().
+This is in disagreement with JPA 2.0 Spec (Section 3.5.2) which states
+
+"
+ 1. The PostPersist and PostRemove callback methods are invoked for an entity after the entity has been made persistent or removed. 
+ 2. These callbacks will also be invoked on all entities to which these operations are cascaded. 
+ 3. The PostPersist and PostRemove methods will be invoked after the database insert and delete operations respectively. 
+     These database operations may occur directly after the persist, merge, or remove operations have been invoked or they 
+     may occur directly after a flush operation has occurred (which may be at the end of the transaction). 

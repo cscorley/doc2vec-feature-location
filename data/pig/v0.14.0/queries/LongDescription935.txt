@@ -1,0 +1,14 @@
+Skewed join throws a runtime exception for the following query:
+
+A = load 'map.txt' as (e);
+B = load 'map.txt' as (f);
+C = join A by (chararray)e#'a', B by (chararray)f#'a' using "skewed";
+explain C;
+
+Exception:
+
+Caused by: java.lang.ClassCastException: org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POCast cannot be cast to org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.PO
+Project
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler.getSortCols(MRCompiler.java:1492)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler.getSamplingJob(MRCompiler.java:1894)
+        ... 27 more

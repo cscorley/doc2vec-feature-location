@@ -1,0 +1,25 @@
+This happens for example when using zk#multi with a 3.4 client but a 3.3 server.
+
+The issue seems to be on the server side: the servers drops the packets with an unknown OpCode in ZooKeeperServer#submitRequest
+
+public void submitRequest(Request si) {
+    // snip
+    try {
+        touch(si.cnxn);
+        boolean validpacket = Request.isValid(si.type); // ===> Check on case OpCode.*
+        if (validpacket) {
+            // snip
+        } else {
+            LOG.warn("Dropping packet at server of type " + si.type);
+            // if invalid packet drop the packet.
+        }
+    } catch (MissingSessionException e) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Dropping request: " + e.getMessage());
+        }
+    }
+}
+
+
+
+The solution discussed in ZOOKEEPER-1381 would be to get an exception on the client side then & close the session.

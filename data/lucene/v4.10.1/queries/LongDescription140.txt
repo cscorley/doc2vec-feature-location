@@ -1,0 +1,45 @@
+Hello,
+  I can not find out, why (and what) it is happening all the time. I got an
+exception:
+java.lang.IllegalStateException: docs out of order
+        at
+org.apache.lucene.index.SegmentMerger.appendPostings(SegmentMerger.java:219)
+        at
+org.apache.lucene.index.SegmentMerger.mergeTermInfo(SegmentMerger.java:191)
+        at
+org.apache.lucene.index.SegmentMerger.mergeTermInfos(SegmentMerger.java:172)
+        at org.apache.lucene.index.SegmentMerger.mergeTerms(SegmentMerger.java:135)
+        at org.apache.lucene.index.SegmentMerger.merge(SegmentMerger.java:88)
+        at org.apache.lucene.index.IndexWriter.mergeSegments(IndexWriter.java:341)
+        at org.apache.lucene.index.IndexWriter.optimize(IndexWriter.java:250)
+        at Optimize.main(Optimize.java:29)
+
+It happens either in 1.2 and 1.3rc1 (anyway what happened to it? I can not find
+it neither in download nor in version list in this form). Everything seems OK. I
+can search through index, but I can not optimize it. Even worse after this
+exception every time I add new documents and close IndexWriter new segments is
+created! I think it has all documents added before, because of its size.
+
+My index is quite big: 500.000 docs, about 5gb of index directory.
+
+It is repeatable. I drop index, reindex everything. Afterwards I add a few
+docs, try to optimize and receive above exception.
+
+My documents' structure is:
+  static Document indexIt(String id_strony, Reader reader, String data_wydania,
+String id_wydania, String id_gazety, String data_wstawienia)
+{
+    Document doc = new Document();
+
+    doc.add(Field.Keyword("id", id_strony ));
+    doc.add(Field.Keyword("data_wydania", data_wydania));
+    doc.add(Field.Keyword("id_wydania", id_wydania));
+    doc.add(Field.Text("id_gazety", id_gazety));
+    doc.add(Field.Keyword("data_wstawienia", data_wstawienia));
+    doc.add(Field.Text("tresc", reader));
+
+    return doc;
+}
+
+Sincerely,
+legez

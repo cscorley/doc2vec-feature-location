@@ -1,0 +1,32 @@
+As I did not get any response to my mail, I am opening a JIRA issue for this.
+
+When I run the test i18n/I18NImportExport.java with JSR169 using IBM's J2ME/CDC/Foundation Profile, I get the following exception:
+"JAVA ERROR: java.lang.NoSuchMethodError: java/sql/ResultSet.getBigDecimal(II)Ljava/math/BigDecimal;"
+
+In the test, LOCALIZEDDISPLAY is on and the table has a DECIMAL column. This causes the exception. On looking at the code, following is done to format DECIMAL types in LocalizedResource:
+
+if (type == Types.NUMERIC || type == Types.DECIMAL) { 
+      return  getNumberAsString(rs.getBigDecimal(columnNumber, rsm.getScale(columnNumber)));
+}
+
+where getNumberAsString method does the following:
+
+public String getNumberAsString(Object o){
+      if (enableLocalized)
+{
+            return formatNumber.format(o, new StringBuffer(), new FieldPosition(0)).toString();
+      }
+      else 
+{
+            return o.toString();
+      }
+ }
+
+As a solution, I am planning to do the following:
+1. Check for BigDecimal class in the JVM by doing a Class.forName
+2. Call getNumberAsString for NUMERIC and DECIMAL types only if BigDecimal class is available. Otherwise, return rs.getString.
+
+This solution would mean that NUMERIC and DECIMAL types will not  be localized in these JVM environments. Please let me know if any comments on this.
+
+Thanks,
+Deepa

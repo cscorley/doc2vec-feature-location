@@ -1,0 +1,14 @@
+The following script shows this problem:
+
+connect 'jdbc:derby:db;create=true';
+
+values ( syscs_util.syscs_get_database_property( 'DataDictionaryVersion' ) );
+
+call syscs_util.syscs_set_database_property( 'DataDictionaryVersion', 'foobar' );
+
+values ( syscs_util.syscs_get_database_property( 'DataDictionaryVersion' ) );
+
+connect 'jdbc:derby:db;shutdown=true';
+
+– fails to boot
+connect 'jdbc:derby:db';

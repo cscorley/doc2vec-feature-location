@@ -1,0 +1,16 @@
+The property derby.tests.networkServerStartTimeout is sometimes used with testing to extend the wait for network server when JVM options are specified that make the start very slow, for example, for IBM JVM testing, -Xnoquickstart  is used for some runs.  The replication tests do not seem to pick up this property.  Even when set to 90000 the tests wait only for 75 seconds.
+
+testReplication_Local_StateTest_part1_1(org.apache.derbyTesting.functionTests.tests.replicationTests.ReplicationRun_Local_StateTest_part1_1)java.lang.Exception: Could not ping in 150 * 500ms.: DRDA_NoIO.S
+:Could not connect to Derby Network Server on host 127.0.0.1, port 1527: Connection refused
+        at org.apache.derbyTesting.functionTests.tests.replicationTests.ReplicationRun.ping(ReplicationRun.java:2804)
+        at org.apache.derbyTesting.functionTests.tests.replicationTests.ReplicationRun.pingServer(ReplicationRun.java:2776)
+        at org.apache.derbyTesting.functionTests.tests.replicationTests.ReplicationRun.startServer(ReplicationRun.java:2453)
+        at org.apache.derbyTesting.functionTests.tests.replicationTests.ReplicationRun_Local_StateTest_part1_1.testReplication_Local_StateTest_part1_1(ReplicationRun_Local_StateTest_part1_1.java:86)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:63)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:109)
+        at org.apache.derbyTesting.functionTests.tests.replicationTests.ReplicationRun.runBare(ReplicationRun.java:199)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+        at junit.extensions.TestSetup.run(TestSetup.java:16)

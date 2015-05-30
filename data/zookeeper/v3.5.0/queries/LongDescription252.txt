@@ -1,0 +1,9 @@
+org.apache.zookeeper.server.PurgeTxnLog class has not been updated to handle the new directory structure imposed by the upgrade from v2 to v3 of ZooKeeper. In particular the dataDir now has a "version-2" subdirectory that stores all of the snaps/transactionallogs for version2 of the persistence layer.
+
+I also note that the documentation of this class is particularly poor. I'm working on ZOOKEEPER-229 and would like to point to the API docs for this class regarding usage but they api docs are nonexistent
+
+Also - I think it's important for the user to be able to specify the number of "backup" snaps and logs that should be kept – right now it seems we delete all but the current snaps/txlogs. Either by count or by date – ie "remove anything 5 days or older, with a minum of 3 most recents snaps (and accompanying txlogs)" seems like a pretty common user case (assuming the operator is doing system backups every X days, etc...)
+
+in general this class needs some tlc - the formatting should also be cleaned up.
+
+Also - the API docs for this and LogFormatter are not included in the build.xml "javadoc" target. These are user utilities so javadoc for these two classes should be included. I will fix this issue as part of ZOOKEEPER-229. I'm also updateing the forrest documention in 229 so don't worry about that either.

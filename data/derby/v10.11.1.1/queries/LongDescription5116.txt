@@ -1,0 +1,17 @@
+SequenceTest fails intermittently on Java 7. Seems to be dependent on the order in which the test cases run.
+
+Example from the nightly tests:
+
+http://dbtg.foundry.sun.com/derby/test/Daily/jvm1.7/testing/testlog/lin/1078515-suitesAll_diff.txt
+
+1) test_02_DropSequence(org.apache.derbyTesting.functionTests.tests.lang.SequenceTest)java.sql.SQLException: Sequence 'MYSEQ1' already exists.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.ConnectionChild.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.lang.SequenceTest.test_02_DropSequence(SequenceTest.java:81)

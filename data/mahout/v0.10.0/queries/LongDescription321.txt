@@ -1,0 +1,7 @@
+See this thread: http://old.nabble.com/weighted-score-td27686783.html
+
+In short, using similarity values as weights in a weighted average is problematic since they can be negative. This can result in weighted averages well out of range of possible preference values, even infinite. The current solution simply moves the values from [-1,1] to [0,2] but this has undesirable effects like giving weight of 1 to entities with no similarity.
+
+Tamas advances, and Ted refined, a convincing argument that negative weights can be handled in a different way which doesn't require them to be arbitrarily shifted. It is simply a matter of capping the estimated preference at the max or min value the preference value can take on.
+
+It's possible for the framework to track this max/min value observed in the data, and do the capping, with little performance impact. Hence I want to make this change after 0.3 is released.

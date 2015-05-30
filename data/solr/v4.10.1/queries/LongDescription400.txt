@@ -1,0 +1,11 @@
+The SolrExceptionTest fails on Mac OS X (10.4 and 10.5) due to the line:
+assertTrue(UnknownHostException.class == sse.getRootCause().getClass());
+
+The issue is the root cause is:
+java.lang.Exception: really needs to be a response or result.  not:html
+
+The exception being thrown is from XMLResponseParser line107.
+
+The problem is due to the fact that I am using OpenDNS (http://opendns.com/) as my DNS server.  It returns an HTML error page on malformed URL requests, thus, even though http://333.333.333.333:8080 is not a valid address, OpenDNS forwards the request to a help screen that gives alternate information
+
+Not really sure there is a fix for this, except to make it localhost with some port that is more than likely not going to be used to server anything, but I am noting it here in case anyone else runs across this issue.  If changing to localhost, then the type of exception needs to be different, since the error is not an UnknownHostException

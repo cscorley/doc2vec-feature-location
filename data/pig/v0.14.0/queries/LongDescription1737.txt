@@ -1,0 +1,10 @@
+Pig fail when foreach schema does not match user defined schema with the NPE. The error message should be enhanced. Eg:
+
+
+a = load '1.txt' as (a0, a1, a2);
+b = group a by (a0, a1);
+c = foreach b generate flatten(group) as c0;
+dump c;
+
+
+flatten(group) contains 2 items, user cannot name it into c0 alone. However, Pig die with NPE, which is clueless to the user.

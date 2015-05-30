@@ -1,0 +1,9 @@
+JVMInfo uses parseFloat() to parse the java.specification.version property. That won't work correctly if the minor version has more than one digit. It should order the versions like this:
+
+1.7 < 1.8 < 1.9 < 1.10 < 1.11
+
+With parseFloat(), they are ordered like this instead:
+
+1.10 < 1.11 < 1.7 < 1.8 < 1.9
+
+The result is that newer Java versions will be classified as older, less capable ones, and some functionality might be disabled because Derby thinks the platform is not capable of providing it.

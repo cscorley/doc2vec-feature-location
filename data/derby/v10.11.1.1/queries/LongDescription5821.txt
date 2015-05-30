@@ -1,0 +1,3 @@
+tools/derbyrunjartest.java doesn't use the jvmflags property when it starts a sub-process, so one cannot pass custom flags to the process. This makes it difficult to get the test to pass when running with code coverage tools.
+
+For example, for EMMA, we need to manipulate the classpath and reduce the verbosity level. And we need to pass a -javaagent flag if we're running with JaCoCo. Using the jvmflags property works for those tests that don't spawn processes.

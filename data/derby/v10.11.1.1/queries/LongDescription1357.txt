@@ -1,0 +1,37 @@
+When considering different join orders for the FROM tables in a query, the optimizer will decide to give up on a join order midway through if the cost of that (partial) join order is already higher than the cost of some other complete join order that the optimizer previously found.  This "short-circuiting" of a join order can save compilation time.
+
+That said, the logic to perform this "short-circuit" of a join order is currently as follows (from OptimizerImpl.java):
+
+  /*
+
+	
+	
+		Pick the next table in the join order, if there is an unused position
+		in the join order, and the current plan is less expensive than
+		the best plan so far, and the amount of time spent optimizing is
+		still less than the cost of the best plan so far, and a best
+		cost has been found in the current join position.  Otherwise,
+		just pick the next table in the current position.
+  */
+  boolean joinPosAdvanced = false;
+  if ((joinPosition < (numOptimizables - 1)) &&
+    ((currentCost.compare(bestCost) < 0) ||
+    (currentSortAvoidanceCost.compare(bestCost) < 0)) &&
+    ( ! timeExceeded )
+    )
+  {
+    ...
+  }
+	
+	
+
+
+
+There are two "current costs" in this statement: one for the cost if the optimizer is calculating a "sort avoidance" plan (which it does if there is a required row ordering on the results) and one if it is calculating a plan for which row order is not important.
+
+I admit that I'm not all that familiar with what goes on with the costing of a sort-avoidance plan, but inspection of the code shows that, when there is no required row ordering-i.e. when we aren't looking for a sort-avoidance plan-the cost field of currentSortAvoidanceCost will always be 0.0d. That in turn means that in the above "if" statement, the check for
+
+  ((currentCost.compare(bestCost) < 0) ||
+    (currentSortAvoidanceCost.compare(bestCost) < 0))
+
+will always return true (because bestCost should-in theory-always be greater than 0.0d).  Thus, in the case where we don't have a required row ordering, the short-circuit logic will fail even if currentCost is actually greater than bestCost.

@@ -1,0 +1,45 @@
+Start the network server on port 1527 on localhost.
+
+Run ant on the following:
+
+<project default="all"> 
+  <property environment="env" /> 
+  <path id="derby.classpath.id"> 
+    <fileset dir="${env.DERBY_LIB"> 
+      <include name="derbynet.jar" /> 
+      <include name="derbyclient.jar" /> 
+    </fileset> 
+  </path> 
+
+  <target name="all"> 
+    <sql driver="org.apache.derby.jdbc.ClientDriver" 
+
+url="jdbc:derby://localhost:1527/derbyDB;create=true;user=derbyuser;passsword=derbypwd" 
+         userid="derbyuser" 
+         password="derbypwd" 
+         classpathref="derby.classpath.id" 
+         onerror="continue">
+create table mytable1 (mycol varchar(255)); 
+commit; 
+    </sql> 
+  </target> 
+</project> 
+
+On 10.5.3, I get
+      [sql] Executing commands 
+      [sql] Failed to execute:  commit 
+      [sql] java.sql.SQLSyntaxErrorException: Syntax error: Encountered 
+"commit" 
+ at line 1, column 1. 
+      [sql] 1 of 2 SQL statements executed successfully 
+
+but on 10.6.1, I get
+     [sql] Executing commands 
+
+BUILD FAILED 
+java.lang.StringIndexOutOfBoundsException: String index out of range: 6 
+        at java.lang.String.charAt(String.java:686) 
+        at org.apache.derby.client.am.Statement.isolateAnyInitialIdentifier(Unknown Source) 
+        at org.apache.derby.client.am.Statement.getStatementToken(Unknown Source) 
+        at org.apache.derby.client.am.Statement.parseSqlAndSetSqlModes(Unknown Source) 
+....

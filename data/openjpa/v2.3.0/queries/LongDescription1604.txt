@@ -1,0 +1,9 @@
+ I ran a testcase against openjpa 1.2, and found that the "for update" clause is appended to the SQL when
+
+ 		<property name="openjpa.LockManager" value="pessimistic"/>
+
+	is added to the persistence.xml without calling: 
+
+		 q.setLockMode(LockModeType.PESSIMISTIC_WRITE);
+
+However, this behavior changes when running against trunk level code

@@ -1,0 +1,5 @@
+In order to push towards a stateless Parser interface, I'd like to propose implementing the current Parser.getContents() method (as it exists after TIKA-26) in terms of a stateless abstract method with the following signature:
+
+    protected abstract String parse(InputStream stream, Iterable<Content> contents) throws IOException, TikaException;
+
+This method would return the fulltext content of the given stream as the String return value and place any extra metadata into the given set of Content instances. With this information the current Parser.getContents() method could populate a fulltext (and summary) Content entry and any regexp Content entries universally for any Parser classes. Also, we could centralize state handling and exception processing to a single class.

@@ -1,0 +1,20 @@
+According to JavaDoc, OpenJPAEntityManager.createInstance() method 
+       public <T> T createInstance(Class<T> cls);
+     behaves as follows:
+
+"Create a new instance of type <code>cls</code>. If <code>cls</code> is
+  an interface or an abstract class whose abstract methods follow the
+  JavaBeans convention, this method will create a concrete implementation
+  according to the metadata that defines the class"
+
+The method fails when T is an interface. The failure may be due to incorrect user configuration, however, further
+information on this extension method is not available in OpenJPA documentation.
+
+Firstly, how to specify metadata for a interface that has bean-style methods? 
+Possibilities are:
+a) Annotating the Java interface definition with @Entity 
+b) Specifying in <class>org.acme.IPerson</class> in persistence.xml
+
+Either of the above fails. a) fails at parsing b) fails with "no metadata" 
+
+There may be a correct but undocumented way of specifying a managed interface. If that is the case, then this JIRA report should be treated as a documentation bug. 

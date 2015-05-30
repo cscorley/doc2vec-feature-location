@@ -1,0 +1,9 @@
+The precondition check in the constructor of org.apache.mahout.cf.taste.impl.eval.IRStatisticsImpl includes Copy&Paste errors:
+
+Preconditions.checkArgument(fallOut >= 0.0 && fallOut <= 1.0, "Illegal fallOut: " + fallOut);
+Preconditions.checkArgument(fallOut >= 0.0 && fallOut <= 1.0, "Illegal nDCG: " + ndcg);
+Preconditions.checkArgument(reach >= 0.0 && reach <= 1.0, "Illegal reach: " + ndcg);
+
+The second line shows a message for nDCG but checks the fallOut, the third line checks the reach but prints out the nDCG.
+
+This error is also in the current version from the SVN (http://svn.apache.org/viewvc/mahout/trunk/core/src/main/java/org/apache/mahout/cf/taste/impl/eval/IRStatisticsImpl.java?revision=1213930&view=markup)

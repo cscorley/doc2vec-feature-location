@@ -1,0 +1,104 @@
+I am pasting here the communication from the mailinglist. I am having a blocking and large problem with it because I have to make a release that needs the specified SQL query. 
+
+
+tom_ wrote:
+
+> The errormessage is 
+> 
+> The ORDER BY clause may not specify an expression, since the query specifies 
+> DISTINCT 
+> [Error Code: 20000] 
+> [SQL State: 4287A] 
+> 
+> The statement is 
+> 
+> select distinct 
+> t1.t1_id, t2.t2value1, t2.t2value2, t2.t2value3 
+> from 
+> t1, t2, t3   
+> where 
+> ... 
+> order by lower(t2.t2value2) , lower(t2.t2value1) , lower(t2.t2value3) 
+> 
+> 
+> 
+> 
+> Dyre.Tjeldvoll wrote: 
+>   
+>> tom_ <tom12167@...> writes: 
+>> 
+>>     
+>>> I am using "disctinct" because of some self-joins and also needed to add 
+>>> an 
+>>> "order by" clause. An error is shown. Is it not possible to use distinct 
+>>> and 
+>>> order by together? 
+>>>       
+>> I think it is allowed. Executing 
+>> 
+>> select distinct * from sys.systables order by tablename; 
+>> 
+>> in ij works just fine. Could you show the error message you get, and 
+>> perhaps what the table looks like? 
+>> 
+>> – 
+>> dt 
+>> 
+>> 
+>>    
+«  [hide part of quote]
+
+Hi Tom - 
+
+I see what you mean using the demo DB toursDB: 
+
+ij> select * from airlines order by lower(airline_full); 
+A&|AIRLINE_FULL            |BASIC_RATE            |DISTANCE_DISCOUNT     
+
+
+BUSINESS_LEVEL_FACTOR
+
+
+FIRSTCLASS_LEVEL_FACT&
+ECONOMY_SE&
+BUSINESS_S&
+FIRSTCLASS& 
+----------------------------------------------------------------------------------------------------------------------------------------------------------- 
+AA
+Amazonian Airways       
+0.18                  
+0.03
+
+
+0.5                   
+1.5                   
+20         
+10         
+5 
+US
+Union Standard Airlines 
+0.19                  
+0.05
+
+
+0.4                   
+1.6                   
+20         
+10         
+5
+
+
+
+
+2 rows selected 
+ij> select distinct * from airlines order by lower(airline_full); 
+ERROR 4287A: The ORDER BY clause may not specify an expression, since 
+the query specifies DISTINCT. 
+ij> select distinct airline_full from airlines order by lower(airline_full); 
+ERROR 4287A: The ORDER BY clause may not specify an expression, since 
+the query specifies DISTINCT. 
+ij> 
+
+I didn't find a JIRA enhancement to remove this restriction.  I suggest 
+you file an Enhancement request to remove the restriction reported by 
+ERROR 4287A. 

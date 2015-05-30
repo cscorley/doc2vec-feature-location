@@ -1,0 +1,3 @@
+The toursdb example database is built as part of "ant all". Currently, java/demo/toursdb/build.xml invokes ij nine times, as well as a custom Java program (toursdb.insertMaps) once, to create the database, and all of these run in separate Java processes. This means the database engine is cold booted 10 times, which can take considerable time.
+
+There is already a script called loadTables.sql, which calls loadCOUNTRIES.sql, loadCITIES.sql, loadAIRLINES.sql, loadFLIGHTS1.sql, loadFLIGHTS2.sql, loadFLIGHTAVAILABILITY1.sql and loadFLIGHTAVAILABILITY2.sql. I propose that we use that script instead of invoking each of the sub-scripts separately. This would reduce the number of times the database engine would have to be booted from 10 to 4 per full build.

@@ -1,0 +1,38 @@
+I have the following txt files which are bzipped: \t =<TAB> 
+
+
+$ bzcat A.txt.bz2 
+1\ta
+2\taa
+
+$bzcat B.txt.bz2
+1\tb
+2\tbb
+
+$cat *.bz2 > test/mymerge.bz2
+$bzcat test/mymerge.bz2 
+1\ta
+2\taa
+1\tb
+2\tbb
+
+$hadoop fs -put test/mymerge.bz2 /user/viraj
+
+
+
+
+I now write a Pig script to print values of bz2.
+
+
+
+A = load '/user/viraj/bzipgetmerge/mymerge.bz2' using PigStorage();
+dump A;
+
+
+
+I get the records for the first bz2 file which I concatenated.
+
+(1,a)
+(2,aa)
+
+My M/R jobs do not fail or throw any warning about this, just that it drops records. Is there a way we can throw a warning or fail the underlying Map job, can it be done in Bzip2TextInputFormat class in Pig ?

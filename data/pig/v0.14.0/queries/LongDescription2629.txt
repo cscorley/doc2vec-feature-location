@@ -1,0 +1,107 @@
+Hi,
+
+Script
+
+
+A = LOAD 'test3.txt'   AS (from:chararray);
+B = LOAD 'test2.txt'    AS (source:chararray,to:chararray);
+C = FILTER A BY (from == 'temp' );
+D = FILTER B BY (source MATCHES '.*xyz*.');
+E = JOIN C by (from) left outer,D by (to);
+F = FILTER E BY (D.to IS NULL);
+dump F;
+
+
+
+Inputs
+
+
+$ cat test2.txt
+temp    temp
+temp    temp
+temp    temp
+temp    temp
+temp    temp
+tepm    tepm
+
+$ cat test3.txt  |head
+temp
+temp
+temp
+temp
+temp
+temp
+tepm
+temp
+temp
+temp
+
+
+
+Here I have by mistake called 'to' using 'D.to' instead of 'D::to'. The D relation gives null output. 
+
+First Map Reduce job computes D which give null results.
+The MapPlan of 2nd job
+
+
+
+Union[tuple] - scope-56
+|
+|---E: Local Rearrange[tuple]{chararray}(false) - scope-36
+|   |   |
+|   |   Project[chararray][0] - scope-37
+|   |
+|   |---C: Filter[bag] - scope-26
+|       |   |
+|       |   Equal To[boolean] - scope-29
+|       |   |
+|       |   |---Project[chararray][0] - scope-27
+|       |   |
+|       |   |---Constant(temp) - scope-28
+|       |
+|       |---A: New For Each(false)[bag] - scope-25
+|           |   |
+|           |   Cast[chararray] - scope-23
+|           |   |
+|           |   |---Project[bytearray][0] - scope-22
+|           |
+|           |---F: Filter[bag] - scope-17
+|               |   |
+|               |   POIsNull[boolean] - scope-21
+|               |   |
+|               |   |---POUserFunc(org.apache.pig.impl.builtin.ReadScalars)[chararray] - scope-20
+|               |       |
+|               |       |---Constant(1) - scope-18
+|               |       |
+|               |       |---Constant(hdfs://nn-nn1/tmp/temp-1607149525/tmp281350188) - scope-19
+|               |
+|               |---A: Load(hdfs://nn-nn1/user/anithar/test3.txt:org.apache.pig.builtin.PigStorage) - scope-0
+|
+|---E: Local Rearrange[tuple]{chararray}(false) - scope-38
+    |   |
+    |   Project[chararray][1] - scope-39
+    |
+    |---Load(hdfs://nn-nn1/tmp/temp-1607149525/tmp-458164144:org.apache.pig.impl.io.TFileStorage) - scope-53--------
+
+
+
+Here at F , the file /tmp/temp-1607149525/tmp281350188 which is the output of the 1st Mapreduce Job is repeatedly read. 
+If the input to F was non empty, since I am calling the scalar wrongly, it would have failed with the expected error message 'Scalar has more than 1 row in the output'.
+
+But since its null, it returns in ReadScalars before the exception is thrown and gives these in the task logs repeatedly 
+
+
+
+2012-04-03 11:46:58,824 INFO org.apache.hadoop.mapreduce.lib.input.FileInputFormat: Total input paths to process : 1
+2012-04-03 11:46:58,824 INFO org.apache.pig.backend.hadoop.executionengine.util.MapRedUtil: Total input paths to process : 1
+2012-04-03 11:46:58,827 WARN org.apache.pig.impl.builtin.ReadScalars: No scalar field to read, returning null
+....
+....
+
+
+
+That is its reading the '/tmp/temp-1607149525/tmp281350188' file again and again which was causing high namenode operation. 
+The cost of one small mistake had ended up causing heavy namenode operations.
+
+Regards,
+Anitha

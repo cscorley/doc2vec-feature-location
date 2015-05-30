@@ -1,0 +1,22 @@
+This is a fundamental problem with count when compound primary key is involved. 
+
+	(1) If no relation navigation is involved:
+	String jpql = "SELECT COUNT (DISTINCT e) FROM G2 e";
+
+	With the property below:
+	<property name="openjpa.jdbc.DBDictionary"
+		value="db2(useWildCardForCount=true)" />
+
+	Openjpa will generate the following sql and return the correct count:
+
+	SELECT COUNT FROM G2 t0  optimize for 1 row
+
+	(2) If there is relation navigation invloved:
+	String jpql = "SELECT COUNT (DISTINCT f1.g2) FROM F1 f1";
+
+	The property of useWildCardForCount will not generate correct sql with right result. However, given the object-relational impedance mismatch, there is no corresponding SQL construct for count of multiple primary keys, and there is no clean and generic solution to solve this problem. The only workaround is to use native SQL with table expression:
+
+	SELECT COUNT
+	FROM (SELECT DISTINCT G1.G1PK, G1.G2PK 	FROM F1 t0 INNER JOIN G2 t1 ON t0.G1PK = t1.G1PK AND t0.G2PK = t1.G2PK)) TX;	
+
+	Rather than giving a wrong answer, OpenJPA should give an Unsupported exception.

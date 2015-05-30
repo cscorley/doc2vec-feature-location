@@ -1,0 +1,13 @@
+I tried a stopSlave on the slave side of the replication system and
+found the below
+
+ij> connect 'jdbc:derby://localhost:1528/replicationdb;stopSlave=true';
+ERROR XRE41: DERBY SQL error: SQLCODE: -1, SQLSTATE: XRE41, SQLERRMC: XRE41
+
+https://issues.apache.org/jira/browse/DERBY-3205 says
+
+ERROR XRE41: Replication operation 'failover' or 'stopSlave' failed because the connection with the master is working. Issue the 'failover' or 'stopMaster' operation on the master database instead.
+
+needs  to be printed.
+
+I am not sure if this is a generic case for client server replication messages.

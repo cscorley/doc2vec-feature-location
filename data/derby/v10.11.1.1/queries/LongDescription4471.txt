@@ -1,0 +1,56 @@
+The following script and output shows the problem:
+
+> create table r(c1 char(1));
+> create table s(c1 char(1), c2 char(1));
+> create table t(c1 char(1));
+
+> insert into r values 'a';
+> insert into s values ('b', default);
+> insert into t values ('c');
+
+> select * from s left outer join t on s.c2=t.c1 or s.c2 is null;
+
+C1  |C2  |C1  
+--------------
+b   |NULL|c   
+
+> select * from r left outer join s on r.c1=s.c1;
+C1  |C1  |C2  
+--------------
+a   |NULL|NULL
+
+
+> select * from (r left outer join s on r.c1=s.c1) left outer join t on s.c2=t.c1 or s.c2 is null;
+
+C1  |C1  |C2  |C1  
+-------------------
+a   |NULL|NULL|c   
+
+> select * from r left outer join (s left outer join t on s.c2=t.c1 or s.c2 is null) on r.c1=s.c1;
+
+C1  |C1  |C2  |C1  
+-------------------
+a   |NULL|NULL|c   
+
+The last result is wrong. The correct answer should be:
+
+C1  |C1  |C2  |C1  
+-------------------
+a   |NULL|NULL|NULL   
+
+since in the last form, the left table r has the value 'a', which does
+not match any row in result of the compound inner given the join
+predicate ("r.c1=s.c1"), so all nulls should be appended to the 'a'
+from the outer table r.
+
+
+This happens because internally the last form is rewritten to the
+second but the last form (left-deep), but this rewrite is not
+justified here unless the join predicate on s rejects null, which the
+present one explicitly does not ("or s.c2 is null"). Cf. for example
+[1], page 52, which describes this transform and its prerequisite
+condition as indentity #7.
+
+[1] Galindo-Legaria, C. & Rosenthal, A.: "Outerjoin simplification and
+reordering for query optimization", ACM Transactions on Database
+Systems, Vol 22, No 1, March 1997.

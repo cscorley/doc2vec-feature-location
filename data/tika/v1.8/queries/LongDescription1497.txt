@@ -1,0 +1,11 @@
+I would like the response from 
+curl -X PUT -T /path/to/file.pdf http://localhost:9998/meta
+to be JSON and not CSV?.
+
+I've discovered JSONMessageBodyWriter.java (https://github.com/apache/tika/blob/af19f3ea04792cad81b428f1df9f5ebbb2501913/tika-server/src/main/java/org/apache/tika/server/JSONMessageBodyWriter.java) so I think the functionality is present, tried adding --header "Accept: application/json" to the cURL call, in line with the documentation for outputting CSV, but no luck so far.
+
+According to Sergey Beryozkin
+
+"I see MetadataResource returning StreamingOutput and it has @Produces(text/csv) only. As such this MBW has no effect at the moment.
+
+We can update MetadataResource to return Metadata directly if application/json is requested or update MetadataResource to directly convert Metadata to JSON in case of JSON being accepted."

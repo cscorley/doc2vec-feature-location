@@ -1,0 +1,53 @@
+There are a few properties in TikaCoreProperties which overlap and I think we should minimize ambiguity by consolidating them into a single composite property with the clearest name, the most general specification referenced as its primary property, and the others and deprecated strings as its secondaries.
+
+Here's the proposed pseudo-code for the changes:
+
+Remove TikaCoreProperties.SUBJECT
+TikaCoreProperties.KEYWORDS <- DublinCore.SUBJECT, 
+{ Office.KEYWORDS, MSOffice.KEYWORDS, Metadata.SUBJECT }
+
+Remove TikaCoreProperties.DATE
+TikaCoreProperties.CREATION_DATE <- DublinCore.DATE, 
+{ Office.CREATION_DATE, MSOffice.CREATION_DATE, Metadata.DATE }
+
+Remove TikaCoreProperties.MODIFIED
+TikaCoreProperties.SAVE_DATE <- DublinCore.MODIFIED, 
+{ Office.SAVE_DATE, MSOffice.LAST_SAVED, Metadata.MODIFIED, "Last-Modified" }
+
+
+and an example of the Java changes:
+TikaCoreProperties.java Before
+
+    /**
+     * @see DublinCore#SUBJECT
+     */
+    public static final Property SUBJECT = Property.composite(DublinCore.SUBJECT, 
+            new Property[] { Property.internalText(Metadata.SUBJECT) });
+      
+    /**
+     * @see Office#KEYWORDS
+     */
+    public static final Property KEYWORDS = Property.composite(Office.KEYWORDS,
+            new Property[] { Property.internalTextBag(MSOffice.KEYWORDS) });
+
+
+would become
+TikaCoreProperties.java After
+
+    /**
+     * @see DublinCore#SUBJECT
+     * @see Office#KEYWORDS
+     */
+    public static final Property KEYWORDS = Property.composite(DublinCore.SUBJECT,
+            new Property[] { 
+    		    Office.KEYWORDS, 
+    		    Property.internalTextBag(MSOffice.KEYWORDS),
+    		    Property.internalText(Metadata.SUBJECT)
+    		});
+
+
+
+
+Since this would require a bit of refactoring for parsers that use the properties being removed I thought it best to get some feedback before working up a full patch.
+
+Does this seem like a reasonable approach?

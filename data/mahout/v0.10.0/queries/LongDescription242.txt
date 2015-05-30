@@ -1,0 +1,34 @@
+Identifies interesting Collocations in text using ngrams scored via the LogLikelihoodRatio calculation. 
+
+As discussed in: 
+
+	http://www.lucidimagination.com/search/document/d051123800ab6ce7/collocations_in_mahout#26634d6364c2c0d2
+	http://www.lucidimagination.com/search/document/b8d5bb0745eef6e8/n_grams_for_terms#f16fa54417697d8e
+
+
+
+Current form is a tar of a maven project that depends on mahout. Build as usual with 'mvn clean install', can be executed using:
+
+
+mvn -e exec:java  -Dexec.mainClass="org.apache.mahout.colloc.CollocDriver" -Dexec.args="--input src/test/resources/article --colloc target/colloc --output target/output -w"
+
+
+
+Output will be placed in target/output and can be viewed nicely using:
+
+
+sort -rn -k1 target/output/part-00000
+
+
+
+Includes rudimentary unit tests. Please review and comment. Needs more work to get this into patch state and integrate with Robin's document vectorizer work in MAHOUT-237
+
+Some basic TODO/FIXME's include:
+
+	use mahout math's ObjectInt map implementation when available
+	make the analyzer configurable
+	better input validation + negative unit tests.
+	more flexible ways to generate units of analysis (n-1)grams.
+
+
+

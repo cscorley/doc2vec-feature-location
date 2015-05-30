@@ -1,0 +1,13 @@
+writeLockTimeout is set in SolrIndexWriter.init() method as follows:
+
+if (config.writeLockTimeout != -1) setWriteLockTimeout(config.writeLockTimeout);
+
+but this doesn't have effect because setWriteLockTimeout() is an instance method of IndexWriter and at this moment,
+IndexWriter's constructor had already been executed and write.lock had beed obtained in the constructor.
+
+To have effect, we should use IndexWriter.setDefaultWriteLockTimeout() class method before creating SolrIndexWriter instance.
+
+With the attached patch, I moved setWriteLockTimeout() to SolrCore and change it to IndexWriter.setDefaultWriteLockTimeout().
+I'm not sure it is an appropriate place, but it works.
+
+regards,

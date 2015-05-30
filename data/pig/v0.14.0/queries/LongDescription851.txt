@@ -1,0 +1,41 @@
+When an UDF returns a map and the outputSchema method is not overridden, Pig does not figure out the data type. As a result, the type is set to unknown resulting in run time failure. An example script and UDF follow
+
+
+
+public class mapUDF extends EvalFunc<Map<Object, Object>> {
+
+    @Override
+    public Map<Object, Object> exec(Tuple input) throws IOException {
+            return new HashMap<Object, Object>();
+    }
+
+//Note that the outputSchema method is commented out
+
+/*
+    @Override
+    public Schema outputSchema(Schema input) {
+        try {
+            return new Schema(new Schema.FieldSchema(null, null, DataType.MAP));
+        } catch (FrontendException e) {
+            return null;
+        }
+    }
+*/
+
+
+
+
+
+grunt> a = load 'student_tab.data';           
+grunt> b = foreach a generate EXPLODE(1);
+grunt> describe b;
+
+b: {Unknown}
+
+grunt> dump b;
+
+2009-06-15 17:59:01,776 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - Failed!
+
+2009-06-15 17:59:01,781 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 2080: Foreach currently does not handle type Unknown
+
+

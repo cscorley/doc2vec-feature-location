@@ -1,0 +1,44 @@
+Create an entity with a BigDecimal member. Using runtime enhancement and automatic schema generation. When OpneJPA creates the table it creates a column of type DECIMAL but will always ignore the precision set on the column annotation and use the default of (10,0) causing BigDecimal data to round up to the nearest whole number.
+
+Sample of basic Entity:
+
+@Entity
+public class Asset implements Serializable{
+	private static final long serialVersionUID = 1L;
+
+	@Id
+        @GeneratedValue(strategy=SEQUENCE, generator="ASSET_SEQ")
+	private String uniqueid;
+
+	@Column(precision=10,scale=6,)
+	private BigDecimal rate;
+
+
+	public Asset() 
+{
+		this.rate = rate;
+	}
+
+	public void setRate(BigDecimal rate) {
+		this.rate = rate;
+	}
+
+	public BigDecimal getRate() 
+{
+		return rate;
+	}
+}
+
+Code to generate schema and save entity:
+
+Asset asset = new Asset();
+asset.setRate(BigDecimal bd = new BigDecimal(100.004));
+
+Now called persist/merge on the entity to generate the table schema and save the entity. The table is generated and the "rate" column is set to type DECIMAL(10,0) instead of DECIMAL(10,6). The table create script looks like this:
+DROP TABLE IF EXISTS `trm`.`asset`;
+CREATE TABLE  `trm`.`asset` (
+  `uniqueid` varchar(255) NOT NULL,
+  `rate` decimal(10,0) NOT NULL,
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+doubles work ok.

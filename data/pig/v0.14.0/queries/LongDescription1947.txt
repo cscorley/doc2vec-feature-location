@@ -1,0 +1,16 @@
+In case of errors in script, Pig parser doesn't report correct the line number always. For example:
+
+script:
+
+A = load 'x' as ( u:int, v:chararray );
+sh ls -l;
+B = foreach A generate u + v;
+store B into 'y';
+
+error reported:
+
+2011-03-30 17:48:04,649 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1039: <file line.pig, line 2, column 25> (Name: Add Type: int Uid: 7)incompatible types in Add Operator left hand side:Unknown right hand side:Unknown
+
+Incorrect line number is also reported when a single line contains multiple Pig statement, such as:
+A = load 'x' as( u:int, v:chararray); B = foreach A generate u + v;
+store B into 'y';

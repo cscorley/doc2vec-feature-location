@@ -1,0 +1,3 @@
+Bookie owns EntryLogger, LedgerCache, LedgerDescriptors which all depend on each other in strange ways. Sometimes we access the ledgerCache directly, sometimes through LedgerDescriptors. etc, etc. It's messy and there's no hierarchy.
+
+I propose that we refactor Bookie to only contain the EntryLogger and journalling code (this should be factored at some stage also). The EntryLogger can then own the ledgerCache and the LedgerDescriptors, and then we would how have to have the entanglement as observed on BOOKKEEPER-160.

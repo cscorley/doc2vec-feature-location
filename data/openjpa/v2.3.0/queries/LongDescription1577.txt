@@ -1,0 +1,20 @@
+I try to use a field that is annotated with @Strategy in a Query. 
+
+I expected that everytime the query is executed the toDataStoreValue method of the ValueHandler is called to prepare the correct values for the SQL query.
+This is only happens once. The next time the Query is executed the ValueHandler is not called.
+
+Here is the interesting part of the logging 
+
+1st call:
+[DEBUG,Query,main] Executing query: [select s from SimpleEntity s where s.base = :base and s.name = :name] with parameters: 
+{name=james, base=1}
+toDataStoreValue: 1
+[DEBUG,SQL,main] <t 805562662, conn 2071272094> executing prepstmnt 1531692262 SELECT t0.id, t0.version, t0.base, t0.street, t0.my_name FROM some_objects t0 WHERE (t0.base = ? AND t0.my_name = ?) [params=(String) base1, (String) james]
+
+2nd call: 
+[DEBUG,Query,main] Executing query: [select s from SimpleEntity s where s.base = :base and s.name = :name] with parameters: 
+{0=2, 1=henry}
+[DEBUG,SQL,main] <t 805562662, conn 2071272094> executing prepstmnt 106030716 SELECT t0.id, t0.version, t0.base, t0.street, t0.my_name FROM some_objects t0 WHERE (t0.base = ? AND t0.my_name = ?) [params=(String) 2, (String) henry]
+
+You can see that the parameter list has changed after the first call. Some kind of transformation (caching?) prevents calling the ValueHandler again.
+This is only a vague presumption.

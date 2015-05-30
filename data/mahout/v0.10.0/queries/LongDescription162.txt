@@ -1,0 +1,6 @@
+Since the framework now only allows long (64-bit integer) IDs, and no longer Strings, we need to provide some support for translating between the two. The basic proposal is this:
+
+
+	Define a one-way mapping from Strings to longs that is repeatable and easy to implement in many contexts. In particular I propose using the bottom 64 bits of the MD5 hash of a string.
+	Define support for storing the reverse mapping (longs to Strings) in various ways, in an efficient way, that handles gracefully the very rare possibility of collision
+

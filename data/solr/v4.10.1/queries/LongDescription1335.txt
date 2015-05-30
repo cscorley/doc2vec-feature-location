@@ -1,0 +1,15 @@
+There are  few ways of loading properties in runtime,
+
+
+	using env property using in the command line
+	if you use a multicore drop it in the solr.xml
+
+
+
+if not , the only way is to  keep separate solrconfig.xml for each instance.  #1 is error prone if the user fails to start with the correct system property. 
+In our case we have four different configurations for the same deployment  . And we have to disable replication of solrconfig.xml. 
+
+It would be nice if I can distribute four properties file so that our ops can drop  the right one and start Solr. Or it is possible for the operations to edit a properties file  but it is risky to edit solrconfig.xml if he does not understand solr
+
+I propose a properties file in the instancedir as solrcore.properties . If present would be loaded and added as core specific properties.
+

@@ -1,0 +1,8 @@
+We don't have any logging to identify fsync stalls. It's a somewhat common occurrence (after gc/swap issues) when trying to diagnose pipeline stalls - where outstanding requests start piling up and operational latency increases.
+
+We should have some sort of logging around this. e.g. if the fsync time exceeds some limit then log a warning, something like that.
+
+It would also be useful to publish "stat" information related to this. min/avg/max latency for fsync.
+
+This should also be exposed through JMX.
+

@@ -1,0 +1,5 @@
+Classes that implement the aggregates such as MAX/MIN are loaded as user-defined classes due to old support for user-defined aggregates.
+
+If the class loader setup running Derby is not well set up these classes are loaded in a different class loader space to Derby's class leading to non-comparable classes due to the the same class (dependend or subper-class, not sure which) being loaded twice.
+
+While this may be a user setup bug, it has occured frequently leading to wasted time resolving the issue, it would be better if Derby ensured its classes were loaded consistently.

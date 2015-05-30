@@ -1,0 +1,26 @@
+The following script fail:
+A = load '1.txt' as (a0, a1, a2);
+B = group A by a0;
+C = foreach B 
+{ D = order A by *; generate group, D;}
+;
+explain C;
+
+Here is the stack:
+Caused by: java.lang.ArrayIndexOutOfBoundsException: -1
+        at java.util.ArrayList.get(ArrayList.java:324)
+        at org.apache.pig.impl.logicalLayer.schema.Schema.getField(Schema.java:752)
+        at org.apache.pig.impl.logicalLayer.LOSort.getSortInfo(LOSort.java:332)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.LogToPhyTranslationVisitor.visit(LogToPhyTranslationVisitor.java:1365)
+        at org.apache.pig.impl.logicalLayer.LOSort.visit(LOSort.java:176)
+        at org.apache.pig.impl.logicalLayer.LOSort.visit(LOSort.java:43)
+        at org.apache.pig.impl.plan.DependencyOrderWalkerWOSeenChk.walk(DependencyOrderWalkerWOSeenChk.java:69)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.LogToPhyTranslationVisitor.visit(LogToPhyTranslationVisitor.java:1274)
+        at org.apache.pig.impl.logicalLayer.LOForEach.visit(LOForEach.java:130)
+        at org.apache.pig.impl.logicalLayer.LOForEach.visit(LOForEach.java:45)
+        at org.apache.pig.impl.plan.DependencyOrderWalker.walk(DependencyOrderWalker.java:69)
+        at org.apache.pig.impl.plan.PlanVisitor.visit(PlanVisitor.java:51)
+        at org.apache.pig.backend.hadoop.executionengine.HExecutionEngine.compile(HExecutionEngine.java:234)
+        at org.apache.pig.PigServer.compilePp(PigServer.java:864)
+        at org.apache.pig.PigServer.explain(PigServer.java:583)
+        ... 8 more

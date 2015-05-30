@@ -1,0 +1,5 @@
+While inserting a large pile of documents using StreamingUpdateSolrServer there is a race condition as all Runner instances stop processing while the blocking queue is full. With a high performance client this could happen quite often, there is no way to recover from it at the client side.
+
+In StreamingUpdateSolrServer there is a BlockingQueue called queue to store UpdateRequests, there are up to threadCount number of workers threads from StreamingUpdateSolrServer.Runner to read that queue and push requests to a Solr instance. If at one point the BlockingQueue is empty all workers stop processing it and pushing the collected content to Solr which could be a time consuming process, sometimes all worker threads are waiting for Solr. If at this time the client fills the BlockingQueue to full all worker threads will quit without processing any further and the main thread will block forever.
+
+There is a simple, well tested patch attached to handle this situation.

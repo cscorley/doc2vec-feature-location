@@ -1,0 +1,87 @@
+An update of a long row piece on an overflow page that has limited row used space, row reserved space, and page free space can throw the nospc.U error on an update.  I will attach a patch with a simple junit test that reproduces this
+issue.  
+
+This issue is probably the same as DERBY-2286.  Logging a new issue so that it is clear the associated changes fix
+the attached repro.  The repro for DERBY-2286 is random and I could only get it to fail on one machine.  If after the fix
+for this goes in and no one can repro, then we can close DERBY-2286 as a repro.
+
+The nospc errror is never meant to get to the user.  The code path that can raise it is shared by insert and update.  
+Insert has code that internally catches the error and does the right thing.  The error should never be raised for an update.  What is meant to happen for updates is that on update on any page, including an overflow page should always
+in the worst case have enough room to transform the row piece from whatever it is to a just a row header with an
+overflow pointer to the next piece.  
+
+For the attached test the row piece on the overflow page is 12 bytes reserved, and 0 bytes free on the page.  So 
+far in the code path the code has written a preliminary row header that is 4 bytes, and then has noticed that the
+remaining 8 bytes are not enough for an overflow pointer (worst case 8 bytes for page number + 4 bytes for record
+id).  
+
+I think the real problem is that not enough minimum space is being reserved on the overflow page.  There should be
+12 bytes reserved + the maximum size of a record header that does not include an overflow pointer.   I think the
+code does the right thing in the case of head pages where the minimum reserved space is 12 for the "user" portion
+of the data, but it looks like we don't apply this reserved space to just user portion on overflow pages.
+
+I need to research more, but it looks like on overflow pages we apply the minimum reserved space to the entire row
+rather than just the user space.
+
+The stack trace being thrown in this case is:
+2010-03-06 00:18:40.750 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.6.0.0 alpha - (1): instance 3405c0cb-0127-30d6-6168-ffffe7
+008b2c
+on database directory C:\derby\s2\systest\out\junit\system\wombat
+^M
+Database Class Loader started - derby.database.classpath=''^M
+2010-03-06 00:18:41.171 GMT Thread[main,5,main] (XID = 253), (SESSIONID = 1), (DATABASE = wombat), (DRDAID = null), Cleanup action s
+tarting^M
+2010-03-06 00:18:41.171 GMT Thread[main,5,main] (XID = 253), (SESSIONID = 1), (DATABASE = wombat), (DRDAID = null), Failed Statement
+ is: UPDATE testBadUpdate set value = ? where id = ? with 2 parameters begin parameter #1: BLOB:Length=120000 :end parameter begin p
+arameter #2: 0 :end parameter ^M
+ERROR nospc: nospc.U^M
+    at org.apache.derby.impl.store.raw.data.StoredPage.logRow(StoredPage.java:4106)^M
+    at org.apache.derby.impl.store.raw.data.UpdateOperation.writeOptionalDataToBuffer(UpdateOperation.java:255)^M
+    at org.apache.derby.impl.store.raw.data.UpdateOperation.<init>(UpdateOperation.java:106)^M
+    at org.apache.derby.impl.store.raw.data.LoggableActions.actionUpdate(LoggableActions.java:80)^M
+    at org.apache.derby.impl.store.raw.data.StoredPage.doUpdateAtSlot(StoredPage.java:8551)^M
+    at org.apache.derby.impl.store.raw.data.BasePage.updateAtSlot(BasePage.java:1062)^M
+    at org.apache.derby.impl.store.access.conglomerate.GenericConglomerateController.replace(GenericConglomerateController.java:472)
+^M
+    at org.apache.derby.impl.sql.execute.RowChangerImpl.updateRow(RowChangerImpl.java:523)^M
+    at org.apache.derby.impl.sql.execute.UpdateResultSet.collectAffectedRows(UpdateResultSet.java:554)^M
+    at org.apache.derby.impl.sql.execute.UpdateResultSet.open(UpdateResultSet.java:254)^M
+    at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:436)^M
+    at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:317)^M
+    at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1232)^M
+    at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeStatement(EmbedPreparedStatement.java:1673)^M
+    at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeUpdate(EmbedPreparedStatement.java:303)^M
+    at org.apache.derbyTesting.functionTests.tests.store.DerbyBugTest2.run_one(DerbyBugTest2.java:224)^M
+    at org.apache.derbyTesting.functionTests.tests.store.DerbyBugTest2.testOne(DerbyBugTest2.java:84)^M
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)^M
+    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:48)^M
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:37)^M
+    at java.lang.reflect.Method.invoke(Method.java:600)^M
+    at junit.framework.TestCase.runTest(TestCase.java:154)^M
+    at junit.framework.TestCase.runBare(TestCase.java:127)^M
+    at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:109)^M
+    at junit.framework.TestResult$1.protect(TestResult.java:106)^M
+    at junit.framework.TestResult.runProtected(TestResult.java:124)^M
+    at junit.framework.TestResult.run(TestResult.java:109)^M
+    at junit.framework.TestCase.run(TestCase.java:118)^M
+    at junit.framework.TestSuite.runTest(TestSuite.java:208)^M
+    at junit.framework.TestSuite.run(TestSuite.java:203)^M
+    at junit.framework.TestSuite.runTest(TestSuite.java:208)^M
+    at junit.framework.TestSuite.run(TestSuite.java:203)^M
+    at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)^M
+    at junit.extensions.TestSetup$1.protect(TestSetup.java:19)^M
+    at junit.framework.TestResult.runProtected(TestResult.java:124)^M
+    at junit.extensions.TestSetup.run(TestSetup.java:23)^M
+    at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)^M
+    at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)^M
+    at junit.extensions.TestSetup$1.protect(TestSetup.java:19)^M
+    at junit.framework.TestResult.runProtected(TestResult.java:124)^M
+    at junit.extensions.TestSetup.run(TestSetup.java:23)^M
+    at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)^M
+    at junit.framework.TestSuite.runTest(TestSuite.java:208)^M
+    at junit.framework.TestSuite.run(TestSuite.java:203)^M
+    at junit.textui.TestRunner.doRun(TestRunner.java:116)^M
+    at junit.textui.TestRunner.start(TestRunner.java:172)^M
+    at junit.textui.TestRunner.main(TestRunner.java:138)^M
+Cleanup action completed^M

@@ -1,0 +1,3 @@
+HashFNV (org/apache/pig/piggybank/evaluation/string/HashFNV) bases its computation on String.getBytes(), which uses the platform default encoding. This leads to different results on different platforms. Worse, if any character is not supported by the encoding, the behavior is completely undefined. We have observed non-deterministic behavior that seems to be caused by this.
+
+Suggested fix is to instead use String.getBytes("UTF-8"), which will be well-defined and consistent on every platform.

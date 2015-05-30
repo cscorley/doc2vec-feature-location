@@ -1,0 +1,35 @@
+DataSourceFactory is basically calling ConfiguringConnectionDecorator().setQueryTimeout(conf.getQueryTimeout() * 1000); when queryTimeout > 0, but JDBCConfiguration.getQueryTimeout() already returns the value as milliseconds.  For DB2 only, this causes a -
+<openjpa-2.1.0-SNAPSHOT-runknown nonfatal general error> org.apache.openjpa.persistence.PersistenceException: There were errors initializing your configuration: <openjpa-2.1.0-SNAPSHOT-runknown fatal user error> org.apache.openjpa.util.UserException: A connection could not be obtained for driver class "com.ibm.db2.jcc.DB2Driver" and URL "jdbc:db2://localhost:50000/tc1". You may have specified an invalid URL.
+. . .
+Caused by: java.lang.IllegalArgumentException
+at java.util.Timer.schedule(Timer.java:422)
+at com.ibm.db2.jcc.b.tk.a(tk.java:2088)
+at com.ibm.db2.jcc.b.tk.a(tk.java:557)
+at com.ibm.db2.jcc.b.tk.executeQuery(tk.java:541)
+at org.apache.commons.dbcp.DelegatingStatement.executeQuery(DelegatingStatement.java:208)
+at org.apache.commons.dbcp.DelegatingStatement.executeQuery(DelegatingStatement.java:208)
+at org.apache.openjpa.lib.jdbc.DelegatingStatement.executeQuery(DelegatingStatement.java:131)
+at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection$LoggingStatement.executeQuery(LoggingConnectionDecorator.java:950)
+at org.apache.openjpa.lib.jdbc.DelegatingStatement.executeQuery(DelegatingStatement.java:129)
+at org.apache.openjpa.lib.jdbc.DelegatingStatement.executeQuery(DelegatingStatement.java:118)
+at org.apache.openjpa.jdbc.sql.DB2Dictionary.connectedConfiguration(DB2Dictionary.java:282)
+at org.apache.openjpa.jdbc.sql.DBDictionary.decorate(DBDictionary.java:4784)
+at org.apache.openjpa.jdbc.sql.DB2Dictionary.decorate(DB2Dictionary.java:263)
+at org.apache.openjpa.lib.jdbc.DecoratingDataSource.decorate(DecoratingDataSource.java:118)
+at org.apache.openjpa.lib.jdbc.DecoratingDataSource.getConnection(DecoratingDataSource.java:113)
+at org.apache.openjpa.jdbc.schema.DataSourceFactory.installDBDictionary(DataSourceFactory.java:239)
+... 42 more
+Caused by: java.lang.RuntimeException: There were errors initializing your configuration: <openjpa-2.1.0-SNAPSHOT-runknown fatal user error> org.apache.openjpa.util.UserException: A connection could not be obtained for driver class "com.ibm.db2.jcc.DB2Driver" and URL "jdbc:db2://localhost:50000/tc1". You may have specified an invalid URL.
+at org.apache.openjpa.jdbc.schema.DataSourceFactory.newConnectException(DataSourceFactory.java:261)
+at org.apache.openjpa.jdbc.schema.DataSourceFactory.installDBDictionary(DataSourceFactory.java:247)
+at org.apache.openjpa.jdbc.conf.JDBCConfigurationImpl.getConnectionFactory(JDBCConfigurationImpl.java:731)
+. . .
+Caused by: java.lang.IllegalArgumentException
+at java.util.Timer.schedule(Timer.java:422)
+at com.ibm.db2.jcc.b.tk.a(tk.java:2088)
+at com.ibm.db2.jcc.b.tk.a(tk.java:557)
+at com.ibm.db2.jcc.b.tk.executeQuery(tk.java:541)
+at org.apache.commons.dbcp.DelegatingStatement.executeQuery(DelegatingStatement.java:208)
+at org.apache.commons.dbcp.DelegatingStatement.executeQuery(DelegatingStatement.java:208)
+at org.apache.openjpa.lib.jdbc.DelegatingStatement.executeQuery(DelegatingStatement.java:131)
+. . .

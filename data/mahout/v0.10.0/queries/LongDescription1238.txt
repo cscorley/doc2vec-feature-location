@@ -1,0 +1,1 @@
+VectorWritable raises an exception if it is used on a VectorView of a sparse vector. The reason is that the sparse vector writes only the non-zero elements, while VectorView's implementation of getNumNondefaultElements() returns the size of the entire data. Later when reading the vector, VectorWritable expects reading more items that was written.

@@ -1,0 +1,3 @@
+While running some performance tests I found that StateManagerImpl.initialize could be improved through caching some additional meta data. 
+
+I also found another improvement that could be added to the PCState.initialize(...) transition. As far as I can tell, the PCState transition(s) do not have a concept of what state they are coming from and in some instances we are doing work unnecessary work. For example, when finding an Entity with an active transaction, we have all clean bitsets, but when we call PCleanState.initialize(...) the state doesn't know that this is a 'fresh' instance and we don't need to touch the dirty bitset. 

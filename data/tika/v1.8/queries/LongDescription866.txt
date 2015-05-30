@@ -1,0 +1,47 @@
+I tried to override a built-in parser according to the method described in issue TIKA-527. During testing this approach I used an incomplete configuration file (as far as I learned from a discussion on the mailing list also mimetypes and a detector should be specified):
+
+$ cat tika-config.xml
+<properties>
+<parsers>
+<parser class="org.apache.tika.parser.DefaultParser"/>
+</parsers>
+</properties>
+
+Using this configuration file causes an OutOfMemoryException:
+
+$ java -Dtika.config=tika-config.xml -jar tika-app-1.0.jar --list-parsers
+Exception in thread "main" java.lang.OutOfMemoryError: GC overhead limit exceeded
+        at java.util.Arrays.copyOfRange(Arrays.java:3209)
+        at java.lang.String.<init>(String.java:216)
+        at java.lang.StringBuilder.toString(StringBuilder.java:430)
+        at org.apache.tika.mime.MediaType.toString(MediaType.java:237)
+        at org.apache.tika.detect.MagicDetector.<init>(MagicDetector.java:142)
+        at org.apache.tika.mime.MimeTypesReader.readMatch(MimeTypesReader.java:254)
+        at org.apache.tika.mime.MimeTypesReader.readMatches(MimeTypesReader.java:202)
+        at org.apache.tika.mime.MimeTypesReader.readMagic(MimeTypesReader.java:186)
+        at org.apache.tika.mime.MimeTypesReader.readMimeType(MimeTypesReader.java:152)
+        at org.apache.tika.mime.MimeTypesReader.read(MimeTypesReader.java:124)
+        at org.apache.tika.mime.MimeTypesReader.read(MimeTypesReader.java:107)
+        at org.apache.tika.mime.MimeTypesFactory.create(MimeTypesFactory.java:63)
+        at org.apache.tika.mime.MimeTypesFactory.create(MimeTypesFactory.java:91)
+        at org.apache.tika.mime.MimeTypesFactory.create(MimeTypesFactory.java:147)
+        at org.apache.tika.mime.MimeTypes.getDefaultMimeTypes(MimeTypes.java:455)
+        at org.apache.tika.config.TikaConfig.typesFromDomElement(TikaConfig.java:273)
+        at org.apache.tika.config.TikaConfig.<init>(TikaConfig.java:161)
+        at org.apache.tika.config.TikaConfig.getDefaultConfig(TikaConfig.java:237)
+        at org.apache.tika.mime.MediaTypeRegistry.getDefaultRegistry(MediaTypeRegistry.java:42)
+        at org.apache.tika.parser.DefaultParser.<init>(DefaultParser.java:52)
+        at sun.reflect.GeneratedConstructorAccessor4.newInstance(Unknown Source)
+        at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:27)
+        at java.lang.reflect.Constructor.newInstance(Constructor.java:513)
+        at java.lang.Class.newInstance0(Class.java:355)
+        at java.lang.Class.newInstance(Class.java:308)
+        at org.apache.tika.config.TikaConfig.parserFromDomElement(TikaConfig.java:288)
+        at org.apache.tika.config.TikaConfig.<init>(TikaConfig.java:162)
+        at org.apache.tika.config.TikaConfig.getDefaultConfig(TikaConfig.java:237)
+        at org.apache.tika.mime.MediaTypeRegistry.getDefaultRegistry(MediaTypeRegistry.java:42)
+        at org.apache.tika.parser.DefaultParser.<init>(DefaultParser.java:52)
+        at sun.reflect.GeneratedConstructorAccessor4.newInstance(Unknown Source)
+        at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:27) 
+
+Expected behavior: If the configuration file is not valid, and appropriate exception should be produced.

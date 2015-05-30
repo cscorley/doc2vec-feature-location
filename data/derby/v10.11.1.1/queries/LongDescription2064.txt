@@ -1,0 +1,7 @@
+Network client implements setTransactionIsolation() using
+Statement.executeUpdate("SET CURRENT ISOLATION.......")
+which again causes any active transactions to commit.
+
+This differs from the embedded driver, where setTransactionIsolation() does not cause a commit.
+
+(Note that "SET CURRENT ISOLATION....." will commit active transactions idependent of this)

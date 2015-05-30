@@ -1,0 +1,3 @@
+Adjust the Canopy, MeanShift, K-means, Dirichlet and Fuzzy KMeans implementations to emit ClusterWritables instead of Clusters. Adjust the other clustering tools (ClusterDumper and ClusterEvaluators) to accept ClusterWritables produced by these algorithms.
+
+The new ClusterIterator and ClusterClassifier uses an expanded sequence file representation that stores Clusters as self-describing ClusterWritable objects. So, once all of these algorithms will start emitting ClusterWritables, then KMeans, Dirichlet and FuzzyK will be able to use ClusterIterator and ClusterClassifier for buildClusters phase.

@@ -1,0 +1,12 @@
+If you try running the Tika App in detect server mode, eg with "--server --detect", then your detection will fail with exceptions like:
+
+java.io.IOException: mark/reset not supported
+	at java.io.InputStream.reset(InputStream.java:347)
+	at org.apache.tika.parser.microsoft.POIFSContainerDetector.detect(POIFSContainerDetector.java:158)
+	at org.apache.tika.detect.CompositeDetector.detect(CompositeDetector.java:61)
+	at org.apache.tika.cli.TikaCLI$10.process(TikaCLI.java:252)
+	at org.apache.tika.cli.TikaCLI$TikaServer$1.run(TikaCLI.java:803)
+
+I'm not sure if this is a problem with the detector, or if it's a problem with the Tika CLI calling the wrong detector / not doing any buffering
+
+Since detection works best when the stream is rewindable, so that container detectors can work, I think we should probably change the Tika CLI Server to buffer into a TikaInputStream for detection. Not sure if there's a downside to this though?

@@ -1,0 +1,14 @@
+Column pruner for union could fail if one source of union have the schema and the other does not have schema. For example, the following script fail:
+
+
+
+a = load '1.txt' as (a0, a1, a2);
+b = foreach a generate a0;
+c = load '2.txt';
+d = foreach c generate $0;
+e = union b, d;
+dump e;
+
+
+
+However, this issue is in trunk only and is not applicable to 0.6 branch.

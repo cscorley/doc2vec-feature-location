@@ -1,0 +1,20 @@
+To reproduce: 
+
+
+	set dataDir to point to a directory that the current user has no access right to (/solr/data,  for non-root user, for example)
+	change lockType to single
+	start example web server.
+
+
+
+The server fails with the following error message that indicates that it still uses SimpleFSLock
+
+Caused by: java.io.IOException: Cannot create directory: /solr/data/index
+	at org.apache.lucene.store.SimpleFSLock.obtain(SimpleFSLockFactory.java:138)
+	at org.apache.lucene.store.Lock.obtain(Lock.java:73)
+	at org.apache.lucene.index.IndexWriter.init(IndexWriter.java:1540)
+	at org.apache.lucene.index.IndexWriter.<init>(IndexWriter.java:1310)
+	at org.apache.solr.update.SolrIndexWriter.<init>(SolrIndexWriter.java:160)
+	at org.apache.solr.core.SolrCore.initIndex(SolrCore.java:388)
+
+I ran into this issue using custom DirectoryFactory. 

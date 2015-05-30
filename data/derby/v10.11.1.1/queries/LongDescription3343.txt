@@ -1,0 +1,12 @@
+The following series of statements fails:
+
+j> connect 'jdbc:derby:test;create=true';
+ij> create table t (id int primary key generated always as identity);
+0 rows inserted/updated/deleted
+ij> prepare p as 'insert into t(id) values (default)';
+ij> execute p;
+1 row inserted/updated/deleted
+ij> execute p;
+ERROR 23505: The statement was aborted because it would have caused a duplicate key value in a unique or primary key constraint or unique index identified by 'SQL080123140906700' defined on 'T'.
+
+There is a more detailed discussion about it here: http://www.nabble.com/Generate-Always-and-SQLIntegrityConstraintViolationException-td15012038.html#a15018054

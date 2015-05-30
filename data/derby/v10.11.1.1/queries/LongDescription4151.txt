@@ -1,0 +1,43 @@
+12 of the fixtures of the J2EEDataSource test fail on iseries, with failures like this:
+
+23) testConnectionErrorEvent(org.apache.derbyTesting.functionTests.tests.jdbcapi.J2EEDataSourceTest)java.sql.SQLException: Error starting network  server
+	at java.lang.Throwable.<init>(Throwable.java:196)
+	at java.lang.Exception.<init>(Exception.java:41)
+	at java.sql.SQLException.<init>(SQLException.java:80)
+	at org.apache.derbyTesting.junit.TestConfiguration.startNetworkServer(TestConfiguration.java:1455)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.J2EEDataSourceTest.testConnectionErrorEvent(J2EEDataSourceTest.java:615)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:84)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+Caused by: java.lang.reflect.InvocationTargetException
+	at java.lang.Exception.<init>(Exception.java:77)
+	at java.lang.reflect.InvocationTargetException.<init>(InvocationTargetException.java:54)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at org.apache.derbyTesting.junit.NetworkServerControlWrapper.invoke(NetworkServerControlWrapper.java:94)
+	at org.apache.derbyTesting.junit.NetworkServerControlWrapper.ping(NetworkServerControlWrapper.java:106)
+	at org.apache.derbyTesting.junit.TestConfiguration.startNetworkServer(TestConfiguration.java:1439)
+	... 38 more
+Caused by: java.lang.Exception: DRDA_NoIO.S:Could not connect to Derby Network Server on host 127.0.0.1, port 1527: A remote host refused an attempted connect operation.
+	at java.lang.Throwable.<init>(Throwable.java:196)
+	at java.lang.Exception.<init>(Exception.java:41)
+	at org.apache.derby.impl.drda.NetworkServerControlImpl.consolePropertyMessageWork(Unknown Source)
+	at org.apache.derby.impl.drda.NetworkServerControlImpl.consolePropertyMessage(Unknown Source)
+	at org.apache.derby.impl.drda.NetworkServerControlImpl.setUpSocket(Unknown Source)
+	at org.apache.derby.impl.drda.NetworkServerControlImpl.ping(Unknown Source)
+	at org.apache.derby.drda.NetworkServerControl.ping(Unknown Source)
+	... 44 more
+
+My classpath (in case it matters) contains:
+derbytools.jar:derbyclient.jar:derbynet.jar:derbyrun.jar:derbyTesting.jar:junit.jar

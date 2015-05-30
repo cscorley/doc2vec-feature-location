@@ -1,0 +1,18 @@
+Database can be assumed to be same as in Derby - 1205 Jira issue
+
+SELECT PORT1.PORT_ID FROM T_RES_PORT PORT1, T_VIEW_ENTITY2PORT ENTITY2PORT WHERE ENTITY2PORT.PORT_ID = PORT1.PORT_ID
+
+This works fine in 10.1.2.1 but fails thereafter complaining that Comparison between INTEGER and CHAR is not supported
+
+for some reason, it thinks one of the PORT_ID columns is a character, when in reality both are integers.
+
+		SELECT DISTINCT 
+		    ZONE.ZONE_ID ZONE_ID, 
+			 PORT2ZONE.ZONE_MEMBER_ID  
+		FROM  
+			 T_RES_ZONE ZONE left outer join T_VIEW_PORT2ZONE PORT2ZONE on  
+			 ZONE.ZONE_ID = PORT2ZONE.ZONE_ID   ,  T_RES_FABRIC FABRIC 
+
+In this query, it is complaining that one of the columns is a VARCHAR and cannot be compared to INTEGER, when clearly this is not the case...
+
+Same issue

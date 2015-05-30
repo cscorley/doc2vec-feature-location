@@ -1,0 +1,9 @@
+EntityManagerFactories can be leaked if they are created with the JSE bootstrap Persistence class and are never closed, causing an OutOfMemoryException.
+
+One possibility may be to log a warning or otherwise alert the developer when the number of unclosed EMF's reaches a certain threshold. An extra step could be taken here to track where the EMF's are being opened and which ones aren't being closed as to show the developer exactly where in the code the problem is occurring.
+
+There may be a possibility to eliminate this leak by making the references to the EMF's weak and let the garbage collector clean up the unclosed EMF's. However, in the case that other objects are being leaked as well, this change may make it harder to detect such leaks.
+
+I ran a simple test that creates a EMF from Persistence. It then creates and closes an EntityManger. A new EMF is then created without closing the old one, effectively "leaking" it. As expected, this results in an OutOfMemoryException. When using weak references on the EMF's, I was able to get the test to run all night without a trace of any heap growth. However, this is only a very simple test and a test with more Entities/Configurations/etc. may result in heap growth due to other objects being leaked(as mentioned earlier). My test case is attached.
+
+For comparison, I tried the same test on Hibernate and EclipseLink. Hibernate runs into the same OutOfMemoryException. EclipseLink does not.

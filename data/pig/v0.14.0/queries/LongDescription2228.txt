@@ -1,0 +1,18 @@
+Introduction
+
+Pig does (sort based) partial aggregation in map side through the use of combiner. MR serializes the output of map to a buffer, sorts it on the keys, deserializes and passes the values grouped on the keys to combiner phase. The same work of combiner can be done in the map phase itself by using a hash-map on the keys. This hash based (partial) aggregation can be done with or without a combiner phase.
+
+Benefits
+
+It will send fewer records to combiner and thereby -
+
+	Save on cost of serializing and de-serializing
+	Save on cost of lock calls on the combiner input buffer. (I have found this to be a significant cost for a query that was doing multiple group-by's in a single MR job. -Thejas)
+	The problem of running out of memory in reduce side, for queries like COUNT(distinct col) can be avoided. The OOM issue happens because very large records get created after the combiner run on merged reduce input. In case of combiner, you have no way of telling MR not to combine records in reduce side. The workaround is to disable combiner completely, and the opportunity to reduce map output size is lost.
+	When the foreach after group-by has both algebraic and non-algebraic functions, or if a bag is being projected, the combiner is not used. This is because the data size reduction in typical cases are not significant enough to justify the additional (de)serialization costs. But hash based aggregation can be used in such cases as well.
+	It is possible to turn off the in-map combine automatically if there is not enough 'combination' that is taking place to justify the overhead of the in-map combiner. (Idea borrowed from Hive jira.)
+	If input data is sorted, it is possible to do efficient map side (partial) aggregation with in-map combiner.
+
+
+
+Design proposal is here - https://cwiki.apache.org/confluence/display/PIG/PigInMapCombinerProposal

@@ -1,0 +1,20 @@
+If an application does updateRow() right after a commit on a held cursor, (without repositioning the cursor), an incorrect error message is given if the ResultSet is of type TYPE_SCROLL_INSENSITIVE.
+
+"SQL 2003, Part 2: Foundation (SQL/Foundation) p 827,
+paragraph numbered 6):
+
+6)If CR is a holdable cursor and a <fetch statement>has not been
+  issued against CR within the current SQL- transaction,then an
+  exception condition is raised: invalid cursor state .
+
+and that exception has state 24000"
+
+Currently, if the ResultSet is of type TYPE_SCROLL_INSENSITIVE, it fails with
+SQL Exception: The scan is not positioned. state: XSCH7 : code=20000
+
+If the ResultSet is of type TYPE_FORWARD_ONLY, it gives the correct error message:
+SQL Exception: Invalid cursor state - no current row. state: 24000 : code=20000
+
+The first exception is given from the store layer. The SQL layer seems to catch the store exception and rethrow a new exception with correct SQL state and error message. However this is not done in TableScanResultset.getRowLocation(), which is used by scrollinsensitve cursors.
+
+A fix could be to add this logic into TableScanResultset.getRowLocation(). Or alternatively, make the store layer throw the expected exception, and remove logic to rethrow the exception.

@@ -1,0 +1,16 @@
+Tried 0.11 jar with spilling, my job failed to spill with the following stack trace.  Anyone else seeing this?
+
+
+java.lang.RuntimeException: InternalCachedBag.spill() should not be called
+	at org.apache.pig.data.InternalCachedBag.spill(InternalCachedBag.java:167)
+	at org.apache.pig.impl.util.SpillableMemoryManager.handleNotification(SpillableMemoryManager.java:243)
+	at sun.management.NotificationEmitterSupport.sendNotification(NotificationEmitterSupport.java:138)
+	at sun.management.MemoryImpl.createNotification(MemoryImpl.java:171)
+	at sun.management.MemoryPoolImpl$PoolSensor.triggerAction(MemoryPoolImpl.java:272)
+	at sun.management.Sensor.trigger(Sensor.java:120)
+Exception in thread "Low Memory Detector" java.lang.InternalError: Error in invoking listener
+	at sun.management.NotificationEmitterSupport.sendNotification(NotificationEmitterSupport.java:141)
+	at sun.management.MemoryImpl.createNotification(MemoryImpl.java:171)
+	at sun.management.MemoryPoolImpl$PoolSensor.triggerAction(MemoryPoolImpl.java:272)
+	at sun.management.Sensor.trigger(Sensor.java:120)
+

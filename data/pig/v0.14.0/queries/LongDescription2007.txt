@@ -1,0 +1,33 @@
+The below script when executed with version 0.9 fails with parsing error.
+
+
+
+ ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1000: Error during parsing. <line 2, column 15> mismatched input '{' expecting GENERATE
+
+
+
+Script1
+
+
+register myudf.jar;
+A = load 'test.txt' using PigStorage() as (a:int,b:chararray);
+B1 = foreach A {
+        C = test.TOMAP('key1',$1)#'key1';
+        generate C as C;
+}
+
+
+
+The above happens when, in a nested foreach i refer to a map key directly from a udf result
+
+The same would work if one executes without the nested foreach.
+
+
+register myudf.jar;
+A = load 'test.txt' using PigStorage() as (a:int,b:chararray);
+B1 = foreach A generate test.TOMAP('key1',$1)#'key1';
+dump B1;
+
+
+
+Script1 works well with 0.8.

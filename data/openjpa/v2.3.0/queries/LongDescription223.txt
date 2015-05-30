@@ -1,0 +1,13 @@
+It looks like we completely ignore the "columnNames" field of the org.apache.openjpa.persistence.jdbc.Index annotation. From Jonathan Feinberg on the mailing list:
+
+Is there any way to cause the OpenJPA schema builder to emit an index across multiple columns? My attempt,
+ @Column(columnDefinition = "bytea")
+ @Index(name = "i_owner_md5", columnNames = 
+{ "owner_id, md5" }
+)
+ public byte[] getMd5()
+ {
+  return md5;
+ }
+
+is silently misinterpreted, in that only the annotated field (md5) gets indexed.

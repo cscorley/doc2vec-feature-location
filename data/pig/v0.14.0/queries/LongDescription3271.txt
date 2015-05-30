@@ -1,0 +1,11 @@
+Script below fails at union onschema due to PIG-3270 but pig ignores its error and creates empty outputs with return code 0 (SUCCESS).
+
+t1 = LOAD 'file1.txt' USING PigStorage() AS (a: chararray, b: chararray);
+t2 = LOAD 'file2.txt' USING PigStorage() AS (a: chararray, b: float);
+tout = UNION ONSCHEMA t1, t2;
+STORE tout INTO './out1' USING PigStorage();
+STORE tout INTO './out2' USING PigStorage();
+
+
+
+Is POSplit ignoring the error from input processing?

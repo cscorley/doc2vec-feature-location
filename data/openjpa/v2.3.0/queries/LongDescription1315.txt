@@ -1,0 +1,1 @@
+The org.apache.openjpa.persistence.QueryImpl hashcode() implementation does not ensure that recursive invocations of hashcode() on object(s) in that method will not result in a NullPointerException. I.e., in this specific case it does not check whether _query is null, and it should since there is no guarantee that _query will always be non-null. 

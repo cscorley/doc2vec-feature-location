@@ -1,0 +1,15 @@
+The problem happens when we are trying to compile the source code in a folder and have the CLASSPATH variable set to a different code tree folder. This results in compile failures like the following:
+
+runmessagecheck:
+[runMessageBundleTest] WARNING: Message id 22011.S.1 in messages_en.properties is not referenced in either SQLState.java or MessageId.java
+[runMessageBundleTest] WARNING: Message id 42Y03.S.0 in messages_en.properties is not referenced in either SQLState.java or MessageId.java
+[runMessageBundleTest] WARNING: Message id 42Y03.S.1 in messages_en.properties is not referenced in either SQLState.java or MessageId.java
+[runMessageBundleTest] WARNING: Message id 42Y03.S.2 in messages_en.properties is not referenced in either SQLState.java or MessageId.java
+
+BUILD FAILED
+/home/tiago/Desktop/DerbyStuff/CodeTenFiveTwo/build.xml:514: Message check failed. 
+See error in build output or call ant runmessagecheck.
+
+Total time: 1 minute 11 seconds
+
+This should be an easy fix and it is marked as a bug, since it doesn't seem very logical for the compiling process to be CLASSPATH-dependent. Note that unsetting the CLASSPATH altogether allows the compile to run without errors, so clearly this variable isn't needed and shouldn't be used when it is set.

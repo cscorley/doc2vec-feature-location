@@ -1,0 +1,24 @@
+Here's an example: 
+
+I do an ls to get znode names. I try to stat a znode.  
+
+
+[zk: localhost:3181(CONNECTED) 1] ls /flume-nodes
+[nodes0000000002, nodes0000000001, nodes0000000000, nodes0000000005, nodes0000000004, nodes0000000003]
+[zk: localhost:3181(CONNECTED) 3] stat /flume-nodes/nodes0000000002 
+cZxid = 0xb
+ctime = Sun Mar 20 23:24:03 PDT 2011
+... (success)
+
+
+
+Here's something that almost looks the same.  Notice the extra space infront of the znode name.
+
+
+
+[zk: localhost:3181(CONNECTED) 2] stat  /flume-nodes/nodes0000000002
+Command failed: java.lang.IllegalArgumentException: Path length must be > 0
+
+
+
+This seems like unexpected behavior.

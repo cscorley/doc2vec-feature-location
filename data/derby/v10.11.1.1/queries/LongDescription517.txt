@@ -1,0 +1,7 @@
+RecordSet - relative(int rows) behaves different in embedded and client/server mode when the positioning before the first row or after the last row.
+
+The embedded driver shows the behaviour described in the JDBC 3.0 specification, returning false and postitioning in either before first or after last. While the client/server driver returns true and incrementing/decrementing the current row by "rows" and not setting the position to either before first of after last.
+
+I have run a test with a result set with 10 rows, where I positioned in row 5 and moved +20 and - 20 using relative(int rows). With the embedded driver the method returned false, the current row was set to 0 and isAfterLast() and isBeforeFirst() returned true (for +20 and -20 respectively). With the client/server driver the method returned true, the current row was set to 25 and -15 (for +20 and -20 respectively) and isAfterLast() and isBeforeFirst() returned false.
+
+I have also run a test as the first one but running next() 5 times instead of absolute(5) for postitioning in row 5, and then relative(20) produced the expected results with the client/server driver.

@@ -1,0 +1,6 @@
+Single persisted entity x with embeddable e.  e has a map of 3 pairs of Integer keys/values (1/100,2/200,3/300).
+
+This query should be allowed...
+SELECT e FROM entityTable x JOIN x.mapKeyIntegerEmbed e JOIN e.notMapKeyInteger i WHERE VALUE = 200
+
+OpenJPA complains that "identifier "i" in "VALUE" operator is not valid in conditional expression. Per JSR 317, section 4.4.4 this operator is optionally allowed.  

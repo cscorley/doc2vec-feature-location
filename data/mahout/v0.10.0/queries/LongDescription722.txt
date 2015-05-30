@@ -1,0 +1,17 @@
+RecommenderJob with usersFile/itemsFile which contains newline at end of file is failed.
+
+
+
+java.lang.NumberFormatException: For input string: ""
+	at java.lang.NumberFormatException.forInputString(NumberFormatException.java:48)
+	at java.lang.Long.parseLong(Long.java:431)
+	at java.lang.Long.parseLong(Long.java:468)
+	at org.apache.mahout.cf.taste.hadoop.item.UserVectorSplitterMapper.setup(UserVectorSplitterMapper.java:61)
+	at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:142)
+	at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:629)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:310)
+	at org.apache.hadoop.mapred.Child.main(Child.java:170)
+
+
+
+I think lines which cause parse error should be ignored.

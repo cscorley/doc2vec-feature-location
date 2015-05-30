@@ -1,0 +1,30 @@
+Parsing some OOXML documents, this stacktrace is logged many times:
+
+java.lang.NoSuchMethodException: org.openxmlformats.schemas.wordprocessingml.x2006.main.impl.CTMarkupImpl.<init>(org.apache.xmlbeans.SchemaType, boolean)
+	at java.lang.Class.getConstructor0(Class.java:2723)
+	at java.lang.Class.getDeclaredConstructor(Class.java:2002)
+	at org.apache.xmlbeans.impl.schema.SchemaTypeImpl.getJavaImplConstructor2(SchemaTypeImpl.java:1749)
+	at org.apache.xmlbeans.impl.schema.SchemaTypeImpl.createUnattachedSubclass(SchemaTypeImpl.java:1886)
+	at org.apache.xmlbeans.impl.schema.SchemaTypeImpl.createUnattachedNode(SchemaTypeImpl.java:1875)
+	at org.apache.xmlbeans.impl.schema.SchemaTypeImpl.createElementType(SchemaTypeImpl.java:1021)
+	at org.apache.xmlbeans.impl.values.XmlObjectBase.create_element_user(XmlObjectBase.java:893)
+	at org.apache.xmlbeans.impl.store.Xobj.getUser(Xobj.java:1657)
+	at org.apache.xmlbeans.impl.store.Cur.getUser(Cur.java:2654)
+	at org.apache.xmlbeans.impl.store.Cur.getObject(Cur.java:2647)
+	at org.apache.xmlbeans.impl.store.Cursor._getObject(Cursor.java:995)
+	at org.apache.xmlbeans.impl.store.Cursor.getObject(Cursor.java:2904)
+	at org.apache.poi.xwpf.usermodel.XWPFParagraph.<init>(XWPFParagraph.java:83)
+	at org.apache.poi.xwpf.usermodel.XWPFDocument.onDocumentRead(XWPFDocument.java:145)
+	at org.apache.poi.POIXMLDocument.load(POIXMLDocument.java:159)
+	at org.apache.poi.xwpf.usermodel.XWPFDocument.<init>(XWPFDocument.java:115)
+	at org.apache.poi.xwpf.extractor.XWPFWordExtractor.<init>(XWPFWordExtractor.java:53)
+	at org.apache.poi.extractor.ExtractorFactory.createExtractor(ExtractorFactory.java:180)
+	at org.apache.tika.parser.microsoft.ooxml.OOXMLExtractorFactory.parse(OOXMLExtractorFactory.java:63)
+	at org.apache.tika.parser.microsoft.ooxml.OOXMLParser.parse(OOXMLParser.java:69)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+	at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:120)
+
+
+Looking at the poi code java is right here, there is no constructor with a SchemaType and a boolean, only with SchemaType.
+My guess is this one was missed during upgrade to poi beta4, but only a guess, anyway needs a fix .

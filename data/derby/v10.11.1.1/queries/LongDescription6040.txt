@@ -1,0 +1,53 @@
+Using the metadata table functions introduced by DERBY-6022, I get the wrong row order on this query:
+
+select t.table_name c2, c.column_name c3
+from table( getTables( null, '%', '%' ) ) t,
+        table( getColumns( null, '%', '%', '%') ) c
+where c.table_name = t.table_name
+and t.table_type = 'TABLE'
+and c.table_schem = t.table_schem
+order by c2, c3;
+
+However, I get the correct order on the following query. The good query returns the same rows but in the correct order. The only difference between the queries is that the bad one has an extra, NOP join clause.
+
+Here is the full result of a script showing the problem:
+
+ij version 10.10
+ij> connect 'jdbc:derby:memory:db;create=true';
+ij> create table t( d int, u varchar( 30 ) );
+0 rows inserted/updated/deleted
+ij> create table s( d int, u varchar( 30 ) );
+0 rows inserted/updated/deleted
+ij> call syscs_util.syscs_register_tool( 'databaseMetaData', true );
+0 rows inserted/updated/deleted
+ij> – columns are ordered correctly
+select t.table_name c2, c.column_name c3
+from table( getTables( null, '%', '%' ) ) t,
+        table( getColumns( null, '%', '%', '%') ) c
+where c.table_name = t.table_name
+and t.table_type = 'TABLE'
+order by c2, c3;
+C2                                                                                                                              |C3                                                                                                                              
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+S                                                                                                                               |D                                                                                                                               
+S                                                                                                                               |U                                                                                                                               
+T                                                                                                                               |D                                                                                                                               
+T                                                                                                                               |U                                                                                                                               
+
+4 rows selected
+ij> – columns are ordered incorrectly
+select t.table_name c2, c.column_name c3
+from table( getTables( null, '%', '%' ) ) t,
+        table( getColumns( null, '%', '%', '%') ) c
+where c.table_name = t.table_name
+and t.table_type = 'TABLE'
+and c.table_schem = t.table_schem
+order by c2, c3;
+C2                                                                                                                              |C3                                                                                                                              
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+T                                                                                                                               |D                                                                                                                               
+S                                                                                                                               |D                                                                                                                               
+T                                                                                                                               |U                                                                                                                               
+S                                                                                                                               |U                                                                                                                               
+
+4 rows selected

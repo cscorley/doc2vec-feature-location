@@ -1,0 +1,19 @@
+The following gives a NPE:
+
+ij> values 1,2 order by int(1);
+
+or
+
+ij> select * from sysibm.sysdummy1 order by int(1);
+
+
+The NPE happens when pulling up the order by expression seemingly due to a compiler phase problem:
+
+Caused by: java.lang.NullPointerException
+at org.apache.derby.impl.sql.compile.CastNode.getConstantValueAsObject(CastNode.java:851)
+at org.apache.derby.impl.sql.compile.OrderByColumn.isReferedColByNum(OrderByColumn.java:466)
+at org.apache.derby.impl.sql.compile.OrderByColumn.pullUpOrderByColumn(OrderByColumn.java:403)
+at org.apache.derby.impl.sql.compile.OrderByList.pullUpOrderByColumns(OrderByList.java:195)
+at org.apache.derby.impl.sql.compile.CursorNode.bindStatement(CursorNode.java:254)
+
+The variable sourceCTI is (still) null; being set by CastNode# bindCastNodeOnly, which presumably hasn't yet been run.

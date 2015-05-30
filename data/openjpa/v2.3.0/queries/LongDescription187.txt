@@ -1,0 +1,10 @@
+What's wrong with the following query?
+
+  Query query = em.createQuery("SELECT DISTINCT o FROM Osoba o WHERE :projekt MEMBER OF o.projekty");
+  query.setParameter("projekt", new Projekt("Apache OpenEJB", RodzajProjektu.OTWARTY));
+  List<Osoba> osoby = query.getResultList();
+  assert osoby.size() == 1 : "Otrzymano " + osoby.size();
+
+where Projekt is an entity where @Id is of type String (the first input parameter in the two-param constructor above).
+
+TopLink 2.0 BUILD 40 and Hibernate EntityManager 3.3.0.GA work fine whereas OpenJPA 0.9.7-SNAPSHOT finishes with the java.lang.AssertionError error (it's the test itself actually, but since the query returns 0 elements the issue originates in OpenJPA).

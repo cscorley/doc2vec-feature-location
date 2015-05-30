@@ -1,0 +1,11 @@
+Some tests are targeted for specific databases. But mostly the tests run on all supported databases. Currently, the tests do not (or can not) specify their target database, if any.
+This improvement will introduce the following:
+
+Annotate a TestCase with
+@DatabasePlatform("a,b,c")
+
+where "a", "b", "c" denote fully-qualified class names of JDBC drivers. 
+
+When a test is annotated then at least one of these drivers must be found in the current test's execution classpath for  the test to run. Otherwise test harness will not execute the test.
+
+If no annotation is specified then the test is assumed to run in all platforms.

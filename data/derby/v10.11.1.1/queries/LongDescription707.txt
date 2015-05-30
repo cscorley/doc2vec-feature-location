@@ -1,0 +1,21 @@
+To provide scrollable updatable resultsets, we will store the RowLocation for every row in the ResultSet in a temporary table (backingstore hashtable).  The RowLocation is used to reposition the cursor before an update.
+
+The problem is when the row for the RowLocation has been deleted and purged by another transaction.  The update will then fail with a NullPointerException in GenericConglomerateController.replace(..):
+
+java.lang.NullPointerException
+        at org.apache.derby.impl.store.access.conglomerate.GenericConglomerateController.replace(GenericConglomerateController.java:465)
+        at org.apache.derby.impl.sql.execute.RowChangerImpl.updateRow(RowChangerImpl.java:516)
+        at org.apache.derby.impl.sql.execute.UpdateResultSet.collectAffectedRows(UpdateResultSet.java:577)
+        at org.apache.derby.impl.sql.execute.UpdateResultSet.open(UpdateResultSet.java:276)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:368)
+        at org.apache.derby.impl.jdbc.EmbedResultSet.updateRow(EmbedResultSet.java:3256) 
+
+It fails when checking if the row has been deleted (not purged) , because pos.current_page is null:
+
+        if (pos.current_page.isDeletedAtSlot(pos.current_slot))
+        {
+            ret_val = false;
+        }
+
+
+The proposed fix is to use the return value from open_conglom.latchPage(..).  If it returns false, the RowLocation is invalid (deleted+purged). 

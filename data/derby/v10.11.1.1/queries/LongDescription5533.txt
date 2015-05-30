@@ -1,0 +1,17 @@
+stm.executeUpdate("create table t(i smallint)");
+stm.executeUpdate("insert into t values 1,2,3,4");
+
+ResultSet rs = stm.executeQuery("select i from t");
+
+rs.next();
+
+try 
+{
+    rs.updateInt(1, 100000);
+}
+ catch (SQLException e) 
+{
+    // client: 22015 vs embedded 22003
+}
+
+According to the standard, 22015 should be used for INTERVALs ("interval field overflow"). 22003 seems more correct, the standard uses that for "numeric value out of range".

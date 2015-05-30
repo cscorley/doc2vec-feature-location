@@ -1,0 +1,24 @@
+As part of the changes for DERBY-3783 and other lob work, references in the engine were added to java/shared/org/apache/derby/shared/common/error/ExceptionUtil.java in engine. e.g.:
+
+$ grep 'import org.apache.derby.shared.common' `find java/engine` | grep -v ref
+erence | grep -v sanity
+java/engine/org/apache/derby/impl/jdbc/.svn/text-base/LOBInputStream.java.svn-ba
+se:import org.apache.derby.shared.common.error.ExceptionUtil;
+java/engine/org/apache/derby/impl/jdbc/.svn/text-base/LOBOutputStream.java.svn-b
+ase:import org.apache.derby.shared.common.error.ExceptionUtil;
+java/engine/org/apache/derby/impl/jdbc/.svn/text-base/LOBStreamControl.java.svn-
+base:import org.apache.derby.shared.common.error.ExceptionUtil;
+java/engine/org/apache/derby/impl/jdbc/LOBInputStream.java:import org.apache.der
+by.shared.common.error.ExceptionUtil;
+java/engine/org/apache/derby/impl/jdbc/LOBOutputStream.java:import org.apache.de
+rby.shared.common.error.ExceptionUtil;
+java/engine/org/apache/derby/impl/jdbc/LOBStreamControl.java:import org.apache.d
+erby.shared.common.error.ExceptionUtil;
+
+
+It is my understanding at this time, based on the progress on DERBY-289 that only classes in references (static values) and sanity should be shared at this time.  Other directories should only be used by client until some sort of code sharing framework is determined to avoid mismatched class versions and sealing violations in insane builds.
+
+In addition to correcting the cases above, it would be great to add build support to prevent similar mistakes in the future.
+
+
+java/engine/org/apache/derby/iapi/error might be an appropriate location for the server's ExceptionUtil.

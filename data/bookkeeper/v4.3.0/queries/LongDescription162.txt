@@ -1,0 +1,7 @@
+Two bookkeeper clients.
+1st continuously writing to ledger X.
+2nd (bk.openLedgerNoRecovery) polling ledger X for new entries and reading them.
+
+In response we always reveiceing 0 as last confirmed entry id (in fact we are receiving -1 from each bookie RecoveryData but then in ReadLastConfirmedOp, but uninitialized "long maxAddConfirmed;" takes priority in Math.max(...).
+
+Main question - is given scenario is expected to work at all?

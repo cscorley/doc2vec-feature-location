@@ -1,0 +1,5 @@
+Current Zebra supports sorted or unsorted input splits on sorted table or sorted table unions. The sorted input splits are based upon key ranges which do not overlap. And the splits are basically globally sorted in that they are locally sorted, and their key ranges do not overlap.
+
+The biggest problem of the key-range splits are performance hits suffered if data skew is present, particularly if a key range contains a duplicate key solely which makes the data trunk of the duplicate keys virtually unsplittable regardless how many mappers are available: it just has to be processed by a single mapper.
+
+On the other hand, there are scenarios when the globally sorted splits are a over-kill and only locally sorted splits are good enough. Examples are the use of Zebra sorted tables as the probe table in a map-side merge inner join.

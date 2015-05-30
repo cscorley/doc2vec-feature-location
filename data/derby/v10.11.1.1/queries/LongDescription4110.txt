@@ -1,0 +1,15 @@
+Getting an error (using Derby 10.4.1.3) when deleting records from a table using a qualified synonymn name.
+Table Name is ABC_PROCESS_INVOCATION_XML and the synonmyn name is SYN_ABC_P_I_X
+
+The query being fired was
+"Delete from SYN_ABC_P_I_X where ID = ? "
+
+from the error log
+---------------
+Caused by: ERROR 42X04: Column 'APP.ABC_PROCESS_INVOCATION_XML.ID' is either not in any table in the FROM list or appears within a join specification and is outside the scope of the join specification or appears in a HAVING clause and is not in the GROUP BY list. If this is a CREATE or ALTER TABLE  statement then 'APP.ABC_PROCESS_INVOCATION_XML.ID' is not a column in the target table.
+---------------
+
+After going thru few earlier bugs, a similar bug has been logged earlier bug DERBY-1784 
+http://issues.apache.org/jira/browse/DERBY-1784
+
+But looks like the fix did not make its way to 10.4.1.3?

@@ -1,0 +1,12 @@
+I noticed that the various XPLAIN descriptor classes need to set lots of numeric parameters on a PreparedStatement, using the following idiom to allow null values:
+
+        if (parse_time != null)
+            ps.setLong(2, parse_time.longValue());
+        else
+            ps.setNull(2, Types.BIGINT);
+
+The same thing could have been achieved by using a single call to setObject(), like this:
+
+        ps.setObject(2, parse_time, Types.BIGINT);
+
+This would make the methods shorter and clearer.

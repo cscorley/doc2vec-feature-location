@@ -1,0 +1,3 @@
+Running MahoutDriver from an IDE run configuration with a program name such as kmeans and help as arguments, will result in an NPE because it won't be able to find the driver.classes.props file.
+
+By changing the catch block so it catches Exception instead of IOException, MahoutDriver will use the driver.classes.default.props file so it can still be run with or without the driver.classes.props. This is useful if one wants to call the MahoutDriver from custom code outside mahout instead of using the mahout script. However, if one wishes to run MahoutDriver from outside mahout, the mahout-core, -math, -utils and example jars still need to be on the classpath or else ClassNotFoundExceptions will be thrown when it tries to add the classes for all the programs.

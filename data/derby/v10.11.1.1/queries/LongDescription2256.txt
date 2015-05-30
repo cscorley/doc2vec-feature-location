@@ -1,0 +1,50 @@
+While trying out some code changes for DERBY-47 I was running a few test cases and happened to notice that there are a couple of cases in which Derby behaves incorrectly (that or my understanding of what should be happening here is way off).
+
+First and most simply: the following query should return zero rows (unless I'm missing something?), but it returns one:
+
+ij> create table t1 (i int);
+0 rows inserted/updated/deleted
+ij> insert into t1 values 1, 2, 3, 4, 5;
+5 rows inserted/updated/deleted
+
+– Correct returns zero rows.
+ij> select * from t1 where i in (4.23);
+I
+-----------
+
+0 rows selected
+
+– But this one returns 1 row...
+ij> select * from t1 where i in (2.8, 4.23);
+I
+-----------
+4
+
+1 row selected
+
+Secondly, if the IN-list contains a non-constant value then Derby can incorrectly return rows that do not match the IN predicate.  I think this is because some internal casting is happening when it shouldn't?
+
+ij> create table t1 (i int);
+0 rows inserted/updated/deleted
+ij> insert into t1 values 1, 2, 3, 4, 5;
+5 rows inserted/updated/deleted
+
+– Following values clause returns "2.80", as expected.
+ij> values cast (2.8 as decimal(4, 2));
+1
+-------
+2.80
+
+1 row selected
+
+– But if we use it in an IN-list it gets cast to "2" and thus returns a match.
+– We get 2 rows when we should get NONE.
+ij> select * from t1 where i in (cast (2.8 as decimal(4, 2)), 4.23);
+I
+-----------
+2
+4
+
+2 rows selected
+
+I confirmed that we see these results on trunk, 10.2, 10.1, and even as far back as svn #201660 for 10.0.  I also ran the above statements on DB2 v8 as a sanity check to confirm that NO results were returned there.

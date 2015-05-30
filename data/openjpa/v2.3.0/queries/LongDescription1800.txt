@@ -1,0 +1,4 @@
+In order to execute FOR UPDATE statements against Sybase we create a special column named UNQ_INDEX.
+
+Some of our schema tools cause the column to be inserted twice (in memory). I've seen this happen with testcases which use the DROP_TABLES constant - but any code that uses the following persistence property could see the same behavior :
+openjpa.jdbc.SynchronizeMappings=buildSchema(ForeignKeys=true,SchemaAction='drop,add')

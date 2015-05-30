@@ -1,0 +1,20 @@
+The PCEnhancer blows up if you have a non-OpenJPA persistence provider defined and available on the classpath. This makes comparisons between providers more than a little unfriendly. 
+
+Example stack : 
+
+204  OpenJPAPU  INFO   [main] openjpa.Tool - No targets were given.  Running on all classes in your persistent classes list, or all metadata files in classpath directories if you have not listed your persistent classes.  Use -help to display tool usage information.
+Exception in thread "main" java.util.MissingResourceException: org.apache.openjpa.persistence.PersistenceProductDerivation:java.util.MissingResourceException: Persistence provider "org.eclipse.persistence.jpa.PersistenceProvider" specified in persistence unit "EclipseLinkPU" in "META-INF/persistence.xml" is not a recognized provider.
+	at org.apache.openjpa.lib.conf.ProductDerivations.reportErrors(ProductDerivations.java:365)
+	at org.apache.openjpa.lib.conf.ProductDerivations.load(ProductDerivations.java:270)
+	at org.apache.openjpa.lib.conf.Configurations.populateConfiguration(Configurations.java:344)
+	at org.apache.openjpa.enhance.PCEnhancer.run(PCEnhancer.java:4439)
+	at org.apache.openjpa.enhance.PCEnhancer$1.run(PCEnhancer.java:4410)
+	at org.apache.openjpa.lib.conf.Configurations.launchRunnable(Configurations.java:708)
+	at org.apache.openjpa.lib.conf.Configurations.runAgainstAllAnchors(Configurations.java:698)
+	at org.apache.openjpa.enhance.PCEnhancer.run(PCEnhancer.java:4405)
+	at org.apache.openjpa.enhance.PCEnhancer.main(PCEnhancer.java:4396)
+Caused by: java.util.MissingResourceException: Persistence provider "org.eclipse.persistence.jpa.PersistenceProvider" specified in persistence unit "EclipseLinkPU" in "META-INF/persistence.xml" is not a recognized provider.
+	at org.apache.openjpa.persistence.PersistenceProductDerivation.load(PersistenceProductDerivation.java:339)
+	at org.apache.openjpa.persistence.PersistenceProductDerivation.load(PersistenceProductDerivation.java:185)
+	at org.apache.openjpa.lib.conf.ProductDerivations.load(ProductDerivations.java:261)
+	... 7 more

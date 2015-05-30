@@ -1,0 +1,29 @@
+MapBackedARFFModel throws an NPE when getValue is passed an idx for an attribute that does not exist.
+
+In short, this:
+<code>
+  public double getValue(String data, int idx) {
+    ARFFType type = typeMap.get(idx);
+    data = QUOTE_PATTERN.matcher(data).replaceAll("");
+    data = data.trim();
+    double result;
+    if( type == null ) 
+{
+	throw new IllegalStateException( "Attribute type cannot be NULL, attribute index was: " + idx );
+    }
+		
+    switch (type) {
+      case NUMERIC:
+        result = processNumeric(data);
+</code>
+Is better than this:
+<code>
+  public double getValue(String data, int idx) {
+    ARFFType type = typeMap.get(idx);
+    data = QUOTE_PATTERN.matcher(data).replaceAll("");
+    data = data.trim();
+    double result;
+   switch (type) {
+      case NUMERIC:
+        result = processNumeric(data);
+ </code>

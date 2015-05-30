@@ -1,0 +1,3 @@
+While digging through a profile I noticed that for every CacheMap.get(..) call where there is a hit, I was seeing two underlying ConcurrentHashMap.get method calls. This is because we always look to see if a given key exists in the pinned map before looking in the main map. As the code stands today, it is optimized for the existence of entries in the pinned map and I think that is an incorrect assumption.
+
+With this JIRA I'm going to optimize the get(...), containsKey(...), and containsValue(...) to check the main map for results before looking at the pinned map. In a micro benchmark I observed approximately a 20% improvement in the time required to call get(...) when there is a hit.

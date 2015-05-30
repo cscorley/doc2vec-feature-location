@@ -1,0 +1,149 @@
+Master:
+ij> connect 'jdbc:derby:masterDB;user=oystein;password=pass;startMaster=true;slaveHost=localhost';
+ij(CONNECTION1)> delete from t where i > 8192;
+253952 rows inserted/updated/deleted
+ij(CONNECTION1)> connect 'jdbc:derby:masterDB;user=oystein;password=pass;failover=true';
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+
+Slave reports in the log:
+
+
+------------  BEGIN SHUTDOWN ERROR STACK -------------
+
+ERROR XSLA7: Cannot redo operation null in the log.
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:296)
+	at org.apache.derby.impl.store.raw.log.FileLogger.redo(FileLogger.java:1525)
+	at org.apache.derby.impl.store.raw.log.LogToFile.recover(LogToFile.java:920)
+	at org.apache.derby.impl.store.raw.RawStore.boot(RawStore.java:334)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1999)
+	at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:291)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java:553)
+	at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java:419)
+	at org.apache.derby.impl.store.access.RAMAccessManager.boot(RAMAccessManager.java:1019)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1999)
+	at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:291)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java:553)
+	at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java:419)
+	at org.apache.derby.impl.db.BasicDatabase.bootStore(BasicDatabase.java:793)
+	at org.apache.derby.impl.db.BasicDatabase.boot(BasicDatabase.java:205)
+	at org.apache.derby.impl.db.SlaveDatabase.bootBasicDatabase(SlaveDatabase.java:425)
+	at org.apache.derby.impl.db.SlaveDatabase.access$000(SlaveDatabase.java:70)
+	at org.apache.derby.impl.db.SlaveDatabase$SlaveDatabaseBootThread.run(SlaveDatabase.java:312)
+	at java.lang.Thread.run(Thread.java:619)
+Caused by: ERROR XSLAO: Recovery failed unexpected problem log record is Not first but transaction is not in transaction table : 58625.
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:286)
+	at org.apache.derby.impl.store.raw.log.FileLogger.redo(FileLogger.java:1289)
+	... 17 more
+============= begin nested exception, level (1) ===========
+ERROR XSLAO: Recovery failed unexpected problem log record is Not first but transaction is not in transaction table : 58625.
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:286)
+	at org.apache.derby.impl.store.raw.log.FileLogger.redo(FileLogger.java:1289)
+	at org.apache.derby.impl.store.raw.log.LogToFile.recover(LogToFile.java:920)
+	at org.apache.derby.impl.store.raw.RawStore.boot(RawStore.java:334)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1999)
+	at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:291)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java:553)
+	at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java:419)
+	at org.apache.derby.impl.store.access.RAMAccessManager.boot(RAMAccessManager.java:1019)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1999)
+	at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:291)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java:553)
+	at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java:419)
+	at org.apache.derby.impl.db.BasicDatabase.bootStore(BasicDatabase.java:793)
+	at org.apache.derby.impl.db.BasicDatabase.boot(BasicDatabase.java:205)
+	at org.apache.derby.impl.db.SlaveDatabase.bootBasicDatabase(SlaveDatabase.java:425)
+	at org.apache.derby.impl.db.SlaveDatabase.access$000(SlaveDatabase.java:70)
+	at org.apache.derby.impl.db.SlaveDatabase$SlaveDatabaseBootThread.run(SlaveDatabase.java:312)
+	at java.lang.Thread.run(Thread.java:619)
+============= end nested exception, level (1) ===========
+
+
+------------  END SHUTDOWN ERROR STACK -------------
+
+--------  BEGIN REPLICATION ERROR MESSAGE ---------
+Replication slave got a fatal error for database 'slaveDB'. Replication will be stopped.
+Replication slave role was stopped for database 'slaveDB'.
+
+2008-02-27 12:03:00.830 GMT:
+Shutting down instance a816c00e-0118-5ac5-f06b-000003e6d478
+----------------------------------------------------------------
+ERROR XSLAA: The store has been marked for shutdown by an earlier exception.
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:279)
+	at org.apache.derby.impl.store.raw.log.LogToFile.appendLogRecord(LogToFile.java:3696)
+	at org.apache.derby.impl.services.replication.slave.SlaveController$SlaveLogReceiverThread.handleLogChunk(SlaveController.java:540)
+	at org.apache.derby.impl.services.replication.slave.SlaveController$SlaveLogReceiverThread.run(SlaveController.java:486)
+Caused by: ERROR XSLA7: Cannot redo operation null in the log.
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:296)
+	at org.apache.derby.impl.store.raw.log.FileLogger.redo(FileLogger.java:1525)
+	at org.apache.derby.impl.store.raw.log.LogToFile.recover(LogToFile.java:920)
+	at org.apache.derby.impl.store.raw.RawStore.boot(RawStore.java:334)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1999)
+	at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:291)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java:553)
+	at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java:419)
+	at org.apache.derby.impl.store.access.RAMAccessManager.boot(RAMAccessManager.java:1019)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1999)
+	at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:291)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java:553)
+	at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java:419)
+	at org.apache.derby.impl.db.BasicDatabase.bootStore(BasicDatabase.java:793)
+	at org.apache.derby.impl.db.BasicDatabase.boot(BasicDatabase.java:205)
+	at org.apache.derby.impl.db.SlaveDatabase.bootBasicDatabase(SlaveDatabase.java:425)
+	at org.apache.derby.impl.db.SlaveDatabase.access$000(SlaveDatabase.java:70)
+	at org.apache.derby.impl.db.SlaveDatabase$SlaveDatabaseBootThread.run(SlaveDatabase.java:312)
+	at java.lang.Thread.run(Thread.java:619)
+Caused by: ERROR XSLAO: Recovery failed unexpected problem log record is Not first but transaction is not in transaction table : 58625.
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:286)
+	at org.apache.derby.impl.store.raw.log.FileLogger.redo(FileLogger.java:1289)
+	... 17 more
+============= begin nested exception, level (1) ===========
+ERROR XSLA7: Cannot redo operation null in the log.
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:296)
+	at org.apache.derby.impl.store.raw.log.FileLogger.redo(FileLogger.java:1525)
+	at org.apache.derby.impl.store.raw.log.LogToFile.recover(LogToFile.java:920)
+	at org.apache.derby.impl.store.raw.RawStore.boot(RawStore.java:334)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1999)
+	at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:291)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java:553)
+	at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java:419)
+	at org.apache.derby.impl.store.access.RAMAccessManager.boot(RAMAccessManager.java:1019)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1999)
+	at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:291)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java:553)
+	at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java:419)
+	at org.apache.derby.impl.db.BasicDatabase.bootStore(BasicDatabase.java:793)
+	at org.apache.derby.impl.db.BasicDatabase.boot(BasicDatabase.java:205)
+	at org.apache.derby.impl.db.SlaveDatabase.bootBasicDatabase(SlaveDatabase.java:425)
+	at org.apache.derby.impl.db.SlaveDatabase.access$000(SlaveDatabase.java:70)
+	at org.apache.derby.impl.db.SlaveDatabase$SlaveDatabaseBootThread.run(SlaveDatabase.java:312)
+	at java.lang.Thread.run(Thread.java:619)
+Caused by: ERROR XSLAO: Recovery failed unexpected problem log record is Not first but transaction is not in transaction table : 58625.
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:286)
+	at org.apache.derby.impl.store.raw.log.FileLogger.redo(FileLogger.java:1289)
+	... 17 more
+============= end nested exception, level (1) ===========
+============= begin nested exception, level (2) ===========
+ERROR XSLAO: Recovery failed unexpected problem log record is Not first but transaction is not in transaction table : 58625.
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:286)
+	at org.apache.derby.impl.store.raw.log.FileLogger.redo(FileLogger.java:1289)
+	at org.apache.derby.impl.store.raw.log.LogToFile.recover(LogToFile.java:920)
+	at org.apache.derby.impl.store.raw.RawStore.boot(RawStore.java:334)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1999)
+	at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:291)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java:553)
+	at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java:419)
+	at org.apache.derby.impl.store.access.RAMAccessManager.boot(RAMAccessManager.java:1019)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1999)
+	at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:291)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java:553)
+	at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java:419)
+	at org.apache.derby.impl.db.BasicDatabase.bootStore(BasicDatabase.java:793)
+	at org.apache.derby.impl.db.BasicDatabase.boot(BasicDatabase.java:205)
+	at org.apache.derby.impl.db.SlaveDatabase.bootBasicDatabase(SlaveDatabase.java:425)
+	at org.apache.derby.impl.db.SlaveDatabase.access$000(SlaveDatabase.java:70)
+	at org.apache.derby.impl.db.SlaveDatabase$SlaveDatabaseBootThread.run(SlaveDatabase.java:312)
+	at java.lang.Thread.run(Thread.java:619)
+============= end nested exception, level (2) ===========
+
+---------  END REPLICATION ERROR MESSAGE ----------
+Replication slave role was stopped for database 'slaveDB'.

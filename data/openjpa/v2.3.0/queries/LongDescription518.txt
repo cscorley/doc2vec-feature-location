@@ -1,0 +1,58 @@
+So when I deploy my war file on the application server the first time, everything works fine.  However, if I then try to undeploy or redeploy over the existing version the deployment will fail because the openjpa.jar in the WEB-INF/lib directory of my war file is locked.
+
+I did track down the bug to:
+    org.apache.openjpa.lib.util.Services
+
+
+The addResources method is opening a URL Connection and not performing a setUseCaches(false).  I made the following changes, implemented the new jar in my webapp and it fixed the problem. 
+
+    private static void addResources(URL url, Set set) throws IOException {
+        InputStream in = null;
+        BufferedReader reader = null;
+
+        try {
+            java.net.URLConnection ucon = url.openConnection();
+            ucon.setUseCaches(false);
+            in = ucon.getInputStream();
+            reader = new BufferedReader(new InputStreamReader(in));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.trim().startsWith("#")
+
+
+ line.trim().length() == 0)
+                    continue;
+
+
+
+
+                StringTokenizer tok = new StringTokenizer(line, "# \t");
+                if (tok.hasMoreTokens()) {
+                    String next = tok.nextToken();
+                    if (next != null) 
+{
+                        next = next.trim();
+                        if (next.length() > 0 && !next.startsWith("#"))
+                            set.add(next);
+                    }
+                }
+            }
+        } 
+        catch (Exception e) 
+{
+            throw new IOException(e.toString());
+        }
+        finally {
+            try 
+{ reader.close(); }
+ catch (IOException re) {}
+            try 
+{ in.close(); }
+ catch (IOException ioe) {}
+        }
+    }
+
+Only the setUseCaches(false) should be necessary, but I was just making sure that anything that was opened was closed.
+
+Thanks,
+Adam

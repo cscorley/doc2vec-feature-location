@@ -1,0 +1,9 @@
+This JIRA will add support for (DRDA) Strong User ID and Password Substitute Authentication (USRSSBPWD) scheme in the network client/server driver layers.
+
+Current Derby DRDA network client  driver supports encrypted userid/password (EUSRIDPWD) via the use of DH key-agreement protocol - however current Open Group DRDA specifications imposes small prime and base generator values (256 bits) that prevents other JCE's  to be used as java cryptography providers - typical minimum security requirements is usually of 1024 bits (512-bit absolute minimum) when using DH key-agreement protocol to generate a session key.
+
+Strong User ID and Password Substitute Authentication (USRSSBPWD) is part of DRDA specifications as another alternative to provide ciphered passwords across the wire.
+
+Support of USRSSBPWD authentication scheme will enable additional JCE's to  be used when encrypted passwords are required across the wire.
+
+USRSSBPWD authentication scheme will be specified by a Derby network client user via the securityMechanism property on the connection UR - A new property value such as ENCRYPTED_PASSWORD_SECURITY will be defined in order to support this new (DRDA) authentication scheme.

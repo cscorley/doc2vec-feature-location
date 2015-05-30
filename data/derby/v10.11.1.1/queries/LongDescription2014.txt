@@ -1,0 +1,81 @@
+A NPE occurs when NULLIF is used in the GROUP BY clause.
+
+ij> create table t1 (c1 int);
+0 rows inserted/updated/deleted
+ij> insert into t1 values 1,2,2,3;
+4 rows inserted/updated/deleted
+ij> select nullif(c1,c1) from t1 group by nullif(c1,c1);
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+
+Stacktrace:
+
+java.lang.NullPointerException
+	at org.apache.derby.impl.sql.compile.ConstantNode.isEquivalent(ConstantNode.java:285)
+	at org.apache.derby.impl.sql.compile.CastNode.isEquivalent(CastNode.java:1044)
+	at org.apache.derby.impl.sql.compile.ConditionalNode.isEquivalent(ConditionalNode.java:518)
+	at org.apache.derby.impl.sql.compile.GroupByList.findGroupingColumn(GroupByList.java:244)
+	at org.apache.derby.impl.sql.compile.VerifyAggregateExpressionsVisitor.skipChildren(VerifyAggregateExpressionsVisitor.java:146)
+	at org.apache.derby.impl.sql.compile.ConditionalNode.accept(ConditionalNode.java:484)
+	at org.apache.derby.impl.sql.compile.ResultColumn.accept(ResultColumn.java:1515)
+	at org.apache.derby.impl.sql.compile.QueryTreeNodeVector.accept(QueryTreeNodeVector.java:159)
+	at org.apache.derby.impl.sql.compile.SelectNode.bindExpressions(SelectNode.java:619)
+	at org.apache.derby.impl.sql.compile.FromSubquery.bindExpressions(FromSubquery.java:262)
+	at org.apache.derby.impl.sql.compile.FromList.bindExpressions(FromList.java:337)
+	at org.apache.derby.impl.sql.compile.SelectNode.bindExpressions(SelectNode.java:500)
+	at org.apache.derby.impl.sql.compile.DMLStatementNode.bindExpressions(DMLStatementNode.java:249)
+	at org.apache.derby.impl.sql.compile.DMLStatementNode.bind(DMLStatementNode.java:162)
+	at org.apache.derby.impl.sql.compile.CursorNode.bind(CursorNode.java:253)
+	at org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatement.java:345)
+	at org.apache.derby.impl.sql.GenericStatement.prepare(GenericStatement.java:119)
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(GenericLanguageConnectionContext.java:745)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:568)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:517)
+	at org.apache.derby.impl.tools.ij.ij.executeImmediate(ij.java:321)
+	at org.apache.derby.impl.tools.ij.utilMain.doCatch(utilMain.java:517)
+	at org.apache.derby.impl.tools.ij.utilMain.runScriptGuts(utilMain.java:370)
+	at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:268)
+	at org.apache.derby.impl.tools.ij.Main.go(Main.java:204)
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:170)
+	at org.apache.derby.impl.tools.ij.Main14.main(Main14.java:56)
+	at org.apache.derby.tools.ij.main(ij.java:71)
+
+sysinfo:
+
+------------------ Java Information ------------------
+Java Version:    1.4.2_12
+Java Vendor:     Sun Microsystems Inc.
+Java home:       C:\jdk142\jre
+Java classpath:  classes;.
+OS name:         Windows XP
+OS architecture: x86
+OS version:      5.1
+Java user name:  yip
+Java user home:  C:\Documents and Settings\Administrator
+Java user dir:   C:\derby\trunk
+java.specification.name: Java Platform API Specification
+java.specification.version: 1.4
+--------- Derby Information --------
+JRE - JDBC: J2SE 1.4.2 - JDBC 3.0
+[C:\derby\trunk\classes] 10.3.0.0 alpha - (1)
+------------------------------------------------------
+----------------- Locale Information -----------------
+Current Locale :  [English/United States [en_US]]
+Found support for locale: [de_DE]
+         version: 10.3.0.0 alpha - (1)
+Found support for locale: [es]
+         version: 10.3.0.0 alpha - (1)
+Found support for locale: [fr]
+         version: 10.3.0.0 alpha - (1)
+Found support for locale: [it]
+         version: 10.3.0.0 alpha - (1)
+Found support for locale: [ja_JP]
+         version: 10.3.0.0 alpha - (1)
+Found support for locale: [ko_KR]
+         version: 10.3.0.0 alpha - (1)
+Found support for locale: [pt_BR]
+         version: 10.3.0.0 alpha - (1)
+Found support for locale: [zh_CN]
+         version: 10.3.0.0 alpha - (1)
+Found support for locale: [zh_TW]
+         version: 10.3.0.0 alpha - (1)
+------------------------------------------------------

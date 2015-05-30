@@ -1,0 +1,5 @@
+In SparseVector, we need primitives hash map for index and values. The present implementation of this hash map is not as efficient as some of the other implementations in non-Apache projects. 
+
+In an experiment, I found that, for get/set operations, the primitive hash of  Colt performance an order of magnitude better than OrderedIntDoubleMapping. For iteration it is 2x slower, though. 
+
+Using Colt in Sparsevector improved performance of canopy generation. For an experimental dataset, the current implementation takes 50 minutes. Using Colt, reduces this duration to 19-20 minutes. That's 60% reduction in the delay. 

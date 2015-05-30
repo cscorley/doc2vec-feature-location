@@ -1,0 +1,42 @@
+The H2OHelper.drmFromMatrix(...) function fails when trying to write row label String keys to a water.fvec.Vec.:
+
+
+
+ java.lang.IllegalArgumentException: Not a String
+  at water.fvec.Chunk.set_impl(Chunk.java:507)
+  at water.fvec.Chunk.set0(Chunk.java:469)
+  at water.fvec.Chunk.set(Chunk.java:371)
+  at water.fvec.Vec$Writer.set(Vec.java:803)
+  at org.apache.mahout.h2obindings.H2OHelper.drmFromMatrix(H2OHelper.java:331)
+  at org.apache.mahout.h2obindings.H2OEngine$.drmParallelizeWithRowLabels(H2OEngine.scala:83)                                                                   
+  at org.apache.mahout.math.drm.package$.drmParallelizeWithRowLabels(package.scala:67)
+
+ 
+
+This causes an exception when calling drm.drmParallelizeWithRowLabels(...)
+
+To reproduce, apply PR#72: Enable Naive Bayes Tests in h2o Module and run:
+
+ $ mvn test 
+
+
+from the h2o module:
+
+
+
+- NB Aggregator *** FAILED ***
+  java.lang.IllegalArgumentException: Not a String
+  at water.fvec.Chunk.set_impl(Chunk.java:507)
+  at water.fvec.Chunk.set0(Chunk.java:469)
+  at water.fvec.Chunk.set(Chunk.java:371)
+  at water.fvec.Vec$Writer.set(Vec.java:803)
+  at org.apache.mahout.h2obindings.H2OHelper.drmFromMatrix(H2OHelper.java:331)
+  at org.apache.mahout.h2obindings.H2OEngine$.drmParallelizeWithRowLabels(H2OEngine.scala:83)                                                                   
+  at org.apache.mahout.math.drm.package$.drmParallelizeWithRowLabels(package.scala:67)                                                                          
+  at org.apache.mahout.classifier.naivebayes.NBTestBase$$anonfun$2.apply$mcV$sp(NBTestBase.scala:91)                                                            
+  at org.apache.mahout.classifier.naivebayes.NBTestBase$$anonfun$2.apply(NBTestBase.scala:70)                                                                   
+  at org.apache.mahout.classifier.naivebayes.NBTestBase$$anonfun$2.apply(NBTestBase.scala:70)                                                                   
+  ...
+
+
+

@@ -1,0 +1,3 @@
+when running TestUseSchemaElement a file 'orm.xml' remains as left over and breaks the follow up tests. This happens because the MetaDataFactory creates a new File("orm.xml") without any base path if there is no orm.xml already on the classpath.
+
+It should actually use the base directory handed over to the mapping tool.

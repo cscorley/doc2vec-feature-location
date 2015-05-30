@@ -1,0 +1,22 @@
+Altering size of a varchar column using ALTER TABLE command can change the column from not nullable to nullable.
+
+ij version 10.1
+ij> connect 'jdbc:derby:bdb;create=true';
+ij> create table a (id integer not null, name varchar(20) not null, primary key(name));
+0 rows inserted/updated/deleted
+ij> insert into a values (1, 'abc');
+1 row inserted/updated/deleted
+ij> insert into a values (2, null);
+ERROR 23502: Column 'NAME'  cannot accept a NULL value.                     <==== Initially doesn't accept nulls
+ij> alter table a alter name set data type varchar(50);                                       <==== Change size of varchar column
+0 rows inserted/updated/deleted
+ij> insert into a values (3, 'hijk');
+1 row inserted/updated/deleted
+ij> insert into a values (4, null);                                                                             <==== Now NULLs are accepted
+1 row inserted/updated/deleted
+ij> select * from a;
+ID         |NAME
+--------------------------------------------------------------
+1          |abc
+3          |hijk
+4          |NULL

@@ -1,0 +1,42 @@
+Dear developers,
+
+Derby's error message for misconfiguration should be improved. Sometimes, the dumped error messages is very unclear, and costs users extra time to figure out a simple problem.
+
+Here is a reproducible example
+
+
+1.  specify a wrong value for derby.stream.error.method option, and put the following line in the derby.properties file
+
+derby.stream.error.method=hello   (obvious it is wrong)
+
+
+2. 
+connect to a derby db, and issue a selection query
+
+3. 
+derby simply dumped the following error message, which is hard to be connected to the misconfigured option
+
+
+ij> CONNECT 'jdbc:derby:firstdb';
+JAVA ERROR: java.lang.ExceptionInInitializerError
+ij> select * from COUNTRIES;
+IJ ERROR: Unable to establish connection
+ij> Exception in thread "main" java.lang.NoClassDefFoundError: Could not initialize class org.apache.derby.jdbc.EmbeddedDriver
+	at org.apache.derby.jdbc.AutoloadedDriver.getDriverModule(Unknown Source)
+	at org.apache.derby.jdbc.AutoloadedDriver.connect(Unknown Source)
+	at java.sql.DriverManager.getConnection(DriverManager.java:579)
+	at java.sql.DriverManager.getConnection(DriverManager.java:243)
+	at org.apache.derby.impl.tools.ij.utilMain.cleanupGo(Unknown Source)
+	at org.apache.derby.impl.tools.ij.utilMain.go(Unknown Source)
+	at org.apache.derby.impl.tools.ij.Main.go(Unknown Source)
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Unknown Source)
+	at org.apache.derby.impl.tools.ij.Main.main(Unknown Source)
+
+
+I would sugget to fix this problem by checking invalid configuration option names, and improve error message (at least the error message should pinpoint the likely misconfigured options).
+
+Please let me know your thoughts.
+
+Thanks
+
+-Sai

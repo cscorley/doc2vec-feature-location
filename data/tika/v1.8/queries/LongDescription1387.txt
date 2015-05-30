@@ -1,0 +1,64 @@
+Lucene and many other projects already use the forbidden-apis checker to prevent use of some broken classes/signatures from the JDK. These are especially thing using default character sets or default locales. The forbidden-api checker can also be used to explcitely disallow specific methods, if they have security issues (e.g., creating XML parsers without disabling external entity support).
+
+The attached patch adds the forbidden-api checker to the tika-parent pom file with default configuration.
+
+Running it fails with many errors in TIKA core already:
+
+
+[INFO] --- forbiddenapis:1.6.1:check (default) @ tika-core ---
+[INFO] Scanning for classes to check...
+[INFO] Reading bundled API signatures: jdk-unsafe
+[INFO] Reading bundled API signatures: jdk-deprecated
+[INFO] Loading classes to check...
+[INFO] Scanning for API signatures and dependencies...
+[ERROR] Forbidden method invocation: java.lang.String#getBytes() [Uses default charset]
+[ERROR]   in org.apache.tika.language.LanguageProfilerBuilder (LanguageProfilerBuilder.java:407)
+[ERROR] Forbidden method invocation: java.lang.String#toUpperCase() [Uses default locale]
+[ERROR]   in org.apache.tika.io.FilenameUtils (FilenameUtils.java:68)
+[ERROR] Forbidden method invocation: java.lang.String#getBytes() [Uses default charset]
+[ERROR]   in org.apache.tika.io.IOUtils (IOUtils.java:257)
+[ERROR] Forbidden method invocation: java.lang.String#<init>(byte[]) [Uses default charset]
+[ERROR]   in org.apache.tika.io.IOUtils (IOUtils.java:395)
+[ERROR] Forbidden method invocation: java.lang.String#<init>(byte[]) [Uses default charset]
+[ERROR]   in org.apache.tika.io.IOUtils (IOUtils.java:416)
+[ERROR] Forbidden method invocation: java.io.InputStreamReader#<init>(java.io.InputStream) [Uses default charset]
+[ERROR]   in org.apache.tika.io.IOUtils (IOUtils.java:438)
+[ERROR] Forbidden method invocation: java.lang.String#getBytes() [Uses default charset]
+[ERROR]   in org.apache.tika.io.IOUtils (IOUtils.java:532)
+[ERROR] Forbidden method invocation: java.lang.String#getBytes() [Uses default charset]
+[ERROR]   in org.apache.tika.io.IOUtils (IOUtils.java:550)
+[ERROR] Forbidden method invocation: java.lang.String#<init>(byte[]) [Uses default charset]
+[ERROR]   in org.apache.tika.io.IOUtils (IOUtils.java:588)
+[ERROR] Forbidden method invocation: java.lang.String#getBytes() [Uses default charset]
+[ERROR]   in org.apache.tika.io.IOUtils (IOUtils.java:656)
+[ERROR] Forbidden method invocation: java.lang.String#getBytes() [Uses default charset]
+[ERROR]   in org.apache.tika.io.IOUtils (IOUtils.java:782)
+[ERROR] Forbidden method invocation: java.lang.String#getBytes() [Uses default charset]
+[ERROR]   in org.apache.tika.io.IOUtils (IOUtils.java:851)
+[ERROR] Forbidden method invocation: java.io.InputStreamReader#<init>(java.io.InputStream) [Uses default charset]
+[ERROR]   in org.apache.tika.io.IOUtils (IOUtils.java:957)
+[ERROR] Forbidden method invocation: java.io.OutputStreamWriter#<init>(java.io.OutputStream) [Uses default charset]
+[ERROR]   in org.apache.tika.io.IOUtils (IOUtils.java:1064)
+[ERROR] Forbidden method invocation: java.io.OutputStreamWriter#<init>(java.io.OutputStream) [Uses default charset]
+[ERROR]   in org.apache.tika.sax.WriteOutContentHandler (WriteOutContentHandler.java:93)
+[ERROR] Forbidden method invocation: java.io.InputStreamReader#<init>(java.io.InputStream) [Uses default charset]
+[ERROR]   in org.apache.tika.parser.external.ExternalParser (ExternalParser.java:234)
+[ERROR] Forbidden method invocation: java.io.InputStreamReader#<init>(java.io.InputStream) [Uses default charset]
+[ERROR]   in org.apache.tika.parser.external.ExternalParser$3 (ExternalParser.java:294)
+[ERROR] Forbidden method invocation: java.util.Calendar#getInstance(java.util.Locale) [Uses default locale or time zone]
+[ERROR]   in org.apache.tika.utils.DateUtils (DateUtils.java:83)
+[ERROR] Forbidden method invocation: java.lang.String#format(java.lang.String,java.lang.Object[]) [Uses default locale]
+[ERROR]   in org.apache.tika.utils.DateUtils (DateUtils.java:91)
+[ERROR] Forbidden method invocation: java.lang.String#toLowerCase() [Uses default locale]
+[ERROR]   in org.apache.tika.detect.MagicDetector (MagicDetector.java:98)
+[ERROR] Forbidden method invocation: java.lang.String#getBytes() [Uses default charset]
+[ERROR]   in org.apache.tika.detect.MagicDetector (MagicDetector.java:100)
+[ERROR] Forbidden method invocation: java.lang.String#<init>(byte[]) [Uses default charset]
+[ERROR]   in org.apache.tika.detect.MagicDetector (MagicDetector.java:396)
+[ERROR] Forbidden method invocation: java.io.OutputStreamWriter#<init>(java.io.OutputStream) [Uses default charset]
+[ERROR]   in org.apache.tika.sax.ToTextContentHandler (ToTextContentHandler.java:60)
+[ERROR] Scanned 225 (and 356 related) class file(s) for forbidden API invocations (in 0.42s), 23 error(s).
+
+
+
+We should fix those problems.

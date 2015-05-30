@@ -1,0 +1,22 @@
+Steps to  reproduce:
+
+a) Using an application that natively outputs XPS documents, i.e. Microsoft Word 2007 when using Save As XPS. (doc_xps.xps)
+b) Using the "Print-to-XPS" driver Microsoft provides, called the Microsoft XPS Document Writer. (xps_print.xps)
+
+Both files gives error and content is not indexed.
+
+
+>  java -jar /opt/ems/lib/tika-app-1.1.jar --text /tmp/doc_xps.xps
+Exception in thread "main" org.apache.tika.exception.TikaException: Unexpected RuntimeException from org.apache.tika.parser.microsoft.ooxml.OOXMLParser@3f6dadf9
+        at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:244)
+        at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+        at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:120)
+        at org.apache.tika.cli.TikaCLI$OutputType.process(TikaCLI.java:130)
+        at org.apache.tika.cli.TikaCLI.process(TikaCLI.java:397)
+        at org.apache.tika.cli.TikaCLI.main(TikaCLI.java:101)
+Caused by: java.lang.NullPointerException
+        at org.apache.tika.parser.microsoft.ooxml.OOXMLExtractorFactory.parse(OOXMLExtractorFactory.java:82)
+        at org.apache.tika.parser.microsoft.ooxml.OOXMLParser.parse(OOXMLParser.java:82)
+        at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+        ... 5 more
+

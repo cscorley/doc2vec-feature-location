@@ -1,0 +1,39 @@
+In the below script ;
+
+
+
+a = load 'gen_data/' AS (f1,f2);
+b = load 'gen_data_02/' AS (f1,f2);
+c = cogroup a by f1,b by f1;
+d = foreach c generate group,flatten(a),COUNT(b),flatten(UDFReturningMyCustomTuple(b,a));
+store d into 'test006';
+
+
+
+The udf (UDFReturningMyCustomTuple) returns a bag which contains custom tuples.
+The script execution fails at the reducer side with the below exception while reading back the spilled data,
+
+2012-02-23 10:37:16,840 FATAL org.apache.pig.data.DefaultDataBag: Unable to read our spill file.
+org.apache.pig.backend.executionengine.ExecException: ERROR 2112: Unexpected datatype 110 while reading tuple from binary file.
+	at org.apache.pig.data.BinInterSedes.getTupleSize(BinInterSedes.java:133)
+	at org.apache.pig.data.BinInterSedes.addColsToTuple(BinInterSedes.java:556)
+	at org.apache.pig.data.BinSedesTuple.readFields(BinSedesTuple.java:66)
+	at org.apache.pig.data.DefaultDataBag$DefaultDataBagIterator.next(DefaultDataBag.java:215)
+	at org.apache.pig.data.DefaultDataBag$DefaultDataBagIterator.hasNext(DefaultDataBag.java:158)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.processPlan(POForEach.java:301)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.getNext(POForEach.java:208)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapReduce$Reduce.runPipeline(PigGenericMapReduce.java:459)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapReduce$Reduce.processOnePackageOutput(PigGenericMapReduce.java:427)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapReduce$Reduce.reduce(PigGenericMapReduce.java:407)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapReduce$Reduce.reduce(PigGenericMapReduce.java:261)
+	at org.apache.hadoop.mapreduce.Reducer.run(Reducer.java:176)
+	at org.apache.hadoop.mapred.ReduceTask.runNewReducer(ReduceTask.java:649)
+	at org.apache.hadoop.mapred.ReduceTask.run(ReduceTask.java:417)
+	at org.apache.hadoop.mapred.Child$4.run(Child.java:255)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:396)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1082)
+	at org.apache.hadoop.mapred.Child.main(Child.java:249)
+
+It looks like while spilling we do MyCustomTuple.write(DataOutput out) which writes the type as DataType.TUPLE (110),
+but while reading back we always use BinSedesTuple.

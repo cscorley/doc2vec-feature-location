@@ -1,0 +1,45 @@
+I've discovered that a small number of excel files (and possibly others, though I haven't noticed any) will cause com.sun.org.apache.xml.internal.serializer.ToStream.writeAttrString to blow up with a NPE. The text being passed through from the Excel parser looks fine though.
+
+The full stacktrace when run from the CLI is:
+Exception in thread "main" org.apache.tika.exception.TikaException: Unexpected RuntimeException from org.apache.tika.parser.microsoft.OfficeParser@bf7916
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:244)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+	at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:129)
+	at org.apache.tika.cli.TikaCLI$OutputType.process(TikaCLI.java:126)
+	at org.apache.tika.cli.TikaCLI.process(TikaCLI.java:340)
+	at org.apache.tika.cli.TikaCLI.main(TikaCLI.java:97)
+Caused by: java.lang.NullPointerException
+	at com.sun.org.apache.xml.internal.serializer.ToStream.writeAttrString(ToStream.java:1966)
+	at com.sun.org.apache.xml.internal.serializer.ToStream.processAttributes(ToStream.java:1946)
+	at com.sun.org.apache.xml.internal.serializer.ToStream.closeStartTag(ToStream.java:2429)
+	at com.sun.org.apache.xml.internal.serializer.ToStream.characters(ToStream.java:1381)
+	at com.sun.org.apache.xalan.internal.xsltc.trax.TransformerHandlerImpl.characters(TransformerHandlerImpl.java:172)
+	at org.apache.tika.sax.ContentHandlerDecorator.characters(ContentHandlerDecorator.java:146)
+	at org.apache.tika.sax.SecureContentHandler.characters(SecureContentHandler.java:167)
+	at org.apache.tika.sax.ContentHandlerDecorator.characters(ContentHandlerDecorator.java:146)
+	at org.apache.tika.sax.ContentHandlerDecorator.characters(ContentHandlerDecorator.java:146)
+	at org.apache.tika.sax.ContentHandlerDecorator.characters(ContentHandlerDecorator.java:146)
+	at org.apache.tika.sax.SafeContentHandler.access$001(SafeContentHandler.java:39)
+	at org.apache.tika.sax.SafeContentHandler$1.write(SafeContentHandler.java:61)
+	at org.apache.tika.sax.SafeContentHandler.filter(SafeContentHandler.java:113)
+	at org.apache.tika.sax.SafeContentHandler.characters(SafeContentHandler.java:151)
+	at org.apache.tika.sax.XHTMLContentHandler.characters(XHTMLContentHandler.java:261)
+	at org.apache.tika.sax.XHTMLContentHandler.characters(XHTMLContentHandler.java:287)
+	at org.apache.tika.parser.microsoft.TextCell.render(TextCell.java:35)
+	at org.apache.tika.parser.microsoft.CellDecorator.render(CellDecorator.java:34)
+	at org.apache.tika.parser.microsoft.LinkedCell.render(LinkedCell.java:36)
+	at org.apache.tika.parser.microsoft.ExcelExtractor$TikaHSSFListener.processExtraText(ExcelExtractor.java:423)
+	at org.apache.tika.parser.microsoft.ExcelExtractor$TikaHSSFListener.processSheet(ExcelExtractor.java:522)
+	at org.apache.tika.parser.microsoft.ExcelExtractor$TikaHSSFListener.internalProcessRecord(ExcelExtractor.java:346)
+	at org.apache.tika.parser.microsoft.ExcelExtractor$TikaHSSFListener.processRecord(ExcelExtractor.java:297)
+	at org.apache.poi.hssf.eventusermodel.FormatTrackingHSSFListener.processRecord(FormatTrackingHSSFListener.java:82)
+	at org.apache.poi.hssf.eventusermodel.HSSFRequest.processRecord(HSSFRequest.java:112)
+	at org.apache.poi.hssf.eventusermodel.HSSFEventFactory.genericProcessEvents(HSSFEventFactory.java:147)
+	at org.apache.poi.hssf.eventusermodel.HSSFEventFactory.processEvents(HSSFEventFactory.java:106)
+	at org.apache.tika.parser.microsoft.ExcelExtractor$TikaHSSFListener.processFile(ExcelExtractor.java:276)
+	at org.apache.tika.parser.microsoft.ExcelExtractor.parse(ExcelExtractor.java:136)
+	at org.apache.tika.parser.microsoft.OfficeParser.parse(OfficeParser.java:206)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+	... 5 more
+
+Looking at the excel parser code, it seems that we're not doing anything wrong, so I think the issue is with the SAX stuff used by the CLI

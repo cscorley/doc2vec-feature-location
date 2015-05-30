@@ -1,0 +1,19 @@
+From the mailing list...
+
+On Sun, Sep 14, 2008 at 6:45 AM, Koji Sekiguchi  wrote:
+> I'm checking MultiCore/CoreAdmin stuff in branch-1.3 and noticed
+> that /admin/cores?action=STATUS returns weird path info on Windows:
+>
+> <str name="instanceDir">multicore\core0/</str>
+> <str name="dataDir">multicore\core0/data/</str>
+>
+> Backslash and slash characters are mixed in path info. Java client
+> can easily handle these weird path string, but other clients may not.
+> I think we should use file.separator system property
+> before releasing 1.3. Thought?
+
+I think clients should be able to handle mixed path separators - they
+need to be able to handle both anyway, and seeing mixed forward and
+backward slashes in windows isn't that uncommon.  We should fix it to
+be consistent (I like standardized forward slashes myself), but it
+

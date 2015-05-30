@@ -1,0 +1,24 @@
+The optimizer can chose the wrong path when BTreeCostController.java returns an estimate cost and row count of 0.0.  
+
+Assume that you have two tables that are being joined like:
+
+
+SELECT * FROM T1, T0
+WHERE T1.ID = T0.F_ID and
+T0.ID = 3;
+
+Also assume that T0 has two columns, ID and F_ID and F_ID is a foreign key on T1.ID.   Assume that T1.ID is the primary key of T1 and (T0.F_ID, T0.ID) is the primary key on T0.  Assume that there is a non-unique index on T0.ID.
+
+The correct query plan for this should be to query T0 using the non-unique index on T0.ID and then use the foreign key value in those rows to do query T1 using the primary key on T1.
+
+With some values of T0.ID in the above query this query plan is chosen and works.  With other values of T0.ID , the query plan does an query on T0 using the non-unique index on T0.ID and then does a table scan on T1.
+
+For example, in my case the query:
+
+SELECT * FROM T1, T0
+WHERE T1.ID = T0.F_ID and
+T0.ID = 22112129;
+
+has this query plan.   
+
+The problem appears to be in BTreeCostController.java.  When this returns the same value for the "left_of_start" and the "left_of_stop" (which is being used to estimate the number of rows and cost), then the estimate cost and row count becomes 0.0.   When this is used in the join order of T0, T1, then the cost of the table scan for T1 becomes 0.0 as well.

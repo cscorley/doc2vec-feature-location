@@ -1,0 +1,44 @@
+The following script
+
+
+
+A = load 'input';
+B = load 'emptydir';
+C = join B by $0, A by $0 using 'skewed';
+store C into 'output';
+
+
+
+fails with "ERROR: java.lang.RuntimeException: Empty samples file';
+
+In this case, the sample job has 0 maps.  Pig doesn't expect this and fails . 
+
+For merge join the script
+
+The merge join script
+
+
+
+A = load 'input';
+B = load 'emptydir';
+C = join A by $0, B by $0 using 'merge';
+store C into 'output';
+
+
+
+the sample job again has 0 maps and the script  fails with " ERROR 2176: Error processing right input during merge join".
+
+But if we change the join order: 
+
+
+
+A = load 'input';
+B = load 'emptydir';
+C = join B by $0, A by $0 using 'merge';
+store C into 'output';
+
+
+
+The second job (merge) now has 0 maps and 0 reduces. And it generates an empty 'output' directory.
+
+Order by on empty directory works fine and generates empty part files.

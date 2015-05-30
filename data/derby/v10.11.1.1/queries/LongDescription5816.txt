@@ -1,0 +1,46 @@
+store.ServicePropertiesFileTest fails on z/OS with two failures below. Looks like likely test encoding issue 
+
+1) testSevicePropertiesFileWithBackup(org.apache.derbyTesting.functionTests.tests.store.ServicePropertiesFileTest)junit.
+framework.AssertionFailedError
+        at org.apache.derbyTesting.functionTests.tests.store.ServicePropertiesFileTest.assertEOFToken(ServicePropertiesF
+ileTest.java:275)
+        at org.apache.derbyTesting.functionTests.tests.store.ServicePropertiesFileTest.testSevicePropertiesFileWithBacku
+p(ServicePropertiesFileTest.java:178)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:88)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:55)
+        at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:113)
+        at org.apache.derbyTesting.junit.BaseJDBCTestCase.runBareOverridable(BaseJDBCTestCase.java:424)
+        at org.apache.derbyTesting.junit.BaseJDBCTestCase.runBare(BaseJDBCTestCase.java:441)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+        at junit.extensions.TestSetup.run(TestSetup.java:25)
+        at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+        at junit.extensions.TestSetup.run(TestSetup.java:25)
+2) testSevicePropertiesFileCorruptedWithBackup(org.apache.derbyTesting.functionTests.tests.store.ServicePropertiesFileTe
+st)junit.framework.ComparisonFailure: expected:<— last line, don't put anything after this line —> but was:<[
+{```
+@    @    k@   }
+ @   @        @     @    @    @```§]>
+        at org.apache.derbyTesting.functionTests.tests.store.ServicePropertiesFileTest.removeEOFToken(ServicePropertiesF
+ileTest.java:301)
+        at org.apache.derbyTesting.functionTests.tests.store.ServicePropertiesFileTest.testSevicePropertiesFileCorrupted
+WithBackup(ServicePropertiesFileTest.java:199)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:88)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:55)
+        at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:113)
+        at org.apache.derbyTesting.junit.BaseJDBCTestCase.runBareOverridable(BaseJDBCTestCase.java:424)
+        at org.apache.derbyTesting.junit.BaseJDBCTestCase.runBare(BaseJDBCTestCase.java:441)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+        at junit.extensions.TestSetup.run(TestSetup.java:25)
+        at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+        at junit.extensions.TestSetup.run(TestSetup.java:25)
+
+FAILURES!!!
+Tests run: 290,  Failures: 2,  Errors: 0

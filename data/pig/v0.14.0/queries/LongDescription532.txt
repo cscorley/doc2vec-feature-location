@@ -1,0 +1,10 @@
+Given a script like:
+
+
+a = loader 'myfile' as (x, y);
+b = foreach a generate (int)x, (double)y;
+c = group a by x;
+
+
+
+you will get an error that x is an unknown alias.  The cast operator is not carrying through the alias.  It should.

@@ -1,0 +1,24 @@
+It seems that mime-type priorities are a bit inconsistent in the tika-core bundled tika-mimetypes.xml
+
+Few examples:
+
+	application/zip vs application/x-7z-compressed: both are similar "containers" archive formats (structured, having entries), having distinct file extensions ("zip" vs "7z" globs), still priorities are 40 and 50 respectively.
+	application/zip vs text/html: not quite related MIME types, having same priority of 40. But ZIP files can be "uncompressed" (meaning entries are mostly "concatenated", and their content, if plaintext, is readable). Hence, having an "uncompressed" ZIP (or any subclass like JAR) file that contains HTML files zipped up might/will be detected as HTML, which is wrong.
+
+
+
+And this is what happens in Nexus that uses Tika under the hud for "content" validation, basically using MIME magic detection provided by Tika Detector: the Java JAR com.intellij:annotations:7.0.3 (link) is being detected as text/html instead of (expected) application/java-archive.
+
+Reason is following: the JAR file is zipped up in "uncompressed" zip format, and among few annotations it also contains one HTML file entry (the license I guess). Since both MIME types have same priority (40), I guess tika "randomly" chooses the text/html.
+
+Original Nexus issue
+https://issues.sonatype.org/browse/NEXUS-6560
+
+At Nexus issue there is a GH Pull Request that solves the problem for us (by raising application/zip priority to 41.
+
+But by inspecting the bundled tike-mimetypes.xml we spotted other – probably – priority inconsistencies, like that of zip vs 7z mentioned above.
+
+Note: this happens when using tika-core solely on classpath and using it for MIME magic detection. Interestingly, when the tika-parsers (with it's all dependencies) are added to classpath, Tika will properly figure out that the artifact is application/java-archive. Still, our use case in Nexus requires the MIME magic detection only, so we do not use tika-parsers, nor we would like to do so.
+
+Sample project to reproduce
+https://github.com/cstamas/tika-1292

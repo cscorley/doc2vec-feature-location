@@ -1,0 +1,8 @@
+A process starts derby as network server (new NetworkServerControl, start) and waits for derby to respond (retry ping until success). After the server has started, the same process makes a connection with DriverManager.getConnection().
+
+The first time this process runs, this will always fail with  "SQLNonTransientConnectionException: The connection was refused because the database Flows;create=true was not found." However, at the same time, "derby.log" and "Flows" directory are created in the derby home. The "Flows" directory contains "log", "seg0", "tmp", "db.lck", "service.properties", etc ...
+
+The second time the process is started, the connection will succeed and the "Flows" database can be used successfully. From now on, every start will be successful. After cleaning the derby home directory, you get the exception again after the first start.
+
+The attachment contains a Java program (DerbyGetConnection.java) that reproduces this problem consistently on our OS/400 V7R1M0 with IBM J9 VM. Probably this may happen on other systems too (Win7), but we were unable to reproduce it there (on my machine with Win7, this same program ran successful every run; might be a threading or I/O issue that occurs easily on slower hardware?).
+The attachment contains also derby tracing ("derby.drda.traceAll") and logging/tracing of the DriverManager.

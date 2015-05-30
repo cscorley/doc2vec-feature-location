@@ -1,0 +1,17 @@
+Currently, the Network Server and Network Client use a 32K blocksize when
+returning database data in QRYDTA blocks.
+
+I came across the following statement in the DRDA spec (Volume 1, page 12):
+
+    Blocking applies only to the QRYDTA reply objects. Each
+    query block is a QRYDTA DSS. The maximum query block size
+    value allowed in the qryblksz parameter is increased from
+    32K to 10M, thus accomodating the larger data volumes
+    required by modern, more data-intensive applications.
+
+The importance of larger block sizes depends strong on the application
+profile.. For example, many applications perform single-record selects, 
+and they are not influenced by the block size.
+
+But for some applications, it seems like the ability to use a larger block
+size could be quite valuable.

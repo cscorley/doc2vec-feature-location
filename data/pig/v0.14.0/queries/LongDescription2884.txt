@@ -1,0 +1,12 @@
+This section of code produces erroneous logging messages:
+
+
+mro.estimatedParallelism = estimateNumberOfReducers(nwJob, mro);
+// reducer estimation could return -1 if it couldn't estimate
+log.info("Could not estimate number of reducers and no requested or default " +
+         "parallelism set. Defaulting to 1 reducer.");
+jobParallelism = mro.estimatedParallelism > 0 ? mro.estimatedParallelism : 1;
+
+
+
+Fix is to use a if/then. Patch forthcoming.

@@ -1,0 +1,13 @@
+MemoryLeakFixesTest.testRepeatedDatabaseCreationWithAutoStats() takes fairly long time. When I run it with -Xmx16M (per instructions in the comments) in my environment, that test case alone takes 80-90 seconds. And it runs twice (embedded and client) so it takes nearly 3 minutes in total.
+
+There are ways to speed it up and still have it expose DERBY-5336, for which it was originally written:
+
+1) The body of the test is executed 50 times. When the fix for DERBY-5336 is backed out, the test case typically fails in the 8th or 9th iteration, so 20 iterations should be enough.
+
+2) In each iteration, a table with 500 rows is created. Since the goal is to get the istat daemon to run, we only need to insert enough rows to exceed derby.storage.indexStats.debug.createThreshold, which is 100 by default. Reducing the size to for example 200 rows would be OK.
+
+3) When populating the table, a select statement is compiled and executed in between each insert statement. To get the istat daemon running, it's sufficient to execute a single select statement once the table is populated.
+
+4) Every insert statement is compiled separately. Would be better to compile once and execute multiple times.
+
+5) Populating the table could happen with auto-commit off.

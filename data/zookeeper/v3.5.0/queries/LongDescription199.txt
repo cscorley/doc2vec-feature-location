@@ -1,0 +1,11 @@
+there are 2 log messages during server startup that are misleading:
+
+2008-10-20 16:36:41,135 - INFO  [main:FileTxnLog$FileTxnIterator@441] - EOF excepton java.io.EOFException: Failed to read
+
+
+2008-10-20 16:36:41,120 - ERROR [main:FileTxnSnapLog@114] - 2(higestZxid) >= 2(next log) for type 1
+
+
+the first log should be DEBUG and should be changed to say something like eof reached in <file>, reading next file
+
+while the second log seems to indicate an error - however the server is still starting. either this is not an error, or it is an error and it's not being handled correctly.

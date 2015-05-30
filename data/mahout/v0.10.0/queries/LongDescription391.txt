@@ -1,0 +1,11 @@
+There are a few things we can do to make Vector representations smaller on disk:
+
+
+	Use variable-length encoding for integer values like size and element indices in sparse representations
+	Further, delta-encode indices in sequential representations
+	Let caller specify that precision isn't crucial in values, allowing it to store values as floats
+
+
+
+Since indices are usually small-ish, I'd guess this saves 2 bytes or so on average, out of 12 bytes per element now.
+Using floats where applicable saves another 4. Not bad.

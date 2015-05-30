@@ -1,0 +1,17 @@
+There are a number of tests that require a master update every time the version number is bumped.
+This is a tedious and error prone detail in the release management process.
+
+Currently affected masters are listed in tools/release/build.xml:
+java/testing/org/apache/derbyTesting/functionTests/master/DerbyNetClient/metadata.out
+java/testing/org/apache/derbyTesting/functionTests/master/DerbyNetClient/odbc_metadata.out
+java/testing/org/apache/derbyTesting/functionTests/master/metadata.out
+java/testing/org/apache/derbyTesting/functionTests/master/odbc_metadata.out
+java/testing/org/apache/derbyTesting/functionTests/master/NSinSameJVM.out
+java/testing/org/apache/derbyTesting/functionTests/master/checkToursDB.out
+java/testing/org/apache/derbyTesting/functionTests/master/testclientij.out
+java/testing/org/apache/derbyTesting/functionTests/master/testProperties.out
+
+It would streamline the release process if these tests in particular were either converted to junit, or if the version numbers would be eliminated.
+
+
+Note: there already is a bug for metadata.java conversion: DERBY-2242

@@ -1,0 +1,32 @@
+When running the UpgradeTrajectoryTest on JVM 1.6 I see the following failures:
+
+10.0.2.1
+10.1.3.1
+10.2.2.1
+10.3.3.0
+10.4.2.0
+10.4.2.1
+10.5.1.1
+10.5.3.0
+DEBUG: Found 7 trajectories.
+.
+testTrajectory DEBUG: Testing trajectory: 10.0.2.1 -> 10.1.3.1 -> 10.2.2.1 -> 10.3.3.0 -> 10.4.2.0 -> 10.4.2.1 -> 10.5.1.1 -> 10.5.3.0 ( hard, hard, hard, hard, hard, hard, hard, hard )
+used 1900 ms F.
+testTrajectory DEBUG: Testing trajectory: 10.1.3.1 -> 10.2.2.1 -> 10.3.3.0 -> 10.4.2.0 -> 10.4.2.1 -> 10.5.1.1 -> 10.5.3.0 ( hard, hard, hard, hard, hard, hard, hard )
+used 570 ms F.
+testTrajectory DEBUG: Testing trajectory: 10.2.2.1 -> 10.3.3.0 -> 10.4.2.0 -> 10.4.2.1 -> 10.5.1.1 -> 10.5.3.0 ( hard, hard, hard, hard, hard, hard )
+used 9008 ms .
+
+
+1) testTrajectory(org.apache.derbyTesting.functionTests.tests.upgradeTests.UpgradeTrajectoryTest)junit.framework.ComparisonFailure: 10.0.2.1 -> 10.1.3.1 -> 10.2.2.1 -> 10.3.3.0 -> 10.4.2.0 -> 10.4.2.1 -> 10.5.1.1 -> 10.5.3.0 ( hard, hard, hard, hard, hard, hard, hard, hard ) expected:<10.[0.2.1]> but was:<10.[6.0.0]>
+	at org.apache.derbyTesting.functionTests.tests.upgradeTests.UpgradeTrajectoryTest.vetDBVersion(UpgradeTrajectoryTest.java:904)
+	at org.apache.derbyTesting.functionTests.tests.upgradeTests.UpgradeTrajectoryTest.createDatabase(UpgradeTrajectoryTest.java:800)
+	at org.apache.derbyTesting.functionTests.tests.upgradeTests.UpgradeTrajectoryTest.testTrajectory(UpgradeTrajectoryTest.java:468)
+
+2) testTrajectory(org.apache.derbyTesting.functionTests.tests.upgradeTests.UpgradeTrajectoryTest)junit.framework.ComparisonFailure: 10.1.3.1 -> 10.2.2.1 -> 10.3.3.0 -> 10.4.2.0 -> 10.4.2.1 -> 10.5.1.1 -> 10.5.3.0 ( hard, hard, hard, hard, hard, hard, hard ) expected:<10.[1.3.1]> but was:<10.[6.0.0]>
+	at org.apache.derbyTesting.functionTests.tests.upgradeTests.UpgradeTrajectoryTest.vetDBVersion(UpgradeTrajectoryTest.java:904)
+	at org.apache.derbyTesting.functionTests.tests.upgradeTests.UpgradeTrajectoryTest.createDatabase(UpgradeTrajectoryTest.java:800)
+	at org.apache.derbyTesting.functionTests.tests.upgradeTests.UpgradeTrajectoryTest.testTrajectory(UpgradeTrajectoryTest.java:468)
+
+
+Running with JVM 1.5 the test passes.

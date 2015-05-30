@@ -1,0 +1,14 @@
+Looks like this won't make it into this build. Pretty widespread impact on code and tests and I don't know which properties were implemented in the old version. I will create a JIRA and post my interim results.
+
+On 6/8/12 12:21 PM, Jeff Eastman wrote:
+> That's a reversion that evidently got in when the new ClusterClassificationDriver was introduced. It should be a pretty easy fix and I will see if I can make the change before Paritosh cuts the release bits tonight.
+>
+> On 6/7/12 1:00 PM, Pat Ferrel wrote:
+>> It appears that in kmeans the clusteredPoints are now written as WeightedVectorWritable where in mahout 0.6 they were WeightedPropertyVectorWritable? This means that the distance from the centroid is no longer stored here? Why? I hope I'm wrong because that is not a welcome change. How is one to order clustered docs by distance from cluster centroid?
+>>
+>> I'm sure I could calculate the distance but that would mean looking up the centroid for the cluster id given in the above WeightedVectorWritable, which means iterating through all the clusters for each clustered doc. In my case the number of clusters could be fairly large.
+>>
+>> Am I missing something?
+>>
+>>
+>

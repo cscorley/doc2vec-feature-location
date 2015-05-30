@@ -1,0 +1,56 @@
+    Running a Query on Derby 10.4.1.3 and 10.3.1.4 I got this error message: Error code 0, SQL state XJ001: Java Exception: '4 >= 4: java.lang.ArrayIndexOutOfBoundsException'.
+    After throw this exception the database shutdown and lost the connection.
+    I'm updating an application from a previous version of Derby (Bundle-Version: 10.0.2000001 From derby.jar Manifest) so this query works fine in version 10.0.
+
+The Query:
+select 0 vlr_proc_anterior
+             , 0 vlr_proc_atual
+             , sum(vlr_contabil + vlr_ajuste) disp_financeira    
+             from contas_remessa rec
+             where cd_tipo = 1105 and cd_conta = 4
+             group by rec.cd_conta, rec.ds_conta
+             union
+             select case when cd_tipo = 170 then sum(vlr_contabil) + sum(vlr_ajuste) else 0 end vlr_proc_anterior
+                  , case when cd_tipo = 175 then sum(vlr_contabil) + sum(vlr_ajuste) else 0 end vlr_proc_atual
+                  , 0 disp_financeira
+                  from contas_remessa where cd_tipo in (170, 175) and status = 'S'                       
+                  group by cd_tipo
+
+The deby log entry:
+
+----------------------------------------------------------------
+2008-07-07 14:44:51.282 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.3.1.4 - (561794): instance c013800d-011a-fdfb-6fa4-00003451d386
+on database directory C:\PAD\database  
+
+Database Class Loader started - derby.database.classpath=''
+2008-07-07 14:46:40.506 GMT Thread[SQLExecution,1,system] (XID = 3441038), (SESSIONID = 0), (DATABASE = C:\PAD\database), (DRDAID = null), Cleanup action starting
+2008-07-07 14:46:40.506 GMT Thread[SQLExecution,1,system] (XID = 3441038), (SESSIONID = 0), (DATABASE = C:\PAD\database), (DRDAID = null), Failed Statement is: select 0 vlr_proc_anterior
+             , 0 vlr_proc_atual
+             , sum(vlr_contabil + vlr_ajuste) disp_financeira    
+             from contas_remessa rec
+             where cd_tipo = 1105 and cd_conta = 4
+             group by rec.cd_conta, rec.ds_conta
+             union
+             select case when cd_tipo = 170 then sum(vlr_contabil) + sum(vlr_ajuste) else 0 end vlr_proc_anterior
+                  , case when cd_tipo = 175 then sum(vlr_contabil) + sum(vlr_ajuste) else 0 end vlr_proc_atual
+                  , 0 disp_financeira
+                  from contas_remessa where cd_tipo in (170, 175) and status = 'S'                       
+                  group by cd_tipo
+java.lang.ArrayIndexOutOfBoundsException: 4 >= 4
+	at java.util.Vector.elementAt(Vector.java:427)
+	at org.apache.derby.impl.sql.compile.QueryTreeNodeVector.elementAt(Unknown Source)
+	at org.apache.derby.impl.sql.compile.ResultColumnList.setUnionResultExpression(Unknown Source)
+	at org.apache.derby.impl.sql.compile.SetOperatorNode.buildRCL(Unknown Source)
+	at org.apache.derby.impl.sql.compile.SetOperatorNode.bindResultColumns(Unknown Source)
+	at org.apache.derby.impl.sql.compile.CursorNode.bindStatement(Unknown Source)
+	at org.apache.derby.impl.sql.GenericStatement.prepMinion(Unknown Source)
+	at org.apache.derby.impl.sql.GenericStatement.prepare(Unknown Source)
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+	at org.netbeans.modules.db.sql.execute.SQLExecuteHelper.execute(SQLExecuteHelper.java:114)
+	at org.netbeans.modules.db.sql.loader.SQLEditorSupport$SQLExecutor.run(SQLEditorSupport.java:479)
+	at org.openide.util.RequestProcessor$Task.run(RequestProcessor.java:561)
+	at org.openide.util.RequestProcessor$Processor.run(RequestProcessor.java:986)
+Cleanup action completed

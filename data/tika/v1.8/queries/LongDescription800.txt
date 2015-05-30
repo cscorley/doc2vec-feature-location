@@ -1,0 +1,25 @@
+
+
+bash-3.2$ touch test.txt
+bash-3.2$ zip test.zip test.txt
+  adding: test.txt (stored 0%)
+bash-3.2$ java -jar tika-app-1.1-SNAPSHOT.jar -z test.zip
+Exception in thread "main" org.apache.tika.exception.TikaException: TIKA-198: Illegal IOException from org.apache.tika.parser.pkg.PackageParser@2d58f9d3
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:249)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:243)
+	at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:120)
+	at org.apache.tika.cli.TikaCLI$OutputType.process(TikaCLI.java:130)
+	at org.apache.tika.cli.TikaCLI.process(TikaCLI.java:397)
+	at org.apache.tika.cli.TikaCLI.main(TikaCLI.java:101)
+Caused by: java.io.IOException: mark/reset not supported
+	at java.io.InputStream.reset(InputStream.java:330)
+	at org.apache.tika.parser.microsoft.POIFSContainerDetector.detect(POIFSContainerDetector.java:116)
+	at org.apache.tika.detect.CompositeDetector.detect(CompositeDetector.java:61)
+	at org.apache.tika.cli.TikaCLI$FileEmbeddedDocumentExtractor.parseEmbedded(TikaCLI.java:676)
+	at org.apache.tika.parser.pkg.PackageExtractor.unpack(PackageExtractor.java:167)
+	at org.apache.tika.parser.pkg.PackageExtractor.parse(PackageExtractor.java:96)
+	at org.apache.tika.parser.pkg.PackageParser.parse(PackageParser.java:64)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:243)
+	... 5 more
+bash-3.2$ 
+

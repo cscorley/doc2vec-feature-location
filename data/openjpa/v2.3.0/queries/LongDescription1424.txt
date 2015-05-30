@@ -1,0 +1,41 @@
+Hello, I'm getting the following:
+
+java.lang.ArrayIndexOutOfBoundsException: 2
+at org.apache.openjpa.meta.ClassMetaData.getExtraFieldDataIndex(ClassMetaData.java:859)
+at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.initializeState(JDBCStoreManager.java:358)
+at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.initialize(JDBCStoreManager.java:278)
+at org.apache.openjpa.kernel.DelegatingStoreManager.initialize(DelegatingStoreManager.java:111)
+at org.apache.openjpa.kernel.ROPStoreManager.initialize(ROPStoreManager.java:57)
+at org.apache.openjpa.kernel.BrokerImpl.initialize(BrokerImpl.java:894)
+at org.apache.openjpa.kernel.BrokerImpl.find(BrokerImpl.java:852)
+at org.apache.openjpa.kernel.BrokerImpl.find(BrokerImpl.java:774)
+at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.load(JDBCStoreManager.java:982)
+at org.apache.openjpa.jdbc.sql.AbstractResult.load(AbstractResult.java:278)
+at org.apache.openjpa.jdbc.sql.SelectImpl$SelectResult.load(SelectImpl.java:2400)
+at org.apache.openjpa.jdbc.meta.strats.RelationFieldStrategy.loadEagerJoin(RelationFieldStrategy.java:541)
+at org.apache.openjpa.jdbc.meta.FieldMapping.loadEagerJoin(FieldMapping.java:807)-- 
+
+I've attached a unit test that exposes it. I've done my best to pare things down but it seems anything else I remove makes it go away (there are several things that could be removed to make it go away). The unit test passes when the exception is thrown. 
+
+In short, this works:
+
+Query query = em.createQuery("select o from Case as o" +
+    " left join fetch o.scheduledAssignments" +
+    " where o.scheduleDay = :sd");
+query.setParameter("sd", sd);
+List<Case> allCases = query.getResultList();
+
+But this doesn't:
+
+Query query = em.createQuery("select o from Case as o" +
+    " where o.scheduleDay = :sd");
+query.setParameter("sd", sd);
+FetchPlan fetchPlan = ((QueryImpl) query).getFetchPlan();
+fetchPlan.addField(Case.class, "scheduledAssignments");
+List<Case> allCases = query.getResultList();
+
+The test case runs against PostgreSQL. I would really appreciate it if someone could verify the test passes under some other database or if it fails, under PostgreSQL. Of course it would be even better if an OpenJPA expert could find the problem.
+
+I will also accept suggestions for building a better unit test package.
+
+Thanks for your help.

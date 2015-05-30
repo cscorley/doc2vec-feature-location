@@ -1,0 +1,33 @@
+Unable to run CJKAnalyzer while runnig the mahout command seq2sparse along with option -a "org.apache.lucene.analysis.cjk.CJKAnalyzer".The problem is with instantiation of CJKAnanlyzer class.
+
+Executed Command :
+
+mahout seq2sparse -i inpuDir -o OutputDir -ow 
+-a org.apache.lucene.analysis.cjk.CJKAnalyzer -chunk 200 -wt tfidf -s 5 -md 3 -x 90 -ng 2 -ml 50 -seq
+
+Error Stack trace :
+
+MAHOUT-JOB: /home/ajit/mahout-0.5-cdh3u5/mahout-examples-0.5-cdh3u5-job.jar
+13/03/12 15:56:15 INFO vectorizer.SparseVectorsFromSequenceFiles: Maximum n-gram size is: 2
+13/03/12 15:56:16 INFO vectorizer.SparseVectorsFromSequenceFiles: Minimum LLR value: 50.0
+13/03/12 15:56:16 INFO vectorizer.SparseVectorsFromSequenceFiles: Number of reduce tasks: 1
+Exception in thread "main" java.lang.InstantiationException: org.apache.lucene.analysis.cjk.CJKAnalyzer
+	at java.lang.Class.newInstance0(Class.java:340)
+	at java.lang.Class.newInstance(Class.java:308)
+	at org.apache.mahout.vectorizer.SparseVectorsFromSequenceFiles.run(SparseVectorsFromSequenceFiles.java:198)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:65)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:79)
+	at org.apache.mahout.vectorizer.SparseVectorsFromSequenceFiles.main(SparseVectorsFromSequenceFiles.java:52)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.apache.hadoop.util.ProgramDriver$ProgramDescription.invoke(ProgramDriver.java:68)
+	at org.apache.hadoop.util.ProgramDriver.driver(ProgramDriver.java:139)
+	at org.apache.mahout.driver.MahoutDriver.main(MahoutDriver.java:187)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:197)
+

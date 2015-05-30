@@ -1,0 +1,7 @@
+We thought BK-5 fixed this, but it still hits if you run for long enough.
+
+To repro,
+
+true; while [ $? = 0 ]; do mvn test -Dtest=BookieReadWriteTest; done
+
+Leave this running for 5-6 hours, and the bug should hit. From looking at the code it could be that connect is unsynchronized, so resources could be allocated and lost by concurrent executions of connect(). 

@@ -1,0 +1,9 @@
+Entities are flushed if the entity is serialized or if the detach and detachAll methods are invoked.
+
+Similar to OPENJPA-119 I believe this is a remnant of the JDO persistence layer. Whether this is desirable in JPA or not, we need to be consistent whether the entity is detached via clear, or the detach methods. 
+
+To resolve the problem I propose adding a new Compatibility option : flushBeforeDetach. If this is set to true we'll keep the current JDO-like behavior. If false then we'll just detach. I believe the same setting could apply when entities are serialized although it might be clearer to have a separate option for serialization. 
+
+In the 1.0.x branch the flushBeforeDetach setting will only take effect for the detach, detachAll and serialization path. It will not affect the EntityManager.clear() method - in order to maintain backwards compatibility. 
+
+In 1.2.x + the clear method will also defer to the flushBeforeDetach setting. 

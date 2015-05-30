@@ -1,0 +1,31 @@
+The MappingToolTask's class resolver loads classes from a temporary classloader before loading them in the "normal" classloader. This can cause problems if the JDBC driver requires access to native libraries (which can only be loaded once). 
+
+I've seen errors like this when using the DB2 JCC driver and the IBM JDK : 
+
+  [mapping] 608  persistence-tests  INFO   [main] openjpa.Tool - Recording mapping and schema changes.
+  [mapping] java.lang.UnsatisfiedLinkError: com/ibm/jvm/Trace.initTrace([Ljava/lang/String;[Ljava/lang/String;)V
+  [mapping]     at com.ibm.jvm.Trace.initializeTrace(Trace.java:96)
+  [mapping]     at com.ibm.jvm.Trace.<clinit>(Trace.java:61)
+  [mapping]     at java.lang.J9VMInternals.initializeImpl(Native Method)
+  [mapping]     at java.lang.J9VMInternals.initialize(J9VMInternals.java:192)
+  [mapping]     at java.lang.Class.forNameImpl(Native Method)
+  [mapping]     at java.lang.Class.forName(Class.java:130)
+  [mapping]     at com.ibm.db2.jcc.c.o.q(o.java:550)
+  [mapping]     at com.ibm.db2.jcc.c.o.<clinit>(o.java:319)
+  [mapping]     at java.lang.J9VMInternals.initializeImpl(Native Method)
+  [mapping]     at java.lang.J9VMInternals.initialize(J9VMInternals.java:192)
+  [mapping]     at java.lang.Class.forNameImpl(Native Method)
+  [mapping]     at java.lang.Class.forName(Class.java:130)
+  [mapping]     at com.ibm.db2.jcc.DB2Driver.class$(DB2Driver.java:48)
+  [mapping]     at com.ibm.db2.jcc.DB2Driver.<clinit>(DB2Driver.java:51)
+  [mapping]     at java.lang.J9VMInternals.initializeImpl(Native Method)
+  [mapping]     at java.lang.J9VMInternals.initialize(J9VMInternals.java:192)
+  [mapping]     at java.lang.Class.forNameImpl(Native Method)
+  [mapping]     at java.lang.Class.forName(Class.java:163)
+  [mapping]     at org.apache.openjpa.jdbc.schema.DataSourceFactory.newDataSource(DataSourceFactory.java:82)
+
+ <snip>
+
+Note that this does not occur with the Sun JDK (or at least I haven't hit the problem.
+
+A potential solution is to change the order of the classloaders used in MappingToolTask.

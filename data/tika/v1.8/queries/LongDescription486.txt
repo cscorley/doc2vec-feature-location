@@ -1,0 +1,5 @@
+There are many applications which use the MSOffice magic number. I know of Corel Presentations X3, Corel Quattro Pro 7 and X3 and Microsoft Works Word Processor. They have their own mime types. 
+
+They aren't properly supported by POI though which means that if the ContentAwareDetector finds such a file, it will resort to the POIFSContainerDetector and return the basic application/x-tika-msoffice file type because POI won't be able to say anything more specific. This will happen even in situations when the fallback detector might come up with a better answer.
+
+That's why IMHO the fallback detector should be used if the POIFSContainerDetector returns x-tika-msoffice. If the fallback detector comes up with a more specific type - the more specific one should be used.

@@ -1,0 +1,181 @@
+When running upgradeTests._Suite with 10.8.2.2 I get the following errors (stack traces shortened):
+
+There were 7 errors:
+1) testDERBY5120NumRowsInSydependsForTrigger(org.apache.derbyTesting.functionTests.tests.upgradeTests.BasicSetup)java.sql.SQLSyntaxErrorException: The number of values assigned 
+is not the same as the number of specified or implied columns.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.ConnectionChild.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+        at org.apache.derbyTesting.functionTests.tests.upgradeTests.BasicSetup.testDERBY5120NumRowsInSydependsForTrigger(BasicSetup.java:455)
+        <snip>
+Caused by: ERROR 42802: The number of values assigned is not the same as the number of specified or implied columns.
+        at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+        at org.apache.derby.impl.sql.compile.InsertNode.bindStatement(Unknown Source)
+        at org.apache.derby.impl.sql.GenericStatement.prepMinion(Unknown Source)
+        at org.apache.derby.impl.sql.GenericStatement.prepareStorable(Unknown Source)
+        at org.apache.derby.iapi.sql.dictionary.SPSDescriptor.compileStatement(Unknown Source)
+        at org.apache.derby.iapi.sql.dictionary.SPSDescriptor.prepareAndRelease(Unknown Source)
+        at org.apache.derby.iapi.sql.dictionary.SPSDescriptor.getPreparedStatement(Unknown Source)
+        at org.apache.derby.iapi.sql.dictionary.SPSDescriptor.getPreparedStatement(Unknown Source)
+        at org.apache.derby.impl.sql.execute.GenericTriggerExecutor.executeSPS(Unknown Source)
+        at org.apache.derby.impl.sql.execute.StatementTriggerExecutor.fireTrigger(Unknown Source)
+        at org.apache.derby.impl.sql.execute.TriggerEventActivator.notifyEvent(Unknown Source)
+        at org.apache.derby.impl.sql.execute.UpdateResultSet.fireAfterTriggers(Unknown Source)
+        at org.apache.derby.impl.sql.execute.UpdateResultSet.open(Unknown Source)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(Unknown Source)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.execute(Unknown Source)
+        ... 99 more
+2) testDERBY5044AlterTableDropColumn(org.apache.derbyTesting.functionTests.tests.upgradeTests.BasicSetup)java.sql.SQLException: Operation 'DROP COLUMN' cannot be performed on object 'C22' because TRIGGER 'ATDC_13_TAB1_TRG2' is dependent on that object.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.ConnectionChild.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(Unknown Source)
+        at org.apache.derbyTesting.functionTests.tests.upgradeTests.BasicSetup.testDERBY5044AlterTableDropColumn(BasicSetup.java:733)
+        <snip>
+Caused by: ERROR X0Y25: Operation 'DROP COLUMN' cannot be performed on object 'C22' because TRIGGER 'ATDC_13_TAB1_TRG2' is dependent on that object.
+        at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+        at org.apache.derby.impl.sql.execute.AlterTableConstantAction.columnDroppedAndTriggerDependencies(Unknown Source)
+        at org.apache.derby.impl.sql.execute.AlterTableConstantAction.dropColumnFromTable(Unknown Source)
+        at org.apache.derby.impl.sql.execute.AlterTableConstantAction.executeConstantActionBody(Unknown Source)
+        at org.apache.derby.impl.sql.execute.AlterTableConstantAction.executeConstantAction(Unknown Source)
+        at org.apache.derby.impl.sql.execute.MiscResultSet.open(Unknown Source)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(Unknown Source)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.execute(Unknown Source)
+        ... 99 more
+3) testDERBY5044_And_DERBY5120_DropColumn(org.apache.derbyTesting.functionTests.tests.upgradeTests.BasicSetup)java.sql.SQLSyntaxErrorException: 'C112' is not a column in table or VTI 'BKUP1_5044_5120'.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:92)
+        at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Util.java:256)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:424)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:353)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:2290)
+        at org.apache.derby.impl.jdbc.ConnectionChild.handleException(ConnectionChild.java:82)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:619)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(EmbedStatement.java:179)
+        at org.apache.derbyTesting.functionTests.tests.upgradeTests.BasicSetup.dropColumn_triggersql_DERBY5044_And_DERBY5120(BasicSetup.java:613)
+        at org.apache.derbyTesting.functionTests.tests.upgradeTests.BasicSetup.testDERBY5044_And_DERBY5120_DropColumn(BasicSetup.java:544)
+        <snip>
+Caused by: ERROR 42X14: 'C112' is not a column in table or VTI 'BKUP1_5044_5120'.
+        at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:295)
+        at org.apache.derby.impl.sql.compile.ModifyColumnNode.bindAndValidateDefault(ModifyColumnNode.java:322)
+        at org.apache.derby.impl.sql.compile.TableElementList.validate(TableElementList.java:218)
+        at org.apache.derby.impl.sql.compile.AlterTableNode.bindStatement(AlterTableNode.java:376)
+        at org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatement.java:327)
+        at org.apache.derby.impl.sql.GenericStatement.prepare(GenericStatement.java:93)
+        at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(GenericLanguageConnectionContext.java:1103)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:610)
+        ... 98 more
+4) testDERBY5120NumRowsInSydependsForTrigger(org.apache.derbyTesting.functionTests.tests.upgradeTests.BasicSetup)java.sql.SQLSyntaxErrorException: The number of values assigned is not the same as the number of specified or implied columns.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.ConnectionChild.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+        at org.apache.derbyTesting.functionTests.tests.upgradeTests.BasicSetup.testDERBY5120NumRowsInSydependsForTrigger(BasicSetup.java:479)
+        <snip>
+Caused by: ERROR 42802: The number of values assigned is not the same as the number of specified or implied columns.
+        at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+        at org.apache.derby.impl.sql.compile.InsertNode.bindStatement(Unknown Source)
+        at org.apache.derby.impl.sql.GenericStatement.prepMinion(Unknown Source)
+        at org.apache.derby.impl.sql.GenericStatement.prepareStorable(Unknown Source)
+        at org.apache.derby.iapi.sql.dictionary.SPSDescriptor.compileStatement(Unknown Source)
+        at org.apache.derby.iapi.sql.dictionary.SPSDescriptor.prepareAndRelease(Unknown Source)
+        at org.apache.derby.iapi.sql.dictionary.SPSDescriptor.getPreparedStatement(Unknown Source)
+        at org.apache.derby.iapi.sql.dictionary.SPSDescriptor.getPreparedStatement(Unknown Source)
+        at org.apache.derby.impl.sql.execute.GenericTriggerExecutor.executeSPS(Unknown Source)
+        at org.apache.derby.impl.sql.execute.StatementTriggerExecutor.fireTrigger(Unknown Source)
+        at org.apache.derby.impl.sql.execute.TriggerEventActivator.notifyEvent(Unknown Source)
+        at org.apache.derby.impl.sql.execute.UpdateResultSet.fireAfterTriggers(Unknown Source)
+        at org.apache.derby.impl.sql.execute.UpdateResultSet.open(Unknown Source)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(Unknown Source)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.execute(Unknown Source)
+        ... 99 more
+5) testDERBY5044_And_DERBY5120_DropColumn(org.apache.derbyTesting.functionTests.tests.upgradeTests.BasicSetup)java.sql.SQLSyntaxErrorException: 'C112' is not a column in table or VTI 'BKUP1_5044_5120'.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.ConnectionChild.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(Unknown Source)
+        at org.apache.derbyTesting.functionTests.tests.upgradeTests.BasicSetup.dropColumn_triggersql_DERBY5044_And_DERBY5120(BasicSetup.java:592)
+        at org.apache.derbyTesting.functionTests.tests.upgradeTests.BasicSetup.testDERBY5044_And_DERBY5120_DropColumn(BasicSetup.java:544)
+        <snip>
+Caused by: ERROR 42X14: 'C112' is not a column in table or VTI 'BKUP1_5044_5120'.
+        at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+        at org.apache.derby.impl.sql.compile.ModifyColumnNode.bindAndValidateDefault(Unknown Source)
+        at org.apache.derby.impl.sql.compile.TableElementList.validate(Unknown Source)
+        at org.apache.derby.impl.sql.compile.AlterTableNode.bindStatement(Unknown Source)
+        at org.apache.derby.impl.sql.GenericStatement.prepMinion(Unknown Source)
+        at org.apache.derby.impl.sql.GenericStatement.prepare(Unknown Source)
+        at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(Unknown Source)
+        ... 99 more
+6) testDERBY5044AlterTableDropColumn(org.apache.derbyTesting.functionTests.tests.upgradeTests.BasicSetup)java.sql.SQLException: Operation 'DROP COLUMN' cannot be performed on object 'C22' because TRIGGER 'ATDC_13_TAB1_TRG2' is dependent on that object.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.ConnectionChild.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(Unknown Source)
+        at org.apache.derbyTesting.functionTests.tests.upgradeTests.BasicSetup.testDERBY5044AlterTableDropColumn(BasicSetup.java:733)
+        <snip>
+Caused by: ERROR X0Y25: Operation 'DROP COLUMN' cannot be performed on object 'C22' because TRIGGER 'ATDC_13_TAB1_TRG2' is dependent on that object.
+        at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+        at org.apache.derby.impl.sql.execute.AlterTableConstantAction.columnDroppedAndTriggerDependencies(Unknown Source)
+        at org.apache.derby.impl.sql.execute.AlterTableConstantAction.dropColumnFromTable(Unknown Source)
+        at org.apache.derby.impl.sql.execute.AlterTableConstantAction.executeConstantActionBody(Unknown Source)
+        at org.apache.derby.impl.sql.execute.AlterTableConstantAction.executeConstantAction(Unknown Source)
+        at org.apache.derby.impl.sql.execute.MiscResultSet.open(Unknown Source)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(Unknown Source)
+        at org.apache.derby.impl.sql.GenericPreparedStatement.execute(Unknown Source)
+        ... 99 more
+7) testDERBY5044_And_DERBY5120_DropColumn(org.apache.derbyTesting.functionTests.tests.upgradeTests.BasicSetup)java.sql.SQLSyntaxErrorException: 'C112' is not a column in table o
+r VTI 'BKUP1_5044_5120'.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:92)
+        at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Util.java:256)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:424)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:353)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:2290)
+        at org.apache.derby.impl.jdbc.ConnectionChild.handleException(ConnectionChild.java:82)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:619)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(EmbedStatement.java:179)
+        at org.apache.derbyTesting.functionTests.tests.upgradeTests.BasicSetup.dropColumn_triggersql_DERBY5044_And_DERBY5120(BasicSetup.java:613)
+        at org.apache.derbyTesting.functionTests.tests.upgradeTests.BasicSetup.testDERBY5044_And_DERBY5120_DropColumn(BasicSetup.java:544)
+        <snip>
+Caused by: ERROR 42X14: 'C112' is not a column in table or VTI 'BKUP1_5044_5120'.
+        at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:295)
+        at org.apache.derby.impl.sql.compile.ModifyColumnNode.bindAndValidateDefault(ModifyColumnNode.java:322)
+        at org.apache.derby.impl.sql.compile.TableElementList.validate(TableElementList.java:218)
+        at org.apache.derby.impl.sql.compile.AlterTableNode.bindStatement(AlterTableNode.java:376)
+        at org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatement.java:327)
+        at org.apache.derby.impl.sql.GenericStatement.prepare(GenericStatement.java:93)
+        at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(GenericLanguageConnectionContext.java:1103)
+        at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:610)
+        ... 98 more
+There was 1 failure:
+1) testDERBY5044_And_DERBY5120_DropColumn(org.apache.derbyTesting.functionTests.tests.upgradeTests.BasicSetup)junit.framework.AssertionFailedError: Expected error(s) ' 42802' but no error was thrown.
+        at org.apache.derbyTesting.junit.BaseJDBCTestCase.assertStatementErrorMinion(BaseJDBCTestCase.java:1029)
+        at org.apache.derbyTesting.junit.BaseJDBCTestCase.assertStatementError(BaseJDBCTestCase.java:980)
+        at org.apache.derbyTesting.junit.BaseJDBCTestCase.assertStatementError(BaseJDBCTestCase.java:1063)
+        at org.apache.derbyTesting.functionTests.tests.upgradeTests.BasicSetup.dropColumn_triggersql_DERBY5044_And_DERBY5120(BasicSetup.java:597)
+        at org.apache.derbyTesting.functionTests.tests.upgradeTests.BasicSetup.testDERBY5044_And_DERBY5120_DropColumn(BasicSetup.java:558)
+
+I don't think all of these are new, see for instance DERBY-5379.

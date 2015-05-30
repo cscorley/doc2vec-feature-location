@@ -1,0 +1,8 @@
+On Windows, reconfig fails to rename the tmp dynamic config file to the real dynamic config filename.
+Javadoc of java.io.File.renameTo says the behavior is highly plateform dependent, so I guess this should not be a big surprise.
+The problem occurs in src/java/main/org/apache/zookeeper/server/quorum/QuorumPeerConfig.java that could be modified like this:
++ curFile.delete();
+if (!tmpFile.renameTo(curFile)) {
++ configFile.delete();
+if (!tmpFile.renameTo(configFile)) {
+As suggested by Alex in https://issues.apache.org/jira/browse/ZOOKEEPER-1691 (btw there is more information about my test scenario over there) it is a bit "scary" to delete the current configuration file.

@@ -1,0 +1,18 @@
+Increasing the value of the undocumented property:  derby.storage.fileCacheSize improves Derby performance in our system but the maximum allowed value (100) is not large enough to accommodate our system.  Our performance engineer reports:
+
+The following stack shows items being evicted from Derby's container cache.  Extra debug code showed that the cache was at its maximum size (100), and that about 1 in 25 accesses to the cache was resulting in a miss (forcing another item to be evicted).  Since this results in synchronous disk write, performance is bottlenecked on IO.  Patching Derby to allow the cache to grow to 200 entries solved the performance problem.
+
+Performance is severely degraded.  CPU utilization is low – performance is IO bound.  A sampling of stack dumps for the key thread consistently have the following methods at the top of the stack:
+
+at sun/nio/ch/FileChannelImpl.force0(Native Method)
+at sun/nio/ch/FileChannelImpl.force(FileChannelImpl.java:392(Compiled Code))
+at org/apache/derby/impl/io/DirRandomAccessFile4.sync(Bytecode PC:5(Compiled Code))
+at org/apache/derby/impl/store/raw/data/RAFContainer.writeRAFHeader(Bytecode PC:86(Compiled Code))
+at org/apache/derby/impl/store/raw/data/RAFContainer.clean(Bytecode PC:84(Compiled Code))
+at org/apache/derby/impl/services/cache/CachedItem.clean(Bytecode PC:7(Compiled Code))
+at org/apache/derby/impl/services/cache/Clock.rotateClock(Bytecode PC:7(Compiled Code))
+at org/apache/derby/impl/services/cache/Clock.findFreeItem(Bytecode PC:17(Compiled Code))
+at org/apache/derby/impl/services/cache/Clock.find(Bytecode PC:71(Compiled Code))
+at org/apache/derby/impl/store/raw/data/BaseDataFileFactory.openContainer(Bytecode PC:65(Compiled Code))
+at org/apache/derby/impl/store/raw/data/BaseDataFileFactory.openContainer(Bytecode PC:7(Compiled Code))
+at org/apache/derby/impl/store/raw/xact/Xact.openContainer(Bytecode PC:29(Compiled Code))

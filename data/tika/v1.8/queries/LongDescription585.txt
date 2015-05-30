@@ -1,0 +1,22 @@
+AudioParserTests fail because the AudioParser does not check for existence of properties on the fileFormat. (In the parse method, about line 110. The code is:
+                for (Entry<String, Object> entry : fileFormat.properties().entrySet()) 
+{
+                    metadata.set(entry.getKey(), entry.getValue().toString());
+                }
+                for (Entry<String, Object> entry : audioFormat.properties().entrySet()) {
+                    metadata.set(entry.getKey(), entry.getValue().toString());
+                }
+Method throws NPE on fileFormat.properties().entrySet() when there are no properties.
+should be something like:
+            if( fileFormat.properties() != null && fileFormat.properties().size() > 0) {
+                for (Entry<String, Object> entry : fileFormat.properties().entrySet()) 
+{
+                    metadata.set(entry.getKey(), entry.getValue().toString());
+                }
+            }
+            if( audioFormat.properties() != null && audioFormat.properties().size() > 0) {
+                for (Entry<String, Object> entry : audioFormat.properties().entrySet()) {
+                    metadata.set(entry.getKey(), entry.getValue().toString());
+                }
+            }
+Or am i missing something?

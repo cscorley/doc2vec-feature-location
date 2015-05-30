@@ -1,0 +1,67 @@
+I imported GroupLense ratings.dat to a mongodb collection "ratings" using mongoimport 
+
+Output of db.ratings.find() query
+
+"_id" : ObjectId("4e6733621497ef8543c1e144"), "userId" : 1, "movieId" : 1193, "rating" : 5, "timestamp" : NumberLong(978300760) 
+"_id" : ObjectId("4e6733621497ef8543c1e145"), "userId" : 1, "movieId" : 661, "rating" : 3, "timestamp" : NumberLong(978302109) 
+"_id" : ObjectId("4e6733621497ef8543c1e146"), "userId" : 1, "movieId" : 914, "rating" : 3, "timestamp" : NumberLong(978301968) 
+"_id" : ObjectId("4e6733621497ef8543c1e147"), "userId" : 1, "movieId" : 3408, "rating" : 4, "timestamp" : NumberLong(978300275) 
+"_id" : ObjectId("4e6733621497ef8543c1e148"), "userId" : 1, "movieId" : 2355, "rating" : 5, "timestamp" : NumberLong(978824291) 
+
+
+
+Spring Bean creating MongoDBDataModel instance
+
+
+
+  <bean id="mongodbDataModel" class="org.apache.mahout.cf.taste.impl.model.mongodb.MongoDBDataModel">
+        <constructor-arg index="0" type="java.lang.String" value="127.0.0.1"/>
+        <constructor-arg index="1" type="int" value="27017"/>
+        <constructor-arg index="2" type="java.lang.String" value="grouplens"/>
+        <constructor-arg index="3" type="java.lang.String" value="ratings" />
+        <constructor-arg index="4" type="boolean" value="false"/>
+        <constructor-arg index="5" type="boolean" value="false"/>
+        <constructor-arg index="6" type="java.text.DateFormat" value="#{ null }"/>
+        <constructor-arg index="7" type="java.lang.String" value="user"/>
+        <constructor-arg index="8" type="java.lang.String" value="password"/>
+        <constructor-arg index="9" type="java.lang.String" value="userId"/>
+        <constructor-arg index="10" type="java.lang.String" value="movieId"/>
+        <constructor-arg index="11" type="java.lang.String" value="rating"/>
+    </bean>
+
+
+
+When MongDBDataModel loads the rating from mongdb, method getID() throws ClassCastException
+
+
+
+Caused by: java.lang.ClassCastException: java.lang.Integer cannot be cast to java.lang.String
+	at org.apache.mahout.cf.taste.impl.model.mongodb.MongoDBDataModel.getID(MongoDBDataModel.java:742)
+	at org.apache.mahout.cf.taste.impl.model.mongodb.MongoDBDataModel.buildModel(MongoDBDataModel.java:564)
+	at org.apache.mahout.cf.taste.impl.model.mongodb.MongoDBDataModel.<init>(MongoDBDataModel.java:347)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:39)
+	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:27)
+	at java.lang.reflect.Constructor.newInstance(Constructor.java:513)
+
+
+
+
+Exception is being thrown by last return statement "return (String) id;"
+
+
+
+private String getID(Object id, boolean isUser) {
+    if (id.getClass().getName().contains("ObjectId")) {
+      if (isUser) {
+        userIsObject = true;
+      } else {
+        itemIsObject = true;
+      }
+      return ((ObjectId) id).toStringMongod();
+    } else {
+      return (String) id;
+    }
+  }
+
+

@@ -1,0 +1,3 @@
+The following failure, along with the 2 sub-tasks created under this issue, are reproducible both from a JDBC client (JCC) and from an ODBC client (in this case, DB2 Runtime Client).  I've grouped them all together because they all share the characteristic of "large data transfer", though the context in which the transfer occurs is different for each failure.
+
+Failure: When trying to insert a large string value (ex. 1 million chars) into a non-existent table using a prepared statement, an ASSERT failure occurs on the Derby side (because data size < 0), which leads to connection closure and communication link failure.  Note that the problem does NOT happen if the target table actually exists.  Repro can be found in the "assert_repro.java" file attached to this bug.

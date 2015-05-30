@@ -1,0 +1,24 @@
+PigLogger initialization is missing which leads to NPE if counters are accessed during a fetch tasks. Some queries to reproduce this issue:
+
+1.
+
+
+set opt.fetch true;
+A = load ...
+B = foreach A generate TOBAG(TOTUPLE(null));
+dump B;
+
+
+-> NPE when PigWarning.SKIP_UDF_CALL_FOR_NULL is incremented
+
+2.
+
+
+set opt.fetch true;
+set pig.udf.profile true;
+
+A = load ...
+B = foreach A generate [any UDF]
+
+
+-> NPE when POUserFunc.INVOCATION_COUNTER is incremented

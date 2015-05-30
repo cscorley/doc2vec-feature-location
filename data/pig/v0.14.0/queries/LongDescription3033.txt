@@ -1,0 +1,47 @@
+During test-patch, the build failed with javadoc warning. But these warnings are not contributed by new patch.
+
+Can reproduce by following cmd.
+command: ant  -DPigPatchProcess= clean javadoc
+38 javadoc warnings:
+  [javadoc] /root/ff/trunk/src/org/apache/pig/ExecType.java:41: warning - @param argument "str" is not a parameter name.
+  [javadoc] /root/ff/trunk/src/org/apache/pig/StoreFuncWrapper.java:111: warning - @return tag has no arguments.
+  [javadoc] /root/ff/trunk/src/org/apache/pig/TerminatingAccumulator.java:30: warning - Tag @link: reference not found: IsEmpty
+  [javadoc] /root/ff/trunk/src/org/apache/pig/backend/hadoop/executionengine/physicalLayer/relationalOperators/PORank.java:147: warning - @result is an unknown tag.
+  [javadoc] org/apache/hadoop/hbase/mapreduce/TestWALPlayer.class(org/apache/hadoop/hbase/mapreduce:TestWALPlayer.class): warning: Cannot find annotation method 'value()' in type 'org.junit.experimental.categories.Category': class file for org.junit.experimental.categories.Category not found
+  [javadoc] org/apache/hadoop/hbase/mapreduce/TestTimeRangeMapRed.class(org/apache/hadoop/hbase/mapreduce:TestTimeRangeMapRed.class): warning: Cannot find annotation method 'value()' in type 'org.junit.experimental.categories.Category'
+  [javadoc] org/apache/hadoop/hbase/mapreduce/TestTableSplit.class(org/apache/hadoop/hbase/mapreduce:TestTableSplit.class): warning: Cannot find annotation method 'value()' in type 'org.junit.experimental.categories.Category'
+  [javadoc] org/apache/hadoop/hbase/mapreduce/TestTableMapReduce.class(org/apache/hadoop/hbase/mapreduce:TestTableMapReduce.class): warning: Cannot find annotation method 'value()' in type 'org.junit.experimental.categories.Category'
+  [javadoc] org/apache/hadoop/hbase/mapreduce/TestTableInputFormatScan.class(org/apache/hadoop/hbase/mapreduce:TestTableInputFormatScan.class): warning: Cannot find annotation method 'value()' in type 'org.junit.experimental.categories.Category'
+  [javadoc] org/apache/hadoop/hbase/mapreduce/TestSimpleTotalOrderPartitioner.class(org/apache/hadoop/hbase/mapreduce:TestSimpleTotalOrderPartitioner.class): warning: Cannot find annotation method 'value()' in type 'org.junit.experimental.categories.Category'
+  [javadoc] org/apache/hadoop/hbase/mapreduce/TestMultithreadedTableMapper.class(org/apache/hadoop/hbase/mapreduce:TestMultithreadedTableMapper.class): warning: Cannot find annotation method 'value()' in type 'org.junit.experimental.categories.Category'
+  [javadoc] org/apache/hadoop/hbase/mapreduce/TestLoadIncrementalHFilesSplitRecovery.class(org/apache/hadoop/hbase/mapreduce:TestLoadIncrementalHFilesSplitRecovery.class): warning: Cannot find annotation method 'value()' in type 'org.junit.experimental.categories.Category'
+  [javadoc] org/apache/hadoop/hbase/mapreduce/TestLoadIncrementalHFiles.class(org/apache/hadoop/hbase/mapreduce:TestLoadIncrementalHFiles.class): warning: Cannot find annotation method 'value()' in type 'org.junit.experimental.categories.Category'
+  [javadoc] org/apache/hadoop/hbase/mapreduce/TestImportTsv.class(org/apache/hadoop/hbase/mapreduce:TestImportTsv.class): warning: Cannot find annotation method 'value()' in type 'org.junit.experimental.categories.Category'
+  [javadoc] org/apache/hadoop/hbase/mapreduce/TestImportExport.class(org/apache/hadoop/hbase/mapreduce:TestImportExport.class): warning: Cannot find annotation method 'value()' in type 'org.junit.experimental.categories.Category'
+  [javadoc] org/apache/hadoop/hbase/mapreduce/TestHLogRecordReader.class(org/apache/hadoop/hbase/mapreduce:TestHLogRecordReader.class): warning: Cannot find annotation method 'value()' in type 'org.junit.experimental.categories.Category'
+  [javadoc] org/apache/hadoop/hbase/mapreduce/TestHFileOutputFormat.class(org/apache/hadoop/hbase/mapreduce:TestHFileOutputFormat.class): warning: Cannot find annotation method 'value()' in type 'org.junit.experimental.categories.Category'
+  [javadoc] /root/ff/trunk/src/org/apache/pig/builtin/mock/Storage.java:142: warning - @return tag has no arguments.
+  [javadoc] /root/ff/trunk/src/org/apache/pig/builtin/mock/Storage.java:133: warning - @return tag has no arguments.
+  [javadoc] /root/ff/trunk/src/org/apache/pig/data/SchemaTuple.java:84: warning - @return tag has no arguments.
+  [javadoc] /root/ff/trunk/src/org/apache/pig/data/SchemaTupleClassGenerator.java:173: warning - @param argument "schema" is not a parameter name.
+  [javadoc] /root/ff/trunk/src/org/apache/pig/data/SchemaTupleClassGenerator.java:173: warning - @param argument "true" is not a parameter name.
+  [javadoc] /root/ff/trunk/src/org/apache/pig/data/SchemaTupleClassGenerator.java:173: warning - @param argument "identifier" is not a parameter name.
+  [javadoc] /root/ff/trunk/src/org/apache/pig/data/SchemaTupleClassGenerator.java:173: warning - @param argument "a" is not a parameter name.
+  [javadoc] /root/ff/trunk/src/org/apache/pig/data/SchemaTupleClassGenerator.java:136: warning - @return tag has no arguments.
+  [javadoc] /root/ff/trunk/src/org/apache/pig/data/SchemaTupleClassGenerator.java:146: warning - @return tag has no arguments.
+  [javadoc] /root/ff/trunk/src/org/apache/pig/data/SchemaTupleFactory.java:54: warning - @param argument "schema" is not a parameter name.
+  [javadoc] /root/ff/trunk/src/org/apache/pig/data/SchemaTupleFactory.java:100: warning - @param argument "identifier" is not a parameter name.
+  [javadoc] /root/ff/trunk/src/org/apache/pig/data/SchemaTupleFactory.java:118: warning - @param argument "schema" is not a parameter name.
+  [javadoc] /root/ff/trunk/src/org/apache/pig/impl/PigContext.java:544: warning - @return tag has no arguments.
+  [javadoc] /root/ff/trunk/src/org/apache/pig/impl/util/UDFContext.java:213: warning - @return tag has no arguments.
+  [javadoc] /root/ff/trunk/src/org/apache/pig/scripting/groovy/GroovyUtils.java:215: warning - @return tag has no arguments.
+  [javadoc] /root/ff/trunk/src/org/apache/pig/scripting/jruby/PigJrubyLibrary.java:313: warning - Tag @link: can't find pigToRuby(Object) in org.apache.pig.scripting.jruby.PigJrubyLibrary
+  [javadoc] /root/ff/trunk/src/org/apache/pig/scripting/jruby/PigJrubyLibrary.java:313: warning - Tag @link: can't find pigToRuby(Object) in org.apache.pig.scripting.jruby.PigJrubyLibrary
+  [javadoc] /root/ff/trunk/src/org/apache/pig/scripting/jruby/RubyDataBag.java:138: warning - @Param is an unknown tag – same as a known tag except for case.
+  [javadoc] /root/ff/trunk/src/org/apache/pig/scripting/jruby/RubyDataBag.java:230: warning - @return tag cannot be used in method with void return type.
+  [javadoc] /root/ff/trunk/src/org/apache/pig/scripting/jruby/RubySchema.java:938: warning - @Return is an unknown tag – same as a known tag except for case.
+  [javadoc] /root/ff/trunk/src/org/apache/pig/tools/pigstats/PigStats.java:227: warning - @return tag has no arguments.
+  [javadoc] Building index for all the packages and classes...
+  [javadoc] Building index for all classes...
+  [javadoc] Generating /root/ff/trunk/build/docs/api/stylesheet.css...
+  [javadoc] 38 warnings

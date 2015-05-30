@@ -1,0 +1,9 @@
+Cf these lines:
+
+assert(driverLevelString.indexOf('?') == -1);
+assert(driverLevelString.matches("^JRE - JDBC: " + JDBCVersion + ".*"));
+
+The "assert" is a Java built-in rather than the JUnit assertTrue we need.
+
+The string driverLevelString is also wrong, since it is a mere toString of the bean name. We need to use getAttribute on it to get the driver level
+for asserting.

@@ -1,0 +1,23 @@
+The MetaDataRepository preloading doesn't process JAXB xml meta data on EMF creation, resulting in a condition where multiple threads can trample on each other. AnnotationPersistenceXMLMetaDataParser.parse(..) isn't thread-safe and relied on the MetaDataRepository to enforce synchronization. After preloading is complete, all locks are removed from the MetaDataRepository and in turn AnnotationPersistenceXMLMetaDataParser can have some threading problems.
+
+Caused by: java.lang.NullPointerException
+        at org.apache.openjpa.lib.util.J2DoPrivHelper$56.run(J2DoPrivHelper.java:1163)
+        at org.apache.openjpa.lib.util.J2DoPrivHelper$56.run(J2DoPrivHelper.java:1161)
+        at java.security.AccessController.doPrivileged(AccessController.java:202)
+        at org.apache.openjpa.persistence.AnnotationPersistenceXMLMetaDataParser.parseXMLClassAnnotations(AnnotationPersistenceXMLMetaDataParser.java:175)
+        at org.apache.openjpa.persistence.AnnotationPersistenceXMLMetaDataParser.parse(AnnotationPersistenceXMLMetaDataParser.java:163)
+        at org.apache.openjpa.persistence.PersistenceMetaDataFactory.loadXMLMetaData(PersistenceMetaDataFactory.java:579)
+        at org.apache.openjpa.meta.MetaDataRepository.getXMLMetaDataInternal(MetaDataRepository.java:2376)
+        at org.apache.openjpa.meta.MetaDataRepository.getXMLMetaData(MetaDataRepository.java:2364)
+        at org.apache.openjpa.kernel.exps.AbstractExpressionBuilder.traversePath(AbstractExpressionBuilder.java:315)
+        at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.getPath(JPQLExpressionBuilder.java:1941)
+        at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.getPathOrConstant(JPQLExpressionBuilder.java:1861)
+        at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.eval(JPQLExpressionBuilder.java:1169)
+        at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.getValue(JPQLExpressionBuilder.java:2054)
+        at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.getValue(JPQLExpressionBuilder.java:2040)
+        at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.eval(JPQLExpressionBuilder.java:1055)
+        at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.getExpression(JPQLExpressionBuilder.java:1970)
+        at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.eval(JPQLExpressionBuilder.java:997)
+        at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.evalWhereClause(JPQLExpressionBuilder.java:668)
+        at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.getQueryExpressions(JPQLExpressionBuilder.java:297)
+        at org.apache.openjpa.kernel.jpql.JPQLParser.eval(JPQLParser.java:67)

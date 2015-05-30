@@ -1,0 +1,14 @@
+I've found what appears to be an ordering issue with subqueries and the prepared SQL cache. The attached patch shows where I think the problem lies and adds a test method that shows the problem. 
+
+To summarize: When the prepared SQL cache is enabled we reorder the parameter values provided by the user. If a query contains named parameters and a subquery which also contains named parameters the placement of the subquery becomes important. 
+
+The following query will work : 
+SELECT p FROM Person p WHERE p.id IN (SELECT p1.id FROM Person p1 WHERE p1.lastUpdated >= :date ) AND p.name = :name
+
+But this one fails with a SQLDataException.
+SELECT p FROM Person p WHERE  p.name = :name AND p.id IN (SELECT p1.id FROM Person p1 WHERE p1.lastUpdated >= :date )
+
+Assuming that the query is executed something like this : 
+        Query query = em.createQuery(query);
+        query.setParameter("name", "mike");
+        query.setParameter("date", new java.sql.Date(1005397));  

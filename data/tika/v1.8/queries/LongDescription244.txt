@@ -1,0 +1,21 @@
+Tika output lacks header/footer text for Word'07 document. This patch fixes this problem:
+
+diff -u -r apache-tika-0.3/src/main/java/org/apache/tika/parser/microsoft/OfficeParser.java apache-tika-0.3-modified/src/main/java/org/apache/tika/parser/microsoft/OfficeParser.java
+— apache-tika-0.3/src/main/java/org/apache/tika/parser/microsoft/OfficeParser.java	2009-02-14 03:07:51.000000000 +0300
++++ apache-tika-0.3-modified/src/main/java/org/apache/tika/parser/microsoft/OfficeParser.java	2009-06-09 13:24:56.000000000 +0400
+@@ -75,9 +75,14 @@
+             } else if ("WordDocument".equals(name)) {
+                 setType(metadata, "application/msword");
+                 WordExtractor extractor = new WordExtractor(filesystem);
++
++                xhtml.element("p", extractor.getHeaderText());
++
+                 for (String paragraph : extractor.getParagraphText()) 
+{
+                     xhtml.element("p", paragraph);
+                 }
++
++                xhtml.element("p", extractor.getFooterText());
+             } else if ("PowerPoint Document".equals(name)) {
+                 setType(metadata, "application/vnd.ms-powerpoint");
+                 PowerPointExtractor extractor =

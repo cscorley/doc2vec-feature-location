@@ -1,0 +1,23 @@
+This loop in JDBC.dropUsingDMD() looks broken:
+
+        // Remove any statements from the list that succeeded.
+		boolean didDrop = false;
+		for (int i = 0; i < results.length; i++)
+		{
+			int result = results[i];
+			if (result == -3 /* Statement.EXECUTE_FAILED*/)
+				hadError = true;
+			else if (result == -2/*Statement.SUCCESS_NO_INFO*/)
+				didDrop = true;
+			else if (result >= 0)
+				didDrop = true;
+			else
+				Assert.fail("Negative executeBatch status");
+            
+            if (didDrop)
+                ddl.set(i, null);
+		}
+
+It is supposed to check the status of each individual statement executed in a batch, and clear the successful ones from an ArrayList so that only the unsuccessful ones are left.
+
+However, if one of the statements is reported to have failed, and one of the proceeding statements has been successful, the failed statement will be removed from the ArrayList because didDrop is true. This means that some of the failed statements are not retried later. The statements normally fail because some other object depends on the object being dropped, and they usually succeed when they are retried after the other objects have been dropped. By not retrying, some objects that were supposed to be dropped may be left in the database.

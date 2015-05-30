@@ -1,0 +1,42 @@
+Scenario : 
+1. Start three zookeeper cluster.
+2. start three bookKeeper.
+3. shutdown zookeeper server where bookkeeper has connected.
+
+Expected Result:
+bookkeeper should be able to connect other zookeeper
+
+Actual Result :
+All three bookkeepers retry to connect zookeeper node which has been shutdown.
+
+
+
+BookKeeper log for Retry :
+
+
+ 
+2012-04-25 13:35:15,319 - WARN  [main-EventThread:Bookie$2@456] - ZK client has been disconnected to the ZK server!
+2012-04-25 13:35:17,194 - INFO  [main-SendThread(HOST-10-18-40-91:2181):ClientCnxn$SendThread@933] - Opening socket connection to server HOST-10-18-40-91/10.18.40.91:2181
+2012-04-25 13:35:17,196 - WARN  [main-SendThread(HOST-10-18-40-91:2181):ClientCnxn$SendThread@1063] - Session 0x136e87b50ce0002 for server null, unexpected error, closing socket connection and attempting reconnect
+java.net.ConnectException: Connection refused
+	at sun.nio.ch.SocketChannelImpl.checkConnect(Native Method)
+	at sun.nio.ch.SocketChannelImpl.finishConnect(SocketChannelImpl.java:567)
+	at org.apache.zookeeper.ClientCnxnSocketNIO.doTransport(ClientCnxnSocketNIO.java:264)
+	at org.apache.zookeeper.ClientCnxn$SendThread.run(ClientCnxn.java:1041)
+2012-04-25 13:35:19,125 - INFO  [main-SendThread(HOST-10-18-40-91:2181):ClientCnxn$SendThread@933] - Opening socket connection to server HOST-10-18-40-91/10.18.40.91:2181
+2012-04-25 13:35:19,126 - WARN  [main-SendThread(HOST-10-18-40-91:2181):ClientCnxn$SendThread@1063] - Session 0x136e87b50ce0002 for server null, unexpected error, closing socket connection and attempting reconnect
+java.net.ConnectException: Connection refused
+	at sun.nio.ch.SocketChannelImpl.checkConnect(Native Method)
+	at sun.nio.ch.SocketChannelImpl.finishConnect(SocketChannelImpl.java:567)
+	at org.apache.zookeeper.ClientCnxnSocketNIO.doTransport(ClientCnxnSocketNIO.java:264)
+	at org.apache.zookeeper.ClientCnxn$SendThread.run(ClientCnxn.java:1041)
+2012-04-25 13:35:20,276 - INFO  [main-SendThread(HOST-10-18-40-91:2181):ClientCnxn$SendThread@933] - Opening socket connection to server HOST-10-18-40-91/10.18.40.91:2181
+2012-04-25 13:35:20,277 - WARN  [main-SendThread(HOST-10-18-40-91:2181):ClientCnxn$SendThread@1063] - Session 0x136e87b50ce0002 for server null, unexpected error, closing socket connection and attempting reconnect
+java.net.ConnectException: Connection refused
+	at sun.nio.ch.SocketChannelImpl.checkConnect(Native Method)
+	at sun.nio.ch.SocketChannelImpl.finishConnect(SocketChannelImpl.java:567)
+	at org.apache.zookeeper.ClientCnxnSocketNIO.doTransport(ClientCnxnSocketNIO.java:264)
+	at org.apache.zookeeper.ClientCnxn$SendThread.run(ClientCnxn.java:1041)
+
+
+ 

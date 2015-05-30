@@ -1,0 +1,7 @@
+Please see the enclosed repro program.
+
+When attempting the deleteRow, it will fail with SQL state 24000 "no
+current row", since the first() call doesn't properly reset the
+IsOnInsertRow_ state. By inspection of ../am/ResultSet.java I found
+the other positioning calls beside next and moveToCurrentRow to suffer
+the same problem.

@@ -1,0 +1,7 @@
+The meaning of POStatus.STATUS_NULL is not well documented and there are conflicting view points on its interpretation. The two interpretations are:
+
+1. POStatus.STATUS_NULL indicates that the pulled output IS null. This is mostly found in expression operators, particularly comparison operators.
+
+2. POStatus.STATUS_NULL indicates that the pull did not produce any output. This is backed up by its usage in POPackage (not JoinPackage) for flattening an empty bag, and PigGenericMapBase where pulls on the operator pipeline that result in STATUS_NULL are discarded.
+
+I propose that 2 should be the official definition going forward. The first meaning is easily indicated by (null, STATUS_OK) and all the relational operators already seem to follow 2. I'd like to hear others' opinions as well though.

@@ -1,0 +1,141 @@
+This problem does not occur when I use the same jars on Linux.
+
+I am unable to create a new database in ij by using the following command:
+
+connect 'jdbc:derby:testdb;create=true';
+
+I get the following output:
+
+ERROR XJ041: Failed to create database 'testdb', see the next exception for details.
+ERROR XBM01: Startup failed due to an exception, see next exception for details.
+ERROR XJ001: Java exception: '/Users/tom/dev/java/derby-bin/lib/testdb/log/log1.dat (File exists): java.io.FileNotFoundException'.
+
+All users have write permissions to the directory so it's not getting blocked there.  I'm not sure what's going on.  I've included the contents of derby.log below.  I've also included the result of running sysinfo on my machine below that.
+
+----------------------------------------------------------------
+2004-09-24 20:33:53.762 GMT:
+ Booting Derby version IBM Corp. - Apache Derby - 10.0.2.0 - (30301): instance c013800d-00ff-3226-5601-00000015bd70
+on database directory /Users/tom/dev/java/derby-bin/lib/testdb 
+
+
+2004-09-24 20:33:53.821 GMT:
+Shutting down instance c013800d-00ff-3226-5601-00000015bd70
+----------------------------------------------------------------
+2004-09-24 20:33:53.837 GMT Thread[main,5,main] Cleanup action starting
+ERROR XBM01: Startup failed due to an exception, see next exception for details.
+        at org.apache.derby.iapi.error.StandardException.newException(StandardException.java)
+        at org.apache.derby.iapi.services.monitor.Monitor.exceptionStartingModule(Monitor.java)
+        at org.apache.derby.impl.store.raw.log.LogToFile.boot(LogToFile.java)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java)
+        at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java)
+        at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java)
+        at org.apache.derby.impl.store.raw.data.BaseDataFileFactory.bootLogFactory(BaseDataFileFactory.java)
+        at org.apache.derby.impl.store.raw.data.BaseDataFileFactory.setRawStoreFactory(BaseDataFileFactory.java)
+        at org.apache.derby.impl.store.raw.RawStore.boot(RawStore.java)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java)
+        at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java)
+        at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java)
+        at org.apache.derby.impl.store.access.RAMAccessManager.boot(RAMAccessManager.java)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java)
+        at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java)
+        at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java)
+        at org.apache.derby.impl.db.BasicDatabase.bootStore(BasicDatabase.java)
+        at org.apache.derby.impl.db.BasicDatabase.boot(BasicDatabase.java)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java)
+        at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.bootService(BaseMonitor.java)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.createPersistentService(BaseMonitor.java)
+        at org.apache.derby.iapi.services.monitor.Monitor.createPersistentService(Monitor.java)
+        at org.apache.derby.impl.jdbc.EmbedConnection.createDatabase(EmbedConnection.java)
+        at org.apache.derby.impl.jdbc.EmbedConnection.<init>(EmbedConnection.java)
+        at org.apache.derby.impl.jdbc.EmbedConnection20.<init>(EmbedConnection20.java)
+        at org.apache.derby.impl.jdbc.EmbedConnection30.<init>(EmbedConnection30.java)
+        at org.apache.derby.jdbc.Driver30.getNewEmbedConnection(Driver30.java)
+        at org.apache.derby.jdbc.Driver169.connect(Driver169.java)
+        at java.sql.DriverManager.getConnection(DriverManager.java:512)
+        at java.sql.DriverManager.getConnection(DriverManager.java:140)
+        at org.apache.derby.impl.tools.ij.ij.dynamicConnection(ij.java)
+        at org.apache.derby.impl.tools.ij.ij.ConnectStatement(ij.java)
+        at org.apache.derby.impl.tools.ij.ij.ijStatement(ij.java)
+        at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java)
+        at org.apache.derby.impl.tools.ij.Main.go(Main.java)
+        at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java)
+        at org.apache.derby.impl.tools.ij.Main14.main(Main14.java)
+        at org.apache.derby.tools.ij.main(ij.java)
+============= begin nested exception, level (1) ===========
+java.io.FileNotFoundException: /Users/tom/dev/java/derby-bin/lib/log/log1.dat (File exists)
+        at java.io.RandomAccessFile.open(Native Method)
+        at java.io.RandomAccessFile.<init>(RandomAccessFile.java:204)
+        at org.apache.derby.impl.io.DirRandomAccessFile.<init>(DirRandomAccessFile.java)
+        at org.apache.derby.impl.io.DirRandomAccessFile4.<init>(DirRandomAccessFile4.java)
+        at org.apache.derby.impl.io.DirFile4.getRandomAccessFile(DirFile4.java)
+        at org.apache.derby.impl.store.raw.log.LogToFile.run(LogToFile.java)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at org.apache.derby.impl.store.raw.log.LogToFile.privRandomAccessFile(LogToFile.java)
+        at org.apache.derby.impl.store.raw.log.LogToFile.boot(LogToFile.java)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java)
+        at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java)
+        at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java)
+        at org.apache.derby.impl.store.raw.data.BaseDataFileFactory.bootLogFactory(BaseDataFileFactory.java)
+        at org.apache.derby.impl.store.raw.data.BaseDataFileFactory.setRawStoreFactory(BaseDataFileFactory.java)
+        at org.apache.derby.impl.store.raw.RawStore.boot(RawStore.java)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java)
+        at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java)
+        at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java)
+        at org.apache.derby.impl.store.access.RAMAccessManager.boot(RAMAccessManager.java)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java)
+        at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java)
+        at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java)
+        at org.apache.derby.impl.db.BasicDatabase.bootStore(BasicDatabase.java)
+        at org.apache.derby.impl.db.BasicDatabase.boot(BasicDatabase.java)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java)
+        at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.bootService(BaseMonitor.java)
+        at org.apache.derby.impl.services.monitor.BaseMonitor.createPersistentService(BaseMonitor.java)
+        at org.apache.derby.iapi.services.monitor.Monitor.createPersistentService(Monitor.java)
+        at org.apache.derby.impl.jdbc.EmbedConnection.createDatabase(EmbedConnection.java)
+        at org.apache.derby.impl.jdbc.EmbedConnection.<init>(EmbedConnection.java)
+        at org.apache.derby.impl.jdbc.EmbedConnection20.<init>(EmbedConnection20.java)
+        at org.apache.derby.impl.jdbc.EmbedConnection30.<init>(EmbedConnection30.java)
+        at org.apache.derby.jdbc.Driver30.getNewEmbedConnection(Driver30.java)
+        at org.apache.derby.jdbc.Driver169.connect(Driver169.java)
+        at java.sql.DriverManager.getConnection(DriverManager.java:512)
+        at java.sql.DriverManager.getConnection(DriverManager.java:140)
+        at org.apache.derby.impl.tools.ij.ij.dynamicConnection(ij.java)
+        at org.apache.derby.impl.tools.ij.ij.ConnectStatement(ij.java)
+        at org.apache.derby.impl.tools.ij.ij.ijStatement(ij.java)
+        at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java)
+        at org.apache.derby.impl.tools.ij.Main.go(Main.java)
+        at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java)
+        at org.apache.derby.impl.tools.ij.Main14.main(Main14.java)
+        at org.apache.derby.tools.ij.main(ij.java)
+============= end nested exception, level (1) ===========
+Cleanup action completed
+
+
+------------------ Java Information ------------------
+Java Version:    1.4.2_05
+Java Vendor:     Apple Computer, Inc.
+Java home:       /System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Home
+Java classpath:  /Users/tom/dev/java/derby-bin/lib/derby.jar:/Users/tom/dev/java/derby-bin/lib/derbytools.jar:/Users/tom/dev/java/derby-bin/lib/derbynet.jar:/Users/tom/dev/java/derby-bin/lib/db2jcc.jar:/Users/tom/dev/java/derby-bin/lib/db2jcc_license_c.jar
+OS name:         Mac OS X
+OS architecture: ppc
+OS version:      10.3.5
+Java user name:  tom
+Java user home:  /Users/tom
+Java user dir:   /Users/tom/dev/java/derby-bin/lib
+--------- Derby Information --------
+[/Users/tom/dev/java/derby-bin/lib/derby.jar] 10.0.2.0 - (46005)
+[/Users/tom/dev/java/derby-bin/lib/derbytools.jar] 10.0.2.0 - (46005)
+[/Users/tom/dev/java/derby-bin/lib/derbynet.jar] 10.0.2.0 - (46005)
+[/Users/tom/dev/java/derby-bin/lib/db2jcc.jar] 2.4 - (17)
+[/Users/tom/dev/java/derby-bin/lib/db2jcc_license_c.jar] 2.4 - (17)
+------------------------------------------------------
+----------------- Locale Information -----------------
+------------------------------------------------------

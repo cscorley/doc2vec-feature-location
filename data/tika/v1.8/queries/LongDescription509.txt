@@ -1,0 +1,6 @@
+As discussed on the mailing list:
+http://mail-archives.apache.org/mod_mbox/tika-dev/201009.mbox/%3Calpine.DEB.1.10.1009010000250.5637@urchin.earth.li%3E
+
+This service will operate in a push mode, using streaming where possible (not all container formats will support that). Users can control recursion, and will be given the chance to process each embeded file in turn. It's up to them if they process a file or skip it.
+
+It will work similar to the current Parser code, with each container having its own extractor in the parsers package, and the interface defined in the core package. There will be an Auto extractor in the core package, configured with a list of parser extractors just like AutoDetectParser does.

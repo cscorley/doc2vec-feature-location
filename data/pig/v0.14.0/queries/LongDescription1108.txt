@@ -1,0 +1,30 @@
+When trying to merge 2 split plans, one of which never progresses along an M/R boundary, PIG sets the map-output key type incorrectly resulting in the following error:-
+
+java.io.IOException: Type mismatch in key from map: expected org.apache.pig.impl.io.NullableText, recieved org.apache.pig.impl.io.NullableTuple
+	at org.apache.hadoop.mapred.MapTask$MapOutputBuffer.collect(MapTask.java:807)
+	at org.apache.hadoop.mapred.MapTask$OldOutputCollector.collect(MapTask.java:466)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapReduce$Map.collect(PigMapReduce.java:108)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:249)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:238)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapReduce$Map.map(PigMapReduce.java:93)
+	at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:50)
+	at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:358)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:307)
+	at org.apache.hadoop.mapred.Child.main(Child.java:159)
+
+Here is a small script to be used a reproducible test case
+
+rmf plan1
+rmf plan2
+A = LOAD 'data' USING PigStorage() as (a: int, b: chararray);
+SPLIT A into plan1 IF (a>5), plan2 IF (a<5);
+B = GROUP plan1 BY b;
+C = FOREACH B 
+{
+              tmp = ORDER plan1 BY a desc;
+              GENERATE FLATTEN(group) as b, tmp;
+              }
+;
+D = FILTER C BY b is not null;
+STORE D into 'plan1';
+STORE plan2 into 'plan2';

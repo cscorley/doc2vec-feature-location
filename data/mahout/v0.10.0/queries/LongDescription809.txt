@@ -1,0 +1,8 @@
+org.apache.mahout.text.ChunkedWriter has a bug, that causes data loss, if the maximal chunk size is reached. The first chunk is overwritten, then it continues normally.
+
+
+This is caused in line 58:
+writer = new SequenceFile.Writer(fs, conf, getPath(currentChunkID++), Text.class, Text.class);
+
+The fix should look like this:
+writer = new SequenceFile.Writer(fs, conf, getPath(++currentChunkID), Text.class, Text.class);

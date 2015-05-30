@@ -1,0 +1,8 @@
+When defining an evalfunc that returns a Tuple there are two ways you can implement outputSchema().
+
+	The right way: return a schema that contains one Field that contains the type and schema of the return type of the UDF
+	The unreliable way: return a schema that contains more than one field and it will be understood as a tuple schema even though there is no type (which is in Field class) to specify that. This is particularly deceitful when the output schema is derived from the input schema and the outputted Tuple sometimes contain only one field. In such cases Pig understands the output schema as a tuple only if there is more than one field. And sometimes it works, sometimes it does not.
+
+
+
+We should at least issue a warning (backward compatibility) if not plain throw an exception when the output schema contains more than one Field.

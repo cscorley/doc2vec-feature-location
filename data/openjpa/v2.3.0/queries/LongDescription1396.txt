@@ -1,0 +1,19 @@
+In the orm.xml:
+
+	<embeddable class="embeddable.Address" metadata-complete="true"/
+
+where embeddable.Address is defined as:
+
+@Embeddable
+public class Address 
+{
+    @Transient
+    protected String street;
+
+    protected String city;
+    
+    protected String state;
+...
+}
+
+According to the spec (12.2.5.1): "If the metadata-complete attribute of the embeddable element is specified as true, any annotations on the embeddable class (and its fields and properties) are ignored. When metadata-complete is specified as true and attributes and sub-elements of the embeddable element are omitted, the default values for those attributes and elements are applied.". However, the value of the street field in the Address class is not persistent.  

@@ -1,0 +1,20 @@
+Across multiple versions nightly tests have failed in Derby5937SlaveShutdownTest.testSlaveFailoverLeak.
+Subsequent to this no other test runs and thus we get no info printed to the log, and the ibm test
+reporter does not post anything other than a red box if the tests do not finish.  Not sure if the
+tests are hanging as part of trying to clean up the failure or if the next test is hanging.  Will post 
+test runs that have failed in additional comments.
+
+So far I have only seen this on weme6.2 windows runs.  Likely there is a timing issue that causes the
+test to fail and then bad cleanup of this test leads to hang.  In the one stack I see as thread stuck
+in shutdown and a thread stuck waiting on the log.  
+
+If no easy fixes for this it may make sense to disable this test in this one environment until someone
+wants to work on this one.  Then we can at least get the rest of the testing to procede.
+
+(emb)jdbcapi.DatabaseMetaDataTest.testGetColumns_DERBY5274 used 343 ms .
+(emb)jdbcapi.DatabaseMetaDataTest.testDMDconnClosed used 79 ms  Test upgrade done.
+Test upgrade from: 10.9.1.0, phase: POST UPGRADE
+.
+(emb)upgradeTests.BasicSetup.noConnectionAfterHardUpgrade used 156 ms  Test upgrade done.
+.
+(emb)replicationTests.Derby5937SlaveShutdownTest.testSlaveFailoverLeak used 24221 ms F

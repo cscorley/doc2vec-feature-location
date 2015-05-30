@@ -1,0 +1,26 @@
+DistributedLanczosSolver (line 99) claims to persist eigenVectors.numRows() vectors.
+
+
+    log.info("Persisting " + eigenVectors.numRows() + " eigenVectors and eigenValues to: " + outputPath);
+
+
+
+However, a few lines later (line 106) we have
+
+
+    for(int i=0; i<eigenVectors.numRows() - 1; i++) {
+        ...
+    }
+
+
+
+which only persists eigenVectors.numRows()-1 vectors.
+
+Seems like the most significant eigenvector (i.e. the one with the largest eigenvalue) is omitted... off by one bug?
+
+
+Also, I think it would be better if the eigenvectors are persisted in reverse order, meaning the most significant vector is marked "0", the 2nd most significant is marked "1", etc.
+
+This, for two reasons:
+1) When performing another PCA on the same corpus (say, with more principal componenets), corresponding eigenvalues can be easily matched and compared.  
+2) Makes it easier to discard the least significant principal components, which for Lanczos decomposition are usually garbage.

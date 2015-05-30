@@ -1,0 +1,31 @@
+The following use case is reported in the users' group [1].
+
+A typical Parent-Child (Address has many Phones) relationship. But Phone refers to Address by its primary key. And database assigns the primary key of the Address.
+When and how to set the child's reference field to its parent?
+
+Approach A:
+1. Remove all children from Parent, but remember them
+2. flush() the Parent.
+3. Database will now assign identity to Parent
+4. Add the children back and set each child's identifier to the newly assigned identifier of the Parent
+5. commit
+
+The other approach B which is cleaner
+1. Add a @PostPersist method to Parent.java as follows
+     @PostPersist
+     public void postPersist() 
+{
+           if (children== null) return;
+           for (Child child : children)
+               parent.setParentId(this.getId());
+     }
+
+2. commit()
+
+Unfortunately Approach B does not work as expected with existing OpenJPA because it prohibits Phone.addressId value to be reassigned during a flush cycle as resulted from Address.postPersist() method.
+
+I have added a fix to relax that prohibition under some circumstances but I am concerned whether this relaxing of restriction will now allow other truly invalid use cases those the original restriction was duly imposing. 
+
+The fix passes the OpenJPA test corpus – but that is also not proof enough of its robustness.
+
+Comments/thoughts?

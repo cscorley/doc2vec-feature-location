@@ -1,0 +1,17 @@
+As reported in the dev forum [1] InstrumentationFactory.class.getProtectionDomain().getCodeSource() returns null, causing a NPE.
+
+Caused by: java.lang.NullPointerException
+        at org.apache.openjpa.enhance.InstrumentationFactory.getAgentJar(InstrumentationFactory.java:204)
+        at org.apache.openjpa.enhance.InstrumentationFactory.access$200(InstrumentationFactory.java:47)
+        at org.apache.openjpa.enhance.InstrumentationFactory$1.run(InstrumentationFactory.java:99)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at org.apache.openjpa.enhance.InstrumentationFactory.getInstrumentation(InstrumentationFactory.java:87)
+        at org.apache.openjpa.enhance.PCEnhancerAgent.loadDynamicAgent(PCEnhancerAgent.java:95)
+        at org.apache.openjpa.persistence.PersistenceProviderImpl.loadAgent(PersistenceProviderImpl.java:243)
+        at org.apache.openjpa.persistence.PersistenceProviderImpl.createEntityManagerFactory(PersistenceProviderImpl.java:91)
+        at org.apache.openjpa.persistence.PersistenceProviderImpl.createEntityManagerFactory(PersistenceProviderImpl.java:119)
+        at org.apache.openjpa.persistence.PersistenceProviderImpl.createEntityManagerFactory(PersistenceProviderImpl.java:55)
+        at javax.persistence.Persistence.createFactory(Persistence.java:172)
+        ... 51 more
+
+[1] http://n2.nabble.com/Error-loading-agent-with-Openjpa2-td3024299.html

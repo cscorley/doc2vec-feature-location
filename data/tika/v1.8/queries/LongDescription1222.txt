@@ -1,0 +1,1 @@
+TikaApp --extract option does not extract attachments from RFC822 files. The issue happens because MailContentHandler.body(...) method gets a Parser.class object from the context and calls parser.parse(). It should get a EmbeddedDocumentExtractor.class object from the ParseContext one and call embeddedDocumentExtractor.parseEmbedded(), similar to other Container parsers.

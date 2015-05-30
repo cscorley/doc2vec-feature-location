@@ -1,0 +1,2 @@
+When running a pig job through PigRunner, after the mapreduce job is submitted, if there is a job tracker bounce which doesn't get back up very soon, the pig job will hang there.
+The reason is pig is keeping all the JobControl objects, which are non-deamon threads, that keeps connecting to jobtracker. If the job tracker is down, pig will fail, but those jobcontrol threads keep running and there is no one who can stop them.

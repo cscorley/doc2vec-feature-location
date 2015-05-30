@@ -1,0 +1,4 @@
+Several Orc e2e tests still fail on trunk. There are several causes:
+1. kryo.jar is missing if using PPD
+2. UDFContext.tss is not updated in tez container reuse (Orc_3 on tez fail, the second vertex get old UDFContext)
+3. An old time bug PreCombinerLocalRearrange inner plan does not reset parentPlan (Orc_3 on mr fail, the third MR job fail with ClassNotFound exception for Orc class, because a stale parentPlan contains the whole physicalPlan)

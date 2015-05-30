@@ -1,0 +1,14 @@
+On some TimeZones (such as EDT currently), TestEvaluatorBag.testGetDateFormatEvaluator fails with the following error:
+
+
+
+org.junit.ComparisonFailure: 
+Expected :2010-03-12 17:15
+Actual   :2010-03-12 18:15
+	at org.junit.Assert.assertEquals(Assert.java:96)
+	at org.junit.Assert.assertEquals(Assert.java:116)
+	at org.apache.solr.handler.dataimport.TestEvaluatorBag.testGetDateFormatEvaluator(TestEvaluatorBag.java:127)
+
+
+
+This seems due to the reliance on the System ticks in order to create the Date to compare against.

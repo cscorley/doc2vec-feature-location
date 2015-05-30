@@ -1,0 +1,18 @@
+Using a latest build: when attempting to drop the new testMP4.m4a file into the Tika GUI, a TikaException / IOException occurs:  
+org.apache.tika.exception.TikaException: Failed to close temporary resources
+	at org.apache.tika.io.TemporaryResources.dispose(TemporaryResources.java:152)
+	at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:127)
+	at org.apache.tika.gui.TikaGUI.handleStream(TikaGUI.java:320)
+	at org.apache.tika.gui.TikaGUI.openFile(TikaGUI.java:279)
+	at org.apache.tika.gui.ParsingTransferHandler.importFiles(ParsingTransferHandler.java:94)
+	at org.apache.tika.gui.ParsingTransferHandler.importData(ParsingTransferHandler.java:77)
+	at javax.swing.TransferHandler.importData(Unknown Source)
+	at javax.swing.TransferHandler$DropHandler.drop(Unknown Source)
+....
+Caused by: java.io.IOException: Could not delete temporary file C:\Users\john\AppData\Local\Temp\apache-tika-693752014807275949.tmp
+	at org.apache.tika.io.TemporaryResources$1.close(TemporaryResources.java:70)
+	at org.apache.tika.io.TemporaryResources.close(TemporaryResources.java:121)
+	at org.apache.tika.io.TemporaryResources.dispose(TemporaryResources.java:150)
+	... 40 more
+
+I know that the parser for this file is new and its external source parser has some potential bugs, but this exception does not occur when using Tika CLI to detect / parse the test file.  

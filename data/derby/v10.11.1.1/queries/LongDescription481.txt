@@ -1,0 +1,5 @@
+Satheesh has pointed out that generated columns, a SQL 2003 feature, would satisfy the performance requirements of Expression Indexes (bug 455). Generated columns may not be as elegant as Expression Indexes, but they are easier to implement. We would allow the following new kind of column definition in CREATE TABLE and ALTER TABLE statements:
+
+    columnName GENERATED ALWAYS AS ( expression )
+
+If expression were an indexableExpression (as defined in bug 455), then we could create indexes on it. There is no work for the optimizer to do here. The Language merely has to compute the generated column at INSERT/UPDATE time.

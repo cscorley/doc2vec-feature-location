@@ -1,0 +1,30 @@
+Currently no build info is printed when running pig, so its not clear specifically what version you are running. For users, they do not know if the version was updated, which might explain a change in behavior. For developers, its not clear if you're actually running the development jar you're testing.
+
+This could be improved by printing a line at startup saying what version of pig you are using.
+
+PROPOSED BUILD MESSAGE:
+
+Note "exported" below happens because I built from a git repo, per the svnversion command.
+
+
+
+$ JAVA_HOME=/usr/java/default bin/pig
+2012-03-16 22:13:15,266 [main] INFO  org.apache.pig.Main - Apache Pig 0.11.0-SNAPSHOT revision exported built by travis at Mar 16 2012, 14:56:33
+2012-03-16 22:13:15,267 [main] INFO  org.apache.pig.Main - Logging error messages to: /home/travis/pig/pig_1331935995262.log
+2012-03-16 22:13:15,291 [main] INFO  org.apache.pig.impl.util.Utils - Default bootup file /home/travis/.pigbootup not found
+2012-03-16 22:13:15,509 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to hadoop file system at: hdfs://foo.com:8020
+2012-03-16 22:13:15,737 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to map-reduce job tracker at: foo.com:8021
+grunt>
+
+
+
+CURRENT MESSAGES:
+
+
+
+$ pig
+2012-03-16 22:06:14,604 [main] INFO  org.apache.pig.Main - Logging error messages to: /var/log/pig/pig_1331935574602.log
+2012-03-16 22:06:14,834 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to hadoop file system at: hdfs://foo.com:8020
+2012-03-16 22:06:15,078 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to map-reduce job tracker at: foo.com:8021
+grunt>
+

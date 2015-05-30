@@ -1,0 +1,38 @@
+I have the cache enabled. kodo.DataCache=true
+I update an Entity's  description field (no fk);
+After the em.merge or em.persist I do an em.clear.
+
+In a new transaction (new webpage request) I do a select query asking for the previous entity. 
+
+I get back the Entity but only it's id has been set. everything else is null. 
+From then on all the attempts to execute the same query get the same result.
+
+This does not happen if kodo.DataCache=false.
+This does not happen if kodo.DataCache=true but the em.clear is not used.
+
+All the above operations are done using the JPA api.
+However, If I aquire manually the StoreCache I see that the Entity still exists in.
+If do a manual storeCache.evict on the specific Entity or evictAll, the problem is resolved. 
+
+Note:  The original weblogic 10.3 openjpa jar which is version 1.1 has been replaced with version 1.2.0. (and also tested with snapshot of 1.3.0)
+
+//CODE:
+//The only table that I use in the example is test_table.
+
+putData(){
+   TestTable test = em.find(TestTable.class, 1);
+    test.setDescription("This is a NEW description");
+    em.merge(test);
+    em.flush();
+    em.clear();
+}
+
+getData(){
+      TestTable test = em.find(TestTable.class, 1);
+      log.debug("Description is is: "+test.getDescription());
+}
+
+
+request1: getData(); --> prints: "this is an old description"
+request2: putData();
+request3: getData();--> prints null; 

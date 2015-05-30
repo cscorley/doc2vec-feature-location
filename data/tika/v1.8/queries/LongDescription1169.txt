@@ -1,0 +1,46 @@
+Hi,
+
+I'm trying to parse a folder with jnilib file inside, but Tika 1.4 throws exception :
+
+java.io.IOException: 
+	at org.apache.tika.parser.ParsingReader.read(ParsingReader.java:260)
+	at java.io.Reader.read(Unknown Source)
+	at ca.cloudscraper.core.impl.Engine.process(Engine.java:63)
+	at ca.cloudscraper.core.impl.Engine.process(Engine.java:34)
+	at ca.cloudscraper.core.impl.Engine.process(Engine.java:34)
+	at ca.cloudscraper.core.impl.Engine.process(Engine.java:34)
+	at ca.cloudscraper.core.impl.Engine.execute(Engine.java:117)
+	at ca.cloudscraper.core.tests.LuceneServiceImplTest.test5(LuceneServiceImplTest.java:140)
+	at ca.cloudscraper.core.tests.LuceneServiceImplTest.main(LuceneServiceImplTest.java:176)
+Caused by: org.apache.tika.exception.TikaException: Failed to parse a Java class
+	at org.apache.tika.parser.asm.XHTMLClassVisitor.parse(XHTMLClassVisitor.java:66)
+	at org.apache.tika.parser.asm.ClassParser.parse(ClassParser.java:51)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+	at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:120)
+	at org.apache.tika.parser.ParsingReader$ParsingTask.run(ParsingReader.java:221)
+	at java.lang.Thread.run(Unknown Source)
+Caused by: java.lang.ArrayIndexOutOfBoundsException: 0
+	at org.objectweb.asm.ClassReader.readClass(ClassReader.java:2157)
+	at org.objectweb.asm.ClassReader.accept(ClassReader.java:542)
+	at org.objectweb.asm.ClassReader.accept(ClassReader.java:506)
+	at org.apache.tika.parser.asm.XHTMLClassVisitor.parse(XHTMLClassVisitor.java:61)
+	... 6 more
+
+Seems like Tika tries to parse this file as Java class file, but that obviously doesn't work.
+I've tried to create custom-mimetypes.xml file like this :
+
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info>
+
+  <mime-type type="application/octet-stream">
+    <_comment>Mac OSX jnilib</_comment>
+    <glob pattern="*.jnilib"/>
+  </mime-type>
+
+</mime-info>
+
+and after I repack tika-app-1.4.jar with this file in org.apache.tika.mime folder, the problem still
+exists.
+
+Jnilib file is actually from the ActiveMQ 5.8.0 binary found in bin/macosx/libwrapper.jnilib

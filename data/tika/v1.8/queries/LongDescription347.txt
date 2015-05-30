@@ -1,0 +1,3 @@
+In TIKA-304 we added the mapSafeElement() and isDiscardElement() methods to HtmlParser so that subclasses could better customize how incoming HTML elements get mapped to the XHMTL output from Tika. This works fairly well but requires you to modify the Tika configuration file or to explicitly inject a custom HtmlParser subclass instance to the CompositeParser instance you're using (AutoDetectParser, etc.).
+
+Now that we have the ParseContext mechanism available to simplify such customization, it would be nice to allow you to provide a custom "HTML mapper" instance through the parse context and have HtmlParser call that mapper (if available) for the mapSafeElement() and isDiscardElement() operations.

@@ -1,0 +1,10 @@
+This problem was first discussed on our dev mailing list:  http://www.nabble.com/Cloning-Calendar-proxies-tf4571181.html
+
+Per the discussion on that thread, I am proposing to modify the generated proxy code to override the clone() method.  This clone() method will do the necessary copying of data from the original object, but then also null out the sm (StateManager) and zero out the field attributes.  This action detaches the cloned object from the StateManager (and associated EntityManager).
+
+Instead of limiting this action to the Calendar proxy, I am adding the clone() method implementation to all of our proxy objects that we generate.  Granted, some of the object types do not directly support the clone() method, but that will be detected when or if anybody attempts to use the clone() method on these types (compiler generated error message).
+
+I'll be posting a patch shortly and I plan to commit the changes later today (unless there is opposition).
+
+Thanks,
+Kevin

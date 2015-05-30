@@ -1,0 +1,2 @@
+Under the following conditions, a NullPointerException is caused when PigStorage is used:
+If in the script, only the 2nd and 3rd column of the data (say) are used, the PruneColumns optimization passes this information to PigStorage through the pushProjection() method. If the data contains a row with only one column (malformed data due to missing cols in certain rows), PigStorage returns a Tuple backed by a null ArrayList. Subsequent projection operations on this tuple result in the NPE.

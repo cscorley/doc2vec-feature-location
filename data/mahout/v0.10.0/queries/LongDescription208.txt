@@ -1,0 +1,5 @@
+SparseVector and DenseVector both cache the value of lengthSquared, so that subsequent calls to it get the cached value.  Great, except the cache is never cleared - calls to set/setQuick or assign or anything, all leave the cached value unchanged.  
+
+Mutating method calls should set lengthNorm to -1 so that the cache is cleared.
+
+This could be a really nasty bug if hit.

@@ -1,0 +1,39 @@
+Cf the discussion on DERBY-3823.
+
+The enclosed repro program shows what happens. When I run it with
+client/server and embedded respectively we see these two differing
+results:
+
+client/server:
+
+$ java -cp .:$CLASSPATH Repo
+Done loading data
+executing alter
+execp.getResultDescription: select * from t1
+2. PS#getMetaData: char column length is 8
+Reexecuting ps on changed table...
+3. RS#getMetadata: char column length is 8
+data:1 12345678
+
+dag@T61pOS:~/java/sb/apps/derby3823$ !rm
+rm -rf DERBY3823DB
+
+embedded:
+
+dag@T61pOS:~/java/sb/apps/derby3823$ java -cp .:$CLASSPATH Repro 2
+execp.getResultDescription: insert into t1 values(?,'aaaaa')
+execp.getResultDescription: insert into t1 values(?,'aaaaa')
+Done loading data
+execp.getResultDescription: select * from t1
+execp.getResultDescription: select * from t1
+executing alter
+2. PS#getMetaData: char column length is 5
+Reexecuting ps on changed tableh...
+3. RS#getMetadata: char column length is 5
+data:1 12345678
+
+
+As we can see, the metadata results are different after the ALTER
+TABLE. The trace from EmbedPreparedData
+("execp.getResultDescription:") lines (see repro-patch.diff) show that
+after ALTER, the metadata are not refreshed on the server side.

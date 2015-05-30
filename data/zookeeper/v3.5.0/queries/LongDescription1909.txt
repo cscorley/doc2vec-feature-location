@@ -1,0 +1,7 @@
+ZOOKEEPER-442 introduced support for a new opcode: removeWatches. The way it was implemented though, implies that you need to check on the client side if a watch/watcher is set before you send your request to the server. If you don't, ZK will just swallow your request and won't return an error code if there isn't a watch set for that path.
+
+I noticed this whilst implementing removeWatches for Kazoo [1]. As mentioned, I guess it could be expected that clients should do the check on their side but I think that the correct thing would to have the server do the validation and return the error code accordingly as well.
+
+Rakesh R, Patrick Hunt: thoughts?
+
+[1] https://github.com/rgs1/kazoo/commit/44ca48e975aeea3fd0664fe13136a72caf89e54f

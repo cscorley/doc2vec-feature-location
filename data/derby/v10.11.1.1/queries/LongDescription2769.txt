@@ -1,0 +1,19 @@
+The error handling, or parameter checking, in Clob.subString is not adequate.
+There are four parameters that can be invalid;
+
+	pos
+	str
+	offset
+	len
+
+
+
+The first one is already handled properly, the remaining three are not. They typically result in some low-level exception like a NPE.
+I have not found anything in the JDBC specification nor JavaDoc that dictates the behavior, except for that SQLException should use states defined in the SQL 2003 specification. A brief search there resulted in the following possibilities:
+ 22003 - numeric value out of range
+ 22004 - null value not allowed
+ 2200F - zero-length character string
+ 22011 - substring error 
+ 22023 - invalid parameter value
+
+Some of these are already defined by Derby, but with unsuitable or very specific error messages.

@@ -1,0 +1,22 @@
+SELECT VALUE(f) FROM Policy p, IN (p.funds) f WHERE f.fundName = :fName and p.annuityHolderId = :holderId 
+
+	Where Policy has an ElementCollection as a Map: 
+
+    @ElementCollection(targetClass = Fund.class, fetch=FetchType.EAGER)
+    @CollectionTable(name="POLICY_FUNDS",joinColumns=
+{@JoinColumn(name="FK_POLICY_ID")}
+)
+    @MapKeyColumn(name = "FUND_ID")
+    public Map<Integer, IFund> getFunds() 
+{
+        return Funds;
+    }
+
+The generated SQL was incorrect:
+
+SELECT t2.id FROM INSPOLICY t0 
+    INNER JOIN POLICY_FUNDS t1 ON t0.id = t1.FK_POLICY_ID, 
+    INSPOLICY t2 
+WHERE (t1.fundName = ? AND t0.FK_ANNUITY_HOLDER_ID = ?)
+
+The correct SQL should projecting out t1.*.

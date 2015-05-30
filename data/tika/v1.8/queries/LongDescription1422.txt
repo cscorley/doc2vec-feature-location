@@ -1,0 +1,101 @@
+I'm seeing test failures from:
+
+
+
+Results :
+
+Failed tests:   testMultipart(org.apache.tika.parser.mail.RFC822ParserTest): (..)
+
+Tests run: 538, Failures: 1, Errors: 0, Skipped: 1
+
+
+
+
+CentOS6 VM image, running:
+
+
+[mattmann@memex tika]$ java -version
+java version "1.7.0_67"
+Java(TM) SE Runtime Environment (build 1.7.0_67-b01)
+Java HotSpot(TM) 64-Bit Server VM (build 24.65-b04, mixed mode)
+[mattmann@memex tika]$ mvn -version
+Apache Maven 3.2.1 (ea8b2b07643dbb1b84b6d16e1f08391b666bc1e9; 2014-02-14T09:37:52-08:00)
+Maven home: /usr/share/apache-maven
+Java version: 1.7.0_65, vendor: Oracle Corporation
+Java home: /data/home/mattmann/dist/jdk1.7.0_65/jre
+Default locale: en_US, platform encoding: UTF-8
+OS name: "linux", version: "2.6.32-431.23.3.el6.centos.plus.x86_64", arch: "amd64", family: "unix"
+[mattmann@memex tika]$ 
+
+
+
+Here are the surefire reports - no clue what's up here:
+
+
+[mattmann@memex tika]$ more tika-parsers/target/surefire-reports/org.apache.tika.parser.mail.RFC822ParserTest.txt 
+-------------------------------------------------------------------------------
+Test set: org.apache.tika.parser.mail.RFC822ParserTest
+-------------------------------------------------------------------------------
+Tests run: 8, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.699 sec <<< FAILURE!
+testMultipart(org.apache.tika.parser.mail.RFC822ParserTest)  Time elapsed: 0.152 sec  <<< FAILURE!
+org.mockito.exceptions.verification.TooManyActualInvocations: 
+xHTMLContentHandler.startElement(
+    "http://www.w3.org/1999/xhtml",
+    "div",
+    "div",
+    isA(org.xml.sax.Attributes)
+);
+Wanted 4 times but was 5
+	at org.apache.tika.parser.mail.RFC822ParserTest.testMultipart(RFC822ParserTest.java:87)
+Caused by: org.mockito.exceptions.cause.UndesiredInvocation: 
+Undesired invocation:
+	at org.apache.tika.sax.ContentHandlerDecorator.startElement(ContentHandlerDecorator.java:126)
+	at org.apache.tika.sax.SafeContentHandler.startElement(SafeContentHandler.java:264)
+	at org.apache.tika.sax.XHTMLContentHandler.startElement(XHTMLContentHandler.java:254)
+	at org.apache.tika.sax.ContentHandlerDecorator.startElement(ContentHandlerDecorator.java:126)
+	at org.apache.tika.sax.xpath.MatchingContentHandler.startElement(MatchingContentHandler.java:60)
+	at org.apache.tika.sax.ContentHandlerDecorator.startElement(ContentHandlerDecorator.java:126)
+	at org.apache.tika.sax.ContentHandlerDecorator.startElement(ContentHandlerDecorator.java:126)
+	at org.apache.tika.sax.ContentHandlerDecorator.startElement(ContentHandlerDecorator.java:126)
+	at org.apache.tika.sax.ContentHandlerDecorator.startElement(ContentHandlerDecorator.java:126)
+	at org.apache.tika.sax.SafeContentHandler.startElement(SafeContentHandler.java:264)
+	at org.apache.tika.sax.XHTMLContentHandler.startElement(XHTMLContentHandler.java:254)
+	at org.apache.tika.sax.XHTMLContentHandler.startElement(XHTMLContentHandler.java:284)
+	at org.apache.tika.parser.ocr.TesseractOCRParser.extractOutput(TesseractOCRParser.java:243)
+	at org.apache.tika.parser.ocr.TesseractOCRParser.parse(TesseractOCRParser.java:155)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:247)
+	at org.apache.tika.parser.mail.MailContentHandler.body(MailContentHandler.java:102)
+	at org.apache.james.mime4j.parser.MimeStreamParser.parse(MimeStreamParser.java:133)
+	at org.apache.tika.parser.mail.RFC822Parser.parse(RFC822Parser.java:76)
+	at org.apache.tika.parser.mail.RFC822ParserTest.testMultipart(RFC822ParserTest.java:84)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:271)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:70)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:50)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:238)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:63)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:236)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:53)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:229)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:309)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:236)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:134)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:113)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.maven.surefire.util.ReflectionUtils.invokeMethodWithArray(ReflectionUtils.java:189)
+	at org.apache.maven.surefire.booter.ProviderFactory$ProviderProxy.invoke(ProviderFactory.java:165)
+	at org.apache.maven.surefire.booter.ProviderFactory.invokeProvider(ProviderFactory.java:85)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:103)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:74)
+
+

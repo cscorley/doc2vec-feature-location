@@ -1,0 +1,221 @@
+Add a set of JUnit tests which tests the implementation for Scrollable Updatable ResultSets.
+
+The following is a description of how the tests will be implemented:
+Data model in test:
+
+We use one table containing three int fields and one varchar(5000)
+field. 
+
+Then we run the tests on a number of variants of this model:
+
+1. None of the fields are indexed (no primary key, no secondary key)
+2. One of the fields is indexed as primary key
+3. One of the fields is indexed as primary key, another field is
+   indexed as secondary key
+4. One field is indexed as secondary key
+
+(primary key is unique, secondary key is not unique)
+
+By having these variations in the data model, we cover a number of
+variations where the ScrollInsensitiveResultSet implementation uses
+different classes of source ResultSets, and the CurrentOfResultSet
+uses different classes of target and source ResultSet.
+
+The table can be created with the following fields:
+
+(id int, a int, b int, c varchar(5000))
+
+-
+Queries for testing SUR:
+
+Select conditions:
+
+
+	Full table scan
+SQL: SELECT * FROM T1
+
+
+
+
+	Full table scan with criteria on non-indexed field
+SQL: .. WHERE c like ?
+SQL: .. WHERE b > ?
+
+
+
+
+	Full table scan with criteria on indexed field
+SQL: .. WHERE id>a
+
+
+
+
+	SELECT on primary key conditionals:
+
+
+	Upper and lower bond criteria:
+SQL: .. WHERE ID>? and ID<?
+SQL: .. WHERE ID=? – (Single tuple)
+
+
+
+
+	Nested queries:
+SQL: .. WHERE ID in (1,2,3,4) 
+SQL: .. WHERE a  in (1,2,3,4) 
+(Other nested queries containing a table seems to not permit updates)
+
+
+
+
+	SELECT on secondary key conditionals:
+SQL: .. WHERE a>? and a<?
+SQL: .. WHERE a=?
+
+
+
+
+	Projections:
+SQL: SELECT id,a,b,c
+SQL: SELECT id,c,b,a
+SQL: SELECT id,c
+SQL: SELECT id,a
+SQL: SELECT a,b,c
+SQL: SELECT a,b
+SQL: SELECT a,c
+
+
+
+
+The test should generate queries with all combinations of the
+projection and select conditions, and then run a number of tests:
+
+
+	test navigiation
+	test updates + navigation
+	test deletes + navigation
+	check rowUpdated() and rowDeleted() fields
+
+
+
+Scrollability: All scroll-insensitive cursors should be checked for
+scrollability. Scrolling is tested by invoking: next(), previous(),
+beforeFirst(), afterLast(), absolute(), relative(),  isBeforeFirst(),
+isAfterLast(), isFirst(), isLast(),
+
+Updating a scrollable resultset: a ResultSets current row can be
+updated either by using updateXXX() + updateRow(), or by using
+a positioned update query.  All tests which updates row, will come in
+two variants covering both these cases.
+
+-
+Deleting rows in scrollable resultset also has two variants: one using
+a positioned update query, and one using deleteRow().
+
+-
+Special testcases:
+
+Test that you get a warning when specifying a query which is not
+updatable and concurrency mode CONCUR_UPDATABLE.
+
+Case 1: Query containing order by
+Case 2: Query containing a join
+
+Exceptions:
+
+Test that you get an exception when specifying update clause "FOR UPDATE"
+along with a query which is not updatable.
+
+Cases:
+
+	Query containing order by
+	Query containing a join
+
+
+
+Test that you get an exception when attempting to update a ResultSet 
+which has been downgraded to a read only ResultSet due to the query 
+
+Cases:
+
+	Query contained a join
+	Query contained a read only update clause
+	Query contained a order by
+
+
+
+Test that you get an exception when attempting to update a ResultSet 
+which has concurrency mode CONCUR_READ_ONLY
+
+Concurrency tests:
+(ConcurrencyTest)
+
+Cases: 
+
+	Test that update locks are downgraded to shared locks after
+  repositioning. (fails with derby)
+
+
+
+
+	Test that we can aquire a update lock even if the row is locked with
+  a shared lock.
+
+
+
+
+	Test that we can aquire a shared lock even if the row is locked with
+  an update lock.
+
+
+
+
+	Test that we do not get a concurrency problem when opening two
+  cursors as readonly.
+
+
+
+
+	Test what happens if you update a deleted and purged record
+
+
+
+
+	Test what happens if you update a deleted and purged record using
+  positioned update
+
+
+
+
+	Test what happens if you update a tuple which is deleted and then
+  reinserted.
+
+
+
+
+	Test what happens if you update a tuple which is deleted and then
+  reinserted with the exact same values
+
+
+
+
+	Test what happens if you update a tuple which has been modified by
+  another transaction.
+
+
+
+
+	Test that you cannot compress the table while the ResultSet is open,
+  and the transaction is open (for validity of RowLocation)
+
+
+
+
+	Test that you cannot purge a row if it is locked
+
+
+
+
+	Test that Derby set updatelock on current row when using
+  read-uncommitted
+

@@ -1,0 +1,27 @@
+When I tested the GeneratedValue strategy on TABLE, and I found a bug in the TableJDBCSeq that did not set the InitalValue. Therefore, the sequence always start from 1.  
+Here are the bugs in the TableJDBCSeq:
+1) InsertSequence method:
+       SQLBuffer insert = new SQLBuffer(dict).append("INSERT INTO ").
+            append(_pkColumn.getTable()).append(" (").
+            append(_pkColumn).append(", ").append(_seqColumn).
+            append(") VALUES (").
+            appendValue(pk, _pkColumn).append(", ").
+            appendValue(Numbers.valueOf(1), _seqColumn).append(")");  --> Always set the initial value to 1.
+2) no getter and setter on the InitialValue.
+
+Here is the annotation:
+@TableGenerator(name="Dog_Gen", table ="ID_Gen", pkColumnName="GEN_NAME", valueColumnName="GEN_VAL",pkColumnValue="ID2",initialValue=20,allocationSize=10)
+@GeneratedValue(strategy=GenerationType.TABLE, generator="Dog_Gen")
+private int id2;
+
+The initial value always started from 1 with the current openjpa implementation. 
+The fix will be like this:
+1) add getter and setter of InitialValue in TableJDBCSeq .
+2) add int _initValue variable.
+3) Change the  InsertSequence method:
+       SQLBuffer insert = new SQLBuffer(dict).append("INSERT INTO ").
+            append(_pkColumn.getTable()).append(" (").
+            append(_pkColumn).append(", ").append(_seqColumn).
+            append(") VALUES (").
+            appendValue(pk, _pkColumn).append(", ").
+            appendValue(_intValue, _seqColumn).append(")"); ---> change to use the initValue instead of 1.

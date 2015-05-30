@@ -1,0 +1,3 @@
+I believe there might be an error in org.apache.mahout.classifier.baytes.MultipleOutputFormat. It overrides the Hadoop class FileOutputFormat, and most of its work is done in getRecordWriter(FileSystem, Configuration, String, Progressable). However this is not the method that one must override to control how FileOutputFormat writes records; that's getRecordWriter(TaskAttemptContext). My hunch is that this used to work, but against the Hadoop 0.19.x APIs. (@Override is our friend!)
+
+I've attached a patch that I believe addresses this and along the way is able to clean things up slightly. Am I on track here?

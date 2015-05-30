@@ -1,0 +1,6 @@
+The  patch for DERBY-578  also fixes an issue that runtimestatistics may print that an index is being used, even when it isn't.  Here is the explanation from DERBY-578.
+
+Earlier, we would set the indexName field in DistinctScanResult to the conglomerate name (cd.getName()) used to scan the table. If the conglomerate was the base table itself then this was just plain wrong. The change, for this patch, passes null if no index is being used. 
+
+
+This bug should be marked fixed when DERBY-578 is checked in.

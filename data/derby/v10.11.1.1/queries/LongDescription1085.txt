@@ -1,0 +1,118 @@
+The repro below gives a NullPointerException with 10.1 and trunk with query involving char for bit data column and subquery:
+
+ij> connect 'wombat;create=true';
+ij> create table npetest1 (col1 char(36) for bit data not null, constraint
+pknpe1 primary
+key (col1));
+0 rows inserted/updated/deleted
+ij> create table npetest2 (col2 char(36) for bit data, constraint fknpe1 foreign
+key
+(col2) references npetest1 (col1) on delete cascade);
+0 rows inserted/updated/deleted
+ij> insert into npetest1 (col1) values
+
+(x'000000000000000000000000000000000001');
+1 row inserted/updated/deleted
+ij> insert into npetest1 (col1) values
+
+(x'000000000000000000000000000000000002');
+1 row inserted/updated/deleted
+ij> insert into npetest1 (col1) values
+
+(x'000000000000000000000000000000000003');
+1 row inserted/updated/deleted
+ij> insert into npetest2 (col2) values
+
+(x'000000000000000000000000000000000001');
+1 row inserted/updated/deleted
+ij> insert into npetest2 (col2) values (NULL);
+1 row inserted/updated/deleted
+ij> insert into npetest2 (col2) values
+
+(x'000000000000000000000000000000000002');
+1 row inserted/updated/deleted
+ij> select col1 from npetest1 where col1 not in (select col2 from
+npetest2);
+COL1
+------------------------------------------------------------------------
+ERROR 38000: The exception 'java.lang.NullPointerException' was thrown while evaluating an expression.
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+ERROR 38000: The exception 'java.lang.NullPointerException' was thrown while evaluating an expression.
+
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:315)
+
+	at org.apache.derby.iapi.error.StandardException.unexpectedUserException(StandardException.java:564)
+
+	at org.apache.derby.impl.services.reflect.DirectCall.invoke(ReflectGeneratedClass.java:163)
+
+	at org.apache.derby.impl.sql.execute.ProjectRestrictResultSet.getNextRowCore(ProjectRestrictResultSet.java:270)
+
+	at org.apache.derby.impl.sql.execute.BasicNoPutResultSetImpl.getNextRow(BasicNoPutResultSetImpl.java:474)
+
+	at org.apache.derby.impl.jdbc.EmbedResultSet.movePosition(EmbedResultSet.java:401)
+
+	at org.apache.derby.impl.jdbc.EmbedResultSet.next(EmbedResultSet.java:346)
+
+	at org.apache.derby.tools.JDBCDisplayUtil.indent_DisplayResults(JDBCDisplayUtil.java:334)
+
+	at org.apache.derby.tools.JDBCDisplayUtil.indent_DisplayResults(JDBCDisplayUtil.java:271)
+
+	at org.apache.derby.tools.JDBCDisplayUtil.DisplayResults(JDBCDisplayUtil.java:260)
+
+	at org.apache.derby.impl.tools.ij.utilMain.displayResult(utilMain.java:381)
+
+	at org.apache.derby.impl.tools.ij.utilMain.doCatch(utilMain.java:434)
+
+	at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:310)
+
+	at org.apache.derby.impl.tools.ij.Main.go(Main.java:203)
+
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:169)
+
+	at org.apache.derby.impl.tools.ij.Main14.main(Main14.java:55)
+
+	at org.apache.derby.tools.ij.main(ij.java:60)
+
+============= begin nested exception, level (1) ===========
+
+java.lang.NullPointerException
+
+	at org.apache.derby.iapi.types.SQLBinary.getLength(SQLBinary.java:230)
+
+	at org.apache.derby.impl.sql.execute.BaseActivation.materializeResultSetIfPossible(BaseActivation.java:1430)
+
+	at org.apache.derby.exe.acfe120070x0109xd801x02acx000000142bf86.g0(Unknown Source)
+
+	at org.apache.derby.exe.acfe120070x0109xd801x02acx000000142bf86.e1(Unknown Source)
+
+	at org.apache.derby.impl.services.reflect.DirectCall.invoke(ReflectGeneratedClass.java:140)
+
+	at org.apache.derby.impl.sql.execute.ProjectRestrictResultSet.getNextRowCore(ProjectRestrictResultSet.java:270)
+
+	at org.apache.derby.impl.sql.execute.BasicNoPutResultSetImpl.getNextRow(BasicNoPutResultSetImpl.java:474)
+
+	at org.apache.derby.impl.jdbc.EmbedResultSet.movePosition(EmbedResultSet.java:401)
+
+	at org.apache.derby.impl.jdbc.EmbedResultSet.next(EmbedResultSet.java:346)
+
+	at org.apache.derby.tools.JDBCDisplayUtil.indent_DisplayResults(JDBCDisplayUtil.java:334)
+
+	at org.apache.derby.tools.JDBCDisplayUtil.indent_DisplayResults(JDBCDisplayUtil.java:271)
+
+	at org.apache.derby.tools.JDBCDisplayUtil.DisplayResults(JDBCDisplayUtil.java:260)
+
+	at org.apache.derby.impl.tools.ij.utilMain.displayResult(utilMain.java:381)
+
+	at org.apache.derby.impl.tools.ij.utilMain.doCatch(utilMain.java:434)
+
+	at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:310)
+
+	at org.apache.derby.impl.tools.ij.Main.go(Main.java:203)
+
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:169)
+
+	at org.apache.derby.impl.tools.ij.Main14.main(Main14.java:55)
+
+	at org.apache.derby.tools.ij.main(ij.java:60)
+
+============= end nested exception, level (1) ===========

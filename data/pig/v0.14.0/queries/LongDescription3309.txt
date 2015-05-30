@@ -1,0 +1,45 @@
+TestJsonStorageLoader fails due to small differences in the way HashMaps are printed out. The HashMap specification (http://docs.oracle.com/javase/1.5.0/docs/api/java/util/HashMap.html) mentions that "This class makes no guarantees as to the order of the map; in particular, it does not guarantee that the order will remain constant over time.", so PIG testcases should not rely on the order in which the HashMap items are printed out.
+
+testJsonLoaderStorage1 explicitly does this comparison:
+
+Testcase: testJsonLoaderStorage1 took 2.25 sec
+        FAILED
+expected:<...3":"c","key2":"b","key1":"a"}}
+{"a0":2,"a1":[
+{"a10":6,"a11":"cat"}
+,
+{"a10":7,"a11":"dog"}
+,
+{"a10":8,"a11":"pig"}
+],"a2":
+{"a20":2.3,"a21":"moon"}
+,"a3":{"key4":"value4","key1":"value1...> but was:<...1":"a","key2":"b","key3":"c"}}
+{"a0":2,"a1":[
+{"a10":6,"a11":"cat"}
+,
+{"a10":7,"a11":"dog"}
+,
+{"a10":8,"a11":"pig"}
+],"a2":
+{"a20":2.3,"a21":"moon"}
+,"a3":{"key1":"value1","key4":"value4...>
+junit.framework.ComparisonFailure: expected:<...3":"c","key2":"b","key1":"a"}}
+{"a0":2,"a1":[
+{"a10":6,"a11":"cat"}
+,
+{"a10":7,"a11":"dog"}
+,
+{"a10":8,"a11":"pig"}
+],"a2":
+{"a20":2.3,"a21":"moon"}
+,"a3":{"key4":"value4","key1":"value1...> but was:<...1":"a","key2":"b","key3":"c"}}
+{"a0":2,"a1":[
+{"a10":6,"a11":"cat"}
+,
+{"a10":7,"a11":"dog"}
+,
+{"a10":8,"a11":"pig"}
+],"a2":
+{"a20":2.3,"a21":"moon"}
+,"a3":{"key1":"value1","key4":"value4...>
+        at org.apache.pig.test.TestJsonLoaderStorage.testJsonLoaderStorage1(TestJsonLoaderStorage.java:63)

@@ -1,0 +1,54 @@
+grunt> a = load 'foo' using BinStorage as (url:chararray,outlinks:
+{t:(target:chararray,text:chararray)}
+);
+grunt> b = union (load 'foo' using BinStorage as (url:chararray,outlinks:
+{t:(target:chararray,text:chararray)}
+)), (load 'bar' using BinStorage as (url:chararray,outlinks:
+{t:(target:chararray,text:chararray)}
+));
+grunt> c = foreach a generate flatten(outlinks.target);
+grunt> d = foreach b generate flatten(outlinks.target);
+
+---> Would expect both C and D to work, but only C works. D gives the error shown below.
+---> Turns out using outlinks.t.target (instead of outlinks.target) works for D but not for C.
+---> I don't care which one, but the same syntax should work for both!
+
+2009-03-24 13:15:05,376 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1000: Error during parsing. Invalid alias: target in 
+{t: (target: chararray,text: chararray)}
+Details at logfile: /echo/olston/data/pig_1237925683748.log
+grunt> quit
+
+$ cat pig_1237925683748.log 
+ERROR 1000: Error during parsing. Invalid alias: target in 
+{t: (target: chararray,text: chararray)}
+org.apache.pig.impl.logicalLayer.FrontendException: ERROR 1000: Error during parsing. Invalid alias: target in 
+{t: (target: chararray,text: chararray)}
+        at org.apache.pig.PigServer.parseQuery(PigServer.java:317)
+        at org.apache.pig.PigServer.registerQuery(PigServer.java:276)
+        at org.apache.pig.tools.grunt.GruntParser.processPig(GruntParser.java:529)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:280)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:99)
+        at org.apache.pig.tools.grunt.Grunt.run(Grunt.java:69)
+        at org.apache.pig.Main.main(Main.java:321)
+Caused by: org.apache.pig.impl.logicalLayer.parser.ParseException: Invalid alias: target in 
+{t: (target: chararray,text: chararray)}
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.AliasFieldOrSpec(QueryParser.java:6042)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.ColOrSpec(QueryParser.java:5898)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.BracketedSimpleProj(QueryParser.java:5423)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.BaseEvalSpec(QueryParser.java:4100)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.UnaryExpr(QueryParser.java:3967)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.CastExpr(QueryParser.java:3920)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.MultiplicativeExpr(QueryParser.java:3829)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.AdditiveExpr(QueryParser.java:3755)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.InfixExpr(QueryParser.java:3721)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.FlattenedGenerateItem(QueryParser.java:3617)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.FlattenedGenerateItemList(QueryParser.java:3557)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.GenerateStatement(QueryParser.java:3514)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.NestedBlock(QueryParser.java:2985)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.ForEachClause(QueryParser.java:2395)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.BaseExpr(QueryParser.java:1028)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.Expr(QueryParser.java:804)
+        at org.apache.pig.impl.logicalLayer.parser.QueryParser.Parse(QueryParser.java:595)
+        at org.apache.pig.impl.logicalLayer.LogicalPlanBuilder.parse(LogicalPlanBuilder.java:60)
+        at org.apache.pig.PigServer.parseQuery(PigServer.java:310)
+        ... 6 more

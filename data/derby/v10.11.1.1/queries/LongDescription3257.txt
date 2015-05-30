@@ -1,0 +1,22 @@
+Attached program demonstrates the problem.  Only one count is returned (matching CODE= GBR) - the count of CODE=CHA is not returned.  Works fine with versions 10.1 and 10.2 or if program is run using 10.3 jars and 10.2 database (soft upgrade).
+
+Query:
+SELECT COUNT(t0.ID) FROM CTS1.TEST_TABLE t0 
+  GROUP BY t0.CODE 
+    HAVING (t0.CODE = 'GBR' OR t0.CODE = 'CHA') AND t0.CODE IS NOT NULL
+
+Incorrect results (see last line):
+Database product: Apache Derby
+Database version: 10.3.1.5 - (579866)
+Driver name:      Apache Derby Embedded JDBC Driver
+Driver version:   10.3.1.5 - (579866)
+result: 2
+
+
+Correct results:
+Database product: Apache Derby
+Database version: 10.2.2.0 - (485682)
+Driver name:      Apache Derby Embedded JDBC Driver
+Driver version:   10.2.2.0 - (485682)
+result: 4
+result: 2

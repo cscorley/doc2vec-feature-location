@@ -1,0 +1,21 @@
+The following script :
+
+-e "a = load 'input.txt' as (f1:chararray, f2:chararray, f3:bag{t:tuple(id:chararray)}, f4:bag{t:tuple(loc:chararray)}); b = foreach a generate f1, f2, flatten(f3), flatten(f4), 10; b = foreach b generate f1, f2, \$4; dump b;"
+
+
+gives the following result:
+(oiue,M,10)
+
+
+cat input.txt:
+oiue    M       {(3),(4)}       {(toronto),(montreal)}
+
+
+
+If PruneColumns optimizations is disabled, we get the right result:
+(oiue,M,10)
+(oiue,M,10)
+(oiue,M,10)
+(oiue,M,10)
+
+The flatten results in 4 records - so the output should contain 4 records.

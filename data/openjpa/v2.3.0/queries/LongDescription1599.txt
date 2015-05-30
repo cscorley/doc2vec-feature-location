@@ -1,0 +1,18 @@
+Cache mode properties passes in to em.find and lock methods are not transient and permanently
+set to the entity manager, which caused subsequent em operations to use the undesired
+cache mode.
+
+    public <T> T find(Class<T> cls, Object oid, LockModeType mode, Map<String, Object> properties) {
+        assertNotCloseInvoked();
+        configureCurrentCacheModes(getFetchPlan(), properties);  <<---- pushFetchPlan call should be performed first before the getFetchPlan
+        configureCurrentFetchPlan(pushFetchPlan(), properties, mode, true);
+        try 
+{
+            oid = _broker.newObjectId(cls, oid);
+            return (T) _broker.find(oid, true, this);
+        }
+ finally 
+{
+            popFetchPlan();
+        }
+    }

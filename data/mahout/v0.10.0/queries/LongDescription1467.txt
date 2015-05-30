@@ -1,0 +1,11 @@
+The org.apache.mahout.clustering.classify.ClusterClassifier.readPolicy method leaks file handles.
+
+This leak causes a serious problems in setups that reuse JVMs for multiple tasks (as with "mapred.job.reuse.jvm.num.tasks").
+
+In more detail:
+The org.apache.mahout.clustering.classify.ClusterClassifier class has  static methods to read policies: readPolicy.
+
+It opens a SequenceFile.Reader and reads from it, and then neglects to close it.
+
+suggested fix:
+add a call to reader.close() before the return statement in readPolicy

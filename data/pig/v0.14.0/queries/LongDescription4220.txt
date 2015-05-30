@@ -1,0 +1,40 @@
+User reported his pig job with Rank was failing at 
+
+Pig Stack Trace
+---------------
+ERROR 2043: Unexpected error during execution.
+
+org.apache.pig.backend.executionengine.ExecException: ERROR 2043: Unexpected
+error during execution.
+        at org.apache.pig.PigServer.launchPlan(PigServer.java:1296)
+        at
+org.apache.pig.PigServer.executeCompiledLogicalPlan(PigServer.java:1270)
+        at org.apache.pig.PigServer.execute(PigServer.java:1260)
+        at org.apache.pig.PigServer.executeBatch(PigServer.java:354)
+        at
+org.apache.pig.tools.grunt.GruntParser.executeBatch(GruntParser.java:138)
+        at
+org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:200)
+        at
+org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:171)
+        at org.apache.pig.tools.grunt.Grunt.exec(Grunt.java:84)
+        at org.apache.pig.Main.run(Main.java:480)
+        at org.apache.pig.Main.main(Main.java:157)
+Caused by: java.lang.RuntimeException: Error to read counters into Rank
+operation counterSize 277
+        at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler.saveCounters(JobControlCompiler.java:384)
+        at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler.updateMROpPlan(JobControlCompiler.java:330)
+        at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher.launchPig(MapReduceLauncher.java:385)
+        at org.apache.pig.PigServer.launchPlan(PigServer.java:1285)
+        ... 9 more
+Caused by: java.lang.NullPointerException
+        at
+org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler.saveCounters(JobControlCompiler.java:375)
+        ... 12 more
+
+
+
+(this is different from PIG:3985 NPE)

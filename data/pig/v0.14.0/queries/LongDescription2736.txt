@@ -1,0 +1,11 @@
+
+	
+a = load 'allscalar10k' as (name, age, gpa, instate);
+b = filter a by instate==TRUE;
+dump b; 	
+
+
+
+Error:In alias b, incompatible types in Equal Operator left hand side:bytearray right hand side:boolean
+
+Currently we only support implicit conversion from bytearray to chararray and number types (int,long,float,double). We need to add support for boolean as well.

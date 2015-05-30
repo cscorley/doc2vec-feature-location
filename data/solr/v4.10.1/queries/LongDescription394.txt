@@ -1,0 +1,15 @@
+There is an issue with the ruby response (and others too, perhaps json and python) when an "integer" field is sent with leading zeros.   For example (from a report to ruby-dev@lucene), the Solr response is:
+
+ {'responseHeader'=>{'status'=>0,'QTime'=>1,'params'=>{'wt'=>'ruby','rows'=>'1','start'=>'5','q'=>'accounting','fl'=>'zip_code','qt'=>'standard'}},'response'=>{'numFound'=>15005,'start'=>5,'docs'=>[
+{'zip_code'=>[08817]}
+]}}
+
+Which gives this error:
+
+ solr/response/ruby.rb:30:in `initialize': invalid ruby code:
+ (eval):1:in `initialize': compile error (Solr::Exception) (eval):1:
+ Illegal octal digit
+
+
+
+I had proposed prefixing all integer ruby output with '0d' which would do the trick nicely.   Yonik, however, proposed simply stripping leading zeros for json and subclasses.  

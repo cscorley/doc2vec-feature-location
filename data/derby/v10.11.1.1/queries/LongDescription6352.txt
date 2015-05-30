@@ -1,0 +1,49 @@
+I got a report of the following intermittent (6/60) exception in store.RecoveryAfterBackupTest.
+Exception in thread "main" java.security.AccessControlException: Access denied ("java.lang.RuntimePermission" "modifyThread")
+		 at java.security.AccessController.throwACE(AccessController.java:100)
+		 at java.security.AccessController.checkPermission(AccessController.java:174)
+		 at java.lang.SecurityManager.checkPermission(SecurityManager.java:549)
+		 at java.lang.SecurityManager.checkAccess(SecurityManager.java:676)
+		 at java.lang.Thread.checkAccess(Thread.java:459)
+		 at java.lang.Thread.interrupt(Thread.java:588)
+		 at org.apache.derby.iapi.services.context.ContextService$1.run(Unknown Source)
+		 at java.security.AccessController.doPrivileged(AccessController.java:274)
+		 at org.apache.derby.iapi.services.context.ContextService.notifyAllActiveThreads(Unknown Source)
+		 at org.apache.derby.impl.services.monitor.BaseMonitor.shutdown(Unknown Source)
+		 at org.apache.derby.jdbc.InternalDriver.connect(Unknown Source)
+		 at org.apache.derby.jdbc.Driver20.connect(Unknown Source)
+		 at org.apache.derby.jdbc.AutoloadedDriver.connect(Unknown Source)
+		 at java.sql.DriverManager.getConnection(DriverManager.java:571)
+		 at java.sql.DriverManager.getConnection(DriverManager.java:233)
+		 at org.apache.derbyTesting.functionTests.util.TestUtil.getConnection(TestUtil.java:836)
+		 at org.apache.derbyTesting.functionTests.tests.store.RecoveryAfterBackup.main(RecoveryAfterBackup.java:82)
+
+
+modifyThread is a necessary permission if interrupting a thread other than the current thread but is not in our policy file for derby.jar.
+
+The relevant code in ContextService is:
+           for (ContextManager cm : allContexts) {
+
+				Thread active = cm.activeThread;
+
+				if (active == me)
+					continue;
+
+				if (active == null)
+					continue;
+
+                final Thread fActive = active;
+				if (cm.setInterrupted(c))
+                {
+                    AccessController.doPrivileged(
+                            new PrivilegedAction<Void>() {
+                                public Void run()  
+{
+                                    fActive.interrupt();
+                                    return null;
+                                }
+                            });
+                }
+
+I am not sure why this has never come up before.  Are we expecting in this context that fActive is the current thread?
+

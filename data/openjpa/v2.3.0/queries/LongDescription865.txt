@@ -1,0 +1,35 @@
+Support for collection-valued parameters in JPA2 Spec in 
+
+considering the followoing query:
+
+   select e from CompUser e where e.age in (10, 20, 30)
+
+when using input parameters for each in-item,  the query would rewrite to:
+
+  select e from CompUser e where e.age in (?1, ?2, ?3)
+
+each in-item contains a single value.
+
+JPA2 syntax allows in-item in the in-expression predicate to contain multiple values such that the above query can be :
+
+     select e from CompUser e where e.age in ?1
+
+or
+
+    select e from CompUser e where e.age in :ages
+
+  the parameters in these 2 queries contain more than 1 value, the caller on Query interface will do something like the following:
+
+// first create collection that holds values for the parameters
+   Collection ages = new ArrayList();
+   ages.add(10);
+   ages.add(20);
+   ages.add(30);
+
+// issue query using new syntax and passing collection valued parameter
+   List rs = em.createQuery("select e from CompUser e where e.age in :ages").setParameter("ages", ages).getResultList();
+
+Note that when collection valued parameter is used, the in-item is not enclosed in parenthesis;
+   the following query would only allow :ages to contain a single value:
+
+    select e from CompUser e where e.age in (:ages)

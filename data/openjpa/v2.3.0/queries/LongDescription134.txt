@@ -1,0 +1,56 @@
+Running JPAConfiguration default setting for EagerFetchMode (FetchModeValue.EAGER_PARALLEL), 
+the SQL generated is sub-optimal.
+Consider the following entities:
+
+                                     lineitems( OneToMany ) 
+            Order  <===========================> OrderItem
+                                    order ( ManyToOne )
+
+
+Case 1:  why not combining 2 SQL to 1 SQL ?
+=================================================================================================
+Order.lineitmes(EAGER):
+OrderItem.order(LAZY):
+
+Executing query: select o from Order o
+2173  demo  TRACE  [main] openjpa.jdbc.SQL - <t 1094730048, conn 1318342292> executing prepstmnt 1299336562 
+SELECT t0.oid, t0.version, t0.amount, t0.customer_countryCode, t0.customer_id, t0.delivered, t0.shipaddr FROM Order t0
+2213  demo  TRACE  [main] openjpa.jdbc.SQL - <t 1094730048, conn 1318342292> [40 ms] spent
+2223  demo  TRACE  [main] openjpa.jdbc.SQL - <t 1094730048, conn 1318342292> executing prepstmnt 1406424020 
+SELECT t0.oid, t1.lid, t1.version, t1.cost, t1.order_oid, t1.part_partno, t1.quantity FROM Order t0 INNER JOIN OrderItem t1 ON t0.oid = t1.order_oid ORDER BY t0.oid ASC
+
+
+Case 2: extra unneeded LEFT OUTER JOIN,  if eliminated, the selection aliase t2 should change to t1:
+=============================================================================================
+Order.lineitmes(EAGER):
+OrderItem.order(LAZY):
+
+Executing query: select o from Order o left join fetch o.lineitems
+2403  demo  TRACE  [main] openjpa.jdbc.SQL - <t 1094730048, conn 1314410072> executing prepstmnt 1500797300 
+SELECT t0.oid, t0.version, t0.amount, t0.customer_countryCode, t0.customer_id, t0.delivered, t0.shipaddr, t2.order_oid, t2.lid, t2.version, t2.cost, t2.part_partno, t2.quantity FROM Order t0 LEFT OUTER JOIN OrderItem t1 ON t0.oid = t1.order_oid LEFT OUTER JOIN OrderItem t2 ON t0.oid = t2.order_oid ORDER BY t2.order_oid ASC
+
+
+Case  3: why not generating 1 SQL ?
+==================================================================================================
+Order.lineitmes(EAGER):
+OrderItem.order(EAGER):
+
+Executing query: select o from Order o
+2343  demo  TRACE  [main] openjpa.jdbc.SQL - <t 1094730048, conn 1318342292> executing prepstmnt 384833264 SELECT t0.oid, t0.version, t0.amount, t0.customer_countryCode, t0.customer_id, t0.delivered, t0.shipaddr FROM Order t0
+2383  demo  TRACE  [main] openjpa.jdbc.SQL - <t 1094730048, conn 1318342292> [40 ms] spent
+2393  demo  TRACE  [main] openjpa.jdbc.SQL - <t 1094730048, conn 1318342292> executing prepstmnt 1722705582 
+SELECT t0.oid, t1.lid, t1.version, t1.cost, t2.oid, t2.version, t2.amount, t2.customer_countryCode, t2.customer_id, t2.delivered, t2.shipaddr, t1.part_partno, t1.quantity FROM Order t0 INNER JOIN OrderItem t1 ON t0.oid = t1.order_oid LEFT OUTER JOIN Order t2 ON t1.order_oid = t2.oid ORDER BY t0.oid ASC
+2393  demo  TRACE  [main] openjpa.jdbc.SQL - <t 1094730048, conn 1318342292> [0 ms] spent
+3134  demo  TRACE  [main] openjpa.jdbc.SQL - <t 1094730048, conn 1318342292> executing prepstmnt 950548648 
+SELECT t0.lid, t0.version, t0.cost, t1.oid, t1.version, t1.amount, t1.customer_countryCode, t1.customer_id, t1.delivered, t1.shipaddr, t0.part_partno, t0.quantity FROM OrderItem t0 LEFT OUTER JOIN Order t1 ON t0.order_oid = t1.oid WHERE t0.order_oid = ? [params=(int) 88]
+3134  demo  TRACE  [main] openjpa.jdbc.SQL - <t 1094730048, conn 1318342292> [0 ms] spent
+
+
+Case 4:  duplicate selections and redundant joins
+==================================================================================================
+Order.lineitmes(EAGER):
+OrderItem.order(EAGER):
+
+Executing query: select o from Order o left join fetch o.lineitems
+2273  demo  TRACE  [main] openjpa.jdbc.SQL - <t 1094730048, conn 1307463150> executing prepstmnt 1565154634 
+SELECT t0.oid, t0.version, t0.amount, t0.customer_countryCode, t0.customer_id, t0.delivered, t0.shipaddr, t2.order_oid, t2.lid, t2.version, t2.cost, t3.oid, t3.version, t3.amount, t3.customer_countryCode, t3.customer_id, t3.delivered, t3.shipaddr, t2.part_partno, t2.quantity FROM Order t0 LEFT OUTER JOIN OrderItem t1 ON t0.oid = t1.order_oid LEFT OUTER JOIN OrderItem t2 ON t0.oid = t2.order_oid LEFT OUTER JOIN Order t3 ON t2.order_oid = t3.oid ORDER BY t2.order_oid ASC

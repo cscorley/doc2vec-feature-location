@@ -1,0 +1,19 @@
+Pig allows udfs to aggregate warning messages instead of writing out a separate warning message each time. Udfs can do this by logging the warning using EvalFunc.warn(String msg, Enum) call. But the udfs are forced to use PigWarning class if the warning needs to be printed at the end of the pig script . 
+
+For example, with the changes in PIG-2191, some of the builtin udfs are using PigWarning.UDF_WARNING_1 as argument in calls to EvalFunc.warn. This will result in the warning count being printed on STDERR -
+
+
+2011-08-05 22:10:29,285 [main] WARN  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - Encountered Warning UDF_WARNING_1 2 time(s).
+2011-08-05 22:10:29,285 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - Success!
+
+
+
+But it would be better if a udf such as the LOWER udf could use a custom warning counter, and the STDERR is like -
+
+
+2011-08-05 22:10:29,285 [main] WARN  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - Encountered Warning LOWER_FUNC_INPUT_WARNING 2 time(s).
+2011-08-05 22:10:29,285 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - Success!
+
+
+
+A new function could be added to support this - (something like) EvalFunc.warn(String warnName, String warnMsg);  A specific counter group could be used for udf warnings (see org.apache.hadoop.mapred.Counters), and counters for that group could be done during final warning aggregation in done in MapReduceLauncher.computeWarningAggregate(). 

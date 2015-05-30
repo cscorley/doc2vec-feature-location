@@ -1,0 +1,36 @@
+After submitting a seqdirectory job to EMR:
+
+./elastic-mapreduce --enable-debugging -j $JOB_NAME --jar $JAR_URL --main-class org.apache.mahout.driver.MahoutDriver --arg seqdirectory --arg --input --arg $INPUT_URL --arg --output --arg $OUTPUT_URL --arg --charset --arg utf-8
+
+when $INPUT_URL or $OUTPUT_URL are s3n:// URLs, SequenceFilesFromDirectory throws an exception like this:
+
+Exception in thread "main" java.lang.IllegalArgumentException: This file system object (hdfs://ip-10-84-247-151.ec2.internal:9000) does not support access to the request path 's3n://dall-emr-bucket/output/out-subjot-seqfiles/chunk-0' You possibly called FileSystem.get(conf) when you should have called FileSystem.get(uri, conf) to obtain a file system supporting your path.
+	at org.apache.hadoop.fs.FileSystem.checkPath(FileSystem.java:351)
+	at org.apache.hadoop.hdfs.DistributedFileSystem.checkPath(DistributedFileSystem.java:99)
+	at org.apache.hadoop.hdfs.DistributedFileSystem.getPathName(DistributedFileSystem.java:155)
+	at org.apache.hadoop.hdfs.DistributedFileSystem.create(DistributedFileSystem.java:195)
+	at org.apache.hadoop.fs.FileSystem.create(FileSystem.java:524)
+	at org.apache.hadoop.io.SequenceFile$Writer.<init>(SequenceFile.java:871)
+	at org.apache.hadoop.io.SequenceFile$Writer.<init>(SequenceFile.java:859)
+	at org.apache.hadoop.io.SequenceFile$Writer.<init>(SequenceFile.java:851)
+	at org.apache.mahout.text.ChunkedWriter.<init>(ChunkedWriter.java:47)
+	at org.apache.mahout.text.SequenceFilesFromDirectory.run(SequenceFilesFromDirectory.java:63)
+	at org.apache.mahout.text.SequenceFilesFromDirectory.run(SequenceFilesFromDirectory.java:106)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:65)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:79)
+	at org.apache.mahout.text.SequenceFilesFromDirectory.main(SequenceFilesFromDirectory.java:81)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.apache.hadoop.util.ProgramDriver$ProgramDescription.invoke(ProgramDriver.java:68)
+	at org.apache.hadoop.util.ProgramDriver.driver(ProgramDriver.java:139)
+	at org.apache.mahout.driver.MahoutDriver.main(MahoutDriver.java:187)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:156)
+
+I fixed the problem by changing FileSystem.get(conf) in SequenceFilesFromDirectory and ChunkedWriter to FileSystem.get(input.toUri(), conf) and FileSystem.get(output.toUri(), conf), respectively.  I also had to make a couple of changes to SequenceFilesFromDirectoryFilter and PrefixAdditionFilter to properly use those FileSystems.  I'm building with tests now, then I'll add the patch to this issue.
+

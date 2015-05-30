@@ -1,0 +1,4 @@
+Although we try to avoid creating role that are not also valid Derby users (see DERBY-3673), we cannot
+in general know for sure that no such user exists; it could be added to derby.properties after
+the role has been created, authentication could be LDAP or user-defined, in which cases
+the check at role creation time will not work. So, in order to avoid collisions between user identifiers and role identifiers, we shoudl check at connect time that there is no role by same name as the supplied user name.

@@ -1,0 +1,9 @@
+There are some gaps in the functionality of macros that I've made a patch to address. The goal is to provide everything you'd need to make reusable algorithms libraries.
+
+1. You can't register udfs inside a macro
+2. Paramater substitutions aren't done inside macros
+3. Resources (including macros) should not be redundantly acquired if they are already present.
+
+Rohini's patch https://issues.apache.org/jira/browse/PIG-3204 should address problem 3 where Pig reparses everything every time it reads a line, but there still would be a problem if two separate files import the same macro / udf file.
+
+To get this working, I moved methods for registering jars/udfs and param substitution from PigServer to PigContext so they can be accessed in QueryParserDriver which processes macros (QPD was already passed a PigContext reference). Is that ok?

@@ -1,0 +1,51 @@
+The issue title reflects Mark Miller's initial diagnosis of the problem.
+
+Here are my symptoms:
+
+This is regarding the backup feature of replication, as opposed to replication. Backups seem to work fine on toy indexes. When trying backups out on a copy of my production index (300GB-ish), though, I'm getting FileNotFoundExceptions. These cancel the backup, and delete the snapshot.yyyymmdd* directory. It seems reproducible, in that every time I try to make a backup of my large index it will fail the same way.
+
+This is Solr r815830. I'm not sure if this is something that would potentially be addressed by SOLR-1458? (That patch is from after r815830.)
+
+For now I'm not using any event-based backup triggers; instead I'm manually hitting
+
+http://master_host:port/solr/replication?command=backup
+
+This successfully sets off a snapshot, as seen in a thread dump.  However, after a while the snapshot fails. I'll paste in a couple of stack traces below.
+
+I haven't seen any other evidence that my index is corrupt; in particular, searching the index and Java-based replication seem to be working fine, and the Lucene CheckIndex tool did not report any problems with the index.
+
+********************
+
+
+
+Sep 28, 2009 9:32:18 AM org.apache.solr.handler.SnapShooter createSnapshot
+SEVERE: Exception while creating snapshot
+java.io.FileNotFoundException: Source
+'E:\tomcat\solrstuff\solr\filingcore\data\index\_y0w.fnm' does not
+exist
+       at org.apache.commons.io.FileUtils.copyFile(FileUtils.java:637)
+       at org.apache.commons.io.FileUtils.copyFileToDirectory(FileUtils.java:587)
+       at org.apache.solr.handler.SnapShooter.createSnapshot(SnapShooter.java:83)
+       at org.apache.solr.handler.SnapShooter$1.run(SnapShooter.java:61)
+
+Sep 28, 2009 10:39:43 AM org.apache.solr.handler.SnapShooter createSnapshot
+SEVERE: Exception while creating snapshot
+java.io.FileNotFoundException: Source
+'E:\tomcat\solrstuff\solr\filingcore\data\index\segments_by' does not
+exist
+       at org.apache.commons.io.FileUtils.copyFile(FileUtils.java:637)
+       at org.apache.commons.io.FileUtils.copyFileToDirectory(FileUtils.java:587)
+       at org.apache.solr.handler.SnapShooter.createSnapshot(SnapShooter.java:83)
+       at org.apache.solr.handler.SnapShooter$1.run(SnapShooter.java:61)
+
+
+Sep 28, 2009 11:52:08 AM org.apache.solr.handler.SnapShooter createSnapshot
+SEVERE: Exception while creating snapshot
+java.io.FileNotFoundException: Source
+'E:\tomcat\solrstuff\solr\filingcore\data\index\_yby.nrm' does not
+exist
+       at org.apache.commons.io.FileUtils.copyFile(FileUtils.java:637)
+       at org.apache.commons.io.FileUtils.copyFileToDirectory(FileUtils.java:587)
+       at org.apache.solr.handler.SnapShooter.createSnapshot(SnapShooter.java:83)
+       at org.apache.solr.handler.SnapShooter$1.run(SnapShooter.java:61)
+

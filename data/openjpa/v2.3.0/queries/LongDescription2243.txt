@@ -1,0 +1,35 @@
+FormatPreservingProperties extends Properties, which is a thread-safe class, but it does not preserve the thread safety. This leads to surprising deadlocks if you have a reference of type Properties, because it may turn out to be not thread-safe (despite being documented as such).
+
+Here's a simplified example that shows how we hit this bug:
+
+final Properties p1 = new Properties();
+final Properties p2 = createPropsWithDefault(p1);
+p2.put(p2, p2);
+
+Thread t1 = new Thread(new Runnable() {
+  public void run() 
+{ p2.remove(p1); }
+});
+
+Thread t2 = new Thread(new Runnable() {
+  public void run() 
+{ p2.stringPropertyNames(); }
+});
+t1.start();
+t2.start();
+try 
+{ t1.join(); t2.join();
+}
+ catch (InterruptedException e) 
+{ e.printStackTrace(); }
+
+Properties createPropsWithDefault(Properties p) 
+{
+  // return new Properties(p); // OK 
+  return new FormatPreservingProperties(p); // leads to deadlock
+}
+
+
+If createPropsWithDefault() returns Properties, everything is OK (as it should be, because Properties is thread-safe). However, if it returns FormatPreservingProperties, we occasionally get a deadlock.
+
+Are you aware of this inconsistency? It seems that the safest way of extending Properties is to make methods that override synchronized methods synchronized.

@@ -1,0 +1,41 @@
+Some Derby internal Stored procedures and functions call DriverManager.getConnection("jdbc:default:connection"); and this url can be recognized by another Driver in the same classpath that is used for server side JDBC for another product. For example the below occurred in NetworkServer when JCC was also loaded because the JCC Type 2 driver is used for server side JDBC:
+
+java.lang.UnsatisfiedLinkError:        
+db2jcct2 (Not found in java.library.path):  ERRORCODE=-4472, SQLSTATE=null
+com.ibm.db2.jcc.b.SqlException
+        at com.ibm.db2.jcc.b.bd.a(bd.java:660)
+        at com.ibm.db2.jcc.b.bd.a(bd.java:60)
+        at com.ibm.db2.jcc.b.bd.a(bd.java:94)
+        at com.ibm.db2.jcc.t2.a.a(a.java:37)
+        at com.ibm.db2.jcc.t2.T2Configuration.<clinit>(T2Configuration.java:94)
+        at java.lang.J9VMInternals.initializeImpl(Native Method)
+        at java.lang.J9VMInternals.initialize(J9VMInternals.java:196)
+        at com.ibm.db2.jcc.DB2Driver.connect(DB2Driver.java:211)
+        at java.sql.DriverManager.getConnection(DriverManager.java:572)
+        at java.sql.DriverManager.getConnection(DriverManager.java:218)
+        at org.apache.derby.impl.jdbc.LOBStoredProcedure.getEmbedConnection(Unknown Source)
+        at org.apache.derby.impl.jdbc.LOBStoredProcedure.getClobObjectCorrespondingtoLOCATOR(Unknown Source)
+        at org.apache.derby.impl.jdbc.LOBStoredProcedure.CLOBGETLENGTH(Unknown Source)
+        at org.apache.derby.exe.acf81e0010x0128x864dxbe82x00004c9b380d12.e0(Unknown Source)
+        at org.apache.derby.impl.services.reflect.DirectCall.invoke(Unknown Source)
+        at org.apache.derby.impl.sql.execute.RowResultSet.getNextRowCore(Unknown Source)
+        at org.apache.derby.impl.sql.execute.BasicNoPutResultSetImpl.getNextRow(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedResultSet.movePosition(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedResultSet.next(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedCallableStatement.executeStatement(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement.execute(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAStatement.execute(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.parseEXCSQLSTTobjects(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.parseEXCSQLSTT(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.processCommands(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.run(Unknown Source)
+
+I think we can avoid this specific error by changing LobStoredProcedure (and perhaps other internal procedures)  to  use the code in  SystemProcedures.getDefaultConn() which always connects to Derby by using = InternalDriver.activeDriver()
+
+This of course will not solve the general problem for any user created procedure or function that performs SQL.  I am not sure if there is a good solution for that.  I asked the JCC Driver team to see if there is a way they can determine if they are running inside the DB2 process or not. but regardless of these product workarounds I think the basic problem is design flaw in the specification.  DriverManager cannot differentiate the URL if all database products use the same one for server side JDBC.
+
+
+
+
+
+

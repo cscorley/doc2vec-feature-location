@@ -1,0 +1,28 @@
+This is another language improvement using the same approach as in PIG-3268.
+
+Currently, Pig has no support for IN operator. To mimic it, users often have to concatenate several OR operators.
+
+For example,
+
+
+a = LOAD '1.txt' USING PigStorage(',') AS (i:int);
+b = FILTER a BY 
+   (i == 1) OR
+   (i == 22) OR
+   (i == 333) OR
+   (i == 4444) OR
+   (i == 55555);
+
+
+But this can be re-rewritten in a more compact manner using IN operator as follows: 
+
+
+a = LOAD '1.txt' USING PigStorage(',') AS (i:int);
+b = FILTER a BY i IN (1,22,333,4444,55555);
+
+
+I propose that we implement IN operator in the following manner:
+
+	Add built-in UDFs that take expressions as args. Take for example the aforementioned IN operator, we can define a UDF such as builtInUdf(i, 1, 22, 333, 4444, 55555).
+	Add syntactical sugar for these built-in UDFs.
+

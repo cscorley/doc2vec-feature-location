@@ -1,0 +1,1 @@
+An NPE gets thrown when calling hasPreferenceValues() or getPreferenceValue(long userID, long itemID) on a newly created FileDataModel. This happens because these methods do not call checkLoaded() before forwarding the method call to the delegate. Other overridden methods do call checkLoaded(). Seems like a bug.

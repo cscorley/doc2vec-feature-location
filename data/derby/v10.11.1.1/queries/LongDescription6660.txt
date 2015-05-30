@@ -1,0 +1,19 @@
+If a ResultSet assertion method (such as JDBC.assertFullResultSet()) fails, it now attempts to add the entire ResultSet to the error message. This code uses the ResultSet.isClosed() method, which was added in JDBC 4.0. If this code runs on an older version of Derby that doesn't support JDBC 4.0, it fails with an AbstractMethodError because the isClosed() method doesn't exist. This could happen in the upgrade tests.
+
+See for example this stack trace from a failing test run (http://download.java.net/javadesktop/derby/request_5593747/javadb-task-3900531.html):
+
+
+java.lang.AbstractMethodError: org.apache.derby.impl.jdbc.EmbedResultSet20.isClosed()Z
+	at org.apache.derbyTesting.junit.JDBC.addRsToReport(JDBC.java:1832)
+	at org.apache.derbyTesting.junit.JDBC.assertFullResultSetMinion(JDBC.java:1151)
+	at org.apache.derbyTesting.junit.JDBC.assertFullResultSet(JDBC.java:1048)
+	at org.apache.derbyTesting.junit.JDBC.assertFullResultSet(JDBC.java:1005)
+	at org.apache.derbyTesting.junit.JDBC.assertFullResultSet(JDBC.java:963)
+	at org.apache.derbyTesting.functionTests.tests.upgradeTests.Changes10_2.testTriggerInternalVTI(Changes10_2.java:157)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:118)
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.runBareOverridable(BaseJDBCTestCase.java:440)
+(...)
+
+
+
+The AbstractMethodError shadows the original error.

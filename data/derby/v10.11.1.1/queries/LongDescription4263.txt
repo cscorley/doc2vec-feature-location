@@ -1,0 +1,75 @@
+With empty ant.properties and JDK 6 installed in /tmp/jdk as the only JDK on the system, PropertySetter complains that it's not able to set java16compile.classpath:
+
+,----
+
+
+ [setJdkProperties]
+
+
+ [setJdkProperties] PropertySetter environment =
+
+
+ [setJdkProperties]
+
+
+ [setJdkProperties] java.vendor = Sun Microsystems Inc.
+
+
+ [setJdkProperties] java.home = /tmp/jdk/jre
+
+
+ [setJdkProperties] java.version = 1.6.0_13
+
+
+ [setJdkProperties] os.name = SunOS
+
+
+ [setJdkProperties] j14lib = null
+
+
+ [setJdkProperties] j15lib = null
+
+
+ [setJdkProperties] j16lib = null
+
+
+ [setJdkProperties]
+
+
+
+
+ BUILD FAILED
+
+
+ /code/derby/trunk0/build.xml:203: Don't know how to set java15compile.classpath, java16compile.classpath using this environment:
+
+
+
+
+ java.vendor = Sun Microsystems Inc.
+
+
+ java.home = /tmp/jdk/jre
+
+
+ java.version = 1.6.0_13
+
+
+ os.name = SunOS
+
+
+ j14lib = null
+
+
+ j15lib = null
+
+
+ j16lib = null
+`----
+
+
+
+
+Since it is able to detect both that the version of the default JDK is 1.6.0_13 and where it is installed, setting java16compile.classpath should be trivial.
+
+If the name of the JDK directory is changed from /tmp/jdk to /tmp/jdk1.6.0, Derby is built successfully.

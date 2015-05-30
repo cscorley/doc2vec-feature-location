@@ -1,0 +1,86 @@
+I see two failures in UpdateStatisticsTest. But only in some configurations. It looks like it's dependent on the order in which the test cases run, which may vary on JDK 7.
+
+Output which shows both the ordering of the test cases and the stack traces:
+
+(emb)lang.UpdateStatisticsTest.testIndexAndColumnNamedStatistics used 472 ms .
+(emb)lang.UpdateStatisticsTest.testNoExclusiveLockOnTable used 81 ms .
+(emb)lang.UpdateStatisticsTest.testParallelCompilationAndUpdate used 897 ms .
+(emb)lang.UpdateStatisticsTest.testDisposableStatsEagerness used 1801 ms .
+(emb)lang.UpdateStatisticsTest.testUpdateAndDropStatistics used 213 ms F.
+(emb)lang.UpdateStatisticsTest.testDERBY5681 used 284 ms .
+(net)lang.UpdateStatisticsTest.testIndexAndColumnNamedStatistics used 683 ms .
+(net)lang.UpdateStatisticsTest.testNoExclusiveLockOnTable used 56 ms .
+(net)lang.UpdateStatisticsTest.testParallelCompilationAndUpdate used 6173 ms .
+(net)lang.UpdateStatisticsTest.testDisposableStatsEagerness used 1874 ms .
+(net)lang.UpdateStatisticsTest.testUpdateAndDropStatistics used 381 ms F.
+(net)lang.UpdateStatisticsTest.testDERBY5681 used 340 ms 
+Time: 21.12
+There were 2 failures:
+1) testUpdateAndDropStatistics(org.apache.derbyTesting.functionTests.tests.lang.UpdateStatisticsTest)junit.framework.AssertionFailedError: Index statistics for <ALL TABLES>
+1: 
+{tableId=22480241-0137-6f88-5424-00000ee887c6, tableName=DISPOSABLE_STATS_EAGERNESS_FK, indexName=SQL120521151402080, lcols=1, rows=1000, unique/card=1000, created=2012-05-21 15:14:02.358}
+2: 
+{tableId=85ad4247-0137-6f88-5424-00000ee887c6, tableName=DISPOSABLE_STATS_EAGERNESS, indexName=SQL120521151402160, lcols=1, rows=1000, unique/card=1000, created=2012-05-21 15:14:02.342}
+3: 
+{tableId=85ad4247-0137-6f88-5424-00000ee887c6, tableName=DISPOSABLE_STATS_EAGERNESS, indexName=SQL120521151402160, lcols=2, rows=1000, unique/card=1000, created=2012-05-21 15:14:02.342}
+4: 
+{tableId=85ad4247-0137-6f88-5424-00000ee887c6, tableName=DISPOSABLE_STATS_EAGERNESS, indexName=NU_DISPOSABLE_STATS_EAGERNESS, lcols=1, rows=1000, unique/card=35, created=2012-05-21 15:14:02.382}
+5: 
+{tableId=85ad4247-0137-6f88-5424-00000ee887c6, tableName=DISPOSABLE_STATS_EAGERNESS, indexName=SQL120521151402180, lcols=1, rows=1000, unique/card=1000, created=2012-05-21 15:14:02.351}
+ expected:<0> but was:<5>
+	at org.apache.derbyTesting.junit.IndexStatsUtil.assertStats(IndexStatsUtil.java:132)
+	at org.apache.derbyTesting.junit.IndexStatsUtil.assertNoStats(IndexStatsUtil.java:109)
+	at org.apache.derbyTesting.functionTests.tests.lang.UpdateStatisticsTest.testUpdateAndDropStatistics(UpdateStatisticsTest.java:153)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:113)
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.runBareOverridable(BaseJDBCTestCase.java:423)
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.runBare(BaseJDBCTestCase.java:440)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+2) testUpdateAndDropStatistics(org.apache.derbyTesting.functionTests.tests.lang.UpdateStatisticsTest)junit.framework.AssertionFailedError: Index statistics for <ALL TABLES>
+1: 
+{tableId=165f0eb9-0137-6f88-5424-00000ee887c6, tableName=DISPOSABLE_STATS_EAGERNESS, indexName=SQL120521151412330, lcols=1, rows=1000, unique/card=1000, created=2012-05-21 15:14:12.445}
+2: 
+{tableId=165f0eb9-0137-6f88-5424-00000ee887c6, tableName=DISPOSABLE_STATS_EAGERNESS, indexName=NU_DISPOSABLE_STATS_EAGERNESS, lcols=1, rows=1000, unique/card=35, created=2012-05-21 15:14:12.489}
+3: 
+{tableId=165f0eb9-0137-6f88-5424-00000ee887c6, tableName=DISPOSABLE_STATS_EAGERNESS, indexName=SQL120521151412310, lcols=1, rows=1000, unique/card=1000, created=2012-05-21 15:14:12.442}
+4: 
+{tableId=165f0eb9-0137-6f88-5424-00000ee887c6, tableName=DISPOSABLE_STATS_EAGERNESS, indexName=SQL120521151412310, lcols=2, rows=1000, unique/card=1000, created=2012-05-21 15:14:12.442}
+5: 
+{tableId=a04eceb3-0137-6f88-5424-00000ee887c6, tableName=DISPOSABLE_STATS_EAGERNESS_FK, indexName=SQL120521151412290, lcols=1, rows=1000, unique/card=1000, created=2012-05-21 15:14:12.452}
+ expected:<0> but was:<5>
+	at org.apache.derbyTesting.junit.IndexStatsUtil.assertStats(IndexStatsUtil.java:132)
+	at org.apache.derbyTesting.junit.IndexStatsUtil.assertNoStats(IndexStatsUtil.java:109)
+	at org.apache.derbyTesting.functionTests.tests.lang.UpdateStatisticsTest.testUpdateAndDropStatistics(UpdateStatisticsTest.java:153)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:113)
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.runBareOverridable(BaseJDBCTestCase.java:423)
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.runBare(BaseJDBCTestCase.java:440)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+
+FAILURES!!!
+Tests run: 12,  Failures: 2,  Errors: 0

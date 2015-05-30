@@ -1,0 +1,3 @@
+If no handler is mapped to /update, and SolrUpdateServlet (which delegates to XmlUpdateRequestHandler.doLegacyUpdate) is used, any errors encountered (like stale lock files) are only returned to the client in the body of the XML response – they are not logged by Solr.  Because the legacy XML response info always uses an HTTP status code of 200, there is nothing in any server side log (not even the servlet containers access log) to indicate a problem.
+
+simple fix: add some logging to the error case section of doLegacyUpdate.

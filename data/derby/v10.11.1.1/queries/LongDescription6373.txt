@@ -1,0 +1,21 @@
+After executing a batch in a prepared statement, I call getWarnings() on that statement. A NPE is thrown.
+
+	at org.apache.derby.client.am.SqlWarning.getSQLWarning(SqlWarning.java:117)
+	at org.apache.derby.client.am.Statement.getWarnings(Statement.java:862)
+...
+
+Addtional info:
+
+In a unit test, which worked for 10.8.2.2, a batch of 4 deletes were issued.
+They were expected to fail, as there were no matching rows. There was a SQLWarning chain in the statement, 4 deep, one for each row that failed 
+with text:
+
+No row was found for FETCH, UPDATE or DELETE; or the result of a query is an empty table.
+
+However, each warning had 'nextException_' null. When attempting to chain on the exceptions when building the warning, a NPE is thrown.
+
+Perhaps something like changing line 105 of SqlWarning.java to
+
+if ( nextWarning_ != null && nextException_ != null )
+
+Of course perhaps there's always supposed to be a corresponding exception.

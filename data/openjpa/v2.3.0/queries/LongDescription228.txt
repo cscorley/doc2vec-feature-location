@@ -1,0 +1,28 @@
+This: 
+
+	        List lArticles = lEntityManager.createQuery("select a from Article a where a.iArticlenr < 103").getResultList(); // where articlenr < 103
+
+Results in:
+
+Exception in thread "main" <0.9.7-incubating fatal user error> org.apache.openjpa.persistence.ArgumentException: Could not locate metadata for the class using alias "Article". Registered alias mappings: "
+{Article=null}
+"
+	at org.apache.openjpa.meta.MetaDataRepository.getMetaData(MetaDataRepository.java:348)
+	at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.getClassMetaData(JPQLExpressionBuilder.java:167)
+	at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.resolveClassMetaData(JPQLExpressionBuilder.java:145)
+	at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.getCandidateMetaData(JPQLExpressionBuilder.java:214)
+	at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.getCandidateMetaData(JPQLExpressionBuilder.java:184)
+	at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.getCandidateType(JPQLExpressionBuilder.java:177)
+	at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder.access$500(JPQLExpressionBuilder.java:64)
+	at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder$ParsedJPQL.populate(JPQLExpressionBuilder.java:1671)
+	at org.apache.openjpa.kernel.jpql.JPQLParser.populate(JPQLParser.java:55)
+	at org.apache.openjpa.kernel.ExpressionStoreQuery.populateFromCompilation(ExpressionStoreQuery.java:148)
+	at org.apache.openjpa.kernel.QueryImpl.newCompilation(QueryImpl.java:649)
+	at org.apache.openjpa.kernel.QueryImpl.compilationFromCache(QueryImpl.java:630)
+	at org.apache.openjpa.kernel.QueryImpl.compileForCompilation(QueryImpl.java:596)
+	at org.apache.openjpa.kernel.QueryImpl.compileForExecutor(QueryImpl.java:658)
+	at org.apache.openjpa.kernel.QueryImpl.getOperation(QueryImpl.java:1483)
+	at org.apache.openjpa.kernel.DelegatingQuery.getOperation(DelegatingQuery.java:123)
+	at org.apache.openjpa.persistence.QueryImpl.execute(QueryImpl.java:219)
+	at org.apache.openjpa.persistence.QueryImpl.getResultList(QueryImpl.java:269)
+	at nl.reinders.bm.BMTestOpenJPA.main(BMTestOpenJPA.java:41)

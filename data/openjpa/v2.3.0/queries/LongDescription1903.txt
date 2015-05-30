@@ -1,0 +1,63 @@
+I have a problem in my application where a query that sometimes returns data and sometimes not.
+
+I have reduced it to the code as much as I could into an Eclipse project available at http://ubuntuone.com/p/S9n/
+
+This happens with OpenJPA 2.0.1 as well as the daily snapshot from 2010-12-05 and an out-of-process Derby database.
+
+Basically I have two Entities which both use multiple Ids to produce the Primary Key, "Preis" contains a foreign key on "Website":
+
+@Entity
+@IdClass(MandantAndNameIdentity.class)
+public class Website 
+{
+    @Id
+    private String mandant;
+   
+    @Id
+    private String name;
+...
+}
+
+@Entity
+@IdClass(WebsiteProduktDatumIdentity.class)
+public class Preis 
+{
+    @Id
+    @ManyToOne(cascade = CascadeType.MERGE)
+    private Website website;
+
+    @Id
+    @Basic
+    private String datum;
+...
+}
+
+I use the following to set up a website and a Preis:
+
+        em.getTransaction().begin();
+
+        Website website = em.merge(new Website("Mandant", "Website"));
+
+        em.merge(new Preis(website, DATUM));
+
+        em.getTransaction().commit();
+
+Afterwards, if I run the query as follows:
+
+       TypedQuery<Preis> q = em.createQuery(
+                "select m from Preis m " +
+                "where m.website.name = :website ", Preis.class);
+       q.setParameter("website", website.getName());
+
+this query works all the time, note that it uses website.name for matching, not the full Website-object.
+
+However if I put the query as
+
+        TypedQuery<Preis> q = em.createQuery(
+                "select m from Preis m " +
+                "where m.website = :website ", Preis.class);
+        q.setParameter("website", website);
+
+it only works ONCE and then does not return any results any more!! See testcase DataAccessVerifyTest for details.
+
+Discussion on the mailinglist seems to indicate that this is a bug. 

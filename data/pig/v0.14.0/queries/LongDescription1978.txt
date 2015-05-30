@@ -1,0 +1,21 @@
+The following script fail:
+
+
+a = load '1.txt' as (a0, a1, a2);
+b = group a by (a0, a1);
+c = foreach b {
+    c1 = a.(a1,a2);
+    generate group, c1;
+}
+explain c;
+
+
+
+Error message:
+Caused by: org.apache.pig.impl.logicalLayer.FrontendException: ERROR 0: POForEach has more than 1 input plans
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.SecondaryKeyOptimizer$SecondaryKeyDiscover.processForEach(SecondaryKeyOptimizer.java:551)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.SecondaryKeyOptimizer$SecondaryKeyDiscover.processRoot(SecondaryKeyOptimizer.java:485)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.SecondaryKeyOptimizer$SecondaryKeyDiscover.process(SecondaryKeyOptimizer.java:470)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.SecondaryKeyOptimizer.visitMROp(SecondaryKeyOptimizer.java:254)
+
+Thanks William reporting.

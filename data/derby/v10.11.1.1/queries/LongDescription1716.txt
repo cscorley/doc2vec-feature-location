@@ -1,0 +1,91 @@
+Revoking table select privilege from a user  will time out if that user still have an open cursor on that table.
+Hence, a database owner will not be able to revoke select privilege from any user(s) if they still have a cursor 
+open.  i.e.:  
+
+ij version 10.2
+ij> connect 'jdbc:derby:cs1;create=true' user 'user1' as user1;
+WARNING 01J14: SQL authorization is being used without first enabling authentication.
+ij> connect 'jdbc:derby:cs1' user 'user3' as user3;
+WARNING 01J14: SQL authorization is being used without first enabling authentication.
+ij(USER3)> set connection user1;
+ij(USER1)> create table t1001 (c varchar(1));
+0 rows inserted/updated/deleted
+ij(USER1)> insert into t1001 values 'a', 'b', 'c';
+3 rows inserted/updated/deleted
+ij(USER1)> grant select on t1001 to user3;
+0 rows inserted/updated/deleted
+ij(USER1)> set connection user3;
+ij(USER3)> autocommit off;
+ij(USER3)> GET CURSOR crs1 AS 'select * from user1.t1001';
+ij(USER3)> next crs1;
+C   
+
+a   
+ij(USER3)> set connection user1;
+ij(USER1)> – revoke select privilege while user3 still have an open cursor
+revoke select on t1001 from user3;
+ERROR 40XL1: A lock could not be obtained within the time requested
+ij(USER1)> select * from syscs_diag.lock_table;
+XID            |TYPE |MODE|TABLENAME                                                                                                                       |LOCKNAME            |STATE|TABLETYPE|LOCK&|INDEXNAME                                                                                                                       
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+130            |TABLE|IS  |SYSTABLEPERMS                                                                                                                   |Tablelock           |GRANT|S        |4    |NULL                                                                                                                            
+130            |ROW  |S   |SYSTABLEPERMS                                                                                                                   |(1,7)               |GRANT|S        |2    |NULL                                                                                                                            
+130            |TABLE|IS  |T1001                                                                                                                           |Tablelock           |GRANT|T        |1    |NULL                                                                                                                            
+
+3 rows selected
+ij(USER1)> set connection user3;
+ij(USER3)> next crs1;
+C   
+
+b   
+ij(USER3)> next crs1;
+C   
+
+c   
+ij(USER3)> close crs1;
+ij(USER3)> 
+
+Is there a reason why Derby still keep shared locks on SYS.SYSTABLEPERMS during fetch?
+
+
+sysinfo:
+
+------------------ Java Information ------------------
+Java Version:    1.4.2_12
+Java Vendor:     Sun Microsystems Inc.
+Java home:       C:\Program Files\Java\j2re1.4.2_12
+Java classpath:  derby.jar;derbytools.jar
+OS name:         Windows XP
+OS architecture: x86
+OS version:      5.1
+Java user name:  Yip
+Java user home:  C:\Documents and Settings\Yip
+Java user dir:   C:\work3\derby\tests\derby-10.2.1.0\lib
+java.specification.name: Java Platform API Specification
+java.specification.version: 1.4
+--------- Derby Information --------
+JRE - JDBC: J2SE 1.4.2 - JDBC 3.0
+[C:\work3\derby\tests\derby-10.2.1.0\lib\derby.jar] 10.2.1.0 beta - (430903)
+[C:\work3\derby\tests\derby-10.2.1.0\lib\derbytools.jar] 10.2.1.0 beta - (430903)
+------------------------------------------------------
+----------------- Locale Information -----------------
+Current Locale :  [English/United States [en_US]]
+Found support for locale: [de_DE]
+         version: 10.2.1.0 - (430903)
+Found support for locale: [es]
+         version: 10.2.1.0 - (430903)
+Found support for locale: [fr]
+         version: 10.2.1.0 - (430903)
+Found support for locale: [it]
+         version: 10.2.1.0 - (430903)
+Found support for locale: [ja_JP]
+         version: 10.2.1.0 - (430903)
+Found support for locale: [ko_KR]
+         version: 10.2.1.0 - (430903)
+Found support for locale: [pt_BR]
+         version: 10.2.1.0 - (430903)
+Found support for locale: [zh_CN]
+         version: 10.2.1.0 - (430903)
+Found support for locale: [zh_TW]
+         version: 10.2.1.0 - (430903)
+------------------------------------------------------

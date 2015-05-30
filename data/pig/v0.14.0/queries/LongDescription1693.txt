@@ -1,0 +1,18 @@
+A common use case we see in Pig is people have many columns in their data and they only want to operate on a few of them.  Consider for example if before storing data with ten columns, the user wants to perform a cast on one column:
+
+
+
+...
+Z = foreach Y generate (int)firstcol, secondcol, thridcol, forthcol, fifthcol, sixthcol, seventhcol, eigthcol, ninethcol, tenthcol;
+store Z into 'output';
+
+
+
+Obviously this only gets worse as the user has more columns.  Ideally the above could be transformed to something like:
+
+
+
+...
+Z = foreach Y generate (int)firstcol, "and all the rest";
+store Z into 'output'
+

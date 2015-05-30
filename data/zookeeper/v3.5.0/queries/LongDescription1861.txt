@@ -1,0 +1,13 @@
+queueSendMap is a ConcurrentHashMap.
+At line 210:
+
+
+            if (!queueSendMap.containsKey(sid)) {
+                queueSendMap.put(sid, new ArrayBlockingQueue<ByteBuffer>(
+                        SEND_CAPACITY));
+
+
+By the time control enters if block, there may be another concurrent put with same sid to the ConcurrentHashMap.
+putIfAbsent() should be used.
+
+Similar issue occurs at line 307 as well.

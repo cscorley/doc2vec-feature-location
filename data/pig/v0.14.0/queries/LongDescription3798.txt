@@ -1,0 +1,3 @@
+when running several pig scripts one after another using java class PigServer, the classpath in taskjvm.sh gets longer and longer, eventually execution breaks on having a too long classpath. 
+
+The jar registered at the pig script are appended to the classpath on every execution. It seems that PigContext's skipJars member is the root cause for this as it is added jars that already exists in the list multiple times.

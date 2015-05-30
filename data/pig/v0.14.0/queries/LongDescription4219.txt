@@ -1,0 +1,11 @@
+Example
+
+
+//We generate a schema object and call toString()
+String schemaStr = "my_list: {array: (array_element: (num1: int,num2: int))}";
+// Reparsed using org.apache.pig.impl.util.Utils
+Schema schema = Utils.getSchemaFromString(schemaStr);
+// But no longer matches the original structure
+schema.toString();
+// => {my_list: {array_element: (num1: int,num2: int)}}
+

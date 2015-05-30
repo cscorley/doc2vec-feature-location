@@ -1,0 +1,9 @@
+Escape character in JPQL/SQL with parameter substitution generates incorrect SQL. E.g.
+
+"SELECT 'TRUE' AS VAL FROM DUAL WHERE '' = ?"
+
+or 
+
+"SELECT * FROM ( SELECT FOLDER_ID, SYS_CONNECT_BY_PATH(NAME,'') AS PATH FROM PROJECT_FOLDER START WITH PARENT_ID IS NULL CONNECT BY PRIOR FOLDER_ID = PARENT_ID ) WHERE PATH LIKE ?"
+
+the '' will be transformed to '' and causes SQLException when send to the db server.

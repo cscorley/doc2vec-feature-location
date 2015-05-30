@@ -1,0 +1,17 @@
+The second query should return two rows but returns just one.
+
+ij> select * from t1;
+I          |V         
+----------------------
+1          |row 1     
+2          |row 2     
+
+2 rows selected
+ij> select * from t1, (select distinct 1 from t1) as sub(c);
+I          |V         |C          
+----------------------------------
+1          |row 1     |1          
+
+1 row selected
+
+More specifically, this bug will show up when the sql layer does duplication elimination for distinct without a sorter (i.e. the underlying result set is already sorted). The result set will return correct data the first time, but after it is closed and re-opened it will not return any data rows.

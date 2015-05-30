@@ -1,0 +1,71 @@
+The tinderbox failed when testing revision 1164361:
+
+Failure Details:
+
+	
+	
+		
+		
+			
+			
+				
+				
+					
+					
+						
+						
+							
+							
+								
+								
+									Diff file derbyall/storeall/storemore/bug3498.diff
+								
+								
+							
+							
+						
+						
+					
+					
+				
+				
+			
+			
+			Start: bug3498 jdk1.6.0_24 storeall:storemore 2011-09-02 10:04:59 ***
+322 del
+< ij> 
+322 add
+> ij> Exception in thread "main" java.lang.NullPointerException
+Test Failed.
+			End:   bug3498 jdk1.6.0_24 storeall:storemore 2011-09-02 10:05:02 ***
+		
+		
+	
+	
+
+
+
+Here's the full stack trace:
+
+Exception in thread "main" java.lang.NullPointerException
+	at org.apache.derby.impl.sql.catalog.SequenceUpdater.updateCurrentValueOnDisk(Unknown Source)
+	at org.apache.derby.impl.sql.catalog.SequenceUpdater.clean(Unknown Source)
+	at org.apache.derby.impl.sql.catalog.SequenceUpdater.clearIdentity(Unknown Source)
+	at org.apache.derby.impl.services.cache.ConcurrentCache.removeEntry(Unknown Source)
+	at org.apache.derby.impl.services.cache.ConcurrentCache.ageOut(Unknown Source)
+	at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.clearSequenceCaches(Unknown Source)
+	at org.apache.derby.impl.db.BasicDatabase.stop(Unknown Source)
+	at org.apache.derby.impl.services.monitor.TopService.stop(Unknown Source)
+	at org.apache.derby.impl.services.monitor.TopService.shutdown(Unknown Source)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.shutdown(Unknown Source)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.shutdown(Unknown Source)
+	at org.apache.derby.jdbc.InternalDriver.connect(Unknown Source)
+	at org.apache.derby.jdbc.AutoloadedDriver.connect(Unknown Source)
+	at java.sql.DriverManager.getConnection(DriverManager.java:582)
+	at java.sql.DriverManager.getConnection(DriverManager.java:207)
+	at org.apache.derby.impl.tools.ij.utilMain.cleanupGo(Unknown Source)
+	at org.apache.derby.impl.tools.ij.utilMain.go(Unknown Source)
+	at org.apache.derby.impl.tools.ij.Main.go(Unknown Source)
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Unknown Source)
+	at org.apache.derby.impl.tools.ij.Main.main(Unknown Source)
+	at org.apache.derby.tools.ij.main(Unknown Source)

@@ -1,0 +1,36 @@
+If I request the following on solr example:
+
+http://localhost:8080/solr/select?q=ipod%3Bzzz+asc&version=2.2&start=0&rows=10&indent=on
+
+I got an exception as I expected because zzz isn't undefined, but HTTP status code is 1. I expected 400 in this case.
+The reason of this is because IndexSchema.getField() method throws SolrException(1,"") and QueryParsing.parseSort() doesn't catch it:
+
+        // getField could throw an exception if the name isn't found
+    	SchemaField f = schema.getField(part);	// <=== makes HTTP status code=1
+        if (f == null || !f.indexed())
+{
+          throw new SolrException( 400, "can not sort on unindexed field: "+part );
+        }
+
+There seems to be a couple of ways to solve this problem:
+
+1. IndexSchema.getField() method throws SolrException(400,"")
+2. IndexSchema.getField() method doesn't throw the exception but returns null
+3. The caller catches the exception and re-throws SolrException(400,"")
+4. The caller catches the exception and re-throws SolrException(400,"",cause) that wraps the cause exception
+
+I think either #3 or #4 will be acceptable. The attached patch is #3 for sort on undefined field.
+
+Other than QueryParsing.parseSort(), IndexSchema.getField() is called by the following class/methos:
+
+
+	CSVLoader.prepareFields()
+	JSONWriter.writeDoc()
+	SimpleFacets.getTermCounts()
+	QueryParsing.parseValSource()
+
+
+
+I'm not sure these methods require same patch. Any thoughts?
+
+regards,

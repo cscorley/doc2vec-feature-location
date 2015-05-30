@@ -1,0 +1,3 @@
+After sampling one tuple from every block, one reducer is used to sort the index entries in reduce phase to produce sorted index to be used in actual join job. Thus, parallelism of index job should be explictly set to 1. Currently, its not.
+
+Currently, this is a non-issue, since we don't allow any blocking operators in pipeline before merge-join. However, later when we do allow blocking operators, then parallelism of indexing job will be that of preceding blocking operator. Even then, job will complete successfully because all tuple will go to only one reducer, because we are grouping on only one key "all". However, it will waste cluster resources by starting all the extra reducers which get no data and thus do nothing.

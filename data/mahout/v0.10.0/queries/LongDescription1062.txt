@@ -1,0 +1,16 @@
+alphaI is passed in for training via the thetaSummer job configuration.  When the model is saved, however, the wrong configuration is used causing the saved alphaI to always be 1.0.  The following patch fixes the problem for me.
+
+diff -ur mahout-distribution-0.7.orig/core/src/main/java/org/apache/mahout/classifier/naivebayes/training/TrainNaiveBayesJob.java mahout-distribution-0.7/core/src/main/java/org/apache/mahout/classifier/naivebayes/training/TrainNaiveBayesJob.java
+— mahout-distribution-0.7.orig/core/src/main/java/org/apache/mahout/classifier/naivebayes/training/TrainNaiveBayesJob.java	2012-06-12 03:32:17.000000000 -0500
++++ mahout-distribution-0.7/core/src/main/java/org/apache/mahout/classifier/naivebayes/training/TrainNaiveBayesJob.java	2012-08-28 13:06:11.000000000 -0500
+@@ -134,7 +134,7 @@
+     }*/
+
+     //validate our model and then write it out to the official output
+
+	NaiveBayesModel naiveBayesModel = BayesUtils.readModelFromDir(getTempPath(), getConf());
++    NaiveBayesModel naiveBayesModel = BayesUtils.readModelFromDir(getTempPath(), thetaSummer.getConfiguration());
+     naiveBayesModel.validate();
+     naiveBayesModel.serialize(getOutputPath(), getConf());
+
+

@@ -1,0 +1,7 @@
+The current code in LikeEscapeOperatorNode seems to only check that the collations are identical. That is not the correct mechanism for determing collation which is based upon SQL spec Section 9.13 "Collation determination" or item 12 in the DERBY-1478 wiki page.
+
+http://wiki.apache.org/db-derby/BuiltInLanguageBasedOrderingDERBY-1478
+
+I think it's also essential that the (somewhat complex) logic to implement collation determination is in a single method, not repeated multiple times for each collation.
+
+There is a TODO in LikeEscapeOperatorNode  that might be related to this.

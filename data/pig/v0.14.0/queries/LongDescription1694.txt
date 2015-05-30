@@ -1,0 +1,12 @@
+If the input relations of union-onschema have different aliases in the schemas, a subsequent statement that refers to a column alias in the union fails.
+
+eg
+
+
+grunt> l1 = load 'x' as (a);   
+grunt> l2 = load 'x' as (a,b); 
+grunt> u = union onschema l1,l2;
+grunt> o = order u by a;        
+2010-10-22 14:33:56,086 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1000: Error during parsing. Invalid alias: a in null
+Details at logfile: /Users/tejas/pig-0.8/branch-0.8/pig_1287783217811.log
+

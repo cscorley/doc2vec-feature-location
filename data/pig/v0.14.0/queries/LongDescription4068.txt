@@ -1,0 +1,34 @@
+Here is stack trace-
+
+
+2014-07-23 20:19:41,503 INFO [TezChild] org.apache.tez.runtime.task.TezTaskRunner: Encounted an error while executing task: attempt_1405989231017_0003_1_10_000087_2
+java.lang.ClassCastException: java.lang.Boolean cannot be cast to java.util.Map
+    at org.apache.pig.backend.hadoop.executionengine.tez.PigProcessor.collectSample(PigProcessor.java:345)
+    at org.apache.pig.backend.hadoop.executionengine.tez.PigProcessor.initializeInputs(PigProcessor.java:255)
+    at org.apache.pig.backend.hadoop.executionengine.tez.PigProcessor.run(PigProcessor.java:183)
+    at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:315)
+    at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:180)
+    at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:172)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at javax.security.auth.Subject.doAs(Subject.java:415)
+    at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1548)
+    at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.call(TezTaskRunner.java:172)
+    at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.call(TezTaskRunner.java:167)
+    at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+    at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+    at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+    at java.lang.Thread.run(Thread.java:745)
+
+
+The problem is that PigProcessor.collectSample() and POPartitionRearrangeTez.init() use the same cache key for different objects (Map vs. Boolean)-
+PigProcessor.java
+
+String quantileMapCacheKey = "sample-" + sampleVertex  + ".cached";
+sampleMap = (Map<String, Object>)ObjectCache.getInstance().retrieve(quantileMapCacheKey);
+
+POPartitionRearrangeTez.java
+
+String isCachedKey = "sample-" + PigProcessor.sampleVertex + ".cached";
+...
+cache.cache(isCachedKey, Boolean.TRUE);
+

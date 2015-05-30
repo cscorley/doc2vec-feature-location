@@ -1,0 +1,73 @@
+We have bunch of joins in our pig scripts (joining 5 to 15 datasets together).  Pig creates a bunch of REPLICATED, HASH_JOINs and we observed heavy performance degradation in one of the launched M/R job.  This was specifically on the reducer side.  Taking multiple threaddumps revealed the following
+
+"main" prio=10 tid=0x00007fbaa801c000 nid=0x1464 runnable [0x00007fbaaee76000]
+   java.lang.Thread.State: RUNNABLE
+	at org.apache.hadoop.conf.Configuration.getProps(Configuration.java:1781)
+
+	locked <0x00000000b5316370> (a org.apache.hadoop.mapred.JobConf)
+	at org.apache.hadoop.conf.Configuration.get(Configuration.java:712)
+	at org.apache.pig.data.SelfSpillBag$MemoryLimits.init(SelfSpillBag.java:73)
+	at org.apache.pig.data.SelfSpillBag$MemoryLimits.<init>(SelfSpillBag.java:65)
+	at org.apache.pig.data.SelfSpillBag.<init>(SelfSpillBag.java:39)
+	at org.apache.pig.data.InternalCachedBag.<init>(InternalCachedBag.java:63)
+	at org.apache.pig.data.InternalCachedBag.<init>(InternalCachedBag.java:59)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POJoinPackage.getNext(POJoinPackage.java:146)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapReduce$Reduce.processOnePackageOutput(PigGenericMapReduce.java:422)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapReduce$Reduce.reduce(PigGenericMapReduce.java:405)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapReduce$Reduce.reduce(PigGenericMapReduce.java:257)
+	at org.apache.hadoop.mapreduce.Reducer.run(Reducer.java:164)
+	at org.apache.hadoop.mapred.ReduceTask.runNewReducer(ReduceTask.java:610)
+	at org.apache.hadoop.mapred.ReduceTask.run(ReduceTask.java:444)
+	at org.apache.hadoop.mapred.Child$4.run(Child.java:268)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1408)
+	at org.apache.hadoop.mapred.Child.main(Child.java:262)
+
+
+
+at org.apache.hadoop.conf.Configuration.getProps(Configuration.java:1781)
+
+	locked <0x00000000b5316388> (a org.apache.hadoop.mapred.JobConf)
+	at org.apache.hadoop.conf.Configuration.get(Configuration.java:712)
+	at org.apache.pig.data.SelfSpillBag$MemoryLimits.init(SelfSpillBag.java:73)
+	at org.apache.pig.data.SelfSpillBag$MemoryLimits.<init>(SelfSpillBag.java:65)
+	at org.apache.pig.data.SelfSpillBag.<init>(SelfSpillBag.java:39)
+	at org.apache.pig.data.InternalCachedBag.<init>(InternalCachedBag.java:63)
+	at org.apache.pig.data.InternalCachedBag.<init>(InternalCachedBag.java:59)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POJoinPackage.getNext(POJoinPackage.java:146)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapReduce$Reduce.processOnePackageOutput(PigGenericMapReduce.java:422)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapReduce$Reduce.reduce(PigGenericMapReduce.java:405)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapReduce$Reduce.reduce(PigGenericMapReduce.java:257)
+	at org.apache.hadoop.mapreduce.Reducer.run(Reducer.java:164)
+	at org.apache.hadoop.mapred.ReduceTask.runNewReducer(ReduceTask.java:610)
+	at org.apache.hadoop.mapred.ReduceTask.run(ReduceTask.java:444)
+	at org.apache.hadoop.mapred.Child$4.run(Child.java:268)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1408)
+	at org.apache.hadoop.mapred.Child.main(Child.java:262)
+
+
+
+In certain corner cases (where pig.cachedbag.type is not "default"), InternalCachedBag is initialized in POJoinPackage.  
+
+InternalCachedBag internally calls SelfSpillBag--> MemoryLimits --> PigMapReduce.sJobConfInternal.get().get(
+                        PigConfiguration.PROP_CACHEDBAG_MEMUSAGE);
+
+Since this is happening very frequently, the cost of Configuration.get()  itself is increasing causing the degradation.  Here is the counters snippet from one of the reducer.
+
+E.g : counter snippet from a reducer
+        FILE: Number of bytes read 	57,762,717
+	FILE: Number of bytes written 	25,256,417
+        HDFS: Number of bytes read 	0
+	HDFS: Number of bytes written 	2,521,311
+	HDFS: Number of read operations 	0
+	HDFS: Number of large read operations 	0
+	HDFS: Number of write operations 	1
+
+ 	Reduce input groups 	4,282,722
+	Reduce shuffle bytes 	26,858,192
+	Reduce input records 	4,912,881
+	Reduce output records 	630,159
+	Spilled Records 	4,912,881

@@ -1,0 +1,5 @@
+When moving ProtocolTest into suites all (see DERBY-2031), I needed to allow the test code to create a socket. There was already a policy file for the old harness for doing this, but when using this with the JUnit framework I ended up adding privilege after privilege to get the framework itself running.
+Instead of creating a large policy file duplicating all the privileges that the framework requires to function properly, I think it would be better to make the SecurityManagerSetup capable of merging the test specific policy file with the default policy file.
+This mode of operation can be used when you need a few extra privileges to execute the test, but there are probably also tests where you want full control of the privileges - in which case you use the existing mode of operation.
+
+I'm not 100% sure this approach will always work, but basic testing has shown promising results.

@@ -1,0 +1,18 @@
+The HSQLDictionary sets the DBDictionary.nextSequenceQuery to "SELECT NEXT VALUE FOR 
+{0} FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES" when the HSQLDictionary is initialized.
+
+The NativeJDBCSeq uses
+ _select = MessageFormat.format(format, new Object[]{name, String.valueOf(_allocate * _increment)});
+to build the select next value sql. The format is pased 2 arguments "name" and "_allocate * _increment"
+but the second is not honored by the nextSequenceQuery.
+
+So when the allocation size is set to 1 the hsqldb nextSequenceQuery statement will return 2 next values
+anyway. That is why always one next value will be skipped... 1, 3, 5, 7, and so on.
+
+The nextSequenceQuery should be set with an limit. E.g.
+"SELECT NEXT VALUE FOR {0}
+ FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES LIMIT 
+{1}
+"
+
+I will attatch an unit test that uses in memory hsqldb to show the problem soon.

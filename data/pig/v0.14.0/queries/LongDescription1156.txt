@@ -1,0 +1,9 @@
+Currently, the way to use muti-query from Java is as follows:
+
+1.  pigServer.setBatchOn();
+2. register your queries with pigServer
+3. List<ExecJob> jobs = pigServer.executeBatch();
+4. for (ExecJob job : jobs) 
+{ Iterator<Tuple> results = job.getResults(); }
+
+This will cause all stores to get evaluated in a single batch. However, there is no way to identify which of the ExecJobs corresponds to which store.  We should add aliases by which the stored relations are known to ExecJob in order to allow the user to identify what the jobs correspond do.

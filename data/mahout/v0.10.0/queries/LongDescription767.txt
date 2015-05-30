@@ -1,0 +1,5 @@
+(See http://www.lucidimagination.com/search/document/40c4f124795c6b5/rowsimilarity_s#42ab816c27c6a9e7 for background)
+
+Currently, the RowSimilarityJob defers the calculation of the similarity metric until the reduce phase, while emitting many Cooccurrence objects.  For similarity metrics that are algebraic (http://pig.apache.org/docs/r0.8.1/udf.html#Aggregate+Functions) we should be able to do much of the computation during the Mapper part of this phase and also take advantage of a Combiner.  
+
+We should use a marker interface to know whether a similarity metric is algebraic and then make use of an appropriate Mapper implementation, otherwise we can fall back on our existing implementation.

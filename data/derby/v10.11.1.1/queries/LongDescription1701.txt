@@ -1,0 +1,45 @@
+It looks like the jdbcapi junit suite has been failing on some platforms ever since change: 
+r431195 | djd | 2006-08-13 19:08:04 +0200 (Sun, 13 Aug 2006) | 5 lines
+
+Have the test harness jdbcapi run a single JUnit suite jdbcapi._Suite that includes most of the JUnit tests
+that were run individually. Tests in this suite that were excluded in derby net or had _app.properties file
+now self-exclude themselves based upon the JUnit utility methods indicating which JDBC client they are running.
+Remaining JUnit tests should be included in jdbcapi._Suite, think they were added after I has started the _Suite
+work.
+
+Here is an example of the diff from the public regression tests:
+http://www.multinet.no/~solberg/public/Apache/DerbyJvm1.4/testlog/CYGWIN_NT-5.1_i686-unknown/431200-derbyall_diff.txt
+
+	
+	
+		
+		
+			Start: _Suite jdk1.4.2_10 DerbyNetClient derbynetmats:jdbcapi 2006-08-14 05:58:32 ***
+0 add
+> ......................................E
+> There was 1 error:
+> 1) testNextOnLastRowScrollable(org.apache.derbyTesting.functionTests.tests.jdbcapi.ScrollResultSetTest)java.lang.OutOfMemoryError
+> FAILURES!!!
+> Tests run: 817,  Failures: 0,  Errors: 1
+Test Failed.
+			End:   _Suite jdk1.4.2_10 DerbyNetClient derbynetmats:jdbcapi 2006-08-14 06:01:05 ***
+		
+		
+	
+	
+
+
+
+Here are links to some of the failures that have been recorded:
+1.4.2 failed on windows nt, and linux:
+http://www.multinet.no/~solberg/public/Apache/DerbyJvm1.4/testlog/CYGWIN_NT-5.1_i686-unknown/431200-derbyall_diff.txt
+http://www.multinet.no/~solberg/public/Apache/DerbyJvm1.4/testlog/Linux-2.6.9-34.ELsmp_x86_64-x86_64/431200-derbyall_diff.txt
+http://www.multinet.no/~solberg/public/Apache/DerbyJvm1.4/testlog/CYGWIN_NT-5.1_i686-unknown/431386-derbyall_diff.txt
+http://www.multinet.no/~solberg/public/Apache/DerbyJvm1.4/testlog/Linux-2.6.14-1.1644_FC4_i686-i686/431386-derbyall_diff.txt
+http://www.multinet.no/~solberg/public/Apache/DerbyJvm1.4/testlog/Linux-2.6.9-34.ELsmp_x86_64-x86_64/431386-derbyall_diff.txt
+
+failed on jdk1.5:
+
+http://www.multinet.no/~solberg/public/Apache/Derby/testlog/CYGWIN_NT-5.1_i686-unknown/431386-derbyall_diff.txt
+
+That is just some of the places I saw it failed.  It failed in my personal test runs on windows XP,  run from sane classes, on single processor laptop.  Failed consistently when run from the derbynetclientsmats suite on 2 trys, and once on a full nightly run.  

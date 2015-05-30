@@ -1,0 +1,9 @@
+org.apache.pig.builtin.CONCAT (which acts on DataByteArray's internally) and org.apache.pig.builtin.StringConcat (which acts on Strings internally), both act on the first two fields of a tuple.  This results in ugly nested CONCAT calls like:
+
+CONCAT(CONCAT(A, ' '), B)
+
+The more desirable form is:
+
+CONCAT(A, ' ', B)
+
+This change will be backwards compatible, provided that no one was relying on the fact that CONCAT ignores fields after the first two in a tuple.  This seems a reasonable assumption to make, or at least a small break in compatibility for a sizable improvement.

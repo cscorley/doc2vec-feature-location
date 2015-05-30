@@ -1,0 +1,30 @@
+Pig's Main starts logging before log4j has been configured.
+
+This way logging messages are mixed with pig's output.
+
+
+$ cat script.pig 
+A = LOAD 'input' AS (num:long, fruit:chararray);
+DUMP A;
+
+
+$ cat input 
+1	orange
+2	apple
+3	coconut
+4	mango
+5	grape
+6	pear
+
+
+$ pig -x local prova.pig > dump
+
+
+$ cat dump
+0    [main] INFO  org.apache.pig.Main  - Logging error messages to: /home/gianmarcodfm/pig-sbox/pig_1273222206353.log
+(1,orange)
+(2,apple)
+(3,coconut)
+(4,mango)
+(5,grape)
+(6,pear)

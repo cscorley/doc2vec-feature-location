@@ -1,0 +1,4 @@
+From LedgerCache.java
+    private static int pageLimit = (int)(Runtime.getRuntime().maxMemory() / 3) / LedgerEntryPage.PAGE_SIZE;
+
+pageLimit will be negative is maxMemory is 2^31 or more. This causes exceptions later on when pageLimit is used.

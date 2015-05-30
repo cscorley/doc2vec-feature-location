@@ -1,0 +1,3 @@
+Access to the the list of event listeners is not synchronized properly.
+
+Taken the rather infrequent use of the relevant methods and the small critical sections, I mean it is sufficient to add synchronization to all the methods that access it at the method level. The same approach is taken in ClientPooledConnection (although not followed through consistently, some of the methods are unsynchronized).

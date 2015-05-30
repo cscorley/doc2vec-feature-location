@@ -1,0 +1,10 @@
+I have a simple script:
+
+A = load '/user/pig/tests/data/singlefile/studenttab10k' as (name, age, gpa);
+B = group A by name;
+C = foreach B generate group, COUNT(A);
+D = order C by $1;
+E = limit D 10;
+dump E;
+
+I noticed a couple of issues with alias to job mapping: neither load(A) nor limit(E) shows in the output

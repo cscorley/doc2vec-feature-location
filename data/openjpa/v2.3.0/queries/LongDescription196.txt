@@ -1,0 +1,38 @@
+OpenJPA currently enforces that each positional parameter that is assigned in a query must actually be declared in that query, although the spec doesn't actually seem to mention that restriction.
+
+As respoted by Dain Sundstorm on the OpenJPA mailing list:
+
+Actually, I think there is a bigger problem...  Say I have a query like this:
+
+    SELECT x FROM foo AS x WHERE foo.name = ?2
+
+The org.apache.openjpa.kernel.QueryImpl.assertParameters(...) code assumes that if I have 1 parameter it is numbered ?1, but in EJB 2.1 this was not a requirement and there are certification tests that verify you are allowed to have "unused" parameters (e.g, in my example about ?1 and ?N where N>2 are all not used).  I couldn't find any text in the specification that says that all all positional parameters must be used in the query, but I did find text that say the EJB-QL 3.0 language is an extension of the EJB-QL 2.1 language:
+
+"The Java Persistence query language is an extension of the Enterprise Java Beans query language, EJB QL, definedin[5]."
+
+So I think we must remove the "extra-params" check, but I would be happy with a "don't check for extra-params flag".
+
+-dain
+
+On Mar 31, 2007, at 8:56 AM, Dain Sundstrom wrote:
+
+I'm working on a CMP 2 implementation that delegates to OpenJPA for persistence.  I'm running into a problem where I get the following exception:
+
+org.apache.openjpa.persistence.ArgumentException : More parameters were passed to execute() than were declared: 4 parameters were specified for query execution, but only 2 parameters were declared in the query.
+
+
+In CMP you declare finder and select methods that have parameters which are passed into the query engine.  You can have as many parameters as you like but are not required to use them all, but it appears that OpenJPA is enforcing a restriction where if the EJB-QL text only lists say 2 parameters and I set 4 I get the above exception.  In order of perference:
+
+Is this spec required? If not, can we remove the check?
+
+Is there a way to disable the check?  If so, how?
+
+Is there a way to determine the number of paramters a query takes?  If so, I can change my code.
+
+Is there a way to get the ejbql text from a Query object? If so, I'll write a quick parser to determine number of queries myself.
+
+BTW, I'm currently using 0.9.6.
+
+Thanks,
+
+-dain

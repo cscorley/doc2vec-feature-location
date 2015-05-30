@@ -1,0 +1,8 @@
+QueryParserDriver provides a convenient method to parse from string to LogicalSchema. But if a comma is missing between two fields in the schema definition, it silently returns a wrong result. For example,
+
+
+a:int b:long
+
+
+This string will be parsed up to "a:int", and "b:long" will be silently discarded. This should rather fail with a parser exception.
+

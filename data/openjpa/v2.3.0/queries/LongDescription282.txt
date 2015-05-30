@@ -1,0 +1,91 @@
+PostgreSQL does not support deferred unique constraints. Since the dictionary states deferred constraints capabilities, this results in an error on automatic database generation for unique fields.
+
+Oh, and identifiers can be 63 chars long... not 31(since at least postgres 7.3, which has last be updated 2005, and is outdated by 7.4 since 2000).
+
+Please use the attached patch to fix this. (Or try something else... . Maybe one could better define a variable to describe this capability.
+
+With best regards,
+Daniel Migowski
+
+--------------------- PATCH BEGINS BELOW THIS LINE --------------------------
+Index: C:/IKOfficeRoot/Projekte/OpenJPA/openjpa/openjpa-jdbc/src/main/java/org/apache/openjpa/jdbc/sql/PostgresDictionary.java
+===================================================================
+— C:/IKOfficeRoot/Projekte/OpenJPA/openjpa/openjpa-jdbc/src/main/java/org/apache/openjpa/jdbc/sql/PostgresDictionary.java	(revision 554663)
++++ C:/IKOfficeRoot/Projekte/OpenJPA/openjpa/openjpa-jdbc/src/main/java/org/apache/openjpa/jdbc/sql/PostgresDictionary.java	(working copy)
+@@ -32,6 +32,7 @@
+ import org.apache.openjpa.jdbc.schema.Column;
+ import org.apache.openjpa.jdbc.schema.Sequence;
+ import org.apache.openjpa.jdbc.schema.Table;
++import org.apache.openjpa.jdbc.schema.Unique;
+ import org.apache.openjpa.lib.jdbc.DelegatingConnection;
+ import org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement;
+ import org.apache.openjpa.lib.util.Localizer;
+@@ -36,6 +37,8 @@
+ import org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement;
+ import org.apache.openjpa.lib.util.Localizer;
+
++import serp.util.Strings;
++
+ /**
+
+	Dictionary for Postgres.
+  */
+@@ -93,10 +96,10 @@
+         // PostgreSQL requires double-escape for strings
+         searchStringEscape = "\\\\";
+
+
+
+
+	maxTableNameLength = 31;
+	maxColumnNameLength = 31;
+	maxIndexNameLength = 31;
+	maxConstraintNameLength = 31;
++        maxTableNameLength = 63;
++        maxColumnNameLength = 63;
++        maxIndexNameLength = 63;
++        maxConstraintNameLength = 63;
+         schemaCase = SCHEMA_CASE_LOWER;
+         rangePosition = RANGE_POST_LOCK;
+         requiresAliasForSubselect = true;
+@@ -301,6 +304,31 @@
+         throws SQLException 
+{
+         return new PostgresConnection(super.decorate(conn), this);
+     }
++    
++	/**
++     * Return the declaration SQL for the given unique constraint. This
++     * method is used from within 
+{@link #getCreateTableSQL}
+.
++     * Returns	<code>CONSTRAINT <name> UNIQUE (<col list>)</code>
++     * by default. Only foreign key constraints can be deferred in PostgreSQL
++     * so we have to override the function in DbDictionary.
++     */
++    protected String getUniqueConstraintSQL(Unique unq) 
+{
++        if (unq.isDeferred()) return null;
++
++        StringBuffer buf = new StringBuffer();
++        if (unq.getName() != null
++            && CONS_NAME_BEFORE.equals(constraintNameMode))
++            buf.append("CONSTRAINT ").append(unq.getName()).append(" ");
++        buf.append("UNIQUE ");
++        if (unq.getName() != null && CONS_NAME_MID.equals(constraintNameMode))
++            buf.append(unq.getName()).append(" ");
++        buf.append("(").append(Strings.join(unq.getColumns(), ", ")).
++            append(")");
++        if (unq.getName() != null
++            && CONS_NAME_AFTER.equals(constraintNameMode))
++            buf.append(" CONSTRAINT ").append(unq.getName());
++        return buf.toString();
++    }
+    
+
+
+
+     /**
+
+	Connection wrapper to work around the postgres empty result set bug.
+

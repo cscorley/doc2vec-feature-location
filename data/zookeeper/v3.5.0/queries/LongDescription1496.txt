@@ -1,0 +1,58 @@
+In one of the tests we performed, came across a case where the ephemeral node was not getting cleared from zookeeper though the client exited.
+
+Zk version: 3.4.3
+
+Ephemeral node still exists in Zookeeper: 
+
+HOST-xx-xx-xx-55:/home/Jun25_LR/install/zookeeper/bin # date 
+
+Tue Jun 26 16:07:04 IST 2012 
+HOST-xx-xx-xx-55:/home/Jun25_LR/install/zookeeper/bin # ./zkCli.sh -server xx.xx.xx.55:2182 
+Connecting to xx.xx.xx.55:2182 
+Welcome to ZooKeeper! 
+JLine support is enabled 
+[zk: xx.xx.xx.55:2182(CONNECTING) 0] 
+WATCHER:: 
+
+WatchedEvent state:SyncConnected type:None path:null 
+
+[zk: xx.xx.xx.55:2182(CONNECTED) 0] get /hadoop-ha/hacluster/ActiveStandbyElectorLock 
+
+haclusternn2HOSt-xx-xx-xx-102 ï¿½ï¿½ 
+cZxid = 0x200000075 
+ctime = Tue Jun 26 13:10:19 IST 2012 
+mZxid = 0x200000075 
+mtime = Tue Jun 26 13:10:19 IST 2012 
+pZxid = 0x200000075 
+cversion = 0 
+dataVersion = 0 
+aclVersion = 0 
+ephemeralOwner = 0x1382791d4e50004 
+dataLength = 42 
+numChildren = 0 
+[zk: xx.xx.xx.55:2182(CONNECTED) 1] 
+
+Grepped logs at ZK side for session "0x1382791d4e50004" - close session and later create coming before closesession processed. 
+
+HOSt-xx-xx-xx-91:/home/Jun25_LR/install/zookeeper/logs # grep -E "/hadoop-ha/hacluster/ActiveStandbyElectorLock|0x1382791d4e50004" *|grep 0x200000074 
+2012-06-26 13:10:18,834 [myid:3] - DEBUG [ProcessThread(sid:3 cport:-1)::CommitProcessor@171] - Processing request:: sessionid:0x1382791d4e50004 type:closeSession cxid:0x0 zxid:0x200000074 txntype:-11 reqpath:n/a 
+2012-06-26 13:10:19,892 [myid:3] - DEBUG [ProcessThread(sid:3 cport:-1)::Leader@716] - Proposing:: sessionid:0x1382791d4e50004 type:closeSession cxid:0x0 zxid:0x200000074 txntype:-11 reqpath:n/a 
+2012-06-26 13:10:19,919 [myid:3] - DEBUG [LearnerHandler-/xx.xx.xx.102:13846:CommitProcessor@161] - Committing request:: sessionid:0x1382791d4e50004 type:closeSession cxid:0x0 zxid:0x200000074 txntype:-11 reqpath:n/a 
+2012-06-26 13:10:20,608 [myid:3] - DEBUG [CommitProcessor:3:FinalRequestProcessor@88] - Processing request:: sessionid:0x1382791d4e50004 type:closeSession cxid:0x0 zxid:0x200000074 txntype:-11 reqpath:n/a 
+
+HOSt-xx-xx-xx-91:/home/Jun25_LR/install/zookeeper/logs # grep -E "/hadoop-ha/hacluster/ActiveStandbyElectorLock|0x1382791d4e50004" *|grep 0x200000075 
+2012-06-26 13:10:19,893 [myid:3] - DEBUG [ProcessThread(sid:3 cport:-1)::CommitProcessor@171] - Processing request:: sessionid:0x1382791d4e50004 type:create cxid:0x2 zxid:0x200000075 txntype:1 reqpath:n/a 
+2012-06-26 13:10:19,920 [myid:3] - DEBUG [ProcessThread(sid:3 cport:-1)::Leader@716] - Proposing:: sessionid:0x1382791d4e50004 type:create cxid:0x2 zxid:0x200000075 txntype:1 reqpath:n/a 
+2012-06-26 13:10:20,278 [myid:3] - DEBUG [LearnerHandler-/xx.xx.xx.102:13846:CommitProcessor@161] - Committing request:: sessionid:0x1382791d4e50004 type:create cxid:0x2 zxid:0x200000075 txntype:1 reqpath:n/a 
+2012-06-26 13:10:20,752 [myid:3] - DEBUG [CommitProcessor:3:FinalRequestProcessor@88] - Processing request:: sessionid:0x1382791d4e50004 type:create cxid:0x2 zxid:0x200000075 txntype:1 reqpath:n/a 
+
+
+ Close session and create requests coming almost parallely. 
+
+
+Env:
+Hadoop setup.
+We were using Namenode HA with bookkeeper as shared storage and auto failover enabled.
+NN102 was active and NN55 was standby. 
+FailoverController at 102 got shut down due to ZK connection error. 
+The lock-ActiveStandbyElectorLock created (ephemeral node) by this failovercontroller is not cleared from ZK

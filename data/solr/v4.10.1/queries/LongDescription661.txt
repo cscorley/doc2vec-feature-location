@@ -1,0 +1,12 @@
+SpellingQueryConverter throws NPE when used with q.alt=:
+
+The issue being the String original will be passed as null when q.alt=:. I think the required behavior should be when original string is null, just return the empty result.
+
+Here is the code snippet with suggested change
+
+  public Collection<Token> convert(String original) {
+    Collection<Token> result = new ArrayList<Token>();
+    if(original ==null){ //usecase with q.alt=*:*
+    	return result;
+    }
+

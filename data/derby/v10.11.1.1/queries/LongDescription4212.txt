@@ -1,0 +1,50 @@
+A prepared statement with OFFSET/FETCH does not use the OFFSET/FETCH values after the first EXECUTE (e.g. 2nd invocation of EXECUTE).
+
+NOTE: Only tested in ij with toursdb database
+
+ij> prepare foo as 'select * from cities where city_id <= 10 fetch first 5 rows only';
+ij> execute foo;
+CITY_ID    |CITY_NAME               |COUNTRY                   |AIR&|LANGUAGE        |COU&
+------------------------------------------------------------------------------------------
+1          |Amsterdam               |Netherlands               |AMS |Dutch           |NL
+2          |Athens                  |Greece                    |ATH |Greek           |GR
+3          |Auckland                |New Zealand               |AKL |English         |NZ
+4          |Beirut                  |Lebanon                   |BEY |Arabic          |LB
+5          |Bogota                  |Colombia                  |BOG |Spanish         |CO
+
+5 rows selected
+
+ij> execute foo;
+CITY_ID    |CITY_NAME               |COUNTRY                   |AIR&|LANGUAGE        |COU&
+------------------------------------------------------------------------------------------
+
+0 rows selected
+
+ij> remove foo;
+ij> prepare foo as 'select * from cities where city_id <= 10 offset 5 rows';
+ij> execute foo;
+CITY_ID    |CITY_NAME               |COUNTRY                   |AIR&|LANGUAGE        |COU&
+------------------------------------------------------------------------------------------
+6          |Bombay                  |India                     |BOM |Hindi           |IN
+7          |Budapest                |Hungary                   |BUD |Hungarian       |HU
+8          |Buenos Aires            |Argentina                 |BUE |Spanish         |AR
+9          |Cairo                   |Egypt                     |CAI |Arabic          |EG
+10         |Calcutta                |India                     |CCU |Bengali         |IN
+
+5 rows selected
+ij> execute foo;
+CITY_ID    |CITY_NAME               |COUNTRY                   |AIR&|LANGUAGE        |COU&
+------------------------------------------------------------------------------------------
+1          |Amsterdam               |Netherlands               |AMS |Dutch           |NL
+2          |Athens                  |Greece                    |ATH |Greek           |GR
+3          |Auckland                |New Zealand               |AKL |English         |NZ
+4          |Beirut                  |Lebanon                   |BEY |Arabic          |LB
+5          |Bogota                  |Colombia                  |BOG |Spanish         |CO
+6          |Bombay                  |India                     |BOM |Hindi           |IN
+7          |Budapest                |Hungary                   |BUD |Hungarian       |HU
+8          |Buenos Aires            |Argentina                 |BUE |Spanish         |AR
+9          |Cairo                   |Egypt                     |CAI |Arabic          |EG
+10         |Calcutta                |India                     |CCU |Bengali         |IN
+
+10 rows selected
+

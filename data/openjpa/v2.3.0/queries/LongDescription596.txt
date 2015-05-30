@@ -1,0 +1,22 @@
+With Informix IDS 10.0, running this update statement:
+
+update Customer as c set c.creditRating=:newRating  where c.creditRating=:oldRating
+
+gives the CCE pasted below, when records matching the predicate are found. 
+
+Exception: <openjpa-0.0.0-rnull nonfatal user error> org.apache.openjpa.persistence.ArgumentException: org.apache.openjpa.jdbc.kernel.exps.PCPath
+<openjpa-0.0.0-rnull nonfatal user error> org.apache.openjpa.persistence.ArgumentException: org.apache.openjpa.jdbc.kernel.exps.PCPath
+	at org.apache.openjpa.kernel.QueryImpl.updateInMemory(QueryImpl.java:1055)
+	at org.apache.openjpa.kernel.ExpressionStoreQuery$DataStoreExecutor.executeUpdate(ExpressionStoreQuery.java:697)
+	at org.apache.openjpa.kernel.QueryImpl.update(QueryImpl.java:1038)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:851)
+	at org.apache.openjpa.kernel.QueryImpl.updateAll(QueryImpl.java:887)
+	at org.apache.openjpa.kernel.DelegatingQuery.updateAll(DelegatingQuery.java:581)
+	at org.apache.openjpa.persistence.QueryImpl.executeUpdate(QueryImpl.java:336)
+	at demo.TestPDQSample.findGetSetCustomer(TestPDQSample.java:303)
+	at demo.TestPDQSample.findGetSetObjects(TestPDQSample.java:206)
+	at demo.TestPDQSample.testPersistenceUnit(TestPDQSample.java:65)
+	at demo.TestPDQSample.main(TestPDQSample.java:41)
+Caused by: java.lang.ClassCastException: org.apache.openjpa.jdbc.kernel.exps.PCPath
+	at org.apache.openjpa.kernel.QueryImpl.updateInMemory(QueryImpl.java:1069)
+	at org.apache.openjpa.kernel.QueryImpl.updateInMemory(QueryImpl.java:1050)

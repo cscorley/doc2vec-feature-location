@@ -1,0 +1,52 @@
+The following script fail:
+
+
+a = load '1.txt' as (a0);
+b = foreach a generate flatten((bag{tuple(map[])})a0) as b0:map[];
+c = foreach b generate (long)b0#'key1';
+dump c;
+
+
+
+1.txt:
+{([key1#1])}
+
+Error message:
+org.apache.pig.backend.executionengine.ExecException: ERROR 1075: Received a bytearray from the UDF. Cannot determine how to convert the bytearray to long.
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POCast.getNext(POCast.java:286)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.processPlan(POForEach.java:361)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.getNext(POForEach.java:291)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:236)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:231)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:53)
+	at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144)
+	at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:621)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:305)
+	at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:177)
+
+In logical plan:
+
+
+fake: Store 1-30 Schema: {long} Type: Unknown
+|
+|---c: ForEach 1-29 Schema: {long} Type: bag
+    |   |
+    |   Cast 1-28--null FieldSchema: long Type: long
+    |   |
+    |   |---MapLookup 1-26 FieldSchema: bytearray Type: bytearray
+    |       |
+    |       |---Project 1-27 Projections: [0] Overloaded: false FieldSchema: b0: map Type: map
+    |           Input: b: ForEach 1-21
+    |
+    |---b: ForEach 1-21 Schema: {b0: map[ ]} Type: bag
+        |   |
+        |   Cast 1-20--org.apache.pig.builtin.PigStorage FieldSchema: a0: bag({(map[ ])}) Type: bag
+        |   |
+        |   |---Project 1-19 Projections: [0] Overloaded: false FieldSchema: a0: bytearray Type: bytearray
+        |       Input: a: Load 1-15
+        |
+        |---a: Load 1-15 Schema: {a0: bytearray} Type: bag
+
+
+
+Cast 1-28 get null caster. This error cannot be fixed by -Dusenewlogicalplan=false flag.

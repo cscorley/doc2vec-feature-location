@@ -1,0 +1,77 @@
+the issue is reproducible with Solr svn / ExtractingRequestHandler + patch SOLR.284 and tika all versions
+I tried with some MSWord files but didn't try with xls or ppt files. 
+
+See below an example of MSWord indexing with curl that returns an exception :
+
+  seb@gueuze:~$ curl http://localhost:8983/solr/update/extract?ext.idx.attr=false\&ext.def.fl=text\&ext.extract.only=true -F "myfile=@/tmp/TMB.doc"<html>                                                                                                                                           
+<head>                                                                                                                                           
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>                                                                        
+<title>Error 500 </title>                                                                                                                        
+</head>                                                                                                                                          
+<body><h2>HTTP ERROR: 500</h2><pre>java.io.IOException: The character '' is an invalid XML character                                             
+
+org.apache.solr.common.SolrException: java.io.IOException: The character '' is an invalid XML character
+        at org.apache.solr.handler.ExtractingDocumentLoader.load(ExtractingDocumentLoader.java:160)    
+        at org.apache.solr.handler.ContentStreamHandlerBase.handleRequestBody(ContentStreamHandlerBase.java:54)
+        at org.apache.solr.handler.RequestHandlerBase.handleRequest(RequestHandlerBase.java:131)               
+        at org.apache.solr.core.SolrCore.execute(SolrCore.java:1313)                                           
+        at org.apache.solr.servlet.SolrDispatchFilter.execute(SolrDispatchFilter.java:303)                     
+        at org.apache.solr.servlet.SolrDispatchFilter.doFilter(SolrDispatchFilter.java:232)                    
+        at org.mortbay.jetty.servlet.ServletHandler$CachedChain.doFilter(ServletHandler.java:1089)             
+        at org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:365)                            
+        at org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)                         
+        at org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:181)                            
+        at org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:712)                            
+        at org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:405)                               
+        at org.mortbay.jetty.handler.ContextHandlerCollection.handle(ContextHandlerCollection.java:211)        
+        at org.mortbay.jetty.handler.HandlerCollection.handle(HandlerCollection.java:114)                      
+        at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:139)                            
+        at org.mortbay.jetty.Server.handle(Server.java:285)                                                    
+        at org.mortbay.jetty.HttpConnection.handleRequest(HttpConnection.java:502)                             
+        at org.mortbay.jetty.HttpConnection$RequestHandler.content(HttpConnection.java:835)                    
+        at org.mortbay.jetty.HttpParser.parseNext(HttpParser.java:641)
+        at org.mortbay.jetty.HttpParser.parseAvailable(HttpParser.java:202)
+        at org.mortbay.jetty.HttpConnection.handle(HttpConnection.java:378)
+        at org.mortbay.jetty.bio.SocketConnector$Connection.run(SocketConnector.java:226)
+        at org.mortbay.thread.BoundedThreadPool$PoolThread.run(BoundedThreadPool.java:442)
+Caused by: java.io.IOException: The character '' is an invalid XML character
+        at org.apache.xml.serialize.BaseMarkupSerializer.characters(Unknown Source)
+        at org.apache.tika.sax.ContentHandlerDecorator.characters(ContentHandlerDecorator.java:85)
+        at org.apache.tika.sax.XHTMLContentHandler.characters(XHTMLContentHandler.java:130)
+        at org.apache.tika.sax.XHTMLContentHandler.element(XHTMLContentHandler.java:136)
+        at org.apache.tika.parser.microsoft.OfficeParser.parse(OfficeParser.java:78)
+        at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:108)
+        at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:80)
+        at org.apache.solr.handler.ExtractingDocumentLoader.load(ExtractingDocumentLoader.java:146)
+        ... 22 more
+</pre>
+<p>RequestURI=/solr/update/extract</p><p><i><small><a href="http://jetty.mortbay.org/">Powered by Jetty://</a></small></i></p><br/>
+
+After investigation, it seems that OfficeParser returns text and ISO control characters.
+I don't know where is the best place to fix the issue (POI, tika OfficeParser, etc)
+following a lazy patch that remove ISO control characters and try again when an exception occur
+
+  — src/main/java/org/apache/tika/sax/XHTMLContentHandler.java  (révision 723972)
++++ src/main/java/org/apache/tika/sax/XHTMLContentHandler.java  (copie de travail)
+@@ -132,7 +132,19 @@
+
+     public void element(String name, String value) throws SAXException {
+         startElement(name);
+
+	characters(value);
++        try 
+{
++               characters(value);
++        }
+ catch (Exception e) 
+Unknown macro: {+               int len = value.length();+               StringBuffer buffer = new StringBuffer();++               while (len > 0) {
++                if (!Character.isISOControl(value.charAt(len-1)))
++                     buffer.append(value.charAt(len-1));
++                len--;
++            }+            characters(buffer.toString());+        } 
+         endElement(name);
+     }
+
+
+
+

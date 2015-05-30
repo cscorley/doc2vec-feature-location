@@ -1,0 +1,21 @@
+The grammar allows almost any datatype to appear in XMLSERIALIZE statements and GRANT/REVOKE EXECUTE ON FUNCTION statements. Right now, the following are legal Derby statements:
+
+select xmlserialize( a as int ) from t;
+grant execute on function f( int ) to public;
+revoke execute on function f( int ) from public restrict;
+
+However, you cannot use BOOLEAN in these contexts. The following statements raise parser errors:
+
+select xmlserialize( a as boolean ) from t;
+grant execute on function f( boolean ) to public;
+revoke execute on function f( boolean ) from public restrict;
+
+We should be able to use BOOLEAN in these contexts just like other Derby datatypes. This won't actually enable any functionality. It will just make Derby's handling of datatypes more consistent. For instance, the following two statement should both raise a bind-time error because only string types are allowed as targets of the XMLSERIALIZE operator:
+
+select xmlserialize( a as int ) from t;
+select xmlserialize( a as boolean ) from t;
+
+And there is no difference between the following statements because Derby does not support overloading of routine signatures today. In fact, the second usage is not even documented in the Reference Guide:
+
+grant execute on function f to public;
+grant execute on function f( boolean ) to public;

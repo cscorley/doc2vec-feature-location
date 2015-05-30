@@ -1,0 +1,13 @@
+New logical plan generate incomplete schema for BinCond, if the expression for BinCond is of complex type. Eg,
+
+
+
+a = load '1.txt' as (a0, a1:int);
+b = group a by a0;
+c = foreach b generate FLATTEN((IsEmpty(a)?{(65535)}:sequence.FIRST(a.a1)));
+
+
+
+The right schema for c is (int), however, in current code, we get null schema. This is because BinCond should get the schema 
+{(int)}
+, but we get empty bag {}.

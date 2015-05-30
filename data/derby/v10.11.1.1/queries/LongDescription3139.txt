@@ -1,0 +1,11 @@
+In Network Server, when a user executes PreparedStatement.setObject with out of range parameter number, the exception thrown is XCL13 but when the user tries PreparedStatement.setString with out of range parameter number, the exception thrown in Network Server is XCL14. We should throw same exception for both the cases. 
+
+The reason for this difference in behavior is client.am.PreparedStatement.setObject calls checkForValidParameterIndex for parameter number checking and that method throws exception XCL13. 
+
+All the other PreparedStatement.setXXX methods end up calling getColumnMetaDataX().getColumnType(parameterIndex); which results into call to client.am.ColumnMetaData:getColumnType() which in turn calls checkForValidColumnIndex for parameter number checking and that method throws exception XCL14. 
+
+I am adding a test case for this in derbynet.PrepareStatementTest.
+
+I am wondering if the community has any objection to one of the error message getting changed into another. I wonder if it will cause user applications to break because they rely of different error message. And if not, any ideas on which one we should get rid of?
+
+Also, the exception thrown for these 2 cases in Embedded server is same but it is not XCL14 or XCL13. I will work on entering another jira entry for difference in exception for embedded and network server.

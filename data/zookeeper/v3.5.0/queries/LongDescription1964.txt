@@ -1,0 +1,11 @@
+There is flaky tests in ReconfigTest showing something like:
+
+
+junit.framework.AssertionFailedError: Mismatches ElectionAddress! expected:<[127.0.0.1]:12369> but was:<[localhost]:12369>
+	at org.apache.zookeeper.test.ReconfigTest.assertRemotePeerMXBeanAttributes(ReconfigTest.java:967)
+	at org.apache.zookeeper.test.ReconfigTest.testJMXBeanAfterRemoveAddOne(ReconfigTest.java:809)
+	at org.apache.zookeeper.JUnit4ZKTestRunner$LoggedInvokeMethod.evaluate(JUnit4ZKTestRunner.java:52)
+
+
+
+Basically, the problem is that there might be inconsistency between numerical ip and literal ip. Converting both sides to one (numerical IP) will fix it.

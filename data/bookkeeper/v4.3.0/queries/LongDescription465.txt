@@ -1,0 +1,20 @@
+In createNewLog(), only one directory is searched to check for duplicate log id.
+Then the id is used to overwrite lastLogId.
+
+It looks like regression from BOOKKEEPER-345. 
+
+     // It would better not to overwrite existing entry log files
+    File newLogFile = null;
+        do {
+            String logFileName = Long.toHexString(++logId) + ".log";
+            File dir = ledgerDirsManager.pickRandomWritableDir();
+            newLogFile = new File(dir, logFileName);
+            currentDir = dir;
+            if (newLogFile.exists()) 
+{
+                LOG.warn("Found existed entry log " + newLogFile
+                        + " when trying to create it as a new log.");
+                newLogFile = null;
+                continue;
+            }
+        } while (newLogFile == null);

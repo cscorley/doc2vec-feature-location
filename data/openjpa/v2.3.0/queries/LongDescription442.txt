@@ -1,0 +1,31 @@
+In the openjpa-407 patch, it changed the constructor to pass an extra parameter RuntimeExceptionTransaltor,
+
+   public QueryImpl(EntityManagerImpl em, RuntimeExceptionTranslator ret,
+        org.apache.openjpa.kernel.Query query) 
+{
+        _em = em;
+        _query = new DelegatingQuery(query, ret);
+    }
+
+However, it did not keep the orginial constructor so the extension  of this QueryImpl from other vendor resulted in compiler error. We need to keep the backward compatibilty issue in mind when we change the public interface. 
+The solution will be  to add the original constructor back and route it to the new constructor:
+
+   public QueryImpl(EntityManagerImpl em, RuntimeExceptionTranslator ret,
+        org.apache.openjpa.kernel.Query query) 
+{
+        _em = em;
+        if (ret == null)
+            ret = PersistenceExceptions.getRollbackTranslator(em);
+        _query = new DelegatingQuery(query, ret);
+    }
+
+    /**
+
+	Constructor; supply factory and delegate.
+     */
+    public QueryImpl(EntityManagerImpl em, org.apache.openjpa.kernel.Query query) 
+{        
+        this(em, null, query);
+    }
+
+

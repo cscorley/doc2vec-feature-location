@@ -1,0 +1,31 @@
+AddForEach inserts a foreach operator into the plan, but it doesn't set the alias of added foreach. This is usually okay, but if the foreach is followed by a join, the missing alias confuses Pig.
+
+For eg, consider the following query (dummy example to demonstrate the issue)-
+
+
+a = LOAD 'foo' AS (x, y, z);
+b = LOAD 'bar' AS (i, j, k);
+c = JOIN a BY x, b BY i;
+d = FOREACH c GENERATE a::x, b::i;
+DUMP d;
+
+
+Without AddForEach optimization, the output schema of 'c' will be as follows-
+
+
+a::x, a::y, a::z, b::i, b::j, b::k
+
+
+But since 'a::y', 'a::z', 'b::j', and 'b::k' are not used in 'd', a foreach operator will be inserted after a and b. That is-
+
+
+a = LOAD 'foo' AS (x, y, z);
+? = FOREACH a GENERATE x; -- no alias is set
+b = LOAD 'bar' AS (i, j, k);
+? = FOREACH a GENERATE i; -- no alias is set
+c = JOIN ? BY x, ? BY i;
+d = FOREACH c GENERATE ?::x, ?::i;
+DUMP d;
+
+
+But due to missing aliases of these added foreach operators, the output schema of join is messed up. In fact, they show up as null, so printing the output schema of join gives 'null::x, null::i'.

@@ -1,0 +1,3 @@
+TestReplicationHandler has a hardcoded port of 9999 in it for the "master".  hardcoding port numbers in unit tests is very brittle and error prone and can cause problems.  Ideally tests that aren't explicitly testing network related functionality should avoid dealing with the network at all, but when neccessary it's much better to let the OS pick any available port (as most other solr tests do) then to hardcoded it.
+
+in TestReplicationHandler things are a little more complicated because the master port number needs to be refered to in the slave config files.

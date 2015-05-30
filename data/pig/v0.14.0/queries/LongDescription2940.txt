@@ -1,0 +1,36 @@
+To reproduce ths issue, please do the following in secure hadoop/hbase cluster:
+
+	On a gateway node, run kinit to obtain kerberos credentials and run a Pig script that includes a HBaseStorage load/store.
+	In the front-end, HBaseStorage obtains a delegation token from hbase server and adds it to the JobConf object.
+	In the back-end, mappers connect to hbase using the delegation token w/o kerberos credentials.
+
+
+
+While load-from-hbase works perfectly fine, store-to-hbase fails. This is because at step 3, mappers attempt to obtain a delegation token from hbase in the back-end.
+setStoreLocation()
+
+// Not setting a udf property and getting the hbase delegation token
+// only once like in setLocation as setStoreLocation gets different Job
+// objects for each call and the last Job passed is the one that is
+// launched. So we end up getting multiple hbase delegation tokens.
+addHBaseDelegationToken(m_conf, job);
+
+
+The problem is that mappers in the back-end don't have kerberos credentials, so the call to addHBaseDelegationToken() fails with the following error:
+
+
+2012-09-30 14:33:42,310 ERROR [main] org.apache.hadoop.security.UserGroupInformation: PriviledgedActionException as:testuser (auth:SIMPLE) cause:org.apache.hadoop.hbase.security.AccessDeniedException: org.apache.hadoop.hbase.security.AccessDeniedException: Token generation only allowed for Kerberos authenticated clients
+	at org.apache.hadoop.hbase.security.token.TokenProvider.getAuthenticationToken(TokenProvider.java:87)
+
+
+This is not an issue with load because a delegation token is only obtained in the front-end for the first time when HBASE_TOKEN_SET is not set.
+setLocation()
+
+String delegationTokenSet = udfProps.getProperty(HBASE_TOKEN_SET);
+if (delegationTokenSet == null) {
+    addHBaseDelegationToken(m_conf, job);
+    udfProps.setProperty(HBASE_TOKEN_SET, "true");
+}
+
+
+The proposed fix is to modify addHBaseDelegationToken() so that tokens are obtained only if the current user has kerberos credentials, which is true in the front-end while false in the back-end.

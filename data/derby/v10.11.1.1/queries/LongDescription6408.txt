@@ -1,0 +1,12 @@
+The reference manual topic on Boolean expressions - http://db.apache.org/derby/docs/10.10/ref/rrefsqlj23075.html - says that EXISTS should return FALSE if the subquery returns no rows. In reality, it returns NULL:
+
+ij> create table t(x int);
+0 rows inserted/updated/deleted
+ij> values exists(select * from t);
+1    
+
+NULL 
+
+1 row selected
+
+SQL:2011, part 2, 8.10 <exists predicate> also says that FALSE is the correct result if the cardinality is 0.

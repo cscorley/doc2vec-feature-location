@@ -1,0 +1,23 @@
+Here is an example of stack trace printed to console output. Technically, this is a warning message and does not make the job fail. However, this is certainly not user-friendly.
+
+
+4/06/09 16:20:28 WARN pigstats.JobStats: unable to find the output file
+java.io.FileNotFoundException: File hdfs://10.61.10.185:9000/user/cheolsoop/prodhive.benchmark.unittest_vhs_bitrate_asn_sum_stg_test2 does not exist.
+	at org.apache.hadoop.hdfs.DistributedFileSystem.listStatusInternal(DistributedFileSystem.java:654)
+	at org.apache.hadoop.hdfs.DistributedFileSystem.access$600(DistributedFileSystem.java:102)
+	at org.apache.hadoop.hdfs.DistributedFileSystem$14.doCall(DistributedFileSystem.java:712)
+	at org.apache.hadoop.hdfs.DistributedFileSystem$14.doCall(DistributedFileSystem.java:708)
+	at org.apache.hadoop.fs.FileSystemLinkResolver.resolve(FileSystemLinkResolver.java:81)
+	at org.apache.hadoop.hdfs.DistributedFileSystem.listStatus(DistributedFileSystem.java:708)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.FileBasedOutputSizeReader.getOutputSize(FileBasedOutputSizeReader.java:65)
+	at org.apache.pig.tools.pigstats.JobStats.getOutputSize(JobStats.java:352)
+
+
+The issue is that FileBasedOutputSizeReader mis-interprets hive table name as hdfs path.
+
+
+@Override
+public boolean supports(POStore sto, Configuration conf) {
+    return UriUtil.isHDFSFileOrLocalOrS3N(getLocationUri(sto), conf);
+}
+

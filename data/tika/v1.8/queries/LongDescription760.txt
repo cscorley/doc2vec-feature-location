@@ -1,0 +1,15 @@
+The method:
+
+    public void characters(String characters) throws SAXException 
+{
+        characters(characters.toCharArray(), 0, characters.length());
+    }
+
+does not check for null values.
+On many code references a check is done "before" calling this methd. However on other sides, e.g. HSLFExtractor some values are not checked:
+
+xhtml.characters( comment.getAuthor() );
+
+which may be null.
+
+The simplest fix would be to check for null on the handler and if it is null handle it as NOOP or insert the new UTF-8 "replacement char" to let the user decide.

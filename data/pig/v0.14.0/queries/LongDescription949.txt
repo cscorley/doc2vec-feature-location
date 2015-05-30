@@ -1,0 +1,41 @@
+Hi 
+
+ The storage hint
+specification plays a important part whether the output table is readable or not
+
+say if we have have the map 'map'.
+
+One can split the map into a column group using [map#
+{k1}, map#{k2}...] 
+however the remaining map field will automatically be added to the default group.
+
+if user try to create a new column group for the remaining fields as follows
+
+[map#{k1}
+, map#
+{k2}
+, ..][map] i.e create a seperate column group
+
+the table writer will create the table.
+
+however, if one tries to load the created table via pig or via map reduce using TableInputFormat
+
+then the reader  have problem reading the map
+
+We get the following stack trace
+
+09/09/09 00:09:45 INFO mapred.JobClient: Task Id : attempt_200908191538_33939_m_000021_2, Status : FAILED
+java.io.IOException: getValue() failed: null
+        at org.apache.hadoop.zebra.io.BasicTable$Reader$BTScanner.getValue(BasicTable.java:775)
+        at org.apache.hadoop.zebra.mapred.TableRecordReader.next(TableInputFormat.java:717)
+        at org.apache.hadoop.zebra.mapred.TableRecordReader.next(TableInputFormat.java:651)
+        at org.apache.hadoop.mapred.MapTask$TrackedRecordReader.moveToNext(MapTask.java:191)
+        at org.apache.hadoop.mapred.MapTask$TrackedRecordReader.next(MapTask.java:175)
+        at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:48)
+        at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:356)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:305)
+        at org.apache.hadoop.mapred.Child.main(Child.java:170)
+
+
+
+Alok

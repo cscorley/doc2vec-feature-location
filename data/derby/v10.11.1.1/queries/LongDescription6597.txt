@@ -1,0 +1,19 @@
+DROP TABLE seems to cascade and drop any Lucene indexes defined on the table. However, there seems to be some traces of meta-data left, so that LUCENESUPPORT.LISTINDEXES thinks the index is still there, and fails with FileNotFoundException when trying to access the index:
+
+
+ij version 10.11
+ij> connect 'jdbc:derby:memory:db;create=true';
+ij> create table t(x int primary key, c clob);
+0 rows inserted/updated/deleted
+ij> call syscs_util.syscs_register_tool('luceneSupport', true);
+0 rows inserted/updated/deleted
+ij> call lucenesupport.createindex('app', 't', 'c', null);
+0 rows inserted/updated/deleted
+ij> drop table t;
+0 rows inserted/updated/deleted
+ij> select * from table ( lucenesupport.listindexes() ) li;
+SCHEMANAME                                                                                                                      |TABLENAME                                                                                                                       |COLUMNNAME                                                                                                                      |LASTUPDATED                  |LUCENEVERSION       |ANALYZER                                                                                                                        |ANALYZERMAKER                                                                                                                   
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ERROR XJ001: Java exception: 'java.io.FileNotFoundException: /tmp/db/LUCENE/APP/T/C/derby-lucene.properties'.
+ERROR XJ001: Java exception: '/tmp/db/LUCENE/APP/T/C/derby-lucene.properties: java.io.FileNotFoundException'.
+

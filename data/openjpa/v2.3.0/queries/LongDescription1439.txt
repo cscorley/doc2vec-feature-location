@@ -1,0 +1,10 @@
+EntityManagerFactory.getMetamodel() fails if entity class has a property of type InputStream:
+Caused by: java.lang.IllegalStateException: Field "my.Entity.fullText" is not recognized by its type code "30" to be included in the meta model.
+        at org.apache.openjpa.persistence.meta.AbstractManagedType.<init>(AbstractManagedType.java:176)
+        at org.apache.openjpa.persistence.meta.Types$Identifiable.<init>(Types.java:119)
+        at org.apache.openjpa.persistence.meta.Types$Entity.<init>(Types.java:199)
+        at org.apache.openjpa.persistence.meta.MetamodelImpl.instantiate(MetamodelImpl.java:253)
+        at org.apache.openjpa.persistence.meta.MetamodelImpl.find(MetamodelImpl.java:224)
+        at org.apache.openjpa.persistence.meta.MetamodelImpl.<init>(MetamodelImpl.java:89)
+        at org.apache.openjpa.persistence.EntityManagerFactoryImpl.getMetamodel(EntityManagerFactoryImpl.java:310)
+        at org.apache.openjpa.persistence.EntityManagerFactoryImpl.getMetamodel(EntityManagerFactoryImpl.java:57)

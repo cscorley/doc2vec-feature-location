@@ -1,0 +1,25 @@
+LangScripts JUnit test fails in views.sql
+
+There was 1 failure:
+1) views(org.apache.derbyTesting.functionTests.tests.lang.LangScripts )junit.fram
+ework.ComparisonFailure: Output at line 104 expected:<...T1' because VIEW 'SV[1]' is dependent on th...> but was:<...T1' because VIEW 'SV[2]' is dependent on th...>
+        at org.apache.derbyTesting.functionTests.util.CanonTestCase.compareCanon(CanonTestCase.java:100)
+        at org.apache.derbyTesting.functionTests.util.ScriptTestCase.runTest(ScriptTestCase.java:117)
+        at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:76)
+        at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+        at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+        at junit.extensions.TestSetup.run(TestSetup.java:25)
+
+FAILURES!!!
+Tests run: 2016,  Failures: 1,  Errors: 0
+
+
+Some observations:
+
+If org.apache.derbyTesting.functionTests.tests.lang.LangScripts is used to run views.sql as a single test, then it ran smoothly without a problem.
+.
+Time: 7.109
+
+OK (1 test)
+
+But if views.sql is run as part of a suite, then the ordering diff occurs.

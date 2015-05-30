@@ -1,0 +1,30 @@
+I encountered a NPE[2] today when using the LiteAutoDetach[1] configuration property. The steps required to cause this problem is as follows:
+
+
+	Configure LiteAutoDetach for your PU.
+	Find a non-transactional Entity.
+	Clear the EntityManager.
+	Begin / commit transaction.
+
+
+
+The problem is that LiteAutoDetach doesn't properly clean up the EntityManager while it is performing lite detachment. State is left in BrokerImpl._pending set which is then incorrectly used post em.clear. It also appears that there are a number of other BrokerImpl datastructures that should have been cleaned up on clear / detachall. 
+
+[1] http://openjpa.apache.org/builds/latest/docs/docbook/manual.html#ref_guide_detach_state
+[2] Caused by: <openjpa-2.2.0-SNAPSHOT-r422266:1244602 nonfatal general error> org.apache.openjpa.persistence.PersistenceException: null
+	at org.apache.openjpa.kernel.BrokerImpl.beforeCompletion(BrokerImpl.java:1998)
+	at org.apache.openjpa.kernel.LocalManagedRuntime.commit(LocalManagedRuntime.java:81)
+	at org.apache.openjpa.kernel.BrokerImpl.commit(BrokerImpl.java:1514)
+	at org.apache.openjpa.kernel.DelegatingBroker.commit(DelegatingBroker.java:933)
+	at org.apache.openjpa.persistence.EntityManagerImpl.commit(EntityManagerImpl.java:570)
+	... 24 more
+Caused by: java.lang.NullPointerException
+	at org.apache.openjpa.Customer.pcProvideField(Customer.java)
+	at org.apache.openjpa.kernel.StateManagerImpl.provideField(StateManagerImpl.java:3161)
+	at org.apache.openjpa.kernel.StateManagerImpl.preFlush(StateManagerImpl.java:2980)
+	at org.apache.openjpa.kernel.PDirtyState.beforeFlush(PDirtyState.java:38)
+	at org.apache.openjpa.kernel.StateManagerImpl.beforeFlush(StateManagerImpl.java:1053)
+	at org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:2112)
+	at org.apache.openjpa.kernel.BrokerImpl.flushSafe(BrokerImpl.java:2072)
+	at org.apache.openjpa.kernel.BrokerImpl.beforeCompletion(BrokerImpl.java:1990)
+	... 28 more

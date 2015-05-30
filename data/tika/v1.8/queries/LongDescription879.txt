@@ -1,0 +1,5 @@
+When using DefaultDetector mime type for .eml files is different (you can test it on testRFC822 and testRFC822_base64 in tika-parsers/src/test/resources/test-documents/).
+
+Main reason for such behavior is that only magic detector is really works for such files. Even if you set CONTENT_TYPE in metadata or some .eml file name in RESOURCE_NAME_KEY.
+
+As I found MediaTypeRegistry.isSpecializationOf("message/rfc822", "text/plain") returns false, so detection by MimeTypes.detect(...) works only by magic.

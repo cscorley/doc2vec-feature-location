@@ -1,0 +1,6 @@
+The following script is combinable but is not optimized:
+a = load '/user/pig/tests/data/singlefile/studenttab10k';
+b = group a by $1;
+c = foreach b generate group, AVG(a.$2);
+d = limit c 10;
+dump d;

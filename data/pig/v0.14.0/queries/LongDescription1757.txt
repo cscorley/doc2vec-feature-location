@@ -1,0 +1,6 @@
+The split combination, introduced in 0.8 by PIG-1518, may see small variations in number of maps. For instance, PigMix2's L4 query experiences a variation  of 901 or 902 maps in a test cluster. The reason is that the BlockLocation's getHosts
+method, used in FileInputFormat's spli generation, returns a list of hosts that hold the block. However the ordering of the list is not deterministic. Pig's split combination is not immune to such a random ordering since the combination decision is based upon the hosts that hold as many data local to a map as possible, and there is no specific tie-breaking rule to force a particular ordering. In some benchmarking or performance baselining tests, these variations, however small they are, might not be desirable.
+
+One solution is to sort the host lists from the component splits so as to get consistent number of maps.
+
+I suspect that other split combination techniques that make use of the data host info to maximize the data locality in each map, like CombineFileInputFormat, might have had the similar  variations of number of maps.

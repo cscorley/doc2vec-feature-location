@@ -1,0 +1,12 @@
+Running the $MAHOUT_HOME/examples/bin/build-reuters.sh script I encountered the following exception:
+
+10/06/23 04:41:00 WARN mapred.JobClient: No job jar file set.  User classes may not be found. See JobConf(Class) or JobConf#setJar(String).
+10/06/23 04:41:01 INFO input.FileInputFormat: Total input paths to process : 1
+10/06/23 04:41:01 INFO mapred.JobClient: Running job: job_201006222301_0019
+10/06/23 04:41:02 INFO mapred.JobClient:  map 0% reduce 0%
+10/06/23 04:41:11 INFO mapred.JobClient: Task Id : attempt_201006222301_0019_m_000000_0, Status : FAILED
+java.lang.RuntimeException: java.lang.ClassNotFoundException: org.apache.mahout.clustering.kmeans.KMeansMapper
+	at org.apache.hadoop.conf.Configuration.getClass(Configuration.java:960)
+	at org.apache.hadoop.mapreduce.JobContext.getMapperClass(JobContext.java:158)
+
+This appears to be identical in cause to MAHOUT-197 , and has an almost identical fix.  Adding a job.setJarByClass(KMeansDriver.class) line to the KMeansDriver.java file fixes the issue.

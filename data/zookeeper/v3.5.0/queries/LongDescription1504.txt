@@ -1,0 +1,25 @@
+NIOServerCnxnFactory is single threaded, which doesn't scale well to large numbers of clients. This is particularly noticeable when thousands of clients connect. I propose multi-threading this code as follows:
+
+
+	1   acceptor thread, for accepting new connections
+	1-N selector threads
+	0-M I/O worker threads
+
+
+
+Numbers of threads are configurable, with defaults scaling according to number of cores. Communication with the selector threads is handled via LinkedBlockingQueues, and connections are permanently assigned to a particular selector thread so that all potentially blocking SelectionKey operations can be performed solely by the selector thread. An ExecutorService is used for the worker threads.
+
+On a 32 core machine running Linux 2.6.38, achieved best performance with 4 selector threads and 64 worker threads for a 70% +/- 5% improvement in throughput.
+
+This patch incorporates and supersedes the patches for
+
+https://issues.apache.org/jira/browse/ZOOKEEPER-517
+https://issues.apache.org/jira/browse/ZOOKEEPER-1444
+
+New classes introduced in this patch are:
+
+
+	ExpiryQueue (from ZOOKEEPER-1444): factor out the logic from SessionTrackerImpl used to expire sessions so that the same logic can be used to expire connections
+	RateLogger (from ZOOKEEPER-517): rate limit error message logging, currently only used to throttle rate of logging "out of file descriptors" errors
+	WorkerService (also in ZOOKEEPER-1505): ExecutorService wrapper that makes worker threads daemon threads and names then in an easily debuggable manner. Supports assignable threads (as used by CommitProcessor) and non-assignable threads (as used here).
+

@@ -1,0 +1,36 @@
+There are several tests fail on some secure cluster setting. For example: Bloom_3, Union_[7,8,13], Join_[6-8]. Here is one stack:
+
+
+Error: org.apache.pig.backend.executionengine.ExecException: ERROR 0: Exception while executing (Name: Local Rearrange[tuple]{chararray}(false) - scope-78 Operator Key: scope-78): org.apache.pig.backend.executionengine.ExecException: ERROR 2081: Unable to setup the load function.
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:310)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLocalRearrange.getNextTuple(POLocalRearrange.java:291)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POFRJoin.setUpHashMap(POFRJoin.java:409)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POFRJoin.getNextTuple(POFRJoin.java:241)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.runPipeline(PigGenericMapBase.java:282)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.map(PigGenericMapBase.java:277)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase.map(PigGenericMapBase.java:64)
+	at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:145)
+	at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:784)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:341)
+	at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:163)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1614)
+	at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158)
+Caused by: org.apache.pig.backend.executionengine.ExecException: ERROR 2081: Unable to setup the load function.
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLoad.getNextTuple(POLoad.java:131)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:301)
+	... 14 more
+Caused by: java.io.IOException: Can't get Master Kerberos principal for use as renewer
+	at org.apache.hadoop.mapreduce.security.TokenCache.obtainTokensForNamenodesInternal(TokenCache.java:116)
+	at org.apache.hadoop.mapreduce.security.TokenCache.obtainTokensForNamenodesInternal(TokenCache.java:100)
+	at org.apache.hadoop.mapreduce.security.TokenCache.obtainTokensForNamenodes(TokenCache.java:80)
+	at org.apache.hadoop.mapreduce.lib.input.FileInputFormat.listStatus(FileInputFormat.java:242)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigFileInputFormat.listStatus(PigFileInputFormat.java:37)
+	at org.apache.hadoop.mapreduce.lib.input.FileInputFormat.getSplits(FileInputFormat.java:385)
+	at org.apache.pig.impl.io.ReadToEndLoader.init(ReadToEndLoader.java:190)
+	at org.apache.pig.impl.io.ReadToEndLoader.<init>(ReadToEndLoader.java:146)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLoad.setUp(POLoad.java:99)
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLoad.getNextTuple(POLoad.java:127)
+	... 15 more
+

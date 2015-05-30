@@ -1,0 +1,8 @@
+http://www.nabble.com/Nullpointer-when-using-QuerySenderListener-to16201207.html
+
+Thijs noticed NullPointerException from SearchHandler on startup when trying to configure some firstSearcher events using QuerySenderListener.
+
+The problem is the events are getting triggered as soon as the firstSearcher is opened, but the SOlrCore isn't finished being initialized, so inform(SolrCore) hasn't been called on all the Handlers (and some handlers aren't fully initialized and ready to process requests yet.
+
+
+We need to more the firstSearcher event handling after inform has been called on all SolrCoreAware objects.

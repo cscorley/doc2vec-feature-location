@@ -1,0 +1,20 @@
+BTreeController.reclaim_deleted_rows() contains this piece of code:
+
+        catch (java.lang.ClassCastException cce)
+        {
+            // because we give up the latch on the leaf before entering this
+            // routine, the page might change from a leaf to branch.  If that
+            // happens this routine will get a ClassCastException, and we
+            // just give up trying to reclaim space.
+        }
+        finally
+        {
+            if (controlRow != null)
+                controlRow.release();
+
+            return(purged_at_least_one_row);
+        }
+
+It intentionally hides ClassCastExceptions, but it also unintentionally hides all other exceptions because of the return statement in the finally clause.
+
+Some related discussions can be found in DERBY-3216 and DERBY-3905.

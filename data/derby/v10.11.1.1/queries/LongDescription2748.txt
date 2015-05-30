@@ -1,0 +1,42 @@
+ClientThread sets the Socket timeout based upon the timeslice value:
+
+	//set time out					
+	//this looks highly suspect.  Why does timeSlice setSoTimeout?		
+	if (timeSlice != 0)
+		clientSocket.setSoTimeout(timeSlice);
+
+it gets the timeSlice from NetworkServerControlImpl which sets it like this:
+
+	/**
+
+	Set the current value of  time slice
+	 *
+	@param value time slice value
+	@exception Exception if value is < 0
+	 */
+	private void setTimeSlice(int value)
+		throws Exception
+	Unknown macro: {		if (value < MIN_TIMESLICE)			consolePropertyMessage("DRDA_InvalidValue.U", new String [] 				{new Integer(value).toString(), "timeslice"});		if (value == USE_DEFAULT)			value = DEFAULT_TIMESLICE;		synchronized(timeSliceSync) {
+			timeSlice = value;
+		}	} 
+
+
+
+but
+
+	private final static int MIN_TIMESLICE = -1;
+
+therefore a value of -1 is accepted by setTimeSlice, due to "!= 0" used for Socket.setSoTimeout which will bail out with an Exception:
+
+	if (timeout < 0)
+	  throw new IllegalArgumentException("timeout can't be negative");
+
+According to the comments, the proper fix would be
+
+
+	private final static int MIN_TIMESLICE = -1;
++	private final static int MIN_TIMESLICE = 0;
+
+
+
+but I do not understand the timeslice at all, so this is just my guess.

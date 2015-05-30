@@ -1,0 +1,5 @@
+While working on an embedded Solr solution, I noticed that one of the threads created during typical usage of (SolrCore, DocumentBuilder and UpdateHandler), was not dying.
+
+I wrote a small embedded Solr app, and running it under JDB made it clear that the environment was not finishing cleanly because of a thread called "pool-2-thread-1" in "cond. waiting" state. After a quick grep, I saw that only one class uses a thread pool, and that is the DirectUpdateHandler2. It uses an instance of ScheduledExecutorService to manage autocommit threads, but it apparently isn't dieing correctly.
+
+I'll start working on a patch, but the original author of the handler probably has more knowledge (see https://issues.apache.org/jira/browse/SOLR-65)

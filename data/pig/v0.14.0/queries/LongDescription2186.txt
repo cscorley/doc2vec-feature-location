@@ -1,0 +1,11 @@
+In PIG-2143,the ability to store and use schema files was added to PigStorage . By default, PigStorage as a load function checks for the schema file presence and logs a warning if there is no schema file.
+
+
+
+2011-07-21 13:15:19,101 [main] WARN  org.apache.pig.builtin.JsonMetadata - Could not find schema file for file:///Users/thejas/pig_trunk_cp/trunk/t.txt
+
+
+But in cases where user has not taken actions to store a schema, this warning can be confusing. There is no way for PigStorage() to know if the schema is actually expected.
+To get rid of this warning, I think the default should be to not use schema. (I take back my suggestions in PIG-2143 !)
+
+Also, the PigStorage.getSchema() call should cache the schema as the call is made multiple times.

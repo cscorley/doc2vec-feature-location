@@ -1,0 +1,24 @@
+When special chars #, @ , and the 'optional' patterns described here - http://www.brics.dk/automaton/doc/dk/brics/automaton/RegExp.html#RegExp%28java.lang.String%29 are used , the regex match fails to work. 
+
+This is related to  PIG-965.
+
+Example and workaround are as follows -
+
+
+
+grunt> cat t.txt                           
+asd#asdf
+zxcasdf
+2#asdf
+
+grunt> l = load 't.txt' as (a : chararray);
+grunt> f = filter l by (a matches '.*#.*');
+grunt> dump f; 
+-- No output, though two rows are expected.
+
+--As a workaround, add a \ to escape the # . This regex is valid even in 0.7 , and it will be even after this bug is fixed (its valid java regex, which has same meaning as above regex).
+grunt> f = filter l by (a matches '.*\\#.*');
+grunt> dump f; 
+asd#asdf
+2#asdf
+

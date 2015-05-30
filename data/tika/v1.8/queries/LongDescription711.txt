@@ -1,0 +1,18 @@
+We seem not to extract the optional hyphen character correctly in
+the Word parser.
+
+You can create this char in Word by typing ctrl and -.  It's hidden,
+normally; you have to turn on display of formatting marks to see it.
+
+Ideally we'd get U+00AD (unicode soft hyphen), I think.
+
+DOC produces a unicode replacement char, which is wrong.
+
+DOCX and PDF drop the char (which seems acceptable).  RTF produces
+U+2027 (hyphenation point) which also seems OK (in TIKA-683 it will
+produce U+00AD).
+
+PPT and PPTX work correctly (U+00AD).
+
+So DOC is the only bug I think – I haven't dug into what's wrong
+yet...

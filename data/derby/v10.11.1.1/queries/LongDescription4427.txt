@@ -1,0 +1,2 @@
+When testing distributed replication I found that test clients/load would always use (default) port 1527 even if a different master port number had been specified. The correct/specified port number was used when starting the master server. 
+This was caused by a call to 'TestConfiguration.getCurrent().getPort()' on an uninitialized TestConfiguration. The fix is to use the supplied portNumber parameter.

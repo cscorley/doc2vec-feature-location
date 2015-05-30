@@ -1,0 +1,47 @@
+Running the DisplaySpectralKMeans class fails with following error, at the GUI display step:
+
+Exception in thread "AWT-EventQueue-0" java.lang.IllegalStateException: output/clusteredPoints/part-m-00000
+	at org.apache.mahout.common.iterator.sequencefile.SequenceFileIterable.iterator(SequenceFileIterable.java:63)
+	at org.apache.mahout.clustering.display.DisplayClustering.plotClusteredSampleData(DisplayClustering.java:203)
+	at org.apache.mahout.clustering.display.DisplaySpectralKMeans.paint(DisplaySpectralKMeans.java:86)
+	at sun.awt.RepaintArea.paintComponent(RepaintArea.java:264)
+	at sun.awt.X11.XRepaintArea.paintComponent(XRepaintArea.java:73)
+	at sun.awt.RepaintArea.paint(RepaintArea.java:240)
+	at sun.awt.X11.XComponentPeer.handleEvent(XComponentPeer.java:591)
+	at java.awt.Component.dispatchEventImpl(Component.java:4937)
+	at java.awt.Container.dispatchEventImpl(Container.java:2287)
+	at java.awt.Window.dispatchEventImpl(Window.java:2719)
+	at java.awt.Component.dispatchEvent(Component.java:4687)
+	at java.awt.EventQueue.dispatchEventImpl(EventQueue.java:735)
+	at java.awt.EventQueue.access$200(EventQueue.java:103)
+	at java.awt.EventQueue$3.run(EventQueue.java:694)
+	at java.awt.EventQueue$3.run(EventQueue.java:692)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.security.ProtectionDomain$1.doIntersectionPrivilege(ProtectionDomain.java:76)
+	at java.security.ProtectionDomain$1.doIntersectionPrivilege(ProtectionDomain.java:87)
+	at java.awt.EventQueue$4.run(EventQueue.java:708)
+	at java.awt.EventQueue$4.run(EventQueue.java:706)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.security.ProtectionDomain$1.doIntersectionPrivilege(ProtectionDomain.java:76)
+	at java.awt.EventQueue.dispatchEvent(EventQueue.java:705)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:242)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:161)
+	at java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:150)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:146)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:138)
+	at java.awt.EventDispatchThread.run(EventDispatchThread.java:91)
+Caused by: java.io.FileNotFoundException: File file:/home/saleem/work/learn/external/mahout/examples/output/clusteredPoints/part-m-00000 does not exist.
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileStatus(RawLocalFileSystem.java:402)
+	at org.apache.hadoop.fs.FilterFileSystem.getFileStatus(FilterFileSystem.java:255)
+	at org.apache.hadoop.fs.FileSystem.getLength(FileSystem.java:816)
+	at org.apache.hadoop.io.SequenceFile$Reader.<init>(SequenceFile.java:1479)
+	at org.apache.hadoop.io.SequenceFile$Reader.<init>(SequenceFile.java:1474)
+	at org.apache.mahout.common.iterator.sequencefile.SequenceFileIterator.<init>(SequenceFileIterator.java:63)
+	at org.apache.mahout.common.iterator.sequencefile.SequenceFileIterable.iterator(SequenceFileIterable.java:61)
+	... 28 more
+
+This is because SpectralKMeansDriver writes clustered points to 
+output/kmeans_out/clusteredPoints/part-m-00000
+
+But DisplaySpectralKMeans is looking at:
+output/clusteredPoints/part-m-00000

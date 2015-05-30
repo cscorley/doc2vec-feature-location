@@ -1,0 +1,17 @@
+Per discussion on mahout-dev, starting a series of patches to unify code, starting with Pair. Simple enough, but, it snowballed a little bit:
+
+
+	Now there is just org.apache.mahout.common.Pair
+	I moved my LongPair implementation next to it for consistency
+	But it depends on my RandomUtils, and doesn't make sense for a top-level package to depend downward like that, so moved it too – since we discussed that this should probably get reused a little more too
+
+
+
+
+	Then I saw that the LFUCache class needs a mutable Pair whereas the new variant is immutable. I judged it was better to actually modify LFUCache to not need mutability – because in this case it ends up increasing performance as well: Rather than create and re-create Longs as counts, it uses a "mutable Long" – AtomicLong. An array of one long would have done the trick too.
+
+
+
+
+	Now, the patch also unifies random number generation around MersenneTwisterRNG, and ensures that all RNGs can be set to use a constant seed when in unit test mode.
+

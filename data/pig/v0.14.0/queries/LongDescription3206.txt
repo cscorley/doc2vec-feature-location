@@ -1,0 +1,1 @@
+HBaseStorage always tries to fetch delegation token for a secure hbase cluster. But when pig is launched through Oozie, it will fail as TGT is not available in the map job. In that case, it should try and reuse the hbase delegation token in JobConf passed to pig through mapreduce.job.credentials.binary property.

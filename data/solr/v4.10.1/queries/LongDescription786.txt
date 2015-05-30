@@ -1,0 +1,22 @@
+I needed to change some of the default behaviour of the DismaxQParser, so as opposed to infecting the solr codebase with our custom behaviour, I wanted to be able to subclass the DismaxQParser and change only what we wanted to change. 
+
+Here I submit a patch that allows for such subclassing. The change that is done to the code base in the following steps:
+
+1. refactor in the DismaxQParser.parse() method to 
+    addMainQuery(query, solrParams);
+    addBoostQuery(query, solrParams);
+    addBoostFunctions(query, solrParams); 
+
+2. refactor the addMainQuery() method to use 
+    getUserQuery(userQuery, up, solrParams)
+    getAlternateUserQuery(solrParams)
+    getPhraseQuery(userQuery, pp) 
+
+3. move the DismaxQParser to the top-level to make it public (and allow subclassing)
+
+After applying this change I can to as follows:
+1. write my own QParserPlugin to return a subclass of the DismaxQParser 
+2. in this subclass I override the the methods I need, in my case the getUserQuery() method.
+3. add this plugin to the solrconfig.xml and use it
+
+the patch is done against the Solr svn trunk

@@ -1,0 +1,25 @@
+This is a regression of PIG-3525 where I moved the initialization of PigStats into the PigServer constructor. The problem is that if Pig fails even before PigServer is created, PigStats remains null resulting in NPE in PigStatsUtil.
+PigStatsUtil
+
+    public static void setErrorMessage(String msg) {
+        PigStats.get().setErrorMessage(msg); //---> PigStats.get() returns null
+    }
+    public static void setErrorCode(int code) {
+        PigStats.get().setErrorCode(code); //---> PigStats.get() returns null
+    }
+
+
+To reproduce the issue, run the following command-
+
+
+pig -x -f script.pig  #---> Note -x is missing the argument
+
+
+The stack trace looks like this-
+
+
+Exception in thread "main" java.lang.NullPointerException
+	at org.apache.pig.tools.pigstats.PigStatsUtil.setErrorMessage(PigStatsUtil.java:145)
+	at org.apache.pig.Main.run(Main.java:618)
+	at org.apache.pig.Main.main(Main.java:156)
+

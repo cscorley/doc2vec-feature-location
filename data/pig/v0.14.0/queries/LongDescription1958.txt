@@ -1,0 +1,12 @@
+For a query such as this:
+
+a = load 'x' as (name:chararray, age, gpa);
+b = foreach a generate age + 1, gpa + 0.1f;
+describe b;
+
+previous Pig logs warning messages as:
+
+2011-04-01 13:30:12,377 [main] WARN  org.apache.pig.PigServer - Encountered Warning IMPLICIT_CAST_TO_INT 1 time(s).
+2011-04-01 13:30:12,377 [main] WARN  org.apache.pig.PigServer - Encountered Warning IMPLICIT_CAST_TO_FLOAT 1 time(s).
+
+These warnings are no longer printed in the pig 0.9.

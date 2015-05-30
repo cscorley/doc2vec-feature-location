@@ -1,0 +1,82 @@
+Following script causes the select statement below to assert in sane build. 
+
+ij> connect 'jdbc:derby:wombat;create=true' user 'user1' as user1;
+WARNING 01J14: SQL authorization is being used without first enabling authentication.
+ij> create table t1 (c1 int, c2 int);
+0 rows inserted/updated/deleted
+ij> grant select(c1,c2) on t1 to user2;
+0 rows inserted/updated/deleted
+ij> connect 'jdbc:derby:wombat;create=true' user 'user2' as user2;
+WARNING 01J01: Database 'wombat' not created, connection made to existing database instead.
+WARNING 01J14: SQL authorization is being used without first enabling authentication.
+ij(USER2)> set connection user1;
+ij(USER1)> alter table t1 add c3 int;
+0 rows inserted/updated/deleted
+ij(USER1)> set connection user2;
+ij(USER2)> select c3 from user1.t1;
+ERROR XJ001: Java exception: 'ASSERT FAILED Attempt to get a bit position (2)that exceeds the max length (2): org.apache.derby.shared.common.sanity.AssertFailure'.
+
+stack trace:
+
+org.apache.derby.shared.common.sanity.AssertFailure: ASSERT FAILED Attempt to get a bit position (1)that exceeds the max length (1)
+	at org.apache.derby.shared.common.sanity.SanityManager.THROWASSERT(SanityManager.java:149)
+	at org.apache.derby.iapi.services.io.FormatableBitSet.isSet(FormatableBitSet.java:614)
+	at org.apache.derby.iapi.services.io.FormatableBitSet.get(FormatableBitSet.java:643)
+	at org.apache.derby.iapi.sql.dictionary.StatementColumnPermission.check(StatementColumnPermission.java:119)
+	at org.apache.derby.impl.sql.conn.GenericAuthorizer.authorize(GenericAuthorizer.java:158)
+	at org.apache.derby.exe.ac601a400fx010dxaa5bx09e8x00000013b9400.fillResultSet(Unknown Source)
+	at org.apache.derby.exe.ac601a400fx010dxaa5bx09e8x00000013b9400.execute(Unknown Source)
+	at org.apache.derby.impl.sql.GenericActivationHolder.execute(GenericActivationHolder.java:327)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:356)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1182)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:585)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:517)
+	at org.apache.derby.impl.tools.ij.ij.executeImmediate(ij.java:321)
+	at org.apache.derby.impl.tools.ij.utilMain.doCatch(utilMain.java:517)
+	at org.apache.derby.impl.tools.ij.utilMain.runScriptGuts(utilMain.java:370)
+	at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:268)
+	at org.apache.derby.impl.tools.ij.Main.go(Main.java:204)
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:170)
+	at org.apache.derby.impl.tools.ij.Main14.main(Main14.java:56)
+	at org.apache.derby.tools.ij.main(ij.java:71)
+
+sysinfo:
+
+------------------ Java Information ------------------
+Java Version:    1.4.2_12
+Java Vendor:     Sun Microsystems Inc.
+Java home:       C:\Program Files\Java\j2re1.4.2_12
+Java classpath:  classes;.
+OS name:         Windows XP
+OS architecture: x86
+OS version:      5.1
+Java user name:  Yip
+Java user home:  C:\Documents and Settings\Yip
+Java user dir:   C:\work3\derby\trunk
+java.specification.name: Java Platform API Specification
+java.specification.version: 1.4
+--------- Derby Information --------
+JRE - JDBC: J2SE 1.4.2 - JDBC 3.0
+[C:\work3\derby\trunk\classes] 10.3.0.0 alpha - (443080)
+------------------------------------------------------
+----------------- Locale Information -----------------
+Current Locale :  [English/United States [en_US]]
+Found support for locale: [de_DE]
+         version: 10.3.0.0 alpha - (443080)
+Found support for locale: [es]
+         version: 10.3.0.0 alpha - (443080)
+Found support for locale: [fr]
+         version: 10.3.0.0 alpha - (443080)
+Found support for locale: [it]
+         version: 10.3.0.0 alpha - (443080)
+Found support for locale: [ja_JP]
+         version: 10.3.0.0 alpha - (443080)
+Found support for locale: [ko_KR]
+         version: 10.3.0.0 alpha - (443080)
+Found support for locale: [pt_BR]
+         version: 10.3.0.0 alpha - (443080)
+Found support for locale: [zh_CN]
+         version: 10.3.0.0 alpha - (443080)
+Found support for locale: [zh_TW]
+         version: 10.3.0.0 alpha - (443080)
+------------------------------------------------------

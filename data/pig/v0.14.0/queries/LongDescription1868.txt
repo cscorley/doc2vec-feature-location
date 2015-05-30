@@ -1,0 +1,35 @@
+The new logical plan fails when I have complex data types returning from my eval function.
+
+The below is my script :
+
+
+
+register myudf.jar;   
+B1 = load 'myinput' as (id:chararray,ts:int,url:chararray);
+B2 = group B1 by id;
+B = foreach B2 {
+ Tuples = order B1 by ts;
+ generate Tuples;
+};
+C1 = foreach B generate TransformToMyDataType(Tuples,-1,0,1) as seq: { t: ( previous, current, next ) };
+C2 = foreach C1 generate FLATTEN(seq);
+C3 = foreach C2 generate  current.id as id;
+dump C3;
+
+
+
+On C3 it fails with below message :
+
+
+Couldn't find matching uid -1 for project (Name: Project Type: bytearray Uid: 45 Input: 0 Column: 1)
+
+
+
+The below is the describe on C1 ;
+
+
+C1: {seq: {t: (previous: (id: chararray,ts: int,url: chararray),current: (id: chararray,ts: int,url: chararray),next: (id: chararray,ts: int,url: chararray))}}
+
+
+
+The script works if I turn off new logical plan or use Pig 0.7.

@@ -1,0 +1,8 @@
+When Derby has the replication master role for a database 'x', it should ship all log records generated for this database to the Derby with the slave role. A replication buffer was added to Derby in DERBY-2926. This issue is for modifying the logging subsystem to append log records to this buffer every time a log records is appended to the disk buffer (LogAccessFile). This will, of course, only be done if it has the master role.
+
+Currently, I have identified two modifications that will be required in LogToFile:
+
+
+	LogToFile#appendLogRecord needs to append to the replication buffer after appending to the disk buffer
+	LogToFile#flush (i.e., the method used to force buffered log records to disk) must notify the Master Controller (DERBY-2977) that a flush has taken place. The MasterController will decide if any action is required because of this.
+

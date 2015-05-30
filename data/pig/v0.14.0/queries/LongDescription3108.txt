@@ -1,0 +1,39 @@
+Consider the following:
+A and B should be the same (with different order, of course).
+
+
+/*
+in hbase shell:
+
+create 'pigtest', 'pig'
+put 'pigtest' , '1', 'pig:name', 'A'
+put 'pigtest' , '1', 'pig:has_legs', 'true'
+put 'pigtest' , '1', 'pig:has_ribs', 'true'
+*/
+A = LOAD 'hbase://pigtest' USING org.apache.pig.backend.hadoop.hbase.HBaseStorage('pig:name pig:has*') AS (name:chararray,parts);
+
+B = LOAD 'hbase://pigtest' USING org.apache.pig.backend.hadoop.hbase.HBaseStorage('pig:has* pig:name') AS (parts,name:chararray);
+
+dump A;
+dump B;
+
+
+
+This is due to a bug in setLocation and initScan.
+For A 
+
+	scan.addColumn(pig,name); // for 'pig:name'
+	scan.addFamily(pig); // for the 'pig:has*'
+
+
+
+So that's silently right.
+
+But for B
+
+	scan.addFamily(pig)
+	scan.addColumn(pig,name)
+
+
+
+will override the first call to addFamily, because you cannot mix them on the same family.

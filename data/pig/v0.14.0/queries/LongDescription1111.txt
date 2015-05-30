@@ -1,0 +1,13 @@
+Zebra enables application to stream data into different zebra table instances.
+
+New Interface added:
+
+setMultipleOutputs( JobConf jobconf, String commaSeparatedLocation, Class<? extends ZebraOutputPartitioner> theClass.
+
+Zebra maintains a list of tables instances based on commaseparatedlocations ( in that order )
+
+ZebraOutputPartitioner interface has getOutputPartition method which is implemented by the application. It will return an index into the list. Zebra will write to that instance
+
+We also introduce a new mapred property for setting multiple outputs.
+
+mapred.lib.table.multi.output.dirs

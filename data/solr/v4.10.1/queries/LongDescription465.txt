@@ -1,0 +1,8 @@
+Solr is presently hard-coded to use the FSDirectory implementation in Lucene.  Other Directory implementations are possible.  This patch creates a new DirectoryProvider interface and extends SolrCore to load an implementation of it from solrconfig.xml (if specified).  If not specified, then it will fallback to the FSDirectory.
+
+A DirectoryProvider plugin can be configured in solrconfig.xml with the following XML:
+   <directoryProvider class="class.name">
+      <!-- Parameters as required by the implementation -->
+   </directoryProvider>
+
+This patch was created against solr trunk checked out on 11/20/2007.  Most of it is new code and should apply cleanly or with minor relocation.  If it does not, let me know and I will update.

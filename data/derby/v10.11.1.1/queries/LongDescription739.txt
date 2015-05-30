@@ -1,0 +1,24 @@
+When accessing a parameter the generated code is:
+
+this.pvs.getParameter(23);
+
+A slightly shorter form would be
+
+this.getParameter(23);
+
+if a getParameter() method was added to BaseActivation that simply did:
+ protected final DataValueDescriptor getParameter(int n) 
+{ return pvs.getParameter(n); }
+
+------------------------------
+An interesting separate idea, to reduce the number of constant pool entries would be to have multiple getParameter() methods, that took values from 0-5 to construct the actual parameter number.
+
+getParameter(3) – >  3 parameter (0 based)
+getParameter(2, 1) --> 13 parameter (2*6 + 1)
+getParameter(5, 1, 4) --> 190 parameter (5*36 + 1*6+ 4)
+above the limit of three args, revert to getParameter
+
+This should probably be a separate issue and probably would increease code size which would not help DERBY-732 , it's a tradeoff between constant pool entries and code size.
+
+
+

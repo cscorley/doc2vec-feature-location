@@ -1,0 +1,52 @@
+Hi,
+
+The following script fails with syntax error
+
+
+
+A = load 'data' as (a:{(x:chararray, y:float)}, b:chararray);
+B = foreach A generate
+    b,
+    (bag{tuple(long)}) a.x as ax:{(x:long)};
+
+
+
+where the cast statement is on its own line.
+
+The script fails with the following exception:
+
+
+19-02-2014 17:30:22 PST bug_script ERROR - org.apache.pig.impl.logicalLayer.FrontendException: ERROR 1000: Error during parsing.   Syntax error, unexpected symbol at or near 'bag'
+19-02-2014 17:30:22 PST bug_script ERROR - 	at org.apache.pig.PigServer$Graph.parseQuery(PigServer.java:1607)
+19-02-2014 17:30:22 PST bug_script ERROR - 	at org.apache.pig.PigServer$Graph.registerQuery(PigServer.java:1546)
+19-02-2014 17:30:22 PST bug_script ERROR - 	at org.apache.pig.PigServer.registerQuery(PigServer.java:516)
+19-02-2014 17:30:22 PST bug_script ERROR - 	at org.apache.pig.tools.grunt.GruntParser.processPig(GruntParser.java:988)
+19-02-2014 17:30:22 PST bug_script ERROR - 	at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:412)
+19-02-2014 17:30:22 PST bug_script ERROR - 	at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:194)
+19-02-2014 17:30:22 PST bug_script ERROR - 	at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:170)
+19-02-2014 17:30:22 PST bug_script ERROR - 	at org.apache.pig.tools.grunt.Grunt.exec(Grunt.java:84)
+19-02-2014 17:30:22 PST bug_script ERROR - 	at org.apache.pig.Main.run(Main.java:604)
+19-02-2014 17:30:22 PST bug_script ERROR - 	at org.apache.pig.PigRunner.run(PigRunner.java:49)
+19-02-2014 17:30:22 PST bug_script ERROR - 	at azkaban.jobtype.HadoopSecurePigWrapper.runPigJob(HadoopSecurePigWrapper.java:116)
+19-02-2014 17:30:22 PST bug_script ERROR - 	at azkaban.jobtype.HadoopSecurePigWrapper$1.run(HadoopSecurePigWrapper.java:106)
+19-02-2014 17:30:22 PST bug_script ERROR - 	at azkaban.jobtype.HadoopSecurePigWrapper$1.run(HadoopSecurePigWrapper.java:103)
+19-02-2014 17:30:22 PST bug_script ERROR - 	at java.security.AccessController.doPrivileged(Native Method)
+19-02-2014 17:30:22 PST bug_script ERROR - 	at javax.security.auth.Subject.doAs(Subject.java:396)
+19-02-2014 17:30:22 PST bug_script ERROR - 	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1190)
+19-02-2014 17:30:22 PST bug_script ERROR - 	at azkaban.jobtype.HadoopSecurePigWrapper.main(HadoopSecurePigWrapper.java:103)
+19-02-2014 17:30:22 PST bug_script ERROR - Caused by: Failed to parse:   Syntax error, unexpected symbol at or near 'bag'
+19-02-2014 17:30:22 PST bug_script ERROR - 	at org.apache.pig.parser.QueryParserDriver.parse(QueryParserDriver.java:235)
+19-02-2014 17:30:22 PST bug_script ERROR - 	at org.apache.pig.parser.QueryParserDriver.parse(QueryParserDriver.java:177)
+19-02-2014 17:30:22 PST bug_script ERROR - 	at org.apache.pig.PigServer$Graph.parseQuery(PigServer.java:1599)
+19-02-2014 17:30:22 PST bug_script ERROR - 	... 16 more
+
+
+
+The script succeeds if the foreach statement is written in one line:
+
+
+B = foreach A generate b, (bag{tuple(long)}) a.x as ax:{(x:long)};
+
+
+
+This problem happens only in batch mode.

@@ -1,0 +1,21 @@
+FP Bonsai is a method to prune long chained FP-Trees for faster growth. 
+http://win.ua.ac.be/~adrem/bibrem/pubs/fpbonsai.pdf
+
+This implementation also adds a transaction preprocessing map/reduce job which converts a list of transactions 
+{1, 2, 4, 5}
+, 
+{1, 2, 3}
+, 
+{1, 2}
+ into a tree structure and thus saves space during fpgrowth map/reduce 
+the tree formed from above is. For typical this improves the storage space by a great amount and thus saves on time during shuffle and sort
+(1,3) -> (2,3) | - (4,1) - (5,1)
+                      (3,1)        
+
+Also added a reducer to PFPgrowth (not part of the original paper) which does this compression and saves on space. 
+
+This patch also adds an example transaction dataset generator from flickr and delicious data set https://www.uni-koblenz.de/FB4/Institutes/IFI/AGStaab/Research/DataSets/PINTSExperimentsDataSets/
+Both of them are GIG of tag data. Where "date userid itemid tag" is given. The example maker creates a transaction based on all the unique tags a user has tagged on an item. 
+
+
+

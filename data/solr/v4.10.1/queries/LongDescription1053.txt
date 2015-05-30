@@ -1,0 +1,27 @@
+It will got excexception when the size of data-config.xml are times of 1024bytes.
+Maybe it should check the sz==-1 when in.read(buf) reach the EOF.
+
+
+#### ORIGINAL CODE ####
+static String getResourceAsString(InputStream in) throws IOException {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
+    byte[] buf = new byte[1024];
+    int sz = 0;
+    try {
+      while (true) {
+        sz = in.read(buf);
+        
+        baos.write(buf, 0, sz);
+        if (sz < buf.length)
+          break;
+      }
+    } finally {
+      try {
+        in.close();
+      } catch (Exception e) {
+
+      }
+    }
+    return new String(baos.toByteArray());
+  }
+

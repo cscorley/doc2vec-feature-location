@@ -1,0 +1,24 @@
+In section 4.12 in ../testing/README.htm, the property 
+
+    TestSpecialFlags 
+
+is described for specifying additional properties to RunTest. I could not
+find any evidence of this in RunTest or elsewhere. However, the property
+
+    testSpecialProps
+
+is supported by RunTest.java. I found this to work. This property
+also has a syntax for specifying more than one property using a "^"
+delimiter between properties, i.e.
+
+    testSpecialProps=<prop-1>=<value-1>^ ... ^<prop-n>=<value-n>
+
+Also,I noticed the property "useprocess" (default=true) for controlling
+whether RunTest runs the test in a separate vm or a thread in current
+vm isn't documented in README.htm.  I suggest it be included, since
+it's potentially useful for debugging tests. I could include it in the
+patch for derby-313 (I don't think anybody committed it yet) or file a
+new JIRA issue.
+
+Looking at RunTest reveals that unit tests are not (yet) runnable with
+"useprocess=false", though.

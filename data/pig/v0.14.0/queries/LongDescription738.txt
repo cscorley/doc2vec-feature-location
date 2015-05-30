@@ -1,0 +1,85 @@
+Consider a pig script which parses and counts regular expressions from a text file. 
+The regular expression supplied in the Pig script needs to escape the "."  (dot) character.
+
+
+
+register myregexp.jar;
+
+-- pattern not picked up
+
+define minelogs ci_pig_udfs.RegexGroupCount('www\\.yahoo\\.com/sports');
+
+A = load '/user/viraj/regexpinput.txt'  using PigStorage() as (source : chararray);
+
+B = foreach A generate minelogs(source) as sportslogs;
+
+dump B;
+
+
+
+
+Snippet of UDF RegexGroupCount.java
+
+
+
+
+public class RegexGroupCount extends EvalFunc<Integer> {
+
+    private final Pattern pattern_;
+
+    public RegexGroupCount(String patternStr) {
+
+       System.out.println("My pattern supplied is "+patternStr);
+
+       System.out.println("Equality test "+patternStr.equals("www\\.yahoo\\.com/sports"));
+
+       pattern_ = Pattern.compile(patternStr, Pattern.DOTALL|Pattern.CASE_INSENSITIVE);
+
+   }
+  public Integer exec(Tuple input)  throws IOException {
+   }
+}
+
+
+Running the above script on the following dataset :
+====================================================================================================
+dshfdskfwww.yahoo.com/sportsjoadfjdslpdshfdskfwww.yahoo.com/sportsjoadfjdsl
+kas;dka;sd
+jsjsjwww.yahoo.com/sports
+jsdLSJDcom/sports
+wwwJyahooMcom/sports
+====================================================================================================
+
+Results in the following:
+
+My pattern supplied is www\\.yahoo.com/sports
+Equality test false
+My pattern supplied is www\\.yahoo.com/sports
+Equality test false
+My pattern supplied is www\\.yahoo.com/sports
+Equality test false
+My pattern supplied is www\\.yahoo.com/sports
+Equality test false
+My pattern supplied is www\\.yahoo.com/sports
+Equality test false
+My pattern supplied is www\\.yahoo.com/sports
+Equality test false
+Userfunc: (Name: UserFunc viraj-Sat Mar 28 02:06:31 PDT 2009-14 function: ci_pig_udfs.RegexGroupCount('www\\.yahoo.com/sports') Operator Key: viraj-Sat Mar 28 02:06:31 PDT 2009-14)
+Userfunc fs: int
+My pattern supplied is www\\.yahoo.com/sports
+Equality test false
+My pattern supplied is www\\.yahoo.com/sports
+Equality test false
+My pattern supplied is www\\.yahoo.com/sports
+Equality test false
+
+2009-03-28 02:06:43,923 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - 100% complete
+2009-03-28 02:06:43,923 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - Success!
+(0)
+(0)
+(0)
+(0)
+(0)
+====================================================================================================
+
+In essence there seems to be no way of passing this type of constructor argument through the Pig script. The only workaround seems to be hard coding the values in the UDF!!

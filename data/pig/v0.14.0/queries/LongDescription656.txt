@@ -1,0 +1,27 @@
+Consider a Pig script which does something similar to a word count. It uses the built-in TOKENIZE function, but packages it inside a class hierarchy such as "mypackage.eval"
+
+
+register TOKENIZE.jar
+my_src  = LOAD '/user/viraj/mywordcount.txt' USING PigStorage('\t')  AS (mlist: chararray);
+modules = FOREACH my_src GENERATE FLATTEN(mypackage.eval.TOKENIZE(mlist));
+describe modules;
+grouped = GROUP modules BY $0;
+describe grouped;
+counts  = FOREACH grouped GENERATE COUNT(modules), group;
+ordered = ORDER counts BY $0;
+dump ordered;
+
+
+
+The parser complains:
+===========================================================================================================================
+2009-02-05 01:17:29,231 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1000: Error during parsing. Invalid alias: mypackage in 
+{mlist: chararray}
+===========================================================================================================================
+
+I looked at the following source code at (src/org/apache/pig/impl/logicalLayer/parser/QueryParser.jjt) and it seems that : EVAL is a keyword in Pig. Here are some clarifications:
+
+1) Is there documentation on what the EVAL keyword actually is?
+2) Is EVAL keyword actually implemented?
+
+Viraj

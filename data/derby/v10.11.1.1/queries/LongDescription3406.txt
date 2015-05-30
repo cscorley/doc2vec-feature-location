@@ -1,0 +1,57 @@
+Example test output:
+  ij> – Derby-34
+  create table tchar( i int, c char(1) for bit data default x'02');
+   0 rows inserted/updated/deleted
+  ij> create table tchar1 (i int, c char(5) for bit data default x'2020202020',
+  			v varchar(5) for bit data default x'2020',
+   			l long varchar for bit data default x'303030');
+   ERROR XJ001: DERBY SQL error: SQLCODE: -1, SQLSTATE: XJ001, SQLERRMC: java.lang.IllegalMonitorStateExceptionXJ001.U
+   ij> drop table tchar;
+   ERROR 08006: A network protocol error was encountered and the connection has been terminated: the requested command encountered an unarchitected and implementation-specific condition for which there was no architected message
+  ij> drop table tchar1;
+   ERROR 08003: No current connection.
+   ij> – insert various numeric types into other numeric types
+  create table i1 (i int, t int, s smallint, l bigint, r real, dp double, dc dec);
+  ERROR 08003: No current connection.
+
+Master derby log contains:
+.
+.
+Connection number: 4.
+Replication master role started for database '/home/os136789/Replication/testing/db_master/test'.
+2008-02-12 07:37:05.050 GMT Thread[DRDAConnThread_2,5,main] (DATABASE = /home/os136789/Replication/testing/db_master/test), (DRDAID = 
+{4}
+), Apache Derby Network Server connected to database /home/os136789/Replication/testing/db_master/test;slavePort=6666;startMaster=true;slaveHost=urd12
+Connection number: 5.
+2008-02-12 07:37:15.924 GMT Thread[DRDAConnThread_2,5,main] (DATABASE = /home/os136789/Replication/testing/db_master/test), (DRDAID = 
+{5}), Apache Derby Network Server connected to database /home/os136789/Replication/testing/db_master/test
+2008-02-12 07:37:17.815 GMT Thread[DRDAConnThread_2,5,main] (XID = 144), (SESSIONID = 3), (DATABASE = /home/os136789/Replication/testing/db_master/test), (DRDAID = O19F7421.DA48-794884131429056622{5}
+), Cleanup action starting
+2008-02-12 07:37:17.815 GMT Thread[DRDAConnThread_2,5,main] (XID = 144), (SESSIONID = 3), (DATABASE = /home/os136789/Replication/testing/db_master/test), (DRDAID = O19F7421.DA48-794884131429056622
+{5}
+), Failed Statement is: null
+java.lang.IllegalMonitorStateException
+	at java.lang.Object.notify(Native Method)
+	at org.apache.derby.impl.services.replication.master.AsynchronousLogShipper.workToDo(AsynchronousLogShipper.java:320)
+	at org.apache.derby.impl.services.replication.master.MasterController.workToDo(MasterController.java:434)
+	at org.apache.derby.impl.services.replication.buffer.ReplicationLogBuffer.switchDirtyBuffer(ReplicationLogBuffer.java:321)
+	at org.apache.derby.impl.services.replication.buffer.ReplicationLogBuffer.appendLog(ReplicationLogBuffer.java:148)
+	at org.apache.derby.impl.services.replication.master.MasterController.appendLog(MasterController.java:320)
+	at org.apache.derby.impl.store.raw.log.LogAccessFile.writeToLog(LogAccessFile.java:787)
+	at org.apache.derby.impl.store.raw.log.LogAccessFile.flushDirtyBuffers(LogAccessFile.java:534)
+	at org.apache.derby.impl.store.raw.log.LogToFile.flush(LogToFile.java:4007)
+	at org.apache.derby.impl.store.raw.log.LogToFile.flush(LogToFile.java:1769)
+	at org.apache.derby.impl.store.raw.log.FileLogger.flush(FileLogger.java:585)
+	at org.apache.derby.impl.store.raw.xact.Xact.prepareCommit(Xact.java:764)
+	at org.apache.derby.impl.store.raw.xact.Xact.commit(Xact.java:852)
+	at org.apache.derby.impl.store.raw.xact.Xact.commit(Xact.java:649)
+	at org.apache.derby.impl.store.access.RAMTransaction.commit(RAMTransaction.java:1964)
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.doCommit(GenericLanguageConnectionContext.java:1183)
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.userCommit(GenericLanguageConnectionContext.java:1003)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.commit(TransactionResourceImpl.java:237)
+	at org.apache.derby.impl.jdbc.EmbedConnection.commit(EmbedConnection.java:1482)
+	at org.apache.derby.impl.drda.Database.commit(Database.java:315)
+	at org.apache.derby.impl.drda.DRDAConnThread.processCommands(DRDAConnThread.java:872)
+	at org.apache.derby.impl.drda.DRDAConnThread.run(DRDAConnThread.java:279)
+
+Will attach full master derby.log.

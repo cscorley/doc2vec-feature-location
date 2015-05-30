@@ -1,0 +1,14 @@
+When a query method is called (e.g. setLockMode) on a named query that has been created twice, an IllegalStateException is thrown:
+
+  Query q1 = em.createNamedQuery("xxxx");
+  ,,,,
+  Query q2 = em.createNamedQuery("xxxx");
+  q2.setLockMode(READ);
+
+
+11078  test  TRACE  [Thread-4] Tests - Caught exception and continue: java.lang.IllegalStateException: Query is neither a JPQL SELECT nor a Criteria API query.
+11078  test  TRACE  [Thread-4] DumpStack - java.lang.IllegalStateException: Query is neither a JPQL SELECT nor a Criteria API query.
+	at org.apache.openjpa.persistence.QueryImpl.assertJPQLOrCriteriaQuery(QueryImpl.java:377)
+	at org.apache.openjpa.persistence.QueryImpl.setLockMode(QueryImpl.java:396)
+	at org.apache.openjpa.persistence.QueryImpl.setLockMode(QueryImpl.java:1)
+	at org.apache.openjpa.persistence.lockmgr.SequencedActionsTest.launchCommonSequence(SequencedActionsTest.java:409)

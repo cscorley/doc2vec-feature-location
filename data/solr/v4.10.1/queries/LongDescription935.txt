@@ -1,0 +1,3 @@
+There is a possibility of 2 threads to be in DataImporter:runCmd, until before  importLock.tryLock() method and then depending on the scheduling - one of them is allowed to pass through from then .
+
+We need to log the failure of the other as to unable to start because of the failure to acquire the mutex, to distinguish between successful start of import and failure to do so. 

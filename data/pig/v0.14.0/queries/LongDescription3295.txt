@@ -1,0 +1,19 @@
+One example
+
+A = load 'data1.txt' as line:bytearray;
+B = load 'c1.txt' using TextLoader() as cookie1;
+C = load 'c2.txt' using TextLoader() as cookie2;
+B2 = join A by line, B by cookie1;
+C2 = join A by line, C by cookie2;
+D = union onschema B2,C2; -- D: {A::line: bytearray,B::cookie1: bytearray,C::cookie2: bytearray}
+E = foreach D generate (chararray) line, (chararray) cookie1, (chararray) cookie2;
+dump E;
+
+
+
+This script fails at runtime with 
+"Caused by: org.apache.pig.backend.executionengine.ExecException: ERROR 1075: Received a bytearray from the UDF. Cannot determine how to convert the bytearray to string."
+
+This is different from PIG-3293 such that each field in 'D' belongs to a single loader whereas on PIG-3293, it came from multiple loader.
+
+

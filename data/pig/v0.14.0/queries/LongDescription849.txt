@@ -1,0 +1,3 @@
+When there is a split in the physical plan records can be dropped in certain circumstances.
+
+The local split operator puts all records in a databag and turns over iterators to the POSplitOutput operators. The problem is that the local split also adds STATUS_NULL records to the bag. That will cause the databag's iterator to prematurely return false on the hasNext call (so a STATUS_NULL becomes a STATUS_EOP in the split output operators).

@@ -1,0 +1,34 @@
+Currently a sampling job requires that data already be stored in BinaryStorage format, since RandomSampleLoader extends BinaryStorage.  For order by this
+has mostly been acceptable, because users tend to use order by at the end of their script where other MR jobs have already operated on the data and thus it
+is already being stored in BinaryStorage.  For pig scripts that just did an order by, an entire MR job is required to read the data and write it out
+in BinaryStorage format.
+
+As we begin work on join algorithms that will require sampling, this requirement to read the entire input and write it back out will not be acceptable.
+Join is often the first operation of a script, and thus is much more likely to trigger this useless up front translation job.
+
+Instead RandomSampleLoader can be changed to subsume an existing loader, using the user specified loader to read the tuples while handling the skipping
+between tuples itself.  This will require the subsumed loader to implement a Samplable Interface, that will look something like:
+
+
+
+public interface SamplableLoader extends LoadFunc {
+    
+    /**
+     * Skip ahead in the input stream.
+     * @param n number of bytes to skip
+     * @return number of bytes actually skipped.  The return semantics are
+     * exactly the same as {@link java.io.InpuStream#skip(long)}
+     */
+    public long skip(long n) throws IOException;
+    
+    /**
+     * Get the current position in the stream.
+     * @return position in the stream.
+     */
+    public long getPosition() throws IOException;
+}
+
+
+
+The MRCompiler would then check if the loader being used to load data implemented the SamplableLoader interface.  If so, rather than create an initial MR
+job to do the translation it would create the sampling job, having RandomSampleLoader use the user specified loader.

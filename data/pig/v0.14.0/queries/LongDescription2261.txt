@@ -1,0 +1,25 @@
+Pig 0.8 and earlier versions used to support syntax such as 
+
+
+
+A =(load ....)
+
+
+
+This was removed as "useless" in 0.9 when the grammar was redone. It turns out that some user is using this for ease of code generation so we want to restore it back.
+
+Just to clarify, Pig 0.9 continues to support composite statements such as
+
+
+
+B = filter (load 'data' as (a, b)) by a > 0;
+
+
+
+It just removed "useless" parenthesis and doesn't support statements like
+
+
+
+A = (load 'data' as (a, b));
+
+

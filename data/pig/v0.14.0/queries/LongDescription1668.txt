@@ -1,0 +1,23 @@
+This is data-dependent. We need to fix the underlining algorithm.
+
+
+
+Backend error message
+---------------------
+java.lang.RuntimeException: org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.partitioners.MalFormedProbVecException: ERROR 2122: Sum of probabilities should be one
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.partitioners.WeightedRangePartitioner.setConf(WeightedRangePartitioner.java:139)
+	at org.apache.hadoop.util.ReflectionUtils.setConf(ReflectionUtils.java:62)
+	at org.apache.hadoop.util.ReflectionUtils.newInstance(ReflectionUtils.java:117)
+	at org.apache.hadoop.mapred.MapTask$NewOutputCollector.<init>(MapTask.java:578)
+	at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:658)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:327)
+	at org.apache.hadoop.mapred.Child$4.run(Child.java:219)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:396)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1021)
+	at org.apache.hadoop.mapred.Child.main(Child.java:213)
+Caused by: org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.partitioners.MalFormedProbVecException: ERROR 2122: Sum of probabilities should be one
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.partitioners.DiscreteProbabilitySampleGenerator.<init>(DiscreteProbabilitySampleGenerator.java:56)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.partitioners.WeightedRangePartitioner.setConf(WeightedRangePartitioner.java:128)
+	... 10 more
+

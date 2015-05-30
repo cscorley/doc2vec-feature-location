@@ -1,0 +1,7 @@
+SQL generated for "select p for PObject p" is SELECT COUNT(t0.id) FROM POBJECT t0". This is valid and according to JPQL spec which does not accept COUNT.
+
+However, JDBC Drivers for legacy databases may not always support COUNT(columnName) as reported in [1].
+
+OpenJPA should support such cases with a boolean option DBDictionary.useWildCardForCount.
+
+[1] http://n2.nabble.com/COUNT-t-to-COUNT-tc4176827.html#a4176827

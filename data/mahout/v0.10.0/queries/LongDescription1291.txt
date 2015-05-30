@@ -1,0 +1,5 @@
+If you run bin/mahout without arguments, an error is correctly displayed about lack of an argument. The part that displays the error is actually within Hadoop code. In some versions of Hadoop, in the error case, it will quit the JVM with System.exit(). In others, it does not.
+
+In the calling code in MahoutDriver, in this error case, the main() method does not actually return. So, for versions where Hadoop code doesn't immediately exit the JVM, execution continues. This yields another exception. It's pretty harmless but ugly.
+
+Attached is a one-line fix, to return from main() in the error case, which is more correct to begin with.

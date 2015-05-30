@@ -1,0 +1,109 @@
+The follow is a list of changes to be implemented in the DRDAConnThread, DRDAStatement and DRDAResultSet. It is hoped that these changes will clean up code related to DERBY-213 and make the fix easier to implement.
+
+###################################
+
+Step 1:
+
+In org.apache.derby.impl.drda.DRDAResultSet add
+public static final int QRYCLSIMP_DEFAULT = CodePoint.QRYCLSIMP_NO;
+
+############################
+
+Step 2:
+
+Copy the org.apache.derby.impl.drda.DRDAStatement.setOPNQRYOptions() method to the org.apache.derby.impl.drda.DRDAResultSet class and 
+change the logic of set setOPNQRYOptions() to remove the setting of the qryclsimp value to QRYCLSIMP_SERVER_CHOICE. Only the values of YES or NO will ever be stored internally.
+
+e.g.
+
+DRDAResultSet.setOPNQRYOptions(int blksize, int qryblkctl, int maxblkext, int outovropt, int qryrowset, 
+    int qryclsimpl) {
+	this.blksize = blksize;
+	setQryprctyp(qryblkctl);
+	this.maxblkext = maxblkext;
+	this.outovropt = outovropt;
+	this.qryrowset = qryrowset;
+	this.qryclsimp = (qryclsimpl == CodePoint.QRYCLSIMP_SERVER_CHOICE)
+			? DRDAResultSet.QRYCLSIMP_DEFAULT : qryclsimpl;
+}
+
+Thereafter change to the DRDAStatement.setOPNQRYOptions() to a delegation method which calls the method in DRDAResultSet
+
+e.g.
+
+DRDAStatement.setOPNQRYOptions(int blksize, int qryblkctl, 								  int maxblkext, int outovropt,int qryrowset,int qryclsimpl)
+{
+    currentDrdaRs.setOPNQRYOptions(blksize, qryblkctl, maxblkext, 
+        outovropt, qryrowset, qryclsimpl);
+}
+
+###################################
+
+Step 3:
+
+Add org.apache.derby.impl.drda.DRDAResultSet.isRSCloseImplicit() which will test to see if the resultset should close implicitly
+
+e.g.
+
+boolean DRDAResultSet.isRSCloseImplicit() {
+	return currentDrdaRs.qryclsimp == CodePoint.QRYCLSIMP_YES && 
+		stmt.getQryprctyp() != CodePoint.LMTBLKPRC
+}
+
+Then add a corresponding delegation method in org.apache.derby.impl.drda.DRDAStatement()
+
+boolean DRDAStatement.isRSCloseImplicit() {
+	return currentDrdaRs.isRSCloseImplicit();
+}
+
+###################################
+
+Step 4:
+
+Remove org.apache.derby.impl.drda.DRDAStatment.setQryclsimp(int value)
+
+###################################
+
+Step 5: 
+
+Remove all references to 
+if (qryclsimp == CodePoint.QRYCLSIMP_YES &&
+	stmt.getQryprctyp() != CodePoint.LMTBLKPRC)  { ...
+logic and replace with 
+if (drdaStatement.isRSCloseImplicit()) { ...
+
+This should remove all references to org.apache.derby.impl.drda.DRDAStatment.getQryclsimp() which can in turn be removed.
+
+###################################
+
+Step 6: 
+
+In org.apache.derby.drda.impl.DRDAResultSet change:
+
+protected int qryclsimp
+to
+private int qryclsimp;
+
+###################################
+
+Step 7:
+
+In org.apache.derby.drda.impl.DRDAConnThread.parseOPNQRY() change the line
+int qryclsimp = CodePoint.QRYCLSIMP_DEFAULT;
+to 
+int qryclsimp = DRDAResultSet.QRYCLSIMP_DEFAULT
+
+###################################
+
+Step 8:
+
+In org.apache.derby.drda.impl.CodePoint remove
+static final int QRYCLSIMP_DEFAULT = QRYCLSIMP_SERVER_CHOICE;
+
+###################################
+
+Step 9: Insure that the new methods and changed methods have appropriate java documentation.
+
+###################################
+
+Step 10: Organize the import for the DRDAConnThread, DRDAStatement and DRDAResultSet classes found in the org.apache.derby.drda.impl package.

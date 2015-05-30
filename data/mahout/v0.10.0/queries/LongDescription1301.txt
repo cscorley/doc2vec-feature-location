@@ -1,0 +1,24 @@
+Realization of SequentialAccessSparseVector toString() method had changed in MAHOUT-1259 patch. Unfortunately, that patch introduced new bug: output of the toString() method had been changed - extra comma added at the end of the string
+
+Example: 
+Consider following sparse vector
+
+
+Vector v = new SequentialAccessSparseVector(capacity);
+v.set(1, 0.1);
+v.set(3, 0.3);
+
+
+In 0.7 v.toString() returns following string:
+
+
+{1:0.1,3:0.3}
+
+
+but in 0.8 it returns
+
+
+{1:0.1,3:0.3,}
+
+
+As you can see, there is extra comma at the end of the string.

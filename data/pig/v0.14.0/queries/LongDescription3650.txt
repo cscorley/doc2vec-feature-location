@@ -1,0 +1,1 @@
+The fix for PIG-3100 does Math.min(fieldSchemas.length, tup.size()) in PigStorage.applySchema(). This means that if column pruning is in use, all schema columns will not be iterated over (since tup.size() will be less than fieldSchemas.length) and the schema will not be applied to all columns,

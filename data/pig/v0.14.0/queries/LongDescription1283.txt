@@ -1,0 +1,29 @@
+grunt>  l = load '/tmp/e.bag' as (b : bag
+{t: (i : int)}
+, a : int);
+
+	b is null for the only row
+grunt> c = foreach l generate COUNT(b);                           
+grunt> dump c       
+
+
+
+It results in following exception-
+
+org.apache.pig.backend.executionengine.ExecException: ERROR 2106: Error while computing count in COUNT
+        at org.apache.pig.builtin.COUNT.exec(COUNT.java:59)
+        at org.apache.pig.builtin.COUNT.exec(COUNT.java:39)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POUserFunc.getNext(POUserFunc.java:212)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POUserFunc.getNext(POUserFunc.java:293)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.processPlan(POForEach.java:358)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.getNext(POForEach.java:288)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:232)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:227)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:52)
+        at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144)
+        at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:583)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:305)
+        at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:176)
+Caused by: java.lang.NullPointerException
+        at org.apache.pig.builtin.COUNT.exec(COUNT.java:46)
+        ... 12 more

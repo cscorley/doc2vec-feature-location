@@ -1,0 +1,46 @@
+State of InputStream retrieved from ResultSet was not clean , if there exists previous InputStream retrieved from ResultSet .
+
+Test code ...
+	PreparedStatement pst = conn.prepareStatement("insert into a(b) values");
+
+	byte[] data = new byte[1024 * 1024];
+	for(int i = 0;
+	    i < 1024 * 1024;
+	    i  ++)
+{
+	    data[i] = (byte)(i % 256);
+	}
+
+	pst.setBinaryStream(1,new ByteArrayInputStream(data),data.length);
+	pst.executeUpdate();
+	pst.close();
+
+
+	st = conn.createStatement();
+	ResultSet rs = st.executeQuery("select b from a");
+	rs.next();
+
+	InputStream is = rs.getBinaryStream(1);
+	System.out.println("Here goes first stream");
+	System.out.println(is.read());
+	System.out.println(is.read());
+	System.out.println(is.read());
+
+	is = rs.getBinaryStream(1);
+	System.out.println("Here goes 2nd stream");
+	System.out.println(is.read());
+	System.out.println(is.read());
+	System.out.println(is.read());
+
+Result ....
+naka@rufelza:~/derby/test/20051121$ java testLob
+Here goes first stream
+0
+1
+2
+Here goes 2nd stream
+7
+8
+9
+
+It is expected that result printed from first stream is as same as result printed from 2nd.

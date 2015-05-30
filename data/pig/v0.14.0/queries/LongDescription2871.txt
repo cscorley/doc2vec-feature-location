@@ -1,0 +1,15 @@
+The signature to this method should be refactored to provide more context so the implementer has access to the map and reduce plans. Also passing both Job and Configuration is redundant, since the latter can be obtained by the former.
+
+I propose changing this:
+
+int estimateNumberOfReducers(Configuration conf, List<POLoad> lds, Job job) throws IOException;
+
+
+
+To this:
+
+int estimateNumberOfReducers(Job job, MapReduceOper mapReduceOper) throws IOException;
+
+
+
+This interface is evolving and hasn't yet been released so this is safe.

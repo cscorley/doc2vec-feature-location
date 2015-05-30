@@ -1,0 +1,14 @@
+Calling procedure SYSCS_BULK_INSERT  fails in 10.2 , throwing a syntax error when it sees the PROPERTIES clause.
+SystemProcedures.SYSCS_BULK_INSERT uses the following sql query.
+       String binsertSql =
+           "insert into " + entityName +
+           " PROPERTIES insertMode=bulkInsert " +
+           "select * from new " + vtiName +
+           "(" +
+           "'" + schemaName + "'" + ", " +
+           "'" + tableName + "'" +  ", " +
+           "'" + vtiArg + "'" +  ")" +
+           " as t";
+I think because of the optimizer overrides in 10.2, this query does not work. 
+
+Instead of the PROPERTIES clause, we should now use --DERBY-PROPERTIES.  

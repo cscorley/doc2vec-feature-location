@@ -1,0 +1,49 @@
+OPENJPA-241 has eliminated some extra SQLs for  2 entities  having a LAZY OneToMany,  and inverse EAGER ManyToOne relations.
+There are still  extra SQLs that can be avoided in the cases where  2 entities are related by  an EAGER OneToMany,  and inverse LAZY ManyToOne relations.
+
+Consider the following 2 entities:
+
+    Publisher  (1) <--->  (M)  Magazine
+
+    @Entity
+public class Publisher implements Serializable {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="id")
+    private int id;
+
+    @OneToMany(mappedBy="idPublisher",  fetch=FetchType.EAGER)
+    private Set<Magazine> magazineCollection;   
+...
+}
+
+@Entity
+public class Magazine implements Serializable {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="id")
+    private int id;
+
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="id_publisher")
+    private Publisher idPublisher;
+
+...
+}
+
+
+Query = em.createQuery("SELECT p from Publisher p);
+
+Since Publisher has a OneToMany Eager relation (magazines), We generate following  SQLs 
+
+ (1)  SELECT t0.id, t0.name FROM Publisher t0
+ (2)  SELECT t0.id, t1.id, t1.date_published, t1.id_publisher, t1.name FROM Publisher t0 INNER JOIN Magazine t1 ON t0.id = t1.id_publisher ORDER BY t0.id ASC
+
+However, the following extra SQLs are also generated (making additional database trips)
+ (3) SELECT t0.name, t1.id_publisher, t1.id, t1.date_published, t1.name FROM Publisher t0 LEFT OUTER JOIN Magazine t1 ON t0.id = t1.id_publisher WHERE t0.id = ? [params=(int) 2]
+... more depending on how many publishers there are in the database.
+
+The fact that SQL(2) has  already returned all magazines of all publishers, SQL (3) is unnecessary. 
+The inverse ManyToOne relation should  be established from the SQL (2) result.

@@ -1,0 +1,52 @@
+I have a Pig script which is structured in the following way
+
+
+
+register cp.jar
+
+dataset = load '/data/dataset/' using PigStorage('\u0001') as (col1, col2, col3, col4, col5);
+
+filtered_dataset = filter dataset by (col1 == 1);
+
+proj_filtered_dataset = foreach filtered_dataset generate col2, col3;
+
+rmf $output1;
+
+store proj_filtered_dataset into '$output1' using PigStorage();
+
+second_stream = foreach filtered_dataset  generate col2, col4, col5;
+
+group_second_stream = group second_stream by col4;
+
+output2 = foreach group_second_stream {
+ a =  second_stream.col2
+ b =   distinct second_stream.col5;
+ c = order b by $0;
+ generate 1 as key, group as keyword, MYUDF(c, 100) as finalcalc;
+}
+
+rmf  $output2;
+
+--syntax error here
+store output2 to '$output2' using PigStorage();
+
+
+
+
+I run this script using the Multi-query option, it runs successfully till the first store but later fails with a syntax error. 
+
+The usage of HDFS option, "rmf" causes the first store to execute. 
+
+The only option the I have is to run an explain before running his script 
+
+grunt> explain -script myscript.pig -out explain.out
+
+or moving the rmf statements to the top of the script
+
+Here are some questions:
+
+a) Can we have an option to do something like "checkscript" instead of explain to get the same syntax error?  In this way I can ensure that I do not run for 3-4 hours before encountering a syntax error
+b) Can pig not figure out a way to re-order the rmf statements since all the store directories are variables
+
+Thanks
+Viraj

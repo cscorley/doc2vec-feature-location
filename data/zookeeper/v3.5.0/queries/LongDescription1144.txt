@@ -1,0 +1,7 @@
+I have found one problem that is causing QuorumPeerMainTest:testQuorum to fail. This test uses 2 ZK servers. 
+
+The test is failing because leader is not starting ZooKeeperServer after leader election. so everything halts.
+
+With the new changes, the server is now started in Leader.processAck() which is called from LeaderHandler. processAck() starts ZooKeeperServer if majority have acked NEWLEADER. The leader puts its ack in the the ackSet in Leader.lead(). Since processAck() is called from LearnerHandler it can happen that the learner's ack is processed before the leader is able to put its ack in the ackSet. When LearnerHandler invokes processAck(), the ackSet for newLeaderProposal will not have quorum (in this case 2). As a result, the ZooKeeperServer is never started on the Leader.
+
+The leader needs to ensure that its ack is put in ackSet before starting LearnerCnxAcceptor or invoke processAck() itself after adding to ackSet. I haven't had time to go through the ZAB2 changes so I am not too familiar with the code. Can Ben/Flavio fix this?

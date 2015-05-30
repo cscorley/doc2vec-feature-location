@@ -1,0 +1,18 @@
+(from Grahame's email) -
+
+
+describe a;
+a: {f1: int,f2: int,f3: int,f4: int,f5: int,f6: int,f7: int,f8: int,f9: int,f10: int}
+
+aa = FOREACH a GENERATE $0, TOTUPLE($2,$3,$4,$5);
+aaa = FOREACH aa GENERATE $0, $1.$0; -- OK
+aaa = FOREACH aa GENERATE $0, $1.f3; -- OK
+aaa = FOREACH aa GENERATE $0, $1.$1; -- OK
+aaa = FOREACH aa GENERATE $0, $1.f4; -- OK
+
+aa = FOREACH a GENERATE $0, TOTUPLE($2..$5); -- should be the same as above?
+aaa = FOREACH aa GENERATE $0, $1.$0; -- OK
+aaa = FOREACH aa GENERATE $0, $1.f3; -- ERROR
+aaa = FOREACH aa GENERATE $0, $1.$1; -- ERROR
+aaa = FOREACH aa GENERATE $0, $1.f4; -- ERROR
+

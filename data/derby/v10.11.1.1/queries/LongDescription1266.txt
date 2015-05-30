@@ -1,0 +1,21 @@
+This fragment from deleteRowX shows the problem:
+
+> if (isOnInsertRow_) 
+{
+>       throw new SqlException(agent_.logWriter_, 
+>           new MessageId(SQLState.CURSOR_NOT_POSITIONED_ON_INSERT_ROW));
+> }
+
+It should be the opposite: the problem is that the cursor is on the
+insert row, not that it isn't.
+
+These is a similar error in updateRowX.
+
+The client master files for updatableResultSet show the problem, so
+the masters are wrong, too.
+
+> Negative Test 39.a - run updateRow on insertRow
+> SQL State: XJ086
+> Got expected exception: This method cannot be invoked while the
+  cursor is not on the insert row or if the concurrency of this 
+  ResultSet object is CONCUR_READ_ONLY. 

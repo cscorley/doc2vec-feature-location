@@ -1,0 +1,10 @@
+Current Vectorizer uses Lucene Index to convert documents into SparseVectors
+Ted is working on a Hash based Vectorizer which can map features into Vectors of fixed size and sum it up to get the document Vector
+This is a pure bag-of-words based Vectorizer written in Map/Reduce. 
+
+The input document is in SequenceFile<Text,Text> . with key = docid, value = content
+First Map/Reduce over the document collection and generate the feature counts.
+Second Sequential pass reads the output of the map/reduce and converts them to SequenceFile<Text, LongWritable> where key=feature, value = unique id 
+    Second stage should create shards of features of a given split size
+Third Map/Reduce over the document collection, using each shard and create Partial(containing the features of the given shard) SparseVectors 
+Fourth Map/Reduce over partial shard, group by docid, create full document Vector

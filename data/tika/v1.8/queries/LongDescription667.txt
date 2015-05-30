@@ -1,0 +1,5 @@
+Currently in RFC822Parser if Apache-Mime4J fails while parsing any field, then parsing the whole document will fail. This causes problems on the Enron Corpus - see https://issues.apache.org/jira/browse/TIKA-657
+
+RFC822Parser is configured from a MimeEntityConfig object. MimeEntityConfig contains an option for "strict parsing". Currently MailContentHandler only performs strict parsing, I.E. if a MimeException is encountered when processing any fields in MailContentHandler.field then processing the document fails. However, we may prefer not to have strict parsing I.E. continue even if processing one or more fields fails. This can be achieved by placing a try / catch block around the logic inside MailContentHandler.field(), and only rethrowing the error if strictParsing is enabled, otherwise we log the error.
+
+I enclose a diff for RFC822Parser and MailContentHandler that does this. I have also made some other minor changes to MailContentHandler: there was some repeated code for handling To:, Cc: and Bcc: fields, so I have replaced that with a single private method, and rewritten stripOutFieldPrefix, to avoid manipulating the String using re-assignment. 

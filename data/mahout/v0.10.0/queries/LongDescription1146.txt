@@ -1,0 +1,20 @@
+This bug is probably about the viewColumn method, or matrixLike method or MatrixVectorView constructor, I didn't really looked into it. But it is easy to reproduce.
+
+I have a dense matrix U of size 10x670. When I try to do this I get a cardinality exception, which doesn't make sense:
+
+Vector uI = U.viewColumn;
+Matrix outerProduct = uI.cross(uI);
+
+Exception is thrown from AbstractMatrix class' cross method, when a row is tried to be assigned in the result matrix.
+  public Matrix cross(Vector other) {
+    Matrix result = matrixLike(size, other.size());
+    for (int row = 0; row < size; row++) 
+{
+      result.assignRow(row, other.times(getQuick(row)));
+    }
+    return result;
+  }
+
+The problem here is matrixLike method does not return a 10x10 matrix as it should, instead it returns 1x1 matrix. 
+
+Hope this helps.

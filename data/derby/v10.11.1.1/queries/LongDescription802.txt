@@ -1,0 +1,92 @@
+Grégoire Dubois on the list reported this problem.  From his mail: the reproduction is attached below. 
+When statement type is set to ResultSet.TYPE_SCROLL_INSENSITIVE, outofmemory exception is thrown when reading large blobs. 
+
+import java.sql.*;
+import java.io.*;
+
+/**
+*
+
+	@author greg
+*/
+public class derby_filewrite_fileread {
+
+
+
+    private static File file = new File("/mnt/BigDisk/Clips/BabyMamaDrama-JShin.wmv");
+    private static File destinationFile = new File("/home/greg/DerbyDatabase/"+file.getName());
+
+    /** Creates a new instance of derby_filewrite_fileread */
+    public derby_filewrite_fileread() {       
+
+    }
+
+    public static void main(String args[]) {
+        try {
+            Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
+            Connection connection = DriverManager.getConnection ("jdbc:derby:/home/greg/DerbyDatabase/BigFileTestDB;create=true", "APP", "");
+            connection.setAutoCommit(false);
+
+            Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ResultSet result = statement.executeQuery("SELECT TABLENAME FROM SYS.SYSTABLES");
+
+            // Create table if it doesn't already exists.
+            boolean exist=false;
+            while ( result.next() ) 
+{
+                if ("db_file".equalsIgnoreCase(result.getString(1)))
+                    exist=true;
+            }
+            if ( !exist ) 
+{
+                System.out.println("Create table db_file.");
+                statement.execute("CREATE TABLE db_file ("+
+                                           "     name          VARCHAR(40),"+
+                                           "     file          BLOB(2G) NOT NULL)");
+                connection.commit();
+            }
+
+            // Read file from disk, write on DB.
+            System.out.println("1 - Read file from disk, write on DB.");
+            PreparedStatement preparedStatement=connection.prepareStatement("INSERT INTO db_file(name,file) VALUES (?,?)");
+            FileInputStream fileInputStream = new FileInputStream(file);
+            preparedStatement.setString(1, file.getName());
+            preparedStatement.setBinaryStream(2, fileInputStream, (int)file.length());           
+            preparedStatement.execute();
+            connection.commit();
+            System.out.println("2 - END OF Read file from disk, write on DB.");
+
+
+            // Read file from DB, and write on disk.
+            System.out.println("3 - Read file from DB, and write on disk.");
+            result = statement.executeQuery("SELECT file FROM db_file WHERE name='"file.getName()"'");
+            byte[] buffer = new byte [1024];
+            result.next();
+            BufferedInputStream     inputStream=new BufferedInputStream(result.getBinaryStream(1),1024);
+            FileOutputStream outputStream = new FileOutputStream(destinationFile);
+            int readBytes = 0;
+            while (readBytes!=-1) 
+{
+                readBytes=inputStream.read(buffer,0,buffer.length);
+                if ( readBytes != -1 )
+                    outputStream.write(buffer, 0, readBytes);
+            }
+     
+            inputStream.close();
+            outputStream.close();
+            System.out.println("4 - END OF Read file from DB, and write on disk.");
+        }
+        catch (Exception e) 
+{
+            e.printStackTrace(System.err);
+        }
+    }
+}
+
+
+It returns
+1 - Read file from disk, write on DB.
+2 - END OF Read file from disk, write on DB.
+3 - Read file from DB, and write on disk.
+java.lang.OutOfMemoryError
+if the file is ~10MB or more

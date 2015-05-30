@@ -1,0 +1,24 @@
+Point where it is not appropriate :
+
+
+1: Compatibility
+
+The InputStream returned from result set is closed when other getXXXX method was called .
+http://java.sun.com/j2se/1.5.0/docs/api/java/sql/ResultSet.html
+
+However closing ByteArrayInputStream have no effect at all .
+http://java.sun.com/j2se/1.5.0/docs/api/java/io/ByteArrayInputStream.html#close()
+
+It seems intended that closable InputStream was returned from result set .
+If ByteArrayInputStream was returned from result set , the stream cannot be closed, 
+and compatibility would be lost .
+
+
+2: Performance of program 
+Information inputted from ByteArrayInputStream needs to be expanded to memory as byte[] object .
+
+If large byte[] object was created for each ByteArrayInputStream object , 
+program will run in bad performance .
+
+// I think problem is when information typed as LOB was retrieved from ResultSet .
+// Because such informations typed as LOB tend to be large amount .

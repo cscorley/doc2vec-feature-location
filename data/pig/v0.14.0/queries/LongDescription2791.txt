@@ -1,0 +1,25 @@
+The Yahoo Pig QE team ran into a blocking issue when trying to test Client-Side Mount Tables, on a Federated cluster with two NNs, this blocks Pig Testing on Federation. 
+
+Federation relies strongly on the use of CSMT with viewFS, QE found that in this configuration it is not possible to enter grunt shell because Pig makes a call to getDefaultReplication() on the fs, which is ambiguous over viewFS and causes core to throw a org.apache.hadoop.fs.viewfs.NotInMountpointException: "getDefaultReplication on empty path is invalid".
+
+This in turn cause Pig to exit with an internal error as follows:
+
+2012-07-06 22:20:25,657 [main] INFO  org.apache.pig.Main - Apache Pig version 0.10.1.0.1206081058 (r1348169) compiled Jun 08 2012, 17:58:42
+2012-07-06 22:20:26,074 [main] WARN  org.apache.hadoop.conf.Configuration - mapred.used.genericoptionsparser is deprecated. Instead, use mapreduce.client.genericoptionsparser.used
+2012-07-06 22:20:26,076 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to hadoop file system at: viewfs:///
+2012-07-06 22:20:26,080 [main] WARN  org.apache.hadoop.conf.Configuration - fs.default.name is deprecated. Instead, use fs.defaultFS
+2012-07-06 22:20:26,522 [main] ERROR org.apache.pig.Main - ERROR 2999: Unexpected internal error. getDefaultReplication on empty path is invalid
+2012-07-06 22:20:26,522 [main] WARN  org.apache.pig.Main - There is no log file to write to.
+2012-07-06 22:20:26,522 [main] ERROR org.apache.pig.Main - org.apache.hadoop.fs.viewfs.NotInMountpointException: getDefaultReplication on empty path is invalid
+        at org.apache.hadoop.fs.viewfs.ViewFileSystem.getDefaultReplication(ViewFileSystem.java:482)
+        at org.apache.pig.backend.hadoop.datastorage.HDataStorage.init(HDataStorage.java:77)
+        at org.apache.pig.backend.hadoop.datastorage.HDataStorage.<init>(HDataStorage.java:58)
+        at org.apache.pig.backend.hadoop.executionengine.HExecutionEngine.init(HExecutionEngine.java:205)
+        at org.apache.pig.backend.hadoop.executionengine.HExecutionEngine.init(HExecutionEngine.java:118)
+        at org.apache.pig.impl.PigContext.connect(PigContext.java:208)
+        at org.apache.pig.PigServer.<init>(PigServer.java:246)
+        at org.apache.pig.PigServer.<init>(PigServer.java:231)
+        at org.apache.pig.tools.grunt.Grunt.<init>(Grunt.java:47)
+        at org.apache.pig.Main.run(Main.java:487)
+        at org.apache.pig.Main.main(Main.java:111)
+

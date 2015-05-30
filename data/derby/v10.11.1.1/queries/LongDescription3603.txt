@@ -1,0 +1,88 @@
+Derbys' 'IN' clause is returning different results depending on which side of a joined table
+I am doing my 'IN' comparison against. This only occurs when the number of items within the 'IN' clause is greater then 1.
+
+This behaviour was also confirmed by Bryan Pendleton in this thread:
+http://mail-archives.apache.org/mod_mbox/db-derby-user/200804.mbox/%3c47FA5974.2060705@amberpoint.com%3e
+
+Using the test database attatched the following 2 queries produce the issue:
+
+ij>  select count FROM spike.accounts account, spike.admin_units admin_unit,
+    spike.bookings booking
+    WHERE booking.child_id = 2 AND
+    admin_unit.admin_unit_id IN (1,21) AND
+    booking.booking_date_time_out >= 20080331000000 AND
+    booking.booking_date_time_in <= 20080406235900 AND
+    account.account_id = booking.account_id AND
+    admin_unit.admin_unit_id = account.admin_unit_id;
+1          
+-----------
+2          
+
+1 row selected
+ij> select count FROM spike.accounts account, spike.admin_units admin_unit,
+    spike.bookings booking
+    WHERE booking.child_id = 2 AND
+    account.admin_unit_id IN (1,21) AND
+    booking.booking_date_time_out >= 20080331000000 AND
+    booking.booking_date_time_in <= 20080406235900 AND
+    account.account_id = booking.account_id AND
+    admin_unit.admin_unit_id = account.admin_unit_id;
+1          
+-----------
+3          
+
+1 row selected
+ij> 
+
+The only difference between the 2 statements is which side of a join the 'IN' clause is matched against.
+
+Bryan performed some initial testing and stated the following:
+
+--------------------- SNIP ------------------------
+
+Interestingly, although the actual results do NOT contain any values
+for admin_unit_id = 21, if I change the query to:
+
+    admin_unit.admin_unit_id IN (1)
+or
+    account.admin_unit_id IN (1)
+
+then the problem disappears – I get 3 rows for both queries.
+
+I also ran query plans for both the queries (in the IN (1,21) case)
+and have pasted the (simplified) query plans at the end of this message.
+
+I notice that in the case where the query gives 2 rows, which is
+when we specify admin_unit.admin_unit_id in (1,21), the admin_unit_id
+index scan output in the query plan contains:
+
+           qualifiers:
+Column[0][0] Id: 0
+Operator: =
+Ordered nulls: false
+Unknown return value: false
+Negate comparison result: false
+
+However, in the case where the query gives 3 rows, which is
+when we specify account.admin_unit_id in (1,21), the admin_unit_id
+index scan output in the query plan contains:
+
+           qualifiers:
+None
+
+I think it is the presence/absence of this qualifier on the query
+scan which is causing the different results in the query, as in
+the first case we see:
+
+           Number of rows qualified=2
+           Number of rows visited=3
+
+but in the second case we see:
+
+           Number of rows qualified=3
+           Number of rows visited=3
+
+I definitely don't have any explanation for why you are getting
+this odd behavior; it certainly seems like a bug to me.
+
+-------------END SNIP -----------------------

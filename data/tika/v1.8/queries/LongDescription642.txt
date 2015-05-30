@@ -1,0 +1,16 @@
+Few of the RTF files dont get extracted properly. 
+This is the stack trace: 
+
+org.apache.tika.exception.TikaException: TIKA-198: Illegal IOException from org.apache.tika.parser.rtf.RTFParser@616d071a
+at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:203)
+at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:197)
+at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:135)
+
+Caused by: java.io.IOException: Too many close-groups in RTF text
+at javax.swing.text.rtf.RTFParser.write(RTFParser.java:156)
+at javax.swing.text.rtf.RTFParser.writeSpecial(RTFParser.java:101)
+at javax.swing.text.rtf.AbstractFilter.write(AbstractFilter.java:158)
+at javax.swing.text.rtf.AbstractFilter.readFromStream(AbstractFilter.java:88)
+at javax.swing.text.rtf.RTFEditorKit.read(RTFEditorKit.java:65)
+at org.apache.tika.parser.rtf.RTFParser.parse(RTFParser.java:112)
+at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:197)

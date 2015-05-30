@@ -1,0 +1,79 @@
+We are Tillmann Fiehn and Sebastian Arnold, IT students from TU Berlin. As Sebastian Schelter already announced, we are atteding Isabel's and Sebastian's class "Large scale data analysis and data mining" and picked an interesting project that we want to implement in Mahout. We are open for any hints and suggestions and would appreciate if you could share your thoughts on our proposal.
+
+Our goal is to implement a map/reduce algorithm for finding k-trusses in a given graph. A k-truss is a nontrivial, single-component maximal subgraph, such that every edge is contained in at least k-2 triangles in the subgraph. The algorithm was proposed in the IEEE paper J. Cohen 2009: "Graph Twiddling in a MapReduce World" (http://www.csee.usf.edu/~anda/CIS6930-S11/papers/graph-processing-w-mapreduce.pdf) and involves a number of graph algorithms that are to our knowledge currently not present in Mahout:
+
+
+Goal: finding K-Trusses
+
+
+	relaxation of k-member clique
+	non-trivial, single-component maximal subgraph, s.t.
+	every edge is contained in at least k-2 triangles in the subgraph
+
+
+
+Algorithms to be implemented on top of Mahout / Hadoop:
+
+simplifyGraph: Edges -> RepresentativeEdges
+
+	removes Loops (not cycles)
+	aggregate duplicate edges
+
+
+
+augmentGraphWithDegrees: RepresentativeEdges -> AugmentedEdges = (Edge (v, u) , d(v), d(u))
+
+	augements the edges with degree information for both nodes d(v) = |
+{E | E = (x,y) a. (x = v o. y = v) }
+|
+
+
+
+enumerateTriangles: AugmentedEdges  = (Edge, d(v), d(u)) -> Triangles (v, u, s) 
+
+	finds all triangles in a Graph
+
+
+
+findComponents: RepresentativeEdges -> ZoneAssignments (v, z)
+
+	finds all components of a graph, each identified as the order number of the lowest-order vertex contained
+	consists of:
+	
+		step 1: find adjacent zones: Edges x Zones -> InterzoneEdges (z, z)
+		step 2: merge adjacent zones into one (the lowest-order neighbouring zone): InterzoneEdges, ZoneAssignments (v, z) -> Pairs (v, z)
+	
+	
+
+
+
+
+while true do:
+  step 1
+  if empty set interzone edges break;
+  step 2
+done
+
+
+
+findKTrusses: Edges, k -> ZoneAssignments (v, z)
+
+	finds all k-trusses of the graph
+	each returned vertex v is part of a truss z
+
+
+
+
+simplifyGraph
+while true do:
+  augmentGraphWithDegrees
+  enumerateTriangles
+  keep only edges contained in k-2 triangles
+  if all edges kept break;
+done
+findComponents
+
+
+
+
+We suppose to create the package org.apache.mahout.graph.trusses and  org.apache.mahout.graph.components in the core module.

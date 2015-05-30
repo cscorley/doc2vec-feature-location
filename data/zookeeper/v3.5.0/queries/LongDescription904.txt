@@ -1,0 +1,7 @@
+The documentation states:
+New in 3.2:  Enables a ZooKeeper ensemble administrator to access the znode hierarchy as a "super" user. In particular no ACL checking occurs for a user authenticated as super.
+
+However, if a super user does something like:
+zk.setACL("/", Ids.READ_ACL_UNSAFE, -1);
+
+the super user is now bound by read-only ACL. This is not what I would expect to see given the documentation. It can be fixed by moving the chec for the "super" authId in PrepRequestProcessor.checkACL to before the for(ACL a : acl) loop.

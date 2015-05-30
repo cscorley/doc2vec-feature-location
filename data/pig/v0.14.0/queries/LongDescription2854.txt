@@ -1,0 +1,10 @@
+PigAvroDatumWriter fails to compile against Avro 1.7.1 with the following error:
+
+
+
+/home/cheolsoo/workspace/pig-trunk/contrib/piggybank/java/src/main/java/org/apache/pig/piggybank/storage/avro/PigAvroDatumWriter.java:119: resolveUnion(org.apache.avro.Schema,java.lang.Object) in org.apache.pig.piggybank.storage.avro.PigAvroDatumWriter cannot override resolveUnion(org.apache.avro.Schema,java.lang.Object) in org.apache.avro.generic.GenericDatumWriter; overridden method does not throw java.io.IOException
+protected int resolveUnion(Schema union, Object datum) throws IOException {
+
+
+
+The problem is that a new method resolveUnion() is added to GenericDatumWriter in Avro 1.6.x and 1.7.x, but this method conflicts with the one that already exists in PigAvroDatatumWriter.

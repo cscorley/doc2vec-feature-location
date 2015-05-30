@@ -1,0 +1,25 @@
+If the triggered table has columns I and "i" then any reference to these columns in the action statement for the old or new row will return the value for the first column in the table .with the matching name in upper-case.
+
+> ij> create table tsn (I integer, "i" integer);
+> 0 rows inserted/updated/deleted
+> ij> create table tsn_t (a integer, b integer);
+> 0 rows inserted/updated/deleted
+> ij> create trigger tr_sn after insert on tsn
+> referencing new as n
+> for each row mode db2sql
+> insert into tsn_t(a, b) values (n.I, n."i");
+> 0 rows inserted/updated/deleted
+> ij> insert into tsn values (1, 234);
+> 1 row inserted/updated/deleted
+> ij> select * from tsn;
+> I          |i
+> -----------------------
+> 1          |234
+> ij> select * from tsn_t;
+> A          |B
+> -----------------------
+> 1          |1
+
+See http://wiki.apache.org/db-derby/TriggerImplementation
+
+Test case above will be added to triggerGeneral.sql commented with this bug number.

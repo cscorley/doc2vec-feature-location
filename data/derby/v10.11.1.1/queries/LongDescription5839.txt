@@ -1,0 +1,28 @@
+Running dblook on toursdb (either in packaged demo/databases/toursdb in the bin distribution or generated/toursdb after a build) fails to generate ddl for triggers and gives a java.lang.StringIndexOutOfBoundsException in the dblook.log.
+
+To reproduce:
+
+
+java org.apache.derby.tools.dblook -d 'jdbc:derby:toursdb'
+
+
+output shows:
+
+– ----------------------------------------------
+– Note: At least one unexpected error/warning message was
+– DDL Statements for triggersration.  See dblook.log
+– ----------------------------------------------
+
+dblook.log contains:
+
+java.lang.StringIndexOutOfBoundsException
+        at java.lang.String.substring(String.java:1131)
+        at org.apache.derby.tools.dblook.getColumnListFromDescription(dblook.java:664)
+        at org.apache.derby.impl.tools.dblook.DB_Trigger.createTrigger(DB_Trigger.java:130)
+        at org.apache.derby.impl.tools.dblook.DB_Trigger.doTriggers(DB_Trigger.java:82)
+        at org.apache.derby.tools.dblook.go(dblook.java:547)
+        at org.apache.derby.tools.dblook.<init>(dblook.java:142)
+        at org.apache.derby.tools.dblook.main(dblook.java:97)
+
+
+This seems to be a regression in 10.9. 10.8 works fine for me

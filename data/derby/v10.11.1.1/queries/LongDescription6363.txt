@@ -1,0 +1,42 @@
+Logical expressions with AND and OR operators inside WHEN inside CASE expression nested in SELECT part of statement are wrongly evaluated.
+Evaluation results depends on position of OR subexpression. If OR is placed on left side of AND it is evaluated incorrectly.
+
+Following code shows the error.
+
+create table t ( a int, b char );
+
+insert into t values (1, 'a');
+insert into t values (2, 'b');
+insert into t values (3, 'a');
+insert into t values (4, 'b');
+insert into t values (5, 'a');
+insert into t values (6, 'b');
+
+select
+a,
+b,
+case
+    when (( b = 'a' or b = 'b' ) and a < 4) then 'x'
+    else '-'
+end,
+case
+    when (a < 4 and ( b = 'a' or b = 'b' )) then 'y'
+    else '-'
+end
+from t;
+
+Actual result:
+1 a x y
+2 b - y
+3 a x y
+4 b - -
+5 a - -
+6 b - -
+
+Expected result
+1 a x y
+2 b x y
+3 a x y
+4 b - -
+5 a - -
+6 b - -

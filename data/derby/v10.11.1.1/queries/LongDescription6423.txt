@@ -1,0 +1,32 @@
+This syntax gives an error:
+
+
+> VALUES CASE WHEN 1=1 THEN (1=2) OR (3!=4) ELSE true END;
+ERROR 42X01: Syntax error: Encountered "OR" at line 1, column 33.
+
+
+
+However, this works:
+
+
+> VALUES CASE WHEN 1=1 THEN ((1=2) OR (3!=4)) ELSE true END;
+1    
+-----
+true 
+1 row selected
+
+
+
+According to the standard, the syntax after THEN should be <result>:
+
+
+<result> ::=
+   <result expression>
+   | NULL
+
+<result expression> ::=
+   <value expression>
+
+
+
+which should give us the full value syntax. sqlgrammar.jj uses the corresponding production "thenElseExpression" which allows NULL or aditiveExpression. I believe it should be orExpression.

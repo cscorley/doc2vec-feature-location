@@ -1,0 +1,28 @@
+I am attempting to upgrade our product from Derby 10.2.2.0 to 10.3.2.1. With all other things held constant, if I change the derby.jar from 10.2.2 to 10.3.2.1, our calls to set the (JDBC) first result and max results (max rows) no longer function properly, such that no results are returned beyond first result 200, max results 100 (max rows 300), even when the table has over 1000 rows. 2 of the 11 columns of this table are indexed
+
+We use Hibernate's result pagination via Query.setFirstResult and setMaxResults which, in org.hibernate.loader.Loader.advance(), uses java.sql.ResultSet.advance when scrollable result sets are available, and as expected org.apache.derby.impl.jdbc.EmbedDatabaseMetaData reports that scrollable result sets are available for both Derby 10.2.2 and 10.3.2.1.
+
+The following is pseudo code for what we're doing with Hibernate:
+
+int pageSize = 100;
+int count = ... // select count from OURTABLE;
+for( int firstResult = 0; firstResult < count; firstResult += pageSize) {
+        Query query = session.createQuery( "from  OurHibernateObject"); // select * from OURTABLE
+        query.setFirstResult( firstResult );
+        query.setMaxResults( pageSize );
+        List objList = query.list();
+        // results are fine for firstResult 100 and 200, 
+        // but beyond that no results are returned with a >1000 row table!
+}
+
+When settings max results, Hibernate correctly sets max rows as follows from org.hibernate.loader.Loader.setMaxRows:
+
+st.setMaxRows( selection.getMaxRows().intValue() + getFirstRow( selection ) );
+
+Which is calling into org.apache.derby.impl.jdbc.EmbedPreparedStatement40. This code path doesn't change between Derby 10.2.2 and 10.3.2.1.
+
+I've tried completely recreating the database to remove any possible problems with soft / full upgrades, but this didn't fix the problem. I tried 10.3.1.4 but this also exhibits the bug.
+
+This seems like a fairly basic regression (surely a Derby test would fail if scrollable results were broken). I'm wondering if there's another factor at work here? Please help me to describe whatever else is necessary for you to reproduce this. (I can't post our table schema or our code.) I apologize in advance if this our own mistake but as I said, I'm only updating the derby.jar.
+
+Thanks for all the hard work on Derby!

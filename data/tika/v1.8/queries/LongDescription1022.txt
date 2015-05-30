@@ -1,0 +1,62 @@
+Based on some code I provided some time ago (Alfresco forum), Derek Hulley opened ALF-2262, Nick Burch opened TIKA-413 issue and code has been committed to TIKA (0.8).
+
+With sample dwg provided TIKA (0.8 to 1.2) is correctly working but with attached file returns no custom metadata (my original "C" returns correct custom metadata, dwg is "2010" format).
+
+Tested tika-app.1.0.jar and tika-app.1.2.jar and tika 1.3 snapshot.
+All versions could be impacted by this bug. 
+
+I found failing code in skipToCustomProperties() of DWGParser.java, lines 320-321: 
+if(padding[0] == 0 && padding[1] == 0 &&
+  padding[2] == 0 && padding[3] == 0) {
+
+padding[0] byte is not always 0 (attached file has 0x2) and probably there is no need to check those bytes.
+
+Index: DWGParser.java
+===================================================================
+— DWGParser.java	(revisione 1407024)
++++ DWGParser.java	(copia locale)
+@@ -93,7 +93,7 @@
+
+	How far to skip after the last standard property, before
+	we find any custom properties that might be there.
+      */
+
+
+	private static final int CUSTOM_PROPERTIES_SKIP = 20;
++    private static final int CUSTOM_PROPERTIES_SKIP = 24; 
+
+
+
+     public void parse(
+             InputStream stream, ContentHandler handler,
+@@ -317,13 +317,7 @@
+
+     private int skipToCustomProperties(InputStream stream) 
+             throws IOException, TikaException {
+
+	// There should be 4 zero bytes next
+	byte[] padding = new byte[4];
+	IOUtils.readFully(stream, padding);
+	if(padding[0] == 0 && padding[1] == 0 &&
+	padding[2] == 0 && padding[3] == 0) 
+{
+-          // Looks hopeful, skip on
+-          padding = new byte[CUSTOM_PROPERTIES_SKIP];
++          byte[] padding = new byte[CUSTOM_PROPERTIES_SKIP];
+           IOUtils.readFully(stream, padding);
+           
+           // We should now have the count
+@@ -337,10 +331,6 @@
+              // No properties / count is too high to trust
+              return 0;
+           }
+	} else 
+{
+-          // No padding. That probably means no custom props
+-          return 0;
+-       }
+     }
+
+
+
+ }

@@ -1,0 +1,9 @@
+The SELECT query in HeapScan is initialized like this:
+
+        select = openDefaultConnection().prepareStatement("SELECT * FROM "+tableName);
+
+The test cases commit the transaction like this:
+
+        getConnection().commit();
+
+openDefaultConnection() opens and returns a new connection to the default database, whereas getConnection() returns a cached default connection, so the two connections are not the same, and the transaction that's being committed is not the executing transaction.

@@ -1,0 +1,178 @@
+An IndexOutOfBoundsException was thrown during suites.All when testing a patch for DERBY-3576.
+I have only seen it once, and I was unable to reproduce. I'm logging the issue to track it and preserve the stack trace.
+See the environment field for version information.
+
+I think only the first error is important, the rest (except the management test) is due to the first one.
+Time: 6,901.837
+There were 5 errors:
+1) testFiringConstraintOrder(org.apache.derbyTesting.functionTests.tests.lang.TriggerTest)java.sql.SQLException: Java exception: 'Index: 0, Size: 0: java.lang.IndexOutOfBoundsException'.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:95)
+	at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Util.java:87)
+	at org.apache.derby.impl.jdbc.Util.javaException(Util.java:244)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:403)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:346)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:2083)
+	at org.apache.derby.impl.jdbc.ConnectionChild.handleException(ConnectionChild.java:81)
+	at org.apache.derby.impl.jdbc.EmbedDatabaseMetaData.getPreparedQueryUsingSystemTables(EmbedDatabaseMetaData.java:3498)
+	at org.apache.derby.impl.jdbc.EmbedDatabaseMetaData.getPreparedQuery(EmbedDatabaseMetaData.java:3541)
+	at org.apache.derby.impl.jdbc.EmbedDatabaseMetaData.getPreparedQuery(EmbedDatabaseMetaData.java:3566)
+	at org.apache.derby.impl.jdbc.EmbedDatabaseMetaData.doGetProcs(EmbedDatabaseMetaData.java:1506)
+	at org.apache.derby.impl.jdbc.EmbedDatabaseMetaData.getProcedures(EmbedDatabaseMetaData.java:1447)
+	at org.apache.derbyTesting.junit.JDBC.dropSchema(JDBC.java:259)
+	at org.apache.derbyTesting.functionTests.tests.lang.TriggerTest.tearDown(TriggerTest.java:103)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:103)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+Caused by: java.sql.SQLException: Java exception: 'Index: 0, Size: 0: java.lang.IndexOutOfBoundsException'.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(SQLExceptionFactory40.java:119)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:70)
+	... 35 more
+Caused by: java.lang.IndexOutOfBoundsException: Index: 0, Size: 0
+	at java.util.ArrayList.RangeCheck(ArrayList.java:547)
+	at java.util.ArrayList.get(ArrayList.java:322)
+	at org.apache.derby.impl.services.cache.ClockPolicy.moveHand(ClockPolicy.java:364)
+	at org.apache.derby.impl.services.cache.ClockPolicy.rotateClock(ClockPolicy.java:404)
+	at org.apache.derby.impl.services.cache.ClockPolicy.insertEntry(ClockPolicy.java:176)
+	at org.apache.derby.impl.services.cache.ConcurrentCache.insertIntoFreeSlot(ConcurrentCache.java:208)
+	at org.apache.derby.impl.services.cache.ConcurrentCache.find(ConcurrentCache.java:284)
+	at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.getSPSDescriptor(DataDictionaryImpl.java:3529)
+	at org.apache.derby.impl.jdbc.EmbedDatabaseMetaData.prepareSPS(EmbedDatabaseMetaData.java:3632)
+	at org.apache.derby.impl.jdbc.EmbedDatabaseMetaData.getPreparedQueryUsingSystemTables(EmbedDatabaseMetaData.java:3493)
+	... 28 more
+2) testClobInTriggerTable(org.apache.derbyTesting.functionTests.tests.lang.TriggerTest)java.sql.SQLException: PROCEDURE 'TRIGGER_LOG_INFO' already exists.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:95)
+	at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Util.java:201)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:391)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:346)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:2083)
+	at org.apache.derby.impl.jdbc.ConnectionChild.handleException(ConnectionChild.java:81)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1325)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:625)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(EmbedStatement.java:175)
+	at org.apache.derbyTesting.functionTests.tests.lang.TriggerTest.setUp(TriggerTest.java:91)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:103)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+Caused by: java.sql.SQLException: PROCEDURE 'TRIGGER_LOG_INFO' already exists.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(SQLExceptionFactory40.java:119)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:70)
+	... 31 more
+Caused by: ERROR X0Y68: PROCEDURE 'TRIGGER_LOG_INFO' already exists.
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:303)
+	at org.apache.derby.impl.sql.execute.CreateAliasConstantAction.executeConstantAction(CreateAliasConstantAction.java:237)
+	at org.apache.derby.impl.sql.execute.MiscResultSet.open(MiscResultSet.java:64)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:372)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1235)
+	... 25 more
+3) testBlobInTriggerTable(org.apache.derbyTesting.functionTests.tests.lang.TriggerTest)java.sql.SQLException: PROCEDURE 'TRIGGER_LOG_INFO' already exists.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:95)
+	at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Util.java:201)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:391)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:346)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:2083)
+	at org.apache.derby.impl.jdbc.ConnectionChild.handleException(ConnectionChild.java:81)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1325)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:625)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(EmbedStatement.java:175)
+	at org.apache.derbyTesting.functionTests.tests.lang.TriggerTest.setUp(TriggerTest.java:91)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:103)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+Caused by: java.sql.SQLException: PROCEDURE 'TRIGGER_LOG_INFO' already exists.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(SQLExceptionFactory40.java:119)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:70)
+	... 31 more
+Caused by: ERROR X0Y68: PROCEDURE 'TRIGGER_LOG_INFO' already exists.
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:303)
+	at org.apache.derby.impl.sql.execute.CreateAliasConstantAction.executeConstantAction(CreateAliasConstantAction.java:237)
+	at org.apache.derby.impl.sql.execute.MiscResultSet.open(MiscResultSet.java:64)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:372)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1235)
+	... 25 more
+4) testUpdateTriggerOnClobColumn(org.apache.derbyTesting.functionTests.tests.lang.TriggerTest)java.sql.SQLException: PROCEDURE 'TRIGGER_LOG_INFO' already exists.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:95)
+	at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Util.java:201)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:391)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:346)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:2083)
+	at org.apache.derby.impl.jdbc.ConnectionChild.handleException(ConnectionChild.java:81)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1325)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:625)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(EmbedStatement.java:175)
+	at org.apache.derbyTesting.functionTests.tests.lang.TriggerTest.setUp(TriggerTest.java:91)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:103)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+Caused by: java.sql.SQLException: PROCEDURE 'TRIGGER_LOG_INFO' already exists.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(SQLExceptionFactory40.java:119)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:70)
+	... 31 more
+Caused by: ERROR X0Y68: PROCEDURE 'TRIGGER_LOG_INFO' already exists.
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:303)
+	at org.apache.derby.impl.sql.execute.CreateAliasConstantAction.executeConstantAction(CreateAliasConstantAction.java:237)
+	at org.apache.derby.impl.sql.execute.MiscResultSet.open(MiscResultSet.java:64)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:372)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1235)
+	... 25 more
+5) testTypesInActionStatement(org.apache.derbyTesting.functionTests.tests.lang.TriggerTest)java.sql.SQLException: PROCEDURE 'TRIGGER_LOG_INFO' already exists.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:95)
+	at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Util.java:201)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:391)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:346)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:2083)
+	at org.apache.derby.impl.jdbc.ConnectionChild.handleException(ConnectionChild.java:81)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1325)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:625)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(EmbedStatement.java:175)
+	at org.apache.derbyTesting.functionTests.tests.lang.TriggerTest.setUp(TriggerTest.java:91)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:103)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+Caused by: java.sql.SQLException: PROCEDURE 'TRIGGER_LOG_INFO' already exists.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(SQLExceptionFactory40.java:119)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:70)
+	... 31 more
+Caused by: ERROR X0Y68: PROCEDURE 'TRIGGER_LOG_INFO' already exists.
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:303)
+	at org.apache.derby.impl.sql.execute.CreateAliasConstantAction.executeConstantAction(CreateAliasConstantAction.java:237)
+	at org.apache.derby.impl.sql.execute.MiscResultSet.open(MiscResultSet.java:64)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:372)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1235)
+	... 25 more
+There was 1 failure:
+1) testStartStopManagementFromApplication(org.apache.derbyTesting.functionTests.tests.management.ManagementMBeanTest)junit.framework.AssertionFailedError: expected:<2> but was:<5>
+	at org.apache.derbyTesting.functionTests.tests.management.ManagementMBeanTest.startStopManagement(ManagementMBeanTest.java:86)
+	at org.apache.derbyTesting.functionTests.tests.management.ManagementMBeanTest.testStartStopManagementFromApplication(ManagementMBeanTest.java:56)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:103)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+
+FAILURES!!!
+Tests run: 9674,  Failures: 1,  Errors: 5

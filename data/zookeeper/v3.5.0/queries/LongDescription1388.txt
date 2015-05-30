@@ -1,0 +1,13 @@
+Multi ops: Op.create(path,..), Op.delete(path, ..), Op.setData(path, ..), 
+Op.check(path, ...) apis are not performing the client side path validation and the call will go to the server side and is throwing exception back to the client. 
+
+It would be good to provide ZooKeeper client side path validation for the multi transaction apis. Presently its getting err codes from the server, which is also not properly conveying the cause.
+
+For example: When specified invalid znode path in Op.create, it giving the following exception. This will not be useful to know the actual cause.
+
+
+org.apache.zookeeper.KeeperException$NoNodeException: KeeperErrorCode = NoNode
+	at org.apache.zookeeper.KeeperException.create(KeeperException.java:115)
+	at org.apache.zookeeper.ZooKeeper.multiInternal(ZooKeeper.java:1174)
+	at org.apache.zookeeper.ZooKeeper.multi(ZooKeeper.java:1115)
+

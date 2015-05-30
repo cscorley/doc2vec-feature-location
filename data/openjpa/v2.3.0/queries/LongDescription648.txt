@@ -1,0 +1,26 @@
+If a schema name is provided on an entity-level Table annotation and a different schema name is used within a field-level TableGenerator, the mapping tool uses the the schema name provided in the field-level annotation to create the table, but the runtime generates SQL using the schema of the entity-level table annotation.  The result is an exception when the runtime attempts to query the table.
+
+— For example:
+
+@Entity(name="SENTITY")
+@Table(name="SENTITY", schema="TBLSCHEMA")
+public class SingleEntity {
+    @Id
+    @TableGenerator(name = "SID_Gen", table = "ID_Gen", schema="TGSCHEMA",
+            pkColumnName = "GEN_NAME", valueColumnName = "GEN_VAL",
+            pkColumnValue = "ID2", initialValue = 20, allocationSize = 10)
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "SID_Gen")     
+    private int id;    
+
+....
+}
+
+— Results in this SQL/exception:
+
+Caused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: Table/View 'TBLSCHEMA.ID_GEN' does not exist. 
+{SELECT GEN_VAL FROM TBLSCHEMA.ID_Gen WHERE GEN_NAME = ? FOR UPDATE WITH RR}
+ [code=20000, state=42X05]
+
+The mapping tool creates the id generator table using the correct schema (TGSCHEMA).  
+
+This issue is being opened as a subtask under OPENJPA-493.  It was found while testing a back-port of the fix made in rev. 610427 to the 1.0.x stream.

@@ -1,0 +1,32 @@
+The ij command 'show indexes in SCHEMANAME' does not work at all with the client driver.
+It does work with the embedded driver.
+
+Sample output from ij:
+ij> connect 'jdbc:derby://localhost/myDB;create=true';
+ij> create table test (id int primary key);
+0 rows inserted/updated/deleted
+ij> show indexes in app;
+ERROR XJ103: Table name can not be null
+ij> show indexes from test;
+TABLE_NAME          |COLUMN_NAME         |NON_U&|TYPE|ASC&|CARDINA&|PAGES
+----------------------------------------------------------------------------
+TEST                |ID                  |0     |3   |A   |NULL    |NULL
+
+1 row selected
+ij> show indexes from app.test;
+TABLE_NAME          |COLUMN_NAME         |NON_U&|TYPE|ASC&|CARDINA&|PAGES
+----------------------------------------------------------------------------
+TEST                |ID                  |0     |3   |A   |NULL    |NULL
+
+1 row selected
+ij>
+
+Using delimited table and/or schema names does not work, but I think this is according to documentation.
+I.e.:
+ij> show indexes from "TEST";
+ERROR 42X01: Syntax error: Encountered "show" at line 1, column 1.
+ij> show indexes from "APP".test;
+ERROR 42X01: Syntax error: Encountered "show" at line 1, column 1.
+ij> show indexes from "APP"."TEST";
+ERROR 42X01: Syntax error: Encountered "show" at line 1, column 1.
+ij>

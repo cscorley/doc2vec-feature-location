@@ -1,0 +1,29 @@
+BloomFilter is broken with s3 path in Hadoop 2. Here is a simple example-
+
+
+DEFINE bloomtest Bloom('s3n://foo/bar/bloom');
+a = LOAD 's3n://foo/bar/test.txt' using PigStorage('\t') as (k:int, v:int) ;
+split a into yes if bloomtest(k,v), no otherwise;
+dump yes;
+
+
+This query fails with the following error-
+
+
+14/06/22 06:28:58 INFO jobcontrol.ControlledJob: PigLatin:test.pig got an error while submitting
+java.lang.IllegalArgumentException: java.net.URISyntaxException: Relative path in absolute URI: s3n:__foo_bar_bloom
+	at org.apache.hadoop.fs.Path.initialize(Path.java:206)
+	at org.apache.hadoop.fs.Path.<init>(Path.java:172)
+	at org.apache.hadoop.mapreduce.v2.util.MRApps.parseDistributedCacheArtifacts(MRApps.java
+
+
+The problem is that the distributed cache file name s3n:__foo_bar_bloom causes a uri syntax error because of the s3n prefix.
+
+In fact, this is a regression of HADOOP-8562 that includes the following change-
+Path.java
+
+-      this.uri = new URI(scheme, authority, normalizePath(path), null, fragment)
++      this.uri = new URI(scheme, authority, normalizePath(scheme, path), null, fragment)
+
+
+Since the scheme was ignored in Hadoop 1, s3 path used to work accidentally. But in Hadoop 2, it starts failing.

@@ -1,0 +1,21 @@
+Comparisons done by MetaDataInheritanceComparator are not transitive. It is possible to have classes A, B, and C such that the comparator simultaneously reports that A > B, B > C, and C > A. Under certain unlucky conditions, this causes the SortedTree holding the metadata resolution buffer to become confused during Red-Black fix, such that it can retrieve a certain element, but not delete it. The "processed" list then grows until heap is exhausted.
+
+In the enclosed sample project, 
+
+A < B by name
+B < C by assignable primary key field
+C < A by "levels" from base class (Object)
+
+If you import the enclosed eclipse project into an AspectJ-enabled eclipse, and refer the AspectJ compiler to an OpenJPA jar file, you'll get the following output:
+
+  bug.B > bug.A
+  bug.C > bug.B
+  bug.A > bug.C
+  Cycle detected: 
+  bug.A > bug.C > bug.B > bug.A
+
+The project will work outside of AspectJ, and will exhibit the out of memory condition described above.
+
+I acknowledge that the enclosed persistence.xml file is not kosher, in that it doesn't list all classes to be instrumented. My own project, affected by this bug, has a correct persistence.xml file. I had to work hard to contrive a simple example, as the order in which classes are buffered affects the appearance of the bug.
+
+There is no work-around that I know of. I don't believe that the comparator's semantics are well-defined.

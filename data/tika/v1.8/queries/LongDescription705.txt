@@ -1,0 +1,28 @@
+I took the "testRTFVarious.rtf" test case from TIKA-683, and saved it as various other doc types, to generate more test cases.
+
+But when I did this for PPTX, the resulting file hits this exception:
+
+
+Exception in thread "main" org.apache.tika.exception.TikaException: Broken OOXML file
+	at org.apache.tika.parser.microsoft.ooxml.AbstractOOXMLExtractor.handleEmbeddedParts(AbstractOOXMLExtractor.java:141)
+	at org.apache.tika.parser.microsoft.ooxml.AbstractOOXMLExtractor.getXHTML(AbstractOOXMLExtractor.java:112)
+	at org.apache.tika.parser.microsoft.ooxml.OOXMLExtractorFactory.parse(OOXMLExtractorFactory.java:95)
+	at org.apache.tika.parser.microsoft.ooxml.OOXMLParser.parse(OOXMLParser.java:70)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+	at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:129)
+	at org.apache.tika.cli.TikaCLI$OutputType.process(TikaCLI.java:126)
+	at org.apache.tika.cli.TikaCLI.process(TikaCLI.java:363)
+	at org.apache.tika.cli.TikaCLI.main(TikaCLI.java:97)
+Caused by: org.apache.poi.openxml4j.exceptions.InvalidFormatException: A segment shall not hold any characters other than pchar characters. [M1.6]
+	at org.apache.poi.openxml4j.opc.PackagePartName.checkPCharCompliance(PackagePartName.java:370)
+	at org.apache.poi.openxml4j.opc.PackagePartName.throwExceptionIfPartNameHaveInvalidSegments(PackagePartName.java:270)
+	at org.apache.poi.openxml4j.opc.PackagePartName.throwExceptionIfInvalidPartUri(PackagePartName.java:185)
+	at org.apache.poi.openxml4j.opc.PackagePartName.<init>(PackagePartName.java:83)
+	at org.apache.poi.openxml4j.opc.PackagingURIHelper.createPartName(PackagingURIHelper.java:490)
+	at org.apache.tika.parser.microsoft.ooxml.AbstractOOXMLExtractor.handleEmbeddedParts(AbstractOOXMLExtractor.java:124)
+	... 9 more
+
+
+
+All I did was open Office 2007, copy/paste over the text from the Word doc, and save it.  Ie, it should be a valid OOXML file, unless Office 2007 is buggy?

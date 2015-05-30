@@ -1,0 +1,21 @@
+If we have a JPQL query like this:
+int countDeleted = em.createQuery('Delete from Person o').executeUpdate();
+
+We get an exception on MySQL because the converted SQL with an alias gives a syntax error :
+
+[testlogic] java.lang.Exception: org.apache.openjpa.lib.jdbc.ReportingSQLException: 
+You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version 
+for the right syntax to use near '' at line 1 
+{prepstmnt 2137108 DELETE FROM DYN_DESC_PERSON t0 [reused=0]}
+ [code=1064, state=42000]
+[testlogic] 	at org.apache.openjpa.util.Exceptions.replaceNestedThrowables(Exceptions.java:242)
+[testlogic] 	at org.apache.openjpa.persistence.PersistenceException.writeObject(PersistenceException.java:100)
+
+For mySQL version 5.0 the MySQLDBDictionary defaults for supportsSubselect and allowsAliasInBulkClause are both true. For these params the DBDictionary.toBulkOperation() generates a sql like DELETE FROM DYN_DESC_PERSON t0 which does not work in mySQL. 
+
+The syntax for DELETE statements that use table aliases changed between MySQL 4.0 and 4.1. In MySQL 4.0, you should use the true table name to refer to any table from which rows should be deleted: 
+
+DELETE test FROM test AS t1, test2 WHERE ...
+In MySQL 4.1, if you declare an alias for a table, you must use the alias when referring to the table: 
+
+DELETE t1 FROM test AS t1, test2 WHERE ...

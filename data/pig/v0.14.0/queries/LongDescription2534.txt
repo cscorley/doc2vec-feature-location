@@ -1,0 +1,34 @@
+I am getting a strange behavior by Pig in the below script for Pig 0.9.
+
+
+
+event_serve = LOAD 'input1'   AS (s, m, l);
+cm_data_raw = LOAD 'input2'  AS (s, m, l);
+
+SPLIT cm_data_raw INTO
+    cm_serve_raw IF (( (chararray) (s#'key1') == '0') AND ( (chararray) (s#'key2') == '5')),
+    cm_click_raw IF (( (chararray) (s#'key1') == '1') AND ( (chararray) (s#'key2') == '5'));
+
+cm_serve = FOREACH cm_serve_raw GENERATE  s#'key3' AS f1,  s#'key4' AS f2, s#'key5' AS f3 ;
+cm_serve_lowercase = stream cm_serve through `echo val3`;
+
+cm_serve_final = FOREACH cm_serve_lowercase GENERATE  $0 AS cm_event_guid, $1 AS cm_receive_time, $2 AS cm_ctx_url;
+
+event_serve_filtered = FILTER event_serve BY  (chararray) (s#'key1') neq 'xxx' AND (chararray) (s#'key2') neq 'yyy' ;
+
+event_serve_project = FOREACH event_serve_filtered GENERATE  s#'key3' AS event_guid, s#'key4' AS receive_time;
+
+event_serve_join = join cm_serve_final by (cm_event_guid),
+    event_serve_project by (event_guid);
+
+store event_serve_join into 'somewhere';
+
+
+
+Input (both input1 and input2 is same)
+—
+key1#0,key2#5,key3#val3,key4#val4,key5#val5
+
+
+If i run this pig script with ColumnMapKeyPrune disabled, the job goes through fine and 1 output is created.
+But if I run this script by default, then it keeps on generating map output records infinitely. 

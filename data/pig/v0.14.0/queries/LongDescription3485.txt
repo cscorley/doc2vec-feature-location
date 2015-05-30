@@ -1,0 +1,12 @@
+PIG-1876 added typed map and annotated the following method as deprecated in 0.9:
+
+
+@Deprecated
+public Map<String, Object> bytesToMap(byte[] b) throws IOException;
+
+
+We should remove and replace it with the new method that takes type information:
+
+
+public Map<String, Object> bytesToMap(byte[] b, ResourceFieldSchema fieldSchema) throws IOException;
+

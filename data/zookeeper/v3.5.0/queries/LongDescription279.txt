@@ -1,0 +1,13 @@
+We would like to define certain parts of ZooKeeper's configuration using variables that get substituted. For example, we want the ZooKeeper quorum to be able to use a dataDir configured per user. In other words, something like:
+
+tickTime=2000
+dataDir=/tmp/zookeeper-$
+{user.name}
+clientPort=2181
+initLimit=5
+syncLimit=2
+server.1=zoo1:2888:3888
+server.2=zoo2:2888:3888
+server.3=zoo3:2888:3888
+
+I think Java already has a system for configuration that allows something like this using Properties?

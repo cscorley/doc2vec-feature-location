@@ -1,0 +1,42 @@
+If I attempt to call PreparedStatement.setNull() and specify Types.VARCHAR when the actual parameter type (as determined at bind time) is CLOB, Derby in embedded mode will throw an error, while Derby in client/server mode will succeed.
+
+Ex. running the following code:
+
+    st.execute("create table t1 (c clob)");
+    PreparedStatement pSt = conn.prepareStatement(
+        "insert into t1 values ");
+    try 
+{
+        pSt.setNull(1, Types.VARCHAR);
+        pSt.execute();
+        System.out.println("Error did NOT reproduce.");
+    }
+ catch (SQLException se) 
+{
+        System.out.println("Error reproduced:");
+        se.printStackTrace();
+    }
+
+Against Derby embedded, the result will be:
+
+  Error reproduced:
+  SQL Exception: An attempt was made to get a data value of type 'CLOB' from a data value of type 'VARCHAR'.
+
+But against the Network Server, everything works fine.  Derby embedded will work in other cases where compatible types are used (ex. using setNull() with Types.INTEGER for a BIGINT parameter), but fails for this particular situation. Thus I'm assuming this is not intentional (i.e. that the above code should work). 
+
+Looks like the problem is in iapi.types.DataTypeDescriptor:
+
+    private static boolean isCharacterType(int jdbcType) {
+
+        switch (jdbcType) 
+{
+        case Types.CHAR:
+        case Types.VARCHAR:
+        case Types.LONGVARCHAR:
+            return true;
+        default:
+            return false;
+        }
+    }
+
+I think CLOB should be included in this list, too, shouldn't it?  In iapi.types.TypeId, "isStringTypeId" is true for CLOBs as well as for the other character types, so it seems like the above method should have similar logic.

@@ -1,0 +1,62 @@
+I've been assisting Kevin Sutter with a 'VerifyError' and am opening this JIRA on his behalf.  He has discovered a situation where the following VerifyError occurs:
+
+Exception data: java.lang.VerifyError: JVMVRFY036 stack underflow; class=irwwbase/PersistentTimerStatsJPA, method=pcNewObjectIdInstance(Ljava/lang/Object;)Ljava/lang/Object;, pc=26
+    at java.lang.J9VMInternals.verifyImpl(Native Method)
+    at java.lang.J9VMInternals.verify(J9VMInternals.java:85)
+    at java.lang.J9VMInternals.initialize(J9VMInternals.java:162)
+    at java.lang.Class.forNameImpl(Native Method)
+    at java.lang.Class.forName(Class.java:176)
+    at org.apache.openjpa.meta.MetaDataRepository.classForName(MetaDataRepository.java:1552)
+    at org.apache.openjpa.meta.MetaDataRepository.loadPersistentTypesInternal(MetaDataRepository.java:1528)
+    at org.apache.openjpa.meta.MetaDataRepository.loadPersistentTypes(MetaDataRepository.java:1506)
+    at org.apache.openjpa.kernel.AbstractBrokerFactory.loadPersistentTypes(AbstractBrokerFactory.java:282)
+    at org.apache.openjpa.kernel.AbstractBrokerFactory.initializeBroker(AbstractBrokerFactory.java:238)
+    at org.apache.openjpa.kernel.AbstractBrokerFactory.newBroker(AbstractBrokerFactory.java:212)
+    at org.apache.openjpa.kernel.DelegatingBrokerFactory.newBroker(DelegatingBrokerFactory.java:156)
+    at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:227)
+    ...........
+
+
+This issue occurs on, and is unique to, Java 7 and our enhancement code (as well as the entity definition).  That is, in PCEnhancer we are generating extra 'returns' in methods which throw an exception.  This has an effect on ASM post-processing needed on Java 7 which ultimately causes the VerifyError.  This description probably makes no sense without more details and code to go along with it.  So let me now show how this looks in code.  First, I'm attaching an entity, named PersistentTimerStatsJPA.java, and a PK class named 'PersistentTimerStatsPK.java'.  While I won't go into exact details on how to use these classes to recreate the issue, I am providing them for the reader's reference.
+Next, lets look at enhanced code before ASM post-processing occurs.  Take this code:
+
+  public java.lang.Object pcNewObjectIdInstance(java.lang.Object);
+    flags: ACC_PUBLIC
+
+    Code:
+      stack=3, locals=2, args_size=2
+         0: new           #207                // class java/lang/IllegalArgumentException
+         3: dup           
+         4: ldc_w         #367                // String The id type \"class irwwbase.PersistentTimerStatsPK\" specified by persistent type \"class irwwbase.PersistentTimerStatsJPA\" does not have a public class irwwbase.PersistentTimerStatsPK(String) or class irwwbase.PersistentTimerStatsPK(Class, String) constructor.
+         7: invokespecial #368                // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+        10: athrow        
+        11: return        
+
+As you can see, we have a "10: athrow" and "11: return".  This extraneous "11: return" hasn't caused problems in the past, but as will be explained in more details below, with ASM post-processing necessary in Java 7, this "11: return" causes problems.  To see this, lets look at the code above after going through ASM post-processing:
+
+  public java.lang.Object pcNewObjectIdInstance(java.lang.Object);
+    flags: ACC_PUBLIC
+
+    Code:
+      stack=3, locals=2, args_size=2
+         0: new           #205                // class java/lang/IllegalArgumentException
+         3: dup           
+         4: ldc_w         #363                // String The id type \"class irwwbase.PersistentTimerStatsPK\" specified by persistent type \"class irwwbase.PersistentTimerStatsJPA\" does not have a public class irwwbase.PersistentTimerStatsPK(String) or class irwwbase.PersistentTimerStatsPK(Class, String) constructor.
+         7: invokespecial #364                // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+        10: athrow        
+        11: athrow        
+      StackMapTable: number_of_entries = 1
+           frame_type = 255 /* full_frame */
+          offset_delta = 11
+          locals = []
+          stack = [ class java/lang/Throwable ]
+
+Notice that the "11: return" was changed to a second "11: athrow".  To tie this all together, let me blatantly copy/paste a detailed description sent to me by Kevin: 
+
+"When JPA was attempting to generate the bytecodes for throwing an exception, we were accidentally including a return bytecode as well.  Of course, in a normal Java environment, this would have been flagged since the return would have been unreachable code.  But, since we were generating the bytecodes during enhancement, nothing is going to flag this situation.  But, due to the Java 7 class validation that is now being performed, we had to introduce the ASM post-processing.  Normally, these simple enhanced methods would not have been touched by ASM.  But, since these methods now had multiple exit points (due to the throw and return bytecodes), these methods were being flagged as "complicated" and needed Stack Map table adjustments performed by ASM.  Unfortunately, this additional ASM code now introduced the situation where too many items would have been popped off the stack (if the code could have actually executed as coded).  This is the Stack Underflow exception that was happening during Class load time."
+
+Basically, Kevin's fix was to find all of the areas where we generate a "throw" followed by a "return", and remove the "return".  Since this method is only attempting to throw an exception, we really don't need the second "return" instruction.  I'm providing Kevin's patch, which is named 'VerifyError.patch'.
+
+Thanks,
+
+Heath

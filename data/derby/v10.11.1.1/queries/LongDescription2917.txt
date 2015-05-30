@@ -1,0 +1,10 @@
+TypeDescriptor ideally represents a catalog type (column in a table, parameter in a procedure etc.)
+DataTypeDescriptor represents a runtime type
+
+Currently DataTypeDescriptor  extends (implements) TypeDescriptor , but the relationship would be cleaner if DataTypeDescriptor  had a TypeDescriptor (but was not a TypeDescriptor).
+
+One can at the moment obtain a TypeDescriptor from a DataTypeDescriptor  using DataTypeDescriptor.getCatalogType() but most code just treats DataTypeDescriptor   as a TypeDescriptor. This has lead to a couple of issues:
+
+1) When a routine's parameter/return type is written out a DataTypeDescriptor is written to disk. This results in type information being repeated in the serialized form, thus increasing the on-disk size of a Derby database.
+
+2) Collation derivation is runtime only (all persistent types by definition have implicit type) but the derivation is on the catalog Typedescriptor interface.

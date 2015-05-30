@@ -1,0 +1,22 @@
+Our Pkcs7Parser tries to pull the signed content out and then parses
+that, but if the signature is detached then there is no content (we
+get null return from CMSSignedDataParser.getSignedContent) and we hit
+NPE:
+
+
+Exception in thread "main" org.apache.tika.exception.TikaException: Unexpected RuntimeException from org.apache.tika.parser.crypto.Pkcs7Parser@5545757a
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:244)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+	at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:120)
+	at org.apache.tika.cli.TikaCLI$OutputType.process(TikaCLI.java:138)
+	at org.apache.tika.cli.TikaCLI.process(TikaCLI.java:399)
+	at org.apache.tika.cli.TikaCLI.main(TikaCLI.java:111)
+Caused by: java.lang.NullPointerException
+	at org.apache.tika.parser.crypto.Pkcs7Parser.parse(Pkcs7Parser.java:64)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+	... 5 more
+
+
+
+I think fix is trivial: if we get null return then throw a
+TikaException saying there's nothing to extract.

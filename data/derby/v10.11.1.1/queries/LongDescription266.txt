@@ -1,0 +1,39 @@
+SYMPTOM: The test "tools/dblook_test" will fail. The diff looks similar to this:
+
+
+	
+	
+		
+		
+			Start: dblook_test jdk1.4.2_02 derbyall:derbytools 2005-05-06 22:37:37 ***
+4861d4860
+< java.io.FileNotFoundException: <filePath>
+Test Failed.
+			End:   dblook_test jdk1.4.2_02 derbyall:derbytools 2005-05-06 22:37:53 ***
+		
+		
+	
+	
+
+
+
+cf mail thread:
+http://mail-archives.apache.org/mod_mbox/db-derby-dev/200505.mbox/%3c20050507140048.GB690@ac30.fr34.2y.net%3e
+
+ANALYSIS: The problem lies with the sed
+functionality in the test harness, which delete certain lines before
+comparing with the master file.
+
+Sed.java in the harness removes lines containing derby/ in the path,
+viz:
+
+ 	deleteLines.addElement("^.derby/.\\<.\\>\\(.).*$");	
+ 	deleteLines.addElement("^.derby/.\\(.).$");	
+
+so if your tests are running in a directory containing this pattern, a
+line too much is deleted from dblook_test.tmp, thereby giving a
+comparison failure like you describe.
+
+I don't know the reason for this deletion yet, so I can't say how to
+fix it, but the work-around is obvious: Run test in a directory whose
+name does not contain this pattern 

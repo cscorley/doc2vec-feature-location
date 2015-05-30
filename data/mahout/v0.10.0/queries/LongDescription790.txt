@@ -1,0 +1,59 @@
+We have a bunch of redundant methods in our matrix interface.  These include things that return views of parts of the matrix:
+
+
+  Matrix viewPart(int[] offset, int[] size);
+  Matrix viewPart(int rowOffset, int rowsRequested, int columnOffset, int columnsRequested);
+  Vector viewRow(int row);
+  Vector viewColumn(int column);
+
+
+
+and things that do the same but call refer to getting stuff
+
+
+  Vector getColumn(int column);
+  Vector getRow(int row);
+  double getQuick(int row, int column);
+  int[] getNumNondefaultElements();
+  Map<String, Integer> getColumnLabelBindings();
+  Map<String, Integer> getRowLabelBindings();
+  double get(String rowLabel, String columnLabel);
+
+
+
+To my mind, get implies a get-by-value whereas view implies get-by-reference.  As such, I would suggest that getColumn and getRow should disappear.  On the other hand, getQuick and get are both correctly named.  
+
+This raises the question of what getNumNondefaultElements really does.  I certainly can't tell just from the signature.  Is it too confusing to keep?
+
+Additionally, what do people think that getColumnLabelBindings and getRowLabelBindings return?  A mutable map?  Or an immutable one?
+
+Under the covers, viewRow and viewColumn (and the upcoming viewDiagonal) have default implementations that use MatrixVectorView, but AbstractMatrix doesn't have an implementation for getRow and getColumn. 
+
+In sum, I suggest that:
+
+
+	getRow and getColumn go away
+
+
+
+
+	the fancy fast implementations fo getRow and getColumn that exist be migrated to be over-rides of viewRow and viewColumn
+
+
+
+
+	there be a constructor for AbstractMatrix that sets the internal size things correctly.
+
+
+
+
+	that the internal cardinality array in AbstractMatrix goes away to be replaced by two integers.
+
+
+
+
+	viewDiagonal() and viewDiagonal(length) and viewDiagonal(row, column) and viewDiagonal(int row, column, length) be added.
+
+
+
+I will produce a patch shortly.

@@ -1,0 +1,13 @@
+This is a regression from PIG-3461 - rewrite of partition filter optimizer. Here is an example that demonstrates the problem:
+two filters
+
+b = FILTER a BY (dateint >= 20130901 AND dateint <= 20131001);
+c = FILTER b BY (event_id == 419 OR event_id == 418);
+
+
+one filter
+
+b = FILTER a BY (dateint >= 20130901 AND dateint <= 20131001) AND (event_id == 419 OR event_id == 418);
+
+
+Both dateint and event_id are partition columns. For the 1 filter case, the whole expression is pushed down whereas for the 2 filter case, only (event_id == 419 OR event_id == 418) is pushed down.

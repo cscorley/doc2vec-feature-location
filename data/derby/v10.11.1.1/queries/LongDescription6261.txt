@@ -1,0 +1,10 @@
+The old harness style test jdbcapi/getCurConnJdbc20.sql is the last test remaining in the jdbc20 suite.
+It runs with jdk12test=true, meaning with any jvm higher than 1.1.
+It creates a table, creates a procedure and executes it, then drops the table and procedure.
+The comment before running the function says:
+– now lets try a variety of errors
+However, the function is util.Jdbc20Test.newToJdbc20Method, but all this does is:
+   	Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+									 ResultSet.CONCUR_READ_ONLY);
+I don't see this doing anything more useful. 
+Perhaps more interesting things were planned but never implemented, this type of statement is also created and tested in jdbcapi.ResultSetJdbc30Test, and we don't support anything older than 1.6 now anymore, so this test can just go.

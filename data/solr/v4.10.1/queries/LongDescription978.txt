@@ -1,0 +1,6 @@
+The files in the slave's index is not removed even after they are removed from master.
+The temp directories named index.xxxxxxx are not removed after use
+
+The problem is that when we do a commit on the slave after replication is done. The commit does not re-open the IndexWriter. Therefore, the deletion policy does not take affect and older files are left as is. This can keep on building up. The only solution is to re-open the index writer.
+
+A user has reported the issue http://markmail.org/thread/yw5n4dk2t5zbt5z5 

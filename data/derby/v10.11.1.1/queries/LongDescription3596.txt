@@ -1,0 +1,8 @@
+When using ClientConnectionPoolDataSource and connection pooling, a new connection / transaction is created for every new logical connection, and the resources are not freed / cleaned up in the server. They are not even cleaned up when the physical connection (ClientPooledConnection) is closed.
+A logical connection is obtained by invoking ClientPooledConnection.getConnection().
+
+I have observed that if you run the repro enough times against the same server, the number of transaction in the transaction table will be reduced now and then. I believe this is garbage collection, but I have not investigated the problem enough to tell for sure what's going on.
+
+I have also seen some locks not being freed, causing timeouts in some applications. I don't have a repro for the lock problem at this time, but it is very likely related to this issue.
+
+Note that XA connections are handled differently on the server, and do probably not have this problem.

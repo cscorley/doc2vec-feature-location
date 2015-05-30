@@ -1,0 +1,3 @@
+There's an if statement in the for loop which sets the request.hdr.type and request.txn in case that an error happened in the preceding multiop. However hdr and txn are overwritten anyways at the end of the multi case. The values set are only used a bit later to serialize them. This could better be achieved with local variables holding the temporary hdr and txn.
+
+Also the if condition (ke == null) in the catch block is pointless, since the surrounding if(ke != null) makes sure that the catch block could only ever be reached in a loop where ke == null.

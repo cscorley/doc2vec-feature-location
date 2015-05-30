@@ -1,0 +1,21 @@
+The current functionTests test harness needs adjustment for running on non-ASCII systems like zOS.
+Currently, when using derbyTesting.jar built for instance on a windows or linux system on zOS the tests do not run, because the properties and runall files cannot be understood. 
+Until now, testers on zOS had to unjar derbyTesting.jar, then run native2ascii -Cp 1047 -reverse on all appropriate files (.sql, .txt, .out, .properties, .runall, .asc, .exclude, etc). 
+This is a labor intensive and error prone process. Furthermore, it causes test failures such as reported with DERBY-575, because tests may assume a certain file to be a specific length, which no longer holds true after the native2ascii conversion.
+
+The test harness should get modified to always read the files in the same encoding.
+
+Note however, that the comparison of actual .out and the master should still result in files readable on the local system, to enable a human to evaluate failures and results. At the same time, this raises the concern that someone might check-in an update to the master with an incorrect encoding.
+
+To resolve the main issue, I propose the following:
+
+	Set the default encoding in the harness.
+	for each test
+1)  determine if the test encoding is set. We can probably use ij.ui.codeset - otherwise a new property is needed.
+     Note that this means that .properties, .runall and .exclude  files are always read in fixed/default encoding.
+2) read the master/sql files in in the default/fixed encoding unless the encoding property is set for a test
+3) Write the output out in the local encoding (the way is done currently) unless the encoding property is set (if set, write out in that encoding)
+4) Change the code that creates tmpmstr to always apply instead of only for networkserver. tmpmstr files will be created in the local encoding.
+5) Have FileCompare  read tmpmstr in in the local encoding for the comparison.
+6) either document that test development/adjustment need to be at least be verified on an ascii system, or add another property that causes a copy of the actual output to be created in the default/fixed encoding.
+

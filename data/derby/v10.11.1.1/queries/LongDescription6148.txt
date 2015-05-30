@@ -1,0 +1,97 @@
+I have a query that looks like this:
+
+  SELECT tests.id,tests.item,title FROM tests,item_usage
+  WHERE username=? AND user_role>?
+  AND item_usage.item=tests.item
+  ORDER BY tests.item,title
+
+The result ordering is by item code followed by title, but the item codes are listed in the order in which they appear in the ITEMS table where they are the primary key rather than in ascending order as expected. If however I change the ORDER BY clause to sort by item_usage.item rather than tests.item, it works correctly, even though the two values are the same!
+
+The same thing happens in another unrelated query involving item_usage, and the same workaround cures it.
+
+The relevant tables are defined like so:
+
+  CREATE TABLE item_usage (
+    username    VARCHAR(15)   NOT NULL,
+    item        VARCHAR(15)   NOT NULL,
+    value       SMALLINT      DEFAULT 0,
+    CONSTRAINT item_usage_pk  PRIMARY KEY (username,item),
+    CONSTRAINT item_usage_1   FOREIGN KEY (username)
+                              REFERENCES users(username)
+                              ON DELETE CASCADE,
+    CONSTRAINT item_usage_2   FOREIGN KEY (item)
+                              REFERENCES items(item)
+                              ON DELETE CASCADE,
+    CONSTRAINT item_usage_3   CHECK (value BETWEEN 0 AND 4)
+  );
+
+  CREATE TABLE tests (
+    id          INTEGER       GENERATED ALWAYS AS IDENTITY,
+    item        VARCHAR(15)   NOT NULL,
+    title       VARCHAR(255)  NOT NULL,
+    disp        SMALLINT      NOT NULL DEFAULT 0,
+    starttime   TIMESTAMP     DEFAULT NULL,
+    endtime     TIMESTAMP     DEFAULT NULL,
+    offsetx     INTEGER       NOT NULL DEFAULT 0,
+    offsety     INTEGER       NOT NULL DEFAULT 0,
+    rate        INTEGER       NOT NULL DEFAULT 0,
+    duration    INTEGER       NOT NULL DEFAULT 0,
+    calibrate   INTEGER       NOT NULL DEFAULT 0,
+    deadline    TIMESTAMP     DEFAULT NULL,
+    stepsize    INTEGER       NOT NULL DEFAULT 0,
+    interval    INTEGER       NOT NULL DEFAULT 0,
+    stand       CHAR(1)       DEFAULT NULL,
+    hidden      CHAR(1)       DEFAULT NULL,
+    repeated    CHAR(1)       DEFAULT NULL,
+    private     CHAR(1)       DEFAULT NULL,
+    sequential  CHAR(1)       DEFAULT NULL,
+    final       CHAR(1)       DEFAULT NULL,
+    notes       CLOB          DEFAULT NULL,
+    testxml     CLOB          NOT NULL,
+    author      VARCHAR(15)   NOT NULL,
+    time        TIMESTAMP     NOT NULL,
+    CONSTRAINT tests_pk       PRIMARY KEY (id),
+    CONSTRAINT tests_1        UNIQUE (item, title),
+    CONSTRAINT tests_2        FOREIGN KEY (item)
+                              REFERENCES items(item)
+                              ON DELETE CASCADE,
+    CONSTRAINT tests_3        CHECK (disp BETWEEN 0 AND 100),
+    CONSTRAINT tests_4        CHECK (rate BETWEEN 0 AND 100),
+    CONSTRAINT tests_5        CHECK (stepsize BETWEEN 0 AND 100)
+  );
+
+If I run the query manually I get this, as expected:
+
+  ID  ITEM    TITLE
+  37  60001   Test 1
+  42  60001   Test 2
+  51  60001   Test 3
+  17  61303   Test 2a
+  16  61303   Test 2b
+  7   7205731 Test 2a
+  8   7205731 Test 2b
+
+Now, this is actually part of a web app that should turn this into a list of options in a <select> item using the following code:
+
+  while (query.next()) 
+{
+    println("<option value='" + query.getInt("id") + "'>"
+            + encode(query.getString("item") + ": "
+            + query.getString("title")) + "</option>");
+  }
+
+What I actually get is this:
+
+  <option value="17">61303: Test 2a</option>
+  <option value="16">61303: Test 2b</option>
+  <option value="7">7205731: Test 2a</option>
+  <option value="8">7205731: Test 2b</option>
+  <option value="37">60001: Test 1</option>
+  <option value="42">60001: Test 2</option>
+  <option value="51">60001: Test 3</option>
+
+The results are sorted by item then by title, but the item order is the order in which they were originally inserted into the items table (where the item and item description are stored, referenced by item_usage.item) rather than by item code. 
+
+I've tried to reproduce this behaviour in a simple example, but without success. I have logged the query plans for both versions; the log output is as follows, with the INCORRECT query (using ORDER BY tests.item) followed later by the CORRECT query (using ORDER BY item_usage.item):
+
+(moved queryplans to attachment; see attachment queryplans.txt -dagw)

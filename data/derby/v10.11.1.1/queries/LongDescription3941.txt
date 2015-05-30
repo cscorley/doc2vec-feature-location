@@ -1,0 +1,11 @@
+Some methods in StoredFileHeader and StoredPage call java.io.DataInput.skipBytes(int) with the assumption that it always skips the requested number of bytes. According to the javadoc for skipBytes, it may skip fewer bytes than requested, possibly 0, even if the end of the stream hasn't been reached.
+
+The problem exists in these methods:
+
+  StoredFieldHeader.readFieldDataLength()
+  StoredPage.readRecordFromStream()
+  StoredPage.skipField()
+  StoredPage.readOneColumnFromPage()
+  StoredPage.readRecordFromArray()
+
+We should change the code so that it works correctly even if skipBytes() were to skip fewer bytes than requested.

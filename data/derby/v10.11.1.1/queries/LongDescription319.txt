@@ -1,0 +1,5 @@
+Based on discussion from the following thread:
+
+http://article.gmane.org/gmane.comp.apache.db.derby.devel/2585
+
+The Derby implementation of DatabaseMetaData.getProcedureColumns() returns incorrect values for the "LENGTH" column of the result, primarily because there is no clear definition in the JDBC spec regarding what this method is supposed to return.  Discussion in the above-posted thread concluded that the intent of the JDBC metadata is to "match the ODBC metadata", at least regard to this particular issue.  So changes reflecting this conclusion should be submitted to Derby.

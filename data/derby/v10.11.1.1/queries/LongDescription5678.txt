@@ -1,0 +1,22 @@
+I tried to run LocalizedDisplayScriptTest on a JVM on which support for extra encodings had been removed, and then it failed like this:
+
+1) LocalizedDisplay(org.apache.derbyTesting.functionTests.tests.i18n.LocalizedDisplayScriptTest)java.io.UnsupportedEncodingException: EUC_JP
+	at sun.nio.cs.StreamDecoder.forInputStreamReader(StreamDecoder.java:71)
+	at java.io.InputStreamReader.<init>(InputStreamReader.java:100)
+	at org.apache.derbyTesting.functionTests.util.CanonTestCase.compareCanon(CanonTestCase.java:86)
+	at org.apache.derbyTesting.functionTests.util.ScriptTestCase.runTest(ScriptTestCase.java:204)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:113)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:23)
+	at junit.extensions.TestSetup.run(TestSetup.java:27)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:23)
+	at junit.extensions.TestSetup.run(TestSetup.java:27)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:23)
+	at junit.extensions.TestSetup.run(TestSetup.java:27)
+
+According to the javadoc for java.nio.charset.Charset, JVM implementations are only required to support these encodings: US-ASCII, ISO-8859-1, UTF-8, UTF-16BE, UTF-16LE, UTF-16.
+
+On platforms that don't support EUC_JP, we should skip this test. Or, alternatively, we could change the encoding used in the test to one of the encodings that are supported on all platforms.

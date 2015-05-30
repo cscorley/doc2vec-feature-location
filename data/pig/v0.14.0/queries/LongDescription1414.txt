@@ -1,0 +1,27 @@
+The following script:
+
+
+
+L = load 'input';
+store L into 'output' using MyClass$StorerAsInnerClass();
+
+
+
+causes Pig to fail with this error message:
+
+
+
+ERROR org.apache.pig.Main - ERROR 2999: Unexpected internal error. Undefined parameter : StorerAsInnerClass
+
+java.lang.RuntimeException: Undefined parameter : StorerAsInnerClass
+        at org.apache.pig.tools.parameters.PreprocessorContext.substitute(PreprocessorContext.java:232)
+        at org.apache.pig.tools.parameters.PigFileParser.input(PigFileParser.java:60)
+        at org.apache.pig.tools.parameters.PigFileParser.Parse(PigFileParser.java:42)
+        at org.apache.pig.tools.parameters.ParameterSubstitutionPreprocessor.parsePigFile(ParameterSubstitutionPreprocessor.java:105)
+        at org.apache.pig.tools.parameters.ParameterSubstitutionPreprocessor.genSubstitutedFile(ParameterSubstitutionPreprocessor.java:98)
+        at org.apache.pig.Main.runParamPreprocessor(Main.java:576)
+        at org.apache.pig.Main.main(Main.java:418)
+
+ 
+
+even though no parameter substitution is specified from the command line. 

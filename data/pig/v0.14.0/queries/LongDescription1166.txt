@@ -1,0 +1,20 @@
+When people write unit test for UDF, they always need to build a tuple or bag. If we change the interface of Tuple and DataBag,  make the set and append method return this, it can decrease the code size.  e.g. Now people have to write the following code to build a Tuple:
+
+
+
+Tuple tuple=TupleFactory.getInstance().newTuple(3);
+tuple.set(0,"item_0");
+tuple.set(1,"item_1");
+tuple.set(2,"item_2");
+
+
+
+If we change the interface,  make the set and append method return this, we can rewrite the above code like this:
+
+
+Tuple tuple=TupleFactory.getInstance().newTuple(3);
+tuple.set(0,"item_0").set(1,"item_1").set(2,"item_2");
+
+
+
+This interface change won't have back compatibility problem and I think there's no performance problem too.

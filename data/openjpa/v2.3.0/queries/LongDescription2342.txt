@@ -1,0 +1,20 @@
+Caused by: <openjpa-2.2.2-SNAPSHOT-r422266:1446295 nonfatal general error> org.apache.openjpa.util.GeneralException: An error occurred while enhancing itemjpa.ItemJPA. Exception message: java.lang.ClassNotFoundException: org.apache.aries.proxy.weaving.WovenProxy
+    at org.apache.openjpa.enhance.PCEnhancer.run(PCEnhancer.java:578)
+    at org.apache.openjpa.enhance.PCClassFileTransformer.transform0(PCClassFileTransformer.java:153)
+    at org.apache.openjpa.enhance.PCClassFileTransformer.transform(PCClassFileTransformer.java:126)
+    at org.apache.openjpa.persistence.PersistenceProviderImpl$ClassTransformerImpl.transform(PersistenceProviderImpl.java:290)
+    at org.apache.aries.jpa.container.weaving.impl.WrappingTransformer.transform(WrappingTransformer.java:80)
+    at org.apache.aries.jpa.container.weaving.impl.JPAWeavingHook.weave(JPAWeavingHook.java:71)
+    ... 48 more
+Caused by: java.lang.IllegalArgumentException: java.lang.ClassNotFoundException: org.apache.aries.proxy.weaving.WovenProxy
+    at serp.util.Strings.toClass(Strings.java:164)
+    at serp.util.Strings.toClass(Strings.java:108)
+    at serp.bytecode.BCClass.getDeclaredInterfaceTypes(BCClass.java:740)
+    at org.apache.openjpa.enhance.PCEnhancer.run(PCEnhancer.java:537)
+    ... 53 more
+
+This issue occurs when the Apache Aries Proxy weaving hook gets called before the Apache Aries JPA weaving hook. Proxy weaves the class with the WovenProxy interface and adds the necessary dynamic package imports. JPA then gets called and uses PCEnhancer which, in turn, calls BCClass.getDeclaredInterfaceTypes, which ultimately calls Class.forName using the woven interface's name. The class loader is from the bundle whose class is being woven. Per the OSGi spec, dynamic imports do not take effect until after the entire weaving process is complete. Consequently, the bundle's class loader does not yet have visibility to the class.
+
+One solution to this, at least in the Aries case, is to order the weaving hook calls using the osgi service ranking property. However, all weaving hook services with potential conflicts may not be under the control of the same entity.
+
+Basically, PCEnhancer.run is using the information from BCClass to determine whether or not the class has already been woven. It's only interested in knowing if the PersistenceCapable interface is there. It seems that BCClass.getDeclaredInterfaceNames avoids the Class.forName call and could be used instead, particularly considering that only the class names are compared.

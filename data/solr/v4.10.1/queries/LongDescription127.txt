@@ -1,0 +1,7 @@
+an offhand comment I saw recently reminded me of something that really bugged me about the serach solution i used before Solr – it didn't play nicely with HTTP caches that might be sitting in front of it.
+
+at the moment, Solr doesn't put in particularly usefull info in the HTTP Response headers to aid in caching (ie: Last-Modified), responds to all HEAD requests with a 400, and doesn't do anything special with If-Modified-Since.
+
+t the very least, we can set a Last-Modified based on when the current IndexReder was open (if not the Date on the IndexReader) and use the same info to determing how to respond to If-Modified-Since requests.
+
+(for the record, i think the reason this hasn't occured to me in the 2+ years i've been using Solr, is because with the internal caching, i've yet to need to put a proxy cache in front of Solr)

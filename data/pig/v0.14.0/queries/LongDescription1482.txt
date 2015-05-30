@@ -1,0 +1,15 @@
+In case of two relations being loaded using different loader, joined, grouped and projected, pig gets confused in trying to find appropriate loader for the requested cast. Consider the following script :-
+
+A = LOAD 'data1' USING PigStorage() AS (s, m, l);
+B = FOREACH A GENERATE s#'k1' as v1, m#'k2' as v2, l#'k3' as v3;
+C = FOREACH B GENERATE v1, (v2 == 'v2' ? 1L : 0L) as v2:long, (v3 == 'v3' ? 1 :0) as v3:int;
+
+D = LOAD 'data2' USING TextLoader() AS (a);
+E = JOIN C BY v1, D BY a USING 'replicated';
+
+F = GROUP E BY (v1, a);
+G = FOREACH F GENERATE (chararray)group.v1, group.a;
+
+dump G;
+
+This throws the error, stack trace of which is in the next comment

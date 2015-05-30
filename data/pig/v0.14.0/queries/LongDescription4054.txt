@@ -1,0 +1,8 @@
+Currently Pig creates job.jar per job when submitting mapreduce job. There are several disadvantages:
+1. job.jar varies job by job, job.jar will not get reused even if jar cache is used (PIG-2672).
+2. Before job submission, we need to pack a job.jar which are mostly repacking of existing jars, this is a waste of time
+3. job.jar is a uber jar which makes debug harder and could lead to jar conflicting issue (eg, PIG-3039)
+
+On tez side, situation is similar, the consequence is worse since container will not be reused.
+
+So instead of job.jar, I would like to ship individual jar to distributed cache. Note this issue is in essence independent of PIG-4047, however, PIG-4047 would make the picture more complete in that we don't have any uber jars.

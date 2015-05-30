@@ -1,0 +1,68 @@
+On doing FILTERing on empty bag inside FOREACH, NullPointerException occurs.
+
+The following pig script demonstrates the issue:
+empty_bag.pig
+
+A = LOAD 'input/empty_bag.in' USING PigStorage() AS (bg:bag{}, ch:chararray);
+B = FOREACH A {
+     x = FILTER bg BY $0 == '12';
+         GENERATE
+         *, 
+         x;
+         };
+DUMP B;
+
+
+
+Input is:
+input/empty_bag.in
+
+{(12)}  a
+{(23)}  b
+        c
+
+
+
+
+Upon execution of Pig Script empty_bag.pig, the NullPointerException comes as shown below:
+
+
+$ pig -x local empty_bag.pig
+...
+2011-07-11 09:52:56,810 [Thread-3] WARN  org.apache.hadoop.mapred.LocalJobRunner - job_local_0001
+java.lang.NullPointerException
+        at
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POProject.getNext(POProject.java:448)
+        at
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.processInput(PhysicalOperator.java:290)
+        at
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POFilter.getNext(POFilter.java:95)
+        at
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.getNext(PhysicalOperator.java:406)
+        at
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POProject.processInputBag(POProject.java:570)
+        at
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.PORelationToExprProject.getNext(PORelationToExprProject.java:107)
+        at
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.getNext(PhysicalOperator.java:316)
+        at
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POUserFunc.processInput(POUserFunc.java:159)
+        at
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POUserFunc.getNext(POUserFunc.java:184)
+        at
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POUserFunc.getNext(POUserFunc.java:258)
+        at
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator.getNext(PhysicalOperator.java:316)
+        at
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.processPlan(POForEach.java:332)
+        at
+org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach.getNext(POForEach.java:284)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:261)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:256)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:58)
+        at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144)
+        at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:764)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:370)
+        at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:210)
+...
+

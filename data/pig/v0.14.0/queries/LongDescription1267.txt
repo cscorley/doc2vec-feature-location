@@ -1,0 +1,5 @@
+There are a couple of problems with the current partition filter optimizer:
+
+1. When a partition filter is removed from the logical plan, the input index of the following join/cogroup operator may change, which in turn changes the ordering of the fields in the schema and results in compile-time errors.
+
+2. At most one partition filter can be removed per plan,  while multiple partition filters can exist in the cases of joins. 

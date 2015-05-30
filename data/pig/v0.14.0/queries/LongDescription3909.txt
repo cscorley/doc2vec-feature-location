@@ -1,0 +1,109 @@
+  This issue is very close to https://issues.apache.org/jira/browse/PIG-1191, which had been closed for version 0.6.0. Steps to reproduce the issue:
+
+  Pig script as below:
+input7.pig
+
+A = load 'polisan/input7.txt' as (bagofmap:{});
+B = foreach A generate FLATTEN((IsEmpty(bagofmap) ? null : bagofmap)) AS bagofmap;
+C = filter B by (chararray)bagofmap#'fieldkey1' matches 'po.*';
+D = foreach C generate (chararray)bagofmap#'fieldkey2';
+dump D;
+
+
+
+  input data as below: 
+polisan/input7.txt
+
+{([fieldkey1#polisan,fieldkey2#lily])}
+
+
+
+  run command "pig -x local -f input7.pig".  Exception will be thrown out like below:
+
+org.apache.pig.backend.executionengine.ExecException: ERROR 1075: Received a bytearray from the UDF. Cannot determine how to convert the bytearray to string.
+	at org.apache.pig.backend.hadoop.executionengine.physicalLayer.expressionOperators.POCast.getNext(POCast.java:935)
+
+
+
+  I tried to dig into the source code, and found there were something wrong with generation of Logical Plan(LP), "new TypeCheckingRelVisitor( lp, collector).visit();" particularly. For the pig script I pasted in the ticket, logical plan was like this,
+
+
+#-----------------------------------------------
+# New Logical Plan:
+#-----------------------------------------------
+D: (Name: LOStore Schema: #21:chararray)
+|
+|---D: (Name: LOForEach Schema: #21:chararray)
+    |   |
+    |   (Name: LOGenerate[false] Schema: #21:chararray)
+    |   |   |
+    |   |   (Name: Cast Type: chararray Uid: 21)
+    |   |   |
+    |   |   |---(Name: Map Type: bytearray Uid: 21 Key: fieldkey2)
+    |   |       |
+    |   |       |---(Name: Cast Type: map Uid: 16)
+    |   |           |
+    |   |           |---bagofmap:(Name: Project Type: bytearray Uid: 16 Input: 0 Column: (*))
+    |   |
+    |   |---(Name: LOInnerLoad[0] Schema: bagofmap#16:bytearray)
+    |
+    |---C: (Name: LOFilter Schema: bagofmap#16:bytearray)
+        |   |
+        |   (Name: Regex Type: boolean Uid: 20)
+        |   |
+        |   |---(Name: Cast Type: chararray Uid: 17)
+        |   |   |
+        |   |   |---(Name: Map Type: bytearray Uid: 17 Key: fieldkey1)
+        |   |       |
+        |   |       |---(Name: Cast Type: map Uid: 26)        ——> Uid was assigned to 26, while other  places were 16
+        |   |           |
+        |   |           |---bagofmap:(Name: Project Type: bytearray Uid: 16 Input: 0 Column: 0)
+        |   |
+        |   |---(Name: Constant Type: chararray Uid: 19)
+        |
+        |---B: (Name: LOForEach Schema: bagofmap#16:bytearray)
+            |   |
+            |   (Name: LOGenerate[true] Schema: bagofmap#16:bytearray)
+            |   |   |
+            |   |   (Name: BinCond Type: bag Uid: 16)
+            |   |   |
+            |   |   |---(Name: UserFunc(org.apache.pig.builtin.IsEmpty) Type: boolean Uid: 14)
+            |   |   |   |
+            |   |   |   |---bagofmap:(Name: Project Type: bag Uid: 12 Input: 0 Column: (*))
+            |   |   |
+            |   |   |---(Name: Cast Type: bag Uid: 15)
+            |   |   |   |
+            |   |   |   |---(Name: Constant Type: bytearray Uid: 15)
+            |   |   |
+            |   |   |---bagofmap:(Name: Project Type: bag Uid: 12 Input: 1 Column: (*))
+            |   |
+            |   |---bagofmap: (Name: LOInnerLoad[0] Schema: null)
+            |   |
+            |   |---bagofmap: (Name: LOInnerLoad[0] Schema: null)
+            |
+            |---A: (Name: LOLoad Schema: bagofmap#12:bag{#13:tuple()})RequiredFields:null
+
+
+
+    I followed the code, and found at first all uid of bagofmap were all 16, then TypeCheckingRelVisitor.visit() was called, some cast were added, e.g., to cast bagofmap from bytearray to map, at the same time, uid were also recaculated. When alias C was processed, uid of bagofmap(bytearray type) was changed to 26, and bagofmap in inserted CastExpression was also assigned 26. While processing D, the foreach sentence, bagofmap in project expression was merged back into 16, while other bagofmap of bytearray were sharing the schema object, leaving the one of map type in filter-sentence 26. This leaded to, loadFunction for uid 26 was missing in uid2LoadFuncMap, then caster was assigned to null, and then the exception at last.
+
+  I tried serveral ways to make the code go well.
+1) add implementation of function visit(CastException) for class LineageFindExpVisitor, to add <26, org.apache.pig.builtin.PigStorage()> to uid2LoadFuncMap, then caster will be assigned with right function. 
+
+
+        @Override
+        public void visit(CastExpression cast) throws FrontendException {
+        updateUidMap(cast, cast.getExpression());        
+        }
+
+
+2)  to hack code of function getFieldSchema() of class ProjectExpression, to make sure when uid of bagofmap were re-caculated, "26" would not be merged back to 16, then  <26, org.apache.pig.builtin.PigStorage()> was passed into uid2LoadFuncMap when lineageFinder.visit(); was called to generate the map.
+
+3) run the script in debug mode using Eclipse, and hack the result of mergeUid() to make all uid 26 be merged back to 16, then <16, org.apache.pig.builtin.PigStorage()> in uid2LoadFuncMap would be enough.
+
+  I'm not sure which one should be ok, preferred, or none of them. But I believe LP generated was not correct, and there should be some bug on getFieldSchema() function of ProjectExpression class. Please confirm.
+
+  Besides, I wonder what uidOnlyFieldSchema, and fieldSchema mean, and their difference exactly for LogicalExpression, and then I could understand better implementation of getFieldSchema(), when cloneUid() should be called, and when mergeUid() should be called, and when getNextUid().
+
+  Thanks.
+

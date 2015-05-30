@@ -1,0 +1,14 @@
+On Hadoop2 running viewfs throws error 
+
+
+2013-10-30 02:12:46,916 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Using reducer estimator: org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.InputSizeReducerEstimator
+2013-10-30 02:12:46,917 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.InputSizeReducerEstimator - BytesPerReducer=1610612736 maxReducers=999 totalInputFileSize=-1
+2013-10-30 02:12:46,917 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Could not estimate number of reducers and no requested or default parallelism set. Defaulting to 1 reducer.
+
+
+
+This is caused by the fact that UriUtil.isHDFSFileOrLocalOrS3N only supports files that start with "/", "hdfs:", "file:", "s3n:" but not "viewfs:".
+
+Trivial fix, patch attached. 
+
+Testing: ant test-commit passes.

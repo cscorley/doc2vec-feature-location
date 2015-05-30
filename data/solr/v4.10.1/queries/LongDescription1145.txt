@@ -1,0 +1,3 @@
+Lucene IndexWriters use an infoStream to log detailed info about indexing operations for debugging purpose. This patch is an extremely simple way to allow logging this info to a file from within Solr: After applying the patch, set the new "defaultInfoStreamFilePath" attribute of the solr element in solr.xml to the path of the file where you'd like to save the logging information.
+
+Note that, in a multi-core setup, all cores will end up logging to the same infoStream log file. This may not be desired. (But it does justify putting the setting in solr.xml rather than solrconfig.xml.)

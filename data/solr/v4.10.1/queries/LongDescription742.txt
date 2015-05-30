@@ -1,0 +1,8 @@
+Discussion at: http://www.nabble.com/Creating-dynamic-fields-with-DataImportHandler-to19226532.html
+
+Dynamic fields aren't created when specified in a DataImportHandler's transformer. 
+
+Reproducing the issue:
+I have defined a dynamic field (of type sdouble) in my schema called "_dynamic*". Inside the transformer's transformRow method, I am adding the name-value pair "_dynamicTest" and '1.0'. No errors are observed, but the data does not appear in the index after importing is complete.
+
+Interestingly, I can specify that same name-value pair combination in the DataImportHandler's config file, and it does appear in the index.

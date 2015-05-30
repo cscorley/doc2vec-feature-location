@@ -1,0 +1,59 @@
+Consider the following script:
+
+
+A = LOAD 'test_data' AS (a: int, b: int);
+C = FOREACH A GENERATE *;
+B = FOREACH (GROUP A BY a) {
+	C = FILTER A BY b % 2 == 0;
+	D = FILTER A BY b % 2 == 1;
+	GENERATE group AS a, A.b AS every, C.b AS even, D.b AS odd;
+};
+DESCRIBE B;
+
+
+Notice that C is defined both inside the nested foreach as well as outside. I would expect that in the GENERATE inside the nested FOREACH, the C that is used will be the one that is defined inside. If that is not so, I think at least a warning is due.
+
+However, currently Pig silently assumes that the C you mean one is the one that is defined outside the nested FOREACH.
+
+Hence, the result of "DESCRIBE B" looks as follows:
+
+
+B: {
+    a: int,
+    every: {
+        (
+            b: int
+        )
+    },
+    even: int,
+    odd: {
+        (
+            b: int
+        )
+    }
+}
+
+
+
+If I remove the definition of C that is outside the foreach, then I get the following for "DESCRIBE B":
+
+
+B: {
+    a: int,
+    every: {
+        (
+            b: int
+        )
+    },
+    even: {
+        (
+            b: int
+        )
+    },
+    odd: {
+        (
+            b: int
+        )
+    }
+}
+

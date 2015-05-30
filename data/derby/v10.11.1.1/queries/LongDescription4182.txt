@@ -1,0 +1,92 @@
+Because of DERBY-691 an aborted insert (for example due to a constraint violation or rollback) can cause space to not be reclaimed.  SYSCS_UTIL.SYSCS_INPLACE_COMPRESS_TABLE  should reclaim this space. Even if it cannot return the space to the operating system it should show up as free pages after calling the procedure, but it currently does not.   SYSCS_UTIL.SYSCS_COMPRESS_TABLE works properly and returns the space to the operating system.
+
+See the attached program TestInPlaceCompressWithPKViolation.java to reproduce this problem.  The program attempts 10 3MB inserts. One is successful and 9 fail.   SpaceTable queries show only 18 pages are  marked as free after inplace compress and none returned to the os.
+
+
+The statement was aborted because it would have caused a duplicate key value in a unique or primary key constraint or un
+ique index identified by 'SQL090422155557650' defined on 'TAB'.
+The statement was aborted because it would have caused a duplicate key value in a unique or primary key constraint or un
+ique index identified by 'SQL090422155557650' defined on 'TAB'.
+The statement was aborted because it would have caused a duplicate key value in a unique or primary key constraint or un
+ique index identified by 'SQL090422155557650' defined on 'TAB'.
+The statement was aborted because it would have caused a duplicate key value in a unique or primary key constraint or un
+ique index identified by 'SQL090422155557650' defined on 'TAB'.
+The statement was aborted because it would have caused a duplicate key value in a unique or primary key constraint or un
+ique index identified by 'SQL090422155557650' defined on 'TAB'.
+The statement was aborted because it would have caused a duplicate key value in a unique or primary key constraint or un
+ique index identified by 'SQL090422155557650' defined on 'TAB'.
+The statement was aborted because it would have caused a duplicate key value in a unique or primary key constraint or un
+ique index identified by 'SQL090422155557650' defined on 'TAB'.
+The statement was aborted because it would have caused a duplicate key value in a unique or primary key constraint or un
+ique index identified by 'SQL090422155557650' defined on 'TAB'.
+The statement was aborted because it would have caused a duplicate key value in a unique or primary key constraint or un
+ique index identified by 'SQL090422155557650' defined on 'TAB'.
+*****spaceTable before SYSCS_UTIL.SYSCS_INPLACE_COMPRESS_TABLE('APP','TAB',1,1,1)
+CONGLOMERATENAME
+
+
+ISIND&
+NUMALLOCATEDPAGES   
+NUMFREEPAGES        
+NUMUNFILLEDPAGES    
+PAGESIZE   
+ESTIMSPACESAVING
+------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
+TAB
+
+
+0     
+931                 
+0                   
+2                   
+32768      
+0
+*****spaceTable after SYSCS_UTIL.SYSCS_INPLACE_COMPRESS_TABLE('APP','TAB',1,1,1)
+CONGLOMERATENAME
+
+
+ISIND&
+NUMALLOCATEDPAGES   
+NUMFREEPAGES        
+NUMUNFILLEDPAGES    
+PAGESIZE   
+ESTIMSPACESAVING
+------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
+TAB
+
+
+0     
+913                 
+18                  
+1                   
+32768      
+589824
+*****spaceTable after SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP','TAB',1)
+CONGLOMERATENAME
+
+
+ISIND&
+NUMALLOCATEDPAGES   
+NUMFREEPAGES        
+NUMUNFILLEDPAGES    
+PAGESIZE   
+ESTIMSPACESAVING
+------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
+TAB
+
+
+0     
+95                  
+0                   
+1                   
+32768      
+0
+
+
+
+
+
+

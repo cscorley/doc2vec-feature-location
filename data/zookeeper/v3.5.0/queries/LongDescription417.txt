@@ -1,0 +1,3 @@
+There is  a possibility for stray messages from a previous connection to violate ordering and generally cause problems. Here is a scenario: we have a client, C, two followers, F1 and F2, and a leader, L. The client is connected to F1, which is a slow follower. C sends setData("/a", "1") to F1 and then loses the connection, so C reconnects to F2 and sends setData("/a", "2").  it is possible, if F1 is slow enough and the setData("/a", "1") got onto the network before the connection break, for F1 to forward the setData("/a", "1") to L after F2 forwards setData("/a", "2").
+
+to fix this, the leader should keep track of which follower last registered a session for a client and drop any requests from followers for clients for whom they do not have a registration. 

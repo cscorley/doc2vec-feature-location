@@ -1,0 +1,15 @@
+We want to use Pig to process arbitrary Avro data and store results as Avro files. AvroStorage() extends two PigFuncs: LoadFunc and StoreFunc. 
+
+Due to discrepancies of Avro and Pig data models, AvroStorage has:
+1. Limited support for "record": we do not support recursively defined record because the number of fields in such records is data dependent.
+2. Limited support for "union": we only accept nullable union like ["null", "some-type"].
+
+For simplicity, we also make the following assumptions:
+If the input directory is a leaf directory, then we assume Avro data files in it have the same schema;
+If the input directory contains sub-directories, then we assume Avro data files in all sub-directories have the same schema.
+
+AvroStorage takes no input parameters when used as a LoadFunc (except for "debug [debug-level]"). 
+Users can provide parameters to AvroStorage when used as a StoreFunc. If they don't, Avro schema of output data is derived from its 
+Pig schema.
+
+Detailed documentation can be found in http://linkedin.jira.com/wiki/display/HTOOLS/AvroStorage+-+Pig+support+for+Avro+data

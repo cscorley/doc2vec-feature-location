@@ -1,0 +1,3 @@
+We will hit output validation fail. The issue is caused by PIG-3545. We change PigServer.Graph.validateQuery() to invoke LogicalPlan.validate(), which will do the output validation. In Grunt mode, even after the first store, we will compile the entire statement cache, so the first store will be in the logical plan, validate on output fail. 
+
+This makes datagenerator of Pigmix fail.

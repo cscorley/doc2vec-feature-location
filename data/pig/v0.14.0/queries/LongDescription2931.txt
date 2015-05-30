@@ -1,0 +1,41 @@
+To reproduce the issue, use the following pig script:
+test.pig
+
+a = load 'data';
+b = filter by $FILTER;
+
+
+
+and run the following command:
+
+
+pig -x local -dryrun -f test.pig -p FILTER="(\$0 == 'a')"
+
+
+
+This generates the following script:
+test.pig.substituted
+
+a = load 'data';
+b = filter by ($FILTER == 'a');
+
+
+
+However this should be:
+
+
+a = load 'data';
+b = filter by ($0 == 'a');
+
+
+
+This is because Pig calls replaceFirst() with a replacement string that include a $ sign as follows:
+
+
+"$FILTER".replaceFirst("\\$FILTER", "($0 == 'a')"));
+
+
+
+To treat $ signs as literals in the replacement string, we must escape them. Please see the Java doc for Matcher class for explanation:
+
+Note that backslashes () and dollar signs ($) in the replacement string may cause the results to be different than if it were being treated as a literal replacement string. Dollar signs may be treated as references to captured subsequences as described above, and backslashes are used to escape literal characters in the replacement string.

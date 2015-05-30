@@ -1,0 +1,31 @@
+Example to reproduce the issue:
+
+
+cat simple.js
+function test(word) {
+    return word;
+}
+register 'simple.js' using org.apache.pig.scripting.js.JsScriptEngine as myfuncs;
+A = LOAD 'data' as (a:chararray);
+B = FOREACH A GENERATE myfuncs.test($0);
+
+
+
+Pig Stack Trace
+---------------
+ERROR 1200: <line 1, column 3>  mismatched input '.' expecting EOF
+...
+Caused by: java.lang.IllegalArgumentException: test.outputSchema is not a valid schema: <line 1, column 3>  mismatched input '.' expecting EOF
+	at org.apache.pig.scripting.js.JsFunction.<init>(JsFunction.java:184)
+	... 38 more
+Caused by: Failed to parse: <line 1, column 3>  mismatched input '.' expecting EOF
+	at org.apache.pig.parser.QueryParserDriver.parseSchema(QueryParserDriver.java:94)
+	at org.apache.pig.parser.QueryParserDriver.parseSchema(QueryParserDriver.java:108)
+	at org.apache.pig.impl.util.Utils.parseSchema(Utils.java:222)
+	at org.apache.pig.impl.util.Utils.getSchemaFromString(Utils.java:196)
+	at org.apache.pig.scripting.js.JsFunction.<init>(JsFunction.java:182)
+	... 38 more
+
+Problem: if no output schema is defined, an org.mozilla.javascript.Undefined object will be passed to Utils#getSchemaFromString which causes the exception.
+
+Should: if there's no schema defined, udf should return an unnamed bytearray field.

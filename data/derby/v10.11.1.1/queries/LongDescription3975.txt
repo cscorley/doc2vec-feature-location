@@ -1,0 +1,26 @@
+I defined my own locale (en_US_aisb) where the collation rules said that a=b. When I tried queries with SELECT DISTINCT, they didn't always eliminate all duplicates. Here's an example:
+
+ij> connect 'jdbc:derby:db;create=true;territory=en_US_aisb;collation=TERRITORY_BASED';
+ij> create table t (x varchar(10));
+0 rows inserted/updated/deleted
+ij> insert into t values 'a','b','abba','baab','ABBA';
+5 rows inserted/updated/deleted
+ij> select distinct * from t;
+X         
+----------
+ABBA      
+b         
+a         
+abba      
+
+4 rows selected
+ij> select distinct * from t order by x;
+X         
+----------
+a         
+abba      
+ABBA      
+
+3 rows selected
+
+The first query did eliminate the duplicate "abba"/"baab", but it did not eliminate the duplicate "a"/"b". When an ORDER BY clause was added (the second query), all the duplicates were eliminated.

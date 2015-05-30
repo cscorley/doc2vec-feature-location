@@ -1,0 +1,12 @@
+Hub server doesn't subscribe remote region correctly in following cases: (assume there is 3 regions, A, B, C)
+
+1. region shuts down before first subscribe.
+
+1) region C is down.
+2) subscribe-a subscribe a topic in region A. a subscription state is created in region A's zookeeper. but remote subscribe to region C would fail since region C is down. hub server will respond client that subscribe failed without deleting subscription state. The following subscriptions using same subscribe id and same topic would failed due to NodeExists.
+
+2. region shuts down when attaches existing subscriptions.
+
+1) In region A, there is a local subscriber a for topic T. in region B, subscriber b for topic T. in region B, subscribe c for topic T.
+2) servers are all restarted in all three regions. But region C is network-partitioned (or shuts down) from region A and region B.
+3) subscriber b and subscribe c try to subscribe T again. hub servers in region B, C will try to remote subscribe region A, but should failed. There is no mechanism to retry remote subscribe. so if messages are published to topic T in region A, subscribe b and subscribe c would receive any message.  

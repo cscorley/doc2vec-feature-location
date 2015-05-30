@@ -1,0 +1,84 @@
+A few times in regression testing of builds of the 10.5 branch, and also with the testing cycle of 10.5.2.0 on iseries I've seen failures in derbynet/runtimeinfo.
+
+They look like differences in the Session id and timing differences in return of text to the client.
+For instance, this is with ibm 1.6 on iseries:
+---------------------------------------
+5 del
+< Session # :2
+5a5
+> Session # :52
+12 del
+< Session # :3
+12a12
+> Session # :86
+23 del
+< Session # :2
+23a23
+> Session # :52
+32 del
+< Session # :4
+32a32
+> Session # :88
+41 del
+< Session # :5
+41a41
+> Session # :90
+48 del
+< Session # :6
+48a48
+> Session # :113
+58 del
+< Session # :7
+58a58
+> Session # :117
+---------------------------------------
+
+And this is an example of a failure on linux/vmware on 7/15/09 (10.5.1.2 revision: 794133)
+
+---------------------------------------
+5 del
+< Session # :2
+5a5,6
+> Session # :89
+> Session # :62
+12d12
+< Session # :3
+23 del
+< Session # :2
+23a23
+> Session # :90
+29a30,38
+> 	SYSLH0002	VALUES(2)
+> 	SYSLH0001	SELECT count from sys.systables
+> Session # :62
+> Database :wombat;create=true
+> User :APP
+> # Statements:2
+> Prepared Statement Information: 
+> 	Stmt ID		SQLText
+> 	-------------	-----------
+32 del
+< Session # :4
+32a41
+> Session # :92
+35,43d43
+< # Statements:2
+< Prepared Statement Information: 
+< 	Stmt ID		SQLText
+< 	-------------	-----------
+< 	SYSLH0002	VALUES(2)
+< 	SYSLH0001	SELECT count from sys.systables
+< Session # :5
+< Database :wombat;create=true
+< User :APP
+48 del
+< Session # :6
+48a48
+> Session # :101
+58 del
+< Session # :7
+58a58
+> Session # :108
+---------------------------------------
+
+It seems to me these are fairly innocent, and if they are, then possibly the solution is to backport the conversion of runtimeinfo to junit to 10.5. (see DERBY-3834, revisions 792001 and 792254.)

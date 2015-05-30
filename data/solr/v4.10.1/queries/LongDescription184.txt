@@ -1,0 +1,14 @@
+optionally return what handler was used in the response header.  This patch also extends echoParams so that it supports 'all' and 'none' 
+
+It makes a small API change to the protected SolrCore.setResponseHeaderValues() – it now passes in the handler that was used.
+
+Some URLs to check (but remember that the /debug/dump handler prints out its own 'params')
+
+http://localhost:8983/solr/debug/dump
+http://localhost:8983/solr/debug/dump?echoParams=all&param1=A
+http://localhost:8983/solr/debug/dump?echoParams=explicit&param1=A
+http://localhost:8983/solr/debug/dump?echoParams=false&param1=A
+
+to keep things reasonable, i'm mapping:
+ echoParams=true   >>  explicit
+ echoParams=false >>  none

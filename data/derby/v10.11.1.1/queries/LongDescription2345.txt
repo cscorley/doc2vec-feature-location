@@ -1,0 +1,40 @@
+I tried the following repro. After calling the truncate the Blob object still returns the length as 29 (its original length) . 
+
+import java.sql.*;
+
+public class TruncateBugRepro {
+
+    Connection con = null;
+
+    public Connection getEmbeddedConnection() throws Exception {
+        if(con == null) 
+{
+            Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+            con = DriverManager.getConnection
+                ("jdbc:derby:DB1;create=true");
+        }
+        return con;
+    }
+
+    public void testTruncate() throws Exception 
+{
+        //String used to getBytes from and insert into Blob.
+        String str = new String("I am a Blob!!! I am a Blob!!!");
+        Connection con = getEmbeddedConnection();
+        //create the blob
+        Blob blob = con.createBlob();
+        //insert bytes
+        blob.setBytes(1,str.getBytes());
+        //Retuns the Blob length as 29
+        System.out.println("" + blob.length());
+        blob.truncate(14);
+        //returns the Blob length as 29
+        System.out.println("" + blob.length());
+    }
+
+    public static void main(String[] args) throws Exception 
+{
+        TruncateBugRepro t = new TruncateBugRepro();
+        t.testTruncate();
+    }
+}

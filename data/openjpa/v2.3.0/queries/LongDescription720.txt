@@ -1,0 +1,24 @@
+We observe that two differenct pushdown sql could be generated for entities with multi-table mapping and version columns in each table.
+Here is an example, where entity is having 1 primary table, 2 secondary tables, and each table has a version column, an em.find() could result
+in following sqls:
+
+SELECT t0.version, 
+        t1.version, 
+       t2.version, 
+       t1.col1, t0.col2, t2.col3 
+       FROM TS2 t0 
+       INNER JOIN TS1 t1 ON t0.ID = t1.id 
+       INNER JOIN TS3 t2 ON t1.id = t2.ID 
+       WHERE t1.id = ?  optimize for 1 row
+
+
+SELECT t0.version, 
+        t1.version, 
+       t2.version, 
+       t2.col1, t1.col2, t0.col3 
+       FROM TS3 t0 
+       INNER JOIN TS1 t2 ON t0.ID = t2.id 
+       INNER JOIN TS2 t1 ON t2.id = t1.ID 
+       WHERE t2.id = ?  optimize for 1 row
+
+If the HashMap is changed to LinkedHashMap, then the pushdown sql will have predictable ordering in select and from clause.

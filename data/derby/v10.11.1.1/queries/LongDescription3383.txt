@@ -1,0 +1,7 @@
+Looks like stopSlave on a not booted database leaves some traces:
+
+ij version 10.4
+ij> connect 'jdbc:derby:slaveDB;user=oystein;password=pass;stopSlave=true';
+ERROR XRE40: Could not perform operation because the database is not in replication slave mode.
+ij> connect 'jdbc:derby:slaveDB;user=oystein;password=pass;startSlave=true';
+ERROR XRE09: Cannot start replication slave mode for database 'slaveDB'. The database has already been booted. 

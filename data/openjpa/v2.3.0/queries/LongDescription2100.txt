@@ -1,0 +1,10 @@
+This bug seems to have been introduced while cleaning up some openjpa-maven-plugin compiler warnings in r1091279 / OPENJPA-1934.
+
+When you try to invoke the MappingTool with mvn openjpa:sql you will get the following failure:
+
+[ERROR] Failed to execute goal org.apache.openjpa:openjpa-maven-plugin:2.2.0-SNAPSHOT:sql (mappingtool) on project enhance: Execution mappingtool of goal org.apache.openjpa:openjpa-maven-plugin:2.2.0-SNAPSHOT:sql failed: Type "class org.apache.openjpa.tools.maven.testentity.TestEntity$SampleEnum" loaded by java.net.URLClassLoader@49c1e1e7 does not have persistence metadata. -> [Help 1]
+org.apache.maven.lifecycle.LifecycleExecutionException: Failed to execute goal org.apache.openjpa:openjpa-maven-plugin:2.2.0-SNAPSHOT:sql (mappingtool) on project enhance: Execution mappingtool of goal org.apache.openjpa:openjpa-maven-plugin:2.2.0-SNAPSHOT:sql failed: Type "class org.apache.openjpa.tools.maven.testentity.TestEntity$SampleEnum" loaded by java.net.URLClassLoader@49c1e1e7 does not have persistence metadata.
+...
+Caused by: <openjpa-2.2.0-tiss-1-r422266:1213958M fatal user error> org.apache.openjpa.util.MetaDataException: Type "class at.ac.tuwien.tiss.mobility.be.common.entities.Deadline$Type" loaded by java.net.URLClassLoader@5054c2b8 does not have persistence metadata.
+	at org.apache.openjpa.jdbc.meta.MappingTool.getMapping(MappingTool.java:688)
+	at org.apache.openjpa.jdbc.meta.MappingTool.buildSchema(MappingTool.java:754)

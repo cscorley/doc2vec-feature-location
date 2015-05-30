@@ -1,0 +1,31 @@
+I see some unit test cases intermittently fail with the following error with Hadoop-2.0.x:
+
+
+2012-12-17 18:28:39,235 FATAL [Low Memory Detector] org.apache.hadoop.yarn.YarnUncaughtExceptionHandler: Thread Thread[Low Memory Detector,9,system] threw an Error.  Shutting down now...
+java.lang.InternalError: Error in invoking listener
+    at sun.management.NotificationEmitterSupport.sendNotification(NotificationEmitterSupport.java:141)
+    at sun.management.MemoryImpl.createNotification(MemoryImpl.java:171)
+    at sun.management.MemoryPoolImpl$CollectionSensor.triggerAction(MemoryPoolImpl.java:300)
+    at sun.management.Sensor.trigger(Sensor.java:120)
+2012-12-17 18:28:39,285 INFO [main] org.apache.hadoop.mapred.MapTask: Finished spill 0
+2012-12-17 18:28:39,342 WARN [main] org.apache.hadoop.mapred.YarnChild: Exception running child : java.lang.IllegalStateException: Shutdown in progress, cannot add a shutdownHook
+    at org.apache.hadoop.util.ShutdownHookManager.addShutdownHook(ShutdownHookManager.java:152) 
+    at org.apache.hadoop.fs.FileSystem$Cache.getInternal(FileSystem.java:2296)
+    at org.apache.hadoop.fs.FileSystem$Cache.get(FileSystem.java:2268)
+    at org.apache.hadoop.fs.FileSystem.get(FileSystem.java:302)
+    at org.apache.hadoop.fs.FileSystem.getLocal(FileSystem.java:273)
+    at org.apache.hadoop.mapred.SpillRecord.writeToFile(SpillRecord.java:124)
+    at org.apache.hadoop.mapred.SpillRecord.writeToFile(SpillRecord.java:119)
+    at org.apache.hadoop.mapred.MapTask$MapOutputBuffer.mergeParts(MapTask.java:1760)
+    at org.apache.hadoop.mapred.MapTask$MapOutputBuffer.flush(MapTask.java:1440)
+    at org.apache.hadoop.mapred.MapTask$NewOutputCollector.close(MapTask.java:664)
+    at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:732)
+    at org.apache.hadoop.mapred.MapTask.run(MapTask.java:332)
+    at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:154)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at javax.security.auth.Subject.doAs(Subject.java:396)
+    at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1332)
+    at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:149)
+
+
+By default, mapred.io.sort.mb is set to 100, and mapred.child.java.opts is set to -Xmx200m. Increasing them to 200 and 512m respectively makes the intermittent test failures go away.

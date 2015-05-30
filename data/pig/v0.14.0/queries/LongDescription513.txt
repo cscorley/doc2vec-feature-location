@@ -1,0 +1,19 @@
+The following areas in DefaultTuple.java can be changed:
+
+The member methods get(), set(), getType() and isNull() all call checkBounds() which is redundant call since all these 4 functions throw ExecException. Instead of doing a bounds check, we can catch the IndexOutOfBounds exception in a try-catch and throw it as an ExecException
+
+The write() method has the following unused object (d in the code below):
+
+for (int i = 0; i < sz; i++) {
+                try {
+                    Object d = get(i);
+                } catch (ExecException ee) {
+                    throw new RuntimeException(ee);
+                }
+                DataReaderWriter.writeDatum(out, mFields.get(i));
+            }
+
+
+
+The get(i) call in the try should be replaced by the writeDatum call directly since d is never used and there is an unncessary call to get()
+

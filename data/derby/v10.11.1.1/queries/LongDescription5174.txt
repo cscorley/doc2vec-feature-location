@@ -1,0 +1,26 @@
+I sometimes see this failure on Java 7 after DERBY-5153:
+
+junit.framework.AssertionFailedError: Index statistics for <ALL TABLES>
+1: 
+{tableId=c0141582-012f-1ffb-f2b7-ffff8f5541b2, tableName=DERBY5153, indexName=IDX, lcols=1, rows=100, unique/card=1, created=2011-04-04 13:09:08.988}
+2: 
+{tableId=c0141582-012f-1ffb-f2b7-ffff8f5541b2, tableName=DERBY5153, indexName=IDX, lcols=2, rows=100, unique/card=1, created=2011-04-04 13:09:08.988}
+3: 
+{tableId=c0141582-012f-1ffb-f2b7-ffff8f5541b2, tableName=DERBY5153, indexName=IDX, lcols=3, rows=100, unique/card=1, created=2011-04-04 13:09:08.988}
+4: 
+{tableId=c0141582-012f-1ffb-f2b7-ffff8f5541b2, tableName=DERBY5153, indexName=IDX, lcols=4, rows=100, unique/card=1, created=2011-04-04 13:09:08.988}
+ expected:<0> but was:<4>
+	at org.apache.derbyTesting.junit.IndexStatsUtil.assertStats(IndexStatsUtil.java:132)
+	at org.apache.derbyTesting.junit.IndexStatsUtil.assertNoStats(IndexStatsUtil.java:109)
+	at org.apache.derbyTesting.functionTests.tests.lang.UpdateStatisticsTest.testUpdateStatistics(UpdateStatisticsTest.java:93)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:112)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+
+The problem is that the test case for DERBY-5153 creates a table and doesn't drop it. testUpdateStatistics() checks the statistics for all tables in the database, and it will fail if the DERBY-5153 test case runs first (which it sometimes does on Java 7) because it finds statistics for tables it didn't expect to be there.

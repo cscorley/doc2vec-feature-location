@@ -1,0 +1,20 @@
+If the test case BasicSetup.testTriggerBasic runs after the test cases testCreateTable and testIndex, the upgrade test will fail with a NoSuchMethodError in the post soft upgrade phase when testing upgrade from 10.5.x.
+
+Example from the nightly testing:
+
+http://dbtg.foundry.sun.com/derby/test/Daily/jvm1.7/testing/testlog/lin/1076682-suitesAll_diff.txt
+
+2) testTriggerBasic(org.apache.derbyTesting.functionTests.tests.upgradeTests.BasicSetup)java.sql.SQLException: Java exception: 'org.apache.derby.iapi.sql.execute.ResultSetFactory.getProjectRestrictResultSet(Lorg/apache/derby/iapi/sql/execute/NoPutResultSet;Lorg/apache/derby/iapi/services/loader/GeneratedMethod;Lorg/apache/derby/iapi/services/loader/GeneratedMethod;ILorg/apache/derby/iapi/services/loader/GeneratedMethod;IIZZDD)Lorg/apache/derby/iapi/sql/execute/NoPutResultSet;: java.lang.NoSuchMethodError'.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.javaException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.ConnectionChild.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.upgradeTests.BasicSetup.testTriggerBasic(BasicSetup.java:82)
+
+It's seen occasionally on Java 7 and consistently on phoneME.

@@ -1,0 +1,25 @@
+Following the work on TIKA-442, we now have some XMP inspired image metadata keys and type properties. This currently only covers 4 core exif tags
+
+There are a couple of other common tags that we should probably handle in the same way. The plan would be to define more entries in the TIFF metadata area, using the same definitions as in XMP, and update the Exif parser to additionally map onto these. (The raw exif tags would continue to be output too, for compatibility)
+
+The tags I propose to support are:
+
+	exif:ExposureTime
+	exif:FNumber
+	exif:Flash
+	exif:FocalLength
+	exif:IsoSpeedRatings
+	exif:Manufacturer
+	exif:Model
+	exif:Software
+	exif:Orientation
+	exif:XResolution
+	exif:YResolution
+	exif:ResolutionUnit
+
+
+
+Plus one extra date, which we don't really seem to have a suitable existing key for, but maybe should be made more generic?
+
+	exif:DateTimeOriginal
+

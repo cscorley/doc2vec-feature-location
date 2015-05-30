@@ -1,0 +1,73 @@
+DBLOOK schema dumping tool doesn't emit SQL statements for functions. It covers procedures and all other database objects, but not funtions. Here is an example I tried:
+
+[bandaram:satheesh] java org.apache.derby.tools.dblook -d 'jdbc:derby:tdb'
+– Timestamp: 2005-06-05 09:41:20.603
+– Source database is: tdb
+– Connection URL is: jdbc:derby:tdb
+– appendLogs: false
+
+– ----------------------------------------------
+– DDL Statements for tables
+– ----------------------------------------------
+
+CREATE TABLE "APP"."T" ("I" INTEGER);
+
+At this point, the database has only one table 'T'. Now create a function:
+
+C:\DerbyCode\bug>java -Dij.protocol=jdbc:derby: org.apache.derby.tools.ij
+ij version 10.1
+ij> connect 'tdb';
+ij> create function gatp(SCH VARCHAR(128), TBL VARCHAR(128)) RETURNS VARCHAR(100
+0)
+EXTERNAL NAME 'org.apache.derbyTesting.functionTests.util.TestPropertyInfo.getAllTableProperties'
+LANGUAGE JAVA PARAMETER STYLE JAVA;
+0 rows inserted/updated/deleted
+ij> quit;
+
+Now try dblook. Should show a function, but doesn't.
+
+[bandaram:satheesh] java org.apache.derby.tools.dblook -d 'jdbc:derby:tdb'
+– Timestamp: 2005-06-05 09:41:20.603
+– Source database is: tdb
+– Connection URL is: jdbc:derby:tdb
+– appendLogs: false
+
+– ----------------------------------------------
+– DDL Statements for tables
+– ----------------------------------------------
+
+CREATE TABLE "APP"."T" ("I" INTEGER);
+
+Now create a procedure:
+
+C:\DerbyCode\bug>java -Dij.protocol=jdbc:derby: org.apache.derby.tools.ij
+ij version 10.1
+ij> connect 'tdb';
+ij> create procedure insertAsciiColumn( stmtText varchar( 256), colNumber int) P
+ARAMETER STYLE JAVA LANGUAGE JAVA MODIFIES SQL DATA
+  EXTERNAL NAME 'org.apache.derbyTesting.functionTests.util.StreamUtil.insertAsc
+iiColumn';
+0 rows inserted/updated/deleted
+ij> 
+
+DBLOOK output include newly created procedure, but still not function statement.
+
+[bandaram:satheesh] java org.apache.derby.tools.dblook -d 'jdbc:derby:tdb'
+– Timestamp: 2005-06-05 09:43:09.5
+– Source database is: tdb
+– Connection URL is: jdbc:derby:tdb
+– appendLogs: false
+
+– ----------------------------------------------
+– DDL Statements for stored procedures
+– ----------------------------------------------
+
+CREATE PROCEDURE "APP"."INSERTASCIICOLUMN" (IN STMTTEXT VARCHAR(256),IN COLNUMBE
+R INTEGER) LANGUAGE JAVA PARAMETER STYLE JAVA MODIFIES SQL DATA EXTERNAL NAME 'o
+rg.apache.derbyTesting.functionTests.util.StreamUtil.insertAsciiColumn' ;
+
+– ----------------------------------------------
+– DDL Statements for tables
+– ----------------------------------------------
+
+CREATE TABLE "APP"."T" ("I" INTEGER);

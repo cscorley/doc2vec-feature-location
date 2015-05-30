@@ -1,0 +1,44 @@
+In Class AbstractDistributedVectorSimilarity
+
+
+      protected int countElements(Iterator<?> iterator)
+      { int count = 0;
+          while (iterator.hasNext()) 
+          
+{
+                  count++; 
+                  iterator.next(); 
+           }
+ return count; 
+    }
+
+The method countElements is used continually and is called continually ,but it has bad performance.
+
+If the iterator has million elements ,we have to iterate million  times to just get the count of the iterator.
+
+
+this methods used in many pacles:
+1) DistributedCooccurrenceVectorSimilarity 
+
+public class DistributedCooccurrenceVectorSimilarity extends AbstractDistributedVectorSimilarity {
+
+  @Override
+  protected double doComputeResult(int rowA, int rowB, Iterable<Cooccurrence> cooccurrences, double weightOfVectorA,
+      double weightOfVectorB, int numberOfColumns) 
+{
+    return countElements(cooccurrences);
+  }
+
+}
+
+one items may be liked by many people, we has system ,one items may be liked by  hundred thousand persons,
+Here doComputeResult just returned the count of elements in  cooccurrences,but It has to iterate for hundred thousand times.
+
+If we use List or Array type,we can get the result in one call. because it already sets the size of the Array or list when system constructs the List or Array.
+
+2)  DistributedLoglikelihoodVectorSimilarity
+3)  DistributedTanimotoCoefficientVectorSimilarity
+
+
+I have doing a test using DistributedCooccurrenceVectorSimilarity 
+it used 4.5 hours to run RowSimilarityJob-CooccurrencesMapper-SimilarityReducer

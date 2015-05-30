@@ -1,0 +1,30 @@
+I have an AFTER DELETE trigger on an exchange rate table which inserts data into a history table. It uses a sequence for the key in the history table.
+
+Simplified it looks like this:
+CREATE TRIGGER TRG_EXCHANGE_RATES_HIST_DEL
+AFTER DELETE ON EXCHANGE_RATES
+REFERENCING OLD ROW AS OLD
+FOR EACH ROW
+ INSERT INTO EXCHANGE_RATE_HISTORY (ID_HISTORY, CUR_FROM, AMNT_FROM, CUR_TO, AMNT_TO, AMNT_RATE, DAT_CREATION)
+   VALUES (( NEXT VALUE for HIST_SEQ ), OLD.CUR_FROM, OLD.AMNT_FROM, OLD.CUR_TO, OLD.AMNT_TO, OLD.AMNT_RATE, CURRENT_TIMESTAMP);
+
+The sequence is defined as:
+create sequence HIST_SEQ
+increment by 1
+start with 10000001
+ no maxvalue
+ minvalue 10000001
+no cycle;
+
+Randomly when deleting data the statement will fail with:
+ERROR XSTA2: A transaction was already active, when attempt was made to make another transaction active.
+
+I will attach the full stack trace. It looks like the sequence cache needs to be cleared which causes a nested user transaction to start. But my delete statement is already running as part of a transaction (non XA - spring managed - hibernate).
+
+We do not have this exception when testing with derby 10.8.2.2.
+
+I get the same exception after building and running the latest trunk version (revision 1463340, Bundle-Version: 10.11.0000000.1463340)
+
+To rule out the sequence on the history table, I switched it to use a generated column (GENERATED ALWAYS AS IDENTITY (START WITH 10000001, INCREMENT BY 1)) but I still randomly get the exception.
+
+All tables in the application use sequences for their primary keys (through Hibernate's SequenceHiLoGenerator) so it seems to be possibly related to that.

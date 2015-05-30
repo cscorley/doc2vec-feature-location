@@ -1,0 +1,84 @@
+When a database residing in a JAR file is open via Derby embedded JDBC connection, the getSchemas() call on the connection's DatabaseMetaData fails with an exception: ERROR 40XD1: Container was opened in read-only mode.
+
+STEPS TO REPRODUCE:
+(1) Download the attached JAR database, BirtSample.jar, and place it in C:\ (or if another location, update the dbFile variable in  test code below).
+(2) Run the following Java test code, with derby.jar (version 10.3.1.1) in classpath.
+
+// *** BEGIN TEST CODE
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+
+public class TestGetDBMetaData
+{
+	public static void main(String[] args) throws Exception
+	{
+		final String dbFile = "c:/BirtSample.jar";
+		final String driverClass = "org.apache.derby.jdbc.EmbeddedDriver";
+		final String url= "jdbc:derby:jar:(" + dbFile + ")BirtSample";
+		final String user = "ClassicModels";
+		final String pwd = "";
+	
+		Class.forName( driverClass );
+		Connection conn = DriverManager.getConnection( url, user, pwd);
+		DatabaseMetaData dbmd = conn.getMetaData();
+		ResultSet rs = dbmd.getSchemas();
+		rs.close();
+		conn.close();
+	}
+}
+
+// ***END TEST CODE
+
+The following exception happens in the getSchemas() call:
+
+Exception in thread "main" java.sql.SQLException: Container was opened in read-only mode.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.ConnectionChild.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.<init>(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement20.<init>(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement30.<init>(Unknown Source)
+	at org.apache.derby.jdbc.Driver30.newEmbedPreparedStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.prepareMetaDataStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedDatabaseMetaData.prepareSPS(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedDatabaseMetaData.getPreparedQueryUsingSystemTables(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedDatabaseMetaData.getPreparedQuery(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedDatabaseMetaData.getPreparedQuery(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedDatabaseMetaData.getSchemas(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedDatabaseMetaData.getSchemas(Unknown Source)
+	at TestGetDBMetaData.main(TestGetDBMetaData.java:34)
+Caused by: ERROR 40XD1: Container was opened in read-only mode.
+	at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.BaseContainer.use(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.BaseContainerHandle.useContainer(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.BaseDataFileFactory.openContainer(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.BaseDataFileFactory.openContainer(Unknown Source)
+	at org.apache.derby.impl.store.raw.xact.Xact.openContainer(Unknown Source)
+	at org.apache.derby.impl.store.access.conglomerate.OpenConglomerate.init(Unknown Source)
+	at org.apache.derby.impl.store.access.heap.Heap.open(Unknown Source)
+	at org.apache.derby.impl.store.access.RAMTransaction.openConglomerate(Unknown Source)
+	at org.apache.derby.impl.store.access.RAMTransaction.openConglomerate(Unknown Source)
+	at org.apache.derby.impl.sql.execute.RowChangerImpl.openForUpdate(Unknown Source)
+	at org.apache.derby.impl.sql.execute.RowChangerImpl.open(Unknown Source)
+	at org.apache.derby.impl.sql.catalog.TabInfoImpl.deleteRows(Unknown Source)
+	at org.apache.derby.impl.sql.catalog.TabInfoImpl.deleteRow(Unknown Source)
+	at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.dropDependentsStoredDependencies(Unknown Source)
+	at org.apache.derby.impl.sql.depend.BasicDependencyManager.clearDependencies(Unknown Source)
+	at org.apache.derby.iapi.sql.dictionary.SPSDescriptor.compileStatement(Unknown Source)
+	at org.apache.derby.iapi.sql.dictionary.SPSDescriptor.prepareAndRelease(Unknown Source)
+	at org.apache.derby.iapi.sql.dictionary.SPSDescriptor.getPreparedStatement(Unknown Source)
+	at org.apache.derby.iapi.sql.dictionary.SPSDescriptor.getPreparedStatement(Unknown Source)
+	at org.apache.derby.impl.sql.compile.ExecSPSNode.generate(Unknown Source)
+	at org.apache.derby.impl.sql.GenericStatement.prepMinion(Unknown Source)
+	at org.apache.derby.impl.sql.GenericStatement.prepare(Unknown Source)
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(Unknown Source)
+	... 12 more
+
+
+NOTE:
+This is an identical issue as reported in DERBY-854. It was reported as resolved but is still reproducible in 10.3.2.1., the latest official release as of this report.

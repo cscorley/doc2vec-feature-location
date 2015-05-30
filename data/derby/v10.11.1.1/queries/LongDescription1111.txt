@@ -1,0 +1,8 @@
+Currently the getStatement() call for such a ResultSet will return a reference ot the Statement object  that created the ResultSet using server-side JDBC within the procedure. 
+SQL Standard 2003, part 13 indicates that a copy of the server-side JDBC ResultSet is made by the database engine as a cursor, and in fact the server-side ResultSet is closed. The cursor would then be returned to the client as for any other cursor, converted to a ResultSet for JDBC.
+
+Derby optimizes this copying by returning the original ResultSet  through the embedded driver, but switching its ownership to the Statement that invokved CALL procedure. This ownership switch however does not switch the application statement returned by getStatement.
+
+See also http://issues.apache.org/jira/browse/DERBY-1101#action_12370189
+
+Fixing this will expose DERBY-1101 in JDBC 4.0

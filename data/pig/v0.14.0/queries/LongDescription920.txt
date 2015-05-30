@@ -1,0 +1,13 @@
+The following query
+
+A = load 'foo';
+B = filer A by $0>1;
+C = filter A by $1 = 'foo';
+D = COGROUP C by $0, B by $0;
+......
+
+does not get efficiently executed. Currently, it runs a map only job that basically reads and write the same data before doing the query processing.
+
+Query where the data is loaded twice actually executed more efficiently.
+
+This is not an uncommon query and we should fix this issue.

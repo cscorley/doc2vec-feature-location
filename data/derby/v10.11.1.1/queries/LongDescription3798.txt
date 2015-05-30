@@ -1,0 +1,14 @@
+I came across this piece of code in TableScanResultSet.getNextRowCore():
+
+						if (past2FutureTbl.get(rowLoc) != null)
+						{
+							past2FutureTbl.remove(rowLoc);
+							continue;
+						}
+
+I believe the call to Hashtable.get() is unnecessary since Hashtable.remove() returns the object it removed or null if the key was not in the table. So I believe the code could be simplified like this without changing the behaviour:
+
+    if (past2FutureTbl.remove(rowLoc) != null) 
+{
+        continue;
+    }

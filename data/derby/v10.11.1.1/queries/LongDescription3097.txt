@@ -1,0 +1,18 @@
+In BaseActivation.java there is the following code:
+
+protected final DataValueDescriptor getColumnFromRow(int rsNumber, int colId)
+throws StandardException {
+
+        if( row[rsNumber] == null)
+        {
+            /* This actually happens. NoPutResultSetImpl.clearOrderableCache attempts to prefetch invariant values
+             * into a cache. This fails in some deeply nested joins. See Beetle 4736 and 4880.
+             */
+            return null;
+        }
+return row[rsNumber].getColumn(colId);
+}
+
+During the investigation of DERBY-3033, I came to the conclusion that this "if" statement is no longer necessary, and in fact is counter-productive, for it makes diagnosing other problems harder by delaying the point at which data structure problems are exposed as errors in the code.
+
+This JIRA issue requests that this code be evaluated, to determine whether or not it truly is necessary, and, if it is not necessary, suggests that it should be removed, to result in simpler, clearer code.

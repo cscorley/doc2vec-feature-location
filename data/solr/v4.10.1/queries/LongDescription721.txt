@@ -1,0 +1,45 @@
+It might be initialized in such a way that no core container is created.
+
+Adding the proper includes & a member:
+
+final CoreContainer cores;
+
+
+
+And modifying the constructor:
+
+
+  public DirectSolrConnection( String instanceDir, String dataDir, String loggingPath )
+  {
+    // If a loggingPath is specified, try using that (this needs to happen first)
+    if( loggingPath != null ) {
+      File loggingConfig = new File( loggingPath );
+      if( !loggingConfig.exists() && instanceDir != null ) {
+        loggingConfig = new File( new File(instanceDir), loggingPath  );
+      }
+      if( loggingConfig.exists() ) {
+        System.setProperty("java.util.logging.config.file", loggingConfig.getAbsolutePath() ); 
+      }
+      else {
+        throw new SolrException( SolrException.ErrorCode.SERVER_ERROR, "can not find logging file: "+loggingConfig );
+      }
+    }
+    
+    // Initialize CoreContainer
+    try {
+      cores = new CoreContainer(new SolrResourceLoader(SolrResourceLoader.locateInstanceDir()));
+      SolrConfig solrConfig = new SolrConfig(instanceDir, SolrConfig.DEFAULT_CONF_FILE, null);
+      CoreDescriptor dcore = new CoreDescriptor(cores, "", solrConfig.getResourceLoader().getInstanceDir());
+      IndexSchema indexSchema = new IndexSchema(solrConfig, instanceDir+"/conf/schema.xml", null);
+      core = new SolrCore( null, dataDir, solrConfig, indexSchema, dcore);
+      cores.register("", core, false);
+      parser = new SolrRequestParsers( config );
+    } 
+    catch (Exception ee) {
+      throw new RuntimeException(ee);
+    }
+  }
+
+
+
+Should take care of this case.

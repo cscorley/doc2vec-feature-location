@@ -1,0 +1,3 @@
+While working on DERBY-4053, found that an exception from Connection.close was not handled properly by the server shutdown code which caused a new instance server startup to hang. Resolved the problem with Connection close but in general, we should
+1) Make sure an exception during shutdown processing does not prevent the remaining shutdown tasks, like closing the server socket from occurring. 
+2) Make sure any exceptions that occur in shutdown processing are reported to the console. 

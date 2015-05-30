@@ -1,0 +1,68 @@
+When I tried to delete ca 280000 records from a table while replication was running, the statement never completed.
+VisualVM reports a deadlock:
+
+Found one Java-level deadlock:
+=============================
+"Thread-2":
+  waiting to lock monitor 0x08164e4c (object 0xfa9db5f8, a java.lang.Object),
+  which is held by "main"
+"main":
+  waiting to lock monitor 0x08164d20 (object 0xfa9db608, a org.apache.derby.impl.services.replication.master.AsynchronousLogShipper),
+  which is held by "Thread-2"
+
+Java stack information for the threads listed above:
+===================================================
+"Thread-2":
+	at org.apache.derby.impl.services.replication.buffer.ReplicationLogBuffer.next(ReplicationLogBuffer.java:182)
+
+	waiting to lock 0xfa9db5f8> (a java.lang.Object)
+	at org.apache.derby.impl.services.replication.master.AsynchronousLogShipper.shipALogChunk(AsynchronousLogShipper.java:218)
+	locked 0xfa9db608> (a org.apache.derby.impl.services.replication.master.AsynchronousLogShipper)
+	at org.apache.derby.impl.services.replication.master.AsynchronousLogShipper.run(AsynchronousLogShipper.java:169)
+"main":
+	at org.apache.derby.impl.services.replication.master.AsynchronousLogShipper.workToDo(AsynchronousLogShipper.java:336)
+	waiting to lock 0xfa9db608> (a org.apache.derby.impl.services.replication.master.AsynchronousLogShipper)
+	at org.apache.derby.impl.services.replication.master.MasterController.workToDo(MasterController.java:472)
+	at org.apache.derby.impl.services.replication.buffer.ReplicationLogBuffer.switchDirtyBuffer(ReplicationLogBuffer.java:322)
+	at org.apache.derby.impl.services.replication.buffer.ReplicationLogBuffer.appendLog(ReplicationLogBuffer.java:148)
+	locked 0xfa9db5f8> (a java.lang.Object)
+	at org.apache.derby.impl.services.replication.master.MasterController.appendLog(MasterController.java:328)
+	at org.apache.derby.impl.store.raw.log.LogAccessFile.writeToLog(LogAccessFile.java:787)
+	locked 0xbb041788> (a org.apache.derby.impl.io.DirRandomAccessFile4)
+	at org.apache.derby.impl.store.raw.log.LogAccessFile.flushDirtyBuffers(LogAccessFile.java:534)
+	at org.apache.derby.impl.store.raw.log.LogAccessFile.switchLogBuffer(LogAccessFile.java:611)
+	locked 0xbb041618> (a org.apache.derby.impl.store.raw.log.LogAccessFile)
+	at org.apache.derby.impl.store.raw.log.LogAccessFile.reserveSpaceForChecksum(LogAccessFile.java:855)
+	at org.apache.derby.impl.store.raw.log.LogToFile.appendLogRecord(LogToFile.java:3737)
+	locked 0xbb041528> (a org.apache.derby.impl.store.raw.log.LogToFile)
+	at org.apache.derby.impl.store.raw.log.FileLogger.logAndDo(FileLogger.java:370)
+	locked 0xfab06ec8> (a org.apache.derby.impl.store.raw.log.FileLogger)
+	at org.apache.derby.impl.store.raw.xact.Xact.logAndDo(Xact.java:1193)
+	at org.apache.derby.impl.store.raw.data.LoggableActions.doAction(LoggableActions.java:221)
+	at org.apache.derby.impl.store.raw.data.LoggableActions.actionDelete(LoggableActions.java:64)
+	at org.apache.derby.impl.store.raw.data.BasePage.deleteAtSlot(BasePage.java:1149)
+	at org.apache.derby.impl.store.access.btree.BTreeScan.delete(BTreeScan.java:1386)
+	at org.apache.derby.impl.sql.execute.IndexChanger.doDelete(IndexChanger.java:369)
+	at org.apache.derby.impl.sql.execute.IndexChanger.delete(IndexChanger.java:544)
+	at org.apache.derby.impl.sql.execute.IndexSetChanger.delete(IndexSetChanger.java:250)
+	at org.apache.derby.impl.sql.execute.RowChangerImpl.deleteRow(RowChangerImpl.java:476)
+	at org.apache.derby.impl.sql.execute.DeleteResultSet.collectAffectedRows(DeleteResultSet.java:405)
+	at org.apache.derby.impl.sql.execute.DeleteResultSet.open(DeleteResultSet.java:137)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:372)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1234)
+	locked 0xfab36948> (a org.apache.derby.impl.jdbc.EmbedConnection40)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:624)
+	locked 0xfab36948> (a org.apache.derby.impl.jdbc.EmbedConnection40)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:556)
+	at org.apache.derby.impl.tools.ij.ij.executeImmediate(ij.java:330)
+	at org.apache.derby.impl.tools.ij.utilMain.doCatch(utilMain.java:508)
+	at org.apache.derby.impl.tools.ij.utilMain.runScriptGuts(utilMain.java:350)
+	at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:248)
+	at org.apache.derby.impl.tools.ij.Main.go(Main.java:215)
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:181)
+	at org.apache.derby.impl.tools.ij.Main.main(Main.java:73)
+	at org.apache.derby.tools.ij.main(ij.java:59)
+
+
+
+Found 1 deadlock.

@@ -1,0 +1,26 @@
+The scalar time and date functions should return NULL when argument is NULL. 
+
+Sample ij run that reproduces the bug
+
+    ij> create table dt (ts timestamp);
+    0 rows inserted/updated/deleted
+    ij> insert into dt values (
+{ts '2005-11-28 14:49:40'}
+), (NULL);
+    2 rows inserted/updated/deleted
+    ij> select * from dt;
+    TS                        
+    --------------------------
+    2005-11-28 14:49:40.0     
+    NULL                      
+
+    2 rows selected
+    ij> select 
+{fn hour(ts)}
+ from dt;
+    1          
+    -----------
+    14         
+    0
+
+might be a problem with other scalar functions too.

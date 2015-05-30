@@ -1,0 +1,11 @@
+During adventures in BinInterSedes, I noticed that Integers are written in an optimized fashion, but longs are not. Given that, in the general case, we have to write type information anyway, we might as well do the same optimization for Longs. That is to say, given that most longs won't have 8 bytes of information in them, why should we waste the space of serializing 8 bytes?
+
+This patch takes its inspiration from varint encoding per these two sources:
+http://javasourcecode.org/html/open-source/mahout/mahout-0.5/org/apache/mahout/math/Varint.java.html
+https://developers.google.com/protocol-buffers/docs/encoding
+
+Though, nicely enough, we don't actually have to use varints. Since we HAVE to write an 8 byte type header, we might as well include the number of bytes we had to write. I use zig zag encoding so that in the case of negative numbers, we see the benefit.
+
+This should decrease the amount of serialized long data by a good bit.
+
+Patch incoming. It passes test-commit in 0.11.

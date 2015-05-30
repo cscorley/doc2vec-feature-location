@@ -1,0 +1,6 @@
+Conditionals in generated code (MethodBuilder.conditionalIf and conditionalIfNull) generate code that only supports 16 bit jump offsets for the branch opcode (e.g. IFNONNULL)  or the GOTO opcode. Earlier code now detects the offset being larger than 32767.
+
+The JVM supports a 32bit jump offset instruction, GOTO_W, this can be used to support jump offsets that are bigger than 16bits (32767) for both the branch opcode
+and the GOTO instruction.
+
+This allow increasing the number of logical operators as seen in the query in the largeCodeGen test.

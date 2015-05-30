@@ -1,0 +1,23 @@
+When using the -t flag to tika, multi-byte content is destroyed in the output.
+
+Example:
+
+
+$ java -jar tika-app-0.4.jar -t ./test.txt
+I?t?rn?ti?n?liz?ti?n
+
+$ java -jar tika-app-0.4.jar -x ./test.txt
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title/>
+</head>
+<body>
+<p>Iñtërnâtiônàlizætiøn
+</p>
+</body>
+</html>
+
+
+
+see also:  http://drupal.org/node/622508#comment-2267918

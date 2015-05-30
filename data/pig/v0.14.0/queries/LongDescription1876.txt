@@ -1,0 +1,24 @@
+Currently Pig map type is untyped, which means map value is always of bytearray(ie. unknown) type. In PIG-1277, we allow unknown type to be a shuffle key, which somewhat relieve the problem. However, typed map is still beneficial in that:
+
+1. User can make semantic use of the map value type. Currently, user need to explicitly cast map value, which is ugly
+2. Though PIG-1277 allow unknown type be a shuffle key, the performance suffers. We don't have a raw comparator for the unknown type, instead, we need to instantiate the value object and invoke its comparator
+
+Here is proposed syntax for typed map:
+map[type]
+
+Typed map can be used in place of untyped map could occur. For example:
+a = load '1.txt' as(map[int]);
+b = foreach a generate (map[(i:int)])a0;  - - Map value is tuple
+b = stream a through `cat` as (m:map[
+{(i:int,j:chararray)}
+]);  - - Map value is bag
+
+MapLookup a typed map will result datatype of map value.
+a = load '1.txt' as(map[int]);
+b = foreach a generate $0#'key';
+
+Schema for b:
+b: 
+{int}
+
+The behavior of untyped map will remain the same.

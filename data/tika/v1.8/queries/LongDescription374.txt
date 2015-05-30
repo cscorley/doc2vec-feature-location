@@ -1,0 +1,28 @@
+We are using Tika 0.5 to parse files that are added to a Lucene index.  If we assign multiple threads to the parsing task we find that the AutoDetectParser.parse() method occasionally fails to return.  In our case, it appears that a HashMap inside Xerces gets corrupted, causing an infinite loop inside HashMap.get().  This seems to be a concurrency problem; we have not seen the issue when running single threaded.
+
+Other posts have stated that AutoDetectParser is thread-safe.  A quick look at the source code shows that an AutoDetectParser holds a MimeTypes which holds an XmlRootExtractor which holds a SAXParser.  As a result, a single SAXParser instance can end up simultaneously parsing documents in multiple threads.  The Java 1.4 SAXParser JavaDoc clearly states that "An implementation of SAXParser is NOT guaranteed to behave as per the specification if it is used concurrently by two or more threads."  More recent versions of the JavaDoc have removed the warning, though the presence of "setProperty()" certainly means that a SAXParser is not immutable.  As you can see from the stack trace below, properties seem to be the issue in this case.
+
+We've tried to work around the issue by constructing a new AutoDetectParser for each file we parse, but this doesn't solve the problem.  Multiple AutoDectectParsers can still end up sharing a single instance of MimeTypes, because TikaConfig holds a MimeTypes instance statically () and updates it without synchronization ().
+
+java.lang.Thread.State: RUNNABLE
+             at java.util.HashMap.get(HashMap.java:303)
+             at org.apache.xerces.util.ParserConfigurationSettings.getProperty(ParserConfigurationSettings.java:224)
+             at org.apache.xerces.impl.dtd.XMLDTDProcessor.reset(XMLDTDProcessor.java:344)
+             at org.apache.xerces.parsers.XML11Configuration.reset(XML11Configuration.java:984)
+             at org.apache.xerces.parsers.XML11Configuration.parse(XML11Configuration.java:806)
+             at org.apache.xerces.parsers.XML11Configuration.parse(XML11Configuration.java:768)
+             at org.apache.xerces.parsers.XMLParser.parse(XMLParser.java:108)
+             at org.apache.xerces.parsers.AbstractSAXParser.parse(AbstractSAXParser.java:1196)
+             at org.apache.xerces.jaxp.SAXParserImpl$JAXPSAXParser.parse(SAXParserImpl.java:555)
+             at org.apache.xerces.jaxp.SAXParserImpl.parse(SAXParserImpl.java:289)
+             at javax.xml.parsers.SAXParser.parse(SAXParser.java:198)
+             at org.apache.tika.detect.XmlRootExtractor.extractRootElement(XmlRootExtractor.java:63)
+             at org.apache.tika.mime.MimeTypes.getMimeType(MimeTypes.java:237)
+             at org.apache.tika.mime.MimeTypes.detect(MimeTypes.java:534)
+             at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:92)
+             at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:114)
+             at org.labkey.search.model.LuceneSearchServiceImpl.preprocess(LuceneSearchServiceImpl.java:170)
+             at org.labkey.search.model.AbstractSearchService.preprocess(AbstractSearchService.java:664)
+             at org.labkey.search.model.AbstractSearchService.getPreprocessedItem(AbstractSearchService.java:737)
+             at org.labkey.search.model.AbstractSearchService$7.run(AbstractSearchService.java:773)
+             at java.lang.Thread.run(Thread.java:637)

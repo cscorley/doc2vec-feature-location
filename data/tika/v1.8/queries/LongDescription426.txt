@@ -1,0 +1,27 @@
+I have more examples if you would like them.
+
+$ curl -s http://science.education.nih.gov/supplements/nih3/hearing/ose-scripts.js | java -jar tika-app-0.7.jar ose-scripts.js
+Exception in thread "main" org.apache.tika.exception.TikaException: TIKA-237: Illegal SAXException from org.apache.tika.parser.xml.DcXMLParser@571a75a2
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:142)
+	at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:99)
+	at org.apache.tika.cli.TikaCLI.process(TikaCLI.java:169)
+	at org.apache.tika.cli.TikaCLI.main(TikaCLI.java:62)
+Caused by: org.xml.sax.SAXParseException: Premature end of file.
+	at com.sun.org.apache.xerces.internal.util.ErrorHandlerWrapper.createSAXParseException(ErrorHandlerWrapper.java:195)
+	at com.sun.org.apache.xerces.internal.util.ErrorHandlerWrapper.fatalError(ErrorHandlerWrapper.java:174)
+	at com.sun.org.apache.xerces.internal.impl.XMLErrorReporter.reportError(XMLErrorReporter.java:388)
+	at com.sun.org.apache.xerces.internal.impl.XMLScanner.reportFatalError(XMLScanner.java:1414)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl$PrologDriver.next(XMLDocumentScannerImpl.java:1059)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl.next(XMLDocumentScannerImpl.java:648)
+	at com.sun.org.apache.xerces.internal.impl.XMLNSDocumentScannerImpl.next(XMLNSDocumentScannerImpl.java:140)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(XMLDocumentFragmentScannerImpl.java:511)
+	at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:808)
+	at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:737)
+	at com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(XMLParser.java:119)
+	at com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.parse(AbstractSAXParser.java:1205)
+	at com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser.parse(SAXParserImpl.java:522)
+	at javax.xml.parsers.SAXParser.parse(SAXParser.java:395)
+	at javax.xml.parsers.SAXParser.parse(SAXParser.java:198)
+	at org.apache.tika.parser.xml.XMLParser.parse(XMLParser.java:86)
+	at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:132)
+	... 3 more

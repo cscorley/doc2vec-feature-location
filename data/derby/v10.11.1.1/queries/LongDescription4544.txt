@@ -1,0 +1,16 @@
+Referencing a CLOB represented as a stream in generated columns can lead to data corruption or that the query fails.
+
+For instance, with 10.5:
+create table t (id int, myclob clob, clen generated always as (length(myclob)));
+
+	Insert CLOB using the streaming APIs (setCharacterStream).
+The exception 'java.lang.ClassCastException: org.apache.derby.iapi.types.ReaderToUTF8Stream cannot be cast to org.apache.derby.iapi.types.Resetable'
+
+
+
+On trunk the same query results in data corruption, and this isn't detected before the value is read back from store.
+
+Workaround:
+Don't use the streaming APIs when using CLOBs in generated columns. This increases the memory footprint, and may not feasible for large CLOBs.
+
+FYI, BLOB deals with this by materializing the value, which effectively equals to using the workaround mentioned above.

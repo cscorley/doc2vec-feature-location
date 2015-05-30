@@ -1,0 +1,9 @@
+Proposal to enhance Derby's Built-In DDL User Management. (See proposal spec attached to the JIRA).
+
+Abstract:
+
+This feature aims at improving the way BUILT-IN users are managed in Derby by providing a more intuitive and familiar DDL interface. Currently (in 10.1.2.1), Built-In users can be defined at the system and/or database level. Users created at the system level can be defined via JVM or/and Derby system properties in the derby.properties file. Built-in users created at the database level are defined via a call to a Derby system procedure (SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY) which sets a database property.
+
+Defining a user at the system level is very convenient and practical during the development phase (EOD) of an application - However, the user's password is not encrypted and consequently appears in clear in the derby.properties file. Hence, for an application going into production, whether it is embedded or not, it is preferable to create users at the database level where the password is encrypted.
+
+There is no real ANSI SQL standard for managing users in SQL but by providing a more intuitive and known interface, it will ease Built-In User management at the database level as well as Derby's adoption.

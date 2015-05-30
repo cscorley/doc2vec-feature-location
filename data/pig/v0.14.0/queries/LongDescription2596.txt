@@ -1,0 +1,23 @@
+When a Jython UDF returns boolean, we still get integer object in Pig, through describe show the right boolean type.
+Jython UDF:
+
+
+@outputSchema("retired:boolean")
+def isretired(age):
+    if age == None:
+        return None
+    elif age>=60:
+        return True
+    else:
+        return False
+
+
+Pig script:
+
+
+register 'scriptingudf.py' using jython as myfuncs;
+a = load 'student.txt' as (name:chararray, age:int, gpa:double);
+b = foreach a generate name, myfuncs.isretired(age);
+describe b;
+dump b;
+

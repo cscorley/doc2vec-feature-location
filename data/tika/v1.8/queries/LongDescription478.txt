@@ -1,0 +1,3 @@
+The change to fix TIKA-379 causes a premature generation of HTML <head> element and nested <title> by the XHTMLContentHandler being used by HtmlHandler.
+
+This then creates issues for any downstream content handler, as they can then get an empty <title> element, and <meta> elements inside of the <body> element (which is invalid).

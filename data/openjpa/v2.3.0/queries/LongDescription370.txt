@@ -1,0 +1,18 @@
+Employee class has a LoadFetchGroup annotation defined on the Rating field, when getRating was called, the address should be returned also. However, openjpa did not handle the LoadFetchGroup correctly, therefore, address was not eargly fetched.
+public class FGEmployee{
+    @Id
+    private int id;
+
+    @OneToOne(fetch=FetchType.LAZY) 
+    private FGAddress address;
+
+    @Basic(fetch=FetchType.LAZY)
+    @LoadFetchGroup("AddressFetchGroup")
+    private String rating;
+
+    @ManyToOne(fetch=FetchType.LAZY)
+    private FGManager manager;
+
+..
+}
+

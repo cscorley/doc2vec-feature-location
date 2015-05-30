@@ -1,0 +1,12 @@
+Pig is able to automatically figure out the jar containing the LoadFunc and ship them to backend. However, the following script didn't:
+
+
+A = load '1.txt' using SomeLoadFunc();
+B = filter A by $0==0;
+C = filter A by $1==1;
+D = join B by $0, C by $0;
+dump D;
+
+
+
+The reason is this query is a multiquery (A is reused and thus create an implicit split). When we merge multiquery into one job, we didn't merge udfs list properly.

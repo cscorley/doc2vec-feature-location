@@ -1,0 +1,1 @@
+We ran into a bug with Pig/HCatalog integration on the trunk. The issue is that JobControlCompiler calls the adjustNumReducers method just before it calls setLocation on all of the LoadFuncs. This causes problems, since some loaders (i.e.,  HCatLoader) need setLocation to be called before it can respond to getStatistics with it's data size.

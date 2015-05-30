@@ -1,0 +1,7 @@
+outstandingMsgSet is a Set, so it is not thread-safe. The detail is as below:
+
+MessageConsumeRetryTask is In a timer, so in timer thread, when the timer is up, it will cause a outstandingMsgSet add operation:
+MessageConsumeRetryTask.run() -> outstandingMsgSet.add(message) -> outstandingMsgSet.add(message)
+
+At the same time, in other thread(maybe main thread), there may be other operations of this outstandingMsgSet:
+MessageConsumeCallback.operationFinished() -> messageConsumed(Message message) -> outstandingMsgSet.remove(message);

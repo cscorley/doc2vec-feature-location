@@ -1,0 +1,8 @@
+When I run the tests of BookKeeper, I found that the test running forever and cannot be finished. The log has the exception that is "junit.framework.AssertionFailedError: Return code is not OK: -6". 
+
+I thought this issuse might be come from the synchronization mechanism used by the BookieReadWriteTest.
+
+for example in BookieReadWriteTest.TestReadWriteAsyncSingleClient()
+1. when called the function lh.asyncAddEntry(entry.array(), this ,sync), the call back function is addComplete(int, LedgerHandle, long, Object)
+2. we can see that in addComplete(..) the function will be fail when rc != BKException.Code.OK, and the x.counter++ will not be called never.
+3. we assume that the function addComplete(..) is fail. so, in TestReadWriteAsyncSingleClient(), the while loop enter endless loop because sync.counter < numEntriesToWrite is right forever.

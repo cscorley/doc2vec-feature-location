@@ -1,0 +1,56 @@
+drop schema user2 restrict should fail since user3 does not own the schema user2.
+
+ij version 10.3
+ij> connect 'wombat;create=true' user 'user1' as user1;
+WARNING 01J14: SQL authorization is being used without first enabling authentication.
+ij> connect 'wombat;create=true' user 'user2' as user2;
+WARNING 01J01: Database 'wombat' not created, connection made to existing database instead.
+WARNING 01J14: SQL authorization is being used without first enabling authentication.
+ij(USER2)> create schema user2;
+0 rows inserted/updated/deleted
+ij(USER2)> connect 'wombat;create=true' user 'user3' as user3;
+WARNING 01J01: Database 'wombat' not created, connection made to existing database instead.
+WARNING 01J14: SQL authorization is being used without first enabling authentication.
+ij(USER3)> drop schema user2 restrict;
+0 rows inserted/updated/deleted
+
+sysinfo:
+
+------------------ Java Information ------------------
+Java Version:    1.4.2_12
+Java Vendor:     Sun Microsystems Inc.
+Java home:       c:\jdk142\jre
+Java classpath:  classes;.
+OS name:         Windows XP
+OS architecture: x86
+OS version:      5.1
+Java user name:  Yip
+Java user home:  C:\Documents and Settings\Yip
+Java user dir:   C:\work3\derby\trunk
+java.specification.name: Java Platform API Specification
+java.specification.version: 1.4
+--------- Derby Information --------
+JRE - JDBC: J2SE 1.4.2 - JDBC 3.0
+[C:\work3\derby\trunk\classes] 10.3.0.0 alpha - (446666)
+------------------------------------------------------
+----------------- Locale Information -----------------
+Current Locale :  [English/United States [en_US]]
+Found support for locale: [de_DE]
+         version: 10.3.0.0 alpha - (446666)
+Found support for locale: [es]
+         version: 10.3.0.0 alpha - (446666)
+Found support for locale: [fr]
+         version: 10.3.0.0 alpha - (446666)
+Found support for locale: [it]
+         version: 10.3.0.0 alpha - (446666)
+Found support for locale: [ja_JP]
+         version: 10.3.0.0 alpha - (446666)
+Found support for locale: [ko_KR]
+         version: 10.3.0.0 alpha - (446666)
+Found support for locale: [pt_BR]
+         version: 10.3.0.0 alpha - (446666)
+Found support for locale: [zh_CN]
+         version: 10.3.0.0 alpha - (446666)
+Found support for locale: [zh_TW]
+         version: 10.3.0.0 alpha - (446666)
+------------------------------------------------------

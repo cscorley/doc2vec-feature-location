@@ -1,0 +1,9 @@
+I have a simple failing unit test that exercises a small portion of the javax.persistence.lock.scope=Extended property. The failing scenario is as follows:
+
+ManyToMany relationship between A(owner) and B.
+
+Em1 - Find A, no lock
+Em1 - Refresh A, PESSIMISTIC_FORCE_INCREMENT and javax.persistence.lock.scope=PessimisticLockScope.EXTENDED – this SHOULD lock the join table for A_B
+Em2 - Find, lock B. Remove B.  should block while trying to remove from Join table.
+
+I will post the unit test which demonstrates the problem shortly.

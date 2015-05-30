@@ -1,0 +1,25 @@
+I had a scenario, which required me to change the STRSPLIT code. The scenario was as follows:
+
+I have a data like:
+1       A|1|1   some
+2       B|2|2   data
+3       C|3|3   hadoop
+
+
+Need output like this :
+
+1    A    some
+1    1    some
+1    1    some
+2    B    data
+2    2     data
+2    2     data
+3    C    hadoop
+3    3    hadoop
+3    3    hadoop
+
+I was trying to use STRSPLIT($1,'\\\|') which was returning a tuple, If I do flatten on it, it converts the data into columns.
+
+If we return a bag of tuples, we can easily use flatten() to convert it into rows, plus can also convert that into Tuple using TOTUPLE() UDF (if someone just want to use it as tuple)
+
+After the suggestion from Daniel Dai, I am creating a JIRA ticket to create a new UDF STRSPLITTOBAG, which will return a bag of tuples as suggested above.

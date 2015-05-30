@@ -1,0 +1,12 @@
+To reproduce, try the following URL for example app:
+
+http://localhost:8983/solr/select?indent=on&version=2.2&q=*%3A*&start=0&rows=10&fl=*%2Cscore&qt=dismax&wt=standard&debugQuery=on&explainOther=&hl.fl=&bf=price
+
+You'll see the following debug info at parsedquery tag:
+
+FunctionQuery(org.apache.solr.schema.SortableFloatFieldSource:sfloat(price))^1.0)
+
+Note that there are three ")", though "(" are two. This happens when you set boost to 1.0 (bf=func^1.0).
+If you use othat than 1.0 (try the following URL for boost=2.0), this doesn't happen.
+
+http://localhost:8983/solr/select?indent=on&version=2.2&q=*%3A*&start=0&rows=10&fl=*%2Cscore&qt=dismax&wt=standard&debugQuery=on&explainOther=&hl.fl=&bf=price%5E2.0

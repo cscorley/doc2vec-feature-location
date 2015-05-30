@@ -1,0 +1,13 @@
+The eclipse plugin allows you to create multiple network server processes within the same project through a gap in the checking mechanism, but you can't close all those you create that way from within eclipse.
+
+To duplicate do the following:
+
+	setup the plugin and apply the eclipse nature to a project
+	start network server on the default port.
+	switch the port number using the derby preferences e.g. to 1528
+	go to the derby task - you see that the networkserver start/stop is a toggle, and because last time you started a networkserver process, it is now on 'stop'. Run the 'stop Networkserver. This will fail, because network server is not running on port 1528, so cannot be stopped.
+The toggle will now go back to 'start'.
+	start networkserver on port 1528.
+	trying this 'trick' in reverse - i.e. for the start - does not work, if the start fails, the toggle remains on 'start'.
+
+

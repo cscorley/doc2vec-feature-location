@@ -1,0 +1,43 @@
+The 'old' functionTests harness has property useprocess, which, when set to false, causes tests within a suite to run from within one jvm, thus creating databases and files in the same directory.
+
+This functionality is useful for debugging test runs within an IDE.
+
+Also, it is potentially useful for speeding up testruns.
+
+However, currently, there are some problems and shortcomings of this functionality.
+
+	For instance, when running a networkserver test with framework DerbyNet of type .java one sees the message 'Security Manager not installed' show up within the test output, thus causing the test to fail.
+	running derbynet(client)mats suite with useprocess=false doesn't actually make things any faster,  because networkserver gets started fresh for every test.
+  However, it should be feasible to start networkserver with the first test in a suite, then use that 
+  networkserver  for subsequent tests and shutdown networkserver when the suite finishes.
+
+
+
+
+	Also, (reported by Mike Matrigali off-list) currently, the following:
+------------------
+java -Duseprocess=false -Doutputdir=<snippeddirname>/newout  -Dkeepfiles=true org.apache.derbyTesting.functionTests.harness.RunTest lang/closed.java
+------------------
+makes the test fall out of the harness with: Exception in thread "main"
+and in the .tmp:
+------------------
+java.security.AccessControlException: access denied (java.io.FilePermission <snippeddirname>\newout read)
+        at java.security.AccessControlContext.checkPermission(AccessControlContext.java:269)
+        at java.security.AccessController.checkPermission(AccessController.java:401)
+        at java.lang.SecurityManager.checkPermission(SecurityManager.java:524)
+        at java.lang.SecurityManager.checkRead(SecurityManager.java:863)
+        at java.io.File.exists(File.java:678)
+        at java.io.Win32FileSystem.canonicalize(Win32FileSystem.java:360)
+        at java.io.File.getCanonicalPath(File.java:513)
+        at org.apache.derbyTesting.functionTests.harness.RunTest.execTestNoProcess(RunTest.java:2370)
+        at org.apache.derbyTesting.functionTests.harness.RunTest.testRun(RunTest.java:443)
+        at org.apache.derbyTesting.functionTests.harness.RunTest.main(RunTest.java:302)
+--------------------------------
+  removing the -Doutputdir gets around that problem, but shouldn't be needed.
+
+
+
+
+	there is the reference http://www.nabble.com/AccessControlException-when-running-functional-tests-t1321374.html#a3526947
+  I couldn't duplicate this yet, maybe more info to follow.
+

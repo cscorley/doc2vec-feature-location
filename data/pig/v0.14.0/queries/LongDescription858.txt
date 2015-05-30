@@ -1,0 +1,40 @@
+Consider the query:
+
+
+A = load 'a';
+B = order A by $0;
+C = join A by $0, B by $0;
+explain C;
+
+
+works. But if replicated join is used instead
+
+
+A = load 'a';
+B = order A by $0;
+C = join A by $0, B by $0 using "replicated";
+explain C;
+
+
+this fails with ERROR org.apache.pig.tools.grunt.Grunt - ERROR 2034: Error compiling operator POFRJoin
+relevant stacktrace:
+
+
+Caused by: java.lang.RuntimeException: org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompilerException: ERROR 2034: Error compiling operator POFRJoin
+        at org.apache.pig.backend.hadoop.executionengine.HExecutionEngine.explain(HExecutionEngine.java:306)
+        at org.apache.pig.PigServer.explain(PigServer.java:574)
+        ... 8 more
+Caused by: org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompilerException: ERROR 2034: Error compiling operator POFRJoin
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler.visitFRJoin(MRCompiler.java:942)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POFRJoin.visit(POFRJoin.java:173)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler.compile(MRCompiler.java:342)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler.compile(MRCompiler.java:327)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler.compile(MRCompiler.java:233)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher.compile(MapReduceLauncher.java:301)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher.explain(MapReduceLauncher.java:278)
+        at org.apache.pig.backend.hadoop.executionengine.HExecutionEngine.explain(HExecutionEngine.java:303)
+        ... 9 more
+Caused by: java.lang.ArrayIndexOutOfBoundsException: -1
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler.visitFRJoin(MRCompiler.java:901)
+        ... 16 more
+

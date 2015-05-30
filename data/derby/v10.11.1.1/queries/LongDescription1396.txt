@@ -1,0 +1,17 @@
+The class org.apache.derby.impl.drda.ReEncodedInputStream seems to have a bug...
+
+In this class, there exists next code.
+
+        int count;
+	if(( count = reader.read(decodedBuffer_, 0, BUFFERED_CHAR_LEN )) < 1 )
+{
+	    return null;
+	}
+
+In this code, the condition of "<1" was intended to judge whether reader was read entirely.
+However,spec of java api says that reader returns -1 if the end of the reader has been reached and not 0.
+Then "<1" is not appropriate.
+
+Current code judges 0 as the end of reader.
+Then, if 0 was returned in the meaning that "No character was read now but may continue" as possible in java api, 
+this code will not work correctly...

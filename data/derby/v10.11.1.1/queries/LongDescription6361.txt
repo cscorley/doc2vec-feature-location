@@ -1,0 +1,21 @@
+There are many examples of statements failing because Derby has not implicitly created the schema associated with the current user. You don't see this if the schema is the default APP schema. But if the user is anyone other than APP, then various statements can fail. Maybe we should implicitly create a schema even if the user isn't APP. Right now, you get an error like this:
+
+ERROR 42Y07: Schema 'ROOT' does not exist
+
+The following script shows an example of this problem:
+
+connect 'jdbc:derby:memory:db;create=true;user=esq';
+
+create table licreq( domain varchar( 10 ) );
+
+connect 'jdbc:derby:memory:db;user=root';
+
+– fails
+ALTER TABLE esq.licreq ADD COLUMN u_domain GENERATED ALWAYS AS (UPPER(domain));
+
+connect 'jdbc:derby:memory:db;user=app';
+
+– succeeds
+ALTER TABLE esq.licreq ADD COLUMN u_domain GENERATED ALWAYS AS (UPPER(domain));
+
+

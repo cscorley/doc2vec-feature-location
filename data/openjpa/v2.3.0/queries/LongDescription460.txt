@@ -1,0 +1,41 @@
+The default timeTypeName – "Time" cause InformixDB reporting SQLException:
+
+32747  mdd  TRACE  [main] openjpa.jdbc.SQL - <t 1090273532, conn 1260145436> executing stmnt 2021947524 CREATE TABLE EmpBean (empid INTEGER NOT NULL, bonus DOUBLE PRECISION, execLevel INTEGER, hireDate DATE, hireTime TIME, hireTimestamp DATE, isManager BOOLEAN, name VARCHAR(40), salary DOUBLE PRECISION, dept_deptno INTEGER, home_street VARCHAR(40), work_street VARCHAR(40), PRIMARY KEY (empid)) LOCK MODE ROW
+32827  mdd  TRACE  [main] openjpa.jdbc.SQL - <t 1090273532, conn 1260145436> [80 ms] spent
+Exception in thread "main" <openjpa-1.0.1-SNAPSHOT-runknown nonfatal general error> org.apache.openjpa.util.GeneralException: Type (time) not found. 
+{stmnt 2021947524 CREATE TABLE EmpBean (empid INTEGER NOT NULL, bonus DOUBLE PRECISION, execLevel INTEGER, hireDate DATE, hireTime TIME, hireTimestamp DATE, isManager BOOLEAN, name VARCHAR(40), salary DOUBLE PRECISION, dept_deptno INTEGER, home_street VARCHAR(40), work_street VARCHAR(40), PRIMARY KEY (empid)) LOCK MODE ROW} [code=-9628, state=IX000]
+	at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:549)
+	at org.apache.openjpa.jdbc.meta.MappingTool.run(MappingTool.java:1069)
+	at org.apache.openjpa.jdbc.meta.MappingTool.run(MappingTool.java:980)
+	at org.apache.openjpa.jdbc.meta.MappingTool.main(MappingTool.java:921)
+Caused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: Type (time) not found. {stmnt 2021947524 CREATE TABLE EmpBean (empid INTEGER NOT NULL, bonus DOUBLE PRECISION, execLevel INTEGER, hireDate DATE, hireTime TIME, hireTimestamp DATE, isManager BOOLEAN, name VARCHAR(40), salary DOUBLE PRECISION, dept_deptno INTEGER, home_street VARCHAR(40), work_street VARCHAR(40), PRIMARY KEY (empid)) LOCK MODE ROW}
+ [code=-9628, state=IX000]
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.wrap(LoggingConnectionDecorator.java:192)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.access$800(LoggingConnectionDecorator.java:57)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection$LoggingStatement.executeUpdate(LoggingConnectionDecorator.java:754)
+	at org.apache.openjpa.lib.jdbc.DelegatingStatement.executeUpdate(DelegatingStatement.java:114)
+	at org.apache.openjpa.jdbc.schema.SchemaTool.executeSQL(SchemaTool.java:1185)
+	at org.apache.openjpa.jdbc.schema.SchemaTool.createTable(SchemaTool.java:949)
+	at org.apache.openjpa.jdbc.schema.SchemaTool.add(SchemaTool.java:526)
+	at org.apache.openjpa.jdbc.schema.SchemaTool.add(SchemaTool.java:344)
+	at org.apache.openjpa.jdbc.schema.SchemaTool.run(SchemaTool.java:321)
+	at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:497)
+	... 3 more
+
+
+when time has been created using a date type, at runtime we get time exception
+
+<openjpa-1.0.1-SNAPSHOT-runknown nonfatal general error> org.apache.openjpa.persistence.PersistenceException: Can't convert to: Time
+	at org.apache.openjpa.jdbc.sql.DBDictionary.newStoreException(DBDictionary.java:3851)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:97)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:83)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:59)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.initialize(JDBCStoreManager.java:260)
+
+...
+Caused by: java.sql.SQLException: Can't convert to: Time
+	at com.informix.util.IfxErrMsg.getSQLMinorException(IfxErrMsg.java:511)
+	at com.informix.jdbc.IfxObject.toTime(IfxObject.java:590)
+	at com.informix.jdbc.IfxResultSet.getTime(IfxResultSet.java:1281)
+	at org.apache.commons.dbcp.DelegatingResultSet.getTime(DelegatingResultSet.java:208)
+...

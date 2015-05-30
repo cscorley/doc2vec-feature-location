@@ -1,0 +1,9 @@
+An issue similar to TIKA-812. This time it's about old Works Word Processor formats. They use an OLE2 structure, but the top-level entry is called "MatOST", they are not supported by the OfficeParser. I would like to:
+
+
+	Add a magic to tika-mimetypes.xml to mark the file as ms-works if "MatOST" is found. (After TIKA-806 we officially like those).
+	Add an 'if' to POIFSContainerDetector to look for MatOST.
+
+
+
+I'm not creating a separate media type for this (like I did in TIKA-812) because no parser supports it anyway. In TIKA-812 it was necessary, because ExcelParser can't work with all vnd.ms-works files but can work with 7.0 spreadsheets. In this case there is no gain in a separate mime type.

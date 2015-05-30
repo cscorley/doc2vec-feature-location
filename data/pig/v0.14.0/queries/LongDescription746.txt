@@ -1,0 +1,76 @@
+The script below works on Pig 2.0 local mode but fails when I run the same program on the grid.
+
+I was attempting to create a workaround for PIG-710.
+
+Here's the error:
+
+
+Caused by: org.apache.pig.backend.executionengine.ExecException: ERROR 2113: SingleTupleBag should never be serialized
+or serialized.
+        at org.apache.pig.data.SingleTupleBag.write(SingleTupleBag.java:129)
+        at org.apache.pig.data.DataReaderWriter.writeDatum(DataReaderWriter.java:147)
+        at org.apache.pig.data.DefaultTuple.write(DefaultTuple.java:291)
+        at org.apache.pig.impl.io.PigNullableWritable.write(PigNullableWritable.java:83)
+        at
+org.apache.hadoop.io.serializer.WritableSerialization$WritableSerializer.serialize(WritableSerialization.java:90)
+        at
+org.apache.hadoop.io.serializer.WritableSerialization$WritableSerializer.serialize(WritableSerialization.java:77)
+        at org.apache.hadoop.mapred.MapTask$MapOutputBuffer.collect(MapTask.java:439)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapReduce$Map.collect(PigMapReduce.java:101)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.runPipeline(PigMapBase.java:219)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.map(PigMapBase.java:208)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapReduce$Map.map(PigMapReduce.java:86)
+        at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:47)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:227)
+
+
+
+Here's the program:
+
+
+A = load 'filterbug.data' using PigStorage() as ( id, str );
+
+A = foreach A generate
+        id,
+        str,
+        (
+        str matches 'hello' or
+        str matches 'hello'
+        ? 1 : 0
+        )                       as matched;
+describe A;
+
+B = group A by ( id );
+describe B;
+
+D = foreach B generate
+        group,
+        SUM(A.matched)  as matchedcount,
+        A;
+describe D;
+
+E = filter D by matchedcount > 0;
+describe E;
+
+F = foreach E generate
+        FLATTEN(A);
+describe F;
+dump F;
+
+
+
+Here's the data filterbug.data
+
+
+a       hello
+a       goodbye
+b       goodbye
+c       hello
+c       hello
+c       hello
+e       what
+
+
+
+
+

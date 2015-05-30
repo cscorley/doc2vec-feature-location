@@ -1,0 +1,4 @@
+the relevant code (org.apache.solr.handler.component.SpellCheckComponent) only checks if the size of the queryConverters map equals 1 and throws a RuntimeException with the message "One and only one queryConverter may be defined" if it does not.
+But if there are no query converters defined this message is quite misleading.
+
+Use the SpellingQueryConverter as the default if none are defined in the configuration instead of a misleading error message.

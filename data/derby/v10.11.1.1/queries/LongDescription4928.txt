@@ -1,0 +1,4 @@
+The synchronization in BasicDependencyManager is prone to deadlock, because database locks are obtained while holding the monitor on "this".
+Problem observed when testing the automatic index statistics update prototype.
+
+There are comments in the file suggesting that in-memory dependencies should be accessed while holding the Java monitor, but the monitor should not be held when accessing stored dependencies. The implementation is breaking this rule/suggestion.

@@ -1,0 +1,7 @@
+org.apache.derby.impl.store.raw.data.CachedPage.readPage() loops forever  if  read  from the container 
+keeps failing  with an  IOException.  On debug build it marks the system as corrupt , but in non-debug builds
+it just keeps retrying to read the page from the disk. 
+
+I think that is not good,  if a disk fails for some reason when attempting to read a page;   Derby will just 
+hog the cpu and user will not know why. 
+

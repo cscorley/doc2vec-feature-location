@@ -1,0 +1,6 @@
+A log statement should be guarded by its matching severity level. A log statement like
+
+         if (LOG.isTraceEnabled()) {
+            LOG.info("Session closing: 0x" + Long.toHexString(sessionId));
+
+doesn't make much sense because the log message is only printed out when TRACE-level is enabled. This inconsistency was possibly introduced when developers demoted the original log statement from INFO but forgot to change its corresponding log severity level.

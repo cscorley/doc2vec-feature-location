@@ -1,0 +1,29 @@
+The task SchemaToolTask does not implements
+"dropTables" argument. According to the documentation [1] this task can
+take "dropTables" arguments
+but when I run as shown below I get this error: The <schematool> type
+doesn't support the "droptables" attribute.
+
+    <schematool dropTables="false" action="refresh">
+            <fileset dir="$
+{build.sql.dir}
+">
+                <include name="schema.xml" />
+            </fileset>
+            <config
+propertiesFile="$
+{prototype.src.model.base}
+/META-INF/persistence.xml" />
+        </schematool>
+
+In fact, I looked in source code and this task has no set method for
+"dropTables"argument.
+
+I use :
+revision.number=422266:683325
+openjpa.version=1.2.0
+
+[1]
+http://openjpa.apache.org/builds/1.2.0/apache-openjpa-1.2.0/docs/manual/ref_guide_schema_schematool.html
+
+Thanks, 

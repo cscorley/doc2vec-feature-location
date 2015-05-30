@@ -1,0 +1,14 @@
+I would like to address the following issues
+
+1. Reduce the priority of the text/html magics. WIth the default priority I have lots of .eml, .emlx, mbox and .mht files which contain html content but should not be classified as XML. The reason for that is that the HTML magic looks for <html> between 0 and 8192 offsets. In Aperture we solved this with an allowsWhiteSpace switch, so that the <html> can be prepended with whitespace but not with other content. Since there is no such switch in Tika, I suggest reducing the priority of the magic in tika-mimetypes. I attach an .mht file from the Aperture test document suite which exhibits the problem.
+
+2. Add support for detecting Foxmail. They come from Foxmail, a mail client popular in china, they are roughly the same as mbox, but use a different separator. 
+
+3. In case of OOXML files, the container aware detector computes the mimetype by taking the part of [Content_Types.xml], namely:
+
+<Default Extension="bin" ContentType="application/vnd.ms-excel.sheet.binary.macroEnabled.main"/>
+
+then it takes the default content type and returns it with the part after the last dot removed. There are two issues with this approach
+
+ a. some documents use macroEnabled, while other use macroenabled so the case is not standard
+ b. the "official" mime types, contain a '12' suffix at the end, as shown at: http://technet.microsoft.com/en-us/library/ee309278%28office.12%29.aspx. I suggest to standardize on lowercase and add the '12' to the appropriate files.

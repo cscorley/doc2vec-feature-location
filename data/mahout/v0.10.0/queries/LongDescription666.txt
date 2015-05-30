@@ -1,0 +1,3 @@
+The directories created during the times() and timesSquared() methods in DistributedSparseMatrix leave behind a lot of cruft. While the individual files are tagged with deleteOnExit, but the directories are not. Also, but not deleting them until JVM exit, a job that does repeated matrix/vector multiplies, like DistributedLanczosSolver, creates a lot of temp files that stick around for the whole run, even though the results they contain are read once and then never again. 
+
+Our cluster admins enforce both file count and size quotas, so since 5 temp files/directories are created on each iteration of DistributedLanczosSolver, we're constantly bumping into the quota with large SVDs. 

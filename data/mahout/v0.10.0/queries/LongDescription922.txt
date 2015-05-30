@@ -1,0 +1,16 @@
+Per tests on Sebastian's extremely sparse large inputs (4.5m x 4.5 m). 
+
+AB' performance is still a bottleneck if one uses power iterations. For sufficiently sparse inputs it may turn out that mappers cannot form the entire blocked product in memory for Y_i. the Y_i block is going to be of size s x (k+p) where s is number of A rows read in a given split. in cases when A is extra sparse, such blocks may actually take more space than the A input. When this happens, s is constrained by -oh parameter and combiners and reducers get flooded by partial oh x (k+p) outer products and seem to have hard time to sort and shuffle them (especially high pressure on combiners has been seen). 
+
+So, several improvements in this patch: 
+– present Y_i blocks as dense (they are beleived to be dense anyway, so keeping them as sparse just eats up RAM by sparse encoding, so at least twice as high blocks can actually be formed);
+– eliminate combining completely. instead of persisting and sorting and summing up partial product in combiner, sum up map-side. if block height is still insufficient and cannot be extended due RAM constraints (unlikely for Sebastien's 4.5 x 4.5 mln case) just perform additional passes over B'. Since computation is cpu bound, I/O overhead from additional passes over B' should not register. Besides, distributed cache option is now provided to efficiently address that. However, elimination of combiner phase for high load cases is probably going to have a dramatic effect.
+– set max block height for Q'A and AB' separately instead of single -oh option. Their scaling seems to be quite different in terms of OOM danger. in my experiments Q'A blocking enters red zone at ~150,000 already whereas AB' block height can freely roam over a million easily for the same RAM. I provide 200,000 (~160Mb for k+p=100) as a default for AB' blocks which should be enough for Sebastien's 4.5 x 4.5 mln sparse case without causing more than one block. 
+– provided broadcast option (--broadcast, -br) to enable/disable using DistributedCache for broadcasting B' in AB' job and R-hat during QR step.
+– forcing --reduceTasks (-t) option as non-optional. I had at least two cases when people did not set it and it is wildly important for parallelism of these jobs.
+
+Miscellanea: 
+– Test run time: removed redundant tests and checks for SSVD. reduced test input size.
+– Per Nathan's suggestion, p parameter is now optional, default is 15 (single task running time is proportional to (k+p), so I want to be careful not to run it too high by default).
+
+Current patch branch work is here: https://github.com/dlyubimov/mahout-commits/tree/MAHOUT-922

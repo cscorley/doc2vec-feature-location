@@ -1,0 +1,19 @@
+If multiple parsers exist that support the same mime type, and AutoDetectParser (or another CompositeParser) is used, then the parse output does not indicate which of the alternative parsers was actually used. I think that the name of the parser (FQCN?) should be added to the metadata.
+
+Something like this trivial patch:
+
+
+
+Index: tika-core/src/main/java/org/apache/tika/parser/CompositeParser.java
+===================================================================
+--- tika-core/src/main/java/org/apache/tika/parser/CompositeParser.java	(revision 1135167)
++++ tika-core/src/main/java/org/apache/tika/parser/CompositeParser.java	(working copy)
+@@ -238,6 +238,7 @@
+         try {
+             TikaInputStream taggedStream = TikaInputStream.get(stream, tmp);
+             TaggedContentHandler taggedHandler = new TaggedContentHandler(handler);
++            metadata.add("X-Parsed-By", parser.getClass().getName());
+             try {
+                 parser.parse(taggedStream, taggedHandler, metadata, context);
+             } catch (RuntimeException e) {
+

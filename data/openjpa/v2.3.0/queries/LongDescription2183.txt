@@ -1,0 +1,7 @@
+Setting 
+Query q = em.createQuery(qs);
+q.setHint("openjpa.hint.RelaxParameterTypeChecking", "true");
+results in 
+Warn: "openjpa.hint.RelaxParameterTypeChecking" is not a supported query hint. May be you meant "openjpa.hint.ParameterMarkerInQuery"?
+
+I assume the reason is that the openjpa.hint.RelaxParameterTypeChecking hint is not supported by any ProductDerivation and thus being refused in org.apache.openjpa.persistence.HintHandler#record.

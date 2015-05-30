@@ -1,0 +1,41 @@
+On the network driver, the ResultSet.deleteRow() method causes the getXXX() methods in the following rows to return null values. It should be possible to use the getXXX methods after positioning the cursor in the next row. It also has this side effect on other result sets if these are created with the same prepared statement.
+
+The repro case is uploaded as an attachment "testDeleteRow.java"
+
+Output of the report case:
+
+List all rows
+Row: 1: Testing 1
+Row: 2: Testing 2
+Row: 3: Testing 3
+Row: 4: Testing 4
+Row: 5: Testing 5
+Row: 6: Testing 6
+Row: 7: Testing 7
+Row: 8: Testing 8
+Row: 9: Testing 9
+Row: 10: Testing 10
+
+List all rows and delete first row
+Row: 1: Testing 1
+Row deleted!
+Row: 0: null
+Row: 0: null
+Row: 0: null
+Row: 0: null
+Row: 0: null
+Row: 0: null
+Row: 0: null
+Row: 0: null
+Row: 0: null
+
+List all rows
+Row: 2: Testing 2
+Row: 3: Testing 3
+Row: 4: Testing 4
+Row: 5: Testing 5
+Row: 6: Testing 6
+Row: 7: Testing 7
+Row: 8: Testing 8
+Row: 9: Testing 9
+Row: 10: Testing 10

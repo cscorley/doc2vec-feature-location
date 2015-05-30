@@ -1,0 +1,48 @@
+Hi.
+Looks like PIG-3020
+but works in a different way.
+Our pig version is: 
+Apache Pig version 0.10.0-cdh4.2.0 (rexported) 
+compiled Feb 15 2013, 12:20:54
+
+Accoring to release note, PIG-3020 is included into CDH 4.2 dist
+http://archive.cloudera.com/cdh4/cdh/4/pig-0.10.0-cdh4.2.0.CHANGES.txt
+
+The problem:
+We want to do self join to get cross-product
+
+
+a = load '/input' as (key, x);
+
+a_group = group a by key;
+b = foreach a_group {
+  y = a.x;
+  pair = cross a.x, y;
+  generate flatten(pair);
+}
+
+dump b;
+
+
+
+And an error:
+
+
+ERROR org.apache.pig.tools.grunt.Grunt - ERROR 2270: Logical plan invalid state: duplicate uid in schema : 1-7::x#16:bytearray,y::x#16:bytearray
+
+
+
+Here is workaround 
+
+
+a = load '/input' as (key, x:int);
+
+a_group = group a by key;
+b = foreach a_group {
+  y = foreach a generate -(-x);
+  pair = cross a.x, y;
+  generate flatten(pair);
+}
+
+dump b;
+

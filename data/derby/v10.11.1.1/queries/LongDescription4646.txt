@@ -1,0 +1,9 @@
+The small device platform we support based on CDC/Foundation 1.1 does not support the NIO based method used by Derby to guarantee against dual boots of a database by different VMs. It would be nice to have a way to guarantee against this scenario.
+
+Currently, one would have to use the property derby.database.forceDatabaseLock with the ensuing hassle of cleaning away orphaned lock files.
+The default behavior is "false", so then all Derby does if to print a warning to derby.log and System.err.
+
+Cf discussion in 
+https://issues.apache.org/jira/browse/DERBY-4179?focusedCommentId=12864945&page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#action_12864945
+
+Apparently this is not an issue on the Windows platform.

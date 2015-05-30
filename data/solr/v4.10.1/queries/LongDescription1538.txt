@@ -1,0 +1,32 @@
+The code to get the latest accessed items in ConcurrentLRUCache looks like
+
+ConcurrentLRUCache.java
+
+ public Map<K, V> getOldestAccessedItems(int n) {
+    markAndSweepLock.lock();
+    Map<K, V> result = new LinkedHashMap<K, V>();
+    TreeSet<CacheEntry> tree = new TreeSet<CacheEntry>();
+    try {
+   ...
+    } finally {
+      markAndSweepLock.unlock();
+    }
+
+
+
+(this method is apparently unused though) and in 
+
+
+
+   public Map<K,V> getLatestAccessedItems(int n) {
+     // we need to grab the lock since we are changing lastAccessedCopy
+     markAndSweepLock.lock();
+     Map<K,V> result = new LinkedHashMap<K,V>();
+     TreeSet<CacheEntry> tree = new TreeSet<CacheEntry>();
+     try {
+...
+
+
+
+The impression is that if an OOM situation occurs on the allocation of the local LinkedHashMap and TreeSet the lock would not be unlocked anymore.
+The quick fix would be to move the lock() call after the allocations, and this does not seem to imply any problem. 

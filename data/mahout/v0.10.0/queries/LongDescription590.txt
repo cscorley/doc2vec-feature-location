@@ -1,0 +1,9 @@
+I would like to add TSV (Tab Separated Value) input file type support to SequenceFilesFromDirectory.
+
+Here is my real use case:
+
+I have 36M records of input, each of which consists of ID and CONTENT and various other attributes, and I wanted to convert them to sequence files for clustering records by term vectors of CONTENT. However the problem is since I cannot create 36M files under my home directory due to quota limit that is up to 50k files, I was not able to convert them to sequence files by SequenceFilesFromDirectory utility... Meanwhile, source data format is TSV where each line of a file includes ID\tCONTENT\t... as it is suitable for Pig and most hadoop stream programs to process as input and output. NOTE: CONTENT size is up to around 2k bytes. Hence I feel better TSV support by SequenceFilesFromDirectory directly instead of taking two steps; TSV to text files and text files to Sequence files.
+
+I'm attaching the patch.
+
+Hope this makes sense to other folks.

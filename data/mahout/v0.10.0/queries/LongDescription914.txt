@@ -1,0 +1,5 @@
+The distributed item similarity computation applies a so-called 'interaction-cut': it selectively down samples 'power users' in org.apache.mahout.cf.taste.hadoop.preparation.ToItemVectorsMapper. This is done because the users with the most interactions usually dominate the runtime without providing much benefit to the quality, as users with an enormous amount of interactions are very often crawlers or people sharing an account.
+
+Mahout should have an exact counterpart of this strategy for the non-distributed code.
+
+I also attach a figure that shows experiments with this strategy for the movielens 1M dataset. The dataset was split into 90% training and 10% test set. An interaction cut of size k was applied and the prediction quality (using mean average error) was measured. The prediction in the unsampled dataset corresponds to using k = 1000 as this is the maximum number of interactions per user. We see that with k > 300 the error seems to converge and we get a quality that sufficiently replicates the unsampled quality.

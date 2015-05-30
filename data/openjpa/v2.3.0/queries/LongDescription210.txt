@@ -1,0 +1,52 @@
+Query returning 2 entities w/1-1 relationship returns [Address, Address]  instead of [Winery, Address]
+
+"SELECT r,r.address from Winery r" returns [Address, Address] 
+"SELECT r,r.home from EmpBean r" returns [null, AddressBean] 
+
+does not matter if 1-1 relationship is uni-directional or bi-directional
+
+(NOTE: "SELECT r.address,r" gets same Address id already exists in the L1 cache  if uni-dir relationship (issue 209))  
+
+clear detaches all entities from the persistent context
+1302  bugsmall  TRACE  [main] openjpa.Query - Executing query: SELECT r,r.home FROM EmpBean r
+1302  bugsmall  TRACE  [main] openjpa.jdbc.SQL - <t 1094861122, conn 755379462> executing prepstmnt 335287292 SELECT t0.empid, t1.street, t1.city, t1.state, t1.zip FROM bugsmallEmpBean t0 LEFT OUTER JOIN bugsmallAddressBean t1 ON t0.home_street = t1.street
+1302  bugsmall  TRACE  [main] openjpa.jdbc.SQL - <t 1094861122, conn 755379462> [0 ms] spent
+1302  bugsmall  TRACE  [main] openjpa.jdbc.SQL - <t 1094861122, conn 755379462> executing prepstmnt 695216496 SELECT t0.city, t0.state, t0.zip FROM bugsmallAddressBean t0 WHERE t0.street = ? [params=(String) 1]
+1312  bugsmall  TRACE  [main] openjpa.jdbc.SQL - <t 1094861122, conn 755379462> [10 ms] spent
+java.lang.NullPointerException
+	at com.ibm.websphere.ejb3sample.winetour.bugsmall.BugSmallWineryTest.test_1_1relationshipQuery_EmpBean_AddressBean(BugSmallWineryTest.java:468)
+	at com.ibm.websphere.ejb3sample.winetour.bugsmall.BugSmallWineryTest.main(BugSmallWineryTest.java:103)
+1352  bugsmall  TRACE  [main] openjpa.Query - Executing query: [SELECT r,r.address FROM Winery r WHERE r.wineryid = ?1] with parameters: 
+{1=1}
+1352  bugsmall  TRACE  [main] openjpa.jdbc.SQL - <t 1094861122, conn 755379462> executing prepstmnt 1670669204 SELECT t0.wineryid, t1.phone, t1.city, t1.state, t1.street, t1.zip FROM bugsmallWinery t0 LEFT OUTER JOIN bugsmallAddress t1 ON t0.address_phone = t1.phone WHERE (t0.wineryid = ?) [params=(int) 1]
+1362  bugsmall  TRACE  [main] openjpa.jdbc.SQL - <t 1094861122, conn 755379462> [10 ms] spent
+1362  bugsmall  TRACE  [main] openjpa.jdbc.SQL - <t 1094861122, conn 755379462> executing prepstmnt 2097052926 SELECT t0.city, t0.state, t0.street, t0.zip FROM bugsmallAddress t0 WHERE t0.phone = ? [params=(String) 1]
+1512  bugsmall  TRACE  [main] openjpa.jdbc.SQL - <t 1094861122, conn 755379462> [0 ms] spent
+java.lang.ClassCastException: com.ibm.websphere.ejb3sample.winetour.bugsmall.Address incompatible with com.ibm.websphere.ejb3sample.winetour.bugsmall.Winery
+	at com.ibm.websphere.ejb3sample.winetour.bugsmall.BugSmallWineryTest.test_1_1relationshipQuery_Winery_Address(BugSmallWineryTest.java:374)
+	at com.ibm.websphere.ejb3sample.winetour.bugsmall.BugSmallWineryTest.main(BugSmallWineryTest.java:104)
+close(only used for application managed Persistent Context) inactivates the EntityManager and detaches all entities
+create new Application Managed Persistent Context with no managed entities
+
+====================================
+Starting test_1_1relationshipQuery_EmpBean_AddressBean()
+====================================
+Shows a EmpBean and its address
+String sql = "SELECT r,r.home FROM EmpBean r WHERE r.empid = ?1"
+Caution: requires _em.find(EmpBean.class,parm1) to avoid cache exception or incorrect types in result list
+Caution: "SELECT r,r.home" currently fails, returns [null, AddressBean] instead of [EmpBean, AddressBean]
+-----------------------------------------------------------------------------
+1-1 query oa[0] is null 
+1-1 query oa[1] = com.ibm.websphere.ejb3sample.winetour.bugsmall.AddressBean
+
+====================================
+Starting test_1_1relationshipQuery_Winery_Address()
+====================================
+Shows a winery and its address
+String sql = "SELECT r,r.address FROM Winery r WHERE r.wineryid = :wineryid "
+Caution: requires _em.find(Winery.class,parm1) to avoid cache exception or incorrect types in result list
+Caution: "SELECT r,r.address" currently fails, returns [Address, Address] instead of [Winery, Address]
+-----------------------------------------------------------------------------
+1-1 query oa[0] = com.ibm.websphere.ejb3sample.winetour.bugsmall.Address
+1-1 query oa[1] = com.ibm.websphere.ejb3sample.winetour.bugsmall.Address
+

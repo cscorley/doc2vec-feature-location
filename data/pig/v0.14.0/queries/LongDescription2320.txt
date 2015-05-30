@@ -1,0 +1,50 @@
+a = load 'data1' as (x:int);
+b = load 'data2' as (y:int);
+
+val1 = foreach (filter (cogroup a by x, b by y) by COUNT(b) == 0) generate flatten(a);
+describe val1;
+
+I found that this script works in 0.8, but messes up in 0.9 and trunk (error is from trunk).
+
+the error:
+2011-10-14 13:12:48,526 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1200: Pig script failed to parse:
+<file pig9bug.pig, line 4, column 16> pig script failed to validate: org.apache.pig.impl.logicalLayer.FrontendException: ERROR 2225: Projection with nothing to reference!
+
+stack trace:
+Pig Stack Trace
+---------------
+ERROR 1200: Pig script failed to parse:
+<file pig9bug.pig, line 4, column 16> pig script failed to validate: org.apache.pig.impl.logicalLayer.FrontendException: ERROR 2225: Projection with nothing to reference!
+
+org.apache.pig.impl.logicalLayer.FrontendException: ERROR 1000: Error during parsing. Pig script failed to parse:
+<file pig9bug.pig, line 4, column 16> pig script failed to validate: org.apache.pig.impl.logicalLayer.FrontendException: ERROR 2225: Projection with nothing to reference!
+    at org.apache.pig.PigServer$Graph.parseQuery(PigServer.java:1598)
+    at org.apache.pig.PigServer$Graph.registerQuery(PigServer.java:1541)
+    at org.apache.pig.PigServer.registerQuery(PigServer.java:541)
+    at org.apache.pig.tools.grunt.GruntParser.processPig(GruntParser.java:943)
+    at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:386)
+    at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:188)
+    at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:164)
+    at org.apache.pig.tools.grunt.Grunt.exec(Grunt.java:81)
+    at org.apache.pig.Main.run(Main.java:561)
+    at org.apache.pig.Main.main(Main.java:111)
+Caused by: Failed to parse: Pig script failed to parse:
+<file pig9bug.pig, line 4, column 16> pig script failed to validate: org.apache.pig.impl.logicalLayer.FrontendException: ERROR 2225: Projection with nothing to reference!
+    at org.apache.pig.parser.QueryParserDriver.parse(QueryParserDriver.java:178)
+    at org.apache.pig.PigServer$Graph.parseQuery(PigServer.java:1590)
+    ... 9 more
+Caused by:
+<file pig9bug.pig, line 4, column 16> pig script failed to validate: org.apache.pig.impl.logicalLayer.FrontendException: ERROR 2225: Projection with nothing to reference!
+    at org.apache.pig.parser.LogicalPlanBuilder.buildFilterOp(LogicalPlanBuilder.java:173)
+    at org.apache.pig.parser.LogicalPlanGenerator.filter_clause(LogicalPlanGenerator.java:6122)
+    at org.apache.pig.parser.LogicalPlanGenerator.op_clause(LogicalPlanGenerator.java:1153)
+    at org.apache.pig.parser.LogicalPlanGenerator.inline_op(LogicalPlanGenerator.java:5502)
+    at org.apache.pig.parser.LogicalPlanGenerator.rel(LogicalPlanGenerator.java:5432)
+    at org.apache.pig.parser.LogicalPlanGenerator.foreach_clause(LogicalPlanGenerator.java:12109)
+    at org.apache.pig.parser.LogicalPlanGenerator.op_clause(LogicalPlanGenerator.java:1373)
+    at org.apache.pig.parser.LogicalPlanGenerator.general_statement(LogicalPlanGenerator.java:692)
+    at org.apache.pig.parser.LogicalPlanGenerator.statement(LogicalPlanGenerator.java:492)
+    at org.apache.pig.parser.LogicalPlanGenerator.query(LogicalPlanGenerator.java:378)
+    at org.apache.pig.parser.QueryParserDriver.parse(QueryParserDriver.java:171)
+    ... 10 more
+================================================================================

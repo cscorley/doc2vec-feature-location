@@ -1,0 +1,9 @@
+There is some inconsistency in the way quoted strings are used/handled in pig-latin .
+In load/store and define-ship commands, files are specified in quoted strings , and the file name is the content within the quotes.  But in case of register, set, and file system commands , if string is specified in quotes, the quotes are also included as part of the string. This is not only inconsistent , it is also unintuitive. 
+This is also inconsistent with the way hdfs commandline (or bash shell) interpret file names.
+
+For example, currently with the command - 
+set job.name 'job123'
+The job name set set to 'job123' (including the quotes) not job123 .
+
+This needs to be fixed, and above command should be considered equivalent to - set job.name job123. 

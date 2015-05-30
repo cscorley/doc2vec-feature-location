@@ -1,0 +1,22 @@
+I'm seeing the following intermittent failure:
+
+
+junit.framework.AssertionFailedError: Should have called my watcher expected:<1> but was:<0>
+	at org.apache.zookeeper.test.AuthTest.testBadAuthThenSendOtherCommands(AuthTest.java:89)
+	at org.apache.zookeeper.JUnit4ZKTestRunner$LoggedInvokeMethod.evaluate(JUnit4ZKTestRunner.java:52)
+
+
+
+The following commit introduced this test:
+
+ZOOKEEPER-1152. Exceptions thrown from handleAuthentication can cause buffer corruption issues in NIOServer. (camille via breed)
+
++            Assert.assertEquals("Should have called my watcher",
++                    1, authFailed.get());
+
+I think it's due to either a) the code is not waiting for the
+notification to be propagated, or 2) the message doesn't make it back
+from the server to the client prior to the socket or the clientcnxn
+being closed.
+
+What do you think, should I just wait for the notification to arrive? or do you think it's 2). ?

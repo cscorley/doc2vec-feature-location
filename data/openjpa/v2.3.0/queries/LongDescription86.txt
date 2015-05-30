@@ -1,0 +1,99 @@
+I wish to generate uuid automatically. I modified Message.java in hellojpa example. 
+
+@Entity
+public class Message {
+    @GeneratedValue(generator="uuid-hex")
+    private String uuid;
+
+    @Basic
+    private String message;
+
+    @Basic
+    private Date created = new Date();
+
+    public Message() {
+    }
+
+    public Message(String msg) 
+{
+        message = msg;
+    }
+   ...
+
+and modified Main.java
+
+...
+        for (Message m : (List<Message>)q.getResultList()) 
+{
+            System.out.println(m.getMessage()
+                + " (created on: " + m.getCreated() + ")" + " uuid: " + m.getUuid()); 
+        }
+...
+
+I got the output like this, I got the uuid like "7A92CA0039483DD69B808001A9FE0202"
+
+2493  hellojpa  TRACE  [main] openjpa.jdbc.SQL - <t 29469766, conn 1398720> executing prepstmnt 30325919 SELECT SEQUENCE_VALUE FROM OPENJPA_SEQUENCE_TABLE WHERE ID = ? FOR UPDATE WITH RR [params=(int) 0]
+2513  hellojpa  TRACE  [main] openjpa.jdbc.SQL - <t 29469766, conn 1398720> [20 ms] spent
+2593  hellojpa  TRACE  [main] openjpa.jdbc.SQL - <t 29469766, conn 1398720> executing prepstmnt 16954038 UPDATE OPENJPA_SEQUENCE_TABLE SET SEQUENCE_VALUE = ? WHERE ID = ? AND SEQUENCE_VALUE = ? [params=(long) 101, (int) 0, (long) 51]
+2613  hellojpa  TRACE  [main] openjpa.jdbc.SQL - <t 29469766, conn 1398720> [20 ms] spent
+2764  hellojpa  TRACE  [main] openjpa.jdbc.SQL - <t 29469766, conn 31544052> executing prepstmnt 17243268 INSERT INTO Message (id, created, message, uuid) VALUES (?, ?, ?, ?) [params=(long) 51, (Timestamp) 2006-11-21 09:36:23.728, (String) Hello Persistence!, (String) 8808876039483DD6BA4C6A80A9FE0202]
+2784  hellojpa  TRACE  [main] openjpa.jdbc.SQL - <t 29469766, conn 31544052> [20 ms] spent
+3194  hellojpa  TRACE  [main] openjpa.jdbc.SQL - <t 29469766, conn 33041076> executing prepstmnt 6576294 SELECT t0.id, t0.created, t0.message, t0.uuid FROM Message t0
+3194  hellojpa  TRACE  [main] openjpa.jdbc.SQL - <t 29469766, conn 33041076> [0 ms] spent
+Hello Persistence! (created on: Tue Nov 21 09:36:01 CST 2006) uuid: 7A92CA0039483DD69B808001A9FE0202
+Hello Persistence! (created on: Tue Nov 21 09:36:23 CST 2006) uuid: 8808876039483DD6BA4C6A80A9FE0202
+<END>
+
+When I changed to orm.xml to define the entity mapping, I add orm.xml in META-INF folder
+<entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm orm_1_0.xsd"
+    version="1.0">
+<package>hellojpa</package>
+<entity class="hellojpa.Message" metadata-complete="false" access="PROPERTY">
+      <attributes>
+          <id name="uuid">
+             <generated-value generator="uuid-hex"/>
+          </id>
+          <basic name="message" optional="false">
+          </basic>
+          <basic name="created" optional="false">
+          </basic>
+      </attributes>
+</entity>
+</entity-mappings>
+
+and modified Message.java 
+...
+//@Entity
+public class Message {
+//    @GeneratedValue(generator="uuid-hex")
+    private String uuid;
+
+//    @Basic
+    private String message;
+
+//    @Basic
+    private Date created = new Date();
+
+    public Message() {
+    }
+....
+
+I got the output like this, A sequence number (1, 51, 101, 151, 201) replaced uuid-hex in output, 
+....
+2864  hellojpa  TRACE  [main] openjpa.jdbc.SQL - <t 26373776, conn 10014334> executing prepstmnt 23585701 SELECT SEQUENCE_VALUE FROM OPENJPA_SEQUENCE_TABLE WHERE ID = ? FOR UPDATE WITH RR [params=(int) 0]
+2864  hellojpa  TRACE  [main] openjpa.jdbc.SQL - <t 26373776, conn 10014334> [0 ms] spent
+2944  hellojpa  TRACE  [main] openjpa.jdbc.SQL - <t 26373776, conn 10014334> executing prepstmnt 5676128 UPDATE OPENJPA_SEQUENCE_TABLE SET SEQUENCE_VALUE = ? WHERE ID = ? AND SEQUENCE_VALUE = ? [params=(long) 251, (int) 0, (long) 201]
+2984  hellojpa  TRACE  [main] openjpa.jdbc.SQL - <t 26373776, conn 10014334> [40 ms] spent
+3044  hellojpa  TRACE  [main] openjpa.jdbc.SQL - <t 26373776, conn 4102111> executing prepstmnt 5057266 INSERT INTO Message (uuid, created, message) VALUES (?, ?, ?) [params=(String) 201, (Timestamp) 2006-11-21 09:22:33.774, (String) Hello Persistence!]
+3074  hellojpa  TRACE  [main] openjpa.jdbc.SQL - <t 26373776, conn 4102111> [30 ms] spent
+3495  hellojpa  TRACE  [main] openjpa.jdbc.SQL - <t 26373776, conn 27790058> executing prepstmnt 33108879 SELECT t0.uuid, t0.created, t0.message FROM Message t0
+3495  hellojpa  TRACE  [main] openjpa.jdbc.SQL - <t 26373776, conn 27790058> [0 ms] spent
+Hello Persistence! (created on: Mon Nov 20 19:10:57 CST 2006) uuid: 1
+Hello Persistence! (created on: Mon Nov 20 19:11:14 CST 2006) uuid: 51
+Hello Persistence! (created on: Mon Nov 20 19:22:01 CST 2006) uuid: 101
+Hello Persistence! (created on: Tue Nov 21 09:21:54 CST 2006) uuid: 151
+Hello Persistence! (created on: Tue Nov 21 09:22:33 CST 2006) uuid: 201
+
+<END>

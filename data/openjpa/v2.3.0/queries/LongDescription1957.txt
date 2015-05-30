@@ -1,0 +1,35 @@
+Take an entity class similar to the following:
+
+public class MyEntity implements Serializable {
+   protected String _id;
+   protected ArrayList<String> myStrings = new ArrayList<String>();
+.......
+
+and a corresponding XML mapping in orm.xml:
+
+  	<entity class="somepackage.MyEntity" access="FIELD">
+		<table name="MY_TABLE"/>
+		<attributes>
+			<id name="_id">
+				<column name="MYENTITY_ID" nullable="false" />
+			</id>
+          <basic name="myStrings">
+            <column name="MY_STRINGS"/>
+            <lob/>
+         </basic>
+		</attributes>
+	</entity>
+
+
+With this configuration, the following exception can occur:
+
+org.apache.openjpa.persistence.ArgumentException: You have supplied columns for "somepackage.MyEntity.myStrings<element:class java.lang.String>", but this mapping cannot have columns in this context.
+	at org.apache.openjpa.jdbc.meta.MappingInfo.assertNoSchemaComponents(MappingInfo.java:327)
+	at org.apache.openjpa.jdbc.meta.strats.HandlerFieldStrategy.map(HandlerFieldStrategy.java:77)
+	at org.apache.openjpa.jdbc.meta.FieldMapping.setStrategy(FieldMapping.java:121)
+	at org.apache.openjpa.jdbc.meta.RuntimeStrategyInstaller.installStrategy(RuntimeStrategyInstaller.java:80)
+	at org.apache.openjpa.jdbc.meta.FieldMapping.resolveMapping(FieldMapping.java:454)
+	at org.apache.openjpa.jdbc.meta.FieldMapping.resolve(FieldMapping.java:419)
+	at org.apache.openjpa.jdbc.meta.ClassMapping.resolveNonRelationMappings(ClassMapping.java:881)
+	at org.apache.openjpa.jdbc.meta.MappingRepository.prepareMapping(MappingRepository.java:418)
+..............

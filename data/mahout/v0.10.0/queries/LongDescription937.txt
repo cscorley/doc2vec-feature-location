@@ -1,0 +1,25 @@
+The first pass of the collocations discovery job (as described by CollocDriver.generateCollocations) uses the org.apache.mahout.vectorizer.collocations.llr.GramKeyPartitioner partitioner. 
+
+This partitoner has an instance variable offset that is supposed to be set by a call to setOffsets() but this call is never made (not sure why? is this method expected to be called by the Hadoop framework itself?) 
+
+The offset not being set results in getPartition always returning 0 and so all intermediate data is sent to the one reducer. 
+
+I couldn't quite understand what this partitioning was meant to be doing, but simply hashing the Grams primary string representation (ie without the leading 'type' byte) does what is required...
+
+
+
+public class GramKeyPartitioner extends Partitioner<GramKey, Gram> {
+
+  @Override
+  public int getPartition(GramKey key, Gram value, int numPartitions) {
+    // exclude first byte which is the key type 
+    byte[] keyBytesWithoutTypeByte = new byte[key.getPrimaryLength()-1]; 
+    System.arraycopy(key.getBytes(), 1, keyBytesWithoutTypeByte, 0, keyBytesWithoutTypeByte.length); 
+    int hash = WritableComparator.hashBytes(keyBytesWithoutTypeByte, keyBytesWithoutTypeByte.length);
+    return (hash & Integer.MAX_VALUE) % numPartitions;    
+  }
+  
+}
+
+
+

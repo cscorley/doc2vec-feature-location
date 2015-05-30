@@ -1,0 +1,18 @@
+Given the below DDL, violations of the unique constraint (an example follows the DDL) specified on table t1 will result in a NullPointerException that terminates the active connection.  The root cause appears to be related to the unique indexes; removing them results in the correct constraint violation.
+
+CREATE TABLE s.t0 (t0_id INTEGER NOT NULL, value VARCHAR(75) NOT NULL);
+ALTER TABLE s.t0 ADD CONSTRAINT pk_1 PRIMARY KEY (t0_id);
+
+CREATE TABLE s.t1 (t1_id INTEGER NOT NULL, t0_id INTEGER NOT NULL, value VARCHAR(75) NOT NULL);
+CREATE UNIQUE INDEX s.ui_1 ON s.t1 (t1_id);
+
+ALTER TABLE s.t1 ADD CONSTRAINT pk_2 PRIMARY KEY (t1_id);
+ALTER TABLE s.t1 ADD CONSTRAINT fk_1 FOREIGN KEY (t0_id) REFERENCES s.t0 (t0_id) ON DELETE CASCADE;
+CREATE UNIQUE INDEX s.ui_2 ON s.t1 (t0_id, value);
+ALTER TABLE s.t1 ADD CONSTRAINT uc_1 UNIQUE (t0_id, value);
+
+Minimal DML to trigger the constraint violation:
+
+INSERT INTO s.t0 VALUES (0, 'foobar');
+INSERT INTO s.t1 VALUES(0, 0, 'Test');
+INSERT INTO s.t1 VALUES(1, 0, 'Test');

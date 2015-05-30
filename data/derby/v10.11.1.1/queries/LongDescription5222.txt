@@ -1,0 +1,25 @@
+The compatibility tests fail frequently on one platform (Solaris 10, x86 (32-bit), Java 7 ea b131). For example here: http://dbtg.foundry.sun.com/derby/test/Daily/jvm1.7/testing/testlog/sol32/1100759-compatibility_diff.txt
+
+From what's printed to the console, it looks like it fails to delete the database directory:
+
+> Failed deleting database dir '/export/home/tmp/jagtmp/autoderbyN_regression/compatibility_3/log/wombat'
+
+And then, when running the actual test, it fails to create the log directory on that location (presumably because one already exists):
+
+Exception in thread "main" java.sql.SQLException: Failed to start database 'wombat' with class loader sun.misc.Launcher$AppClassLoader@53c015, see the next exception for details.
+(...)
+Caused by: java.sql.SQLException: cannot create log file at directory /export/home/tmp/jagtmp/autoderbyN_regression/compatibility_3/log/wombat/log.
+(...)
+Caused by: ERROR XSLAQ: cannot create log file at directory /export/home/tmp/jagtmp/autoderbyN_regression/compatibility_3/log/wombat/log.
+	at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+	at org.apache.derby.impl.store.raw.log.LogToFile.getLogDirectory(Unknown Source)
+	at org.apache.derby.impl.store.raw.log.LogToFile.getControlFileName(Unknown Source)
+	at org.apache.derby.impl.store.raw.log.LogToFile.boot(Unknown Source)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.boot(Unknown Source)
+	at org.apache.derby.impl.services.monitor.TopService.bootModule(Unknown Source)
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(Unknown Source)
+	at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.BaseDataFileFactory.bootLogFactory(Unknown Source)
+	at org.apache.derby.impl.store.raw.data.BaseDataFileFactory.setRawStoreFactory(Unknown Source)
+	at org.apache.derby.impl.store.raw.RawStore.boot(Unknown Source)
+(...)

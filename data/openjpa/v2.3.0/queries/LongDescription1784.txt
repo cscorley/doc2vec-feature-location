@@ -1,0 +1,49 @@
+I have an entity with a map element collection where the map value is an Embeddable.
+
+@Embeddable
+public class LocalizedString 
+{
+
+    private String language;
+    private String string;
+
+    // getters and setters omitted
+}
+
+
+
+@Entity
+public class MultilingualString 
+{
+
+    @Id
+    private long id;
+
+    @ElementCollection(fetch=FetchType.EAGER)
+    private Map<String, LocalizedString> map = new HashMap<String, LocalizedString>();
+}
+
+
+Given a persistent instance m of my entity, I update a member of a given map value and then merge the modified entity:
+
+    EntityManager em = ...;
+    em.getTransaction().begin();
+    m.getMap().get("en").setString("foo");
+    em.merge(m)
+    em.getTransaction().commit();
+
+The problem is, the state change of the map does not get saved to the database. With DEBUG logging on, I can see that the flush on commit does not trigger any SQL UPDATE.
+
+To force the update, I have to put a new value into the map instead of just changing the existing one.
+
+    EntityManager em = ...;
+    em.getTransaction().begin();
+    m.getMap().put("en"), new LocalizedString("en", "foo"));
+    em.merge(m)
+    em.getTransaction().commit();
+
+After this change, I do see the expected UPDATE.
+
+My Embeddable does have hashCode() and equals() implemented such that the changed map is not equal() to the former version in either case.
+
+This looks like a bug in the dirty-checking logic in OpenJPA.

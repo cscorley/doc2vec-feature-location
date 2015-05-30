@@ -1,0 +1,48 @@
+We are currently developing a system where we load between 1000 and 5000 objects in one go. The user can load different chunks of objects at any time as he/she is navigating. 
+The system consist of a java application which accesses derby via hibernate.
+During profiling we discovered that the org.apache.derby.iapi.util.StringUtil is the biggest bottleneck in the system.
+The method SQLEqualsIgnoreCase(String s1, String s2) is doing upperCase on both s1 and s2, all the time.
+By putting the uppcase value into a Hashtable and using the input-string as key we increates the performance with about 40%. 
+Our test-users report that the system now seems to run at  "double speed". 
+
+The class calling the StringUtil.SQLEqualsIgnoreCase in this case is
+
+org.apache.derby.impl.jdbc.EmbedResultSet
+
+This class should also be checked as it seems to do a lot of looping.  
+It might be a canditate for hashing, as it is stated in the code:
+"// REVISIT: we might want to cache our own info..."
+
+
+
+Here is a diff agains the 10.1.3.1 source for org.apache.derby.iapi.util.StringUtil
+
+22a23
+> import java.util.Hashtable;
+319c320,326
+< 			return s1.toUpperCase(Locale.ENGLISH).equals(s2.toUpperCase(Locale.ENGLISH));
+—
+>       {
+>          String s1Up = (String) uppercaseMap.get(s1);
+>          if (s1Up == null)
+>          
+{
+>             s1Up = s1.toUpperCase(Locale.ENGLISH);
+>             uppercaseMap.put(s1,s1Up);
+>          }
+320a328,332
+>          String s2Up = (String) uppercaseMap.get(s2);
+>          if (s2Up == null)
+>          
+{
+>             s2Up = s2.toUpperCase(Locale.ENGLISH);
+>             uppercaseMap.put(s2,s2Up);
+321a334
+>          return s1Up.equals(s2Up);
+322a336,339
+>          //return s1.toUpperCase(Locale.ENGLISH).equals(s2.toUpperCase(Locale.ENGLISH));
+>       }
+>    }
+>    private static Hashtable uppercaseMap = new Hashtable();
+
+

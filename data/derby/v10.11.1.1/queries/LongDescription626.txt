@@ -1,0 +1,7 @@
+When running in a security manager the embedded engine uses ClassLoader.getResources() to obtain the set of modules.properties files. This method returns an empty set if running in a security manager and permission has not been granted to read derby.jar to all code in the stack, unless the method is executed in a privileged block.
+
+This is a regression early on in Derby's life and was not caught because of lack of testing under the security manager and was hidden by the need to grant read permission for DERBY-622.
+
+The embedded code does not need this permission to be granted since 'Note: code can always read a file from the same directory it's in (or a subdirectory of that directory); it does not need explicit permission to do so.' 
+
+Need to re-factor code to ensure that the call to getResources and opening the resulting URL  is all in a privileged block.

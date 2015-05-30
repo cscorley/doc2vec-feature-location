@@ -1,0 +1,18 @@
+This patch implements the MapReduce version of StreamingKMeans for MAHOUT-1154.
+
+It adds 5 new classes:
+
+	CentroidWritable: class representing a centroid that can be written to a SeqFile
+	StreamingKMeansDriver: class implementing AbstractJob that is the entry point to the mapreduction
+	StreamingKMeansMapper: mapper, running StreamingKMeans (see MAHOUT-1162) clustering the points one by one
+	StreamingKMeansReducer: reducer, running BallKMeans (see MAHOUT-1162) a number of times and picking the clustering with the lowest total clustering cost.
+The cost is determined by randomly splitting the incoming centroids into a "training" and "test" set, computing the centroids on the training set and the cost on the test set. The intent is to see whether the centroids actually describe the distribution of the points or not.
+	StreamingKMeansUtilMR: helper class with a method to instantiate a searcher from a Configuration.
+
+
+
+Additionally, there is a test class StreamingKMeansTestMR that tests the mapper, reducer and mapper and reducer together using MRUnit.
+
+!!!
+Since MRUnit is now a dependency, the core pom.xml file adds MRUnit as a dependency. We depend on snapshot 1.0 which is not yet released (it will be very soon), hence the updated pom.xml is not provided for now.
+!!!

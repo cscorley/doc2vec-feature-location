@@ -1,0 +1,23 @@
+org.apache.derby.client.am.DatabaseMetaData has a number of instance
+variables which don't seem to have any purpose:
+
+  lastGetColumnPrivilegesResultSet_
+  lastGetColumnsResultSet_
+  lastGetForeignKeysResultSet_
+  lastGetPrimaryKeysResultSet_
+  lastGetProcedureColumnsResultSet_
+  lastGetProceduresResultSet_
+  lastGetSpecialColumnsResultSet_
+  lastGetStatisticsResultSet_
+  lastGetTablePrivilegesResultSet_
+  lastGetTablesResultSet_
+  lastGetUDTsResultSet_
+  lastGetTypeInfoResultSet_
+  lastGetAttrResultSet_
+  lastGetSuperTypesResultSet_
+  lastGetSuperTablesResultSet_
+
+Each lastGetXXXResultSet_ variable is set when the corresponding
+getXXX method is invoked. However, the variables are never read, so
+they could just as well be removed. Removing them will reduce the
+memory footprint.

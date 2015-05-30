@@ -1,0 +1,3 @@
+The non-standard join can use constant column values by enclosing them in single-quote character. This behavior is regressed. The likely cause of this regression is new delimiting support for schema elements introduced in JPA 2.0. The constant column value used to be detected during schema definition based on the assumption of the name being enclosed in single-quote. Due to introduction of delimiting capability, the constant value is now enclosed in double-quote followed by a single-quote.   
+
+The visible effect is failure to define schema for non-standard join with constant values.

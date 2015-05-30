@@ -1,0 +1,15 @@
+The following script does not set signature correctly when we call LoadFunc.getSchema.
+
+a = load 'xxx' using TableLoader('xxx') as (a, b, c);
+
+However, if we don't give schema to a, we get the right signature:
+
+a = load 'xxx' using TableLoader('xxx);
+
+Diagnosis:
+Parser will generate LoadClause before go to the generation "Alias = LoadClause", which actually set signature to the LOLoad. When we give a schema, parser try to call LOLoad.setSchema(), internally it will call LoadFunc.determineSchema. And at that time, signature has not been set yet. 
+
+This relates to the change we cache determinedSchema in LOLoad PIG-1317. Before that change, we will later call LoadFunc.getSchema() again using the right signature. Now we cache determinedSchema, so LoadFunc don't have a chance to get the right signature inside LoadFunc.getSchema()
+
+Solution:
+We shall not call LoadFunc.determineSchema inside LOLoad.setSchema().

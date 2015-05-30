@@ -1,0 +1,6 @@
+If Xalan is not available, BooleanValuesTest fails. See for example this error log from the nightly testing:
+http://dbtg.foundry.sun.com/derby/test/Daily/jvm1.4/testing/Limited/testSummary-947309.html
+
+The error above is actually caused by the Xalan version bundled with J2SE 1.4.2 being too old for Derby, not that it's missing. Here's what the error looks like on Java SE 6 without xalan.jar in the classpath:
+
+1) test_01_datatypeCount(org.apache.derbyTesting.functionTests.tests.lang.BooleanValuesTest)java.sql.SQLException: Failed to locate 'Xalan' API or implementation classes.  XML operations are not permitted unless these classes are in your classpath.

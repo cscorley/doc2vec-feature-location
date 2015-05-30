@@ -1,0 +1,1 @@
+setLastSeenQuorumVerifier in QuorumPeer.java always writes the new config to disk and tries to make new connections to servers in new config. When the new config has the same version as the committed one (e.g., when the config received in a NEWLEADER message is already known to the follower), there's no need to write it to disk or to create new connections.

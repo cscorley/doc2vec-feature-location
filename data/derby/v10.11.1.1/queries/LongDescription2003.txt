@@ -1,0 +1,8 @@
+These test cases wait 60 seconds for a timeout:
+
+  testLockingClob
+  testLockingWithLongRowClob
+  testLockingBlob
+  testLockingWithLongRowBlob
+
+Since they run both in embedded and network client mode, BlobClob4BlobTest spends about eight minutes waiting for a timeout. Therefore, it would be good if its setUp() method lowered the timeout (and tearDown() reset it). TestJDBC40Exception shows how this could be achieved.

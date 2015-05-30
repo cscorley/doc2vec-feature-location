@@ -1,0 +1,18 @@
+From the developer list [1]:
+
+We have groups of tests which do not inherit from SingleEMFTestCase and use common persistence.xml files to do their setUp()s. Each persistence.xml contains all entities used by the group. An individual test uses its group's persistence.xml to set itself up although the test usually uses one or two entities. Not surprisingly getting database metadata and issuing DELETE TABLE statements often takes much more time than the actual test itself.
+
+The most notable example is a group of tests located in openjpa-persistence-jdbc/src/test/java/org/apache/openjpa/persistence/kernel/. Their openjpa-persistence-jdbc/src/test/resources/org/apache/openjpa/persistence/kernel/common/apps/META-INF/persistence.xml contains almost 100 entities. I measured how long does it take to run TestDateQueries which uses only one entity but sets itself up with that persistence xml. I ran the test suite with -Dtest=TestDateQueries and the necessary tables were already in the database:
+
+
+	Derby: 20 secs
+	MySQL: 12 secs
+	PostgreSQL: 46 secs
+
+
+
+Then I modified the persistence.xml to include only the entity used by the test. The timings for all databases dropped to around 4 seconds.
+
+My idea is to modify these tests (at least the ones taking the most time) and their superclass(-es) to not use persistence.xml but specify used entities as setUp() parameters, similarly to what SingleEMFTestCase. It looks like we would save at least a few minutes on a test suite run. 
+
+[1] http://n2.nabble.com/Test-suite-speed-up-outside-SingleEMFTestCase-td3169383.html

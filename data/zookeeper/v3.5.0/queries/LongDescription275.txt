@@ -1,0 +1,12 @@
+I found an execution in which leader election does not make progress. Here is the problematic scenario:
+
+
+	We have an ensemble of 3 servers, and we start only 2;
+	We let them elect a leader, and then crash the one with lowest id, say S_1 (call the other S_2);
+	We restart the crashed server.
+
+
+
+Upon restarting S_1, S_2 has its logical clock more advanced, and S_1 has its logical clock set to 1. Once S_1 receives a notification from S_2, it notices that it is in the wrong round and it advances its logical clock to the same value as S_1. Now, the problem comes exactly in this point because in the current code S_1 resets its vote to its initial vote (its own id and zxid). Since S_2 has already notified S_1, it won't do it again, and we are stuck. The patch I'm submitting fixes this problem by setting the vote of S_1 to the one received if it satisfies the total order predicate ("received zxid" is higher or "received zxid is the same and received id is higher").
+
+Related to this problem, I noticed that by trying to avoid unnecessary notification duplicates, there could be scenarios in which a server fails before electing a leader and restarts before leader election succeeds. This could happen, for example, when there isn't enough servers available and one available crashes and restarts. I fixed this problem in the attached patch by allowing a server to send a new batch of notifications if there is at least one outgoing queue of pending notifications empty. This is ok because we space out consecutive batches of notifications. 

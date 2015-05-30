@@ -1,0 +1,15 @@
+When issuing a distributed request, the aggregator node caused an exception due to the following code at line 99 in FacetComponent.java
+
+
+ if (refList == null | refList.size()==0) continue;
+
+
+
+ note the single pipe for a bitwise OR rather than boolean OR
+
+Change code to:
+
+
+if (refList == null || refList.size() == 0) continue;
+
+

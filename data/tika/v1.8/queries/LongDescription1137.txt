@@ -1,0 +1,13 @@
+The problem appears in version 1.3 and in revision 1494353.  I
+attached a one-line patch that fixes it.
+
+In method "WontBeSerializedError.writeObject", the loop over
+"e.getStackTrace()" should break immediately after "found" is set to
+"true".  All the iterations after "found" is set to "true" do not
+perform any useful work, at best they just set "found" again to
+"true".
+
+Method "embedInTempFile" in class "ExternalEmbedderTest" has a similar
+loop (over "embeddedMetadata.getValues(metadataName)"), and this loop
+breaks immediately after "foundExpectedValue" is set to "true", just
+like in the proposed patch.

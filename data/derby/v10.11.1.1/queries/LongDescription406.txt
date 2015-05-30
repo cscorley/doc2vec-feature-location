@@ -1,0 +1,20 @@
+ClientDataSource should not require user to be set.  It should default to user APP as described in:
+http://incubator.apache.org/derby/docs/adminguide/cadminappsclient.html
+
+This all seems to work ok for for DriverManager connections but fails for ClientDataSource 
+run the attached repro 
+
+
+$ java DataSourceNoUser
+embedded no userid/password
+client userid/password set
+client no password
+client no userid/no password
+org.apache.derby.client.am.SqlException: null userid not supported
+        at org.apache.derby.client.net.NetConnection.checkUser(NetConnection.java:998)
+        at org.apache.derby.client.net.NetConnection.flowConnect(NetConnection.java:380)
+        at org.apache.derby.client.net.NetConnection.initialize(NetConnection.java:233)
+        at org.apache.derby.client.net.NetConnection.<init>(NetConnection.java:201)
+        at org.apache.derby.jdbc.ClientDataSource.getConnection(ClientDataSource.java:156)
+        at org.apache.derby.jdbc.ClientDataSource.getConnection(ClientDataSource.java:135)
+        at DataSourceNoUser.main(DataSourceNoUser.java:42)

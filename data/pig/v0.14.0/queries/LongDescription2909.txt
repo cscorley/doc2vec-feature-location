@@ -1,0 +1,10 @@
+Currently, AvroStorage load fails with AvroRuntimeException when encountering corrupted input files. For example,
+
+
+
+ERROR 2997: Unable to recreate exception from backed error: java.io.IOException: org.apache.avro.AvroRuntimeException: java.io.IOException: Invalid sync!
+	at org.apache.pig.piggybank.storage.avro.AvroStorage.getNext(AvroStorage.java:283)
+
+
+
+But it is not always desirable to fail the Pig job for bad files. It is sometimes more useful to skip them and continue.

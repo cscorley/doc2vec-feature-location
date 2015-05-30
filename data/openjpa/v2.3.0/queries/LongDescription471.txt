@@ -1,0 +1,69 @@
+I get the following error when I try to insert new row to a table that has Identity Column.
+
+Caused by: <openjpa-1.0.1-r420667:592145 fatal general error> org.apache.openjpa.persistence.PersistenceException: The transaction has been rolled back.  See the nested exceptions for details on the errors that occurred.
+	at org.apache.openjpa.kernel.BrokerImpl.newFlushException(BrokerImpl.java:2107)
+	at org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:1954)
+	at org.apache.openjpa.kernel.BrokerImpl.flushSafe(BrokerImpl.java:1852)
+	at org.apache.openjpa.kernel.BrokerImpl.beforeCompletion(BrokerImpl.java:1770)
+	at org.apache.openjpa.kernel.LocalManagedRuntime.commit(LocalManagedRuntime.java:81)
+	at org.apache.openjpa.kernel.BrokerImpl.commit(BrokerImpl.java:1292)
+	at org.apache.openjpa.kernel.DelegatingBroker.commit(DelegatingBroker.java:861)
+	at org.apache.openjpa.persistence.EntityManagerImpl.commit(EntityManagerImpl.java:408)
+	... 1 more
+Caused by: <openjpa-1.0.1-r420667:592145 nonfatal general error> org.apache.openjpa.persistence.PersistenceException: [SQL0029] INTO clause missing from embedded statement. 
+{VALUES(IDENTITY_VAL_LOCAL())} [code=-29, state=42601]
+	at org.apache.openjpa.jdbc.sql.DBDictionary.newStoreException(DBDictionary.java:3938)
+	at org.apache.openjpa.jdbc.sql.DB2Dictionary.newStoreException(DB2Dictionary.java:464)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:97)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:83)
+	at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:59)
+	at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flush(PreparedStatementManagerImpl.java:75)
+	at org.apache.openjpa.jdbc.kernel.ConstraintUpdateManager.flush(ConstraintUpdateManager.java:543)
+	at org.apache.openjpa.jdbc.kernel.ConstraintUpdateManager.flush(ConstraintUpdateManager.java:105)
+	at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.flush(AbstractUpdateManager.java:89)
+	at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.flush(AbstractUpdateManager.java:72)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.flush(JDBCStoreManager.java:514)
+	at org.apache.openjpa.kernel.DelegatingStoreManager.flush(DelegatingStoreManager.java:130)
+	... 8 more
+Caused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: [SQL0029] INTO clause missing from embedded statement. {VALUES(IDENTITY_VAL_LOCAL())}
+ [code=-29, state=42601]
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.wrap(LoggingConnectionDecorator.java:201)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.access$000(LoggingConnectionDecorator.java:57)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection.prepareStatement(LoggingConnectionDecorator.java:228)
+	at org.apache.openjpa.lib.jdbc.DelegatingConnection.prepareStatement(DelegatingConnection.java:163)
+	at org.apache.openjpa.lib.jdbc.ConfiguringConnectionDecorator$ConfiguringConnection.prepareStatement(ConfiguringConnectionDecorator.java:140)
+	at org.apache.openjpa.lib.jdbc.DelegatingConnection.prepareStatement(DelegatingConnection.java:163)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreManager$RefCountConnection.prepareStatement(JDBCStoreManager.java:1308)
+	at org.apache.openjpa.lib.jdbc.DelegatingConnection.prepareStatement(DelegatingConnection.java:152)
+	at org.apache.openjpa.jdbc.sql.DBDictionary.getGeneratedKey(DBDictionary.java:3770)
+	at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flushInternal(PreparedStatementManagerImpl.java:120)
+	at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flush(PreparedStatementManagerImpl.java:73)
+	... 14 more
+
+I have the following in persistence.xml
+
+<property name="openjpa.jdbc.DBDictionary" value="db2"/>
+<property name="openjpa.ConnectionDriverName" value="com.ibm.as400.access.AS400JDBCDriver"/>
+
+I was able to fix the problem by modifying the following code.
+
+I added:
+lastGeneratedKeyQuery = "SELECT IDENTITY_VAL_LOCAL() FROM "
+            + "SYSIBM.SYSDUMMY1";
+
+to:
+package: org.apache.openjpa.jdbc.sql
+Class: DB2Dictionary
+method: public void connectedConfiguration(Connection conn) throws SQLException
+
+right after the code:
+case db2ISeriesV5R4OrLater:
+
+iSeries that have earlier versions might have the same problem.
+If there is a problem, the same code should probably be added to "case db2ISeriesV5R3OrEarlier: " section.
+
+I'm new to OpenJPA, so it will be great if some one can verify that the fix was done appropriately.
+
+Thank you,
+
+Ken Maruyama

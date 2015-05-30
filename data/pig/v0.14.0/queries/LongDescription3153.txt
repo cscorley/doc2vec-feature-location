@@ -1,0 +1,26 @@
+To reproduce the failure, do:
+
+
+ant clean test -Dtestcase=TestScriptUDF
+
+
+The test fails with the following error:
+
+
+Caused by: org.apache.pig.impl.logicalLayer.FrontendException: ERROR 0: Given UDF returns an improper Schema. Schema should only contain one field of a Tuple, Bag, or a single type. Returns: {word: chararray,num: long}
+    at org.apache.pig.newplan.logical.expression.UserFuncExpression.getFieldSchema(UserFuncExpression.java:206)
+    at org.apache.pig.newplan.logical.optimizer.FieldSchemaResetter.execute(SchemaResetter.java:264)
+    at org.apache.pig.newplan.logical.expression.AllSameExpressionVisitor.visit(AllSameExpressionVisitor.java:143)
+    at org.apache.pig.newplan.logical.expression.UserFuncExpression.accept(UserFuncExpression.java:88)
+    at org.apache.pig.newplan.ReverseDependencyOrderWalker.walk(ReverseDependencyOrderWalker.java:70)
+    at org.apache.pig.newplan.PlanVisitor.visit(PlanVisitor.java:52)
+    at org.apache.pig.newplan.logical.optimizer.SchemaResetter.visitAll(SchemaResetter.java:67)
+    at org.apache.pig.newplan.logical.optimizer.SchemaResetter.visit(SchemaResetter.java:122)
+    at org.apache.pig.newplan.logical.relational.LOGenerate.accept(LOGenerate.java:240)
+    at org.apache.pig.newplan.DependencyOrderWalker.walk(DependencyOrderWalker.java:75)
+    at org.apache.pig.newplan.logical.optimizer.SchemaResetter.visit(SchemaResetter.java:114)
+    at org.apache.pig.newplan.logical.relational.LOForEach.accept(LOForEach.java:76)
+    at org.apache.pig.newplan.DependencyOrderWalker.walk(DependencyOrderWalker.java:75)
+    at org.apache.pig.newplan.PlanVisitor.visit(PlanVisitor.java:52)
+    at org.apache.pig.parser.LogicalPlanBuilder.expandAndResetVisitor(LogicalPlanBuilder.java:402)
+

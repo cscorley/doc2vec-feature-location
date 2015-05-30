@@ -1,0 +1,22 @@
+When the following script is run, pig goes into an infinite loop. This was reproduced on pig trunk as of March 12, 2014 on apache hadoop 1.2. test_data.txt has been attached. 
+
+test.pig
+tWeek = LOAD '/tmp/test_data.txt' USING PigStorage ('|') AS (WEEK:int, DESCRIPTION:chararray, END_DATE:chararray, PERIOD:int);
+
+gTWeek = FOREACH tWeek GENERATE WEEK AS WEEK, PERIOD AS PERIOD;
+
+pWeek = FILTER gTWeek BY PERIOD == 201312;
+
+pWeekRanked = RANK pWeek BY WEEK ASC DENSE;
+
+gpWeekRanked = FOREACH pWeekRanked GENERATE $0;
+store gpWeekRanked into 'gpWeekRanked';
+describe gpWeekRanked;
+---------------------------------------------------
+
+The res object of class Result, gets its value from leaf.getNextTuple()
+This gets an empty tuple 
+() 
+with STATUS_OK.
+
+SO the while(true) condition never gets an End of Processing (EOP) and so does not exit. 

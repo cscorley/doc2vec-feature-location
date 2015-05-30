@@ -1,0 +1,23 @@
+The following code does not properly add subclass indicators to the generated SQL query:
+
+        StringRootEntity e = new StringRootEntity();
+        e.setName("foo");
+        em.persist(e);
+
+        e = new StringRootEntity();
+        e.setName("foo");
+        em.persist(e);
+
+        e = new StringRootEntity();
+        e.setName("bar");
+        em.persist(e);
+
+        em.flush();
+
+        Query q = em.createQuery("select o from StringAbstractEntity o " +
+            "where exists (select o2 from StringLeafEntity o2)");
+        List<StringAbstractEntity> list = q.getResultList();
+        assertEquals(0, list.size());
+
+
+The assertion at the end fails; 3 results are returned, even though there are no SingleLeafEntity instances in the store.

@@ -1,0 +1,13 @@
+This test references port 1527; it should use the current test
+configuration's method getPort instead, to make it possible to run
+several tests on the same machine concurrently.
+
+When I experimented and changed TestConfiguration.DEFAULT_PORT to
+something else but 1527, running suites.All crashed in
+BadConnectionTest.java, and also crashed the JUnit textui.TestRunner
+with this message: "Couldn't get I/O for the connection to:
+localhost".  No failure explanation or stack trace was printed on the
+console. Not sure why...
+
+Running the test separately, the testrunner survived to show the
+failures.

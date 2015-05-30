@@ -1,0 +1,8 @@
+As part of researching DERBY-2352, I came to the conclusion that
+the trim() method in SQLChar.java is no longer used, and could be
+removed. It appears that all calls to this method have been switched
+to call ansiTrim() instead.
+
+Hopefully, this just requires removing the code from SQLChar.java
+and StringDataValue.java, and running all the tests to verify that
+nothing is broken.

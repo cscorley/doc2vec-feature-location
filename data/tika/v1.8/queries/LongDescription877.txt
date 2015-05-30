@@ -1,0 +1,33 @@
+Testing the 1.1 rc, I believe I found a regression, hence the priority.
+
+
+dbonniot-t520 /tmp/1.0 java -jar ../tika-app-1.0.jar -z ../coffee.xls 
+Extracting 'file0.wmf' (application/x-msmetafile)
+Extracting 'file1.wmf' (application/x-msmetafile)
+Extracting 'file2.wmf' (application/x-msmetafile)
+Extracting 'file3.wmf' (application/x-msmetafile)
+Extracting 'file4.png' (image/png)
+Extracting 'MBD002B040A.wps' (application/vnd.ms-works)
+Extracting 'file5.bin' (application/octet-stream)
+Extracting 'MBD00262FE3.unknown' (application/x-tika-msoffice)
+
+dbonniot-t520 /tmp/1.0 cd ../1.1
+dbonniot-t520 /tmp/1.1 java -jar ../tika-app-1.1.jar -z ../coffee.xls 
+Extracting 'file0.emf' (application/x-emf)
+Extracting 'file1.emf' (application/x-emf)
+Extracting 'file2.emf' (application/x-emf)
+Extracting 'file3.emf' (application/x-emf)
+Extracting 'file4.png' (image/png)
+Extracting 'MBD002B040A.wps' (application/vnd.ms-works)
+Extracting 'file5' (application/x-tika-msoffice-embedded)
+Extracting 'MBD00262FE3.unknown' (application/x-tika-msoffice)
+
+dbonniot-t520 /tmp/1.1 ls -l ../1.0/file5.bin ../1.1/file5 
+-rw-r--r-- 1 dbonniot dbonniot 2519 2012-03-18 21:51 ../1.0/file5.bin
+-rw-r--r-- 1 dbonniot dbonniot    0 2012-03-18 21:51 ../1.1/file5
+
+
+
+Notice how 1.0 could extract the data for file5, but 1.1 creates an empty file instead.
+
+By the way, I do see improvements in 1.1 as well, congrats for that!

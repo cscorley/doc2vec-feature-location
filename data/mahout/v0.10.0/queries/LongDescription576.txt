@@ -1,0 +1,6 @@
+the JDBC version of the DiffStorage is not using a RunningAverage in the removePreference case, and ends up making incorrect calculations.
+In a scenario where users are setting and removing a lot of preferences, the AVG stored in the diff table quickly diverges from the correct value because of this.
+
+Right now, the input to updateItemPref comes from SlopeOneRecommender, and in the case of removePreference, it is the old preference value, not a delta. However, the code uses it as if it were a delta. Thus the calculation is off by PEER(removedpreference,userid)/count everytime a user removes a preference.
+
+At first glance, the code should compute the old delta instead of the old preference, and use this in the updateItemPref 

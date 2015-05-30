@@ -1,0 +1,12 @@
+This is currently the recommended way to access the javax.sql.Connection underlying an EntityManager:
+
+        OpenJPAEntityManager oem = OpenJPAPersistence.cast(em);
+        Connection con = (Connection) oem.getConnection();
+
+It would be more convenient to simply write
+
+        Connection con = em.unwrap(Connection.class);
+
+That way, the client needing to access the Connection only depends on the javax.persistence API and not on org.apache.openjpa.*.
+
+I believe the JPA 2.0 spec neither mandates nor forbids this functionality. It is supported by Eclipselink 2.x.

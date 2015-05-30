@@ -1,0 +1,17 @@
+BasicInMemoryDbTest only works if the test cases run in one particular order. This should either be made explicit in the test, or the test should be changed to work regardless of the ordering.
+
+For example, if testEnginehutdown (sic) runs before testShutdown, testShutdown will fail:
+
+http://dbtg.foundry.sun.com/derby/test/Daily/jvm1.7/testing/testlog/lin/1076682-suitesAll_diff.txt
+
+11) testShutdown(org.apache.derbyTesting.functionTests.tests.memorydb.BasicInMemoryDbTest)junit.framework.AssertionFailedError: Warning(s) when creating database: Database 'memory:/tmp/myDB' not created, connection made to existing database instead.
+	at org.apache.derbyTesting.functionTests.tests.memorydb.MemoryDbManager.createDatabase(MemoryDbManager.java:226)
+	at org.apache.derbyTesting.functionTests.tests.memorydb.MemoryDbManager.createDatabase(MemoryDbManager.java:181)
+	at org.apache.derbyTesting.functionTests.tests.memorydb.BasicInMemoryDbTest.testShutdown(BasicInMemoryDbTest.java:189)
+
+Also, when running from classes, some test cases (like testEnginehutdown and testDeleteWhenInUse) will fail with no suitable driver if they run before some other test case has called MemoryDbManager.getConnection():
+
+1) testEnginehutdown(org.apache.derbyTesting.functionTests.tests.memorydb.BasicInMemoryDbTest)java.sql.SQLException: No suitable driver found for jdbc:derby:memory:/tmp/myDB;create=true
+	at java.sql.DriverManager.getConnection(DriverManager.java:640)
+	at java.sql.DriverManager.getConnection(DriverManager.java:222)
+	at org.apache.derbyTesting.functionTests.tests.memorydb.BasicInMemoryDbTest.testEnginehutdown(BasicInMemoryDbTest.java:209)

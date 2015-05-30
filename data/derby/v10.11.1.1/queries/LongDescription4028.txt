@@ -1,0 +1,184 @@
+The following DDL allows two rows to be inserted with the same value in a column when a unique constraint on that column should prevent it. The select statement (see the end of the mail) produces:
+
+ij> ALBUMID             |RANK       |YEARRELEAS&|ALBUM
+
+--------------------------------------------------------------------------------
+-----------------------------------------------------------------
+11100               |1          |1945       |
+
+13300               |1          |1966       |
+
+2000                |7          |1974       |Songs in the Key of Life
+
+88000               |12         |1971       |
+
+
+4 rows selected
+
+The first two rows have the same rank value of 1 despite there being a unique constraint on that column.
+
+derby version: 10.4.1.3
+
+Bryan Pendleton reproduced this and suggested that the problem "is related to the fairly new feature of Derby
+which allows definition of a unique constraint on a null-able column".
+https://issues.apache.org/jira/browse/DERBY-3330
+
+Redefining the rank column as 'not null' made the problem go away.
+
+I came across this after running a program that randomly makes inserts, updates, and deletes into this table. It usually takes between 500-600 DDL statements to make it happen. I then took the results and hand-pruned out as many statements as I could and tried to minimize the number of rows produced by the select statement, while still reproducing the issue. At this point it is very sensitive to any changes. For example, re-running the test after removing what appear to be redundantly inserted rows will make the problem go away, as will modifications to band and album names. It's all very strange.
+
+A very old version of Cloudscape (3.6.9), from which I am trying to upgrade, does not have this problem.
+
+-------------------------------------------------------------------------
+drop table tra;
+
+create table tra (
+    albumId bigint,
+    rank int,
+    CONSTRAINT UNIQUE_RANK
+        UNIQUE(rank),
+    band varchar(100),
+    album varchar(100),
+    yearReleased int,
+    CONSTRAINT PK_TOPROCKALBUMS
+        PRIMARY KEY(albumId)
+);
+
+insert into tra values(1000, 1, '', '', 1966);
+insert into tra values(2000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(3000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(4000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(5000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(6000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(7000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(8000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(9000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(10000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(11000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(12000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(13000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(14000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(15000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(16000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(17000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(18000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(19000, 14, 'Joni ', 'Blue', 1971);
+insert into tra values(20000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(21000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(22000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(23000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(24000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(25000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(26000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(27000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(28000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(29000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(30000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(31000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(32000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(33000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(34000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(36000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(36000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(37000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(38000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(39000, 1, 'The Beatles', '', 1966);
+insert into tra values(40000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(41000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(42000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(43000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(44000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(45000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(46000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(47000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(48000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(49000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(50000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(51000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(52000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(53000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(54000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(55000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(56000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(57000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(59000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(60000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(61000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(62000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(63000, 1, 'The Beatles', '', 1966);
+delete from tra where rank=1;
+insert into tra values(64000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(65000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(66000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(67000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(68000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(69000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(70000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(71000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(72000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(73000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(74000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(75000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(76000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(77000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(78000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(79000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+delete from tra where rank=14;
+insert into tra values(80000, 14, 'Joni Mitchell', 'Blue', 1971);
+insert into tra values(81000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(82000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(83000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(84000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(85000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(86000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(87000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(88000, 12, '', '', 1971);
+insert into tra values(89000, 1, 'The Beatles', '', 1966);
+insert into tra values(90000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(91000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(92000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(93000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(94000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(95000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(96000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(97000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(98000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(99000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(10000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(10100, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(10200, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(10300, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(10400, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(10500, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+delete from tra where rank=1;
+insert into tra values(10600, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(10700, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(10800, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(10900, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(11100, 1, 'The Beatles', '', 1966);
+insert into tra values(11200, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(11300, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(11400, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(11500, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(11600, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(11700, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(11800, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(11900, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(12000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(12100, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(12200, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+delete from tra where rank=14;
+insert into tra values(12300, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(12400, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+update tra set yearReleased=1945 where rank=1;
+insert into tra values(12500, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(12600, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(12700, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(12800, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(12900, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(13000, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(13100, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(13200, 7, 'Stevie Wonder', 'Songs in the Key of Life', 1974);
+insert into tra values(13300, 1, 'The Beatles', '', 1966);
+select albumId, rank, yearReleased, album from tra order by rank;
+exit;

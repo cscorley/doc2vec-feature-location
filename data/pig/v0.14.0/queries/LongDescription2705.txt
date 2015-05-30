@@ -1,0 +1,3 @@
+The examples for @schemaFunction that I've seen on the web (http://pig.apache.org/docs/r0.10.0/udf.html#decorators) tend to be trivial ones that return the same schema passed in.  I had a problem where I wrote a python udf that added a new field into a tuple in a bag.  I ended up not specifying schema in python and then casting in pig.   How does the community feel about making it easier to generate a dynamic schema from a scripting UDF?
+
+This could be done by modifying JythonFunction.outputSchema to handle outputSchemaFunc returning a string like @outputSchema does, or by exposing a public api that makes it easier to manipulate org.apache.pig.impl.logicalLayer.schema.Schema

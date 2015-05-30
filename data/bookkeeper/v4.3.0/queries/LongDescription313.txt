@@ -1,0 +1,26 @@
+shutdown(..) call from inside Bookie#run() is not shutting down the server.
+
+Bookie thread is waiting to join itself.
+
+Shutdown called from here
+
+ if (!shuttingdown) {
+            // some error found in journal thread and it quits
+            // following add operations to it would hang unit client timeout
+            // so we should let bookie server exists
+            LOG.error("Journal manager quits unexpectedly.");
+            shutdown(ExitCode.BOOKIE_EXCEPTION);
+        }
+
+
+
+bookie thread is waiting at this.join() in below code
+
+// Shutdown the ZK client
+                if(zk != null) zk.close();
+                // Shutdown journal
+                journal.shutdown();
+                this.join();
+                syncThread.shutdown();
+
+                // close Ledger Manager

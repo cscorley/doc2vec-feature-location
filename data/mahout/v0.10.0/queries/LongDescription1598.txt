@@ -1,0 +1,17 @@
+Currently the seq2sparse or in particular the org.apache.mahout.vectorizer.DictionaryVectorizer needs as input exactly one text block per document.
+
+I stumbled on this because i'm having an use case where one document represents a ticket which can have several text blocks in different languages. 
+
+So my idea was that the org.apache.mahout.vectorizer.DocumentProcessor shall tokenize each text block itself. So i can use language specific features in our Lucene Analyzer.
+
+Unfortunately the current implementation doesn't support this.
+
+But with just minor changes this can be made possible.
+
+The only thing which has to be changed would be the org.apache.mahout.vectorizer.term.TFPartialVectorReducer to handle all values of the iterable (not just the 1st one >.<)
+
+An Alternative would be to change this Reducer to a Mapper, i don't get why in the 1st place this is implemented as an reducer. Is there any benefit from this?
+
+I will provide a PR via github.
+
+Please have a look onto this and tell me if i am assuming anything wrong.

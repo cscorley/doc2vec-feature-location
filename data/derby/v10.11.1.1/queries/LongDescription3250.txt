@@ -1,0 +1,4 @@
+I was seeing failures in derbynet._Suite since my CLASSPATH environment variable included a jar with a space, ie. a jar in the windows folder "Program Files".
+The command line argument built by NetworkServerTestSetup.startSeparateProcess() does not escape any of the arguments.
+
+Probably would be better to use Runtime. exec(String[] cmdarray) and not  Runtime.exec(String cmd)

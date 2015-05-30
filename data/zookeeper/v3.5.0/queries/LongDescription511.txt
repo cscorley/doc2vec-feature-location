@@ -1,0 +1,9 @@
+in FollowerHandler if sendPackets gets an ioexception on writeRecord the send thread will exit, however the 
+socket isn't necessarily closed.
+
+2009-08-19 15:28:46,869 - WARN  [Sender-/127.0.0.1:58179:FollowerHandler@131] - Unexpected exception
+	at org.apache.zookeeper.server.quorum.FollowerHandler.sendPackets(FollowerHandler.java:128)
+	at org.apache.zookeeper.server.quorum.FollowerHandler.access$0(FollowerHandler.java:107)
+	at org.apache.zookeeper.server.quorum.FollowerHandler$1.run(FollowerHandler.java:325)
+
+This results in the follower taking a very long time to recover and rejoin the quorum.

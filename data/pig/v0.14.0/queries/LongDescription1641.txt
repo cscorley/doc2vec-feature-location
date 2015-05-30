@@ -1,0 +1,33 @@
+User report, not verified.
+
+<email>
+
+HadoopVersion    PigVersion    UserId    StartedAt    FinishedAt    Features
+0.20.2    0.8.0-SNAPSHOT    user    2010-09-21 19:25:58    2010-09-21 21:58:42    ORDER_BY
+
+Success!
+
+Job Stats (time in seconds):
+JobId    Maps    Reduces    MaxMapTime    MinMapTIme    AvgMapTime    MaxReduceTime    MinReduceTime    AvgReduceTime    Alias    Feature    Outputs
+job_local_0001    0    0    0    0    0    0    0    0    raw    MAP_ONLY    
+job_local_0002    0    0    0    0    0    0    0    0    rank_sort    SAMPLER    
+job_local_0003    0    0    0    0    0    0    0    0    rank_sort    ORDER_BY    Processed/user_visits_table,
+
+Input(s):
+Successfully read 0 records from: "Data/Raw/UserVisits.dat"
+
+Output(s):
+Successfully stored 0 records in: "Processed/user_visits_table"
+
+
+However, when I look in the output:
+
+$ ls -lh Processed/user_visits_table/CG0/
+total 15250760
+-rwxrwxrwx  1 user  _lpoperator   7.3G Sep 21 21:58 part-0*
+
+It read a 20G input file and generated some output...
+
+</email>
+
+Is it that in local mode counters are not available? If so, instead of printing zeros we should print "Information Unavailable" or some such.

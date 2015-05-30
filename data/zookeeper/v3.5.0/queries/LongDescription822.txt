@@ -1,0 +1,22 @@
+Created a 3 node cluster.
+
+1 Fail the ZK leader
+2. Let leader election finish. Restart the leader and let it join the 
+3. Repeat 
+
+After a few rounds leader election takes anywhere 25- 60 seconds to finish. Note- we didn't have any ZK clients and no new znodes were created.
+
+zoo.cfg is shown below:
+
+#Mon Jul 19 12:15:10 UTC 2010
+server.1=192.168.4.12\:2888\:3888
+server.0=192.168.4.11\:2888\:3888
+clientPort=2181
+dataDir=/var/zookeeper
+syncLimit=2
+server.2=192.168.4.13\:2888\:3888
+initLimit=5
+tickTime=2000
+
+I have attached logs from two nodes that took a long time to form the cluster after failing the leader. The leader was down anyways so logs from that node shouldn't matter.
+Look for "START HERE". Logs after that point should be of our interest.

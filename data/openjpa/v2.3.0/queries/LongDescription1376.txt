@@ -1,0 +1,19 @@
+OpenJpa use allocationSize parameter on NativeJDBCSeq to set the sequence cache value.
+
+But one "JSR 220: Enterprise JavaBeansTM,Version 3.0" , the allocationSize is : "The amount to increment by when allocating sequence
+numbers from the sequence."
+
+Allocating is used to limit the number of access to the sequence or table not to set the sequence cache value !
+
+If allocationSize=50, the sequence need to be call one time on each 50 call on AbstractJDBCSeq.next().
+
+1 call on AbstractJDBCSeq.next(). call the sequence or table 
+2 call : return previous value + 1;
+3 call : return previous value + 2;
+...
+51 call :re-call the sequence
+52 return previous value + 1
+...
+
+
+

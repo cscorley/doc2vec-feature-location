@@ -1,0 +1,25 @@
+When trying to call ZooKeeper.toString during client disconnections, an exception can be generated:
+
+
+[04/06/10 15:39:57.744] ERROR Error while calling watcher 
+java.lang.Error: java.net.SocketException: Socket operation on non-socket
+	at sun.nio.ch.Net.localAddress(Net.java:128)
+	at sun.nio.ch.SocketChannelImpl.localAddress(SocketChannelImpl.java:430)
+	at sun.nio.ch.SocketAdaptor.getLocalAddress(SocketAdaptor.java:147)
+	at java.net.Socket.getLocalSocketAddress(Socket.java:717)
+	at org.apache.zookeeper.ClientCnxn.getLocalSocketAddress(ClientCnxn.java:227)
+	at org.apache.zookeeper.ClientCnxn.toString(ClientCnxn.java:183)
+	at java.lang.String.valueOf(String.java:2826)
+	at java.lang.StringBuilder.append(StringBuilder.java:115)
+	at org.apache.zookeeper.ZooKeeper.toString(ZooKeeper.java:1486)
+	at java.util.Formatter$FormatSpecifier.printString(Formatter.java:2794)
+	at java.util.Formatter$FormatSpecifier.print(Formatter.java:2677)
+	at java.util.Formatter.format(Formatter.java:2433)
+	at java.util.Formatter.format(Formatter.java:2367)
+	at java.lang.String.format(String.java:2769)
+	at com.echonest.cluster.ZooContainer.process(ZooContainer.java:544)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:488)
+Caused by: java.net.SocketException: Socket operation on non-socket
+	at sun.nio.ch.Net.localInetAddress(Native Method)
+	at sun.nio.ch.Net.localAddress(Net.java:125)
+	... 15 more

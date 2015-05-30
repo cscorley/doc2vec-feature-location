@@ -1,0 +1,37 @@
+Now that vararg routines have been added to Derby (see DERBY-3069), I would like to add a new vararg system procedure for registering and unregistering optional packages of Derby tools. For starters, these would be tools which aren't checked into the Derby codeline but are just attached to various JIRAs. These tools are:
+
+o DBMDWrapper (DERBY-3973 and DERBY-5967) - This tool creates functions and table functions for all of the DatabaseMetaData methods so that you can write complicated queries which join and filter JDBC metadata.
+
+o ForeignTableVTI (DERBY-4962) - This tool creates views against foreign databases so that you can bulk-import foreign data into Derby without indirecting through csv files.
+
+It also may be possible to use this approach to expose the log and data file reading tools attached to DERBY-5195 and DERBY-5201.
+
+The new system procedure would look like this:
+
+create procedure syscs_util.syscs_register_tool
+(
+    toolName varchar( 32672 ),
+    boolean register,
+    optionalArgs varchar( 32672 ) ...
+)
+language java parameter style derby modifies sql data
+external name 'willFigureOutWhereToPutThis';
+
+The arguments would have these meanings:
+
+o toolName - A name specific to the tool.
+
+o register - True means "register the tool" and false means "unregister the tool".
+
+o optionalArgs - Each tool could have its own variable set of additional configuration parameters.
+
+By default, only the DBO could run this procedure. The DBO could grant execute permission to other users.
+
+The known tool names and their optional parameters would be documented in the Derby Reference Manual in the section on syscs_util.syscs_register_tool.
+
+I am thinking that we should put the optional tools themselves in derbytools.jar. We might want to document all of the optional tools in the Tools Guide, although I can see arguments for documenting some tools in the Admin Guide.
+
+I would appreciate other people's thoughts about this proposal.
+
+Thanks,
+-Rick

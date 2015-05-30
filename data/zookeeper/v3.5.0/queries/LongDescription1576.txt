@@ -1,0 +1,35 @@
+Using a cluster of three 3.4.3 zookeeper servers.
+All the servers are up, but on the client machine, the firewall is blocking one of the  servers.
+The following exception is happening, and the client is not connected to any of the other cluster members.
+
+The exception:Nov 02, 2012 9:54:32 PM com.netflix.curator.framework.imps.CuratorFrameworkImpl logError
+SEVERE: Background exception was not retry-able or retry gave up
+java.net.UnknownHostException: scnrmq003.myworkday.com
+at java.net.Inet4AddressImpl.lookupAllHostAddr(Native Method)
+at java.net.InetAddress$1.lookupAllHostAddr(Unknown Source)
+at java.net.InetAddress.getAddressesFromNameService(Unknown Source)
+at java.net.InetAddress.getAllByName0(Unknown Source)
+at java.net.InetAddress.getAllByName(Unknown Source)
+at java.net.InetAddress.getAllByName(Unknown Source)
+at org.apache.zookeeper.client.StaticHostProvider.<init>(StaticHostProvider.java:60)
+at org.apache.zookeeper.ZooKeeper.<init>(ZooKeeper.java:440)
+at org.apache.zookeeper.ZooKeeper.<init>(ZooKeeper.java:375)
+
+The code at the org.apache.zookeeper.client.StaticHostProvider.<init>(StaticHostProvider.java:60) is :
+public StaticHostProvider(Collection<InetSocketAddress> serverAddresses) throws UnknownHostException {
+for (InetSocketAddress address : serverAddresses) {
+InetAddress resolvedAddresses[] = InetAddress.getAllByName(address
+.getHostName());
+for (InetAddress resolvedAddress : resolvedAddresses) 
+{ this.serverAddresses.add(new InetSocketAddress(resolvedAddress .getHostAddress(), address.getPort())); }
+}
+......
+
+The for-loop is not trying to resolve the rest of the servers on the list if there is an UnknownHostException at the InetAddress.getAllByName(address.getHostName()); 
+and it fails the client connection creation.
+
+
+I was expecting the connection will be created for the other members of the cluster. 
+Also, InetAddress is a blocking command, and if it takes very long time,  (longer than the defined timeout) - that also should allow us to continue to try and connect to the other servers on the list.
+Assuming this will be fixed, and we will get connection to the current available servers, I think the zookeeper should continue to retry to connect to the not-connected server of the cluster, so it will be able to use it later when it is back.
+If one of the servers on the list is not available during the connection creation, then it should be retried every x time despite the fact that we 

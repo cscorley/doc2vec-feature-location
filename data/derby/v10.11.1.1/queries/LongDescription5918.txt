@@ -1,0 +1,9 @@
+You can't use CREATE TABLE AS SELECT from a table with a BOOLEAN column. This limitation was put in when CREATE TABLE AS SELECT was added. At that time you could not create user tables with BOOLEAN columns and we did not want people to be able to subvert that restriction by using CREATE TABLE AS SELECT from a system table with BOOLEAN columns. The following script shows this problem:
+
+connect 'jdbc:derby:memory:db;create=true';
+
+create table t1( a int );
+create table t2( a boolean );
+
+create table t3 as select * from t1 with no data;
+create table t4 as select * from t2 with no data;

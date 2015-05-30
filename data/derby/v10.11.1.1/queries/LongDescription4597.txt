@@ -1,0 +1,7 @@
+Sysinfo still picks up IBM's jcc driver if db2jcc.jar is in the classpath. We should remove this code as IBM doesn't support the use of the JCC driver. Not sure that we need to backport it but removing it from 10.5 and 10.6 seems reasonable.
+
+jcc code is present in the following sysinfo-related classes:
+org.apache.derby.impl.tools.sysinfo.ZipInfoProperties
+  method: getVersionBuildInfo()
+org.apache.derby.impl.tools.sysinfo.Main
+ (15 occurrences of the string 'jcc'

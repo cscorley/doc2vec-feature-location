@@ -1,0 +1,52 @@
+On several occasions, I've seen a create() with the sequential flag set fail with a ZNODEEXISTS error, and I don't think that should ever be possible.  In past runs, I've been able to closely inspect the state of the system with the command line client, and saw that the parent znode's cversion is smaller than the sequential number of existing children znode under that parent.  In one example:
+
+
+[zk:<ip:port>(CONNECTED) 3] stat /zkrsm
+cZxid = 0x5
+ctime = Mon Jan 17 18:28:19 PST 2011
+mZxid = 0x5
+mtime = Mon Jan 17 18:28:19 PST 2011
+pZxid = 0x1d819
+cversion = 120710
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 0
+numChildren = 2955
+
+
+
+However, the znode /zkrsm/000000000000002d_record0000120804 existed on disk.
+
+In a recent run, I was able to capture the Zookeeper logs, and I will attach them to this JIRA.  The logs are named as nodeX.<zxid_prefixes>.log, and each new log represents an application process restart.
+
+Here's the scenario:
+
+
+	There's a cluster with nodes 1,2,3 using zxid 0x3.
+	All three nodes restart, forming a cluster of zxid 0x4.
+	Node 3 restarts, leading to a cluster of 0x5.
+
+
+
+At this point, it seems like node 1 is the leader of the 0x5 epoch.  In its log (node1.0x4-0x5.log) you can see the first (of many) instances of the following message:
+
+
+2011-04-11 21:16:12,607 16649 [ProcessThread:-1] INFO org.apache.zookeeper.server.PrepRequestProcessor  - Got user-level KeeperException when processing sessionid:0x512f466bd44e0002 type:create cxid:0x4da376ab zxid:0xfffffffffffffffe txntype:unknown reqpath:n/a Error Path:/zkrsm/00000000000000b2_record0001761440 Error:KeeperErrorCode = NodeExists for /zkrsm/00000000000000b2_record0001761440
+
+
+
+This then repeats forever as my application isn't expecting to ever get this error message on a sequential node create, and just continually retries.  The message even transfers over to node3.0x5-0x6.log once the 0x6 epoch comes into play.
+
+I don't see anything terribly fishy in the transition between the epochs; the correct snapshots seem to be getting transferred, etc.  Unfortunately I don't have a ZK snapshot/log that exhibits the problem when starting with a fresh system.
+
+Some oddities you might notice in these logs:
+
+	Between epochs 0x3 and 0x4, the zookeeper IDs of the nodes changed due to a bug in our application code.  (They are assigned randomly, but are supposed to be consistent across restarts.)
+	We manage node membership dynamically, and our application restarts the ZooKeeperServer classes whenever a new node wants to join (without restarting the entire application process).  This is why you'll see messages like the following in node1.0x4-0x5.log before a new election begins:
+
+2011-04-11 21:16:00,762 4804 [QuorumPeer:/0.0.0.0:2888] INFO org.apache.zookeeper.server.quorum.Learner  - shutdown called
+
+
+	There is in fact one of these dynamic membership changes in node1.0x4-0x5.log, just before the 0x4 epoch is formed.  I'm not sure how this would be related though, as no transactions are done during this period.
+

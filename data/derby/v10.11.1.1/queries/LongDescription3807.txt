@@ -1,0 +1,16 @@
+2 i18n tests refer to ij functionality that no longer exists: ij.unicodeEscape. This is referenced in the following places:
+
+	test i18n/LocalizedDisplay_app.properties
+       this test is getting converted into junit with DERBY-1726, but the ij.unicodeEscape property is useless and should be removed anyway
+	test (name) i18n/UnicodeEscape_JP
+       this tests tests adds nothing to existing tests in its current incarnation and can be removed
+	org.apache.derby.iapi.tools.i18n.LocalizedResource
+       methods:
+	getUnicodeEscape and setUnicodeEscape
+          used to set and unset the property but are not used except in toString and can be removed
+	toString
+          prints out the ijUnicodeEscape property value, but as it doesn't do anything, the reference can be removed.
+
+
+
+

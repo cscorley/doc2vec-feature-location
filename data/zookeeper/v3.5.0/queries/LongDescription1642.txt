@@ -1,0 +1,8 @@
+The leader server currently loads the database before running leader election when trying to figure out the zxid it needs to use for the election and again when it starts leading. This is problematic for larger databases so we should remove the redundant load if possible. 
+
+The code references are:
+
+
+	getLastLoggedZxid() in QuorumPeer;
+	loadData() in ZooKeeperServer.
+

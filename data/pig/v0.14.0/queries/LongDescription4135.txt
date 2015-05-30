@@ -1,0 +1,3 @@
+After deploying fetch optimization in production, a couple of users ran into this situation. They had fairly large input data, but after filtering it by a regular expression, it becomes small. So they didn't add limit to the query. 
+
+The problem is that even though the output is small, processing the input must be done in the cluster not in the client. However, fetch optimization blindly fetches the entire input into the client since the plan is map-only job and finishes with dump.

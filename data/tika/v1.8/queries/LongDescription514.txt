@@ -1,0 +1,5 @@
+To reduce the size of the Tika dependency chain, it's useful to exclude the supporting jars for types that don't need to process (e.g. Microsoft docs, PDFs, etc). This can easily remove 20MB of 3rd party jars.
+
+With 0.8-SNAPSHOT, the TikaConfig(Classpath) constructor now finds and instantiates all Parser-based classes found on the classpath. Which can trigger errors when 3rd party jars are missing.
+
+One solution, as proposed by Jukka, is to provide an alternative constructor for AutoDetectParser which includes the list of supported parsers, and avoids creating the default TikaConfig.

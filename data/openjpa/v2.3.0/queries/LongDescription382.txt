@@ -1,0 +1,28 @@
+If an entity has an attribute of type Byte array and the column name is overridden in xml the following error will occur. 
+
+
+<openjpa-1.0.0-SNAPSHOT-r420667:566855 fatal user error> 
+org.apache.openjpa.persistence.ArgumentException: You have supplied columns for 
+"org.apache.openjpa.persistence.xml.XmlOverrideEntity.picture<element:class java.lang.Byte>", but this mapping cannot have columns in this context.
+
+Code snippets follow :
+
+public class XmlOverrideEntity {
+<snip>
+    @Column(name="PICTURE")
+    @Lob
+    private Byte[] picture;
+<snip>
+}
+
+// orm.xml
+    <entity name="XmlOverride" class="XmlOverrideEntity">
+    	<attributes>
+	    	<basic name="name" optional="true"></basic>
+	    	<basic name="description" optional="false"></basic>
+            <basic name="picture" fetch="EAGER"> 
+                <column name="pic_xml"/>
+                <lob/>
+            </basic>
+    	</attributes>
+    </entity>

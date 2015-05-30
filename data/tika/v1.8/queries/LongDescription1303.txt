@@ -1,0 +1,11 @@
+While crawling following web page, we came accross a strange issue where by title for page was not being extracted accurately:
+http://www.samsung.com/us/support/faq/FAQ00052677/61239/SM-C105AZWAATT
+
+This html page is not well formed and contains two title tags (one in head and one is body):
+e.g. "<html><title>Simple Content</title><body><h1></h1><title>TitleToIgnore</title></body></html>"
+
+Now in this case a simple fix to htmlhandler could make sure that once title value has been set in metadata, it should not be overridden when another title tag is subsequently found.
+
+I am submitting fix for this issue as a path for review  (1.5) - hoping that this could be committed to latest?
+
+Can you please review and update kindly.

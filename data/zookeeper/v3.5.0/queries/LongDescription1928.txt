@@ -1,0 +1,3 @@
+We want to add configurable throttling to the number of snapshots concurrently sent by a leader.  Without this, when recovering from a partial outage or network partition, the leader can become overloaded and unresponsive due to its attempts to send snapshots to too many followers and observers all at once.  The throttle will operate by terminating the connection of any observer receiving a snapshot deemed to be in excess of the throttle.  Followers should be allowed to receive snapshots unconditionally, though those snapshots do count against the quota.
+
+I have a patch ready which implements this.

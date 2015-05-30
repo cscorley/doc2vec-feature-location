@@ -1,0 +1,13 @@
+If you can't get a table level lock for btree space recovery in 
+the post commit thread, maybe you should at least reclaim the 
+rows on the page while you are at it.  Use the same algorithm 
+as exists in BTreeController.java.  row level shrink is a different
+issue and won't be resolved by this.
+
+Note there have been reports of "memory" leaks associated with this issue.  This is because
+currently if the work can not be done then we just queue it and move on.  But in a stress situation
+one may never get the required table lock to shrink the tree and thus the queue just keeps growing.
+Note in many of these cases the app doesn't care if the page merge happens as it is just going to
+insert more rows after the merge.  
+
+Also there is no need for a table level lock for a 1 page index as no merge is actually necessary.

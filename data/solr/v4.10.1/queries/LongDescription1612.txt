@@ -1,0 +1,18 @@
+I am attaching a patch to the JdbcDataSource class which allows the it to populate a multiValued field from a query which returns a java.sql.Array type for a column value.
+
+In order to make this work, you need to do the following:
+
+1.  In your schema.xml file, set the "multiValued" attribute to the value "true"
+
+         <field name=foo" type="string"  ... multiValued="true" />
+
+2.  Have your sql query return a sql type of java.sql.Types.ARRAY.  How to do this is very database dependent, but in oracle, you first create a type:
+
+             create or replace type FOO_TYPE IS TABLE OF VARCHAR2(255);
+
+      and then when you select the values, you have to use MULTISET and cast to the created type (assuming here that FOO_PARENT_ID is the condition to
+      limit which foos belong to the current record):
+
+             CAST(MULTISET(SELECT FOO FROM FOOS WHERE FOO_PARENT=FOO_PARENT_ID) AS FOO_TYPE ) MY_FOOS
+
+The main advantage this has is it can save you a ton of queries over the current method which will fire off an individual query for each document in order to retrieve the values for each multiValued field.  This method executes much faster, and saves alot of database resources.

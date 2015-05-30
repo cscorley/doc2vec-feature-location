@@ -1,0 +1,12 @@
+Added an option to allow a caller of HBaseStorage to turn off the WriteAheadLog feature while doing bulk loads into hbase.
+
+From the performance tuning wikipage: http://wiki.apache.org/hadoop/PerformanceTuning
+"To speed up the inserts in a non critical job (like an import job), you can use Put.writeToWAL(false) to bypass writing to the write ahead log."
+
+We've tested this on HBase 0.20.6 and it helps dramatically.  
+
+The -noWAL options is passed in just like other options for hbase storage:
+
+STORE myalias INTO 'MyTable' USING org.apache.pig.backend.hadoop.hbase.HBaseStorage('mycolumnfamily:field1 mycolumnfamily:field2','-noWAL');
+
+This would be my first patch so please educate me with any steps I need to do.  

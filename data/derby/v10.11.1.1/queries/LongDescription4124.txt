@@ -1,0 +1,7 @@
+org.apache.derby.jdbc.EmbeddedDataSource.findDriver() uses the
+double-checked-locking idiom for setting the 'driver' variable. This
+idiom is, however, not correct and hence the code is broken. The fix
+is to remove the outer if, i.e. to always enter the synchronized block.
+
+See also
+http://www.cs.umd.edu/~pugh/java/memoryModel/DoubleCheckedLocking.html

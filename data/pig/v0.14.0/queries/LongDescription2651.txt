@@ -1,0 +1,21 @@
+This introduces a new interface, IteratingAccumulatorEvalFunc (that name is NOT final...). The cool thing about this patch is that it is built purely on top of the existing Accumulator code (well, it uses PIG-2066, but it could easily work without it). That is to say, it's an easier way to write accumulators without having to fork the Pig codebase.
+
+The downside is that the only way I am able to provide such a clean interface is by using a second thread. I need to explore any potential performance implications, but given that most of the easy to use Pig stuff has performance implications, I think as long as we measure and and document them, it's worth the much more usable interface. Plus I don't think it will be too bad as one thread does the heavy lifting, while another just ferries values in between. SUM could now be written as:
+
+
+
+public class SUM extends IteratingAccumulatorEvalFunc<Long> {
+    public Long exec(Iterator<Tuple> it) throws IOException {
+        long sum = 0;
+
+        while (it.hasNext()) {
+            sum += (Long)it.next().get(0);
+        }
+
+        return sum;
+    }
+}
+
+
+
+Besides performance tests, I need to figure out how to properly test this sort of thing. I particularly welcome advice on that front.

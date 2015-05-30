@@ -1,0 +1,19 @@
+Although the type of the value of "wait" attribute is boolean in solrconfig.xml:
+
+    <listener event="postCommit" class="solr.RunExecutableListener">
+      <str name="exe">snapshooter</str>
+      <str name="dir">solr/bin</str>
+      <bool name="wait">false</bool>
+      <arr name="args"> <str>arg1</str> <str>arg2</str> </arr>
+      <arr name="env"> <str>MYVAR=val1</str> </arr>
+    </listener>
+
+RunExecutableListener trys to get the value as a string:
+
+    if ("false".equals(args.get("wait"))) wait=false;
+
+therefore, it always waits for the subprocess completion, even if you set wait="false" . The above line would probably be like this:
+
+    if (Boolean.FALSE.equals(args.get("wait"))) wait=false;
+
+regards,

@@ -1,0 +1,31 @@
+This patch adds a "json.wrf" parameter to add a wrapper function around the JSON results, for example:
+
+  json.wrf = eatJason
+  search result = eatJason({"header":
+{"qtime":0}
+,...}))
+
+The result set is sent as a parameter to eatJason instead of being sent as a plain data structure.
+
+This is useful to work around the cross-site limitations of JSON, when a client uses code like
+
+  var head = document.getElementsByTagName("head")[0];
+  script = document.createElement('script');
+  script.id = 'uploadScript';
+  script.type = 'text/javascript';
+  script.src = "http://mysolrserver/solr/select?q=role:video&wt=json&json.wrf=eatJason";
+  head.appendChild(script)
+
+  function eatJason(obj)
+{
+     ...process obj which is Solr's JSON result
+  }
+ 				
+
+However, I'm no javascript expert, and passing an arbitrary javascript function name in the request parameters feels a bit weird...wondering if this might enable some cross-site scripting scenarios?
+
+But the technique is well-known apparently, see:
+  http://www.theurer.cc/blog/2005/12/15/web-services-json-dump-your-proxy/
+and 
+  http://www.xml.com/pub/a/2005/12/21/json-dynamic-script-tag.html
+

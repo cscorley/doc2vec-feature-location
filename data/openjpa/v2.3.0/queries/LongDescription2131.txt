@@ -1,0 +1,12 @@
+We have generate query with 
+
+Query q = em.createQuery("select e._name, e._id, sum(case when e._status=:pending then e._count else 0 end) from Exceptions e, Historty h where e._guid = :guid and .....
+then set paramenters for both :pending (in select) and :guid (in where), and call q.setMaxResults(100);
+
+with DB2, everything works fine, and DBDictionary.getSelects() and SQLBuffer.append() will invoke correctly and set parameter of :pending
+
+with Oracle implementation, OracleDictionary.getSelects(Select sel, boolean distinctIdentifiers, boolean forUpdate) will invoke and SQLBuffer.getSQL() get to call (as two if checks are not satisfied and gos to create a new SQLBuffer instance), but this time :pending parameter will missing to add to _param List,
+Eventually, we'll get Missing IN or OUT parameter exception from to execute query by preparedStatement 
+
+This bug exist in both this branch and trunk.
+We have a work around, after SQLBuffer.getSQL() call, add some code to reset _param list.

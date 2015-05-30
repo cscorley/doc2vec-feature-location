@@ -1,0 +1,25 @@
+From brian:
+
+1) Download trunk/nightly
+2) Change line 347 of example/solr/conf/solrconfig.xml to   <requestHandler name="/update" class="solr.XmlUpdateRequestHandler">
+3) java -jar start.jar...
+3) Run post.sh a bunch of times on the same xml file... (in a shell script or whatever)
+4) After a few seconds/minutes jetty will crash with "too many open files"
+
+
+	- - - -
+
+
+
+all you've got to do is
+
+apache-solr-nightly/example/exampledocs ryan$ while [ 0 -lt 1 ]; do ./post.sh hd.xml; done
+
+with the request handler pointing to /update. Use
+
+
+	lsof | grep solr | wc -l
+
+
+
+to watch the fdescs fly.

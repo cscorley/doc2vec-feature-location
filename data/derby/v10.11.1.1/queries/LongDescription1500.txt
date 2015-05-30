@@ -1,0 +1,20 @@
+When trying to insert a row into the table 
+
+SHORT_TEST( ID int, SHORT_VAL smallint)
+
+an exception is thrown, if the object value given to PreparedStatement#setObject(int parameterIndex, Object x) is of type Short. The exception thrown is:
+
+— SQLException —
+SQLState:  22005
+Message:  An attempt was made to get a data value of type 'SMALLINT' from a data value of type 'java.lang.Short'.
+ErrorCode:  20000
+SQL Exception: An attempt was made to get a data value of type 'SMALLINT' from a data value of type 'java.lang.Short'.
+	at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.newSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.ConnectionChild.newSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.dataTypeConversion(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.setObject(Unknown Source)
+
+Tested on Derby 10.1.1.0 and 10.1.3.1. The same test runs fine in network mode.

@@ -1,0 +1,9 @@
+Another large changelist constructed from FindBugs and IntelliJ analysis. It's big enough I figured I'd run it by the list. Key changes:
+
+
+	Making stuff final, private that can be
+	Dead code elimination
+	Simplifying JUnit assertions – "assertTrue(a.equals(b) == true)" could be "assertEquals(a, b)" for instance. Also fixed some expected/actual value issues
+	Not compiling a Pattern object millions of times – String.split() and replace()/replaceAll() do this and can be profitably replaced with a precompiled Pattern.
+	Small bug fixes picked up by analysis
+

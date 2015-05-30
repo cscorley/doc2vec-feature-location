@@ -1,0 +1,5 @@
+By default, derby.log grows without bounds if the derby.infolog.append property is set to "true".   Setting this to "true" helps in a hands off production environment to ensure that if Derby restarts, the derby.log which might contain important information is not lost.  On the other hand, when set the "true" the derby.log grows without bounds.  This is problematic in a long running system.  
+
+What is really needed is the ability to have a rolling derby.log file support where the maximum file size and maximum number of files can be specified.  Derby has the ability to configure the location of the log file (ie. derby.stream.error.file) and also two methods of redirecting the error stream (.ie derby.stream.error.method and derby.stream.error.field).  There is no standard implementation that supports a rolling derby.log however.
+
+This facility should be part of the core Derby system so that it works in both embedded and network server models.

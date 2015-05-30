@@ -1,0 +1,11 @@
+See commented out test in DistinctTest, DistinctTest.testResultSetInOrderWhenUsingIndex.
+
+The actual assert is:
+
+ASSERT FAILED Found IN-list probing (NLR.LUSERNAME = <expr>) while generating HASH join, which should not happen.
+
+I was able to simplify the query a little:
+
+SELECT DISTINCT nb.name AS name, nb.summary AS summary FROM netbutton1 nb, netbuttonlibraryrole1 nlr, library_netbutton ln WHERE nlr.netbuttonlibrary_id = ln.netbuttonlibrary_id AND (nlr.lusername = ? OR nlr.lusername =?)
+
+Removing nlr.netbuttonlibrary_id = ln.netbuttonlibrary_id clause but leaving the 'nb.lname = ln.lname' in front of the AND did not reproduce the problem.

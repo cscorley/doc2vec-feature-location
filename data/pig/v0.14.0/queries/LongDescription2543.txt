@@ -1,0 +1,13 @@
+For the below script even though the command is successful, result.isSuccessful() returns false and hence raise exception
+
+
+
+#!/usr/bin/python
+from org.apache.pig.scripting import Pig
+Q = Pig.compile("sh echo mymessage")
+result = Q.bind().runSingle()
+if result.isSuccessful() :
+    print 'Pig job succeeded'
+else :
+    raise 'Cant run sh command'
+

@@ -1,0 +1,46 @@
+Create a simple entity
+
+@Entity
+public class ana_anagrafica implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private Long id;
+
+    @SequenceGenerator(name="ANA_ANAGRAFICA_GEN")
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,generator="ANA_ANAGRAFICA_GEN")
+    public Long getId() 
+{
+        return id;
+    }
+
+    public void setId(Long id) 
+{
+        this.id = id;
+    }
+} 
+
+in the sequence creation the SQL returned from FirebirdDictionary is wrong,
+method
+
+@Override
+    protected String getSequencesSQL(DBIdentifier schemaName, DBIdentifier sequenceName) 
+{
+        StringBuilder buf = new StringBuilder(sequenceSQL);
+        if (sequenceName != null)
+            buf.append(sequenceNameSQL);
+        return buf.toString();
+    }
+ 
+
+should be
+
+@Override
+    protected String getSequencesSQL(DBIdentifier schemaName, DBIdentifier sequenceName) {
+        StringBuilder buf = new StringBuilder(sequenceSQL);
+        if(!DBIdentifier.isNull(sequenceName))
+{
+            buf.append(sequenceNameSQL);
+        }
+        return buf.toString();
+    } 

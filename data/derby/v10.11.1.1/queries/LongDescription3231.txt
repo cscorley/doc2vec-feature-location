@@ -1,0 +1,26 @@
+The result of the select is not sorted in "order by COUNT DESC" or "order by COUNT ASC" 
+
+create table yy (a double, b double);
+
+insert into yy values (2, 4);
+insert into yy values (5, 7);
+insert into yy values (2, 3);
+insert into yy values (2, 3);
+insert into yy values (2, 3);
+insert into yy values (2, 3);
+insert into yy values (9, 7);
+
+
+select b, COUNT AS "COUNT_OF", SUM(b) AS "sum b" 
+from yy
+where a = 5 or a = 2
+group by b
+order by COUNT asc
+
+– same result as:
+
+select b, COUNT AS "COUNT_OF", SUM(b) AS "sum b" 
+from yy
+where a = 5 or a = 2
+group by b
+order by COUNT desc

@@ -1,0 +1,5 @@
+DERBY-2196 brings up a security manager-if the user forgot to install one-when the network server is booted. DERBY-2196 requires that authentication be enabled when bringing up a security manager. If authentication is not enabled, then the server fails to boot and, instead, prints out a diagnostic advising the user to enable authentication, and, if that is not possible, boot the server with the -noSecurityManager option.
+
+This creates an incompatibility for applications upgrading from previous Derby releases. Despite the advice in Derby user guides, customers do boot the network server without enabling authentication. This incompatibility is discussed in the email thread http://www.nabble.com/forum/Search.jtp?forum=105&local=y&query=SecurityManager+incompatibility
+
+This JIRA removes the requirement that authentication be enabled when the server brings up a security manager.

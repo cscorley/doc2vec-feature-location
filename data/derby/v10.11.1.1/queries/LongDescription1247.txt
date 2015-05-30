@@ -1,0 +1,8 @@
+The test DerbyNetAutoStart uses RandomAccessFile.readLine() on derby.log to find an occurrence of a String[] to decide whether the tests passes or not.
+
+This mechanism assumes that derby.log is in Unicode-compatible encoding, which may not be true.
+Also, readLine() documentation indicates that it does not support the 'full Unicode range', so may not be the best choice.
+
+And indeed, the test fails on zOS, even though the string looked for is present in derby.log.
+
+

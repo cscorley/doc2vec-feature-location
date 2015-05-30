@@ -1,0 +1,9 @@
+In src/org/apache/pig/backend/hadoop/executionengine/mapReduceLayer/MRCompiler.java, the function hasTooManyInputFiles instantiated a LoadFunc instance, then calls setLocation before calling setUDFContextSignature. This is inconsistent with the documentation for the LoadFunc interface (see http://pig.apache.org/docs/r0.9.0/api/org/apache/pig/LoadFunc.html#setUDFContextSignature(java.lang.String)). (We've written UDFs that assume that setUDFContextSignature is called first.)
+
+I think you can fix this by adding 
+
+   loader.setUDFContextSignature(ld.getSignature());
+
+Before
+
+   loader.setLocation(location, job);

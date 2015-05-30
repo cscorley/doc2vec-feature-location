@@ -1,0 +1,28 @@
+This script works:
+
+A = load 'test' using PigStorage(':') as (name: chararray, age: int, gpa: float);
+B = group A by age;
+C = foreach B 
+{
+   D = filter A by gpa > 2.5;
+   E = order A by name;
+   F = A.age;
+   describe F;
+   G = distinct F;
+   generate group, COUNT(D), MAX (E.name), MIN(G.$0);}
+dump C;
+
+This one produces an error:
+
+A = load 'test' using PigStorage(':') as (name: chararray, age: int, gpa: float);
+B = group A by age;
+C = foreach B 
+{
+   D = filter A by gpa > 2.5;
+   E = order A by name;
+   F = A.age;
+   G = distinct F;
+   generate group, COUNT(D), MAX (E.name), MIN(G);}
+dump C;
+
+Notice the difference in how MIN is passed the data.

@@ -1,0 +1,5 @@
+Error in initSlotTable() can cause NPE or ASSERT rather than reporting page number in corrupt page message.  The problem is
+that depending on when the error is encountered we are in the middle of setting up a new page, so you can't use normal 
+access routines for identifiying the page (like getIdentity() ) as they may not be set up yet.  
+
+The fix is to change the error messages to use a passed in identity rather than counting on correct setup during initialization failure

@@ -1,0 +1,16 @@
+Entity A has a composite key AId, thus User should look up A with an instance of AId.
+Example: em.find(A.class, new AId());
+
+In case of looking up A with a single value, for example: em.find(A.class, 12345). It will through an unexpected exception:
+>>>The id type "AId" specfied by persistent type "A" does not have a  public string or class + string constructor.
+
+>>>>> org.apache.openjpa.kernel.BrokerImpl.newObjectId 
+>>>>> (BrokerImpl.java:1120)
+>>>>> [WLServer TmsServer]    at  
+>>>>> org.apache.openjpa.kernel.DelegatingBroker.newObjectId 
+>>>>> (DelegatingBroker.java:254)
+>>>>> [WLServer TmsServer]    at  
+>>>>> org.apache.openjpa.persistence.EntityManagerImpl.find 
+>>>>> (EntityManagerImpl.java:345)
+
+I suppose to get an exception of error id type.

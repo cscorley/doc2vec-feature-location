@@ -1,0 +1,40 @@
+originally posted as part of SOLR-572:
+
+  https://issues.apache.org/jira/browse/SOLR-572?focusedCommentId=12608487#action_12608487
+
+the new spellcheck.collate feature seems to exhibit some strange behaviors when handed a query with multiple tokens.
+
+
+{
+ "responseHeader":{
+  "params":{
+	"q":"redbull air show"}},
+  "spellcheck":{
+   "suggestions":[
+	"redbull",[
+	 "suggestion",["redbelly"]],
+	"show",[
+	 "suggestion",["shot"]],
+	"collation","redbelly airshotw"]}}
+
+
+
+in this case, note the fields are incorrectly concatenated (no space between tokens, left over 'w' from input string)
+
+
+{
+ "responseHeader":{
+  "params":{
+	"q":"redbull air show",
+	"spellcheck.q":"redbull air show"}},
+ "spellcheck":{
+  "suggestions":[
+	"redbull air show",[
+	 "suggestion",["redbull singers"]],
+	"collation","redbull singersredbull air show"]}}
+
+
+
+this is slightly different - the suggestions are still concatenated without a space, but the collation is way off.
+
+--Geoff

@@ -1,0 +1,10 @@
+Scenario:
+
+1) Start three bookies. Create ledger with ensemblesize=3, quorumsize=2
+2) Add 100 entries to this ledger
+3) Make first bookie down and read the entries from 0-99
+
+Output: Each entry is going to fetch from the failed bookie and is waiting for the bookie connection timeout, only after failure going to next bookie.
+This is affecting the read entry performance.
+
+Impact: Namenode switching time will be affected by adding this failed bookie readTimeOut also.

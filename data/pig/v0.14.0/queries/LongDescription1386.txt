@@ -1,0 +1,202 @@
+Based on this conversation:
+
+totally, go for it, it'd be pretty straightforward to add this
+functionality.
+
+	Hide quoted text -
+
+
+
+
+
+On Tue, Apr 20, 2010 at 6:45 PM, hc busy <hc.busy@gmail.com> wrote:
+
+> Hey, while we're on the subject, and I have your attention, can we
+> re-factor
+> the UDF MaxTupleByFirstField to take constructor?
+>
+> define customMaxTuple ExtremalTupleByNthField(n, 'min');
+> G = group T by id;
+> *M = foreach T generate customMaxTuple(T);
+> *
+>
+> Where n is the nth field, and the second parameter allows us to specify
+> "min", "max", "median",  etc...
+>
+> Does this seem like something useful to everyone?
+>
+>
+>
+> On Tue, Apr 20, 2010 at 6:34 PM, hc busy <hc.busy@gmail.com> wrote:
+>
+> > What about making them part of the language using symbols?
+> >
+> > instead of
+> >
+> > foreach T generate Tuple($0, $1, $2), Bag($3, $4, $5), $6, $7;
+> >
+> > have language support
+> >
+> > foreach T generate ($0, $1, $2), {$3, $4, $5}, $6, $7;
+> >
+> > or even:
+> >
+> > foreach T generate ($0, $1, $2), {$3, $4, $5}, $6#$7, $8#$9, $10, $11;
+> >
+> >
+> > Is there reason not to do the second or third other than being more
+> > complicated?
+> >
+> > Certainly I'd volunteer to put the top implementation in to the util
+> > package and submit them for builtin's, but the latter syntactic candies
+> > seems more natural..
+> >
+> >
+> >
+> > On Tue, Apr 20, 2010 at 5:24 PM, Alan Gates <gates@yahoo-inc.com> wrote:
+> >
+> >> The grouping package in piggybank is left over from back when Pig
+> allowed
+> >> users to define grouping functions (0.1).  Functions like these should
+> go in
+> >> evaluation.util.
+> >>
+> >> However, I'd consider putting these in builtin (in main Pig) instead.
+> >>  These are things everyone asks for and they seem like a reasonable
+> addition
+> >> to the core engine.  This will be more of a burden to write (as we'll
+> hold
+> >> them to a higher standard) but of more use to people as well.
+> >>
+> >> Alan.
+> >>
+> >>
+> >> On Apr 19, 2010, at 12:53 PM, hc busy wrote:
+> >>
+> >>  Some times I wonder... I mean, somebody went to the trouble of making a
+> >>> path
+> >>> called
+> >>>
+> >>> org.apache.pig.piggybank.grouping
+> >>>
+> >>> (where it seems like this code belong), but didn't check in any java
+> code
+> >>> into that package.
+> >>>
+> >>>
+> >>> Any comment about where to put this kind of utility classes?
+> >>>
+> >>>
+> >>>
+> >>> On Mon, Apr 19, 2010 at 12:07 PM, Andrey S <octo47@gmail.com> wrote:
+> >>>
+> >>>  2010/4/19 hc busy <hc.busy@gmail.com>
+> >>>>
+> >>>>  That's just the way it is right now, you can't make bags or tuples
+> >>>>> directly... Maybe we should have some UDF's in piggybank for these:
+> >>>>>
+> >>>>> toBag()
+> >>>>> toTuple(); --which is kinda like exec(Tuple in)
+{return in;}
+> >>>>> TupleToBag(); --some times you need it this way for some reason.
+> >>>>>
+> >>>>>
+> >>>>>  Ok. I place my current code here, may be later I make a patch (if
+> such
+> >>>> implementation is acceptable of course).
+> >>>>
+> >>>> import org.apache.pig.EvalFunc;
+> >>>> import org.apache.pig.data.BagFactory;
+> >>>> import org.apache.pig.data.DataBag;
+> >>>> import org.apache.pig.data.Tuple;
+> >>>> import org.apache.pig.data.TupleFactory;
+> >>>>
+> >>>> import java.io.IOException;
+> >>>>
+> >>>> /**
+> >>>> * Convert any sequence of fields to bag with specified count of
+> >>>> fields<br>
+> >>>> * Schema: count:int, fld1 [, fld2, fld3, fld4... ].
+> >>>> * Output: count=2, then 
+{ (fld1, fld2) , (fld3, fld4) ... }
+> >>>> *
+> >>>> * @author astepachev
+> >>>> */
+> >>>> public class ToBag extends EvalFunc<DataBag> {
+> >>>>  public BagFactory bagFactory;
+> >>>>  public TupleFactory tupleFactory;
+> >>>>
+> >>>>  public ToBag() 
+{
+> >>>>      bagFactory = BagFactory.getInstance();
+> >>>>      tupleFactory = TupleFactory.getInstance();
+> >>>>  }
+> >>>>
+> >>>>  @Override
+> >>>>  public DataBag exec(Tuple input) throws IOException {
+> >>>>      if (input.isNull())
+> >>>>          return null;
+> >>>>      final DataBag bag = bagFactory.newDefaultBag();
+> >>>>      final Integer couter = (Integer) input.get(0);
+> >>>>      if (couter == null)
+> >>>>          return null;
+> >>>>      Tuple tuple = tupleFactory.newTuple();
+> >>>>      for (int i = 0; i < input.size() - 1; i++) {
+> >>>>          if (i % couter == 0) 
+{
+> >>>>              tuple = tupleFactory.newTuple();
+> >>>>              bag.add(tuple);
+> >>>>          }
+> >>>>          tuple.append(input.get(i + 1));
+> >>>>      }
+> >>>>      return bag;
+> >>>>  }
+> >>>> }
+> >>>>
+> >>>> import org.apache.pig.ExecType;
+> >>>> import org.apache.pig.PigServer;
+> >>>> import org.junit.Before;
+> >>>> import org.junit.Test;
+> >>>>
+> >>>> import java.io.IOException;
+> >>>> import java.net.URISyntaxException;
+> >>>> import java.net.URL;
+> >>>>
+> >>>> import static org.junit.Assert.assertTrue;
+> >>>>
+> >>>> /**
+> >>>> * @author astepachev
+> >>>> */
+> >>>> public class ToBagTest {
+> >>>>  PigServer pigServer;
+> >>>>  URL inputTxt;
+> >>>>
+> >>>>  @Before
+> >>>>  public void init() throws IOException, URISyntaxException 
+{
+> >>>>      pigServer = new PigServer(ExecType.LOCAL);
+> >>>>      inputTxt =
+> >>>> this.getClass().getResource("bagTest.txt").toURI().toURL();
+> >>>>  }
+> >>>>
+> >>>>  @Test
+> >>>>  public void testSimple() throws IOException 
+{
+> >>>>      pigServer.registerQuery("a = load '" + inputTxt.toExternalForm()
+> +
+> >>>> "' using PigStorage(',') " +
+> >>>>              "as (id:int, a:chararray, b:chararray, c:chararray,
+> >>>> d:chararray);");
+> >>>>      pigServer.registerQuery("last = foreach a generate flatten(" +
+> >>>> ToBag.class.getName() + "(2, id, a, id, b, id, c));");
+> >>>>
+> >>>>      pigServer.deleteFile("target/pigtest/func1.txt");
+> >>>>      pigServer.store("last", "target/pigtest/func1.txt");
+> >>>>      assertTrue(pigServer.fileSize("target/pigtest/func1.txt") > 0);
+> >>>>  }
+> >>>> }
+> >>>>
+> >>>>
+> >>
+> >
+>

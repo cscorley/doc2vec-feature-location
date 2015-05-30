@@ -1,0 +1,5 @@
+The replication log shipper thread synchronizes on 'this' both when shipping log records (shipALogChunk) and when it waits between log shipments. 
+
+Transaction threads may try to wake up the log shipper because log has arrived that should be shipped (i.e., through the method workToDo). These threads should not have to wait for the monitor if the log shipper is currently busy shipping log. The solution is to have two monitors - one for log shipment and one for waiting between log shipment.
+
+This may seem like a minor issue, but if the TCP connection between master and slave is lost e.g. because a network cable has been unplugged, the log shipper will block for 2 minutes on ObjectOutputStream#writeObject.

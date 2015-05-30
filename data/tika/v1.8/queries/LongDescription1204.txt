@@ -1,0 +1,18 @@
+DWFX are AutoCAD Design web format files and follow Open Packaging Conventions. 
+Tika "correctly" detects these files as application/zip. 
+It would be better if Tika could recognize the true mimetype: model/vnd.dwfx+xps. 
+Please add logic in ZipContainerDetector in such a way could be possible to detect dwfx. We need a method behaving like detectOfficeOpenXML(OPCPackage pkg): 
+
+
+PackageRelationshipCollection core = pkg.getRelationshipsByType("http://schemas.autodesk.com/dwfx/2007/relationships/documentsequence");
+if (core.size() != 1) {
+ // Invalid DWFX Package received
+ return null;
+}
+PackagePart corePart = pkg.getPart(core.getRelationship(0));
+String coreType = corePart.getContentType();
+return MediaType.parse(coreType);
+
+
+Thank you,
+Marco

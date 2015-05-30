@@ -1,0 +1,7 @@
+I think both select statements in the attached repro script should return 1 row, but in fact the first statement returns 1 row and the second returns zero rows.
+
+The only difference between the two statements is that the columns in the UNION view are listed in a different order (bvw vs. bvw2).
+
+This seems like a bug to me; the order of the columns in the view definition shouldn't matter, should it? 
+
+As Army noted on the derby-dev list, the fact that this reproduces with 10.0 means that it is not caused by some of the 10.2 optimizer changes. Something else is going wrong.

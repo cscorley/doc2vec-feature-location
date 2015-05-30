@@ -1,0 +1,33 @@
+I want to overwrite the MetaDataFactory like described here: 
+http://openjpa.apache.org/builds/1.0.2/apache-openjpa-1.0.2/docs/manual/ref_guide_meta.html
+
+But it turned out it doesn't work. I managed to develop a test scenario 
+which easily produces the behaviour I encountered. 
+
+What does work is the following: 
+
+Adding 
+<property name="openjpa.MetaDataFactory" value="jpa"/> 
+to persistence.xml. 
+
+When setting this property my junit test (persisting a simple association, 
+using @Column Annotation to use differing column names) does work. 
+
+
+According to the document above, this property Tag should be equivalent to 
+the setting above: 
+
+<property name="openjpa.MetaDataFactory" 
+value="org.apache.openjpa.persistence.PersistenceMetaDataFactory"/> 
+
+But when using this configuration my junit test fails. The differing 
+Column Names set by the @Column.name Attribute are no longer found. 
+Instead the Java Attribute-Names are used in the SQL. 
+
+My problem is, that I want to implement a custom MetaDataFactory and this 
+doesn't work either (which is expected, because I extend 
+PersistenceMetaDataFactory). 
+Using PersistenceMappingFactory instead doesn't work either.
+
+For detailed information please see the following discussion:
+http://openjpa.208410.n2.nabble.com/Problems-when-using-quot-openjpa-MetaDataFactory-quot-Property-td6671704.html

@@ -1,0 +1,22 @@
+This was detected by Knut Anders.  From his email:
+
+I think
+
+     if (JVMInfo.JDK_ID >= JVMInfo.J2SE_14 )
+     {
+         sqle.initCause(getCause());
+     }
+
+ should have been
+
+     if (JVMInfo.JDK_ID >= JVMInfo.J2SE_14 )
+     {
+         sqle.initCause(this);
+     }
+
+ It is the SqlException that is the cause of the SQLException. The
+ cause of an SqlException is often null, and if we pass the null value
+ to SQLException.initCause(), we lose all of the driver internal stack
+ trace, and it makes debugging very difficult. All we get in the stack
+ trace is SqlException.getSQLException(), the top-level JDBC method and
+ the application stack.

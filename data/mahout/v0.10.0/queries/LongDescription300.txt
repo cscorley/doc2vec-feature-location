@@ -1,0 +1,26 @@
+AbstractVector operations like times
+
+  public Vector times(double x) {
+    Vector result = clone();
+    Iterator<Element> iter = iterateNonZero();
+    while (iter.hasNext()) 
+{
+      Element element = iter.next();
+      int index = element.index();
+      result.setQuick(index, element.get() * x);
+    }
+    return result;
+  }
+
+should be implemented as follows
+
+ public Vector times(double x) {
+    Vector result = clone();
+    Iterator<Element> iter = result.iterateNonZero();
+    while (iter.hasNext()) 
+{
+      Element element = iter.next();
+      element.set(element.get() * x);
+    }
+    return result;
+  }

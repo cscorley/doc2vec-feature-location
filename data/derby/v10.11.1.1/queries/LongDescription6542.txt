@@ -1,0 +1,19 @@
+This is another attempt to improve the concurrency of identity columns. The previous attempt was tracked by DERBY-4437.
+
+This new attempt will try out Mike's last suggestion: use system-created sequences managed by SYS.SYSSEQUENCES. This should reduce the contention on the core catalogs.
+
+I'm hopeful about this approach because of the experiments tracked by DERBY-6533. There we are not seeing any problems related to sequence generators but we are seeing lots of identity-related lock timeouts.
+
+Here is the general shape of this approach:
+
+1) When adding an identity column to a table, Derby will create a sequence generator for the column. The sequence generator will live in the SYS schema and its name will be the table's UUID.
+
+2) DROP SEQUENCE will not operate on system-created sequences. System-created sequences will be dropped/modified by DROP/ALTER TABLE commands.
+
+3) We will add a new system function for inspecting the current, in-memory value of an identity generator without getting a lock on SYS.SYSSEQUENCES: SYSCS_UTIL.SYSCS_PEEK_AT_IDENTITY( tableSchemaName, tableName ).
+
+4) Derby will create a sequence for every legacy identity column after hard-upgrade.
+
+5) These changes will take place only after hard-upgrade. Soft-upgrade will not change the behavior of identity columns.
+
+Comments on this proposal are welcome. Thanks.

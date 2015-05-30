@@ -1,0 +1,17 @@
+If we have ~500,000 topics in hedwig, we might have more than ~500,000 ledgers in bookkeeper (a topic has more than 1 ledger). So when the bookie server restarted, a logfile GC thread is started, which will call zk.getChildren to fetch all ledgers, and it failed because of package length limitation.
+
+2011-08-01 01:18:46,373 - ERROR [main-EventThread:EntryLogger$GarbageCollectorThread$1@164] - Error polling ZK for the available ledger nodes:
+org.apache.zookeeper.KeeperException$ConnectionLossException: KeeperErrorCode = ConnectionLoss for /ledgers
+        at org.apache.zookeeper.KeeperException.create(KeeperException.java:99)
+        at org.apache.zookeeper.KeeperException.create(KeeperException.java:51)
+        at org.apache.zookeeper.ZooKeeper.getChildren(ZooKeeper.java:1519)
+        at org.apache.bookkeeper.bookie.EntryLogger$GarbageCollectorThread$1.processResult(EntryLogger.java:162)
+        at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:592)
+        at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:481)
+2011-08-01 01:18:46,373 - WARN  [main-EventThread:Bookie$1@242] - ZK client has been disconnected to the ZK server!
+2011-08-01 01:18:47,278 - WARN  [main-SendThread(perf13.platform.mobile.sp2.yahoo.com:2181):ClientCnxn$SendThread@980] - Session 0x131833dec850034 for server perf13.platform.mobile.sp2.yahoo.com/98.139.43.86:2181, unexpected error, closing socket connection and attempting reconnect
+java.io.IOException: Packet len9976413 is out of range!
+        at org.apache.zookeeper.ClientCnxnSocket.readLength(ClientCnxnSocket.java:112)
+        at org.apache.zookeeper.ClientCnxnSocketNIO.doIO(ClientCnxnSocketNIO.java:78)
+        at org.apache.zookeeper.ClientCnxnSocketNIO.doTransport(ClientCnxnSocketNIO.java:264)
+        at org.apache.zookeeper.ClientCnxn$SendThread.run(ClientCnxn.java:958) 

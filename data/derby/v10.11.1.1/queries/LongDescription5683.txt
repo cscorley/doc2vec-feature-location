@@ -1,0 +1,3 @@
+BaseJDBCTestCase.getDatabaseProperty() creates a PreparedStatement and a ResultSet that are not closed before the method returns. If a test case calls getDatabaseProperty() many times, the open statements may have a big memory footprint.
+
+This can be seen for example by running jdbcapi.AuthenticationTest with -Xmx64. It will fail with an OutOfMemoryError when testNoCollisionsWithConfigurableHash() runs in client/server mode.

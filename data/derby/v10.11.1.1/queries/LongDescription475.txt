@@ -1,0 +1,52 @@
+Add a mechanism for system functions to be easily added. Resolution of functions will check SYSFUN.<name> for a function call in SQL when the function is not qualified by a schema. If the current schema does not have a function matching the name, then an additional resolution is made using SYSFUN.<name>.
+
+Add a table driven mechanism for simple single argument functions (could be expanded in the future).
+
+Add these functions
+
+/*
+
+	
+	
+		SYSFUN functions
+*[0] = FUNCTION name
+*[1] = RETURNS type
+*[2] = Java class
+*[3] = method name
+*[4] = parameter type (single parameter)
+*
+*/
+private static final String[][] SYSFUN_FUNCTIONS = 
+{
+{"ACOS", "DOUBLE", "java.lang.Math", "acos", "DOUBLE"}
+,
+{"ASIN", "DOUBLE", "java.lang.Math", "asin", "DOUBLE"}
+,
+{"ATAN", "DOUBLE", "java.lang.Math", "atan", "DOUBLE"}
+,
+{"COS", "DOUBLE", "java.lang.Math", "cos", "DOUBLE"}
+,
+{"SIN", "DOUBLE", "java.lang.Math", "sin", "DOUBLE"}
+,
+{"TAN", "DOUBLE", "java.lang.Math", "tan", "DOUBLE"}
+,
+{"DEGREES", "DOUBLE", "java.lang.Math", "toDegrees", "DOUBLE"}
+,
+{"RADIANS", "DOUBLE", "java.lang.Math", "toRadians", "DOUBLE"}
+,
+{"LN", "DOUBLE", "java.lang.Math", "log", "DOUBLE"}
+,
+{"EXP", "DOUBLE", "java.lang.Math", "exp", "DOUBLE"}
+,
+{"CEIL", "DOUBLE", "java.lang.Math", "ceil", "DOUBLE"}
+,
+{"CEILING", "DOUBLE", "java.lang.Math", "ceil", "DOUBLE"}
+,
+{"FLOOR", "DOUBLE", "java.lang.Math", "floor", "DOUBLE"}
+,
+	
+	
+
+
+
+};

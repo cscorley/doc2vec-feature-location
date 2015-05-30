@@ -1,0 +1,52 @@
+Execute the following scenario:
+
+Create a schema
+Create a table
+Create a view
+
+Drop the view
+Drop the table
+Drop the schema
+
+The first time this sequence executes OK, However, executing the same sequence again fails on the drop view:
+ERROR X0X05: Table 'view' does not exist.
+
+When I leave out the create and drop of a view, all goes well, so it seems 
+to have something to do with the view.
+
+I encountered the problem first using org.apache.derby.jdbc.ClientConnectionPoolDataSource, but later I found that the problem is reproducable with a simple ij script as follows:
+– *******************************************************
+– Setup connection
+– *******************************************************
+connect 'jdbc:derby://localhost/TestData;create=true;';
+– *******************************************************
+– The first time
+– *******************************************************
+CREATE SCHEMA TEST_SCHEMA;
+CREATE TABLE TEST_SCHEMA.T1 (TABLE_COLUMN LONG VARCHAR);
+CREATE VIEW TEST_SCHEMA.V1 AS SELECT TABLE_COLUMN AS VIEW_COLUMN FROM 
+TEST_SCHEMA.T1;
+
+DROP VIEW TEST_SCHEMA.V1;
+DROP TABLE TEST_SCHEMA.T1;
+DROP SCHEMA TEST_SCHEMA RESTRICT;
+– *******************************************************
+– The second time
+– *******************************************************
+CREATE SCHEMA TEST_SCHEMA;
+CREATE TABLE TEST_SCHEMA.T1 (TABLE_COLUMN LONG VARCHAR);
+CREATE VIEW TEST_SCHEMA.V1 AS SELECT TABLE_COLUMN AS VIEW_COLUMN FROM 
+TEST_SCHEMA.T1;
+
+DROP VIEW TEST_SCHEMA.V1; – This statement fails
+DROP TABLE TEST_SCHEMA.T1;
+DROP SCHEMA TEST_SCHEMA RESTRICT;
+– *******************************************************
+– Cleanup
+– *******************************************************
+disconnect;
+connect 'jdbc:derby://localhost/TestData;shutdown=true;';
+
+As an explanation why I would like to be able to create and then drop views: I am trying to interactively create my table setup. When I make mistakes I must drop wrongly defined tables or views.
+
+I encountered some other very strange behaviour that might be related to this issue (table not found when I just created it and wanted to create a second table with a foreign key referencing the first table), but which I am not yet able to reproduce in a consistent and simple way.

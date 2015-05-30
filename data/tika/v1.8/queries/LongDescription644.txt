@@ -1,0 +1,9 @@
+org.apache.tika.parser.microsoft.WordExtractor will translate heading styles to "h" tags with a level greater than 6 which means the xhtml is invalid. The xhtml DTD only defines header elements 1 to 6:
+<!ENTITY % heading "h1|h2|h3|h4|h5|h6">
+
+changing line 380 from:
+tag = "h"+num;
+to
+tag = "h"+Math.min(num, 6);
+
+will resolve this. 

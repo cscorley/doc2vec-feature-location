@@ -1,0 +1,9 @@
+Solr currently allows a pluggable Lucene Similarity to be specified as:
+
+    <similarity class="org.apache.lucene.search.DefaultSimilarity"/> 
+
+This patch does not change this syntax at all, but detects whether a Similarity or a SimilarityFactory is specified.  The new SimilarityFactory class passes a NamedList from the config file into a getSimilarity(NamedList) method.
+
+Yes, I used an interface, damn it!   Let the battles continue.   I've spoken with my code on the issue.  But sure, I'll acquiesce on the topic and turn it into an abstract class if I must - stupid programming languages!  object-oriented programming, not interface or abstract oriented programming   All I ask is ya show me a good case where this interface won't suit your needs, and I'll reply that instead of thinking the problem is the interface, consider it is how the interface is used - it's implicitly designed to be simply that, an interface.  You want a different way to configure, don't like NamedLists for some reason maybe?, we change IndexSchema Similarity construction smarts, perhaps creating another interface.  Same diff, sort of.
+
+I'm proud of the unit test, no XPath in sight.

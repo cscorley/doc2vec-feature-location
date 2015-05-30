@@ -1,0 +1,18 @@
+Please include the following mime declaration in tika-core/src/main/resources/org/apache/tika/mime/tika-mimetypes.xml.
+It makes possible to detect AxCrypt file type with extension *.axx.
+
+
+
+<mime-info>
+	<mime-type type="application/x-axcrypt">
+		<glob pattern="*.axx" />
+		<magic priority="50">
+			<match value="\xc0\xb9\x07\x2e\x4f\x93\xf1\x46\xa0\x15\x79\x2c\xa1\xd9\xe8\x21\x15\x00\x00\x00\x02" type="string" offset="0" />
+		</magic>
+	</mime-type>
+</mime-info>
+
+
+
+The magic value is taken from the Aperture project:
+http://sourceforge.net/p/aperture/code/2493/tree/aperture/trunk/core/src/main/resources/org/semanticdesktop/aperture/mime/identifier/magic/mimetypes.xml#l1225

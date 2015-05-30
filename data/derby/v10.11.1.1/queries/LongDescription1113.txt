@@ -1,0 +1,273 @@
+----------------------------------------------------------------
+
+2006-03-14 19:45:40.573 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.2.0.0 alpha - (1): instance c013800d-0109-fa4a-bf58-0000001078a0
+on database directory E:\suresht\backuptests\wombat  
+
+
+DEBUG LogTrace OUTPUT: log control file ckp instance = (328,1153619)
+
+DEBUG LogTrace OUTPUT: log control file, was derby.system.durability set to test = false
+
+DEBUG LogTrace OUTPUT: Found checkpoint at (328,1153619) Checkpoint : 	redoLWM (328,17661)
+		undoLWM (327,2986503)
+**************************
+org.apache.derby.impl.store.raw.xact.TransactionTable@1a52fdf
+Transaction Table: size = 2 largestUpdateXactId = 59155
+Xid=59155 gid=null firstLog=(328,1153581) lastLog=null transactionStatus=0 myxact=null update=true recovery=true prepare=false needExclusion=true
+Xid=59154 gid=null firstLog=(327,3151974) lastLog=(328,1153500) transactionStatus=0 myxact=null update=true recovery=true prepare=false needExclusion=true
+---------------------------
+
+DEBUG LogTrace OUTPUT: E:\suresht\backuptests\wombat\log\log327.dat does not exist
+
+Exception trace: 
+
+org.apache.derby.iapi.services.sanity.AssertFailure: ASSERT FAILED scan null at (327,2986503)
+
+	at org.apache.derby.iapi.services.sanity.SanityManager.THROWASSERT(SanityManager.java:150)
+
+	at org.apache.derby.impl.store.raw.log.Scan.<init>(Scan.java:141)
+
+	at org.apache.derby.impl.store.raw.log.LogToFile.openForwardsScan(LogToFile.java:2655)
+
+	at org.apache.derby.impl.store.raw.log.LogToFile.recover(LogToFile.java:758)
+
+	at org.apache.derby.impl.store.raw.RawStore.boot(RawStore.java:336)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1993)
+
+	at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:290)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java:542)
+
+	at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java:418)
+
+	at org.apache.derby.impl.store.access.RAMAccessManager.boot(RAMAccessManager.java:987)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1993)
+
+	at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:290)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java:542)
+
+	at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java:418)
+
+	at org.apache.derby.impl.db.BasicDatabase.bootStore(BasicDatabase.java:738)
+
+	at org.apache.derby.impl.db.BasicDatabase.boot(BasicDatabase.java:178)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1993)
+
+	at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:290)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.bootService(BaseMonitor.java:1831)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startProviderService(BaseMonitor.java:1697)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.findProviderAndStartService(BaseMonitor.java:1577)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startPersistentService(BaseMonitor.java:990)
+
+	at org.apache.derby.iapi.services.monitor.Monitor.startPersistentService(Monitor.java:541)
+
+	at org.apache.derby.impl.jdbc.EmbedConnection.bootDatabase(EmbedConnection.java:1583)
+
+	at org.apache.derby.impl.jdbc.EmbedConnection.<init>(EmbedConnection.java:213)
+
+	at org.apache.derby.impl.jdbc.EmbedConnection30.<init>(EmbedConnection30.java:72)
+
+	at org.apache.derby.jdbc.Driver30.getNewEmbedConnection(Driver30.java:73)
+
+	at org.apache.derby.jdbc.InternalDriver.connect(InternalDriver.java:199)
+
+	at java.sql.DriverManager.getConnection(DriverManager.java:512)
+
+	at java.sql.DriverManager.getConnection(DriverManager.java:140)
+
+	at org.apache.derby.impl.tools.ij.ij.dynamicConnection(ij.java:873)
+
+	at org.apache.derby.impl.tools.ij.ij.ConnectStatement(ij.java:723)
+
+	at org.apache.derby.impl.tools.ij.ij.ijStatement(ij.java:553)
+
+	at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:289)
+
+	at org.apache.derby.impl.tools.ij.Main.go(Main.java:203)
+
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:169)
+
+	at org.apache.derby.impl.tools.ij.Main14.main(Main14.java:55)
+
+	at org.apache.derby.tools.ij.main(ij.java:60)
+
+
+------------  BEGIN SHUTDOWN ERROR STACK -------------
+
+
+ERROR XSLA6: Cannot recover the database.
+
+	at org.apache.derby.iapi.error.StandardException.newException(StandardException.java:304)
+
+	at org.apache.derby.impl.store.raw.log.LogToFile.recover(LogToFile.java:1219)
+
+	at org.apache.derby.impl.store.raw.RawStore.boot(RawStore.java:336)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1993)
+
+	at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:290)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java:542)
+
+	at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java:418)
+
+	at org.apache.derby.impl.store.access.RAMAccessManager.boot(RAMAccessManager.java:987)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1993)
+
+	at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:290)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java:542)
+
+	at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java:418)
+
+	at org.apache.derby.impl.db.BasicDatabase.bootStore(BasicDatabase.java:738)
+
+	at org.apache.derby.impl.db.BasicDatabase.boot(BasicDatabase.java:178)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1993)
+
+	at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:290)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.bootService(BaseMonitor.java:1831)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startProviderService(BaseMonitor.java:1697)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.findProviderAndStartService(BaseMonitor.java:1577)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startPersistentService(BaseMonitor.java:990)
+
+	at org.apache.derby.iapi.services.monitor.Monitor.startPersistentService(Monitor.java:541)
+
+	at org.apache.derby.impl.jdbc.EmbedConnection.bootDatabase(EmbedConnection.java:1583)
+
+	at org.apache.derby.impl.jdbc.EmbedConnection.<init>(EmbedConnection.java:213)
+
+	at org.apache.derby.impl.jdbc.EmbedConnection30.<init>(EmbedConnection30.java:72)
+
+	at org.apache.derby.jdbc.Driver30.getNewEmbedConnection(Driver30.java:73)
+
+	at org.apache.derby.jdbc.InternalDriver.connect(InternalDriver.java:199)
+
+	at java.sql.DriverManager.getConnection(DriverManager.java:512)
+
+	at java.sql.DriverManager.getConnection(DriverManager.java:140)
+
+	at org.apache.derby.impl.tools.ij.ij.dynamicConnection(ij.java:873)
+
+	at org.apache.derby.impl.tools.ij.ij.ConnectStatement(ij.java:723)
+
+	at org.apache.derby.impl.tools.ij.ij.ijStatement(ij.java:553)
+
+	at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:289)
+
+	at org.apache.derby.impl.tools.ij.Main.go(Main.java:203)
+
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:169)
+
+	at org.apache.derby.impl.tools.ij.Main14.main(Main14.java:55)
+
+	at org.apache.derby.tools.ij.main(ij.java:60)
+
+============= begin nested exception, level (1) ===========
+
+org.apache.derby.iapi.services.sanity.AssertFailure: ASSERT FAILED scan null at (327,2986503)
+
+	at org.apache.derby.iapi.services.sanity.SanityManager.THROWASSERT(SanityManager.java:150)
+
+	at org.apache.derby.impl.store.raw.log.Scan.<init>(Scan.java:141)
+
+	at org.apache.derby.impl.store.raw.log.LogToFile.openForwardsScan(LogToFile.java:2655)
+
+	at org.apache.derby.impl.store.raw.log.LogToFile.recover(LogToFile.java:758)
+
+	at org.apache.derby.impl.store.raw.RawStore.boot(RawStore.java:336)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1993)
+
+	at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:290)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java:542)
+
+	at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java:418)
+
+	at org.apache.derby.impl.store.access.RAMAccessManager.boot(RAMAccessManager.java:987)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1993)
+
+	at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:290)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startModule(BaseMonitor.java:542)
+
+	at org.apache.derby.iapi.services.monitor.Monitor.bootServiceModule(Monitor.java:418)
+
+	at org.apache.derby.impl.db.BasicDatabase.bootStore(BasicDatabase.java:738)
+
+	at org.apache.derby.impl.db.BasicDatabase.boot(BasicDatabase.java:178)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:1993)
+
+	at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.java:290)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.bootService(BaseMonitor.java:1831)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startProviderService(BaseMonitor.java:1697)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.findProviderAndStartService(BaseMonitor.java:1577)
+
+	at org.apache.derby.impl.services.monitor.BaseMonitor.startPersistentService(BaseMonitor.java:990)
+
+	at org.apache.derby.iapi.services.monitor.Monitor.startPersistentService(Monitor.java:541)
+
+	at org.apache.derby.impl.jdbc.EmbedConnection.bootDatabase(EmbedConnection.java:1583)
+
+	at org.apache.derby.impl.jdbc.EmbedConnection.<init>(EmbedConnection.java:213)
+
+	at org.apache.derby.impl.jdbc.EmbedConnection30.<init>(EmbedConnection30.java:72)
+
+	at org.apache.derby.jdbc.Driver30.getNewEmbedConnection(Driver30.java:73)
+
+	at org.apache.derby.jdbc.InternalDriver.connect(InternalDriver.java:199)
+
+	at java.sql.DriverManager.getConnection(DriverManager.java:512)
+
+	at java.sql.DriverManager.getConnection(DriverManager.java:140)
+
+	at org.apache.derby.impl.tools.ij.ij.dynamicConnection(ij.java:873)
+
+	at org.apache.derby.impl.tools.ij.ij.ConnectStatement(ij.java:723)
+
+	at org.apache.derby.impl.tools.ij.ij.ijStatement(ij.java:553)
+
+	at org.apache.derby.impl.tools.ij.utilMain.go(utilMain.java:289)
+
+	at org.apache.derby.impl.tools.ij.Main.go(Main.java:203)
+
+	at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:169)
+
+	at org.apache.derby.impl.tools.ij.Main14.main(Main14.java:55)
+
+	at org.apache.derby.tools.ij.main(ij.java:60)
+
+============= end nested exception, level (1) ===========
+
+
+
+
+------------  END SHUTDOWN ERROR STACK -------------
+
+
+
+2006-03-14 19:45:40.823 GMT:
+Shutting down instance c013800d-0109-fa4a-bf58-0000001078a0
+
+----------------------------------------------------------------

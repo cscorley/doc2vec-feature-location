@@ -1,0 +1,40 @@
+According to docs, for bincond operator "If a Boolean subexpression results in null value, the resulting expression is null" (http://pig.apache.org/docs/r0.11.0/basic.html#nulls).
+
+It works as described in plain foreach..generate expression:
+
+
+in = load 'in';
+out = FOREACH in GENERATE 1, ($0 > 0 ? 2 : 3);
+dump out;
+
+
+
+in (3 lines, 2nd is empty):
+
+0
+
+1
+
+
+
+out:
+
+(1,3)
+(1,)
+(1,2)
+
+
+
+But if we wrap generated variables in tuple (or bag), we lose the whole 2nd line in output:
+
+
+out = FOREACH in GENERATE (1, ($0 > 0 ? 2 : 3));
+
+
+
+out:
+
+((1,3))
+()
+((1,2))
+

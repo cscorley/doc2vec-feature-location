@@ -1,0 +1,9 @@
+a config file with trailing whitespace can cause number format exception
+
+for example a line such as
+
+clientPort=2181
+
+where 2181 is followed by a space character, will fail to parse with number format excetion "2181 " (notice the space).
+
+We need to trim whitespace when parsing numbers

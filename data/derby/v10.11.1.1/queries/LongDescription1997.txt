@@ -1,0 +1,23 @@
+I'm making some minor fixes to the Working With Derby manual (DERBY-1948, DERBY-1972). The description of the WwdEmbedded.java program in the HTML generated from the file rwwdactivity3.dita (http://db.apache.org/derby/docs/dev/workingwithderby/) contains the following paragraph:
+
+DERBY EXCEPTION REPORTING CLASSES: The two methods at the end of the file, errorPrint and SQLExceptionPrint, are generic exception reporting routines that can be used with any JDBC program. This type of exception handling is required because often multiple exceptions (SQLException) are chained together then thrown. A while loop is used to report on each error in the chain. These classes are used by calling the errorPrint method from the catch block of the code that accesses the database.
+
+The introductory text "DERBY EXCEPTION REPORTING CLASSES" is keyed to a comment with the same text in the DERBY_HOME/demo/programs/workingwithderby/WwdEmbedded.java program:
+
+     //   ## DERBY EXCEPTION REPORTING CLASSES  ## 
+
+    /***     Exception reporting methods
+
+
+	
+	
+		with special handling of SQLExceptions
+	
+	
+
+
+
+    ***/
+
+
+The problem is that there are no Derby exception reporting classes, only methods, as far as I can tell. The use of the term CLASSES is likely to confuse any users not well acquainted with Java (one of the target audiences of this manual). It would be great if someone could change CLASSES to METHODS in the WwdEmbedded.java file so that I can make the corresponding fix to the rwwdactivity3.dita file. I would also have to correct the confusing last sentence of the paragraph; I think it would make more sense to say, "The program starts this process by calling the errorPrint method from the catch block of the code that accesses the database." (I can't just change "classes" to "methods" because errorPrint is one of the methods.

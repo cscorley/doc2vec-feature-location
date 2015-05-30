@@ -1,0 +1,6 @@
+Flushing a multi-level graph with many bi-directional relationships can result in SQL exceptions due to sequence-generated IDs of some leaf entities not getting assigned during pre-flush.  Sequence-generated id's require an additional ID population step which happens during pre-flush.  OpenJPA's state transitioning during a pre-flush can fail to pre-flush child entities when certain bi-directional traversals occur.  The proposed fix is if flushing, perform the pre-flush on entities that may have moved from provisional to new state (as a result of a previous traversal) without being properly pre-flushed.  If the entity was previously pre-flushed, it will have been tagged as such and the operation will simply return.  Otherwise, it'll pre-flush the entity and all child entities, generating IDs in the process.  On Oracle, the SQL exception below is a symptom of the problem.  An ID has not been assigned to an entity and as a result, OpenJPA is attempting to insert NULL into an ID field.
+
+Caused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: ORA-01400: cannot insert NULL into ("SCOTT"."FL_ASSIGN"."ASSIGN_ID")
+ 
+{prepstmnt 577905266 INSERT INTO FL_ASSIGN (ASSIGN_ID, ASSIGN_TEXT, TOPIC_ID) VALUES (?, ?, ?) [params=?, ?, ?]}
+ [code=1400, state=23000]

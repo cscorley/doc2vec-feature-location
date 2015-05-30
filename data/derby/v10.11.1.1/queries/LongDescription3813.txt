@@ -1,0 +1,117 @@
+I received the following problem report:
+
+Having failures running with our VM that is a subset of Java 5.   Failure is with the handling of the BigDecimal class in the org.apache.derby.iapi.types.SQLDecimal class.  
+
+The SQLDecimal class does reflection to determine if the methods toPlainString and bdPrecison are present or not
+ private static final Method toPlainString;
+    private static final Method bdPrecision;
+    static {
+        Method m;
+        try 
+{
+            m = BigDecimal.class.getMethod("toPlainString", null);
+        }
+ catch (NoSuchMethodException e) 
+{
+            m = null;
+        }
+        toPlainString = m;
+        try {
+            m = BigDecimal.class.getMethod("precision", null);
+        } catch (NoSuchMethodException e) {            m = null;        }
+        bdPrecision = m;
+    }
+
+however, when it comes time to use them, it does not check whether it found the methods, but rather the JVM level, equating JVM specification level with method existence
+
+	public String	getString()
+	{
+		BigDecimal localValue = getBigDecimal();
+		if (localValue == null)
+			return null;
+		else if (JVMInfo.JDK_ID < JVMInfo.J2SE_15)
+			return localValue.toString();
+        else
+        {
+            // use reflection so we can still compile using JDK1.4
+            // if we are prepared to require 1.5 to compile then this can be a direct call
+            try 
+{
+                return (String) toPlainString.invoke(localValue, null);
+            }
+ catch (IllegalAccessException e) {
+
+
+and
+	private static int getWholeDigits(BigDecimal decimalValue)
+	{
+        /**
+
+	if ONE > abs(value) then the number of whole digits is 0
+         */
+        decimalValue = decimalValue.abs();
+        if (ONE.compareTo(decimalValue) == 1)
+        {
+            return 0;
+        }
+
+
+
+        if (JVMInfo.JDK_ID >= JVMInfo.J2SE_15)
+		{
+	        // use reflection so we can still compile using JDK1.4
+			// if we are prepared to require 1.5 to compile then this can be a
+			// direct call
+			try {
+				// precision is the number of digits in the unscaled value,
+				// subtracting the scale (positive or negative) will give the
+				// number of whole digits.
+				int precision = ((Integer) bdPrecision.invoke(decimalValue,
+						null)).intValue();
+				return precision - decimalValue.scale();
+
+Since the JVM is claiming 1.5 specification, the code assumes the methods exist,  and result in NullPointerExceptions at the low level Derby class, resulting in SQLExceptions thrown to the caller.   
+
+>>>> ***Created table: dish
+***Created table: VNMEDICALRECORD
+Fail to make the query to database:
+java.lang.NullPointerException
+        at org.apache.derby.iapi.types.SQLDecimal.getString(Unknown Source)
+        at org.apache.derby.iapi.types.DataType.getTraceString(Unknown Source)
+        at org.apache.derby.impl.sql.GenericParameter.toString(Unknown Source)
+        at org.apache.derby.impl.sql.GenericParameterValueSet.toString(Unknown Source)
+        at org.apache.derby.impl.sql.conn.GenericStatementContext.appendErrorInfo(Unknown Source)
+        at org.apache.derby.iapi.services.context.ContextManager.cleanupOnError(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.ConnectionChild.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeStatement(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement.execute(Unknown Source)
+        at com.ibm.rcp.samples.derby.Derby.updateDB(Derby.java:175)
+        at com.ibm.rcp.samples.derby.Derby.run(Derby.java:89)
+        at java.lang.Thread.run(Unknown Source)
+Fail to close:
+java.sql.SQLException: Cannot issue rollback in a nested connection when there is a pending operation in the parent connection.
+        at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedConnection.handleException(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedConnection.close(Unknown Source)
+        at org.apache.derby.impl.jdbc.EmbedConnection.close(Unknown Source)
+        at com.ibm.rcp.samples.derby.Derby.updateDB(Derby.java:258)
+        at com.ibm.rcp.samples.derby.Derby.run(Derby.java:89)
+        at java.lang.Thread.run(Unknown Source)
+Caused by: ERROR X0Y67: Cannot issue rollback in a nested connection when there is a pending operation in the parent connection.
+        at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+        at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.doRollback(Unknown Source)
+        at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.userRollback(Unknown Source)
+        at org.apache.derby.impl.jdbc.TransactionResourceImpl.rollback(Unknown Source)
+        ... 5 more
+
+
+Making the following change would fix the problem of running on our VM
+Instead of this test
+        if (JVMInfo.JDK_ID >= JVMInfo.J2SE_15)
+test if (toPlainString == null), or if (bdPrecision == null) or equivalent, this should achieved the same results

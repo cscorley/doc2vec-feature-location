@@ -1,0 +1,9 @@
+On the govdocs1 corpus, nearly 91% of xls exceptions have this stacktrace:
+
+Caused by: java.io.IOException: Invalid header signature; read 0x0010000000060409, expected 0xE11AB1A1E011CFD0 - Your file appears not to be a valid OLE2 document at org.apache.poi.poifs.storage.HeaderBlock.<init>(HeaderBlock.java:140) at org.apache.poi.poifs.storage.HeaderBlock.<init>(HeaderBlock.java:115) at org.apache.poi.poifs.filesystem.NPOIFSFileSystem.<init>(NPOIFSFileSystem.java:198) at org.apache.poi.poifs.filesystem.NPOIFSFileSystem.<init>(NPOIFSFileSystem.java:184) at org.apache.tika.parser.microsoft.OfficeParser.parse(OfficeParser.java:162) at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242) ... 13 more
+
+
+
+Excel is able to open the few files that I tried, and it looks like Excel thinks these are version 4.
+
+On the POI user list, Nick Burch identified this header as pre-OLE2 and asked that we add the mime to Tika so that we can handle appropriately.  Test file soon to be attached.

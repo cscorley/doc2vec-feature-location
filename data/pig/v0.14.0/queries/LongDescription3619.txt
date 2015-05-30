@@ -1,0 +1,11 @@
+Xml is often loaded using XMLLoader with a record boundary tag as one of the parameters. A common use case is to then extract data from those records. XPath would allow those extractions to be done very easily. I'm  proposing a patch that adds simple XPath support as a UDF.
+
+Example usage of this the XPath UDF would be:
+
+
+
+extractions = FOREACH xmlrecords GENERATE XPath(record, 'book/author'), XPath(record, 'book/title');
+
+
+
+The proposed UDF also caches the last xml document. This is helpful for improving performance when multiple consecutive xpath extractions on the same xml document, such as the example above. 

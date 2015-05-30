@@ -1,0 +1,19 @@
+The following code fragment behaves differently on client and embedded:
+
+        PreparedStatement ps = c.prepareStatement("values cast(? as boolean)");
+        ps.setString(1, "TRUE");
+        ResultSet rs = ps.executeQuery();
+        rs.next();
+        System.out.println(rs.getBoolean(1));
+
+Embedded prints "true". Client raises an exception:
+
+Exception in thread "main" java.sql.SQLDataException: An attempt was made to get a data value of type 'VARCHAR' from a data value of type 'BOOLEAN'.
+	at org.apache.derby.client.am.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:72)
+	at org.apache.derby.client.am.SqlException.getSQLException(SqlException.java:358)
+	at org.apache.derby.client.am.PreparedStatement.setString(PreparedStatement.java:884)
+	at SetByte.main(SetByte.java:6)
+Caused by: org.apache.derby.client.am.SqlException: An attempt was made to get a data value of type 'VARCHAR' from a data value of type 'BOOLEAN'.
+	at org.apache.derby.client.am.PreparedStatement$PossibleTypes.throw22005Exception(PreparedStatement.java:3069)
+	at org.apache.derby.client.am.PreparedStatement.setString(PreparedStatement.java:874)
+	... 1 more

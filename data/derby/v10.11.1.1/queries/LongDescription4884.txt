@@ -1,0 +1,3 @@
+DatabasePropertyTestSetup needs to reboot the database in order to set static properties. In tests with encrypted databases, the database cannot be rebooted because the boot password is only known inside the setUp() method of the decorator created by Decorator.encryptedDatabase().
+
+One of the problems that results from this, is that BlobClob4Blob test cannot reduce the lock timeout for the encrypted variant of the test. Since there are four test cases that wait for a lock timeout, the test takes almost four minutes longer than it would have if the lock timeout had been reduced.

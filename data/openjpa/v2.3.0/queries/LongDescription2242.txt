@@ -1,0 +1,15 @@
+When procedure call is used in criteria builder as described in the following code snippet,
+a hard coded column size in CAST(? AS VARCHAR(#)) for DB2 is generated and caused run-time failure with a SQLCODE=-302, SQLSTATE=22001 
+
+	CriteriaBuilder cb = em.getCriteriaBuilder();
+	CriteriaQuery<SimpleEntity> criteriaQuery = cb.createQuery(SimpleEntity.class);
+	Root<SimpleEntity> simpleEntity = criteriaQuery.from(SimpleEntity.class);
+
+	Expression<String> func1 = null;
+	Expression<Double> func2 = null;
+	func2 = cb.function(
+		"st_point",
+		Double.class,
+		cb.literal("abcd......"), // error if String.length > 254
+		cb.literal(1003));
+	}

@@ -1,0 +1,3 @@
+The javadoc for PreparedStatement.setCharacterStream does not specify that the stream passed in will be closed, only that it will read to the number of characters specified.
+For the embedded driver, the stream is not closed after execution; the client driver, however, will close the stream when the internal stream object EncodedInputStream is garbage collected, which can happen any time after the statement has been executed.
+I am not sure this a bug vs. the JDBC specification, but it would be nice to harmonize client and embedded behavior on this.

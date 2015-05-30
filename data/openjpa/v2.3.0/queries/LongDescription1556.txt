@@ -1,0 +1,14 @@
+I have an entity (SimpleEntity) which references an ElementCollection (ChildOne.class).  There is a @Strategy annotation on a field within the embeddable class.  The first time a query is built for the entity, an exception is thrown:
+
+<openjpa-2.0.0-beta2-r422266:915978 fatal user error> org.apache.openjpa.persistence.ArgumentException: Attempt to map "com.example.ChildOne.address" failed: the owning entity is not mapped.
+	at org.apache.openjpa.jdbc.meta.MappingInfo.assertTable(MappingInfo.java:628)
+	at org.apache.openjpa.jdbc.meta.MappingInfo.createColumns(MappingInfo.java:558)
+	at org.apache.openjpa.jdbc.meta.ValueMappingInfo.getColumns(ValueMappingInfo.java:178)
+	at org.apache.openjpa.jdbc.meta.strats.HandlerStrategies.map(HandlerStrategies.java:65)
+	at org.apache.openjpa.jdbc.meta.strats.HandlerFieldStrategy.map(HandlerFieldStrategy.java:81)
+	at org.apache.openjpa.jdbc.meta.FieldMapping.setStrategy(FieldMapping.java:146)
+	... etc. ...
+
+If the @Strategy is not present, everything works fine.  If the exception is intentionally triggered, subsequent use is successful.
+
+Google suggests that this behavior has been seen before <http://marc.info/?l=geronimo-user&m=121545735018232&w=2> and <http://issues.apache.org/jira/browse/OPENJPA-524>, though there appears to have been no resolution in either case and this differs by use of @ElementCollection.

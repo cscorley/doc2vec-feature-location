@@ -1,0 +1,209 @@
+Using Pig 0.9.0 I was running into PIG-1824 when using import statements (e.g. import os) in a Python script with embedded Pig Latin.  Dmitriy Ryaboy pointed me to the new Pig 0.10 release candidate (http://people.apache.org/~daijy/pig-0.10.0-candidate-0/pig-0.10.0.tar.gz) so that I could test whether my issue was solved by the new Pig version.  During testing I run into the error described below.
+
+Summary (TL;DR)
+
+
+	Even a minimal Python script with embedded Pig Latin will throw an error if there is a single import statement in the Python code.
+	The fix is to replace the bundled lib/jython.jar with a standalone version of the same jar.
+
+
+
+Error message: "ERROR 1121: Python Error (ImportError: No module named <yourmodule>)"
+
+
+
+$ /path/to/pig-0.10.0-RC1/bin/pig rctest.py 
+2012-04-24 11:20:44,224 [main] INFO  org.apache.pig.Main - Apache Pig version 0.10.0 (r1328203) compiled Apr 19 2012, 22:54:12
+[...snip...]
+*sys-package-mgr*: can't create package cache dir, '/path/to/pig-0.10.0-RC1/lib/cachedir/packages'
+2012-04-24 11:20:44,816 [main] INFO  org.apache.pig.scripting.jython.JythonScriptEngine - created tmp python.cachedir=/tmp/pig_jython_4081589571886870123
+2012-04-24 11:20:45,033 [main] ERROR org.apache.pig.Main - ERROR 1121: Python Error. Traceback (most recent call last):
+  File "/home/mnoll/pig10rc/rctest.py", line 5, in <module>
+    import os
+ImportError: No module named os
+
+
+
+In the Pig log file:
+
+
+
+Error before Pig is launched
+----------------------------
+ERROR 1121: Python Error. Traceback (most recent call last):
+  File "/home/mnoll/pig10rc/rctest.py", line 5, in <module>
+    import os
+ImportError: No module named os
+
+org.apache.pig.backend.executionengine.ExecException: ERROR 1121: Python Error. Traceback (most recent call last):
+  File "/home/mnoll/pig10rc/rctest.py", line 5, in <module>
+    import os
+ImportError: No module named os
+
+        at org.apache.pig.scripting.jython.JythonScriptEngine$Interpreter.execfile(JythonScriptEngine.java:210)
+        at org.apache.pig.scripting.jython.JythonScriptEngine.load(JythonScriptEngine.java:384)
+        at org.apache.pig.scripting.jython.JythonScriptEngine.main(JythonScriptEngine.java:368)
+        at org.apache.pig.scripting.ScriptEngine.run(ScriptEngine.java:275)
+        at org.apache.pig.Main.runEmbeddedScript(Main.java:929)
+        at org.apache.pig.Main.run(Main.java:510)
+        at org.apache.pig.Main.main(Main.java:111)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+        at java.lang.reflect.Method.invoke(Method.java:597)
+        at org.apache.hadoop.util.RunJar.main(RunJar.java:156)
+Caused by: Traceback (most recent call last):
+
+
+
+How to reproduce
+
+Create a simple Python script that uses embedded Pig Latin AND that imports Python standard modules (any import statement will work):
+
+
+
+#!/usr/bin/python 
+
+from org.apache.pig.scripting import Pig 
+
+# this import statement will trigger the error;
+# remove it and everything will work fine
+import os
+
+if __name__ == "__main__":
+    pig_script = """
+        set job.name 'Pig 0.10.0-RC1 Python test';
+    """
+    P = Pig.compile(pig_script)
+    bound = P.bind()
+    result = bound.runSingle()
+
+    if result.isSuccessful() :
+        print "Pig job succeeded"
+    else:
+        raise "Pig job failed"
+
+
+
+Then proceed as follows.
+
+
+
+
+#
+# Install the Pig 0.10.0 release candidate [1].
+#
+
+# run the Python test script
+$ /path/to/pig-0.10.0-RC1/bin/pig rctest.py 
+
+#
+# see section above for error message
+#
+
+
+
+Test Environment
+
+Apart from the "Environment" JIRA field please note that none of the TaskTracker boxes in my test cluster has Pig or Jython installed.  Pig with Jython is only available on a gateway box from which analysis jobs are run.
+
+Bug description
+
+During my investigation I discovered that the jython.jar that is shipped with the 0.10.0 RC package is NOT a standalone version of Jython.  I compared (diffed) the unpacked contents of the existing jython.jar with a standalone jar for Jython 2.5.0, and noticed that the main difference is that the standalone jar comes with a Lib/ directory containing the various Python standard modules:
+
+
+
+$ diff -r jython2.5.0 jython2.5.0-standalone/
+Only in jython2.5.0-standalone/: Lib
+diff -r jython2.5.0/META-INF/MANIFEST.MF jython2.5.0-standalone//META-INF/MANIFEST.MF
+2a3
+> Built-By: frank
+5d5
+< Built-By: frank
+8,10d7
+< version: 2.5.0
+< svn-build: true
+< oracle: true
+11a9
+> svn-build: true
+13d10
+< jdk-target-version: 1.5
+14a12,14
+> oracle: true
+> version: 2.5.0
+> jdk-target-version: 1.5
+
+
+
+The essential difference is the missing Lib/ directory in the non-standalone jar.
+
+
+
+$ ls -l jython2.5.0-standalone/Lib
+total 5236
+-rw-r--r-- 1 mnoll mnoll  33417 2012-04-24 09:28 aifc.py
+-rw-r--r-- 1 mnoll mnoll   2620 2012-04-24 09:28 anydbm.py
+-rw-r--r-- 1 mnoll mnoll  11347 2012-04-24 09:28 ast.py
+-rw-r--r-- 1 mnoll mnoll  10764 2012-04-24 09:28 asynchat.py
+-rw-r--r-- 1 mnoll mnoll  17276 2012-04-24 09:28 asyncore.py
+-rw-r--r-- 1 mnoll mnoll   1631 2012-04-24 09:28 atexit.py
+-rw-r--r-- 1 mnoll mnoll  11296 2012-04-24 09:28 base64.py
+-rw-r--r-- 1 mnoll mnoll  21289 2012-04-24 09:28 BaseHTTPServer.py
+-rw-r--r-- 1 mnoll mnoll  20143 2012-04-24 09:28 bdb.py
+[...snip...]
+
+
+
+Apparently Jython (and thereby Pig) requires these Python module filesto be included in the jython.jar file – at least in cluster environments where TaskTrackers DO NOT have Pig or Jython installed.
+
+How to fix
+
+In the Pig release package replace the jython.jar in lib/ with a standalone version of the same jar.
+
+Here's how I creatd the standalone version of Jython 2.5.0 on my box:
+
+
+
+$ java -jar jython_installer-2.5.0.jar -s -d /tmp/jython-install -t standalone -j $JAVA_HOME
+
+
+
+This will create the standalone jar in /tmp/jython-install/jython.jar.  Place this file into $PIG_HOME/lib/, thereby overwriting the existing (non-standalone) version.  After that the Python test script above will work successfully.
+
+For completeness I also want to mention that I observed the following WARN messages before and after the Pig job was actually executed in the cluster:
+
+
+
+$ /path/to/pig-0.10.0-RC1/bin/pig rctest.py 
+[...snipp...]
+
+# before job submission
+#
+2012-04-24 14:16:58,463 [main] WARN  org.apache.pig.scripting.jython.JythonScriptEngine - jython cachedir skipped, jython may not work
+2012-04-24 14:16:58,467 [main] WARN  org.apache.pig.scripting.jython.JythonScriptEngine - module file does not exist: os, /path/to/pig-0.10.0-RC1/lib/jython-2.5.0-standalone.jar/Lib/os.py
+2012-04-24 14:16:58,467 [main] WARN  org.apache.pig.scripting.jython.JythonScriptEngine - module file does not exist: os.path, /path/to/pig-0.10.0-RC1/lib/jython-2.5.0-standalone.jar/Lib/posixpath.py
+2012-04-24 14:16:58,467 [main] WARN  org.apache.pig.scripting.jython.JythonScriptEngine - module file does not exist: posixpath, /path/to/pig-0.10.0-RC1/lib/jython-2.5.0-standalone.jar/Lib/posixpath.py
+2012-04-24 14:16:58,468 [main] WARN  org.apache.pig.scripting.jython.JythonScriptEngine - module file does not exist: stat, /path/to/pig-0.10.0-RC1/lib/jython-2.5.0-standalone.jar/Lib/stat.py
+
+# after the job finished (and succeeded)
+#
+2012-04-24 14:16:58,548 [main] WARN  org.apache.pig.scripting.jython.JythonScriptEngine - module file does not exist: os, /path/to/pig-0.10.0-RC1/lib/jython-2.5.0-standalone.jar/Lib/os.py
+2012-04-24 14:16:58,548 [main] WARN  org.apache.pig.scripting.jython.JythonScriptEngine - module file does not exist: os.path, /path/to/pig-0.10.0-RC1/lib/jython-2.5.0-standalone.jar/Lib/posixpath.py
+2012-04-24 14:16:58,548 [main] WARN  org.apache.pig.scripting.jython.JythonScriptEngine - module file does not exist: posixpath, /path/to/pig-0.10.0-RC1/lib/jython-2.5.0-standalone.jar/Lib/posixpath.py
+2012-04-24 14:16:58,548 [main] WARN  org.apache.pig.scripting.jython.JythonScriptEngine - module file does not exist: stat, /path/to/pig-0.10.0-RC1/lib/jython-2.5.0-standalone.jar/Lib/stat.py
+
+
+
+Jython 2.5.0 vs. Jython 2.5.2
+
+FWIW I also tested whether switching to Jython 2.5.2 (up from 2.5.0 as bundled with the Pig 0.10 RC package) changes the results.  It did not.  That is, the Python script fails with non-standalone 2.5.2 jar but works with the standalone 2.5.2 jar.
+
+Best,
+Michael
+
+
+PS: Is there a reason Jython version 2.5.0 is bundled instead of the latest stable release 2.5.2?
+
+PPS: The 0.10.0-RC did solve my original PIG-1824 problem.  I could run the problematic Python/Pig script successfully using the 0.10.0-RC with a standalone Jython 2.5.0 jar. Cool!
+
+[1] http://people.apache.org/~daijy/pig-0.10.0-candidate-0/pig-0.10.0.tar.gz

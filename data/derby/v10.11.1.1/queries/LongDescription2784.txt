@@ -1,0 +1,9 @@
+The auto-load driver (org.apache.derby.jdbc.AutoloadedDriver) is loaded by the DriverManager correctly (when running with jars in JDK 6) and fetching connections works without loading the driver.
+
+But prior to getting a connection seeing if a driver is available using DriverManager.getProtocol("jdbc:derby:") incorrectly leads one to believe that no driver has been loaded.
+
+Can see this running the junit test with jars and JDK6
+
+org.apache.derbyTesting.functionTests.tests.jdbcapi.AutoloadTest
+
+(This test can be run directly and is part of the ant targt test running)

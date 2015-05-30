@@ -1,0 +1,10 @@
+This is a bug introduced by PIG-3342 - Allow conditions in case statement.
+
+If 1) there are an even number of when branches, and 2) there is the else branch, case statement with conditions fails with the following error:
+
+
+Caused by: org.apache.pig.impl.logicalLayer.validators.TypeCheckerException: ERROR 1057: 
+<line 2, column 14> LOGenerate expression plan can only have one output
+
+
+This is because the logic of determining whether case statement has the else branch is incorrect. This doesn't happen when conditions are not used in case statement.

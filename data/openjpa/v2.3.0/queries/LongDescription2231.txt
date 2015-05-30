@@ -1,0 +1,12 @@
+in order to preserve utf-8 characters in replace-function , use Reader instead of Inputstream
+public class TokenReplacedStream {
+...
+//public void replace(InputStream in, Writer out, String... prs) throws IOException {
+ public void replace(Reader in, Writer out, String... prs) throws IOException {
+
+
+using new type:
+InputStream in=servletContext.getResourceAsStream(rsrc);
+BufferedReader in_br=new BufferedReader(new InputStreamReader(in,"UTF-8"));
+new TokenReplacedStream().replace(in_br,out_char,tokens);
+

@@ -1,0 +1,3 @@
+If you have more than one input, InputSizeReducerEstimator.getTotalInputFileSize can return incorrect value if one of the loader returns -1 and is not file based (eg- hbase). This causes incorrect reducer estimation and problems in auto.local mode.
+
+If size of input is not found in for any of the inputs, we should bail out with return value of -1.

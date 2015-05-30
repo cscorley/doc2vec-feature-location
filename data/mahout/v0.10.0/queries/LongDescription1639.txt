@@ -1,0 +1,22 @@
+The value of -km isn't checked by the CLI, which means if you don't specify it, you get the rather cryptic:
+
+
+Exception in thread "main" java.lang.NumberFormatException: null
+	at java.lang.Integer.parseInt(Integer.java:454)
+	at java.lang.Integer.parseInt(Integer.java:527)
+	at org.apache.mahout.clustering.streaming.mapreduce.StreamingKMeansDriver.configureOptionsForWorkers(StreamingKMeansDriver.java:252)
+	at org.apache.mahout.clustering.streaming.mapreduce.StreamingKMeansDriver.run(StreamingKMeansDriver.java:239)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:65)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:79)
+	at org.apache.mahout.clustering.streaming.mapreduce.StreamingKMeansDriver.main(StreamingKMeansDriver.java:491)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.util.ProgramDriver$ProgramDescription.invoke(ProgramDriver.java:68)
+	at org.apache.hadoop.util.ProgramDriver.driver(ProgramDriver.java:139)
+	at org.apache.mahout.driver.MahoutDriver.main(MahoutDriver.java:195)
+
+
+
+Other parameters give helpful error messages when required

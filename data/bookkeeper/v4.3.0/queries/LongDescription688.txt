@@ -1,0 +1,34 @@
+NPE exception in PerChannelBookieClient:
+
+
+
+2013-10-04 11:56:34,526 - INFO  - [NIOServerFactory-15099:NIOServerFactory$Cnxn@246] - Peer closed connection. rc=-1 java.nio.channels.SocketChannel[connected local=/10.18.170.130:15099 remote=/10.18.170.130:53945]
+2013-10-04 11:56:34,526 - INFO  - [Thread-93:PerChannelBookieClient@493] - Disconnected from bookie channel [id: 0x006287d3, /10.18.170.130:53945 :> /10.18.170.130:15099]
+2013-10-04 11:56:34,526 - INFO  - [New I/O client worker #90-3:PerChannelBookieClient$1@137] - Successfully connected to bookie: [id: 0x01964fe8, /10.18.170.130:53951 => /10.18.170.130:15100]
+2013-10-04 11:56:34,542 - INFO  - [NIOServerFactory-15100:NIOServerFactory$Cnxn@246] - Peer closed connection. rc=-1 java.nio.channels.SocketChannel[connected local=/10.18.170.130:15100 remote=/10.18.170.130:53951]
+2013-10-04 11:56:34,542 - INFO  - [Thread-93:PerChannelBookieClient@493] - Disconnected from bookie channel [id: 0x01964fe8, /10.18.170.130:53951 :> /10.18.170.130:15100]
+2013-10-04 11:56:34,542 - WARN  - [New I/O client worker #90-3:PerChannelBookieClient@274] - Add entry operation failed
+java.lang.NullPointerException
+	at org.apache.bookkeeper.proto.PerChannelBookieClient.addEntry(PerChannelBookieClient.java:258)
+	at org.apache.bookkeeper.proto.BookieClient$2.operationComplete(BookieClient.java:138)
+	at org.apache.bookkeeper.proto.BookieClient$2.operationComplete(BookieClient.java:1)
+	at org.apache.bookkeeper.proto.PerChannelBookieClient$1.operationComplete(PerChannelBookieClient.java:173)
+	at org.jboss.netty.channel.DefaultChannelFuture.notifyListener(DefaultChannelFuture.java:381)
+	at org.jboss.netty.channel.DefaultChannelFuture.notifyListeners(DefaultChannelFuture.java:372)
+	at org.jboss.netty.channel.DefaultChannelFuture.setSuccess(DefaultChannelFuture.java:316)
+	at org.jboss.netty.channel.socket.nio.NioWorker$RegisterTask.run(NioWorker.java:767)
+	at org.jboss.netty.channel.socket.nio.NioWorker.processRegisterTaskQueue(NioWorker.java:256)
+	at org.jboss.netty.channel.socket.nio.NioWorker.run(NioWorker.java:198)
+	at org.jboss.netty.util.ThreadRenamingRunnable.run(ThreadRenamingRunnable.java:108)
+	at org.jboss.netty.util.internal.DeadLockProofWorker$1.run(DeadLockProofWorker.java:44)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:885)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:907)
+	at java.lang.Thread.run(Thread.java:619)
+4 Oct, 2013 11:56:34 AM org.jboss.netty.channel.DefaultChannelFuture
+WARNING: An exception was thrown by ChannelFutureListener.
+
+
+
+Here the operation which is performed is
+step-1 addEntry asynchronously
+step-2 Immediately after adding the entry, close the bookie client

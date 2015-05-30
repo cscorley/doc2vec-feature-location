@@ -1,0 +1,61 @@
+I have a piece of code that effectively does the same thing the following test does:
+
+    private void newDeleteNew() throws Exception 
+{
+        beginTx();
+
+        // Create new
+        Person dain = new Person();
+        dain.setName("dain");
+        assertFalse(entityManager.contains(dain));
+        entityManager.persist(dain);
+        entityManager.flush();
+        assertTrue(entityManager.contains(dain));
+
+        // Find and verify
+        dain = entityManager.find(Person.class, "dain");
+        assertNotNull(dain);
+        assertEquals("dain", dain.getName());
+
+        // Delete
+        entityManager.remove(dain);
+        entityManager.flush();
+        assertFalse(entityManager.contains(dain));
+
+        // Recreate
+        dain = new Person();
+        dain.setName("dain");
+        assertFalse(entityManager.contains(dain));
+        entityManager.persist(dain);
+        entityManager.flush();
+        assertTrue(entityManager.contains(dain));
+
+        // Find and verify
+        dain = entityManager.find(Person.class, "dain");
+        assertNotNull(dain); // <<<<<<< FAILS
+        assertEquals("dain", dain.getName());
+
+        commitTx();
+    }
+
+The test fails at the marked point, because the entityManager seems to think the "dain" entity is still deleted.  I assume this type of code would work.  Is this a bug or is my assumption wrong?
+
+BTW, I'm using 0.9.8-incubating-SNAPSHOT
+
+And here is my entity class:
+
+@Entity
+public class Person {
+    private String name;
+
+    @Id
+    public String getName() 
+{
+        return name;
+    }
+
+    public void setName(String name) 
+{
+        this.name = name;
+    }
+}

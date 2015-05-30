@@ -1,0 +1,18 @@
+Derby does not recognize the wrapper objects when trying to match Java methods to the signatures of procedures with OUT arguments. For instance, the following procedure declaration
+
+create procedure proc
+(
+    out intCol int
+)
+language java
+parameter style java
+no sql
+external name 'zz.proc'
+
+is supposed to match both of the following Java signatures:
+
+public  static  void    proc( int[] arg ) 
+{...}
+public  static  void    proc( Integer[] arg ) {...}
+
+However, only the first signature is matched. I will attach a test case which shows this.

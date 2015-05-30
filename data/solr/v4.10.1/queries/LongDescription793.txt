@@ -1,0 +1,12 @@
+Currently there are two options for how to handle commiting documents:
+1. the client explicitly starts the commit via <commit/>
+2. set an auto commit value on the server – clients can assume all documents will be commited within that time.
+
+However, this does not help in the case where the clients know what documents need updating quickly and others that could wait.  I suggest adding:
+
+
+ <add commitWithin="100">...
+
+ 
+
+to the update syntax so the client can schedule commits explicitly.

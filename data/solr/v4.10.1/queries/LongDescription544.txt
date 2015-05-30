@@ -1,0 +1,25 @@
+Something that occured to me while working n SOLR-470 is that since the earliest versions of Solr, "DateField" has advertised it's format as...
+
+date field shall be of the form "1995-12-31T23:59:59Z"  The trailing "Z" designates UTC time and is mandatory. Optional fractional seconds are allowed: "1995-12-31T23:59:59.999Z"  All other parts are mandatory.
+
+The problem is that Solr has always remained happily ignorant about wether you were using milliseconds or not, even in the case of "0" milliseconds, so the following input strings do not result in Terms which are truly equal...
+
+
+	1995-12-31T23:59:59Z
+	1995-12-31T23:59:59.0Z
+	1995-12-31T23:59:59.00Z
+	1995-12-31T23:59:59.000Z
+
+
+
+...which means if people are inconsistent about how they interact with DateField (sometimes including the millis and sometimes not including them) the can get incorrect behavior in various situations:
+
+	sorting by date with a secondary sort can cause hte secondary sort to be ignored when the dates should be considered equal.
+	range queries might miss items equal to the end points but with fewer/more characters then the input
+
+
+
+Any solution would require true parsing & normalizing of any date input (currently dates are only parsed if they involve DateMath) and complete reindexing
+
+NOTE: I don't personally think fixing this issue in DateField is worthwhile. i think it would be better to document it as a caveat and require people to be consistent in their usage of milliseconds (ie: if you are going to use them, then always use them even if they are 0). 
+Instead we should probably focus on a new Long based Date Field (see SOLR-440) since that would always require parsing to get to the internal representation anyway.

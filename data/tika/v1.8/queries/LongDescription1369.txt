@@ -1,0 +1,27 @@
+The ImageMetadataExtractor uses a static instance of SimpleDateFormat.  This is not thread safe.
+ImageMetadataExtractor.java
+
+    static class ExifHandler implements DirectoryHandler {
+        private static final SimpleDateFormat DATE_UNSPECIFIED_TZ = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        ...
+        public void handleDateTags(Directory directory, Metadata metadata)
+                throws MetadataException {
+            // Date/Time Original overrides value from ExifDirectory.TAG_DATETIME
+            Date original = null;
+            if (directory.containsTag(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL)) {
+                original = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
+                // Unless we have GPS time we don't know the time zone so date must be set
+                // as ISO 8601 datetime without timezone suffix (no Z or +/-)
+                if (original != null) {
+                    String datetimeNoTimeZone = DATE_UNSPECIFIED_TZ.format(original); // Same time zone as Metadata Extractor uses
+                    metadata.set(TikaCoreProperties.CREATED, datetimeNoTimeZone);
+                    metadata.set(Metadata.ORIGINAL_DATE, datetimeNoTimeZone);
+                }
+            }
+       ...
+
+
+
+This is not the first time that SDF has caused problems: TIKA-495, TIKA-864. In the discussion there the idea of using alternative thread-safe (and faster) formatters from either Joda time or Commons Lang were dismissed because they would add too many dependencies. Given that Tika already has a fairly large laundry list of dependencies to parse content, adding one more JAR to make sure things don't break is probably a good idea.
+
+In addition, because no timezone or locale are specified by either Tika's formatter or the call to com.drew.metadata.Directory it can wreak havok during randomized testing. Given that the timezone is unknown, why not just default it to UTC and let the caller guess the timezone? As it stands I have to reparse all of the dates into UTC to get stable behavior across timezones.

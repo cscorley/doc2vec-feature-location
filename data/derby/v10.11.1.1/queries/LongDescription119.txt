@@ -1,0 +1,25 @@
+There was a thread about this on the Cloudscape forum
+
+http://www-106.ibm.com/developerworks/forums/dw_thread.jsp?message=4103269&cat=19&thread=59941&forum=370#4103269
+
+Since this describes the problem I will just copy the content of this entry as my dexscription
+
+
+The content of this was 
+
+"
+Hi,
+
+I stumbled across a behaviour of cloudscape which is not a bug but IMHO an implementation choice. To assign a primary key to a table using ALTER TABLE all columns must be declared NOT NULL first, which can only be specified upon column creation (no ALTER TABLE statement exists to change the NOT NULL property of a column).
+
+Most databases I know do two things differently:
+1) when a primary key is assigned all pk columns are automatically set to NOT NULL, if one of them contains NULL values, the ALTER TABLE statement fails
+2) it is possible to alter the column to set the NOT NULL property after column creation (fails when there are already records containing NULL values)
+
+If I have understood the limitations correctly in Cloudscape I have no choice but to remove and re-add the column which is supposed to be used in the primary key, if it is not already declared as NOT NULL. This means that in the case of a table containing valid data (unique and not null) in the column in all records, I would have to export the data, remove and re-add the column and reimport that data, which would not be necessary e.g. in Oracle or MaxDB.
+
+Is it possible to change that behaviour or is there a good reason for it? It looks as if it makes the life of the user more difficult than necessary for certain metadata manipulations. Making it possible to alter the NOT NULL property of a column would solve this and IMHO having a primary key constraint do this implicitly makes sense as well. 
+
+Thanks in advance for any insight on this,
+
+Robert"

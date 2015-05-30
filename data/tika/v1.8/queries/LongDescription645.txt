@@ -1,0 +1,3 @@
+Spotted this with the office parser, but it should be general. The user creates a TikaInputStream, and passes that off to the parser framework. The Parser that is called may wish to spot that the input is a File backed TikaInputStream, and take a shortcut to use the file instead of the InputStream.
+
+However, what the parser gets is a TaggedInputStream wrapping a CountingInputStream wrapping the original TikaInputStream. As such, it can't get at the file.

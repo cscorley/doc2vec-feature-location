@@ -1,0 +1,8 @@
+As discussed shortly on the mailing list (http://www.mail-archive.com/solr-user@lucene.apache.org/msg09807.html), the objective of this task is to add a maxLength property to the CopyField "command". This property simply limits the number of characters that are copied.
+
+This is particularly useful to avoid very slow highlighting when the index contains big documents.
+
+Example :
+<copyField source="text" dest="highlight" maxLength="30000" />
+
+This approach has also the advantage of limiting the index size for large documents (the original text field does not need to be stored and to have term vectors). However, the index is bigger for small documents...

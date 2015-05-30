@@ -1,0 +1,12 @@
+Currently if  I have  a table that contains clob/blob column,  import/export operations on that table
+throghs  unsupported feature exception. 
+
+set schema iep;
+set schema iep;
+create table ntype(a int , ct CLOB(1024));
+create table ntype1(bt BLOB(1024) , a int);
+
+call SYSCS_UTIL.SYSCS_EXPORT_TABLE ('iep', 'ntype' , 'extinout/ntype.dat' ,
+                                 null, null, null) ;
+ERROR XIE0B: Column 'CT' in the table is of type CLOB, it is not supported by th
+e import/export feature.

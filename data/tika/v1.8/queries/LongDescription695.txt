@@ -1,0 +1,69 @@
+Parser on office Xfiles do not get custom properties.
+
+In class MetadataExtractor, method extract, only core and extended properties are retrieve.
+I added something like this:
+
+extractMetadata(extractor.getCustomProperties(), metadata);
+
+
+	/**
+
+	Add this method to read custom properties on document.
+	
+	@param properties All custom properties.
+	@param metadata Metadata to complete with read properties.
+	 */
+	private void extractMetadata(CustomProperties properties, Metadata metadata) {
+		org.openxmlformats.schemas.officeDocument.x2006.customProperties.CTProperties propsHolder = properties.getUnderlyingProperties();
+
+
+
+		String value = null;
+		DateUtils dateUtils = DateUtils.getInstance();
+		BigDecimal bigDecimal;
+
+		for (CTProperty property : propsHolder.getPropertyList()) {
+			/* Parse each property */
+			if (property.isSetLpwstr()) 
+Unknown macro: {
+				value = property.getLpwstr();
+			} 
+ else if (property.isSetFiletime()) 
+Unknown macro: {
+				value = dateUtils.convertDate(property.getFiletime(), null);
+			} 
+ else if (property.isSetDate()) 
+Unknown macro: {
+				value = dateUtils.convertDate(property.getDate(), null);
+			} 
+ else if (property.isSetDecimal()) 
+Unknown macro: {
+				bigDecimal = property.getDecimal();
+				value = null == bigDecimal ? null } 
+ else if (property.isSetBool()) 
+Unknown macro: {
+				value = BooleanUtils.toStringTrueFalse(property.getBool());
+			} 
+ else if (property.isSetInt()) 
+Unknown macro: {
+				value = Integer.toString(property.getInt());
+			} 
+ else if (property.isSetLpstr()) 
+Unknown macro: {
+				value = property.getLpstr();
+			} 
+ else if (property.isSetI4()) 
+Unknown macro: {
+				/* Number in Excel for example.... Why i4 ? Ask microsoft. */
+				value = Integer.toString(property.getI4());
+			} 
+ else 
+Unknown macro: {
+				/* For other type, do nothing. */
+				continue;
+			} 
+
+			/* Add the custom prefix, as done in old office format. */
+			addProperty(metadata, "custom:" + property.getName(), value);
+		}
+	}

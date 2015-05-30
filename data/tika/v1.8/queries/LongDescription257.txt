@@ -1,0 +1,10 @@
+MimeTypes detects docx (and other office XML documents) as 'application/zip' when file does not have proper extension:
+
+$ java -jar tika-app/target/tika-app-0.4-SNAPSHOT.jar -m /home/maxcom/download-tmp/proto.docx
+Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+resourceName: proto.docx
+
+$ cat /home/maxcom/download-tmp/proto.docx | java -jar tika-app/target/tika-app-0.4-SNAPSHOT.jar -m 
+Content-Type: application/zip
+
+This breaks text extraction when filename is not known

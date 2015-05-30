@@ -1,0 +1,6 @@
+JPA 2.0 has introduced a specification for strictly-typed dynamic query construction. The type-strictness is based on availability of a meta-model. The user application can either use meta-model API to access the type information or instantiate the meta-model (referred as canonical meta-model) with a set of auto-generated classes for compile-time binding. This issue refers to instantiating the canonical meta-model at compile-time. 
+The process involves processing source code annotations or xml descriptors. 
+
+Source code annotation processing support in Java platform has significantly changed across JDK version 5 and 6. In JDK5, the annotation processing was supported by a command-line tool named apt based on com.sun.mirror API library. In JDK 6, the annotation processing is more seamlessly integrated with javac compilation process with javax.annotation API libraries. 
+
+While it is possible, albeit more complex, to support both style (they are not only based on different libraries, their life-cycle is somewhat different too), at this stage we will scope this activity to support only JDK 6 environment i.e. we assume that the user application compiles with a JDK6 compiler.

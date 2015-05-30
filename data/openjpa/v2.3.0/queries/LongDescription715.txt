@@ -1,0 +1,92 @@
+While merging object A in following relationship [ A () B (1*) C ] we get the following error. The test case is attached and I tested it with openjpa 1.0.0, 1.1.0 and 1.2.0 official releases with same error. The main problem is the error does not occur if there are just 1 or 2 C objects attached to B. If we add more C to B the probability of getting the error increases (sad but true). You can see a for loop in the test case and a constant named "MAGICAL_NUMBER". If we set the magical number to 3 or less than we don't get this error and all objects are persisted just fine. But if we increase it to 50 (to be sure) we get the error below. 
+
+There is also strange a workaround on line 63 of the test case. If we uncomment line 63 and just get the IDs of new C objects just after merge(A) but before commit () we can display proper IDs and the operation will be committed successfully. Otherwise the IDs of new C objects stay "0"  (again sad but true .  Maybe this hint can help on understanding and solving the issue.
+
+The test case is created depending on a real life scenario. We get the same error with derby and mysql.
+
+Here is the error after running the test case:
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 3.433 sec <<< FAILURE!
+testChainEntities(org.apache.openjpa.persistence.relations.TestChainEntities)  Time elapsed: 3.362 sec  <<< ERROR!
+<openjpa-1.1.0-r422266:659716 fatal store error> org.apache.openjpa.persistence.RollbackException: The transaction has been rolled back.  See the nested exceptions for details on the errors that occurred.
+        at org.apache.openjpa.persistence.EntityManagerImpl.commit(EntityManagerImpl.java:523)
+        at org.apache.openjpa.persistence.relations.TestChainEntities.chainUpdate(TestChainEntities.java:64)
+        at org.apache.openjpa.persistence.relations.TestChainEntities.testChainEntities(TestChainEntities.java:32)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+        at java.lang.reflect.Method.invoke(Method.java:585)
+        at junit.framework.TestCase.runTest(TestCase.java:154)
+        at junit.framework.TestCase.runBare(TestCase.java:127)
+        at junit.framework.TestResult$1.protect(TestResult.java:106)
+        at junit.framework.TestResult.runProtected(TestResult.java:124)
+        at junit.framework.TestResult.run(TestResult.java:109)
+        at junit.framework.TestCase.run(TestCase.java:118)
+        at org.apache.openjpa.persistence.test.PersistenceTestCase.run(PersistenceTestCase.java:122)
+        at junit.framework.TestSuite.runTest(TestSuite.java:208)
+        at junit.framework.TestSuite.run(TestSuite.java:203)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+        at java.lang.reflect.Method.invoke(Method.java:585)
+        at org.apache.maven.surefire.junit.JUnitTestSet.execute(JUnitTestSet.java:213)
+        at org.apache.maven.surefire.suite.AbstractDirectoryTestSuite.executeTestSet(AbstractDirectoryTestSuite.java:140)
+        at org.apache.maven.surefire.suite.AbstractDirectoryTestSuite.execute(AbstractDirectoryTestSuite.java:127)
+        at org.apache.maven.surefire.Surefire.run(Surefire.java:177)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+        at java.lang.reflect.Method.invoke(Method.java:585)
+        at org.apache.maven.surefire.booter.SurefireBooter.runSuitesInProcess(SurefireBooter.java:334)
+        at org.apache.maven.surefire.booter.SurefireBooter.main(SurefireBooter.java:980)
+Caused by: <openjpa-1.1.0-r422266:659716 fatal general error> org.apache.openjpa.persistence.PersistenceException: The transaction has been rolled back.  See the nested exceptions for details on the errors that occurred.
+        at org.apache.openjpa.kernel.BrokerImpl.newFlushException(BrokerImpl.java:2160)
+        at org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:2007)
+        at org.apache.openjpa.kernel.BrokerImpl.flushSafe(BrokerImpl.java:1905)
+        at org.apache.openjpa.kernel.BrokerImpl.beforeCompletion(BrokerImpl.java:1823)
+        at org.apache.openjpa.kernel.LocalManagedRuntime.commit(LocalManagedRuntime.java:81)
+        at org.apache.openjpa.kernel.BrokerImpl.commit(BrokerImpl.java:1347)
+        at org.apache.openjpa.kernel.DelegatingBroker.commit(DelegatingBroker.java:877)
+        at org.apache.openjpa.persistence.EntityManagerImpl.commit(EntityManagerImpl.java:512)
+        ... 29 more
+Caused by: <openjpa-1.1.0-r422266:659716 nonfatal general error> org.apache.openjpa.persistence.PersistenceException: The statement was aborted because it would have caused a duplicate key value in a unique or primary key constraint or unique index identified by 'SQL080903042502080' defined on 'CHAINENTITYC'. 
+{prepstmnt 18739556 INSERT INTO ChainEntityC (cId, chainEntityBId, name, optLock, CHAINENTITYB_BID) VALUES (?, ?, ?, ?, ?) [params=(long) 0, (long) 0, (String) Test_C_48, (int) 1, (long) 3651]} [code=20000, state=23505]
+FailedObject: org.apache.openjpa.persistence.relations.ChainEntityC@f6f1b6
+        at org.apache.openjpa.jdbc.sql.SQLExceptions.narrow(SQLExceptions.java:146)
+        at org.apache.openjpa.jdbc.sql.DBDictionary.newStoreException(DBDictionary.java:4150)
+        at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:102)
+        at org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:72)
+        at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flushAndUpdate(PreparedStatementManagerImpl.java:131)
+        at org.apache.openjpa.jdbc.kernel.BatchingPreparedStatementManagerImpl.flushAndUpdate(BatchingPreparedStatementManagerImpl.java:82)
+        at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flushInternal(PreparedStatementManagerImpl.java:89)
+        at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flush(PreparedStatementManagerImpl.java:72)
+        at org.apache.openjpa.jdbc.kernel.ConstraintUpdateManager.flush(ConstraintUpdateManager.java:543)
+        at org.apache.openjpa.jdbc.kernel.ConstraintUpdateManager.flush(ConstraintUpdateManager.java:105)
+        at org.apache.openjpa.jdbc.kernel.BatchingConstraintUpdateManager.flush(BatchingConstraintUpdateManager.java:56)
+        at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.flush(AbstractUpdateManager.java:89)
+        at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.flush(AbstractUpdateManager.java:72)
+        at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.flush(JDBCStoreManager.java:549)
+        at org.apache.openjpa.kernel.DelegatingStoreManager.flush(DelegatingStoreManager.java:130)
+        ... 36 more
+Caused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: The statement was aborted because it would have caused a duplicate key value in a unique or primary key constraint or unique index identified by 'SQL080903042502080' defined on 'CHAINENTITYC'. {prepstmnt 18739556 INSERT INTO ChainEntityC (cId, chainEntityBId, name, optLock, CHAINENTITYB_BID) VALUES (?, ?, ?, ?, ?) [params=(long) 0, (long) 0, (String) Test_C_48, (int) 1, (long) 3651]}
+ [code=20000, state=23505]
+        at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.wrap(LoggingConnectionDecorator.java:192)
+        at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.access$700(LoggingConnectionDecorator.java:57)
+        at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection$LoggingPreparedStatement.executeUpdate(LoggingConnectionDecorator.java:866)
+        at org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement.executeUpdate(DelegatingPreparedStatement.java:269)
+        at org.apache.openjpa.jdbc.kernel.JDBCStoreManager$CancelPreparedStatement.executeUpdate(JDBCStoreManager.java:1398)
+        at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.executeUpdate(PreparedStatementManagerImpl.java:151)
+        at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flushAndUpdate(PreparedStatementManagerImpl.java:120)
+        ... 46 more
+
+
+Results :
+
+Tests in error:
+  testChainEntities(org.apache.openjpa.persistence.relations.TestChainEntities)
+
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0
+
+[INFO] ------------------------------------------------------------------------
+[ERROR] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] There are test failures.

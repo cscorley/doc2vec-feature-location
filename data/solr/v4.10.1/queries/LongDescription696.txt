@@ -1,0 +1,15 @@
+The NamedListCodec doesn't properly write Iterable items on line 224.  All the other instanceof checks return true, while that one falls through and returns false.
+
+Exception is:
+ Caused by: java.lang.ClassCastException: java.util.ArrayList
+     [java]     at org.apache.solr.common.util.NamedListCodec.readNamedList(NamedListCodec.java:108)
+     [java]     at org.apache.solr.common.util.NamedListCodec.readVal(NamedListCodec.java:155)
+     [java]     at org.apache.solr.common.util.NamedListCodec.readOrderedMap(NamedListCodec.java:98)
+     [java]     at org.apache.solr.common.util.NamedListCodec.readVal(NamedListCodec.java:154)
+     [java]     at org.apache.solr.common.util.NamedListCodec.readOrderedMap(NamedListCodec.java:98)
+     [java]     at org.apache.solr.common.util.NamedListCodec.readVal(NamedListCodec.java:154)
+     [java]     at org.apache.solr.common.util.NamedListCodec.unmarshal(NamedListCodec.java:89)
+     [java]     at org.apache.solr.client.solrj.impl.BinaryResponseParser.processResponse(BinaryResponseParser.java:39)
+     [java]     at org.apache.solr.client.solrj.impl.CommonsHttpSolrServer.request(CommonsHttpSolrServer.java:385)
+
+Test and patch shortly

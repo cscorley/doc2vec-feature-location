@@ -1,0 +1,14 @@
+The attached program TryTimeout.java should detect a deadlock but instead throws a lock timeout exception.  The program has two threads that attempt:
+
+
+	    threadConnection.setAutoCommit(false);
+	    /* set isolation level to repeatable read */
+	    threadConnection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+
+	    ResultSet rs = stmt.executeQuery("select * from t where i = 456");
+	    while (rs.next());
+	    stmt.executeUpdate("update t set i = 456 where i = 456");
+	    threadConnection.commit();
+
+
+This gives SQLState 40001 (deadlock) with DB2 but a lock timeout with Derby.

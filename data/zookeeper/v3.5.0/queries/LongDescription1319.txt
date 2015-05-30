@@ -1,0 +1,23 @@
+I've been trying to update to ZK 3.4.0 and have had some issues where some data become inaccessible after adding a node to a cluster.  My use case is a bit strange (as explained before on this list) in that I try to grow the cluster dynamically by having an external program automatically restart Zookeeper servers in a controlled way whenever the list of participating ZK servers needs to change.  This used to work just fine in 3.3.3 (and before), so this represents a regression.
+
+The scenario I see is this:
+
+1) Start up a 1-server ZK cluster (the server has ZK ID 0).
+2) A client connects to the server, and makes a bunch of znodes, in particular a znode called "/membership".
+3) Shut down the cluster.
+4) Bring up a 2-server ZK cluster, including the original server 0 with its existing data, and a new server with ZK ID 1.
+5) Node 0 has the highest zxid and is elected leader.
+6) A client connecting to server 1 tries to "get /membership" and gets back a -101 error code (no such znode).
+7) The same client then tries to "create /membership" and gets back a -110 error code (znode already exists).
+8) Clients connecting to server 0 can successfully "get /membership".
+
+I will attach a tarball with debug logs for both servers, annotating where steps #1 and #4 happen.  You can see that the election involves a proposal for zxid 110 from server 0, but immediately following the election server 1 has these lines:
+
+2011-12-05 17:18:48,308 9299 [QuorumPeer[myid=1]/127.0.0.1:2901] WARN org.apache.zookeeper.server.quorum.Learner  - Got zxid 0x100000001 expected 0x1
+2011-12-05 17:18:48,313 9304 [SyncThread:1] INFO org.apache.zookeeper.server.persistence.FileTxnLog  - Creating new log file: log.100000001
+
+Perhaps that's not relevant, but it struck me as odd.  At the end of server 1's log you can see a repeated cycle of getData->create->getData as the client tries to make sense of the inconsistent responses.
+
+The other piece of information is that if I try to use the on-disk directories for either of the servers to start a new one-node ZK cluster, all the data are accessible.
+
+I haven't tried writing a program outside of my application to reproduce this, but I can do it very easily with some of my app's tests if anyone needs more information.

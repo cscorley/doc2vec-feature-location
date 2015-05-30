@@ -1,0 +1,53 @@
+I have an Entity with an attribute named "order". While creating the table for the Entity there is thrown an error. Renaming the "order"-attribute fixed this error.
+
+Ill tested this with MySql and H2. With Mysql the "order"-attribute was no problem, h2 thrown that error.
+
+I dont know where the exact problem is, ill hope im right here 
+
+Workarround:
+Rename the attribute.
+
+
+Here the Stacktrace:
+
+Caused by: <openjpa-2.0.0-r422266:935683 nonfatal general error> org.apache.openjpa.persistence.PersistenceException: Syntax Fehler in SQL Befehl "CREATE TABLE TABBARITEMENTITY (ID INTEGER NOT NULL, ORDER[*] INTEGER, REF VARCHAR(255), TEXT VARCHAR(255), PRIMARY KEY (ID)) "; erwartet "identifier"
+Syntax error in SQL statement "CREATE TABLE TABBARITEMENTITY (ID INTEGER NOT NULL, ORDER[*] INTEGER, REF VARCHAR(255), TEXT VARCHAR(255), PRIMARY KEY (ID)) "; expected "identifier"; SQL statement:
+CREATE TABLE TabbarItemEntity (id INTEGER NOT NULL, order INTEGER, ref VARCHAR(255), text VARCHAR(255), PRIMARY KEY (id)) [42001-124] 
+{stmnt 20639876 
+CREATE TABLE TabbarItemEntity (id INTEGER NOT NULL, order INTEGER, ref 
+        VARCHAR(255), text VARCHAR(255), PRIMARY KEY (id)) } [code=42001, state=42001]
+	at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:556)
+	at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:456)
+	at org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.synchronizeMappings(JDBCBrokerFactory.java:155)
+	at org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.synchronizeMappings(JDBCBrokerFactory.java:159)
+	at org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.newBrokerImpl(JDBCBrokerFactory.java:117)
+	at org.apache.openjpa.kernel.AbstractBrokerFactory.newBroker(AbstractBrokerFactory.java:199)
+	at org.apache.openjpa.kernel.DelegatingBrokerFactory.newBroker(DelegatingBrokerFactory.java:156)
+	at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:213)
+	at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:151)
+	at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:57)
+	at de.joe.core.server.config.ModulePersistenceApiOpenJPA.configure(ModulePersistenceApiOpenJPA.java:48)
+	at com.google.inject.AbstractModule.configure(AbstractModule.java:59)
+	at com.google.inject.spi.Elements$RecordingBinder.install(Elements.java:223)
+	at com.google.inject.spi.Elements.getElements(Elements.java:101)
+	at com.google.inject.internal.InjectorShell$Builder.build(InjectorShell.java:135)
+	at com.google.inject.internal.InternalInjectorCreator.build(InternalInjectorCreator.java:114)
+	... 22 more
+Caused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: Syntax Fehler in SQL Befehl "CREATE TABLE TABBARITEMENTITY (ID INTEGER NOT NULL, ORDER[*] INTEGER, REF VARCHAR(255), TEXT VARCHAR(255), PRIMARY KEY (ID)) "; erwartet "identifier"
+Syntax error in SQL statement "CREATE TABLE TABBARITEMENTITY (ID INTEGER NOT NULL, ORDER[*] INTEGER, REF VARCHAR(255), TEXT VARCHAR(255), PRIMARY KEY (ID)) "; expected "identifier"; SQL statement:
+CREATE TABLE TabbarItemEntity (id INTEGER NOT NULL, order INTEGER, ref VARCHAR(255), text VARCHAR(255), PRIMARY KEY (id)) [42001-124] {stmnt 20639876 
+CREATE TABLE TabbarItemEntity (id INTEGER NOT NULL, order INTEGER, ref 
+        VARCHAR(255), text VARCHAR(255), PRIMARY KEY (id)) }
+ [code=42001, state=42001]
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.wrap(LoggingConnectionDecorator.java:257)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.wrap(LoggingConnectionDecorator.java:241)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.access$700(LoggingConnectionDecorator.java:70)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection$LoggingStatement.executeUpdate(LoggingConnectionDecorator.java:951)
+	at org.apache.openjpa.lib.jdbc.DelegatingStatement.executeUpdate(DelegatingStatement.java:136)
+	at org.apache.openjpa.jdbc.schema.SchemaTool.executeSQL(SchemaTool.java:1200)
+	at org.apache.openjpa.jdbc.schema.SchemaTool.createTable(SchemaTool.java:956)
+	at org.apache.openjpa.jdbc.schema.SchemaTool.add(SchemaTool.java:533)
+	at org.apache.openjpa.jdbc.schema.SchemaTool.add(SchemaTool.java:348)
+	at org.apache.openjpa.jdbc.schema.SchemaTool.run(SchemaTool.java:325)
+	at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:504)
+	... 37 more

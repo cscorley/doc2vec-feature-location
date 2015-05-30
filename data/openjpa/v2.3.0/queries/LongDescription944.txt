@@ -1,0 +1,6 @@
+A problem with loading recursively referenced entities was found when there is a complex relation of the following kind:
+Leaf <> BranchConnection <> Branch(1) <- Branch(2) <- ...
+where Branch has a self reference to itself.
+
+Using a FetchPlan with a fetch group that has a fetch attribute with recursionDepth=-1 does not produce the expected result and only the first of the Branch nodes is loaded. 
+Loading a Leaf with 5 branches in a row and traversing through them fails right on level 3 (starting from 5 downwards) which leads to the thought that OpenJPA loads only the first element (along with its direct parent).

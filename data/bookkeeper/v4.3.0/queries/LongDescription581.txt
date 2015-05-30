@@ -1,0 +1,11 @@
+currently read and write use same ledger metadata during ledger recovery, which is bad. since write will cause changing ensemble which modified ensembles map to introducing brand new bookies. those brand new bookies would mislead following recovery reads, cause recovery is proceeded in a wrong way.
+
+E.g.
+
+3 bookies, quorums size 2. A, B, C.
+
+read 0 from A, B.
+recovery add 0: A, B becomes slow. D, E are brought into the ensemble to replace A, B.
+so following recovery read would be proceed in ensemble (D, E, C), then we would lost all the entries added in A and B.
+
+this issue is similar as BOOKKEEPER-355.

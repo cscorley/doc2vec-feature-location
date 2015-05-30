@@ -1,0 +1,8 @@
+One of the main limiting factors of the implicit ALS algorithm when processing large datasets is the fact that it must fit the entire U or M matrix in memory.  This is further compounded by the fact that the current implementation represents the matrix in memory 3 times:
+1. As an OpenIntObjectHashMap read in from disk
+2. A sorted DenseMatrix representation of #1 to prepare for computing Y'Y
+3. The transpose of #2 (another DenseMatrix)
+
+The #3 copy of the matrix can be eliminated by computing Y'Y directly from Y without first computing the transpose of Y as an intermediate step.  This should also be more efficient in terms of CPU usage.
+
+Note that the #1 copy of the matrix could also be eliminated if it's assumed that the user and item IDs are sequentially assigned and ordered.  This would allow the DenseMatrix to be populated directly from disk instead of reading into an intermediate OpenIntObjectHashMap.

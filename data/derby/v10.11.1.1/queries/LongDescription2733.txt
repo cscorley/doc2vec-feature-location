@@ -1,0 +1,27 @@
+When starting ij - with, or without any derby.properties, ij first shows this:
+-------------------------------------------------------
+java.lang.reflect.InvocationTargetException
+        at java.lang.reflect.AccessibleObject.invokeL(AccessibleObject.java:215)
+        at java.lang.reflect.Method.invoke(Method.java:272)
+        at org.apache.derby.impl.tools.ij.util.getDataSourceConnection(util.java:426)
+        at org.apache.derby.impl.tools.ij.util.startJBMS(util.java:516)
+        at org.apache.derby.impl.tools.ij.util.startJBMS(util.java:585)
+        at org.apache.derby.impl.tools.ij.ConnectionEnv.init(ConnectionEnv.java:64)
+        at org.apache.derby.impl.tools.ij.utilMain.initFromEnvironment(utilMain.java:179)
+        at org.apache.derby.impl.tools.ij.Main.<init>(Main.java:230)
+        at org.apache.derby.impl.tools.ij.Main.getMain(Main.java:193)
+        at org.apache.derby.impl.tools.ij.Main.mainCore(Main.java:178)
+        at org.apache.derby.impl.tools.ij.Main.main(Main.java:73)
+        at org.apache.derby.tools.ij.main(ij.java:67)
+Caused by: java.lang.NullPointerException
+        at org.apache.derby.jdbc.InternalDriver.embeddedDriverAcceptsURL(InternalDriver.java:116)
+        at org.apache.derby.jdbc.InternalDriver.acceptsURL(InternalDriver.java:107)
+        at org.apache.derby.jdbc.InternalDriver.connect(InternalDriver.java:126)
+        at org.apache.derby.jdbc.EmbeddedSimpleDataSource.getConnection(EmbeddedSimpleDataSource.java:406)
+        at org.apache.derby.jdbc.EmbeddedSimpleDataSource.getConnection(EmbeddedSimpleDataSource.java:373)
+        at java.lang.reflect.AccessibleObject.invokeL(AccessibleObject.java:213)
+        ... 11 more
+ij version 10.3
+ij>
+
+After that, ij does appear to start normal operations.

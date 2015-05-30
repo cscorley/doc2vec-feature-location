@@ -1,0 +1,12 @@
+As a byproduct of how ANTLR lexes things, whenever we introduce a new operator (RANK, CUBE, and any special keyword really) we are implicitly introducing a reserved word that can't be used for relations, columns, etc (unless give to us by the framework, as in the case of group).
+
+The following, for example, fails:
+
+
+
+a = load 'foo' as (x:int);
+a = foreach a generate x as rank;
+
+
+
+I'll include a patch to fix this essentially by whitelisting tokens. I currently just whitelist cube, rank, and group. We can add more as people want them? Can anyone think of reasonable ones they'd like to add?

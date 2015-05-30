@@ -1,0 +1,29 @@
+A summary of the discussion on the mailing list:
+
+Extend the distributed item-based recommender from using only simple cooccurrence counts to using the standard computations of an item-based recommender as defined in Sarwar et al "Item-Based Collaborative Filtering Recommendation Algorithms" (http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.144.9927&rep=rep1&type=pdf).
+
+What the distributed recommender generally does is that it computes the prediction values for all users towards all items those users have not rated yet. And the computation is done in the following way:
+
+ u = a user
+ i = an item not yet rated by u
+ N = all items cooccurring with i
+
+ Prediction(u,i) = sum(all n from N: cooccurrences(i,n) * rating(u,n))
+
+The formula used in the paper which is used by GenericItemBasedRecommender.doEstimatePreference(...) too, looks very similar to the one above:
+
+ u = a user
+ i = an item not yet rated by u
+ N = all items similar to i (where similarity is usually computed by pairwisely comparing the item-vectors of the user-item matrix)
+
+ Prediction(u,i) = sum(all n from N: similarity(i,n) * rating(u,n)) / sum(all n from N: abs(similarity(i,n)))
+
+There are only 2 differences:
+ a) instead of the cooccurrence count, certain similarity measures like pearson or cosine can be used
+ b) the resulting value is normalized by the sum of the similarities
+
+To overcome difference a) we would only need to replace the part that computes the cooccurrence matrix with the code from ItemSimilarityJob or the code introduced in MAHOUT-418, then we could compute arbitrary similarity matrices and use them in the same way the cooccurrence matrix is currently used. We just need to separate steps up to creating the co-occurrence matrix from the rest, which is simple since they're already different MR jobs. 
+
+Regarding difference b) from a first look at the implementation I think it should be possible to transfer the necessary similarity matrix entries from the PartialMultiplyMapper to the AggregateAndRecommendReducer to be able to compute the normalization value in the denominator of the formula. This will take a little work, yes, but is still straightforward. It canbe in the "common" part of the process, done after the similarity matrix is generated.
+
+I think work on this issue should wait until MAHOUT-418 is resolved as the implementation here depends on how the pairwise similarities will be computed in the future.

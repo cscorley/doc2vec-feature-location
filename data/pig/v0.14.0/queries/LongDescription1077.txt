@@ -1,0 +1,10 @@
+TFile currently supports split by record sequence number (see Jira HADOOP-6218). We want to utilize this to provide record(row)-based input split support in Zebra.
+One prominent benefit is that: in cases where we have very large data files, we can create much more fine-grained input splits than before where we can only create one big split for one big file.
+
+In more detail, the new row-based getSplits() works by default (user does not specify no. of splits to be generated) as follows: 
+1) Select the biggest column group in terms of data size, split all of its TFiles according to hdfs block size (64 MB or 128 MB) and get a list of physical byte offsets as the output per TFile. For example, let us assume for the 1st TFile we get offset1, offset2, ..., offset10; 
+2) Invoke TFile.getRecordNumNear(long offset) to get the RecordNum of a key-value pair near a byte offset. For the example above, say we get recordNum1, recordNum2, ..., recordNum10; 
+3) Stitch [0, recordNum1], [recordNum1+1, recordNum2], ..., [recordNum9+1, recordNum10], [recordNum10+1, lastRecordNum] splits of all column groups, respectively to form 11 record-based input splits for the 1st TFile. 
+4) For each input split, we need to create a TFile scanner through: TFile.createScannerByRecordNum(long beginRecNum, long endRecNum). 
+
+Note: conversion from byte offset to record number will be done by each mapper, rather than being done at the job initialization phase. This is due to performance concern since the conversion incurs some TFile reading overhead.

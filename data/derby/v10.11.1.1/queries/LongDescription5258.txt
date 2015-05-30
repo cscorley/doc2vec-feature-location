@@ -1,0 +1,13 @@
+From code inspection found the following problem.  BTreePostCommit.purgeCommittedDeletes gives up the latch in it's finally block, before the internal transaction is
+committed.  The transaction is committed no sync upon return from this routine leaving a very small window when some other thread could get latch on the page and
+perform operations on the page.
+
+This can be a problem if for some reason the internal transaction is never committed.  Purges actually return space to the page, unlike deletes.  In order to backout the 
+purges one must add the rows back, taking up space on the page.  If another tranaction comes in before the internal transaction is committed and does inserts there may
+be no space for the backout of the purges.  This is why normal delete processing only sets flags on the rows and purge processing is handled differently.  
+
+I found this problem while debugging a database submitted as part of DERBY-5248.  I believe this issue can cause the problem there, but since we have no repro have
+decided to create a new issue to target this specific problem/solution.  Later can close the other issue if it can never be reproduce after the fix.   In DEBY-5248 there 
+are purges without a commit followed immediated by an insert in another transaction that is commited and the purge transaction is never committed.  On recovery the
+system tries to abort the internal transaction and eventually trashes the page when it does not actually have enough space to abort the purge.  See that issue for more
+detail.

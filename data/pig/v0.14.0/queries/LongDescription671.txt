@@ -1,0 +1,12 @@
+In this example, the agggregate function COUNT is passed multiple arguments and does not throw an error.
+
+
+
+TEST: Aggregate_184
+
+ A =LOAD '/user/pig/tests/data/types/DataAll' USING PigStorage() AS ( Fint:int, Flong:long, Fdouble:double, Ffloat:float, Fchar:chararray, Fchararray:chararray, Fbytearray:bytearray, Fmap:map[], Fbag:BAG
+{ t:tuple( name, age, avg ) }
+, Ftuple name:chararray, age:int, avg:float) );
+B =GROUP A ALL; 
+X =FOREACH B GENERATE COUNT ( A.$0, A.$0 ); 
+STORE X INTO '/user/pig/tests/results/araceli.1234381533/AggregateFunc_184.out' USING PigStorage();

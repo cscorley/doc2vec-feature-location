@@ -1,0 +1,27 @@
+I recently worked on an issue where a JDBC driver is throwing an exception when attempting to persists an InputStream:
+
+Caused by: <openjpa-1.2.3-SNAPSHOT-r422266:1152904 nonfatal general error> org.apache.openjpa.persistence.PersistenceException: String or buffer length not valid.
+FailedObject: prepstmnt 1608671202 UPDATE PMYPJRK SET lastModificationDate = ?, fileLength = ?, fileName = ?, inputStream = ? WHERE id = ? [org.apache.openjpa.jdbc.kernel.JDBCStoreManager$CancelPreparedStatement]
+.........
+Caused by: java.sql.SQLException: String or buffer length not valid.
+	at com.ibm.as400.access.JDError.throwSQLException(JDError.java:415)
+	at com.ibm.as400.access.AS400JDBCPreparedStatement.setBinaryStream(AS400JDBCPreparedStatement.java:2098)
+	at com.ibm.ws.rsadapter.jdbc.WSJdbcPreparedStatement.setBinaryStream(WSJdbcPreparedStatement.java:1444)
+	at org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement.setBinaryStream(DelegatingPreparedStatement.java:340)
+	at org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection$LoggingPreparedStatement.setBinaryStream(LoggingConnectionDecorator.java:1104)
+	at org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement.setBinaryStream(DelegatingPreparedStatement.java:340)
+	at org.apache.openjpa.jdbc.sql.DBDictionary.setBinaryStream(DBDictionary.java:875)
+	at org.apache.openjpa.jdbc.sql.DBDictionary.setTyped(DBDictionary.java:1244)
+	at org.apache.openjpa.jdbc.sql.RowImpl.flush(RowImpl.java:890)
+	at org.apache.openjpa.jdbc.sql.RowImpl.flush(RowImpl.java:850)
+	at org.apache.openjpa.jdbc.kernel.BatchingPreparedStatementManagerImpl.flushSingleRow(BatchingPreparedStatementManagerImpl.java:249)
+	at org.apache.openjpa.jdbc.kernel.BatchingPreparedStatementManagerImpl.flushBatch(BatchingPreparedStatementManagerImpl.java:157)
+	... 138 more
+
+
+
+This exception occurs because the particular JDBC driver checks the value of the 'length' variable passed to the 'PreparedStatement.setBinaryStream' method:
+
+setBinaryStream(int parameterIndex, InputStream x, int length) 
+
+The 'length' parameter of method 'setBinaryStream' is supposed to be the length of the InputStream parameter.  OpenJPA code is passing a value of '-1' for the length as the length is not known.  Some JDBC drivers allow this value.  Technically speaking the javadoc for 'PreparedStatement.setBinaryStream' doesn't state that a negative value is not acceptable or what should happen when a negative length is passed to 'setBinaryStream' (which is likely why some drivers allow a negative value and others do not).  On the other hand, it doesn't make sense for a length of an InputStream to be negative.  Given this, and the fact that OpenJPA is not aware of the length of the stream, I'll work on a solution which uses a JDBC 4.0 version of 'setBinaryStream' which doesn't take a length.  The fix will of course require JDK 6 + JDBC 4.0 driver runtime.

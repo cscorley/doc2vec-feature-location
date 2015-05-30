@@ -1,0 +1,5 @@
+The current schema is used as part of the lookup key for the client side JDBC statement cache. With the current implementation, the schema is explicitly fetched from the server by executing a "VALUES CURRENT SCHEMA" query after a new logical connection has been created. This hurts performance when using the JDBC statement cache, and in some cases it performs worse than running without a client side JDBC statement cache.
+
+The performance can be improved by resetting the current schema to the default on the client when a new logical connection is created. The user name is used as the default schema in Derby.
+
+Note that this issue is regarding logical connections. There is no API for changing the user name, or default schema, for a logical connection. This ensures the schema must be set to the associated user name for a newly created logical connection.

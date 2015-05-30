@@ -1,0 +1,3 @@
+The org.apache.zookeeper.test.ClientBase, org.apache.zookeeper.test.ClientTest, org.apache.zookeeper.test.QuorumBase and org.apache.zookeeper.test.QuorumUtil classes import the com.sun.management.UnixOperatingSystemMXBean class, that fail to build when using IBM Java 6 SR 11. This issue is resolved by new class OSMXBean class proposed in JIRA's ZOOKEEPER-1474.
+
+The class OSMXBean (org.apache.zookeeper.server.util.OSMXBean) is a wrapper for the implementation of com.sun.management.UnixOperatingSystemMXBean, and decides to use the SUN API or its own implementation depending on the runtime (vendor) used.

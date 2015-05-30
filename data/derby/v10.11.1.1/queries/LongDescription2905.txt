@@ -1,0 +1,3 @@
+After a shutdown of the embedded driver the AutoloadDriver is not unregistered from DriverManager. However it does not support any future loading of connections so it has no value in remaining registered. Since the DriverManager class will remain forever, this means the Derby code will remain forever in the JVM, even if Derby was loaded by a separate class loader.
+
+Regression from 10.1 since before the AutoloadedDriver the internal driver did unregister itself from the DriverManager on a shutdown.

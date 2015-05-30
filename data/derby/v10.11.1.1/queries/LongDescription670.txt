@@ -1,0 +1,46 @@
+Currently Derby space reclamation is initiated after all the rows on a 
+MAIN page are delted.  When blob/clob's larger than a page are involved
+the row on the main page only keeps a pointer to a page chain, so the
+main page rows can be very small and thus may take a lot of rows to be
+deleted before we clean up and reuse space associated with blob/clob.
+So in an extreme case of a table with only a int key and a 1 blob column
+with N bytes , and a 32k 
+page derby probably stores more than 1000 rows.  If the app simply does
+insert/delete of a single row it will grow to 1000 * N bytes
+for an app that to the user should only be on the order of N big.
+
+It would seem reasonable to queue a post commit for any delete which
+includes a blob/clob that has been chained.  This is in keeping with
+the current policy to queue the work when it is possible we can reclaim
+an entire page.  
+
+The problem is that there would be an extra cost at delete time to 
+determine if the row being deleted has a blob/clob page chain.  The
+actual information is stored in the field header of that particular
+column so currently the only way to check would be to check every
+field header of every column in the deleted row.  From the store's
+point of view every column can be "long" with a page chain – currently
+it doesn't know that only blob/clob datatypes can cause this behavior.
+
+Some options include:
+
+1 at table create time ask for input from language to say if one of
+  these is at all possible, so that check is never done if not 
+  necessary.
+2 Maintain a bit in the container header with some sort of indication if any long
+    row exists, may simply 1/0 or a reference count.   Note information is easily
+     available at insert time.
+3 maintain a bit in the page indicating if any long rows exist
+4 maintain a bit in the record header if any long columns exist,  note the existing bit
+    is only if the whole record is overflowed, not if a single column is overflowed.
+
+options 1-3 would then be used to only perform the slow check at delete time if  necessary.
+
+I don't really like option 1 unless we change the storage interface to actually check/guarantee the behavior.
+
+I lean toward option 4, but it is sort of a row format change.  Given that the system has room saved for this
+bit I believe we can use it without any sort of upgrade-time work necessary - though I believe it can only be set on a
+hard upgrade as there may be old code which does not expect it to be set.  Soft upgrades won't get the
+benefit and existing data won't get the benefit.
+
+Any other ideas out there?

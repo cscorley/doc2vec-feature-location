@@ -1,0 +1,9 @@
+If you modify the repro attached to DERBY-6663 so that the foreign key constraint TREF is INITIALLY DEFERRED, the final insert statement will fail like this:
+
+
+ij> insert into othertable values 1;
+ERROR 42Y07: Schema 'null' does not exist
+
+
+
+I think the fix will be similar to DERBY-6663. FKInfo needs to store its schemaName field.

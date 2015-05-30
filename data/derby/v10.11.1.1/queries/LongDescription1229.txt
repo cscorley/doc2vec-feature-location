@@ -1,0 +1,205 @@
+The problem I've been seeing is that if I run:
+
+java -Dframework=DerbyNetClient org.apache.derbyTesting.functionTests.harness.RunTest derbynet/sysinfo.java
+
+in a configuration where my db2jcc.jar is located in the same directory as all the other derby-jars, then the test fails with a diff caused by a RuntimeException. If I change nothing else then moving that db2jcc.jar out of that directory (and making the appropriate classpath change) then the test succeeds.
+
+The reason is that the test fails to get the permission for doing getProtectionDomain().getCodeSource() on class com.ibm.db2.jcc.DB2Driver. Below follows relevant output from my system that might be useful to debug this:
+
+—
+
+vo136787@khepri32:~/tmp/test> env |grep CLAS CLASSPATH=/home/vo136787/derby/tmp/testbuild/lib/derby.jar:/home/vo136787/derby/tmp/testbuild/lib/derbyTesting.jar:/home/vo136787/derby/tmp/testbuild/lib/derbytools.jar:/home/vo136787/derby/tmp/testbuild/lib/derbynet.jar:/home/vo136787/derby/tmp/testbuild/lib/derbyclient.jar:/home/vo136787/derby/tmp/testbuild/lib/derbyrun.jar:/home/vo136787/derby/tmp/testbuild/lib/junit.jar:/home/vo136787/derby/tmp/testbuild/lib/db2jcc.jar:/home/vo136787/derby/tmp/testbuild/lib/db2jcc_license_c.jar:/home/vo136787/derby/tmp/testbuild/lib/jakarta-oro-2.0.8.jar:/home/vo136787/derby/tmp/testbuild/lib/derbyLocale_de_DE.jar:/home/vo136787/derby/tmp/testbuild/lib/derbyLocale_es.jar:/home/vo136787/derby/tmp/testbuild/lib/derbyLocale_fr.jar:/home/vo136787/derby/tmp/testbuild/lib/derbyLocale_it.jar:/home/vo136787/derby/tmp/testbuild/lib/derbyLocale_ja_JP.jar:/home/vo136787/derby/tmp/testbuild/lib/derbyLocale_ko_KR.jar:/home/vo136787/derby/tmp/testbuild/lib/derbyLocale_pt_BR.jar:/home/vo136787/derby/tmp/testbuild/lib/derbyLocale_zh_CN.jar:/home/vo136787/derby/tmp/testbuild/lib/derbyLocale_zh_TW.jar
+vo136787@khepri32:~/tmp/test> java -Dframework=DerbyNetClient org.apache.derbyTesting.functionTests.harness.RunTest derbynet/sysinfo.java
+
+	
+	
+		
+		
+			Start: sysinfo jdk1.5.0_06 DerbyNetClient 2006-04-19 13:00:33 ***
+Initialize for framework: DerbyNetClient
+java -Dderby.system.home=/home/vo136787/tmp/test/DerbyNetClient/sysinfo -Djava.security.manager -Djava.security.policy=/home/vo136787/tmp/test/derby_tests.policy -DderbyTesting.codejar=file:/home/vo136787/derby/tmp/testbuild/lib/ -DderbyTesting.codedir=/home/vo136787/derby/tmp/testbuild/lib -DderbyTesting.serverhost=localhost -DderbyTesting.clienthost=localhost -DderbyTesting.codeclasses=file://unused/ org.apache.derby.drda.NetworkServerControl start
+		
+		
+	
+	
+		SecurityManager not installed –
+Attempt to shutdown framework: DerbyNetClient
+14a15
+> [Unable to access Protection Domain or Code Source for class class com.ibm.db2.jcc.DB2Driver: access denied (java.lang.RuntimePermission getProtectionDomain)] 2.4 - (17)
+41a43
+> [Unable to access Protection Domain or Code Source for class class com.ibm.db2.jcc.DB2Driver: access denied (java.lang.RuntimePermission getProtectionDomain)] 2.4 - (17)
+69a72
+> [Unable to access Protection Domain or Code Source for class class com.ibm.db2.jcc.DB2Driver: access denied (java.lang.RuntimePermission getProtectionDomain)] 2.4 - (17)
+Test Failed.
+		
+			End:   sysinfo jdk1.5.0_06 DerbyNetClient 2006-04-19 13:00:40 ***
+vo136787@khepri32:~/tmp/test> java org.apache.derby.tools.sysinfo
+			
+				
+				
+					
+					
+						
+						
+							
+							
+								
+								
+									
+									
+										
+										
+											
+											
+												
+												
+													
+													
+														
+														
+															
+															
+																
+																
+																	
+																	
+																		Java Information ------------------
+Java Version:    1.5.0_06
+Java Vendor:     Sun Microsystems Inc.
+Java home:       /usr/jdk/instances/jdk1.5.0/jre
+Java classpath:  /home/vo136787/derby/tmp/testbuild/lib/derby.jar:/home/vo136787/derby/tmp/testbuild/lib/derbyTesting.jar:/home/vo136787/derby/tmp/testbuild/lib/derbytools.jar:/home/vo136787/derby/tmp/testbuild/lib/derbynet.jar:/home/vo136787/derby/tmp/testbuild/lib/derbyclient.jar:/home/vo136787/derby/tmp/testbuild/lib/derbyrun.jar:/home/vo136787/derby/tmp/testbuild/lib/junit.jar:/home/vo136787/derby/tmp/testbuild/lib/db2jcc.jar:/home/vo136787/derby/tmp/testbuild/lib/db2jcc_license_c.jar:/home/vo136787/derby/tmp/testbuild/lib/jakarta-oro-2.0.8.jar:/home/vo136787/derby/tmp/testbuild/lib/derbyLocale_de_DE.jar:/home/vo136787/derby/tmp/testbuild/lib/derbyLocale_es.jar:/home/vo136787/derby/tmp/testbuild/lib/derbyLocale_fr.jar:/home/vo136787/derby/tmp/testbuild/lib/derbyLocale_it.jar:/home/vo136787/derby/tmp/testbuild/lib/derbyLocale_ja_JP.jar:/home/vo136787/derby/tmp/testbuild/lib/derbyLocale_ko_KR.jar:/home/vo136787/derby/tmp/testbuild/lib/derbyLocale_pt_BR.jar:/home/vo136787/derby/tmp/testbuild/lib/derbyLocale_zh_CN.jar:/home/vo136787/derby/tmp/testbuild/lib/derbyLocale_zh_TW.jar
+OS name:         SunOS
+OS architecture: x86
+OS version:      5.10
+Java user name:  vo136787
+Java user home:  /home/vo136787
+Java user dir:   /home/vo136787/tmp/test
+java.specification.name: Java Platform API Specification
+java.specification.version: 1.5
+																	
+																	
+																
+																
+															
+															
+														
+														
+													
+													
+												
+												
+											
+											
+										
+										
+									
+									
+									Derby Information --------
+JRE - JDBC: J2SE 5.0 - JDBC 3.0
+[/home/vo136787/derby/tmp/testbuild/lib/derby.jar] 10.2.0.0 alpha - (394991)
+[/home/vo136787/derby/tmp/testbuild/lib/derbytools.jar] 10.2.0.0 alpha - (394991)
+[/home/vo136787/derby/tmp/testbuild/lib/derbynet.jar] 10.2.0.0 alpha - (394991)
+[/home/vo136787/derby/tmp/testbuild/lib/derbyclient.jar] 10.2.0.0 alpha - (394991)
+[/home/vo136787/derby/tmp/testbuild/lib/db2jcc.jar] 2.4 - (17)
+[/home/vo136787/derby/tmp/testbuild/lib/db2jcc_license_c.jar] 2.4 - (17)
+------------------------------------------------------
+									
+										
+										
+											
+											
+												
+												
+													
+													
+														
+														
+															
+															
+																
+																
+																	Locale Information -----------------
+Current Locale :  [English/United States [en_US]]
+Found support for locale: [de_DE]
+        version: 10.2.0.0 alpha - (394991)
+Found support for locale: [es]
+        version: 10.2.0.0 alpha - (394991)
+Found support for locale: [fr]
+        version: 10.2.0.0 alpha - (394991)
+Found support for locale: [it]
+        version: 10.2.0.0 alpha - (394991)
+Found support for locale: [ja_JP]
+        version: 10.2.0.0 alpha - (394991)
+Found support for locale: [ko_KR]
+        version: 10.2.0.0 alpha - (394991)
+Found support for locale: [pt_BR]
+        version: 10.2.0.0 alpha - (394991)
+Found support for locale: [zh_CN]
+        version: 10.2.0.0 alpha - (394991)
+Found support for locale: [zh_TW]
+        version: 10.2.0.0 alpha - (394991)
+------------------------------------------------------
+vo136787@khepri32:~/tmp/test> java org.apache.derby.tools.sysinfo -cp
+Testing for presence of all Derby-related libraries; typically, only some are needed.
+For a list of possible arguments, type java org.apache.derby.tools.sysinfo -cp args
+FOUND IN CLASS PATH:
+																
+																
+															
+															
+														
+														
+													
+													
+												
+												
+											
+											
+										
+										
+									
+									
+								
+								
+							
+							
+						
+						
+					
+					
+				
+				
+			
+			
+		
+		
+	
+	
+
+
+
+  Derby embedded engine library (derby.jar)
+  /home/vo136787/derby/tmp/testbuild/lib/derby.jar
+
+
+  Derby embedded engine library (derby.jar)
+  /home/vo136787/derby/tmp/testbuild/lib/derby.jar
+
+
+  Derby Network Server library (derbynet.jar)
+  /home/vo136787/derby/tmp/testbuild/lib/derbynet.jar
+
+
+  Derby Client libraries (db2jcc.jar)
+  /home/vo136787/derby/tmp/testbuild/lib/db2jcc.jar
+
+
+  Derby Client libraries (derbyclient.jar)
+  /home/vo136787/derby/tmp/testbuild/lib/derbyclient.jar
+
+
+
+NOT FOUND IN CLASS PATH:
+
+  Derby tools library (derbytools.jar)
+   (org.apache.derby.tools.ij not found.)

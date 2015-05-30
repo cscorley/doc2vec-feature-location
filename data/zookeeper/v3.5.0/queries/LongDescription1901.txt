@@ -1,0 +1,31 @@
+AsyncOpsTest, ChrootAsyncTest, and NioNettySuiteTest can fail running on Java 8 if child znodes are not added to a list in the same order as expected. 
+
+For example
+
+
+Testcase: testAsyncGetChildrenTwo took 0.166 sec
+        FAILED
+expected:<OK:/foo:[child[1, child2]]> but was:<OK:/foo:[child[2, child1]]>
+junit.framework.AssertionFailedError: expected:<OK:/foo:[child[1, child2]]> but was:<OK:/foo:[child[2, child1]]>
+        at org.apache.zookeeper.test.AsyncOps$AsyncCB.verify(AsyncOps.java:113)
+        at org.apache.zookeeper.test.AsyncOps$ChildrenCB.verify(AsyncOps.java:298)
+        at org.apache.zookeeper.test.AsyncOps$ChildrenCB.verifyGetChildrenTwo(AsyncOps.java:287)
+        at org.apache.zookeeper.test.AsyncOpsTest.testAsyncGetChildrenTwo(AsyncOpsTest.java:155)
+        at org.apache.zookeeper.JUnit4ZKTestRunner$LoggedInvokeMethod.evaluate(JUnit4ZKTestRunner.java:52)
+
+
+
+
+Testcase: testAsyncGetChildren2Two took 0.154 sec
+        FAILED
+expected:<OK:/foo:[child[1, child2]]> but was:<OK:/foo:[child[2, child1]]>
+junit.framework.AssertionFailedError: expected:<OK:/foo:[child[1, child2]]> but was:<OK:/foo:[child[2, child1]]>
+        at org.apache.zookeeper.test.AsyncOps$AsyncCB.verify(AsyncOps.java:113)
+        at org.apache.zookeeper.test.AsyncOps$Children2CB.verify(AsyncOps.java:383)
+        at org.apache.zookeeper.test.AsyncOps$Children2CB.verifyGetChildrenTwo(AsyncOps.java:372)
+        at org.apache.zookeeper.test.AsyncOpsTest.testAsyncGetChildren2Two(AsyncOpsTest.java:175)
+	at org.apache.zookeeper.JUnit4ZKTestRunner$LoggedInvokeMethod.evaluate(JUnit4ZKTestRunner.java:52)
+
+
+
+This seems like a test only issue because getChildren javadoc says "The list of children returned is not sorted and no guarantee is provided as to its natural or lexical order." So, fix the tests by sorting the incoming lists. 

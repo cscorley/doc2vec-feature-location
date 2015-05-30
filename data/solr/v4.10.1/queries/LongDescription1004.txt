@@ -1,0 +1,48 @@
+I have seen that when abort command is called in a deltaImport, in DocBuilder.java, at doDelta functions it's just checked for abortion at the begining of collectDelta, after that function and at the end of collectDelta.
+The problem I have found is that if there is a big number of documents to modify and abort is called in the middle of delta collection, it will not take effect until all data is collected.
+Same happens when we start deleteting or updating documents. In updating case, there is an abortion check inside buildDocument but, as it is called inside a "while" for all docs to update, it will keep going throw all docs of the bucle and skipping them.
+I propose to do an abortion check inside every loop of data collection and after calling build document in doDelta function.
+
+In the case of modifing documents, the code in DocBuilder.java would look like:
+
+    while (pkIter.hasNext()) {
+      Map<String, Object> map = pkIter.next();
+      vri.addNamespace(DataConfig.IMPORTER_NS + ".delta", map);
+      buildDocument(vri, null, map, root, true, null);
+      pkIter.remove();
+      //check if abortion
+      if (stop.get())
+      {
+            allPks = null ;
+            pkIter = null ;
+            return;
+        }     
+    }
+
+In the case of document deletion (deleteAll function in DocBuilder): Just       if (stop.get())
+{ break ; }
+     at the end of every loop and call this just after deleteAll is called (in doDelta)
+      if (stop.get())
+      {
+            allPks = null;
+            deletedKeys = null;
+            return;
+
+       }
+
+Finally in collect delta:
+
+      while (true) {
+         //check for abortion
+         if (stop.get())
+{ return myModifiedPks; }
+         Map<String, Object> row = entityProcessor.nextModifiedRowKey();
+
+         if (row == null)
+           break;
+           ...
+
+And the same for delete-query collection and parent-delta-query collection
+
+I didn't atach de patch because is the first time I open an issue and don't know if you want to code it as I do. Just wanted to explain the idea and how I solved, I think it can be useful for other users.
+

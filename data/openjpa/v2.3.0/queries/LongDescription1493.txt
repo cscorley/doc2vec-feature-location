@@ -1,0 +1,4 @@
+OPENJPA-1185 introduced query context for table alias resolution that improved JPQL subquery processing.
+However, JPQL queries without subselect pay  performance penalty because of the alias resolution by query context. In fact, if JPQL or QueryExpression do not contain subselect, then the table alias resolution can be simplified.
+This can be done by checking if a SelectImpl is involved in a subquery:
+If SelectImpl is not a subquery (it has no parent) or SelectImpl does not have any subselects, then the alias resolution by query context can be by-passed.

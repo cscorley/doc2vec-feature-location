@@ -1,0 +1,32 @@
+Stanislav Bryzgalov reported that the following script raises an NPE on the last query (a left join involving an aggregate). I have verified this in my environment:
+
+drop table t1;
+drop table t2;
+
+– create two simple tables
+CREATE TABLE T1( D1 DATE NOT NULL PRIMARY KEY, N1 VARCHAR( 10 ) );
+CREATE TABLE T2( D2 DATE NOT NULL PRIMARY KEY, N2 VARCHAR( 10 ) );
+
+– insert some data, two recs in T1 and one in T2
+INSERT INTO T1 VALUES( DATE( '2008-10-01' ), 'something' ), ( DATE( '2008-10-02' ), 'something' );
+INSERT INTO T2 VALUES( DATE( '2008-10-01' ), 'something' );
+
+– this runs fine, gives one record '2008-10-02'
+SELECT T1.D1
+  FROM T1
+  LEFT JOIN T2
+  ON T1.D1 = T2.D2
+  WHERE T2.D2 IS NULL;
+
+– this runs fine too, gives one record '2008-10-02'  
+SELECT MAX( T1.D1 ) as D
+  FROM T1
+  WHERE T1.D1 NOT IN ( SELECT T2.D2 FROM T2 );
+
+– this one breaks!!!
+– SQL State = XJ001 SQL Code = -1 SQL Message = DERBY SQL error: SQLCODE: -1, SQLSTATE: XJ001, SQLERRMC: java.lang.NullPointerException
+SELECT MAX( T1.D1 ) AS D
+  FROM T1
+  LEFT JOIN T2
+  ON T1.D1 = T2.D2
+  WHERE T2.D2 IS NULL;

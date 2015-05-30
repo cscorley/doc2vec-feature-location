@@ -1,0 +1,39 @@
+A regression is found that the DDL for XML type is incorrectly generated for Oracle backend.
+
+<openjpa-2.0.0-SNAPSHOT-rexported nonfatal general error> org.apache.openjpa.persistence.PersistenceException: ORA-00907: missing right parenthesis
+ 
+{stmnt 562241923 CREATE TABLE TORDER (oid NUMBER NOT NULL, amount NUMBER, delivered NUMBER, shipAddress XMLType(255), version NUMBER, CUSTOMER_COUNTRYCODE VARCHAR2(255), CUSTOMER_ID NUMBER, PRIMARY KEY (oid))} [code=907, state=42000]
+	at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:553)
+	at org.apache.openjpa.jdbc.meta.MappingTool.record(MappingTool.java:453)
+	at org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.synchronizeMappings(JDBCBrokerFactory.java:155)
+	at org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.synchronizeMappings(JDBCBrokerFactory.java:159)
+	at org.apache.openjpa.jdbc.kernel.JDBCBrokerFactory.newBrokerImpl(JDBCBrokerFactory.java:117)
+	at org.apache.openjpa.kernel.AbstractBrokerFactory.newBroker(AbstractBrokerFactory.java:207)
+	at org.apache.openjpa.kernel.AbstractBrokerFactory.newBroker(AbstractBrokerFactory.java:194)
+	at org.apache.openjpa.kernel.DelegatingBrokerFactory.newBroker(DelegatingBrokerFactory.java:152)
+	at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:200)
+	at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:151)
+	at org.apache.openjpa.persistence.xmlmapping.query.TestXMLCustomerOrder.setUp(TestXMLCustomerOrder.java:75)
+	at junit.framework.TestCase.runBare(TestCase.java:125)
+	at org.apache.openjpa.persistence.test.AbstractPersistenceTestCase.runBare(AbstractPersistenceTestCase.java:501)
+	at org.apache.openjpa.persistence.test.AbstractPersistenceTestCase.runBare(AbstractPersistenceTestCase.java:477)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at org.apache.openjpa.persistence.test.AbstractPersistenceTestCase.run(AbstractPersistenceTestCase.java:177)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at org.eclipse.jdt.internal.junit.runner.junit3.JUnit3TestReference.run(JUnit3TestReference.java:128)
+	at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:460)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:673)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:386)
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:196)
+Caused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: ORA-00907: missing right parenthesis
+ {stmnt 562241923 CREATE TABLE TORDER (oid NUMBER NOT NULL, amount NUMBER, delivered NUMBER, shipAddress XMLType(255), version NUMBER, CUSTOMER_COUNTRYCODE VARCHAR2(255), CUSTOMER_ID NUMBER, PRIMARY KEY (oid))}
+ [code=907, state=42000]
+
+
+Correct DDL should be:
+CREATE TABLE TORDER (oid NUMBER NOT NULL, amount NUMBER, delivered NUMBER, shipAddress XMLType, version NUMBER, CUSTOMER_COUNTRYCODE VARCHAR2(255), CUSTOMER_ID NUMBER, PRIMARY KEY (oid))

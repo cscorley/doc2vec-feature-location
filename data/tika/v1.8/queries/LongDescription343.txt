@@ -1,0 +1,18 @@
+Some parsers ignores word/line delimiters. 
+
+Document:
+"<html><head></head><body>test<br>test</body></html>"
+is decoded by HtmlParser to "testtest".
+
+I think the HtmlParser.mapSafeElement method should be extended by:
+
+        if ("BR".equals(name)) return "br";
+        if ("DIV".equals(name)) return "div";
+        if ("HR".equals(name)) return "hr";
+        if ("ADDRESS".equals(name)) return "address";
+        if ("FIELDSET".equals(name)) return "fieldset";
+        if ("FORM".equals(name)) return "form";
+        if ("NOSCRIPT".equals(name)) return "noscript";
+        if ("NOFRAMES".equals(name)) return "noframes";
+
+Also application/xml documents are parsed by removing unknown tags instead of replacing them into spaces.

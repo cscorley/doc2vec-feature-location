@@ -1,0 +1,69 @@
+The byte-code compiler complains about a missing setValue() overload. When this is fixed, it would be good to make sure that output parameters of UDT type work for the network client too.
+
+When compiling the following CALL statement
+
+    call changeCurrencyCode( ?, ? )
+
+given the following procedure declaration
+
+   create procedure changeCurrencyCode
+   ( in newCurrencyCode char( 3 ), inout oldPrice Price )
+   language java parameter style java no sql
+   external name 'org.apache.derbyTesting.functionTests.tests.lang.UDTTest.changeCurrencyCode'
+
+I see this stack trace:
+
+java.lang.NoSuchMethodException: org.apache.derby.iapi.types.DataValueDescriptor.setValue(org.apache.derbyTesting.functionTests.tests.lang.Price)
+	at java.lang.Class.getDeclaredMethod(Class.java:1909)
+	at org.apache.derby.impl.services.bytecode.d_BCValidate.checkMethod(d_BCValidate.java:132)
+	at org.apache.derby.impl.services.bytecode.BCMethod.callMethod(BCMethod.java:745)
+	at org.apache.derby.impl.sql.compile.StaticMethodCallNode.generateExpression(StaticMethodCallNode.java:1197)
+	at org.apache.derby.impl.sql.compile.JavaValueNode.generate(JavaValueNode.java:253)
+	at org.apache.derby.impl.sql.compile.CallStatementNode.generate(CallStatementNode.java:225)
+	at org.apache.derby.impl.sql.compile.StatementNode.generate(StatementNode.java:347)
+	at org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatement.java:469)
+	at org.apache.derby.impl.sql.GenericStatement.prepare(GenericStatement.java:90)
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(GenericLanguageConnectionContext.java:828)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.<init>(EmbedPreparedStatement.java:129)
+	at org.apache.derby.impl.jdbc.EmbedCallableStatement.<init>(EmbedCallableStatement.java:69)
+	at org.apache.derby.impl.jdbc.EmbedCallableStatement20.<init>(EmbedCallableStatement20.java:85)
+	at org.apache.derby.impl.jdbc.EmbedCallableStatement30.<init>(EmbedCallableStatement30.java:61)
+	at org.apache.derby.jdbc.Driver30.newEmbedCallableStatement(Driver30.java:122)
+	at org.apache.derby.impl.jdbc.EmbedConnection.prepareCall(EmbedConnection.java:1699)
+	at org.apache.derby.impl.jdbc.EmbedConnection.prepareCall(EmbedConnection.java:1648)
+	at MyDerbyClient.prepareCall(MyDerbyClient.java:940)
+	at MyDerbyClient.execute(MyDerbyClient.java:161)
+	at MyDerbyClient.main(MyDerbyClient.java:90)
+Invalid method org.apache.derby.iapi.types.DataValueDescriptor >> void setValue(org.apache.derbyTesting.functionTests.tests.lang.Price) because java.lang.NoSuchMethodException: org.apache.derby.iapi.types.DataValueDescriptor.setValue(org.apache.derbyTesting.functionTests.tests.lang.Price)
+Exception in thread "main" java.sql.SQLException: Java exception: 'ASSERT FAILED Invalid method org.apache.derby.iapi.types.DataValueDescriptor >> void setValue(org.apache.derbyTesting.functionTests.tests.lang.Price) because java.lang.NoSuchMethodException: org.apache.derby.iapi.types.DataValueDescriptor.setValue(org.apache.derbyTesting.functionTests.tests.lang.Price): org.apache.derby.shared.common.sanity.AssertFailure'.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(SQLExceptionFactory.java:45)
+	at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Util.java:142)
+	at org.apache.derby.impl.jdbc.Util.javaException(Util.java:299)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(TransactionResourceImpl.java:403)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(TransactionResourceImpl.java:346)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(EmbedConnection.java:2269)
+	at org.apache.derby.impl.jdbc.ConnectionChild.handleException(ConnectionChild.java:81)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.<init>(EmbedPreparedStatement.java:147)
+	at org.apache.derby.impl.jdbc.EmbedCallableStatement.<init>(EmbedCallableStatement.java:69)
+	at org.apache.derby.impl.jdbc.EmbedCallableStatement20.<init>(EmbedCallableStatement20.java:85)
+	at org.apache.derby.impl.jdbc.EmbedCallableStatement30.<init>(EmbedCallableStatement30.java:61)
+	at org.apache.derby.jdbc.Driver30.newEmbedCallableStatement(Driver30.java:122)
+	at org.apache.derby.impl.jdbc.EmbedConnection.prepareCall(EmbedConnection.java:1699)
+	at org.apache.derby.impl.jdbc.EmbedConnection.prepareCall(EmbedConnection.java:1648)
+	at MyDerbyClient.prepareCall(MyDerbyClient.java:940)
+	at MyDerbyClient.execute(MyDerbyClient.java:161)
+	at MyDerbyClient.main(MyDerbyClient.java:90)
+Caused by: org.apache.derby.shared.common.sanity.AssertFailure: ASSERT FAILED Invalid method org.apache.derby.iapi.types.DataValueDescriptor >> void setValue(org.apache.derbyTesting.functionTests.tests.lang.Price) because java.lang.NoSuchMethodException: org.apache.derby.iapi.types.DataValueDescriptor.setValue(org.apache.derbyTesting.functionTests.tests.lang.Price)
+	at org.apache.derby.shared.common.sanity.SanityManager.THROWASSERT(SanityManager.java:162)
+	at org.apache.derby.shared.common.sanity.SanityManager.THROWASSERT(SanityManager.java:147)
+	at org.apache.derby.impl.services.bytecode.d_BCValidate.checkMethod(d_BCValidate.java:191)
+	at org.apache.derby.impl.services.bytecode.BCMethod.callMethod(BCMethod.java:745)
+	at org.apache.derby.impl.sql.compile.StaticMethodCallNode.generateExpression(StaticMethodCallNode.java:1197)
+	at org.apache.derby.impl.sql.compile.JavaValueNode.generate(JavaValueNode.java:253)
+	at org.apache.derby.impl.sql.compile.CallStatementNode.generate(CallStatementNode.java:225)
+	at org.apache.derby.impl.sql.compile.StatementNode.generate(StatementNode.java:347)
+	at org.apache.derby.impl.sql.GenericStatement.prepMinion(GenericStatement.java:469)
+	at org.apache.derby.impl.sql.GenericStatement.prepare(GenericStatement.java:90)
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(GenericLanguageConnectionContext.java:828)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.<init>(EmbedPreparedStatement.java:129)
+	... 9 more

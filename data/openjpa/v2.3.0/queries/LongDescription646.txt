@@ -1,0 +1,13 @@
+This Issue was first presented on our dev mailing list:
+
+http://www.nabble.com/Sun-JDK-problem-with-duplicate-annotations-td18101863.html
+
+I have also shared some additional experiences with Abe to get his views, but haven't heard anything back yet.  So, I will create this JIRA Issue and work it from there.
+
+The original problem was limited to the Sun JDK.  But, in a soon-to-be-available update to the IBM JDK, the same problem surfaces.  At least the same exception is presented.  The actual call stack is different due to the different Sun and IBM packages, but it's a similar problem.
+
+Basically, we are having a problem with our TempClassLoader attempting to use the defineClass() method on the CascadeType enum class.  Our javax.persistence.CascadeType version doesn't experience this problem because we use Class.forName() to load the javax classes.  In this scenario, I have an alt.persistence.CascadeType that falls into our normal class definition processing and attempts to use defineClass().  This method invocation completes okay.  But, later when our code attempts to access the metadata associated with this type, we get the ArrayStoreException from the JDK.
+
+I will post both a simple project that reproduces the problem as well as a "hack" patch that gets us around the problem.  I also have a PMR opened against the IBM JDK to see if they can help resolve it.
+
+Kevin

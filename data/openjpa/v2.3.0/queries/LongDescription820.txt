@@ -1,0 +1,17 @@
+Thank you for fixing that PCPath issue!  Now I can move on to find the next bug to fix.   And I didn't have to wait long:
+
+I am trying to run the simple query below, against 2 slices.
+
+select this from com.protrade.fandom.data.entities.TeamFanJersey this  where this.teamFan = :p0
+
+
+These are the two queries run on the low level databases:
+
+SELECT t0.JDOID, t0.JERSEYLEVEL, t0.TEAMFAN_JDOID FROM TEAMFANJERSEY t0 WHERE (t0.TEAMFAN_JDOID IS NULL)
+
+SELECT t0.JDOID, t0.JERSEYLEVEL, t0.TEAMFAN_JDOID FROM TEAMFANJERSEY t0 WHERE (t0.TEAMFAN_JDOID = 8574250)
+
+
+As you can see, the query run against Slice1 thinks the parameter is Null, while the query run against Slice2, knows the proper value of the parameter.  This SQL is the lowlevel sql sent through the Mysql Driver (mysql driver logging).
+
+I guess it's another bug in the DistributedPreparedStatement not properly setting parameters to all sub statements.. just a guess.

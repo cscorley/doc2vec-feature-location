@@ -1,0 +1,1 @@
+When processing a named query, we look to see what the LockModeType should be set to as a hint for the query.  But, if the LockModeType is the default (NONE), there is no reason to set that as a hint.  So, if the required LockModeType turns out to be NONE, then we're going to skip setting this hint.  Hint processing is kind of expensive for Queries, so the less we do the better.

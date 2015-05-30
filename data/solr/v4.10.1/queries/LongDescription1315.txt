@@ -1,0 +1,49 @@
+Here is an email describing the problem, and a possible solution.
+
+
+
+I agree. I think both options could be useful - perhaps a 'forceBackup' as
+well? Documentation would take care of the rest. Have you added this info to
+the wiki yet?
+–
+
+	Mark
+
+
+
+http://www.lucidimagination.com
+
+On Thu, Jul 23, 2009 at 12:56 PM, solr jay <solrjay@gmail.com> wrote:
+
+> Hi,
+>
+> I noticed that the backup request
+>
+> http://master_host:port/solr/replication?command=backup<
+> http://master_host/solr/replication?command=backup>
+
+	Hide quoted text -
+>
+> works only if there are committed index data, i.e.
+> core.getDeletionPolicy().getLatestCommit() is not null. Otherwise, no
+> backup
+> is created. It sounds logical because if nothing has been committed since
+> your last backup, it doesn't help much to do a new backup. However,
+> consider
+> this scenario:
+>
+> 1. a backup process is scheduled at 1:00AM every Monday
+> 2. just before 1:00AM, the system is shutdown (for whatever reason), and
+> then restarts
+> 3. No index is committed before 1:00AM
+> 4. at 1:00AM, backup process starts and no committed index is found, and
+> therefore no backup (until next week)
+>
+> The probability of this scenario is probably small, but it still could
+> happen, and it seems to me that if I want to backup index, a backup should
+> be created whether there are new committed index or not.
+>
+> Your thoughts?
+>
+> Thanks,
+

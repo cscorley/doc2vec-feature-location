@@ -1,0 +1,6 @@
+StatementPoolingTest.testPoolingEnabledByCheckingImplementationDetails() assumes that the client-side statement cache will have been primed by a previous test case, testCacheOverflow(). On Java 7 and Java 8 the test order is not deterministic. If testPoolingEnabledByCheckingImplementationDetails() is the first test case to run, then it fails with this error:
+
+org.apache.derbyTesting.functionTests.tests.jdbcapi.StatementPoolingTest.assertClassName(StatementPoolingTest.java:147)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.StatementPoolingTest.testPoolingEnabledByCheckingImplementationDetails(StatementPoolingTest.java:89)
+
+I will attach a patch which forces testPoolingEnabledByCheckingImplementationDetails() to be first in the test order. With this patch, StatementPoolingTest fails for me on Java 7 when run on the 10.9 branch as well as on trunk.

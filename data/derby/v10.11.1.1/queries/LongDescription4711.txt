@@ -1,0 +1,30 @@
+We've seen a problem today where we have several threads querying our database and when one gets interrupted the others are stuck waiting for a lock. Here is the stack trace for the stuck thread(s):
+
+daemon prio=4
+"DefaultExecutorService-pool-1-thread-47" Id=98 WAITING on org.apache.derby.impl.services.locks.ActiveLock@6e6f45a1
+	at java.lang.Object.wait(Native Method)
+
+	waiting on org.apache.derby.impl.services.locks.ActiveLock@6e6f45a1
+	at java.lang.Object.wait(Object.java:485)
+	at org.apache.derby.impl.services.locks.ActiveLock.waitForGrant(ActiveLock.java:115)
+	at org.apache.derby.impl.services.locks.ConcurrentLockSet.lockObject(ConcurrentLockSet.java:463)
+	at org.apache.derby.impl.services.locks.ConcurrentLockSet.zeroDurationLockObject(ConcurrentLockSet.java:855)
+	at org.apache.derby.impl.services.locks.AbstractPool.zeroDurationlockObject(AbstractPool.java:297)
+	at org.apache.derby.impl.services.locks.ConcurrentPool.zeroDurationlockObject(ConcurrentPool.java:28)
+	at org.apache.derby.impl.store.raw.xact.RowLocking2nohold.lockRecordForRead(RowLocking2nohold.java:89)
+	at org.apache.derby.impl.store.access.heap.HeapController.lockRow(HeapController.java:520)
+	at org.apache.derby.impl.store.access.heap.HeapController.lockRow(HeapController.java:638)
+	at org.apache.derby.impl.store.access.btree.index.B2IRowLocking3.lockRowOnPage(B2IRowLocking3.java:309)
+	at org.apache.derby.impl.store.access.btree.index.B2IRowLocking3._lockScanRow(B2IRowLocking3.java:599)
+	at org.apache.derby.impl.store.access.btree.index.B2IRowLockingRR.lockScanRow(B2IRowLockingRR.java:105)
+	at org.apache.derby.impl.store.access.btree.BTreeForwardScan.fetchRows(BTreeForwardScan.java:305)
+	at org.apache.derby.impl.store.access.btree.BTreeScan.fetchNextGroup(BTreeScan.java:1585)
+	at org.apache.derby.impl.sql.execute.BulkTableScanResultSet.reloadArray(BulkTableScanResultSet.java:327)
+	at org.apache.derby.impl.sql.execute.BulkTableScanResultSet.getNextRowCore(BulkTableScanResultSet.java:282)
+	at org.apache.derby.impl.sql.execute.BasicNoPutResultSetImpl.getNextRow(BasicNoPutResultSetImpl.java:460)
+	at org.apache.derby.impl.jdbc.EmbedResultSet.movePosition(EmbedResultSet.java:427)
+	locked org.apache.derby.impl.jdbc.EmbedConnection40@445d374b
+	at org.apache.derby.impl.jdbc.EmbedResultSet.next(EmbedResultSet.java:371)
+        ...
+
+

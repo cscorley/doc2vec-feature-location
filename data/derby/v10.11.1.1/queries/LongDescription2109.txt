@@ -1,0 +1,35 @@
+Add mechanisms for controlling system-level privileges in Derby. See the related email discussion at http://article.gmane.org/gmane.comp.apache.db.derby.devel/33151.
+
+The 10.2 GRANT/REVOKE work was a big step forward in making Derby more  secure in a client/server configuration. I'd like to plug more client/server security holes in 10.3. In particular, I'd like to focus on  authorization issues which the ANSI spec doesn't address.
+
+Here are the important issues which came out of the email discussion.
+
+Missing privileges that are above the level of a single database:
+
+
+	Create Database
+	Shutdown all databases
+	Shutdown System
+
+
+
+Missing privileges specific to a particular database:
+
+
+	Shutdown that Database
+	Encrypt that database
+	Upgrade database
+	Create (in that Database) Java Plugins (currently  Functions/Procedures, but someday Aggregates and VTIs)
+
+
+
+Note that 10.2 gave us GRANT/REVOKE control over the following  database-specific issues, via granting execute privilege to system  procedures:
+
+Jar Handling
+Backup Routines
+Admin Routines
+Import/Export
+Property Handling
+Check Table
+
+In addition, since 10.0, the privilege of connecting to a database has been controlled by two properties (derby.database.fullAccessUsers and derby.database.defaultConnectionMode) as described in the security section of the Developer's Guide (see http://db.apache.org/derby/docs/10.2/devguide/cdevcsecure865818.html).

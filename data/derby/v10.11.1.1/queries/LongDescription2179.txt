@@ -1,0 +1,114 @@
+With ibm 1.5 jvm, SR 3, suites.All fails with 4 failures and 61 errors. I backtracked my environment, clobbering all the way, to 483606. Before that checking, all passes, after, there are failures.
+
+I am attaching a run.out from a junit.textui.TestRunner result, but basically, there are 3 kind of errors:
+
+	Connection failed like this:
+------------------------------------------------------
+    FEEEEEEEEEEEEEEEEEEEEEEEEEEE.E.EE.EEjava.lang.Exception: DRDA_NoIO.S:Could not connect to Derby Network Server on host 127.0.0.1, port 1527.
+	at org.apache.derby.impl.drda.NetworkServerControlImpl.consolePropertyMessageWork(Unknown Source)
+	at org.apache.derby.impl.drda.NetworkServerControlImpl.consolePropertyMessage(Unknown Source)
+	at org.apache.derby.impl.drda.NetworkServerControlImpl.setUpSocket(Unknown Source)
+	at org.apache.derby.impl.drda.NetworkServerControlImpl.ping(Unknown Source)
+	at org.apache.derby.drda.NetworkServerControl.ping(Unknown Source)
+	at org.apache.derbyTesting.junit.NetworkServerTestSetup.waitForServerStart(Unknown Source)
+	at org.apache.derbyTesting.junit.NetworkServerTestSetup.setUp(Unknown Source)
+------------------------------------------------------
+
+
+
+2. SQLCAMESSAGE error 42X50 trouble like this one from SURData: 
+".............java.sql.SQLException: DERBY SQL error: SQLCODE: -1, SQLSTATE: 42X50, SQLERRMC: org.apache.derby.catalog.SystemProceduresSQLCAMESSAGEint, short, java.lang.String, java.lang.String, int, int, int, int, int, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String[], int[]42X50
+	at org.apache.derby.client.am.SQLExceptionFactory.getSQLException(Unknown Source)
+	at org.apache.derby.client.am.SqlException.getSQLException(Unknown Source)
+	at org.apache.derby.client.am.Statement.execute(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.SURDataModelSetup.createDataModel(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.SURDataModelSetup.createDataModel(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.jdbcapi.SURDataModelSetup.setUp(Unknown Source)
+(..snipped junit stack...)
+Caused by: org.apache.derby.client.am.SqlException: DERBY SQL error: SQLCODE: -1, SQLSTATE: 42X50, SQLERRMC: org.apache.derby.catalog.SystemProceduresSQLCAMESSAGEint, short, java.lang.String, java.lang.String, int, int, int, int, int, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String[], int[]42X50
+	at org.apache.derby.client.am.SqlException.copyAsUnchainedSQLException(Unknown Source)
+	at org.apache.derby.client.am.Sqlca.chainDeferredExceptionsToAgentOrAsConnectionWarnings(Unknown Source)
+	at org.apache.derby.client.am.Sqlca.getJDBCMessage(Unknown Source)
+	at org.apache.derby.client.am.SqlException.getMessage(Unknown Source)
+	... 29 more
+
+And various LangScripts and other tests also failed with error 42X50
+e.g.: 
+1) GROUP BY expression testsERROR 42X50: No method was found that matched the method call org.apache.derby.catalog.SystemProcedures.SYSCS_SET_DATABASE_PROPERTY(java.lang.String, java.lang.String), tried all combinations of object and primitive types and any possible type conversion for any  parameters the method call may have. The method might exist but it is not public and/or static, or the parameter types are not method invocation convertible.
+	at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+	at org.apache.derby.impl.sql.compile.MethodCallNode.throwNoMethodFound(Unknown Source)
+	at org.apache.derby.impl.sql.compile.MethodCallNode.resolveMethodCall(Unknown Source)
+	at org.apache.derby.impl.sql.compile.StaticMethodCallNode.bindExpression(Unknown Source)
+	at org.apache.derby.impl.sql.compile.JavaToSQLValueNode.bindExpression(Unknown Source)
+	at org.apache.derby.impl.sql.compile.CallStatementNode.bindStatement(Unknown Source)
+	at org.apache.derby.impl.sql.GenericStatement.prepMinion(Unknown Source)
+	at org.apache.derby.impl.sql.GenericStatement.prepare(Unknown Source)
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.<init>(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedCallableStatement.<init>(Unknown Source)
+	at org.apache.derby.jdbc.Driver30.newEmbedCallableStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.prepareCall(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.prepareCall(Unknown Source)
+	at org.apache.derbyTesting.junit.CleanDatabaseTestSetup.clearProperties(Unknown Source)
+	at org.apache.derbyTesting.junit.CleanDatabaseTestSetup.cleanDatabase(Unknown Source)
+	at org.apache.derbyTesting.junit.CleanDatabaseTestSetup.tearDown(Unknown Source)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:20)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+2) case(org.apache.derbyTesting.functionTests.tests.lang.LangScripts)ERROR 42X50: No method was found that matched the method call org.apache.derby.catalog.SystemProcedures.SYSCS_SET_DATABASE_PROPERTY(java.lang.String, java.lang.String), tried all combinations of object and primitive types and any possible type conversion for any  parameters the method call may have. The method might exist but it is not public and/or static, or the parameter types are not method invocation convertible.
+	at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+	at org.apache.derby.impl.sql.compile.MethodCallNode.throwNoMethodFound(Unknown Source)
+	at org.apache.derby.impl.sql.compile.MethodCallNode.resolveMethodCall(Unknown Source)
+	at org.apache.derby.impl.sql.compile.StaticMethodCallNode.bindExpression(Unknown Source)
+	at org.apache.derby.impl.sql.compile.JavaToSQLValueNode.bindExpression(Unknown Source)
+	at org.apache.derby.impl.sql.compile.CallStatementNode.bindStatement(Unknown Source)
+	at org.apache.derby.impl.sql.GenericStatement.prepMinion(Unknown Source)
+	at org.apache.derby.impl.sql.GenericStatement.prepare(Unknown Source)
+	at org.apache.derby.impl.sql.conn.GenericLanguageConnectionContext.prepareInternalStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.<init>(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedCallableStatement.<init>(Unknown Source)
+	at org.apache.derby.jdbc.Driver30.newEmbedCallableStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.prepareCall(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.prepareCall(Unknown Source)
+	at org.apache.derbyTesting.junit.CleanDatabaseTestSetup.clearProperties(Unknown Source)
+	at org.apache.derbyTesting.junit.CleanDatabaseTestSetup.cleanDatabase(Unknown Source)
+	at org.apache.derbyTesting.junit.CleanDatabaseTestSetup.setUp(Unknown Source)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:18)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+
+Plus,  XMLType and Operators suite fails because wombat was compromised, and also error 42X50.
+
+3. There were 2 failures:
+1) testNegative(org.apache.derbyTesting.functionTests.tests.lang.GroupByExpressionTest)junit.framework.ComparisonFailure: Unexpected SQL state. expected:<42Y30> but was:<XJ001>
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.assertSQLState(Unknown Source)
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.assertSQLState(Unknown Source)
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.assertSQLState(Unknown Source)
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.assertCompileError(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.lang.GroupByExpressionTest.testNegative(Unknown Source)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:64)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(Unknown Source)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+2) testInvalidXMLBindings(org.apache.derbyTesting.functionTests.tests.lang.XMLBindingTest)junit.framework.ComparisonFailure: Unexpected SQL state. expected:<...Z7...> but was:<...X5...>
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.assertSQLState(Unknown Source)
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.assertSQLState(Unknown Source)
+	at org.apache.derbyTesting.junit.BaseJDBCTestCase.assertCompileError(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.lang.XMLBindingTest.testInvalidXMLBindings(Unknown Source)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:64)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(Unknown Source)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)

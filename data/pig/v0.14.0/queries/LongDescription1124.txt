@@ -1,0 +1,13 @@
+As a Hadoop user I want to control the Job name for my analysis via the command line using the following construct::
+
+java -cp pig.jar:$HADOOP_HOME/conf -Dmapred.job.name=hadoop_junkie org.apache.pig.Main broken.pig
+
+-Dmapred.job.name should normally set my Hadoop Job name, but somehow during the formation of the job.xml in Pig this information is lost and the job name turns out to be:
+
+"PigLatin:broken.pig"
+
+The current workaround seems to be wiring it in the script itself, using the following ( or using parameter substitution).
+
+set job.name 'my job'
+
+Viraj

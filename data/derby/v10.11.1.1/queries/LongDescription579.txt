@@ -1,0 +1,5 @@
+The timeout is being set on the class GenericPreparedStatement, but this
+represents a statement plan and can be shared across multiple
+connections (through the statement cache). Thus if two connections
+execute the same statement with different timeouts, they will interfere
+with each other with the timeout values.

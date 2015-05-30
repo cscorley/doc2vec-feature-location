@@ -1,0 +1,18 @@
+AbstractResultList implements the basics for readonly result lists. When calling the subList(int,int) method, the following exception is raised:
+
+    java.lang.UnsupportedOperationException
+    at org.apache.openjpa.lib.rop.AbstractResultList.subList(AbstractResultList.java:84)
+    at org.apache.openjpa.kernel.DelegatingResultList.subList(DelegatingResultList.java:308)
+    ...
+
+Since the subList() method contract is to create a new List from the ResultList, this operation does not modify the original list: it only provides a view on the original list (see http://java.sun.com/docs/books/tutorial/collections/interfaces/list.html ). 
+
+This problem is also found by other users: http://n2.nabble.com/DelegatingResultList.subList-not-implemented--td210389.html
+They found the (bad) workaround to build a new List (bad because this is not the same as calling subList()):
+
+    List mySubList = new ArrayList(openjpaList).subList(from, to);
+
+The AbstractResultList class should be modified by one of this solution (sorted by decreasing preference order):
+1) the AbstractResultList class should extends java.util.AbstractList and the subList() method should be removed (because implemented by AbstractList)
+2) the subList() method should be implemented to return a view on the original list. See java.util.AbstractList for an implementation (http://www.koders.com/java/fidCFCB47A1819AB345234CC04B6A1EA7554C2C17C0.aspx?s=iso+3166 )
+3) the subList() method should throw the exception with the message "this method is not yet implemented. Workaround: new ArrayList(openjpaList).subList(from, to)"

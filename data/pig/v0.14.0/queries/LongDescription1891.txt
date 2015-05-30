@@ -1,0 +1,20 @@
+We are in the process of using PIG for various data processing and component integration. Here is where we feel pig storage funcs lack:
+
+They are not aware if the over all job has succeeded. This creates a problem for storage funcs which needs to "upload" results into another system:
+
+DB, FTP, another file system etc.
+
+I looked at the DBStorage in the piggybank (http://svn.apache.org/viewvc/pig/trunk/contrib/piggybank/java/src/main/java/org/apache/pig/piggybank/storage/DBStorage.java?view=markup) and what I see is essentially a mechanism which for each task does the following:
+
+1. Creates a recordwriter (in this case open connection to db)
+2. Open transaction.
+3. Writes records into a batch
+4. Executes commit or rollback depending if the task was successful.
+
+While this aproach works great on a task level, it does not work at all on a job level. 
+
+If certain tasks will succeed but over job will fail, partial records are going to get uploaded into the DB.
+
+Any ideas on the workaround? 
+
+Our current workaround is fairly ugly: We created a java wrapper that launches pig jobs and then uploads to DB's once pig's job is successful. While the approach works, it's not really integrated into pig.

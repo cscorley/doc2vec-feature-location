@@ -1,0 +1,74 @@
+Attempting to remove an instance that has a timestamp field in its primary key results in this error:
+org.apache.openjpa.persistence.InvalidStateException: Operation attempted on a deleted instance.
+
+Suppose I have this table:
+CREATE TABLE test_tsp (
+   t Timestamp,
+   desc char(30)
+)
+
+containing just the following row:
+INSERT INTO test_tsp(T,DESC) VALUES ( CURRENT_TIMESTAMP, 'one')
+
+the table is mapped to this JPA Entity
+@Entity
+@Table(name="TEST_TSP")
+public class TestTsp implements Serializable {
+ private static final long serialVersionUID = -5756434331459759089L;
+ @Column(name="T")
+ @Id
+ private Timestamp idTsp;
+
+ @Column(name="DESC")
+ private String desc;
+
+ public TestTsp() 
+{
+  super();
+ }
+...getters and setters here...
+}
+
+and the following code attempts a delete of the row I've inserted
+
+ Query query = em.createQuery("select t from TestTsp t where t.desc='one'");
+ List<TestTsp> list = query.getResultList();
+ for (TestTsp t : list) 
+{
+  em.remove(t);
+ }
+
+Here is the error I get:
+...
+Caused by: <openjpa-1.2.2-r422266:898935 nonfatal user error> org.apache.openjpa.persistence.InvalidStateException: Operation attempted on a deleted instance.
+FailedObject: org.apache.openjpa.enhance.provatsp$TestTsp$pcsubclass@3c0b655a
+        at org.apache.openjpa.kernel.PCState.error(PCState.java:443)
+        at org.apache.openjpa.kernel.PDeletedState.beforeOptimisticWrite(PDeletedState.java:76)
+        at org.apache.openjpa.kernel.StateManagerImpl.dirty(StateManagerImpl.java:1575)
+        at org.apache.openjpa.kernel.StateManagerImpl.dirty(StateManagerImpl.java:1515)
+        at org.apache.openjpa.util.Proxies.dirty(Proxies.java:66)
+        at org.apache.openjpa.util.java$sql$Timestamp$proxy.setNanos(Unknown Source)
+        at org.apache.openjpa.jdbc.sql.DBDictionary.setTimestamp(DBDictionary.java:1144)
+        at org.apache.openjpa.jdbc.sql.DBDictionary.setTyped(DBDictionary.java:1282)
+        at org.apache.openjpa.jdbc.sql.RowImpl.flush(RowImpl.java:890)
+        at org.apache.openjpa.jdbc.sql.RowImpl.flush(RowImpl.java:850)
+        at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flushAndUpdate(PreparedStatementManagerImpl.java:118)
+        at org.apache.openjpa.jdbc.kernel.BatchingPreparedStatementManagerImpl.flushAndUpdate(BatchingPreparedStatementManagerImpl.java:82)
+        at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flushInternal(PreparedStatementManagerImpl.java:89)
+        at org.apache.openjpa.jdbc.kernel.PreparedStatementManagerImpl.flush(PreparedStatementManagerImpl.java:72)
+        at org.apache.openjpa.jdbc.kernel.ConstraintUpdateManager.flush(ConstraintUpdateManager.java:543)
+        at org.apache.openjpa.jdbc.kernel.ConstraintUpdateManager.flush(ConstraintUpdateManager.java:119)
+        at org.apache.openjpa.jdbc.kernel.BatchingConstraintUpdateManager.flush(BatchingConstraintUpdateManager.java:59)
+        at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.flush(AbstractUpdateManager.java:89)
+        at org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.flush(AbstractUpdateManager.java:72)
+        at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.flush(JDBCStoreManager.java:721)
+        at org.apache.openjpa.kernel.DelegatingStoreManager.flush(DelegatingStoreManager.java:130)
+        ... 40 more
+
+N.B.: the error doesn't happen if the primary key annotation (@Id) is moved on the other field of the entity, which is not a timestamp but a char:
+ @Column(name="T")
+ private Timestamp idTsp;
+
+ @Column(name="DESC")
+ @Id
+ private String desc;

@@ -1,0 +1,7 @@
+While enhancing and mapping files for an Oracle database the tablenames are correctly truncated after 30 characters (or whatever I write as maxTableNameLenght in the DBDictionary), the check in DBDictionary.checkNameLength includes the name of the schema which is used, therefore exceeding and failing the check for 30 characters by (length of schemaname +1) (see exception below). 
+
+Exception in thread "main" <openjpa-2.0.0-r422266:935683 nonfatal user error> org.apache.openjpa.util.UserException: Table name "TEST.LS_DETPOINT_WITH_ORIENTATIONDA" is 35-character long. The database allows maximum 30-character for a table name.
+     [java]     at org.apache.openjpa.jdbc.sql.DBDictionary.checkNameLength(DBDictionary.java:5215)
+     [java]     at org.apache.openjpa.jdbc.sql.DBDictionary.getCreateTableSQL(DBDictionary.java:3304)
+     [java]     at org.apache.openjpa.jdbc.sql.OracleDictionary.getCreateTableSQL(OracleDictionary.java:899)
+     [java]     at org.apache.openjpa.jdbc.schema.SchemaTool.createTable(SchemaTool.java:956)

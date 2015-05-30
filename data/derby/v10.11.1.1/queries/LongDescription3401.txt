@@ -1,0 +1,8 @@
+A ConnectionEventListener should be able to remove itself as a listener during a callback without affecting any other callbacks.
+
+DataSourceTest.subtestPooledRemoveListenerOnClose() tests the scenario but calls to it will be commented out in the fixture testPooledReuseOnClose() (using this bug number).
+
+Issue is that such a remove will modify the eventListener Vector in EmbedPooledConnection while it is being enumerated over.
+An idea for a fix would be to first change the Vector over to a new-style collection, such as an implementation of List, then work off a copy of the collection when calling the callbacks. I don't think eventListener needs to be a synchronized collection, its access should be already synchronized on EmbedPooledConnection.
+
+I imagine that a similar issue exists for adding a new callback during callback processing, fixing this bug would fix that issue as well though no tests have been written for the add case.

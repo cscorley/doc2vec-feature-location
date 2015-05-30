@@ -1,0 +1,6 @@
+It is often desirable to set a watch when creating a node or setting data on a node. Currently, you have to add a watch after the create/set with another api call, which incurs extra cost, and a window of unobserved state change.
+This would "seem" to be an easy addition to the server/client libs, but i'm not sure if there are reasons this was never proposed or developed.
+
+I currently am most concerned with a data watch in these two scenarios, but i would imagine other users might be interested in registering a children watch immediately upon creation.
+
+This change would require adding new method signatures in the clients for create and setData which took watchers. And some changes to the protocol, as the SetDataRequest and CreateRequest objects would need watch flags.

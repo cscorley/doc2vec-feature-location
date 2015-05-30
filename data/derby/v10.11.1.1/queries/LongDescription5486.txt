@@ -1,0 +1,18 @@
+The following code in UpgradeRun needs to be reworked to verify that sequence/identities behave as expected when upgrading from 10.8.2.2:
+
+                if ( lessThan( version, new int[] 
+{ 10, 8, 1, 6 }
+ ) )
+                { suite.addTest(Changes10_8_2.suite(phase)); }
+
+The following might do the trick:
+
+                if (oldMinor < 7)
+                    suite.addTest(Changes10_7.suite(phase));
+                if (oldMinor < 9)
+                {
+                    suite.addTest(Changes10_9.suite(phase));
+                    suite.addTest(Changes10_8_2.suite(phase));
+                }
+
+Thanks to Kristian for spotting this.

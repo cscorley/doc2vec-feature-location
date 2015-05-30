@@ -1,0 +1,8 @@
+NPE can happen if job never gets submitted due to errors like - input path does not exists. Following line (toString method) throws npe-
+
+
+msg.append("JobID: " + j.getAssignedJobID().toString() + " Reason: " + j.getMessage());
+
+
+
+Apparently, a.toString can throw NPE, but String.valueOf(a) handles null well(writes "null" for null values).

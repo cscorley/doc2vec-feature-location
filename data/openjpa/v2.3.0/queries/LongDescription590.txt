@@ -1,0 +1,14 @@
+      Our application requires the push-down sql from named/dynamic query be the same each time a same JPQL is executed. 
+In the following JPQL example, however, 
+
+      query="UPDATE BasicA t set t.name= ?1, t.age = ?2 WHERE t.id = ?3"
+
+      we observe that two different push-down sql could be generated:
+
+      UPDATE PDQBasicA t0 SET name = ?, age = ? WHERE (t0.id = ?)
+
+      UPDATE PDQBasicA t0 SET age = ?, name = ? WHERE (t0.id = ?)
+
+      This unpredictable behavior breaks our application. The indeterministic ordering of the update list is due to the indeterministic ordering provided by HashMap and HashSet in QueryExpressions and JPQLExpressionBuilder, respectively.
+
+      When the HashMap is changed to LinkedHashMap and HashSet to LinkedHashSet, the access order based on insertion will be preserved and the generated push-down sql will have predictable ordering of update list. The attached patch fixes this problem.

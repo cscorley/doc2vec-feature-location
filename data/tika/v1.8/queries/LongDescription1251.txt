@@ -1,0 +1,26 @@
+Parsing the attached document works in Tika 1.4, but not in Tika 1.5. See output below. However, using Tika 1.4 is not a proper temporary solution as it leaves tons of special characters and functions in the output. See my post on SO: https://stackoverflow.com/questions/21929040
+
+
+$ java -jar tika-app-1.4.jar Ansvarsvakt\ rutine01.06.11.doc > /dev/null
+$
+$ java -jar tika-app-1.5.jar Ansvarsvakt\ rutine01.06.11.doc > /dev/null 
+Exception in thread "main" org.apache.tika.exception.TikaException: Unexpected RuntimeException from org.apache.tika.parser.microsoft.OfficeParser@193936e1
+        at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:244)
+        at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+        at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:120)
+        at org.apache.tika.cli.TikaCLI$OutputType.process(TikaCLI.java:142)
+        at org.apache.tika.cli.TikaCLI.process(TikaCLI.java:418)
+        at org.apache.tika.cli.TikaCLI.main(TikaCLI.java:112)
+Caused by: java.lang.IllegalArgumentException: This paragraph is not the first one in the table
+        at org.apache.poi.hwpf.usermodel.Range.getTable(Range.java:932)
+        at org.apache.tika.parser.microsoft.WordExtractor.handleParagraph(WordExtractor.java:188)
+        at org.apache.tika.parser.microsoft.WordExtractor.handleHeaderFooter(WordExtractor.java:172)
+        at org.apache.tika.parser.microsoft.WordExtractor.parse(WordExtractor.java:98)
+        at org.apache.tika.parser.microsoft.OfficeParser.parse(OfficeParser.java:199)
+        at org.apache.tika.parser.microsoft.OfficeParser.parse(OfficeParser.java:167)
+        at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+        ... 5 more
+
+
+
+Sidenote: If I open the document in Abiword and just click ctrl+s to save the document (with no changes), Tika 1.5 parses it just fine.

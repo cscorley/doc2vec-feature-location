@@ -1,0 +1,11 @@
+Informix doesn't support using table aliases in a delete statement if you have an index on the table.  For example if we issue the SQL statement : 
+"delete from quoteejb t0" a Syntax error will be thrown by the Informix JDBC driver. Whereas "delete from quoteejb" would work. 
+
+This problem seems to be fixed by setting allowAliasInBulkClause to false in InformixDBDictionary. Another possibility is to check whether there is an index on the table, if no index is present we should be able to use the alias. I haven't verified whether that approach works though. 
+
+A second problem occurred when we tried to issue the following statement : 
+DELETE FROM holdingejb WHERE holdingID IN (SELECT DISTINCT t0.holdingID FROM holdingejb t0 WHERE (t0.ACCOUNT_ACCOUNTID IS NULL))
+
+The second problem was resolved by setting supportsSubselect to false in InformixDBDictionary. 
+
+In the current implementation when supportsSubselect is false we never check allowAliasInBulkClause so the first change might not be necessary. If the implementation changes we might run into the problem again, so I'd prefer to change both variables.

@@ -1,0 +1,3 @@
+As a server may join leader election while others have already elected a leader, it is necessary that a server handles some special cases of leader election when notifications are from servers that are either LEADING or FOLLOWING. In such special cases, we check if we have received a message from the leader to declare a leader elected. This check does not consider the case that the process performing the check might be a recently elected leader, and consequently the check fails.
+
+This patch also adds a new case, which corresponds to adding a vote to recvset when the notification is from a process LEADING or FOLLOWING. This fixes the case raised in ZOOKEEPER-475.

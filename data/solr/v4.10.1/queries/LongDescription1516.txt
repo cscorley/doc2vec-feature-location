@@ -1,0 +1,9 @@
+I tried to implement a custom QueryResponseWriter the other day and was amazed at the level of unmarshalling and weeding through objects that was necessary just to format the output o.a.l.Document list. As a user, I wanted to be able to implement either 2 functions:
+
+
+	process a document at a time, and format it (for speed/efficiency)
+	process all the documents at once, and format them (in case an aggregate calculation is necessary for outputting)
+
+
+
+So, I've decided to contribute 2 simple classes that I think are sufficiently generic and reusable. The first is o.a.s.request.DocumentResponseWriter – it handles the first bullet above. The second is o.a.s.request.DocumentListResponseWriter. Both are abstract base classes and require the user to implement either an #emitDoc function (in the case of bullet 1), or an #emitDocList function (in the case of bullet 2). Both classes provide an #emitHeader and #emitFooter function set that handles formatting and output before the Document list is processed.

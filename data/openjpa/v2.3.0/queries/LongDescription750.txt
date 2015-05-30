@@ -1,0 +1,8 @@
+OpenJPA throws an OptimisicLockException after an insert is issued to Sybase and there is no SQLException and the update count does not match the expected value.  The root cause is that the insert is trying to insert a numeric value which is larger than the numeric field.  Sybase issues a SQLWarning  (preparedStatement.getWarnings()) and the insert fails.  An OptimisticLockException is thrown with misleading statement text.
+
+I recommend we:
+
+1) Add a config property to disable numeric truncation, if possible.
+2) Check for SQLWarning's after an ps exec fails and minimally log them.  Or throw them as a more appropriate exception?
+
+This issue is very similar to OPENJPA-745, except 745 deals with character truncation.

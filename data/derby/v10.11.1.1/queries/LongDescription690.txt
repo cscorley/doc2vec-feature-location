@@ -1,0 +1,47 @@
+JDBC result sets are created with three properties: type, concurrency
+and holdability. The type can be one of TYPE_FORWARD_ONLY,
+TYPE_SCROLL_INSENSITIVE and TYPE_SCROLL_SENSITIVE. The concurrency can
+be one of CONCUR_READ_ONLY and CONCUR_UPDATABLE. The holdability can
+be one of HOLD_CURSORS_OVER_COMMIT and CLOSE_CURSORS_AT_COMMIT.
+
+JDBC allows the full cross product of these. SQL 2003 prohibits the
+combination 
+{TYPE_SCROLL_INSENSITIVE, CONCUR_UPDATABLE}
+, but this
+combination is supported by some vendors, notably Oracle.
+
+Currently, Derby supports JDBC result sets in a limited
+way. Holdability is supported. Furthermore, the following is
+supported: 
+
+	forward-only, read-only
+	forward-only, updatable (update, delete, but not insert)
+	     Also, in the network driver, support for some data types
+	     conversions is missing.
+	scroll insensitive, read-only
+
+
+
+We (Fernanda and Andreas will cooperate with me on this) propose a
+plan to add support for the combination:
+
+
+	scroll insensitive, updatable
+
+
+
+for both the embedded driver and the network client driver. 
+As a part of this we would also like to add the missing insert
+operation to the 
+{forward-only, updatable}
+ result sets (JIRA-100), and
+remove the requirement for an explicit "FOR UPDATE" clause in the SQL
+query to achieve updatability if CONCUR_UPDATABLE is specified
+(JIRA-231).
+
+The full proposal text is uploaded as an attachment, including a proposed
+functional specification.
+
+This JIRA will  be used to track sub-issues for this effort. The sub-issues will be linked back to this issue.
+
+

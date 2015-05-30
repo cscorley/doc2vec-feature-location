@@ -1,0 +1,15 @@
+During a reverse mapping run, it's often common to take the output of a SchemaGenerator and feed it to an XMLSchemaSerializer via its addAll() method.
+
+When the DBDictionary that was in effect at schema generation time is one that supports delimiters (see InformixDictionary), then the identifiers on all the artifacts in the SchemaGroup housed by the SchemaGenerator have quotes in them.
+
+Consequently, when the XMLSchemaSerializer writes its schemas to disk, you can get strange results.  Here's an example <column> fragment:
+
+<column name=""foobar"">
+
+Technically I suppose this may not be a bug in XMLSchemaSerializer, since it is simply serializing what it is handed.  But given that other tools consume its XML schema files, and given that the value of name attribute will be read in as a String, and given that usually what happens is that a String is turned into a DBIdentifier and delimited/quoted as necessary, I am not sure that delimiters should be stored by the XMLSchemaSerializer.
+
+A downstream effect of this bug is that any reverse  mapping that takes place from here involving annotations will not compile.  That is, if you ask the ReverseMappingTool for example to produce annotated Java objects, the annotations will look like this:
+
+@Column(name=""foobar"")
+
+...which will not compile.

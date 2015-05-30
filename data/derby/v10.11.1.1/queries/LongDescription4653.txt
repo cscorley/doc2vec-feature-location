@@ -1,0 +1,18 @@
+The methods Connection.commit() and Connection.rollback() in the client driver cause a round-trip to the server even if the commit/rollback is unnecessary (i.e. there is nothing to commit or roll back).
+Comments suggest (see below) that this can be optimized, such that the commands are flowed to the server only when required. It can be seen that this optimization has been used other places in the client driver. Never the less, it must be checked that this optimization doesn't have side-effects.
+
+This issue came up in connection with connection pooling, where a pool implementation always issued a rollback to make sure there was no active transaction on the connection handed out.
+
+From Connection.flowCommit:
+        // Per JDBC specification (see javadoc for Connection.commit()):
+        //   "This method should be used only when auto-commit mode has been disabled."
+        // However, some applications do this anyway, it is harmless, so
+        // if they ask to commit, we could go ahead and flow a commit.
+        // But note that rollback() is less harmless, rollback() shouldn't be used in auto-commit mode.
+        // This behavior is subject to further review.
+
+        //   if (!this.inUnitOfWork)
+        //     return;
+        // We won't try to be "too smart", if the user requests a commit, we'll flow a commit,
+        // regardless of whether or not we're in a unit of work or in auto-commit mode.
+        //

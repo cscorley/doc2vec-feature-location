@@ -1,0 +1,15 @@
+I'm running ItemSimilarityJob on a very large (~600M by 4B) matrix that's very sparse (total set of associations is 630MB).
+
+The job fails because of an IndexException in ToUserVectorsReducer.
+TasteHadoopUtils.idToIndex(long id) hashes a long with:
+0x7fffffff & Longs.hashCode(id) (line o.a.m.cf.taste.hadoop.TasteHadoopUtils:57).
+
+For some id (I don't know what value), the result returned is Integer.MAX_VALUE.
+This cannot be set in the userVector because the cardinality of that is also Integer.MAX_VALUE and it throws an exception.
+
+So, the issue is that values from 0 to INT_MAX are returned by idToIndex but the vector only has 0 to INT_MAX - 1 possible entries.
+It's a nasty little off-by-one bug.
+
+I'm thinking of just % size when setting.
+
+Sebastian Schelter & everyone else, thoughts? 

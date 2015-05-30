@@ -1,0 +1,56 @@
+we found data corruption happened on entry log files.
+
+2012-03-06 07:26:14,947 - ERROR [NIOServerFactory-3181:BookieServer@413] - Error reading 229@114724
+java.io.IOException: problem found in 0@229 at position + 89030194 entry belongs to 6373236044838956613 not 114724
+        at org.apache.bookkeeper.bookie.EntryLogger.readEntry(EntryLogger.java:347)
+        at org.apache.bookkeeper.bookie.LedgerDescriptor.readEntry(LedgerDescriptor.java:180)
+        at org.apache.bookkeeper.bookie.Bookie.readEntry(Bookie.java:1081)
+        at org.apache.bookkeeper.proto.BookieServer.processPacket(BookieServer.java:386)
+        at org.apache.bookkeeper.proto.NIOServerFactory$Cnxn.readRequest(NIOServerFactory.java:315)
+        at org.apache.bookkeeper.proto.NIOServerFactory$Cnxn.doIO(NIOServerFactory.java:213)
+        at org.apache.bookkeeper.proto.NIOServerFactory.run(NIOServerFactory.java:124
+
+then we did some investigation on failed ledger:
+
+first looked into ledger 114724's index file.
+
+
+
+entry 75        :       (log:11, pos: 100526580)
+entry 76        :       (log:11, pos: 101849530)
+entry 77        :       (log:11, pos: 103176596)
+entry 78        :       (log:11, pos: 104403977)
+entry 79        :       (log:11, pos: 105756017)
+entry 80        :       (log:11, pos: 106740803)
+entry 81        :       (log:0, pos: 73365)
+entry 82        :       (log:0, pos: 1366625)
+entry 83        :       (log:0, pos: 2719276)
+entry 84        :       (log:0, pos: 4065142)
+
+
+
+from entry 80, the data is written in 0 entry log which is less than 11. (means data is written to an older entry log file)
+
+then we looked into ledger directory as below
+
+
+
+2147483550 Mar  5 11:30 /var/bookkeeper/ledger/0.log
+  94122988 Mar  5 11:33 /var/bookkeeper/ledger/1.log
+1984247565 Mar  5 11:34 /var/bookkeeper/ledger/2.log
+    288376 Mar  5 11:34 /var/bookkeeper/ledger/3.log
+ 747151813 Mar  6 03:17 /var/bookkeeper/ledger/4.log
+ 410381287 Mar  6 07:43 /var/bookkeeper/ledger/5.log
+2147483363 Feb 27 19:59 /var/bookkeeper/ledger/7.log
+2147483565 Feb 29 09:40 /var/bookkeeper/ledger/9.log
+1691783168 Mar  1 03:22 /var/bookkeeper/ledger/a.log
+ 125556720 Mar  1 08:30 /var/bookkeeper/ledger/b.log
+         0 Mar  1 08:33 /var/bookkeeper/ledger/c.log
+
+
+
+the 0-5 entry log files are overwritten.
+
+looked into the code, found that when bookie server failed to read lastLogId, it would set the lastLogId to -1. then start writing entry log files from 0. and also there is not checking about the existen of the entry log file.
+
+it would better to scan the directories to found the biggest log id and start from it. and check whether the file exists or not when creating a new entry log file.

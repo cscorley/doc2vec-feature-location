@@ -1,0 +1,70 @@
+Enable importing of mails into solr through DIH. Take one or more mailbox credentials, download and index their content along with the content from attachments. The folders to fetch can be made configurable based on various criteria. Apache Tika is used for extracting content from different kinds of attachments. JavaMail is used for mail box related operations like fetching mails, filtering them etc.
+
+The basic configuration for one mail box is as below:
+
+
+<document>
+   <entity processor="MailEntityProcessor" user="somebody@gmail.com" 
+                password="something" host="imap.gmail.com" protocol="imaps"/>
+</document>
+
+
+
+The below is the list of all configuration available:
+
+Required
+---------
+user 
+pwd 
+protocol  (only "imaps" supported now)
+host 
+
+Optional
+---------
+folders - comma seperated list of folders. 
+If not specified, default folder is used. Nested folders can be specified like a/b/c
+recurse - index subfolders. Defaults to true.
+exclude - comma seperated list of patterns. 
+include - comma seperated list of patterns.
+batchSize - mails to fetch at once in a given folder. 
+Only headers can be prefetched in Javamail IMAP.
+readTimeout - defaults to 60000ms
+conectTimeout - defaults to 30000ms
+fetchSize - IMAP config. 32KB default
+fetchMailsSince -
+date/time in "yyyy-MM-dd HH:mm:ss" format, mails received after which will be fetched. Useful for delta import.
+customFilter - class name.  
+
+import javax.mail.Folder;
+import javax.mail.SearchTerm;
+
+clz implements MailEntityProcessor.CustomFilter() {    
+public SearchTerm getCustomSearch(Folder folder);
+}
+
+
+processAttachement - defaults to true
+
+The below are the indexed fields.
+
+
+  // Fields To Index
+  // single valued
+  private static final String SUBJECT = "subject";
+  private static final String FROM = "from";
+  private static final String SENT_DATE = "sentDate";
+  private static final String XMAILER = "xMailer";
+  // multi valued
+  private static final String TO_CC_BCC = "allTo";
+  private static final String FLAGS = "flags";
+  private static final String CONTENT = "content";
+  private static final String ATTACHMENT = "attachement";
+  private static final String ATTACHMENT_NAMES = "attachementNames";
+  // flag values
+  private static final String FLAG_ANSWERED = "answered";
+  private static final String FLAG_DELETED = "deleted";
+  private static final String FLAG_DRAFT = "draft";
+  private static final String FLAG_FLAGGED = "flagged";
+  private static final String FLAG_RECENT = "recent";
+  private static final String FLAG_SEEN = "seen";
+

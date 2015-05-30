@@ -1,0 +1,22 @@
+On the nightly run for 4/27 - 10.5.1.2 - (769232), I saw client jdbcapi/derbystress.java  run out of heap space.   The test has not failed like this before on the same machine with the same JVM, and the one checkin on that day DERBY-3991 could not account for this failure.
+
+I will attach the javacore and heapdump.  Taking a quick look at the heap dump, it seems to have a lot of client side Statement objects, which seems to be just the leak the test is checking for.  Note: the test runs with 64MB heap.  It would be interesting to run with other jvms and force a gc() and a heap dump at this point in the test and see if we still have a lot of Statement objects or if this is a specific platform/JVM issue.
+
+The trace at the time of failure was :
+1XMCURTHDINFO  Current Thread Details
+NULL           ----------------------
+3XMTHREADINFO      "main" (TID:0x0808D300, sys_thread_t:0x0805CBC8, state:R, native ID:0x0000644F) prio=5
+4XESTACKTRACE          at org/apache/derby/client/am/Cursor.allocateCharBuffer(Bytecode PC:77(Compiled Code))
+4XESTACKTRACE          at org/apache/derby/client/net/NetStatementReply.parseSQLDTARDarray(Bytecode PC:77(Compiled Code))
+4XESTACKTRACE          at org/apache/derby/client/net/NetStatementReply.parseQRYDSC(Bytecode PC:10(Compiled Code))
+4XESTACKTRACE          at org/apache/derby/client/net/NetStatementReply.parseOpenQuery(Bytecode PC:104(Compiled Code))
+4XESTACKTRACE          at org/apache/derby/client/net/NetStatementReply.parseOPNQRYreply(Bytecode PC:14(Compiled Code))
+4XESTACKTRACE          at org/apache/derby/client/net/NetStatementReply.readOpenQuery(Bytecode PC:6(Compiled Code))
+4XESTACKTRACE          at org/apache/derby/client/net/StatementReply.readOpenQuery(Bytecode PC:7(Compiled Code))
+4XESTACKTRACE          at org/apache/derby/client/net/NetStatement.readOpenQuery_(Bytecode PC:11(Compiled Code))
+4XESTACKTRACE          at org/apache/derby/client/am/Statement.readOpenQuery(Bytecode PC:6(Compiled Code))
+4XESTACKTRACE          at org/apache/derby/client/am/Statement.flowExecute(Bytecode PC:581(Compiled Code))
+4XESTACKTRACE          at org/apache/derby/client/am/Statement.executeQueryX(Bytecode PC:3(Compiled Code))
+4XESTACKTRACE          at org/apache/derby/client/am/Statement.executeQuery(Bytecode PC:3(Compiled Code))
+4XESTACKTRACE          at org/apache/derbyTesting/functionTests/tests/jdbcapi/derbyStress.testDerby3316(derbyStress.java:156)
+4XESTACKTRACE          at org/apache/derbyTesting/functionTests/tests/jdbcapi/derbyStress.main(derbyStress.java:57(Compiled Code))

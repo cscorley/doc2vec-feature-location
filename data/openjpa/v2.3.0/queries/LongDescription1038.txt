@@ -1,0 +1,27 @@
+Circular dependencies among embeddable are not allowed. When they are encountered by the Enhancer it gets in an infinite loop causing a stack overflow exception as shown below. It seems there should be a more graceful detection of this scenario and a more useful explanation and/or description of the error. The failure is the same for both annotated and XML versions of the entities/embeddables. 
+
+[jpa.fvt/jpafvt.setup/echo]      [exec] 1016  EmbeddableNested_JSE  TRACE  [main] openjpa.MetaData -    Resolving field "suite.r80.base.embeddable.nested.entities.XMLEmbeddable03b@969030082.xmlEmbeddable03a".
+[jpa.fvt/jpafvt.setup/echo]      [exec] 1016  EmbeddableNested_JSE  TRACE  [main] openjpa.MetaData - Generating default metadata for type "suite.r80.base.embeddable.nested.entities.XMLEmbeddable03a".
+[jpa.fvt/jpafvt.setup/echo]      [exec] 1016  EmbeddableNested_JSE  TRACE  [main] openjpa.MetaData - Using reflection for metadata generation.
+[jpa.fvt/jpafvt.setup/echo]      [exec] 1016  EmbeddableNested_JSE  TRACE  [main] openjpa.MetaData - Resolving embedded metadata for "suite.r80.base.embeddable.nested.entities.XMLEmbeddable03a@961886549".
+[jpa.fvt/jpafvt.setup/echo]      [exec] Exception in thread "main" java.lang.StackOverflowError
+[jpa.fvt/jpafvt.setup/echo]      [exec]     at sun.nio.cs.SingleByteEncoder.encodeArrayLoop(SingleByteEncoder.java:76)
+[jpa.fvt/jpafvt.setup/echo]      [exec]     at sun.nio.cs.SingleByteEncoder.encodeLoop(SingleByteEncoder.java:152)
+[jpa.fvt/jpafvt.setup/echo]      [exec]     at java.nio.charset.CharsetEncoder.encode(CharsetEncoder.java:556)
+[jpa.fvt/jpafvt.setup/echo]      [exec]     at sun.nio.cs.StreamEncoder$CharsetSE.implWrite(StreamEncoder.java:405)
+[jpa.fvt/jpafvt.setup/echo]      [exec]     at sun.nio.cs.StreamEncoder.write(StreamEncoder.java:159)
+[jpa.fvt/jpafvt.setup/echo]      [exec]     at java.io.OutputStreamWriter.write(OutputStreamWriter.java:229)
+[jpa.fvt/jpafvt.setup/echo]      [exec]     at java.io.BufferedWriter.flushBuffer(BufferedWriter.java:122)
+[jpa.fvt/jpafvt.setup/echo]      [exec]     at java.io.PrintStream.write(PrintStream.java:489)
+[jpa.fvt/jpafvt.setup/echo]      [exec]     at java.io.PrintStream.print(PrintStream.java:632)
+[jpa.fvt/jpafvt.setup/echo]      [exec]     at com.ibm.jvm.io.ConsolePrintStream.print(ConsolePrintStream.java:259)
+[jpa.fvt/jpafvt.setup/echo]      [exec]     at org.apache.openjpa.lib.log.LogFactoryImpl$LogImpl.log(LogFactoryImpl.java:306)
+[jpa.fvt/jpafvt.setup/echo]      [exec]     at org.apache.openjpa.lib.log.AbstractLog.trace(AbstractLog.java:72)
+[jpa.fvt/jpafvt.setup/echo]      [exec]     at org.apache.openjpa.lib.log.AbstractLog.trace(AbstractLog.java:67)
+[jpa.fvt/jpafvt.setup/echo]      [exec]     at org.apache.openjpa.meta.ClassMetaData.resolveMeta(ClassMetaData.java:1649)
+[jpa.fvt/jpafvt.setup/echo]      [exec]     at org.apache.openjpa.meta.ClassMetaData.resolve(ClassMetaData.java:1628)
+[jpa.fvt/jpafvt.setup/echo]      [exec]     at org.apache.openjpa.meta.ValueMetaDataImpl.resolve(ValueMetaDataImpl.java:417)
+[jpa.fvt/jpafvt.setup/echo]      [exec]     at org.apache.openjpa.meta.FieldMetaData.resolve(FieldMetaData.java:1702)
+[jpa.fvt/jpafvt.setup/echo]      [exec]     at org.apache.openjpa.meta.ClassMetaData.resolveMeta(ClassMetaData.java:1693)
+[jpa.fvt/jpafvt.setup/echo]      [exec]     at org.apache.openjpa.meta.ClassMetaData.resolve(ClassMetaData.java:1628)
+[jpa.fvt/jpafvt.setup/echo]      [exec]     at org.apache.openjpa.meta.ValueMetaDataImpl.resolve(ValueMetaDataImpl.java:417)

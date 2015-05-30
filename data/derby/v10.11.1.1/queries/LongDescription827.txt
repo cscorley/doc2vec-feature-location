@@ -1,0 +1,73 @@
+>Shouldn't DistinctScalarAggregateRS implement a close or a finish method
+>>(not sure what the difference is) and close the scan controller there.
+
+
+The close() and finish() methods are actually explained in their javadoc
+in the language org.apache.derby.iapi.sql.ResultSet class.
+[note this is not a JDBC java.sql.ResultSet object]
+
+close() -  Tells the system that there will be no more calls to
+getNextRow() (until the next open() call)
+
+finish() - Tells the system that there will be no more access to any
+database information via this result set
+
+So close means the ResultSet may be opened again for more access, while
+finish means it will not be used again.
+
+However, their use in the code always doesn't match that, and that does
+cause confusion, at least to me.
+
+Language ResultSets (not JDBC ones) can be and are opened multiple
+times, for example when scanning a table multiple times within a join.
+
+An Activation, which represents the internal state of
+java.sql.PreparedStatement object & has the lifetime of the
+java.sql.PreparedStatement, contains a top-level language ResultSet.
+This top-level language ResultSet provides the execution of the SQL
+statement, DML, DDL or a query. The top-level ResultSet may contain
+other ResultSets and could be seen as a tree structure. For the simple
+case of a primary key lookup query like:
+
+   select name from customer where id = ?
+
+The activation would contain this:
+
+top result set
+ProjectRestrictRS << IndexRowToBaseRowRS << TableScanRS
+
+Now for some reason, even though the api of ResultSet say they can be
+re-used, and in some cases they are, this result set tree is thrown away
+after each execution. That is, the top result set has its finish()
+method called and then the activation removes its reference to it. Then
+on the next execution a new (identical) tree is set up.
+
+There is potential for a huge performance gain if this top level result
+set and its tree are re-used and have the same lifetime as the
+Activation. The saving comes in two forms, not having to create many
+objects on each execution, and not creating short-lived objects for the
+garbage collector to handle.
+
+I made a simple fix, it's a couple of lines of code, just calling close
+& finish at the correct times, and for the above simple primary key
+lookup query, the performance went from 17,300 to 24,000 selects per
+second (cached data, single user). I'll post a patch shortly as an
+indication of the direction, once I can separate it from other changes
+in my client.
+
+However, I'm running the Derby tests and there are some (maybe 25-30)
+failures, I think because not all the language ResultSet implementations
+are correctly written to be re-opened. Interestingly, the first failure
+I saw was in an aggregrate test, which goes back to the issue Manish saw.
+
+Even if derbyall passed I would be nervous about submitting this patch
+for real, because I don't think there's a lot of testing using repeat
+executions of PreparedStatements in the tests. The ij tests mainly use
+Statement, this is a single use of an activation so this change would
+not affect them. Thus such a patch could regress Derby by making it more
+likely existing bugs would be exposed.
+
+Given the performance gains, I think we need to start re-using
+ResultSets from Activation, and devise a way to ensure the testing
+covers the re-use. The main issue is there is a large number of
+ResultSet implementations to cover.

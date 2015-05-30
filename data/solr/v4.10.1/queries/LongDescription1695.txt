@@ -1,0 +1,14 @@
+Sometimes users don't seem to notice/understand the <uniqueKey/> declaration in the example schema, and the error message they get if their documents don't include that field is confusing...
+
+
+
+org.apache.solr.common.SolrException: Document [null] missing required field: id
+
+
+
+...because they get an almost identical error even if they remove required=true from <field name="id" /> in their schema.xml file.
+
+We should improve the error message so it's clear when a Document is missing the "uniqueKeyField" (not just a "required" field) so they know the terminology to look for in diagnosing the problem.
+
+http://old.nabble.com/solr-1.4-csv-import-----Document-missing-required-field%3A-id-to26990048.html#a26990779
+

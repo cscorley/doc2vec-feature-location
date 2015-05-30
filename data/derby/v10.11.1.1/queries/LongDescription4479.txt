@@ -1,0 +1,37 @@
+step 1 : create original table
+
+		CREATE TABLE BPEL_ARCHIVE (
+			EVENT_TIME		CHAR(17) NOT NULL,
+			BUSINESS_ID		VARCHAR(100) NOT NULL,
+			EVENT_TYPE		INT,
+			EVENT_CONTENT	BLOB,
+			PRIMARY KEY ( EVENT_TIME )
+		)
+
+step 2 : rename original table to backup table
+              RENAME TABLE BPEL_ARCHIVE TO BPEL_ARCHIVE_200912171148_200912171148
+
+step 3 : create original table
+             cause error...
+
+java.sql.SQLException: Java exception: ': java.lang.NullPointerException'.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.javaException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.ConnectionChild.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeUpdate(Unknown Source)
+	at world.dragon.service.bpel.event.derby.DerbyArchiveEndpoint.switchTargetTable(DerbyArchiveEndpoint.java:295)
+        ...................................
+Caused by: java.lang.NullPointerException
+	at org.apache.derby.impl.sql.execute.CreateIndexConstantAction.executeConstantAction(Unknown Source)
+	at org.apache.derby.impl.sql.execute.CreateConstraintConstantAction.executeConstantAction(Unknown Source)
+	at org.apache.derby.impl.sql.execute.CreateTableConstantAction.executeConstantAction(Unknown Source)
+	at org.apache.derby.impl.sql.execute.MiscResultSet.open(Unknown Source)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(Unknown Source)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(Unknown Source)
+	... 28 more

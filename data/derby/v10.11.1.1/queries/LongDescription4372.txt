@@ -1,0 +1,25 @@
+In the example below, the first SELECT has correct result. After the index is created, the second SELECT gives wrong result.
+
+ij> CREATE TABLE t1 (i1 INT, j1 INT);
+0 rows inserted/updated/deleted
+ij> CREATE TABLE t2 (i2 INT, j2 INT);
+0 rows inserted/updated/deleted
+ij> INSERT INTO t1 VALUES (8, 8),(NULL, 8);
+2 rows inserted/updated/deleted
+ij> INSERT INTO t2 VALUES (8, 8);
+1 row inserted/updated/deleted
+ij> SELECT * FROM t1 INNER JOIN t2 ON (t2.j2 = t1.i1) OR (t2.j2 = t1.j1);
+I1         |J1         |I2         |J2         
+-----------------------------------------------
+8          |8          |8          |8          
+NULL       |8          |8          |8          
+
+2 rows selected
+ij> CREATE INDEX ix2 ON t2(j2);
+0 rows inserted/updated/deleted
+ij> SELECT * FROM t1 INNER JOIN t2 ON (t2.j2 = t1.i1) OR (t2.j2 = t1.j1);
+I1         |J1         |I2         |J2         
+-----------------------------------------------
+8          |8          |8          |8          
+
+1 row selected

@@ -1,0 +1,65 @@
+This bug was found when doing soft upgrade testing from Derby version 10.4.2.0 to 10.5.1.0 (RC1)
+
+Steps followed are as follows.
+
+1. Run setEmbeddedCP.bat from version 10.4.2.0's bin folder
+2. In a test folder run ij
+3. create system/wombat database.
+    ij> connect 'jdbc:derby:system/wombat;create=true';
+4. exit ij
+5. Copy the 10.5.1.0 derby jars (from lib folder) and the derbyTesting.jar from 10.4.2.0 to the test folder and set classpath with them (including junit and ORO)
+6. Run suites.All 
+     java -Xmx512M -Xms512M -Dderby.tests.trace=true junit.textui.TestRunner org.apache.derbyTesting.functionTests.suites.All
+
+Result:
+Tests run: 10479,  Failures: 56,  Errors: 34
+
+The exception stack trace from a failed test follows.
+
+-------------------------------------------------------------------------------------------------------------
+
+3) testClobInTriggerTable(org.apache.derbyTesting.functionTests.tests.lang.TriggerTest)java.sql.SQLException: Java exception: 'org.apache.derby.iapi.types.ReaderToUTF8Stream cannot be cast to org.apache.derby.iapi.types.Resetable: java.lang.ClassCastException'.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.getSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.javaException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.ConnectionChild.handleException(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedPreparedStatement.execute(Unknown Source)
+	at org.apache.derbyTesting.functionTests.tests.lang.TriggerTest.testClobInTriggerTable(TriggerTest.java:529)
+	at org.apache.derbyTesting.functionTests.tests.lang.TriggerTest.testClobInTriggerTable(TriggerTest.java:451)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:102)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:24)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:21)
+	at junit.extensions.TestSetup.run(TestSetup.java:25)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+Caused by: java.sql.SQLException: Java exception: 'org.apache.derby.iapi.types.ReaderToUTF8Stream cannot be cast to org.apache.derby.iapi.types.Resetable: java.lang.ClassCastException'.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory40.wrapArgsForTransportAcrossDRDA(Unknown Source)
+	... 39 more
+Caused by: java.lang.ClassCastException: org.apache.derby.iapi.types.ReaderToUTF8Stream cannot be cast to org.apache.derby.iapi.types.Resetable
+	at org.apache.derby.iapi.types.SQLClob.rewindStream(Unknown Source)
+	at org.apache.derby.iapi.types.SQLClob.readExternal(Unknown Source)
+	at org.apache.derby.iapi.types.SQLChar.getString(Unknown Source)
+	at org.apache.derby.iapi.types.SQLChar.loadStream(Unknown Source)
+	at org.apache.derby.impl.sql.execute.UpdateResultSet.objectifyStream(Unknown Source)
+	at org.apache.derby.impl.sql.execute.UpdateResultSet.collectAffectedRows(Unknown Source)
+	at org.apache.derby.impl.sql.execute.UpdateResultSet.open(Unknown Source)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(Unknown Source)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(Unknown Source)
+	... 32 more
+------------------------------------------------------------------------------------------------------------------
+
+When looking at the SVN revisions for SQLClob with Kathey Marsden, we found the following statement in revision # 738408, related to DERBY-3907, which might be related to this issue.
+
+"NOTE: Databases created with this revision (or later) containing Clobs, cannot be accessed by earlier trunk revisions."
+Patch file: derby-3907-7a3-use_new_header_format.diff
+
+
+

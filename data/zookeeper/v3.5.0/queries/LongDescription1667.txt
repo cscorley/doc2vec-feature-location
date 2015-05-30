@@ -1,0 +1,7 @@
+When a client reestablish to a server, it will send the watches which have not been triggered. But the code in DataTree does not handle it correctly.
+
+It is obvious, we just do not notice it 
+
+scenario:
+1) Client a set a data watch on /d, then disconnect, client b delete /d and create it again. When client a reestablish to zk, it will receive a NodeCreated rather than a NodeDataChanged.
+2) Client a set a exists watch on /e(not exist), then disconnect, client b create /e. When client a reestablish to zk, it will receive a NodeDataChanged rather than a NodeCreated.

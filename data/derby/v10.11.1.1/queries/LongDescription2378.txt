@@ -1,0 +1,8 @@
+Functional tests should not be written against Derby's public api, not its internals.
+One reason is that it will make it harder to run the tests against different versions of Derby to test for regressions (e.g. run 10.3 tests against 10.4)
+
+The code imports these classes that are not part of the public api.
+
+import org.apache.derby.iapi.reference.Property;
+import org.apache.derby.iapi.tools.i18n.LocalizedResource;
+import org.apache.derby.impl.drda.NetworkServerControlImpl;

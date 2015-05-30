@@ -1,0 +1,27 @@
+I noticed that the method testConnectionErrorEvent() in J2EEDataSourceTest had many occurrences of code that was structured like this:
+
+  try 
+{
+    // do something with a connection
+  }
+ catch (SQLException e) 
+{
+    assertSQLState("...", e);
+  }
+
+This code will only fail if an unexpected exception is thrown, not if the code in the try block fails to throw any exception at all.
+
+It may be that we can fix this by adding a call to fail() at the end of each try block. It may also be the case that the code is written like this because it is expected to throw exception with the embedded driver and succeed with the client driver (or the other way around). If the latter is the case, this should be made explicit, for instance by writing it like this:
+
+  try 
+{
+    // do something with a connection
+    assertFalse(usingEmbedded(), "should have failed with the embedded driver");
+  }
+ catch (SQLException e) {
+    if (!usingEmbedded()) 
+{
+      throw e;
+    }
+    assertSQLState("...", e);
+  }

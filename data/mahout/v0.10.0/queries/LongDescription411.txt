@@ -1,0 +1,14 @@
+Patch to enable the following usecase:
+
+
+	all preferences are kept in a text file and loaded via a FileDataModel
+	at some point in time the text file is completely overwritten with more recent preferences
+	an explicit refresh() on the FileDataModel is called
+
+
+
+With the current FileDataModel, one could not see the new preferences as it would only have refreshed the whole file if that was modified more than one minute ago. And I don't want to wait that long to trigger the explicit refresh.
+
+The patch makes the interval configurable with keeping the old interval length as default.
+
+Hope I understood the intention of the refreshing mechanism right.

@@ -1,0 +1,14 @@
+When declaring a <named-query> element in the orm.xml and trying to create that query with "EntityManager.createNamedQuery", a NullPointerException is always thrown:
+
+Caused by: java.lang.NullPointerException
+       at java.io.StringReader.<init>(StringReader.java:33)
+       at org.apache.openjpa.kernel.jpql.JPQL.<init>(JPQL.java:17)
+       at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder$ParsedJPQL.parse(JPQLExpressionBuilder.java:1638)
+       at org.apache.openjpa.kernel.jpql.JPQLExpressionBuilder$ParsedJPQL.<init>(JPQLExpressionBuilder.java:1628)
+       at org.apache.openjpa.kernel.jpql.JPQLParser.parse(JPQLParser.java:44)
+       at org.apache.openjpa.kernel.ExpressionStoreQuery.newCompilation(ExpressionStoreQuery.java:141)
+       at org.apache.openjpa.kernel.QueryImpl.newCompilation(QueryImpl.java:594)
+
+This is because XMLPersistenceMetaDataParser.startNamedQuery() is checking for the "query" attribute of the "named-query" element for the query string, as was defined in a pre-release version of the JPA spec. Subsequent versions changed this to be a "query" sub-element rather than an attribute, and we never updated our parser (and the TCK never tests for it).
+
+Note that this only affects named queries as defined in orm.xml files. Named queries defined via @NamedQuery annotations don't suffer from this problem.

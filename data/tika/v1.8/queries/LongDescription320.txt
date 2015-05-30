@@ -1,0 +1,17 @@
+It should be possible to disable language detection in the AutoDetectParser.
+
+Between 0.4 and the current trunk, the time Tika spent parsing my test data (100MB of compressed web crawl data, mixed HTML, images, etc.) increased considerably. After profiling, I determined that most of the time was spent in language detection. 
+
+time results of indexing my test data with Lucene using AutoDetectParser:
+
+real	15m21.020s
+user	6m31.344s
+sys	0m4.556s
+
+time results on the same test data using the same code as AutoDetectParser, but with language detection disabled:
+
+real	4m48.856s
+user	2m9.416s
+sys	0m3.484s
+
+Obviously these numbers are worthless in their particulars but I think they demonstrate that one ought to be able to turn off language detection, as it can massively slow down parsing.

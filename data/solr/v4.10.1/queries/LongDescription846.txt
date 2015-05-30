@@ -1,0 +1,56 @@
+Database has about 3 million records.  Doing full-import there is no problem.  However, when a large number of changes occurred 2558057, delta-import throws OutOfMemory error after 1288338 documents processed.  The stack trace is below
+
+Exception in thread "Thread-3" java.lang.OutOfMemoryError: Java heap space
+	at org.tartarus.snowball.ext.EnglishStemmer.<init>(EnglishStemmer.java:4
+9)
+	at org.apache.solr.analysis.EnglishPorterFilter.<init>(EnglishPorterFilt
+erFactory.java:83)
+	at org.apache.solr.analysis.EnglishPorterFilterFactory.create(EnglishPor
+terFilterFactory.java:66)
+	at org.apache.solr.analysis.EnglishPorterFilterFactory.create(EnglishPor
+terFilterFactory.java:35)
+	at org.apache.solr.analysis.TokenizerChain.tokenStream(TokenizerChain.ja
+va:48)
+	at org.apache.solr.schema.IndexSchema$SolrIndexAnalyzer.tokenStream(Inde
+xSchema.java:348)
+	at org.apache.lucene.analysis.Analyzer.reusableTokenStream(Analyzer.java
+:44)
+	at org.apache.lucene.index.DocInverterPerField.processFields(DocInverter
+PerField.java:117)
+	at org.apache.lucene.index.DocFieldConsumersPerField.processFields(DocFi
+eldConsumersPerField.java:36)
+	at org.apache.lucene.index.DocFieldProcessorPerThread.processDocument(Do
+cFieldProcessorPerThread.java:234)
+	at org.apache.lucene.index.DocumentsWriter.updateDocument(DocumentsWrite
+r.java:765)
+	at org.apache.lucene.index.DocumentsWriter.updateDocument(DocumentsWrite
+r.java:748)
+	at org.apache.lucene.index.IndexWriter.updateDocument(IndexWriter.java:2
+118)
+	at org.apache.lucene.index.IndexWriter.updateDocument(IndexWriter.java:2
+095)
+	at org.apache.solr.update.DirectUpdateHandler2.addDoc(DirectUpdateHandle
+r2.java:232)
+	at org.apache.solr.update.processor.RunUpdateProcessor.processAdd(RunUpd
+ateProcessorFactory.java:59)
+	at org.apache.solr.handler.dataimport.SolrWriter.upload(SolrWriter.java:
+69)
+	at org.apache.solr.handler.dataimport.DataImportHandler$1.upload(DataImp
+ortHandler.java:288)
+	at org.apache.solr.handler.dataimport.DocBuilder.buildDocument(DocBuilde
+r.java:319)
+	at org.apache.solr.handler.dataimport.DocBuilder.doDelta(DocBuilder.java
+:211)
+	at org.apache.solr.handler.dataimport.DocBuilder.execute(DocBuilder.java
+:133)
+	at org.apache.solr.handler.dataimport.DataImporter.doDeltaImport(DataImp
+orter.java:359)
+	at org.apache.solr.handler.dataimport.DataImporter.runCmd(DataImporter.j
+ava:388)
+	at org.apache.solr.handler.dataimport.DataImporter$1.run(DataImporter.ja
+va:377)
+
+
+dataSource in data-config.xml has been with the batchSize of "-1".
+    <dataSource driver="com.mysql.jdbc.Driver" url="jdbc:mysql://host/dbname" 
+user="" password="" batchSize="-1"/>

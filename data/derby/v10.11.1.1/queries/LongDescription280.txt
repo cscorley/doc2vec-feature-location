@@ -1,0 +1,35 @@
+Wrong result from select when aliasing to same name as used in group by. Example:
+
+If we have the following table:
+
+    ij> select * from tt;
+    I          |J
+    -----------------------
+    1          |2
+    2          |3
+    1          |2
+    2          |3
+    2          |3
+
+    5 rows selected
+
+The following select is ok:
+
+    ij> select i, count as cnt from tt group by i;
+    I          |CNT
+    -----------------------
+    1          |2
+    2          |3
+
+    2 rows selected
+
+
+But this one returns wrong result in the aliased column:
+
+    ij> select i, count as i from tt group by i;
+    I          |I
+    -----------------------
+    1          |1
+    2          |2
+
+    2 rows selected

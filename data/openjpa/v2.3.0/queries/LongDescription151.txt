@@ -1,0 +1,17 @@
+Enhancement adds a transient byte member field pcFlags to the class. This field is originally used to optimize field access/mutation i.e. to short-circuit mediation via StateManager under certain conditions (e.g. when the field is part of the default fetch group). The field is transient, perhaps, to maintain serialization compatibility. However, later changes such as DetachedStateManager and improved attach strategies have made the usage of these flag redundant. 
+
+This issue is a proposal to remove this field from the enhanced classes. The proposed change is initiated by the following observation:
+1. class A has one-to-one relation to class B
+2. an instance a of A is related to b1 of B. b2 is another instance of B.
+3. a, b1, b2 are detached, serialized, transported over the wire, desrialized in a remote process as a*, b1* and b2*.
+4. in the remote process a* is associated with b2*
+5. a* is merged to the original process.
+
+The change is not persisted when OpenJPA kernel is used with a JDO facade. It works with JPA facade. 
+The initial analysis shows that the reason can be attributed to pcFlags and the optimization in enhanced classes based on to its value. Because pcFlags is not 
+serialized, in a* instance pcFlags has a value of 0. Hence, the mutation of a*'s relation to b2* from b1* is not mediated via the StateManager (yes, the detached version was carrying its own StateManager). While merging the instance a* back, it was adjudged clean while actually it was dirty. In JPA facade, the enhancement process did not add the extra optimization for setter and so the cloned owner instance was righly marked dirty.  
+
+Please note that if this proposal is accepted by the community, it will require reenhancement of existing domain classes. The change will impact the internal StateManager and PersistenceCapable API (essentally removal of certain methods than any other behavioural change). 
+
+
+

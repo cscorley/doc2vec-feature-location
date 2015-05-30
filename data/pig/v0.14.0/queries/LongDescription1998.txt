@@ -1,0 +1,29 @@
+Pig macro is allowed to not have output alias. But this property isn't clear from macro definition and macro invocation (macro inline). Here we propose to make it clear:
+
+1. If a macro doesn't output any alias, it must specify void as return value. For example:
+
+
+  
+define mymacro(...) returns void {
+   ... ...
+};
+
+
+
+2. If a macro doesn't output any alias, it must be invoked without return value. For example, to invoke above macro, just specify:
+
+
+
+mymacro(...);
+
+
+
+3. Any non-void return alias in the macro definition must exist in the macro body and be prefixed with $. For example:
+
+
+  
+define mymacro(...) returns B {
+   ... ...
+   $B = filter ...;
+};
+

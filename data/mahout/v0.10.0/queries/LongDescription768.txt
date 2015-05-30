@@ -1,0 +1,13 @@
+DoubleFunction is duplicated in Mahout Math and Collections. There are also other things inside m.math.* package that are kept there to avoid circular dependencies... Simply removing DoubleFunction from collections is not going to work because it is needed for compilation (again, circular dependency between collections and math). I see two solutions:
+
+1) extract the common definitions inside math.function.* into a separate module. This is a clean solution, but obviously scatters the code even further.
+
+2) create a compilation-time, optional dependency on mahout 0.5 in collections, remove the entire mahout.math.* subpackage from collections and live with this. I don't know how Maven handles circular dependencies of this type:
+
+collections [trunk] -> [optional, required at build time] mahout.math 0.5
+mahout.math [trunk] -> collections [trunk]
+
+it seems tricky and error-prone, but should also work.
+
+Looking for other ideas of cleaning this mess up, of course.
+Dawid

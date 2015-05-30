@@ -1,0 +1,7 @@
+currently DIH constructs the query for delta-import by mixing the query and pk and delta row ids
+
+This leads to creation of wrong queries if SqlEntityProcessor cannot parse the query properly. 
+
+solution add a new attribute 'deltaImportQuery' attribute which can use dataimporter.delta.<pkfield-name> in the template and construct a full query 
+
+If this is absent it will continue to work the old way

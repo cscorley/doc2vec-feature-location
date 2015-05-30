@@ -1,0 +1,16 @@
+Not able to start the bookkeeper before the ZK session timeout.
+
+Here i killed the bookie and started again.
+
+
+2012-06-12 20:00:25,220 - INFO  [main:LedgerCache@65] - openFileLimit is 900, pageSize is 8192, pageLimit is 456781
+2012-06-12 20:00:25,238 - ERROR [main:Bookie@453] - ZK exception registering ephemeral Znode for Bookie!
+org.apache.zookeeper.KeeperException$NodeExistsException: KeeperErrorCode = NodeExists for /ledgers/available/10.18.40.216:3181
+	at org.apache.zookeeper.KeeperException.create(KeeperException.java:119)
+	at org.apache.zookeeper.KeeperException.create(KeeperException.java:51)
+	at org.apache.zookeeper.ZooKeeper.create(ZooKeeper.java:778)
+	at org.apache.bookkeeper.bookie.Bookie.registerBookie(Bookie.java:450)
+	at org.apache.bookkeeper.bookie.Bookie.<init>(Bookie.java:348)
+	at org.apache.bookkeeper.proto.BookieServer.<init>(BookieServer.java:64)
+	at org.apache.bookkeeper.proto.BookieServer.main(BookieServer.java:249)
+

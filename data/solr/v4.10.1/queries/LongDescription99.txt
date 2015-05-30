@@ -1,0 +1,30 @@
+The current search throws an "ArrayIndexOutOfBoundsException" if you specify a sort field but do not include an order.  This is anoying and difficult to debug (when you are starting)
+
+Here is a patch to avoid the exception and use the default sort order if you only specify a field.  I'm not sure the 'null' case was even possible in the current code:
+
+Index: QueryParsing.java
+===================================================================
+— QueryParsing.java	(revision 494681)
++++ QueryParsing.java	(working copy)
+@@ -186,13 +186,12 @@
+       }
+
+       // get the direction of the sort
+
+	str=parts[pos];
+	if ("top".equals(str) || "desc".equals(str)) 
+{
+-        top=true;
+-      }
+ else if ("bottom".equals(str) || "asc".equals(str)) 
+{
+-        top=false;
+-      }
+  else {
+	return null;  // must not be a sort command
++      // by default, top is true, only change it if it is "bottom" or "asc"
++      if( parts.length > pos ) 
+Unknown macro: {+    	  str=parts[pos];+    	  if ("bottom".equals(str) || "asc".equals(str)) {
++	         top=false;
++	      }       } 
+

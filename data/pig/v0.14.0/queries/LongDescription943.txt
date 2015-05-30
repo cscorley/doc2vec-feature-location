@@ -1,0 +1,15 @@
+We see following call stacks in Pig:
+Case 1:
+Caused by: java.lang.NullPointerException
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher.computeWarningAggregate(MapReduceLauncher.java:390)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher.launchPig(MapReduceLauncher.java:238)
+        at org.apache.pig.backend.hadoop.executionengine.HExecutionEngine.execute(HExecutionEngine.java:265)
+
+Case 2:
+Caused by: java.lang.NullPointerException
+        at org.apache.pig.tools.pigstats.PigStats.accumulateMRStats(PigStats.java:150)
+        at org.apache.pig.tools.pigstats.PigStats.accumulateStats(PigStats.java:91)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher.launchPig(MapReduceLauncher.java:192)
+        at org.apache.pig.backend.hadoop.executionengine.HExecutionEngine.execute(HExecutionEngine.java:265)
+
+In both cases, hadoop jobs finishes without error. The cause of both problems is RunningJob.getCounters() returns a null, and Pig do not currently check for that. 

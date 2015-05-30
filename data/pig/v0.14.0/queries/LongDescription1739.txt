@@ -1,0 +1,90 @@
+I have pig script where one input directory cannot be accessed. The pig script obviously fails but the return code is zero.
+
+
+
+A = LOAD '/user/viraj/testdata1' USING PigStorage(':') AS (ia, na);
+B = FOREACH A GENERATE $0 AS id;
+C = LOAD '/user/tstusr/test/' USING PigStorage(':') AS (ib, nb);
+D = FOREACH C GENERATE $0 AS id;
+--dump B;
+E = JOIN A by ia, C by ib USING 'replicated';
+store E into 'id.out';
+
+
+
+Here is the console output:
+
+$ java -cp $PIG_HOME/pig.jar org.apache.pig.Main script.pig
+2010-11-19 06:51:32,780 [main] INFO  org.apache.pig.Main - Logging error messages to: /home/viraj/pigscripts/pig_1290149492775.log
+...
+2010-11-19 06:51:39,136 [main] INFO  org.apache.pig.tools.pigstats.ScriptState - Pig features used in the script: REPLICATED_JOIN
+2010-11-19 06:51:39,187 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - (Name: E: Store(hdfs://mynamenode/user/viraj/id.out:org.apache.pig.builtin.PigStorage) - 1-38 Operator Key: 1-38)
+2010-11-19 06:51:39,198 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler - File concatenation threshold: 100 optimistic? false
+2010-11-19 06:51:39,344 [main] WARN  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler - failed to get number of input files
+org.apache.hadoop.security.AccessControlException: org.apache.hadoop.security.AccessControlException: Permission denied: user=viraj, access=EXECUTE, inode="tstusr":tstusr:users:rwx------
+        at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+        at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:39)
+        at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:27)
+        at java.lang.reflect.Constructor.newInstance(Constructor.java:513)
+        at org.apache.hadoop.ipc.RemoteException.instantiateException(RemoteException.java:95)
+        at org.apache.hadoop.ipc.RemoteException.unwrapRemoteException(RemoteException.java:57)
+        at org.apache.hadoop.hdfs.DFSClient.getFileInfo(DFSClient.java:678)
+        at org.apache.hadoop.hdfs.DistributedFileSystem.getFileStatus(DistributedFileSystem.java:521)
+        at org.apache.hadoop.fs.FileSystem.exists(FileSystem.java:692)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler.hasTooManyInputFiles(MRCompiler.java:1302)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler.visitFRJoin(MRCompiler.java:1210)
+        at org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POFRJoin.visit(POFRJoin.java:188)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler.compile(MRCompiler.java:472)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler.compile(MRCompiler.java:451)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler.compile(MRCompiler.java:333)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher.compile(MapReduceLauncher.java:469)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher.launchPig(MapReduceLauncher.java:117)
+        at org.apache.pig.backend.hadoop.executionengine.HExecutionEngine.execute(HExecutionEngine.java:378)
+        at org.apache.pig.PigServer.executeCompiledLogicalPlan(PigServer.java:1198)
+        at org.apache.pig.PigServer.execute(PigServer.java:1190)
+        at org.apache.pig.PigServer.access$100(PigServer.java:128)
+        at org.apache.pig.PigServer$Graph.execute(PigServer.java:1517)
+        at org.apache.pig.PigServer.executeBatchEx(PigServer.java:362)
+        at org.apache.pig.PigServer.executeBatch(PigServer.java:329)
+        at org.apache.pig.tools.grunt.GruntParser.executeBatch(GruntParser.java:112)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:169)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:141)
+        at org.apache.pig.tools.grunt.Grunt.exec(Grunt.java:90)
+        at org.apache.pig.Main.run(Main.java:498)
+        at org.apache.pig.Main.main(Main.java:107)
+2010-11-19 06:51:56,712 [main] ERROR org.apache.pig.tools.pigstats.PigStats - ERROR 2997: Unable to recreate exception from backend error: org.apache.pig.backend.executionengine.ExecException: ERROR 2118: org.apache.hadoop.security.AccessControlException: Permission denied: user=viraj, access=EXECUTE, inode="tstusr":tstusr:users:rwx------
+2010-11-19 06:51:56,712 [main] ERROR org.apache.pig.tools.pigstats.PigStatsUtil - 1 map reduce job(s) failed!
+2010-11-19 06:51:56,714 [main] INFO  org.apache.pig.tools.pigstats.PigStats - Script Statistics:
+...
+HadoopVersion   PigVersion      UserId  StartedAt       FinishedAt      Features
+0.20.1   0.8.0..1011012300       viraj   2010-11-19 06:51:41     2010-11-19 06:51:56     REPLICATED_JOIN
+
+Failed!
+
+Failed Jobs:
+JobId   Alias   Feature Message Outputs
+N/A     C       MAP_ONLY        Message: org.apache.pig.backend.executionengine.ExecException: ERROR 2118: org.apache.hadoop.security.AccessControlException: Permission denied: user=viraj, access=EXECUTE, inode="tstusr":tstusr:users:rwx------
+Input(s):
+Failed to read data from "/user/tstusr/test/"
+
+Output(s):
+
+Counters:
+Total records written : 0
+Total bytes written : 0
+Spillable Memory Manager spill count : 0
+Total bags proactively spilled: 0
+Total records proactively spilled: 0
+
+Job DAG:
+null    ->      null,
+null
+
+2010-11-19 06:51:56,714 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - Failed!
+
+$echo $?
+0
+
+Clearly users depending on this return code to run their workflows are affected.
+
+Viraj

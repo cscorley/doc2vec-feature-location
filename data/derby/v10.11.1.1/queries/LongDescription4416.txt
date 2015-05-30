@@ -1,0 +1,9 @@
+In the lack of the boolean data type, Derby forces you to use expressions like 1=1 and 1<>1 to express true and false. Generated SQL statements also tend to use such expressions, and so does Derby in its own meta-data queries.
+
+Derby has many useful optimizations for boolean true/false. For instance, ProjectRestrictNode and PredicateList are able to eliminate predicates, and in some cases the entire ProjectRestrictNode, if the predicate contains constant true or false values. However, during parsing and compilation, expressions like 1=1 are not rewritten to TRUE, and we don't get any benefit from the boolean optimization code. This leads to more complex, and possibly less efficient, byte code being generated for the statements.
+
+Also, boolean constants are assigned a selectivity of 0.0 (false) or 1.0 (true), since they will always match no rows when false and all rows when true. The expression 1=1 does however get it's selectivity from the = operator, which means that it'll be 0.1. The same selectivity is assigned to 1=0. Other operators have different selectivity, so 2<3 has the selectivity 0.33, even though the actual selectivity of the expression is the same as 1=1 and TRUE, namely 1.0.
+
+This leads to oddities like the optimizer choosing a different plan when you change 2<3 to 1=1 in a WHERE clause. See http://mail-archives.apache.org/mod_mbox/db-derby-user/200909.mbox/%3c25531166.post@talk.nabble.com%3e for an example of that.
+
+If we could go through the query tree and replace occurrences of comparisons between constant values with a boolean constant at bind time, such queries would end up with simpler byte code, and the selectivity passed to the optimizer would be more accurate, possibly resulting in a better plan being chosen.

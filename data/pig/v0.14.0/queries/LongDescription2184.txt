@@ -1,0 +1,22 @@
+It looks like the macro functionality doesnt support for positional references. The below is an example script;
+
+----------------------------------------------------------------------------
+DEFINE my_macro (X,key) returns Y
+        {
+        tmp1 = foreach  $X generate TOKENIZE((chararray)$key) as tokens;
+        tmp2 = foreach tmp1 generate flatten(tokens);
+        tmp3 = order tmp2 by $0;
+        $Y = distinct tmp3;
+        }
+
+A = load 'sometext' using TextLoader() as (row1) ;
+E = my_macro(A,A.$0);
+dump E;
+----------------------------------------------------------------------------
+
+This script execution fails at parsing staging itself;
+
+org.apache.pig.impl.logicalLayer.FrontendException: ERROR 1000: Error during parsing. <file try1.pig, line 16,
+column 16>  mismatched input '.' expecting RIGHT_PAREN
+
+If i replace A.$0 with the field name ie row1 the script runs fine.

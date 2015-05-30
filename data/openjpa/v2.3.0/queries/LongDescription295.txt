@@ -1,0 +1,25 @@
+Recent development builds of our WAS products as well as the Geronimo project are seeing exceptions when running under load.  An example of the exception is below:
+
+Caused by: 
+java.lang.ArrayIndexOutOfBoundsException
+	at java.util.ArrayList.add(ArrayList.java:378)
+	at org.apache.openjpa.kernel.AbstractBrokerFactory.syncWithManagedTransaction(AbstractBrokerFactory.java:684)
+	... 39 more
+
+This is the deepest trace I can get with the actual exception, but the wrappering exception shows this stack trace for geronimo:
+
+<1.0.0-SNAPSHOT-SNAPSHOT nonfatal general error> org.apache.openjpa.persistence.PersistenceException: null
+	at org.apache.openjpa.kernel.AbstractBrokerFactory.syncWithManagedTransaction(AbstractBrokerFactory.java:690)
+	at org.apache.openjpa.kernel.BrokerImpl.initialize(BrokerImpl.java:304)
+	at org.apache.openjpa.kernel.AbstractBrokerFactory.newBroker(AbstractBrokerFactory.java:182)
+	at org.apache.openjpa.kernel.DelegatingBrokerFactory.newBroker(DelegatingBrokerFactory.java:142)
+	at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:190)
+	at org.apache.openjpa.persistence.EntityManagerFactoryImpl.createEntityManager(EntityManagerFactoryImpl.java:55)
+	at org.apache.geronimo.persistence.CMPEntityManagerTxScoped.createEntityManager(CMPEntityManagerTxScoped.java:74)
+	at org.apache.geronimo.persistence.CMPEntityManagerTxScoped.getEntityManager(CMPEntityManagerTxScoped.java:55)
+	at org.apache.geronimo.persistence.CMPEntityManagerTxScoped.createNamedQuery(CMPEntityManagerTxScoped.java:259)
+	at org.apache.geronimo.samples.daytrader.ejb3.TradeSLSBBean.getClosedOrders(TradeSLSBBean.java:335)
+
+This is happening in two separate products with two different JTA implementations, and also both of these products were working at one point.
+
+Any ideas?

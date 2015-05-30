@@ -1,0 +1,16 @@
+RAFContainer.privGetRandomAccessFile() catches and unwraps PrivilegedActionExceptions raised in the privileged code:
+
+        catch( PrivilegedActionException pae)
+{ 
+            throw (StandardException) pae.getException();
+        }
+
+The problem is that the privileged code is this:
+
+         case GET_RANDOM_ACCESS_FILE_ACTION: 
+{
+             return actionFile.getRandomAccessFile("rw");
+		 }
+ // end of case BACKUP_CONTAINER_ACTION
+
+getRandomAccessFile() only has one checked exception, and that is FileNotFoundException. If it ever happens to raise FNFE, privGetRandomAccessFile() will fail with a ClassCastException and hide the underlying error.

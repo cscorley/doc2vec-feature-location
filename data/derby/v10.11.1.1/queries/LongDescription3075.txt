@@ -1,0 +1,17 @@
+Running attached program WITHOUT first starting the Network Server shows the incorrect (Transient) Exception.  Without action by the user rerunning the program will continue to fail so should throw NonTransient Exception.
+
+  > > > java DerbyClientException
+08001:java.net.ConnectException : Error connecting to server localhost on port 1527 with message Connection refused: connect.
+Exception in thread "main" java.sql.SQLTransientConnectionException: java.net.ConnectException : Err
+or connecting to server localhost on port 1527 with message Connection refused: connect.
+        at org.apache.derby.client.am.SQLExceptionFactory40.getSQLException(Unknown Source)
+        at org.apache.derby.client.am.SqlException.getSQLException(Unknown Source)
+        at org.apache.derby.client.ClientPooledConnection.<init>(Unknown Source)
+        at org.apache.derby.client.ClientPooledConnection40.<init>(Unknown Source)
+        at org.apache.derby.client.net.ClientJDBCObjectFactoryImpl40.newClientPooledConnection(Unknown Source)
+        at org.apache.derby.jdbc.ClientConnectionPoolDataSource.getPooledConnectionX(Unknown Source)
+
+        at org.apache.derby.jdbc.ClientConnectionPoolDataSource.getPooledConnection(Unknown Source)
+        at DerbyClientException.main(DerbyClientException.java:19)
+Caused by: org.apache.derby.client.am.DisconnectException: java.net.ConnectException : Error connect
+ing to server localhost on port 1527 with message Connection refused: connect.

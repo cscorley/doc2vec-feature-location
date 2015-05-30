@@ -1,0 +1,19 @@
+The constructors for many of the result set classes take GeneratedMethod parameters that create row templates (an ExecRow of a certain size and column types, each column initialized to an SQL null value).
+
+As an alternative, the compiler could produce an ExecRow instance and put it into the savedObjects field of GenericPreparedStatement, and the constructors could take parameter that points to the object in savedObjects. Where the result sets currently invoke the generated method to produce a fresh template, they could instead clone the saved object.
+
+Advantages with the suggested approach would be:
+
+
+	Reduce the size of the code generator, which should reduce total code complexity.
+
+
+
+
+	Reduce the amount of generated code, which makes it easier for tools (profilers, static code analyzers, IDEs) to map executable code to source code.
+
+
+
+
+	Reduce the actual number of generated methods, which makes it less likely that queries need to use reflection to invoke the remaining generated methods (there's a switchover from DirectCall to ReflectCall when the number of generated methods exceeds 10).
+

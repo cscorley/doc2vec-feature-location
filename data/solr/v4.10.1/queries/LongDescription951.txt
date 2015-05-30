@@ -1,0 +1,134 @@
+Running this query:
+
+
+http://testserver:8985/solr/select/?q=*%3A*&version=2.2&start=0&rows=10&indent=on&facet=true&
+facet.field={!ex=t1}SubjectTerms_mfacet&fq={!tag=t1}SubjectTerms_mfacet:(testvalue)&
+shards=test1:8985/solr,test2:8985/solr
+
+
+
+causes this exception:
+
+
+java.lang.NullPointerException
+	at org.apache.solr.handler.component.FacetComponent.refineFacets(FacetComponent.java:330)
+	at org.apache.solr.handler.component.FacetComponent.handleResponses(FacetComponent.java:231)
+	at org.apache.solr.handler.component.SearchHandler.handleRequestBody(SearchHandler.java:266)
+	at org.apache.solr.handler.RequestHandlerBase.handleRequest(RequestHandlerBase.java:131)
+	at org.apache.solr.core.SolrCore.execute(SolrCore.java:1325)
+	at org.apache.solr.servlet.SolrDispatchFilter.execute(SolrDispatchFilter.java:303)
+	at org.apache.solr.servlet.SolrDispatchFilter.doFilter(SolrDispatchFilter.java:232)
+	at org.mortbay.jetty.servlet.ServletHandler$CachedChain.doFilter(ServletHandler.java:1089)
+	at org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:365)
+	at org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)
+	at org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:181)
+	at org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:712)
+	at org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:405)
+	at org.mortbay.jetty.handler.ContextHandlerCollection.handle(ContextHandlerCollection.java:211)
+	at org.mortbay.jetty.handler.HandlerCollection.handle(HandlerCollection.java:114)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:139)
+	at org.mortbay.jetty.Server.handle(Server.java:285)
+	at org.mortbay.jetty.HttpConnection.handleRequest(HttpConnection.java:502)
+	at org.mortbay.jetty.HttpConnection$RequestHandler.headerComplete(HttpConnection.java:821)
+	at org.mortbay.jetty.HttpParser.parseNext(HttpParser.java:513)
+	at org.mortbay.jetty.HttpParser.parseAvailable(HttpParser.java:208)
+	at org.mortbay.jetty.HttpConnection.handle(HttpConnection.java:378)
+	at org.mortbay.jetty.bio.SocketConnector$Connection.run(SocketConnector.java:226)
+	at org.mortbay.thread.BoundedThreadPool$PoolThread.run(BoundedThreadPool.java:442)
+
+
+
+which is at this area of the code in the aggregator, but not the root cause...
+
+
+ private void refineFacets(ResponseBuilder rb, ShardRequest sreq) {
+    FacetInfo fi = rb._facetInfo;
+
+    for (ShardResponse srsp: sreq.responses) {
+      // int shardNum = rb.getShardNum(srsp.shard);
+      NamedList facet_counts = (NamedList)srsp.getSolrResponse().getResponse().get("facet_counts");
+      NamedList facet_fields = (NamedList)facet_counts.get("facet_fields");      
+
+      for (int i=0; i<facet_fields.size(); i++) {  // !!!!!!!!!!!!!!!!! EXCEPTION LINE 330 !!!!!!!!!!!!!!!!!!!! 
+        String key = facet_fields.getName(i);
+        DistribFieldFacet dff = (DistribFieldFacet)fi.facets.get(key);
+        if (dff == null) continue;
+
+        NamedList shardCounts = (NamedList)facet_fields.getVal(i);
+
+        for (int j=0; j<shardCounts.size(); j++) {
+          String name = shardCounts.getName(j);
+          long count = ((Number)shardCounts.getVal(j)).longValue();
+          ShardFacetCount sfc = dff.counts.get(name);
+          sfc.count += count;
+        }
+      }
+    }
+  }
+
+
+
+The shard actually has an error on it, which is:
+
+
+Jan 9, 2009 6:15:31 AM org.apache.solr.core.SolrCore execute
+INFO: [] webapp=/solr path=/select params={facet=true&f.SubjectTerms_mfacet.facet.limit=160&wt=javabin&rows=10&
+version=2.2&fl=id,score&start=0&q=*:*&
+facet.field={!ex%3Dt1}SubjectTerms_mfacet&isShard=true&fq={!tag%3Dt1}SubjectTerms_mfacet:(testvalue)&
+fsv=true} hits=0 status=0 QTime=265 
+Jan 9, 2009 6:15:31 AM org.apache.solr.common.SolrException log
+SEVERE: Exception during facet counts:org.apache.lucene.queryParser.ParseException: Expected identifier at pos 37 str='{!terms=$SubjectTerms_mfacet__termsex=t1}SubjectTerms_mfacet'
+	at org.apache.solr.search.QueryParsing$StrParser.getId(QueryParsing.java:564)
+	at org.apache.solr.search.QueryParsing.parseLocalParams(QueryParsing.java:135)
+	at org.apache.solr.search.QueryParsing.getLocalParams(QueryParsing.java:191)
+	at org.apache.solr.request.SimpleFacets.parseParams(SimpleFacets.java:91)
+	at org.apache.solr.request.SimpleFacets.getFacetFieldCounts(SimpleFacets.java:275)
+	at org.apache.solr.request.SimpleFacets.getFacetCounts(SimpleFacets.java:170)
+	at org.apache.solr.handler.component.FacetComponent.process(FacetComponent.java:71)
+	at org.apache.solr.handler.component.SearchHandler.handleRequestBody(SearchHandler.java:171)
+	at org.apache.solr.handler.RequestHandlerBase.handleRequest(RequestHandlerBase.java:131)
+	at org.apache.solr.core.SolrCore.execute(SolrCore.java:1325)
+	at org.apache.solr.servlet.SolrDispatchFilter.execute(SolrDispatchFilter.java:303)
+	at org.apache.solr.servlet.SolrDispatchFilter.doFilter(SolrDispatchFilter.java:232)
+	at org.mortbay.jetty.servlet.ServletHandler$CachedChain.doFilter(ServletHandler.java:1089)
+	at org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:365)
+	at org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)
+	at org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:181)
+	at org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:712)
+	at org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:405)
+	at org.mortbay.jetty.handler.ContextHandlerCollection.handle(ContextHandlerCollection.java:211)
+	at org.mortbay.jetty.handler.HandlerCollection.handle(HandlerCollection.java:114)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:139)
+	at org.mortbay.jetty.Server.handle(Server.java:285)
+	at org.mortbay.jetty.HttpConnection.handleRequest(HttpConnection.java:502)
+	at org.mortbay.jetty.HttpConnection$RequestHandler.content(HttpConnection.java:835)
+	at org.mortbay.jetty.HttpParser.parseNext(HttpParser.java:641)
+	at org.mortbay.jetty.HttpParser.parseAvailable(HttpParser.java:202)
+	at org.mortbay.jetty.HttpConnection.handle(HttpConnection.java:378)
+	at org.mortbay.jetty.bio.SocketConnector$Connection.run(SocketConnector.java:226)
+	at org.mortbay.thread.BoundedThreadPool$PoolThread.run(BoundedThreadPool.java:442)
+
+Jan 9, 2009 6:15:31 AM org.apache.solr.core.SolrCore execute
+INFO: [] webapp=/solr path=/select params={facet=true&q=*:*&
+facet.field={!terms%3D$SubjectTerms_mfacet__termsex%3Dt1}SubjectTerms_mfacet&isShard=true&
+wt=javabin&
+fq={!tag%3Dt1}SubjectTerms_mfacet:(testvalue)&
+rows=0&
+SubjectTerms_mfacet__terms=mathematical+models,mathematical+analysis&
+version=2.2} hits=0 status=0 QTime=2 
+
+
+
+
+Other related information:
+
+
+	The facet being selected is a multi-valued field
+	The facet is a dynamic field and passes a dynamic rule
+	The facet exists and the log shows the 2nd follow-on querying asking for shard values
+	When running a query for a single valued field it seems to work fine, only multi-valued fields seem to fail.  Not completely verified, but a few tests hint at this.
+	Tried facet names that were simple such as "ISBN" and if multi-valued, produces same error.
+	Tried facet names with underscores to see if that was at issue, and if single valued, it succeeded.
+	In a non-distributed search, the tag/exclude works fine for the same facets.
+
+

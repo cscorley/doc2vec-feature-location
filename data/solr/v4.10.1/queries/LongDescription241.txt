@@ -1,0 +1,9 @@
+Solr has a pretty good string substitution function in solrconfig.xml ($
+{system.property[:default value]}
+). If there is no system property defined, DOMUtil throws a SolrException(500), but it not logged. I'm using Tomcat 5.5.
+
+I had a hard time to find my problem when I forgot to set a system property that was refered in solrconfig.xml.
+
+The patch is to file the problem to the logger explicitly.
+
+regards,

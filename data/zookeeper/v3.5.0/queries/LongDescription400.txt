@@ -1,0 +1,9 @@
+When running a few experiments with BookKeeper, I found a couple of issues with closing a ledger:
+
+
+	On ClientCBWorker::run(), we should call setAddConfirmed before invoking the callback method. Otherwise, it is possible that an application closes a ledger before ClientCBWorker modifies the last confirmed operation, and the value written to ZooKeeper won't be the last one written;
+	LedgerHandle should write the last add confirmed instead of the last counter. The last attribute counts the operations issued, and we use it to determine the id of the next entry. If an application calls close upon receiving all callbacks, then with the previous modification, the last confirmed add must be equal to (last-1). However, if an application invokes close before receiving all callbacks, the ledger may be left in an inconsistent state because the last entry written to ZooKeeper may be an operation that hasn't completed yet.
+
+
+
+Although the modifications required are simple, they are important.

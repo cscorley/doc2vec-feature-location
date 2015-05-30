@@ -1,0 +1,3 @@
+In pig 0.11, a patch was issued to AvroStorage to support globs and comma separated input paths (PIG-2492).  While this function works fine for glob-formatted input paths, it fails when issued a standard comma separated list of paths.  fs.globStatus does not seem to be able to parse out such a list, and a java.net.URISyntaxException is thrown when toURI is called on the path.  
+
+I have a working fix for this, but it's extremely ugly (basically checking if the string of input paths is globbed, otherwise splitting on ",").  I'm sure there's a more elegant solution.  I'd be happy to post the relevant methods and "fixes" if necessary.

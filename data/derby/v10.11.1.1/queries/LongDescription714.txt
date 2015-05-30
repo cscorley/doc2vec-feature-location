@@ -1,0 +1,8 @@
+UPDATE and DELETE statements on read-only vtis will hit NullPointerException in insane mode, and ClassCastException in sane mode.
+
+ij> delete from new org.apache.derby.diag.TransactionTable();
+ERROR XJ001: Java exception: ': java.lang.NullPointerException'.
+
+While these statements make no sense, a more graceful error should be returned, especially as in insane mode this causes the engine to shutdown. Code already exists to detect this situation but is not being called.
+
+Found through adding negative tests for DERBY-571

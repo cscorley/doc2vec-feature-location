@@ -1,0 +1,11 @@
+When Derby encounters an exception in a method that's called via reflection, the actual problem may be well hidden at the end of a long exception chain. For example:
+
+ij> create table t(x int);
+0 rows inserted/updated/deleted
+ij> call syscs_util.syscs_import_table(null, 'T', null, null, null, null, 0);
+ERROR 38000: The exception 'java.sql.SQLException: The exception 'java.lang.reflect.InvocationTargetException' was thrown while evaluating an expression.' was thrown while evaluating an expression.
+ERROR 38000: The exception 'java.lang.reflect.InvocationTargetException' was thrown while evaluating an expression.
+ERROR XJ001: Java exception: ': java.lang.reflect.InvocationTargetException'.
+ERROR XIE05: Data file cannot be null. 
+
+Only the last exception provides any useful information to the user in this case. I think it would be good to remove the InvocationTargetException from the chain so that it's easier to spot the actual problem.

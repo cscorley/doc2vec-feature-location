@@ -1,0 +1,9 @@
+Closing a resultset after retriving BLOB or CLOB data > 32K, does not release locks properly.   Network Server uses getClob, getBlob to retrieve the data even if the application uses getCharacteStream, etc, so holds locks to the end of the transaction.
+
+
+To reproduce run attached repro
+java LargeDataLocks derbynetclient
+
+To see the difference with embedded
+java LargeDataLocks derby
+

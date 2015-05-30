@@ -1,0 +1,12 @@
+This uses the counters framework that hadoop has. Initially, I am just interested in finding out the number of records read by each mapper/reducer particularly for the last job in any script. A sample code to access the statistics for the last job:
+
+String reducePlan = stats.getPigStats().get(stats.getLastJobID()).get("PIG_STATS_REDUCE_PLAN");
+        if(reducePlan == null) 
+{
+            System.out.println("Records written : " + stats.getPigStats().get(stats.getLastJobID()).get("PIG_STATS_MAP_OUTPUT_RECORDS"));
+        }
+ else 
+{
+            System.out.println("Records written : " + stats.getPigStats().get(stats.getLastJobID()).get("PIG_STATS_REDUCE_OUTPUT_RECORDS"));
+        }
+The patch contains 7 test cases. These include tests PigStorage and BinStorage along with one for multiple MR jobs case.

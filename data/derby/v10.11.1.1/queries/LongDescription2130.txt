@@ -1,0 +1,100 @@
+Attached is 'repro.sql', an IJ script which demonstrates what I
+believe to be a serious performance issue in the Optimizer.
+
+I have run this script in a number of configurations:
+
+
+	10.1.2.1: the script runs successfully. The 'prepare' statement
+   takes about 90 seconds, on a fairly powerful Windows machine
+
+
+
+
+	10.1.3.1: the script produces a NPE. I believe this is DERBY-1777
+
+
+
+
+	10.2.1.8/trunk: the script runs successfully. The 'prepare' statement
+   often takes about 220 seconds, on the same Windows machine
+
+
+
+   Intermittently, on 10.2 and on the trunk, the prepare statement takes
+   15+ minutes. I cannot reliably reproduce this; I run the same script
+   several times in a row and I cannot predict whether it will take 220
+   seconds or whether it will take 15+ minutes.
+
+I am quite motivated to work on this problem, as this is blocking me from
+using Derby for a project that I'm quite keen on, but I need some
+suggestions and ideas about how to attack it. From my perspective
+there are 3 primary topics:
+
+1) Why did optimizer performance for this query degrade so significantly
+from 10.1.2.1 to 10.2? The optimizer seems to be at least 2.5 times slower,
+for this particular query at least, in 10.2. Sometimes it is 10x slower.
+
+2) What is the source of the non-determinism? Why does the optimizer
+often take 4 minutes to optimize this query on the trunk, but sometimes
+take 15+ minutes? I don't believe that I'm changing anything from
+run to run.
+
+3) Can we improve the optimizer performance even beyond what it was
+for 10.1.2? I realize that this is an ugly query, but I was hoping to
+see an optimization time of 5-10 seconds, not 90 seconds (and certainly
+not 220 seconds).
+
+I have attempted to start answering some of these questions, with
+limited success. Here is some of what I think I've discovered so far:
+
+
+	the optimizer changes in 10.2 seem to have given the optimizer many
+   more choices of possible query plans to consider. I think this means
+   that, if the optimizer does not time out, it will spend substantially
+   more time optimizing because there are more choices to evaluate. Does
+   this by itself mean that the optimizer will take 2.5 times longer in
+   10.2 than it did in 10.1?
+
+
+
+
+	something about this query seems to make the costing mechanism go
+   haywire, and produce extreme costs. While stepping through the
+   optimization of this query in the debugger I have seen it compute
+   costs like 1e63 and 1e200. This might be very closely related to
+   DERBY-1905, although I don't think I'm doing any subqueries here.
+   But maybe I'm misunderstanding the term "subquery" in DERBY-1905.
+   At any rate, due to the enormous estimated costs, timeout does not
+   occur.
+
+
+
+
+	the WHERE clause in this query is converted during compilation to
+   an equivalent IN clause, I believe, which then causes me to run into
+   a number of the problems described in DERBY-47 and DERBY-713.
+   Specifically, rather than constructing a plan which involves 4
+   index probes for the 4 WHERE clause values, the optimizer decides
+   that an index scan must be performed and that it will have to process
+   the entire index (because the query uses parameter markers, not
+   literal values). So perhaps solving DERBY-47 would help me
+
+
+
+
+	the optimizer in fact comes up with a "decent" query plan quite quickly.
+   I have experimented with placing a hard limit into the optimizer
+   timeout code, so that I can force optimization to stop after an
+   arbitrary fixed period of time. Then I have been able to set that
+   value to as low as 1 second, and the optimizer has produced plans
+   that then execute in a few milliseconds. Of course, I have only tried
+   this with a trivial amount of data in my database, so it's possible
+   that the plan produced by the optimizer after just a second of
+   optimizing is in fact poor, and I'm just not noticing it because my
+   data sizes are so small.
+
+
+
+At this point, what would be really helpful to me would be some suggestions
+about some general approaches or techniques to try to start breaking down
+and analyzing this problem.

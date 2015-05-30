@@ -1,0 +1,117 @@
+When using an application id class containing a reference to another entity (example given below) a NPE is thrown when merging/reattaching the instance to an entity manager. 
+The problem is caused by the involved AttachStrategy where on line 89 (pc.pcNewInstance(null, appId, false) the call to pcNewInstance is null for the first parameter (StateManager). This statemanager is used to retrieve the object reference when reattaching using the method pcCopyKeyFieldsFromObjectId in the pcNewInstance method.
+
+Source for this bug:
+
+@Entity
+@Table(name = "domain_record")
+@IdClass(DomainRecord.DomainRecordId.class)
+public class DomainRecord implements Serializable {
+
+	private static final long serialVersionUID = 2966781630801201103L;
+
+	public static class DomainRecordId implements Serializable {
+
+		private static final long serialVersionUID = 3629556841694516032L;
+
+		private String zone;
+
+		private String name;
+
+		private Type type;
+
+		private String data;
+
+		public DomainRecordId() {
+		}
+
+		public DomainRecordId(DomainRecord record) 
+{
+			this.zone = record.zone.getName();
+			this.name = record.name;
+			this.type = record.type;
+			this.data = record.data;
+		}
+
+		public DomainRecordId(String zone, String name, Type type, String data) 
+{
+			this.zone = zone;
+			this.name = name;
+			this.type = type;
+			this.data = data;
+		}
+
+		/**
+
+	@see java.lang.Object#hashCode()
+		 */
+		@Override
+		public int hashCode() 
+{
+			final int PRIME = 31;
+			int result = 1;
+			result = PRIME * result + ((data == null) ? 0 : data.hashCode());
+			result = PRIME * result + ((name == null) ? 0 : name.hashCode());
+			result = PRIME * result + ((type == null) ? 0 : type.hashCode());
+			result = PRIME * result + ((zone == null) ? 0 : zone.hashCode());
+			return result;
+		}
+
+
+
+		/**
+
+	@see java.lang.Object#equals(java.lang.Object)
+		 */
+		@Override
+		public boolean equals(Object obj) 
+Unknown macro: {			if (this == obj)				return true;			if (obj == null)				return false;			if (getClass() != obj.getClass())				return false;			final DomainRecordId other = (DomainRecordId) obj;			if (data == null) {
+				if (other.data != null)
+					return false;
+			} else if (!data.equals(other.data))				return false;			if (name == null) {
+				if (other.name != null)
+					return false;
+			} else if (!name.equals(other.name))				return false;			if (type == null) {
+				if (other.type != null)
+					return false;
+			} else if (!type.equals(other.type))				return false;			if (zone == null) {
+				if (other.zone != null)
+					return false;
+			} else if (!zone.equals(other.zone))				return false;			return true;		} 
+
+
+
+	}
+
+	/**
+
+	@author markusw
+	@version $Revision$
+	 */
+	public enum Type 
+{
+		A, AAAA, ALIAS, CNAME, HINFO, MX, NAPTR, NS, PTR, RP, SRV, TXT
+	}
+
+
+
+	@Id
+	@ManyToOne(fetch = FetchType.LAZY, cascade = 
+{ CascadeType.ALL }
+)
+	@JoinColumn(name = "domain", referencedColumnName = "name")
+	private Domain zone;
+
+	@Id
+	@Column(length = 64)
+	private String name;
+
+	@Id
+	@Enumerated(EnumType.STRING)
+	private Type type;
+
+	@Id
+	@Column(length = 128)
+	private String data;
+...
+}

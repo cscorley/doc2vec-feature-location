@@ -1,0 +1,100 @@
+if you do a native query with a null resultset where the resulting object is not the model object, it causes a null pointer exception.
+
+---------------------------------------------------
+
+mysql> desc Data;
+------------------------------------------------------------------+
+
+
+ Field                    
+ Type         
+ Null 
+ Key 
+ Default 
+ Extra          
+
+
+
+------------------------------------------------------------------+
+
+
+ id                       
+ bigint(20)   
+ NO   
+ PRI 
+ NULL    
+ auto_increment 
+
+
+ data                     
+ mediumblob   
+ YES  
+ 
+ NULL    
+ 
+
+
+
+------------------------------------------------------------------+
+12 rows in set (0.01 sec)
+
+mysql> select count from Data;
+----------
+
+
+ count 
+
+
+
+----------
+
+
+        0 
+
+
+
+----------
+1 row in set (0.00 sec)
+
+mysql> select max(id) from Data;
+---------
+
+
+ max(id) 
+
+
+
+---------
+
+
+    NULL 
+
+
+
+---------
+1 row in set (0.00 sec)
+
+now in java do :
+
+Query query = entityManager.createNativeQuery("select max(id) from Data", Long.class);
+List results = query.getResultList();
+
+The following exception ensues.
+
+---------------------------------------------------
+
+<openjpa-2.2.0-r422266:1244990 nonfatal user error> org.apache.openjpa.persistence.ArgumentException: Failed to execute query "select max(id) from Data". Check the query syntax for correctness. See nested exception for details.
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:872)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:794)
+	at org.apache.openjpa.kernel.DelegatingQuery.execute(DelegatingQuery.java:542)
+	at org.apache.openjpa.persistence.QueryImpl.execute(QueryImpl.java:286)
+	at org.apache.openjpa.persistence.QueryImpl.getResultList(QueryImpl.java:302)
+...
+Caused by: java.lang.NullPointerException
+	at org.apache.openjpa.kernel.ResultPacker.pack(ResultPacker.java:202)
+	at org.apache.openjpa.jdbc.kernel.SQLProjectionResultObjectProvider.getResultObject(SQLProjectionResultObjectProvider.java:88)
+	at org.apache.openjpa.lib.rop.RangeResultObjectProvider.getResultObject(RangeResultObjectProvider.java:80)
+	at org.apache.openjpa.lib.rop.EagerResultList.<init>(EagerResultList.java:36)
+	at org.apache.openjpa.kernel.QueryImpl.toResult(QueryImpl.java:1251)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:1007)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:863)

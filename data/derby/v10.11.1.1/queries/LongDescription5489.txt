@@ -1,0 +1,3 @@
+When ResultSet.getObject(int) is called on a BLOB column, the correct EmbedBlob object is returned. But if afterwards the ResultSet.getBytes(int) is called on the same row, the returned array contains invalid data - it is offset by 3 bytes and its size is incorrect.
+The problem only occurs when the stored BLOB is large enough to be internally represented by stream and not by array of bytes (at least ~32KiB).
+It seems that the getObject method shifts the stream position and therefore the getBytes method starts to read the data after the third byte, thus incorrectly calculating its length.

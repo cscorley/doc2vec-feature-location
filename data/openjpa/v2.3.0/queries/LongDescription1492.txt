@@ -1,0 +1,5 @@
+Because of two other related bugs, it is impossible to have the ReverseMappingTool output Java code that is annotated properly.
+
+The easiest way to work around the two related bugs would be for the ReverseCustomizer supplier to return code from its methods like getClassCode().  But if you do this, you need the ability to have OpenJPA hand you the annotations it has determined are necessary.  Those annotations are currently present in the ReverseMappingTool#_annos field, which is accessed by the currently private getAnnotationsForMeta(Object) method.
+
+Moving the access level of this method to public would allow a great deal of flexibility in ReverseCustomizer implementations.

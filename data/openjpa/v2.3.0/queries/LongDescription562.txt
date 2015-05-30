@@ -1,0 +1,100 @@
+Consider the following snippet of an entity definition:
+
+/**
+
+	<p>Entity used to test parsing of @OrderBy.</p>
+ *
+	@author Abe White
+ */
+@Entity
+public class OrderByEntity 
+{
+
+    @Id
+    private long id;
+    private String string;
+
+    @PersistentCollection
+    @OrderBy
+    private List<String> strings = new ArrayList();
+
+}
+
+
+
+The @PersistentCollection annotation maps the declaration to the default collection table named orderbyentity_strings. The join column name in the container table is also defaulted to orderbyentity_id and the name of the Element column name is defaulted to element. 
+
+The test code initially added string elements to the strings list and persisted it.
+
+        OrderByEntity pc = new OrderByEntity();
+        pc.setId(1L);
+        pc.getStrings().add("2");
+        pc.getStrings().add("1");
+        pc.getStrings().add("3");
+
+On a subsequent load of the persistent collection data by executing the following code, we hit into an NPE.
+
+        pc = em.find(OrderByEntity.class, 1L);
+        List<String> strings = pc.getStrings();
+
+java.lang.NullPointerException
+at org.apache.openjpa.meta.FieldMetaData.getOrders(FieldMetaData.java:1127)
+at org.apache.openjpa.jdbc.meta.strats.StoreCollectionFieldStrategy.selectEager(StoreCollectionFieldStrategy.java:207)
+at org.apache.openjpa.jdbc.meta.strats.StoreCollectionFieldStrategy.selectEagerJoin(StoreCollectionFieldStrategy.java:171)
+at org.apache.openjpa.jdbc.meta.FieldMapping.selectEagerJoin(FieldMapping.java:713)
+at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.select(JDBCStoreManager.java:927)
+at org.apache.openjpa.jdbc.kernel.JDBCStoreManager.load(JDBCStoreManager.java:503)
+at org.apache.openjpa.kernel.DelegatingStoreManager.load(DelegatingStoreManager.java:116)
+at org.apache.openjpa.datacache.DataCacheStoreManager.load(DataCacheStoreManager.java:368)
+at org.apache.openjpa.kernel.DelegatingStoreManager.load(DelegatingStoreManager.java:116)
+at org.apache.openjpa.kernel.ROPStoreManager.load(ROPStoreManager.java:78)
+at org.apache.openjpa.kernel.StateManagerImpl.loadFields(StateManagerImpl.java:2911)
+at org.apache.openjpa.kernel.StateManagerImpl.loadField(StateManagerImpl.java:2989)
+at kodo.kernel.ProfilingStateManager.loadField(ProfilingStateManager.java:68)
+at org.apache.openjpa.kernel.StateManagerImpl.beforeAccessField(StateManagerImpl.java:1489)
+at kodo.kernel.ProfilingStateManager.beforeAccessField(ProfilingStateManager.java:49)
+at org.apache.openjpa.kernel.StateManagerImpl.accessingField(StateManagerImpl.java:1474)
+
+This problem is reported with OpenJPA version:
+
+$ java org.apache.openjpa.conf.OpenJPAVersion
+OpenJPA 1.1.0-SNAPSHOT
+version id: openjpa-1.1.0-SNAPSHOT-r420667:634150
+Apache svn revision: 420667:634150
+
+os.name: Windows XP
+os.version: 5.1
+os.arch: x86
+
+java.version: 1.6.0_05
+java.vendor: BEA Systems, Inc.
+
+The NPE occurs when the FieldMetadata.getOrders() method is invoked when trying to load the data in the strings collection field. The code is trying to get the ClassMetadata for the element type and then check the FieldMetadata is present in the declared fields. It fails because the element data type is java.lang.String and there is no ClassMetadata for it. By simply adding a null check for the returned class metadata this issue I could fix locally.
+
+Here is the outout of the svn diff command.
+
+C:\apache_openjpa_project\openjpa>svn diff
+Index: openjpa-kernel/src/main/java/org/apache/openjpa/meta/FieldMetaData.java
+===================================================================
+— openjpa-kernel/src/main/java/org/apache/openjpa/meta/FieldMetaData.java
+(revision 643944)
++++ openjpa-kernel/src/main/java/org/apache/openjpa/meta/FieldMetaData.java
+(working copy)
+@@ -1124,9 +1124,11 @@
+                     //set "isUsedInOrderBy" to the field
+                     ClassMetaData elemCls = getElement()
+                         .getDeclaredTypeMetaData();
+
+	FieldMetaData fmd = elemCls.getDeclaredField(decs[i]);
+	if (fmd != null)
+	fmd.setUsedInOrderBy(true);
++                    if (elemCls != null) 
+{
++                      FieldMetaData fmd = elemCls.getDeclaredField(decs[i]);
++                      if (fmd != null)
++                        fmd.setUsedInOrderBy(true);
++                    }
+                 }
+                 _orders = orders;
+             }
+

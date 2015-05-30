@@ -1,0 +1,23 @@
+We're hitting a performance regression with the latest OpenJPA code when specifying LAZY fetch type with OneToOne and ManyToOne relationships.  It seems that we're loading more than just the foreign key (normal LAZY behavior) and processing them like an EAGER fetch type.  Here's some example SQL codes:
+
+Previous version of OpenJPA generates the following:
+
+SELECT t0.PROFILE_USERID, t0.BALANCE, t0.CREATIONDATE, t0.LASTLOGIN, t0.LOGINCOUNT, t0.LOGOUTCOUNT, t0.OPENBALANCE FROM ACCOUNTEJB t0 WHERE t0.ACCOUNTID = ?  optimize for 1 row
+
+With latest OpenJPA, we see the following being generated:
+
+SELECT t1.USERID, t2.ACCOUNTID, t2.BALANCE, t2.CREATIONDATE, t2.LASTLOGIN, t2.LOGINCOUNT, t2.LOGOUTCOUNT, t2.OPENBALANCE, t1.ADDRESS, t1.CREDITCARD, t1.EMAIL, t1.FULLNAME, t1.PASSWD, t0.BA
+LANCE, t0.CREATIONDATE, t0.LASTLOGIN, t0.LOGINCOUNT, t0.LOGOUTCOUNT, t0.OPENBALANCE FROM ACCOUNTEJB t0 LEFT OUTER JOIN ACCOUNTPROFILEEJB t1 ON t0.PROFILE_USERID = t1.USERID LEFT OUTER JOIN ACCOUNTEJB t2 ON t1.USERID = t2.PROFI
+LE_USERID WHERE t0.ACCOUNTID = ?  optimize for 1 row
+
+It looks like the regression is due to the introduction of the fix I provided for OPENJPA-281 where the @Basic types were not eagerly being loaded by default.  In this test scenario, the field types used for the foreign keys were Serializable.  Thus, the test in isInDefaultFetchGroup() would incorrectly put the whole relationship in the default fetch group (making it eager).
+
+As I was debugging this problem, I learned that OpenJPA loads the foreign key fields eagerly regardless of the setting of the LAZY fetch type.  Our customers would most likely expect this behavior and it doesn't cost anything (or next to nothing) to load these additional fields.  It just becomes a problem when we traverse the relationship when it's marked LAZY...
+
+It looks like the problem can be easily resolved by just moving my check for Serializable in isInDefaultFetchGroup() to just the JavaTypes.OBJECT type and not the JavaTypes.PC type.  This makes more sense since the intent of the @Basic eager change was for basic simple attribute types, not relationships.  And, foreign key fields would fall into the JavaTypes.PC (Persistence Capable) type.
+
+We're testing this theory with the performance run right now.  So far, it looks good.  And, I have modified the TestEagerBidiSQL test to test for this condition (the current versions of BidiChild and BidiParent were not Serializable and, thus, we didn't hit this problem when I did the fix for OPENJPA-281).
+
+If anybody has any further thoughts on this problem, please post.  Thanks.
+
+Kevin

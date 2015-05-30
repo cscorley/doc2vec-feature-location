@@ -1,0 +1,5 @@
+The documented set of allowable characters in ZooKeeper node names in the Programmer's Guide is not entirely in line with the code.
+
+The range of non-printable ASCII characters in the doc ends too early (i.e. 0x19 instead of 0x1F).
+
+The range checking code in PathUtils also includes off-by-one errors, so that characters that are on the border of being unallowable are actually allowed by the code.

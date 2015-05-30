@@ -1,0 +1,8 @@
+This is clean-up that I did for Launcher and MapReduceLauncher as part of PIG-3502. I'd like to merge applicable changes from tez branch to trunk so that they will not diverge too much over time.
+
+The changes include:
+
+	Rename ExecutionEngineKiller to HangingJobKiller and move it from PigContext to Launcher. This brings back HangingJobKiller to its original place before PIG-3419.
+	Remove kill() method from the ExecutionEngine interface. It was needed only by ExecutionEngineKiller, but after #1, it's no longer needed.
+	Refactor Launcher and MapReduceLauncer classes. Basically, move MR-specific stuff to MapReduceLauncher and common stuff to Launcher.
+

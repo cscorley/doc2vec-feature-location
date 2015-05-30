@@ -1,0 +1,20 @@
+gdalinfo is used as external parser (see TIKA-605). The test testParseFITS fails if gdalinfo is compiled without support of FITS:
+
+testParseFITS(org.apache.tika.parser.gdal.TestGDALParser)  Time elapsed: 0.206 sec  <<< FAILURE!
+java.lang.AssertionError
+        at org.junit.Assert.fail(Assert.java:86)
+        at org.junit.Assert.assertTrue(Assert.java:41)
+        at org.junit.Assert.assertNotNull(Assert.java:621)
+        at org.junit.Assert.assertNotNull(Assert.java:631)
+        at org.apache.tika.parser.gdal.TestGDALParser.testParseFITS(TestGDALParser.java:153)
+
+
+
+On Ubuntu 14.04 gdalinfo does not seem to support FITS:
+
+ % gdalinfo tika-parsers/src/test/resources/test-documents/WFPC2u5780205r_c0fx.fits
+ ERROR 4: `tika-parsers/src/test/resources/test-documents/WFPC2u5780205r_c0fx.fits' not recognised as a supported file format.
+
+
+
+The test should check whether gdalinfo supports the format, and skip the test if not.

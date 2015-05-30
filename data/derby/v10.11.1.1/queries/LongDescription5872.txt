@@ -1,0 +1,36 @@
+I noticed this when I refactored the logical statement classes in DERBY-5868. The isWrapperFor() method forwards calls to the underlying physical statement, but the unwrap() method works purely at the logical level.
+
+For example, if you produce a LogicalPreparedStatement40 instance with this code
+
+        ClientConnectionPoolDataSource ds = new ClientConnectionPoolDataSource();
+        ds.setDatabaseName("testdb");
+        ds.setCreateDatabase("create");
+        ds.setMaxStatements(10);
+        PooledConnection pc = ds.getPooledConnection();
+        Connection c = pc.getConnection();
+        PreparedStatement ps = c.prepareStatement("values 1");
+
+you'll see that
+
+        System.out.println(ps.isWrapperFor(LogicalPreparedStatement40.class));
+
+prints false, telling that ps is not a wrapper for LogicalPreparedStatement40. However, trying to unwrap ps as a LogicalPreparedStatement succeeds:
+
+        LogicalPreparedStatement40 lps = ps.unwrap(LogicalPreparedStatement40.class);
+
+On the other hand
+
+        System.out.println(ps.isWrapperFor(PreparedStatement40.class));
+
+prints true, indicating that ps is a wrapper for PreparedStatement40, but trying to unwrap it as one, fails:
+
+        PreparedStatement40 ps4 = ps.unwrap(PreparedStatement40.class);
+
+Exception in thread "main" java.sql.SQLException: Unable to unwrap for 'class org.apache.derby.client.am.PreparedStatement40'
+	at org.apache.derby.client.am.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:108)
+	at org.apache.derby.client.am.SqlException.getSQLException(SqlException.java:364)
+	at org.apache.derby.client.am.LogicalStatementEntity.unwrap(LogicalStatementEntity.java:258)
+	at org.apache.derby.client.am.LogicalPreparedStatement.unwrap(LogicalPreparedStatement.java:57)
+	at Test.main(Test.java:37)
+Caused by: org.apache.derby.client.am.SqlException: Unable to unwrap for 'class org.apache.derby.client.am.PreparedStatement40'
+	... 3 more

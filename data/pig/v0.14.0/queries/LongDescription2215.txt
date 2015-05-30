@@ -1,0 +1,28 @@
+PIG-1749 was an attempt to allow newlines in function arguments. It appears that the AstValidator and the LogicalPlanGenerator grammars were not updated, so the following exception and stracktrace will be thrown when executing a script that has newlines in function arguments:
+
+ERROR 1200: Pig script failed to parse: MismatchedTokenException(93!=3)
+
+Failed to parse: Pig script failed to parse: MismatchedTokenException(93!=3)
+        at org.apache.pig.parser.QueryParserDriver.parse(QueryParserDriver.java:178)
+        at org.apache.pig.PigServer$Graph.validateQuery(PigServer.java:1622)
+        at org.apache.pig.PigServer$Graph.registerQuery(PigServer.java:1595)
+        at org.apache.pig.PigServer.registerQuery(PigServer.java:583)
+        at org.apache.pig.tools.grunt.GruntParser.processPig(GruntParser.java:942)
+        at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:386)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:188)
+        at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:164)
+        at org.apache.pig.tools.grunt.Grunt.run(Grunt.java:67)
+        at org.apache.pig.Main.run(Main.java:487)
+        at org.apache.pig.Main.main(Main.java:108)
+Caused by: MismatchedTokenException(93!=3)
+        at org.apache.pig.parser.AstValidator.recoverFromMismatchedToken(AstValidator.java:209)
+        at org.antlr.runtime.BaseRecognizer.match(BaseRecognizer.java:115)
+        at org.apache.pig.parser.AstValidator.func_clause(AstValidator.java:3497)
+        at org.apache.pig.parser.AstValidator.load_clause(AstValidator.java:2464)
+        at org.apache.pig.parser.AstValidator.op_clause(AstValidator.java:934)
+        at org.apache.pig.parser.AstValidator.general_statement(AstValidator.java:574)
+        at org.apache.pig.parser.AstValidator.statement(AstValidator.java:396)
+        at org.apache.pig.parser.AstValidator.query(AstValidator.java:306)
+        at org.apache.pig.parser.QueryParserDriver.validateAst(QueryParserDriver.java:236)
+        at org.apache.pig.parser.QueryParserDriver.parse(QueryParserDriver.java:168)
+        ... 10 more

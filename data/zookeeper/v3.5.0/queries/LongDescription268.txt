@@ -1,0 +1,54 @@
+Jute still causing problems with tostring operations on generated code, need to review/cleanup the toCSV code
+
+From user Kevin Burton:
+---------------------------------------------
+Creating this node with this ACL:
+Created /foo
+setAcl /foo world:anyone:w
+
+Causes the exception included below.
+
+It's an infinite loop so it's just called over and over again filling my
+console.
+
+I'm just doing an exists( path, true ); ... setting a watch still causes the
+problem.
+
+
+
+java.lang.NullPointerException
+        at org.apache.jute.Utils.toCSVBuffer(Utils.java:234)
+        at
+org.apache.jute.CsvOutputArchive.writeBuffer(CsvOutputArchive.java:101)
+        at
+org.apache.zookeeper.proto.GetDataResponse.toString(GetDataResponse.java:48)
+        at java.lang.String.valueOf(String.java:2827)
+        at java.lang.StringBuilder.append(StringBuilder.java:115)
+        at
+org.apache.zookeeper.ClientCnxn$Packet.toString(ClientCnxn.java:230)
+        at java.lang.String.valueOf(String.java:2827)
+        at java.lang.StringBuilder.append(StringBuilder.java:115)
+        at
+org.apache.zookeeper.ClientCnxn$SendThread.readResponse(ClientCnxn.java:586)
+        at
+org.apache.zookeeper.ClientCnxn$SendThread.doIO(ClientCnxn.java:626)
+        at
+org.apache.zookeeper.ClientCnxn$SendThread.run(ClientCnxn.java:852)
+java.lang.NullPointerException
+        at org.apache.jute.Utils.toCSVBuffer(Utils.java:234)
+        at
+org.apache.jute.CsvOutputArchive.writeBuffer(CsvOutputArchive.java:101)
+        at
+org.apache.zookeeper.proto.GetDataResponse.toString(GetDataResponse.java:48)
+        at java.lang.String.valueOf(String.java:2827)
+        at java.lang.StringBuilder.append(StringBuilder.java:115)
+        at
+org.apache.zookeeper.ClientCnxn$Packet.toString(ClientCnxn.java:230)
+        at java.lang.String.valueOf(String.java:2827)
+        at java.lang.StringBuilder.append(StringBuilder.java:115)
+        at
+org.apache.zookeeper.ClientCnxn$SendThread.readResponse(ClientCnxn.java:586)
+        at
+org.apache.zookeeper.ClientCnxn$SendThread.doIO(ClientCnxn.java:626)
+        at
+org.apache.zookeeper.ClientCnxn$SendThread.run(ClientCnxn.java:852)

@@ -1,0 +1,30 @@
+I call this issue "Potpourri". It's a number of small items batched together that didn't seem worth an issue on their own.
+
+1. DenseVector.NonZeroIterator
+This doesn't seem to work, exactly, as per the Iterator contract. next() doesn't advance the iterator; hasNext() does. A normal series of calls to these might get the right effect, but this seems wrong. See proposed fix.
+
+2. next() and NoSuchElementException
+Iterators need to throw this appropriately – see changes
+
+3. DistanceMeasure.distance(double[] p1, double[] p2)
+Looks like subclasses are kinda trying to treat this as a method to be overridden/implemented. I changed to make it so. Am I mistaken and this is on the way out or something? in which case, removable?
+
+4. Subtraction in compareTo()
+Check out IntPairWritable. It does the sensible thing and tries to return the difference of two ints to satisfy the compareTo() contract. This works until the subtraction overflows.
+
+5. Comparators and Serializable
+Super tiny point. Comparators ought to implement Serializable
+
+6. Double literals
+Another super tiny point: suggest we write double literals in canonical form. "1" is an int; "1.0" is a double (though the former will be widened – might as well write what's meant. Likewise "1.0f" is a float but "1.0" is not. Also suggest that "1.0E-5" is better than "1E-5" for doubles.
+
+7. compareTo() and equals()
+equals() needs to be overridden when compareTo() is. and hashCode() needs to be there when equals() is. Looking at LDAPrintTopics.StringDoublePair
+
+8. Redundant braces
+Finally like I mentioned, we should't do...
+for (...) {
+  {
+     ...
+  }
+}

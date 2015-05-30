@@ -1,0 +1,23 @@
+Solr logs a message like this:
+
+INFO: created null: org.apache.solr.analysis.LowerCaseFilterFactory
+
+
+
+This sounds like the TokenFilter or Tokenizer were not created and a serious error.  But it mealy means the component is not named.  "null" is printed because the local variable "name" has the value null.
+
+This is misleading.
+
+If the text field type is not named, it should just print blank, rather than the word "null".
+
+I would suggest that a line in src/java/org/apache/solr/util/plugin/AbstractPluginLoader.java be changed to:
+
+          log.info("created"+((name!=null)?(" "+name):"")+": " + plugin.getClass().getName() );
+
+
+from
+
+          log.info("created "+name+": " + plugin.getClass().getName() );
+
+
+

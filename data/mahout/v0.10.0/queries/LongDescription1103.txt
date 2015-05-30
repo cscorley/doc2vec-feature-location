@@ -1,0 +1,22 @@
+After running kmeans clustering on a set of ~3M points, clusterpp fails to populate directories for some clusters, no matter what k is.
+
+I've tested this on my data with k = 300, 250, 150, 100, 50, 25, 10, 5, 2
+
+Even with k=2 only one cluster directory was created. For each reducer that fails to produce directories there is an empty part-r-* file in the output directory.
+
+Here is my command sequence for the k=2 run:
+
+bin/mahout kmeans -i ssvd2/USigma -c 2clusters/init-clusters -o 2clusters/pca-clusters -dm org.apache.mahout.common.distance.TanimotoDistanceMeasure -cd 0.05 -k 2 -x 15 -cl
+
+bin/mahout clusterdump -i 2clusters/pca-clusters/clusters-*-final -o 2clusters.txt
+
+bin/mahout clusterpp -i 2clusters/pca-clusters -o 2clusters/bottom
+ 
+
+The output of clusterdump shows two clusters: VL-3742464 and VL-3742466 containing 2585843 and 1156624 points respectively.
+
+Discussion on the user mailing list suggested that this might be caused by the default hadoop hash partitioner. The hashes of these two clusters aren't identical, but they are close. Putting both cluster names into a Text and caling hashCode() gives:
+VL-3742464 -> -685560454
+VL-3742466 -> -685560452
+
+Finally, when running with "-xm sequential", everything performs as expected.

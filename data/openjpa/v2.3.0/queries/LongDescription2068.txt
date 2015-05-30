@@ -1,0 +1,16 @@
+While doing some performance testing, I've found that we could improve the performance of loading Entities that have java.util.Calendar fields. When loading the data into a Calendar field, we actually create two Calendar instances per field. Normally creating an extra instance wouldn't be that big of a deal, but since creating a Calendar is very expensive I would like to remove creation of the extra instance.
+
+The call flow is something like this:
+
+	em.find(...) // find an Entity which has a calendar field
+... execute query, processing result set...
+	DBDictionary.getCalendar(ResultSet,...) // Here we pull a Timestamp out of the result set, and create an unproxied Calendar instance.
+...
+// now while trying to store the Calendar into the Entity instance, we find that this type needs to be proxied. 
+SingleFieldManager.proxy(...) // Here we create the second Calendar instance, which is a proxied calendar
+
+
+
+I'd like to add a configuration property to DBDictionary that tells the runtime to always create proxied calendar instances. This would remove the creation of the initial un-proxied instance. For a large majority of application which use Calendars this would help. 
+
+As always, there is a catch to this approach. If you were to execute a query such as : em.createQuery("SELECT c.myCal FROM CalendarEntity c where c.id=:id", MyCalendar.class), you would get back a proxied instance. This shouldn't be that big of a deal... but still a bit of a quirk.

@@ -1,0 +1,14 @@
+We noticed that multiple pig runs with same input were producing different outputs.
+
+Simplified script looked like this.
+
+
+A = load 'input1' as (a1:int);
+B = group A by a1 parallel 200;
+C = load 'input2' as (c1:int);
+D = foreach C generate B.$0;
+store D into '/tmp/deletemeD';
+E = load 'input3' as (c1:int);
+F = foreach E generate B.$0;
+store F into '/tmp/deletemeF';
+

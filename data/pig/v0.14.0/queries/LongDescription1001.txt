@@ -1,0 +1,8 @@
+In the following query, if 1.txt does not exist, 
+
+a = load '1.txt';
+b = group a by $0;
+c = group b all;
+dump c;
+
+Pig throws error message "ERROR 2100: file:/tmp/temp155054664/tmp1144108421 does not exist.", Pig should deal with it with the error message "Input file 1.txt not exist" instead of those confusing messages.

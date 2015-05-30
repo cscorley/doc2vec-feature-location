@@ -1,0 +1,13 @@
+Derby currently provides a very simple permissions scheme, which is quite suitable for an embedded database system. End users of embedded Derby do not see Derby directly; they talk to a application that embeds Derby. So Derby left most of the access control work to the application. Under this scheme, Derby limits access on a per database or per system basis. A user can be granted full, read-only, or no access. 
+
+This is less suitable in a general purpose SQL server. When end users or diverse applications can issue SQL commands directly against the database, Derby must provide more precise mechanisms to limit who can do what with the database.
+
+I propose to enhance Derby by implementing a subset of grant/revoke capabilities as specified by the SQL standard. I envision this work to involve the following tasks, at least:
+
+1) Develop a specification of what capabilities I would like to add to Derby.
+2) Provide a high level implementation scheme.
+3) Pursue a staged development plan, with support for DDL added to Derby first.
+4) Add support for runtime checking of these privileges.
+5) Address migration and upgrade issues from previous releases and from old scheme to newer database.
+
+Since I think this is a large task, I would like to invite any interested people to work with me on this large and important enhancement to Derby.

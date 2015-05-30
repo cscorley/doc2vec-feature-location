@@ -1,0 +1,17 @@
+We use POLoad to seek into right file which has the following code: 
+
+   public void setUp() throws IOException{
+
+        String filename = lFile.getFileName();
+
+        loader = (LoadFunc)PigContext.instantiateFuncFromSpec(lFile.getFuncSpec());        
+
+        is = FileLocalizer.open(filename, pc);
+
+        loader.bindTo(filename , new BufferedPositionedInputStream(is), this.offset, Long.MAX_VALUE);
+
+    }
+
+
+
+Between opening the stream and bindTo we do not seek to the right offset. bindTo itself does not perform any seek.

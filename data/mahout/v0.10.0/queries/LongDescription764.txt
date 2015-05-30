@@ -1,0 +1,16 @@
+DataModel has a method getNumUsersWithPreferenceFor(long... itemIDs). It does what it says. However I think this is a suboptimal API (for which we have me to blame).
+
+
+	All calls to this involve 1 or 2 arguments only
+	No implementation supports more than 2 arguments, which makes the signature misleading
+	All implementations internally have some logic like "if it's 1, do X, if it's args, do Y, otherwise fail"
+	Calling this method, which happens frequently, always incurs the overhead of allocating a long[]
+
+
+
+The change is simple: make this two methods, with one and two args respectively. Implementations would then just split their current implementation into these two methods.
+
+There is no API change for callers, at all, if invoked with 1 or 2 args. I assume callers are not trying 3+ args now, as it has never been supported.
+It does involve a straightforward change to implementors of DataModel.
+
+Open for comment?

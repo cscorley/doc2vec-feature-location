@@ -1,0 +1,39 @@
+I'd like to propose a set of small API changes in our recommender code. 
+
+
+	add a method allSimilarItemIDs(long itemID) to ItemSimilarity, which returns the ids of all similar items
+	make sure that GenericItemBasedRecommender.recommend(...) only makes a single call to the DataModel with which it retrieves all preferences for the user to recommend items for
+
+
+
+
+	add a new strategy for finding candidate items for the most-similar-items and recommendation computation that only calls ItemSimilarity.allSimilarItemIDs(...) and doesn't need to call anything on the DataModel
+	and an option to GenericItemSimilarity to make it create an in-memory-index to allow retrieval of all similar items per item in constant time
+
+
+
+
+The purpose of these changes is to make it possible to run a very efficient recommender for usecases, where the major purpose of the recommender is to answer requests for most-similar-items and it you only have to compute "real" recommendations from time to time. A typical scenario where these conditions are met is e-commerce, you have lots of most-similar-items calls as users browse product pages and fill their shopping carts and for the minority of users that log in you have to provide personalized product recommendations.
+
+With the proposed changes, you need to precompute the item-similarities and load them into memory, either from a file with FileItemSimilarity or from a database with the new MySQLJDBCInMemoryItemSimilarity and use a GenericItemBasedRecommender with the AllSimilarItemsCandidateItemsStrategy. Requests for most-similar-items can be completely answered from memory (in nearly constant time) without having to touch the DataModel. Answering 100 requests per second on a single machine are no problem using this approach.
+
+We can then use a DataModel that does not need to reside in memory because its only task is to act as a repository for the users' preferences. When we compute personalized recommendations we need to do exactly one single call to the datastore to retrieve all the preferences for the user we wanna compute recommendations for. This single call should be very fast with our already existing jdbc-backed DataModel's and it should be easy to implement it equally fast in other datastores like Solr for example. One could even start thinking about sharded DataModels with this approach.
+
+Another very big advantage of this approach is that user preferences can now be updated in realtime as we never need to refresh the datamodel. We only need to refresh the item-similarities from time to time. Memory requirements for the recommender machines would drop drastically as we only have to store the item-similarities in RAM whose number should be orders of magnitude smaller than the number of preferences.
+
+The API changes in the patch should be fully backwards compatible, so that this new approach is only an additional way to use our recommender code and all currently existing approaches still work as before.
+
+Here is an example how such a setup would work using a MySQL database:
+
+
+DataSource dataSource = ...
+DataModel dataModel = new MySQLJDBCDataModel(dataSource);
+
+/* load all item-similarities into memory, create an index for fast retrieval of all-similar-item-ids */
+ItemSimilarity itemSimilarity = MySQLJDBCInMemoryItemSimilarity(dataSource, true);
+
+/* the candidate items for recommendation and most-similar-items are only fetched from our in-memory data structures by this strategy*/
+AllSimilarItemsCandidateItemsStrategy allSimilarItemsStrategy = new AllSimilarItemsCandidateItemsStrategy(itemSimilarity);
+
+ItemBasedRecommender recommender = new GenericItemBasedRecommender(dataModel, itemSimilarity, allSimilarItemsStrategy, allSimilarItemsStrategy);
+

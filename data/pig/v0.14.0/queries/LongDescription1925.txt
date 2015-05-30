@@ -1,0 +1,10 @@
+When Parser emits an error from one of the tree parsers (like AST validation or plan generation), Line number is missing or printed as Line 0:0. Further investigation shows that Antlr 3.2 isn't able to report the correct line number and line offset. We need to address it in Pig code.
+
+The following is an example.
+
+grunt> A = load 'x' as (u, v, u, w);
+2011-03-21 10:04:44,486 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 0: Duplicated alias in schema: u
+
+
+It's desirable to have line number/offset in such kind of error messages.
+

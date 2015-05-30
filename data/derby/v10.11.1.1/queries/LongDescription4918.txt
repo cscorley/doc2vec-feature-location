@@ -1,0 +1,3 @@
+The class SPSDescriptor is kind of hard to understand, and doesn't quite follow the pattern used by other tuple descriptors. Parts of the code don't agree with the documentation (i.e. SPS_TYPE_TRIGGER marked as not implemented)
+This issue tracks work to make the class easier to understand and to modify.
+The critical part that may need to be changed is the use of synchronized (this). The problem is that database locks are obtained within the critical regions, and in some special cases this causes deadlocks. I'm not yet certain this can be fixed at this level (only), but I'll continue investigation.

@@ -1,0 +1,8 @@
+The tests memory.BlobMemTest and memory.ClobMemTest have a tearDown() method that looks like this:
+
+    public void tearDown() throws SQLException 
+{
+        rollback();
+    }
+
+They should also call super.tearDown() in order to perform some additional clean-up (like closing of connection and statements). Since the tearDown() method in BaseJDBCTestCase will also take care of calling rollback() on the connection, there's not actually any need for a specialized tearDown() method in these tests, so I suggest we just remove the methods and let the classes inherit the method from BaseJDBCTestCase.

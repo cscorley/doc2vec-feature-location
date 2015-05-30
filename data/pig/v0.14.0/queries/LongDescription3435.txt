@@ -1,0 +1,17 @@
+When looking at PIG-3385, noticed some issues in handling of custom partitioner with multi-query optimization.
+
+
+C1 = group B1 by col1 PARTITION BY
+       org.apache.pig.test.utils.SimpleCustomPartitioner parallel 2;
+C2 = group B2 by col1 PARTITION BY
+       org.apache.pig.test.utils.SimpleCustomPartitioner parallel 2;
+
+
+This seems to be merged to one mapreduce job correctly but custom partitioner information was lost.
+
+
+C1 = group B1 by col1 PARTITION BY org.apache.pig.test.utils.SimpleCustomPartitioner parallel 2;
+C2 = group B2 by col1 parallel 2;
+
+
+This seems to be merged even though they should run on two different partitioner.

@@ -1,0 +1,22 @@
+Today when I go through the source code , I find the following duplicate code in LOPrinter.java  (line 153 — line 170)
+
+
+           else if(node instanceof LOJoin){
+                MultiMap<LogicalOperator, LogicalPlan> plans = ((LOJoin)node).getJoinPlans();
+                for (LogicalOperator lo : plans.keySet()) {
+                    // Visit the associated plans
+                    for (LogicalPlan plan : plans.get(lo)) {
+                        sb.append(planString(plan));
+                    }
+                }
+            }
+            else if(node instanceof LOJoin){
+                MultiMap<LogicalOperator, LogicalPlan> plans = ((LOJoin)node).getJoinPlans();
+                for (LogicalOperator lo : plans.keySet()) {
+                    // Visit the associated plans
+                    for (LogicalPlan plan : plans.get(lo)) {
+                        sb.append(planString(plan));
+                    }
+                }
+            }
+

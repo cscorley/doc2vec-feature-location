@@ -1,0 +1,16 @@
+This sequence of statements causes an error because the scalar sub-query supposedly doesn't return exactly one row, even though it does return exactly one row:
+
+ij> create table t (x int unique, y int);
+0 rows inserted/updated/deleted
+ij> insert into t values (1,2);
+1 row inserted/updated/deleted
+ij> select * from t where x > (values 1 union select y from t where 1=0);
+ERROR 21000: Scalar subquery is only allowed to return a single row.
+ij> values 1 union select y from t where 1=0;
+1          
+-----------
+1          
+
+1 row selected
+
+Before DERBY-4391, the problematic statement would have caused a NullPointerException.

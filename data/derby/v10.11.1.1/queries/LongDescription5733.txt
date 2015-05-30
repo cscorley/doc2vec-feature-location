@@ -1,0 +1,8 @@
+The test lang.OrderByAndSortAvoidance contains characters that can't be mapped to 7-bit ASCII. This results in warnings when generating the Javadocs.
+For instance:
+java/testing/org/apache/derbyTesting/functionTests/tests/lang/OrderByAndSortAvoidance.java:2959: warning: unmappable character for encoding ASCII
+    insertTable2(it2, 15032385537L, "BatchTypeInstructions", "Ne pas jeter ces documents.  Ils ont t faits pour quelque chose.");
+
+This can be remedied by using a different system locale, but the question is whether we should use char literals in the source code instead?
+Most systems use the C locale by default, as is the case for (at least one of) the build servers we use (search for "Ils ont" or move down a few pages):
+https://builds.apache.org/job/Derby-trunk/1306/console

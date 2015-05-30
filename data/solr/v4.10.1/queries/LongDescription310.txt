@@ -1,0 +1,13 @@
+> Mike:
+>> Could happen when doDeleting the pending docs too.  James: try
+>> sending commit every 500k docs or so.
+
+Yonik:
+> Hmmm, right... some of the memory usage will be related to the treemap
+> keeping track of deleted items, and some of it will be related to the
+> reader itself (the term index, and the norms).
+
+> Perhaps we should have some sort of limit on the number of deletions
+> we cache so people don't have to worry about that part.
+
+Good idea.  Perhaps a solrconfig.xml setting, <maxPendingDocs>?  Default to 100k?

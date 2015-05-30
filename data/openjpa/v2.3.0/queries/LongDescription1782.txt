@@ -1,0 +1,8 @@
+A problem was found while using some Glassfish Java EE 6 samples with the OpenJPA provider.  
+The sample was using double quotes for a literal on the "NOT LIKE" expression instead of the required single quotes:
+
+select count(l) from LogRecord l where l.record NOT LIKE "Canceling timer%"
+
+We do not allow double quoted literals in JPQL queries. The above JPQL resulted an error with text message:
+
+Lexical error at line 1, column 58.  Encountered: "\"" (34), after : ""

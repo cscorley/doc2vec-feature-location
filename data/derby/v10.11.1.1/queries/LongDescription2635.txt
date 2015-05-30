@@ -1,0 +1,274 @@
+I have seen the following intermittent error at least 3 times in my environment.  I am really interest to know if anyone else is seeing it - or maybe I just have
+a flakey disk/hardware.  The underlying problem of an interrupt causing a nio failure I believe is reported somewhere else but I have no idea why this unit
+test is the only thing to see it in my environment - never any other test .  This was encountered when running the entire set of tests, each time.
+
+
+The diff is:
+
+	
+	
+		
+		
+			
+			
+				
+				
+					
+					
+						
+						
+							
+							
+								
+								
+									Diff file derbyall/storeall/storeunit/T_RawStoreFactory.diff
+								
+								
+							
+							
+						
+						
+					
+					
+				
+				
+			
+			
+			Start: T_RawStoreFactory jdk1.5.0 storeall:storeunit 2007-05-10 15:27:49 ***
+2 del
+< – Unit Test T_RawStoreFactory finished
+2 add
+> Shutting down due to unit test failure.
+Test Failed.
+			End:   T_RawStoreFactory jdk1.5.0 storeall:storeunit 2007-05-10 15:28:30 ***
+		
+		
+	
+	
+
+
+
+The interesting stack from the derby.log is:
+[main] Pass - RawStoreFactory P024^M
+2007-05-07 10:40:54.716 GMT Thread[main,5,main] Cleanup action starting^M
+ERROR XSDF1: Exception during creation of file C:\p4\m2\systest\out\derby\derbya
+ll\storeall\storeunit\storeunit\rawStoreTest\seg0\c11266207000.dat for container
+^M
+    at org.apache.derby.iapi.error.StandardException.newException(StandardExcept
+ion.java:309)^M
+    at org.apache.derby.impl.store.raw.data.RAFContainer.run(RAFContainer.java:1
+353)^M
+    at java.security.AccessController.doPrivileged(AccessController.java:242)^M
+    at org.apache.derby.impl.store.raw.data.RAFContainer.createContainer(RAFCont
+ainer.java:812)^M
+    at org.apache.derby.impl.store.raw.data.RAFContainer4.createContainer(RAFCon
+tainer4.java:123)^M
+    at org.apache.derby.impl.store.raw.data.FileContainer.createIdent(FileContai
+ner.java:476)^M
+    at org.apache.derby.impl.store.raw.data.RAFContainer.createIdentity(RAFConta
+iner.java:149)^M
+    at org.apache.derby.impl.services.cache.CachedItem.takeOnIdentity(CachedItem
+.java:220)^M
+    at org.apache.derby.impl.services.cache.Clock.addEntry(Clock.java:800)^M
+    at org.apache.derby.impl.services.cache.Clock.create(Clock.java:448)^M
+    at org.apache.derby.impl.store.raw.data.BaseDataFileFactory.addContainer(Bas
+eDataFileFactory.java:810)^M
+    at org.apache.derby.impl.store.raw.xact.Xact.addContainer(Xact.java:1344)^M
+    at org.apache.derbyTesting.unitTests.store.T_Util.t_addContainer(T_Util.java
+:936)^M
+    at org.apache.derbyTesting.unitTests.store.T_RawStoreFactory.P030(T_RawStore
+Factory.java:3722)^M
+    at org.apache.derbyTesting.unitTests.store.T_RawStoreFactory.runEachTest(T_R
+awStoreFactory.java:321)^M
+    at org.apache.derbyTesting.unitTests.store.T_RawStoreFactory.runTestSet(T_Ra
+wStoreFactory.java:242)^M
+    at org.apache.derbyTesting.unitTests.harness.T_MultiIterations.runTests(T_Mu
+ltiIterations.java:95)^M
+    at org.apache.derbyTesting.unitTests.harness.T_MultiThreadedIterations.runTe
+sts(T_MultiThreadedIterations.java:92)^M
+    at org.apache.derbyTesting.unitTests.harness.T_Generic.Execute(T_Generic.jav
+a:118)^M
+    at org.apache.derbyTesting.unitTests.harness.BasicUnitTestManager.runATest(B
+asicUnitTestManager.java:184)^M
+    at org.apache.derbyTesting.unitTests.harness.BasicUnitTestManager.runTests(B
+asicUnitTestManager.java:246)^M
+    at org.apache.derbyTesting.unitTests.harness.BasicUnitTestManager.boot(Basic
+UnitTestManager.java:93)^M
+    at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:
+1994)^M
+    at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.j
+ava:291)^M
+    at org.apache.derby.impl.services.monitor.BaseMonitor.bootService(BaseMonito
+r.java:1829)^M
+    at org.apache.derby.impl.services.monitor.BaseMonitor.startServices(BaseMoni
+tor.java:970)^M
+    at org.apache.derby.impl.services.monitor.BaseMonitor.runWithState(BaseMonit
+or.java:402)^M
+    at org.apache.derby.impl.services.monitor.FileMonitor.<init>(FileMonitor.jav
+a:60)^M
+    at org.apache.derby.iapi.services.monitor.Monitor.startMonitor(Monitor.java:
+289)^M
+    at org.apache.derbyTesting.unitTests.harness.UnitTestMain.main(UnitTestMain.
+java:51)^M
+============= begin nested exception, level (1) ===========^M
+java.nio.channels.ClosedByInterruptException^M
+    at java.nio.channels.spi.AbstractInterruptibleChannel.end(AbstractInterrupti
+bleChannel.java:212)^M
+    at sun.nio.ch.FileChannelImpl.force(FileChannelImpl.java:396)^M
+    at org.apache.derby.impl.io.DirRandomAccessFile4.sync(DirRandomAccessFile4.j
+ava:73)^M
+    at org.apache.derby.impl.store.raw.data.RAFContainer.writeRAFHeader(RAFConta
+iner.java:708)^M
+    at org.apache.derby.impl.store.raw.data.RAFContainer.run(RAFContainer.java:1
+331)^M
+    at java.security.AccessController.doPrivileged(AccessController.java:242)^M
+    at org.apache.derby.impl.store.raw.data.RAFContainer.createContainer(RAFCont
+ainer.java:812)^M
+    at org.apache.derby.impl.store.raw.data.RAFContainer4.createContainer(RAFCon
+tainer4.java:123)^M
+    at org.apache.derby.impl.store.raw.data.FileContainer.createIdent(FileContai
+ner.java:476)^M
+    at org.apache.derby.impl.store.raw.data.RAFContainer.createIdentity(RAFConta
+iner.java:149)^M
+    at org.apache.derby.impl.services.cache.CachedItem.takeOnIdentity(CachedItem
+.java:220)^M
+    at org.apache.derby.impl.services.cache.Clock.addEntry(Clock.java:800)^M
+    at org.apache.derby.impl.services.cache.Clock.create(Clock.java:448)^M
+    at org.apache.derby.impl.store.raw.data.BaseDataFileFactory.addContainer(Bas
+eDataFileFactory.java:810)^M
+    at org.apache.derby.impl.store.raw.xact.Xact.addContainer(Xact.java:1344)^M
+    at org.apache.derbyTesting.unitTests.store.T_Util.t_addContainer(T_Util.java
+:936)^M
+    at org.apache.derbyTesting.unitTests.store.T_RawStoreFactory.P030(T_RawStore
+Factory.java:3722)^M
+    at org.apache.derbyTesting.unitTests.store.T_RawStoreFactory.runEachTest(T_R
+awStoreFactory.java:321)^M
+    at org.apache.derbyTesting.unitTests.store.T_RawStoreFactory.runTestSet(T_Ra
+wStoreFactory.java:242)^M
+    at org.apache.derbyTesting.unitTests.harness.T_MultiIterations.runTests(T_Mu
+ltiIterations.java:95)^M
+    at org.apache.derbyTesting.unitTests.harness.T_MultiThreadedIterations.runTe
+sts(T_MultiThreadedIterations.java:92)^M
+    at org.apache.derbyTesting.unitTests.harness.T_Generic.Execute(T_Generic.jav
+a:118)^M
+    at org.apache.derbyTesting.unitTests.harness.BasicUnitTestManager.runATest(B
+asicUnitTestManager.java:184)^M
+    at org.apache.derbyTesting.unitTests.harness.BasicUnitTestManager.runTests(B
+asicUnitTestManager.java:246)^M
+    at org.apache.derbyTesting.unitTests.harness.BasicUnitTestManager.boot(Basic
+UnitTestManager.java:93)^M
+    at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:
+1994)^M
+    at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.j
+ava:291)^M
+    at org.apache.derby.impl.services.monitor.BaseMonitor.bootService(BaseMonito
+r.java:1829)^M
+    at org.apache.derby.impl.services.monitor.BaseMonitor.startServices(BaseMoni
+tor.java:970)^M
+    at org.apache.derby.impl.services.monitor.BaseMonitor.runWithState(BaseMonit
+or.java:402)^M
+    at org.apache.derby.impl.services.monitor.FileMonitor.<init>(FileMonitor.jav
+a:60)^M
+    at org.apache.derby.iapi.services.monitor.Monitor.startMonitor(Monitor.java:
+289)^M
+    at org.apache.derbyTesting.unitTests.harness.UnitTestMain.main(UnitTestMain.
+java:51)^M
+============= end nested exception, level (1) ===========^M
+Cleanup action completed^M
+============= end nested exception, level (1) ===========^M
+Cleanup action completed^M
+[main] FAIL - org.apache.derbyTesting.unitTests.harness.T_Fail: The test failed
+with an exception: ERROR XSDF1: Exception during creation of file C:\p4\m2\syste
+st\out\derby\derbyall\storeall\storeunit\storeunit\rawStoreTest\seg0\c1126620700
+0.dat for container^M
+org.apache.derbyTesting.unitTests.harness.T_Fail: The test failed with an except
+ion: ERROR XSDF1: Exception during creation of file C:\p4\m2\systest\out\derby\d
+erbyall\storeall\storeunit\storeunit\rawStoreTest\seg0\c11266207000.dat for cont
+ainer^M
+    at org.apache.derbyTesting.unitTests.harness.T_Fail.exceptionFail(T_Fail.jav
+a:73)^M
+    at org.apache.derbyTesting.unitTests.store.T_RawStoreFactory.runTestSet(T_Ra
+wStoreFactory.java:262)^M
+    at org.apache.derbyTesting.unitTests.harness.T_MultiIterations.runTests(T_Mu
+ltiIterations.java:95)^M
+    at org.apache.derbyTesting.unitTests.harness.T_MultiThreadedIterations.runTe
+sts(T_MultiThreadedIterations.java:92)^M
+    at org.apache.derbyTesting.unitTests.harness.T_Generic.Execute(T_Generic.jav
+a:118)^M
+    at org.apache.derbyTesting.unitTests.harness.BasicUnitTestManager.runATest(B
+asicUnitTestManager.java:184)^M
+    at org.apache.derbyTesting.unitTests.harness.BasicUnitTestManager.runTests(B
+asicUnitTestManager.java:246)^M
+    at org.apache.derbyTesting.unitTests.harness.BasicUnitTestManager.boot(Basic
+UnitTestManager.java:93)^M
+    at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:
+1994)^M
+    at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.j
+ava:291)^M
+    at org.apache.derby.impl.services.monitor.BaseMonitor.bootService(BaseMonito
+r.java:1829)^M
+    at org.apache.derby.impl.services.monitor.BaseMonitor.startServices(BaseMoni
+tor.java:970)^M
+    at org.apache.derby.impl.services.monitor.BaseMonitor.runWithState(BaseMonit
+or.java:402)^M
+    at org.apache.derby.impl.services.monitor.FileMonitor.<init>(FileMonitor.jav
+a:60)^M
+    at org.apache.derby.iapi.services.monitor.Monitor.startMonitor(Monitor.java:
+289)^M
+    at org.apache.derbyTesting.unitTests.harness.UnitTestMain.main(UnitTestMain.
+java:51)^M
+2007-05-07 10:40:54.716 GMT Thread[main,5,main] Test 'org.apache.derbyTesting.un
+itTests.store.T_RawStoreFactory' failed^M
+2007-05-07 10:40:54.716 GMT Thread[main,5,main] Test Summary - Run 1, Passed 0,
+Failed 1, Skipped 0.^M
+2007-05-07 10:40:54.716 GMT Thread[main,5,main] Shutting down due to unit test f
+ailure, see log for more information.^M
+
+------------  BEGIN SHUTDOWN ERROR STACK -------------
+ERROR XSDG1: Page Page(0,Container(0, 1178534440927)) could not be written to di
+sk, please check if disk is full.^M
+    at org.apache.derby.iapi.error.StandardException.newException(StandardExcept
+ion.java:349)^M
+    at org.apache.derby.impl.store.raw.data.CachedPage.writePage(CachedPage.java
+:817)^M
+    at org.apache.derby.impl.store.raw.data.CachedPage.clean(CachedPage.java:608
+)^M
+    at org.apache.derby.impl.services.cache.CachedItem.clean(CachedItem.java:173
+)^M
+    at org.apache.derby.impl.services.cache.Clock.cleanCache(Clock.java:1381)^M
+    at org.apache.derby.impl.services.cache.Clock.cleanAll(Clock.java:619)^M
+    at org.apache.derby.impl.store.raw.data.BaseDataFileFactory.checkpoint(BaseD
+ataFileFactory.java:1200)^M
+    at org.apache.derby.impl.store.raw.log.LogToFile.checkpointWithTran(LogToFil
+e.java:1521)^M
+    at org.apache.derby.impl.store.raw.log.LogToFile.checkpoint(LogToFile.java:1
+360)^M
+    at org.apache.derby.impl.store.raw.RawStore.stop(RawStore.java:337)^M
+    at org.apache.derby.impl.services.monitor.TopService.stop(TopService.java:40
+5)^M
+    at org.apache.derby.impl.services.monitor.TopService.shutdown(TopService.jav
+a:349)^M
+    at org.apache.derby.impl.services.monitor.BaseMonitor.shutdown(BaseMonitor.j
+ava:235)^M
+    at org.apache.derby.impl.services.monitor.BaseMonitor.shutdown(BaseMonitor.j
+ava:201)^M
+    at org.apache.derbyTesting.unitTests.harness.BasicUnitTestManager.boot(Basic
+UnitTestManager.java:103)^M
+    at org.apache.derby.impl.services.monitor.BaseMonitor.boot(BaseMonitor.java:
+1994)^M
+    at org.apache.derby.impl.services.monitor.TopService.bootModule(TopService.j
+ava:291)^M
+    at org.apache.derby.impl.services.monitor.BaseMonitor.bootService(BaseMonito
+r.java:1829)^M
+    at org.apache.derby.impl.services.monitor.BaseMonitor.startServices(BaseMoni
+tor.java:970)^M
+    at org.apache.derby.impl.services.monitor.BaseMonitor.runWithState(BaseMonit
+or.java:402)^M
+    at org.apache.derby.impl.services.monitor.FileMonitor.<init>(FileMonitor.jav
+a:60)^M
+    at org.apache.derby.iapi.services.monitor.Monitor.startMonitor(Monitor.java:
+289)^M
+    at org.apache.derbyTesting.unitTests.harness.UnitTestMain.main(UnitTestMain.
+java:51)^M
+============= begin nested exception, level (1) ===========^M
+

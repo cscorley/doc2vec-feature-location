@@ -1,0 +1,47 @@
+When an entity with List[] attribute feeds to Annotation processor, it failed with the following exception:
+
+> javac -Aopenjpa.metamodel=true -proc:only -Aopenjpa.log=TRACE -cp openjpa.trunk\openjpa-all\target\openjpa-all-2.2.0-SNAPSHOT.jar EntityLob.java
+Note: Starting OpenJPA Annotation Processor for Metamodel Generation
+Note: Generating canonical metamodel source code "file:/c:/temp/ap/suite/r80/base/common/datamodel/entities/EntityLob_.java"
+error: Error while generating metamodel for "suite.r80.base.common.datamodel.entities.EntityLob". See exception stack trace for details.
+java.lang.IllegalArgumentException: localized message key: src-invalid-type; substitutions: [java.util.List<java.lang.String>]
+        at org.apache.openjpa.persistence.util.SourceCode$ClassName.<init>(SourceCode.java:782)
+        at org.apache.openjpa.persistence.util.SourceCode.getOrCreateImport(SourceCode.java:135)
+        at org.apache.openjpa.persistence.util.SourceCode$Element.addParameter(SourceCode.java:301)
+        at org.apache.openjpa.persistence.meta.AnnotationProcessor6.process(AnnotationProcessor6.java:258)
+        at org.apache.openjpa.persistence.meta.AnnotationProcessor6.process(AnnotationProcessor6.java:210)
+        at com.sun.tools.javac.processing.JavacProcessingEnvironment.callProcessor(JavacProcessingEnvironment.java:637)
+        at com.sun.tools.javac.processing.JavacProcessingEnvironment.discoverAndRunProcs(JavacProcessingEnvironment.java:566)
+        at com.sun.tools.javac.processing.JavacProcessingEnvironment.doProcessing(JavacProcessingEnvironment.java:711)
+        at com.sun.tools.javac.main.JavaCompiler.processAnnotations(JavaCompiler.java:993)
+        at com.sun.tools.javac.main.JavaCompiler.compile(JavaCompiler.java:739)
+        at com.sun.tools.javac.main.Main.compile(Main.java:365)
+        at com.sun.tools.javac.main.Main.compile(Main.java:291)
+        at com.sun.tools.javac.main.Main.compile(Main.java:282)
+        at com.sun.tools.javac.Main.compile(Main.java:81)
+        at com.sun.tools.javac.Main.main(Main.java:66)
+warning: Unclosed files for the types '[suite.r80.base.common.datamodel.entities.EntityLob_]'; these types will not undergo annotation proce
+ssing
+1 error
+1 warning
+
+Sample entity used to recreate the problem:
+
+@Entity
+public class EntityLob {
+
+    ....
+    private List<String>[]  entityLob_lob08;
+
+    public EntityLob() {
+    }
+
+    public List<String>[] getEntityLob_lob08() 
+{
+        return entityLob_lob08;
+    }
+    public void setEntityLob_lob08(List<String>[] l) 
+{
+        this.entityLob_lob08 = l;
+    }
+}

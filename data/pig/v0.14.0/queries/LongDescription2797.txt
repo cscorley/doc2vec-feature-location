@@ -1,0 +1,5 @@
+A number of pig tests create URIs via string concatenation when they are trying to load files with something like:
+
+commandString = "load file:" + fileName + " using "...
+
+This should just use the Util method generateURI to create the URI correctly in a cross-platform context.

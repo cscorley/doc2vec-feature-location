@@ -1,0 +1,17 @@
+Currently the CnxnFactory checks for "java.security.auth.login.config" to decide whether or not enable SASL.
+
+	zookeeper/server/NIOServerCnxnFactory.java
+	zookeeper/server/NettyServerCnxnFactory.java
+	
+		configure() checks for "java.security.auth.login.config"
+		
+			If present start the new Login("Server", SaslServerCallbackHandler(conf))
+		
+		
+	
+	
+
+
+
+But since the SaslServerCallbackHandler does the right thing just checking if getAppConfigurationEntry() is empty, we can allow SASL with JAAS configuration to be programmatically just checking weather or not a configuration entry is present instead of "java.security.auth.login.config".
+(Something quite similar was done for the SaslClient in ZOOKEEPER-1373)

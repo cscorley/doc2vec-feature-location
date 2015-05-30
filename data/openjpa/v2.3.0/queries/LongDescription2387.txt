@@ -1,0 +1,15 @@
+Take the following entity definition:
+
+@Entity @Table(name="LONG_NAME_ENTITY")
+@SequenceGenerator(name="longSequenceNameSequence",sequenceName="A_TWENTY_NINE_CHAR_LENGTH_SEQ")
+public class LongSequenceNameEntity implements Serializable
+
+As can be seen, a Sequence is defined with a name which is 29 characters long.  On a Database such as Oracle which has a 30 character limit on sequence names, among others names, this sequence is perfectly legal.  However, when a schema name is tacked onto this by OpenJPA, OpenJPA code incorrectly counts the characters of the schema in the length of the sequence name.   As such, the following exception will occur:
+
+Caused by: <openjpa-2.2.1.1-SNAPSHOT-r422266:1445654M nonfatal user error> org.apache.openjpa.persistence.ArgumentException: Sequence name "HTHOMANN.A_TWENTY_NINE_CHAR_LENGTH_SEQ" is 38-character long. The database allows maximum 30-character for a sequence name.
+	at org.apache.openjpa.jdbc.sql.DBDictionary.checkNameLength(DBDictionary.java:5358)
+	at org.apache.openjpa.jdbc.sql.DBDictionary.commonCreateAlterSequenceSQL(DBDictionary.java:3492)
+	at org.apache.openjpa.jdbc.sql.DBDictionary.getAlterSequenceSQL(DBDictionary.java:3469)
+
+
+The DBDictionary.checkNameLength in this case is counting the characters of the schema name, and sequence name.  The length of the schema name should not be included in the length of the sequence.

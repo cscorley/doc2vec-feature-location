@@ -1,0 +1,17 @@
+As we talk about adding more configuration (Handlers, Highlighting, Components, etc) we should standardize the format and share the loading and initialization code.
+
+This patch extracts the common stuff from SOLR-225 and makes it work with the RequestHandler framework.
+
+This is an abstract base class – each implementation needs to take care of actually creating and initializing the instances:
+
+abstract class PluginLoader<T>
+{
+  abstract public T create( String className, NamedList args, Map<String,String> params );
+
+  abstract public void init( T plugin, NamedList args, Map<String,String> params );
+
+  public Map<String,T> load( NodeList nodes )
+  {
+    ...
+  }
+}

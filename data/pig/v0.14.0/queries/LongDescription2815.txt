@@ -1,0 +1,24 @@
+The way PigContext.classloader and resolveClassName() are managed can lead to strange class loading issues, especially when not all register statements are at the top (example in the first comment).
+
+Two factors contribute to this: sometimes only one of them and sometimes together:
+
+
+	a new classloader (CL) is created after registering each jar.
+	
+		but the new jar's parent is the root CL rather than previous CL, effectively throwing previous CL away.
+	
+	
+	resolveClassName() caches classes based on just the name
+	
+		A class is not defined by name alone. Classes loaded by two different unrelated CLs are different objects even if both extract the class from same physical jar file.
+		because of (1), the cached class is not necessarily same as the class that would be loaded based on 'current' CL
+	
+	
+
+
+
+having different class objects for same class have many subtle side effects. e.g. there would be two instances of static variables. 
+
+I think both should be fixed.. thought fixing one of them might be good enough in many cases. I will add a patch.
+
+

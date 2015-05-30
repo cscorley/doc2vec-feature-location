@@ -1,0 +1,7 @@
+When attempting to run:
+<j9binpath>/j9 -jcl:foun10 -Dderby.system.home=<testhome> -DderbyTesting.serverhost=localhost -DderbyTesting.clienthost=localhost -DderbyTesting.codeclasses=file:/<classesdir>/ -DderbyTesting.junit=file://unused -DderbyTesting.antjunit=file://unused -Djava.security.policy=file:/<classesdir>/org/apache/derbyTesting/functionTests/util/derby_tests.policy -Xbootclasspath/a:<j9libpath>/jdbc.jar -cp <classesdir>;junit.jar junit.textui.TestRunner org.apache.derbyTesting.functionTests.suites.All 
+
+The textui.TestRunner keels over with the following error:
+Failed to invoke suite():java.lang.NoClassDefFoundError: javax.xml.parsers.DocumentBuilderFactory
+
+This happens after, but not before revision 482433. 

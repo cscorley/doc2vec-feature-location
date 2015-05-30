@@ -1,0 +1,14 @@
+When we run the script:
+register testudf.jar;
+a = load '/user/pig/tests/data/singlefile/studenttab10k' as (name, age, gpa);
+b = load '/user/pig/tests/data/singlefile/studenttab10k' as (name, age, gpa);
+c = cogroup a by name, b by name;
+d = foreach c generate flatten(org.apache.pig.test.udf.evalfunc.BadUdf(a,b));
+dump d;
+
+we get the error:
+now we get "ERROR 2088: Unable to get results for: 
+hdfs://wilbur20.labs.corp.sp1.yahoo.com:9020/tmp/temp1787360727/tmp509618997:org.apache.pig.impl.io.InterStorage".
+
+The udf is bad udf and it should throw:
+ERROR 2078: Caught error from UDF: org.apache.pig.test.udf.evalfunc.BadUdf, Out of bounds access [Index: 2, Size: 2]

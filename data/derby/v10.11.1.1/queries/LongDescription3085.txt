@@ -1,0 +1,38 @@
+Java Version:    1.6.0_02
+Java Vendor:     Sun Microsystems Inc.
+Java home:       C:\Program Files\Java\jre1.6.0_02
+Java classpath:  derbytools.jar
+OS name:         Windows XP
+OS architecture: x86
+OS version:      5.1
+Java user name:  Ma
+Java user home:  C:\Documents and Settings\ma
+Java user dir:   c:\tools\derby\lib
+java.specification.name: Java Platform API Specification
+java.specification.version: 1.6
+--------- Derby Information --------
+JRE - JDBC: Java SE 6 - JDBC 4.0
+[C:\tools\derby\lib\derbytools.jar] 10.3.1.4 - (561794)
+
+The following code fails:
+    // Data is a byte[] vector
+    ByteArrayInputStream is = new ByteArrayInputStream( data);    
+    String sql = "UPDATE MyTable SET FContents=? WHERE FName='" + name + "'";
+    PreparedStatement ps = conn.prepareStatement( sql);
+    ps.setBinaryStream( 1, is, data.length);
+
+    if( ps.executeUpdate() == 0)
+    {
+        // it throws an exception here if the data array us larger then around 32750 bytes!!!
+    }
+
+It look's like when the size of the data[] vector is > 32750 bytes or so it throws an exception like this:
+java.sql.SQLException: A network protocol error was encountered and the connection has been terminated: A PROTOCOL Data Stream Syntax Error was detected.  Reason: 0x0. Plaintext connection attempt to an SSL enabled server?
+        at org.apache.derby.client.am.SQLExceptionFactory40.getSQLException(Unknown Source)
+        at org.apache.derby.client.am.SqlException.getSQLException(Unknown Source)
+        at org.apache.derby.client.am.PreparedStatement.executeUpdate(Unknown Source)
+
+The table is defined as:
+    CREATE TABLE MyTable (FName varchar(300) NOT NULL,FContents BLOB(16M) NOT NULL)
+
+It does loook like this only happens with the NetWork client driver, the embedded driver works fine.

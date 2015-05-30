@@ -1,0 +1,56 @@
+On OpenJDK, javax.security.auth.login.Configuration.getConfiguration does not throw an exception.  ZooKeeperSaslClient.clientTunneledAuthenticationInProgress uses an exception from that method as a proxy for "this client is not configured to use SASL" and as a result no commands can be sent, since it is still waiting for auth to complete.
+
+Link to mailing list discussion
+
+The relevant bit of logs from OpenJDK and Oracle versions of 'connect and do getChildren("/")':
+
+OpenJDK
+
+INFO [main] 2012-09-25 14:02:24,545 com.socrata.Main Waiting for connection...
+DEBUG [main] 2012-09-25 14:02:24,548 com.socrata.zookeeper.ZooKeeperProvider Waiting for connected-state...
+INFO [main-SendThread(mike.local:2181)] 2012-09-25 14:02:24,576 org.apache.zookeeper.ClientCnxn Opening socket connection to server mike.local/10.0.2.106:2181. Will not attempt to authenticate using SASL (unknown error)
+INFO [main-SendThread(mike.local:2181)] 2012-09-25 14:02:24,584 org.apache.zookeeper.ClientCnxn Socket connection established to mike.local/10.0.2.106:2181, initiating session
+DEBUG [main-SendThread(mike.local:2181)] 2012-09-25 14:02:24,586 org.apache.zookeeper.ClientCnxn Session establishment request sent on mike.local/10.0.2.106:2181
+INFO [main-SendThread(mike.local:2181)] 2012-09-25 14:02:24,600 org.apache.zookeeper.ClientCnxn Session establishment complete on server mike.local/10.0.2.106:2181, sessionid = 0x139ff2e85b60005, negotiated timeout = 40000
+DEBUG [main-EventThread] 2012-09-25 14:02:24,614 com.socrata.zookeeper.ZooKeeperProvider ConnectionStateChanged(Connected)
+DEBUG [main-SendThread(mike.local:2181)] 2012-09-25 14:02:24,636 org.apache.zookeeper.ClientCnxnSocketNIO deferring non-priming packet: clientPath:/ serverPath:/ finished:false header:: 0,12  replyHeader:: 0,0,0 request:: '/,F  response:: v{} until SASL authentication completes.
+DEBUG [main-SendThread(mike.local:2181)] 2012-09-25 14:02:37,923 org.apache.zookeeper.ClientCnxnSocketNIO deferring non-priming packet: clientPath:/ serverPath:/ finished:false header:: 0,12  replyHeader:: 0,0,0 request:: '/,F  response:: v{} until SASL authentication completes.
+DEBUG [main-SendThread(mike.local:2181)] 2012-09-25 14:02:37,924 org.apache.zookeeper.ClientCnxnSocketNIO deferring non-priming packet: clientPath:/ serverPath:/ finished:false header:: 0,12  replyHeader:: 0,0,0 request:: '/,F  response:: v{} until SASL authentication completes.
+DEBUG [main-SendThread(mike.local:2181)] 2012-09-25 14:02:37,924 org.apache.zookeeper.ClientCnxnSocketNIO deferring non-priming packet: clientPath:null serverPath:null finished:false header:: -2,11  replyHeader:: null request:: null response:: nulluntil SASL authentication completes.
+DEBUG [main-SendThread(mike.local:2181)] 2012-09-25 14:02:51,260 org.apache.zookeeper.ClientCnxnSocketNIO deferring non-priming packet: clientPath:/ serverPath:/ finished:false header:: 0,12  replyHeader:: 0,0,0 request:: '/,F  response:: v{} until SASL authentication completes.
+DEBUG [main-SendThread(mike.local:2181)] 2012-09-25 14:02:51,260 org.apache.zookeeper.ClientCnxnSocketNIO deferring non-priming packet: clientPath:null serverPath:null finished:false header:: -2,11  replyHeader:: null request:: null response:: nulluntil SASL authentication completes.
+DEBUG [main-SendThread(mike.local:2181)] 2012-09-25 14:02:51,261 org.apache.zookeeper.ClientCnxnSocketNIO deferring non-priming packet: clientPath:/ serverPath:/ finished:false header:: 0,12  replyHeader:: 0,0,0 request:: '/,F  response:: v{} until SASL authentication completes.
+DEBUG [main-SendThread(mike.local:2181)] 2012-09-25 14:02:51,261 org.apache.zookeeper.ClientCnxnSocketNIO deferring non-priming packet: clientPath:null serverPath:null finished:false header:: -2,11  replyHeader:: null request:: null response:: nulluntil SASL authentication completes.
+DEBUG [main-SendThread(mike.local:2181)] 2012-09-25 14:02:51,261 org.apache.zookeeper.ClientCnxnSocketNIO deferring non-priming packet: clientPath:null serverPath:null finished:false header:: -2,11  replyHeader:: null request:: null response:: nulluntil SASL authentication completes.
+DEBUG [main-SendThread(mike.local:2181)] 2012-09-25 14:02:51,265 org.apache.zookeeper.ClientCnxnSocketNIO deferring non-priming packet: clientPath:/ serverPath:/ finished:false header:: 0,12  replyHeader:: 0,0,0 request:: '/,F  response:: v{} until SASL authentication completes.
+DEBUG [main-SendThread(mike.local:2181)] 2012-09-25 14:02:51,265 org.apache.zookeeper.ClientCnxnSocketNIO deferring non-priming packet: clientPath:null serverPath:null finished:false header:: -2,11  replyHeader:: null request:: null response:: nulluntil SASL authentication completes.
+DEBUG [main-SendThread(mike.local:2181)] 2012-09-25 14:02:51,266 org.apache.zookeeper.ClientCnxnSocketNIO deferring non-priming packet: clientPath:null serverPath:null finished:false header:: -2,11  replyHeader:: null request:: null response:: nulluntil SASL authentication completes.
+INFO [main-SendThread(mike.local:2181)] 2012-09-25 14:02:51,266 org.apache.zookeeper.ClientCnxn Client session timed out, have not heard from server in 26668ms for sessionid 0x139ff2e85b60005, closing socket connection and attempting reconnect
+DEBUG [main-EventThread] 2012-09-25 14:02:51,377 com.socrata.zookeeper.ZooKeeperProvider ConnectionStateChanged(Disconnected)
+
+
+
+Oracle
+
+INFO [main] 2012-09-25 14:03:16,315 com.socrata.Main Waiting for connection...
+DEBUG [main] 2012-09-25 14:03:16,319 com.socrata.zookeeper.ZooKeeperProvider Waiting for connected-state...
+INFO [main-SendThread(10.0.2.106:2181)] 2012-09-25 14:03:16,335 org.apache.zookeeper.ClientCnxn Opening socket connection to server 10.0.2.106/10.0.2.106:2181. Will not attempt to authenticate using SASL (Unable to locate a login configuration)
+INFO [main-SendThread(10.0.2.106:2181)] 2012-09-25 14:03:16,344 org.apache.zookeeper.ClientCnxn Socket connection established to 10.0.2.106/10.0.2.106:2181, initiating session
+DEBUG [main-SendThread(10.0.2.106:2181)] 2012-09-25 14:03:16,346 org.apache.zookeeper.ClientCnxn Session establishment request sent on 10.0.2.106/10.0.2.106:2181
+DEBUG [main-SendThread(10.0.2.106:2181)] 2012-09-25 14:03:16,347 org.apache.zookeeper.client.ZooKeeperSaslClient Could not retrieve login configuration: java.lang.SecurityException: Unable to locate a login configuration
+DEBUG [main-SendThread(10.0.2.106:2181)] 2012-09-25 14:03:16,351 org.apache.zookeeper.client.ZooKeeperSaslClient Could not retrieve login configuration: java.lang.SecurityException: Unable to locate a login configuration
+INFO [main-SendThread(10.0.2.106:2181)] 2012-09-25 14:03:16,368 org.apache.zookeeper.ClientCnxn Session establishment complete on server 10.0.2.106/10.0.2.106:2181, sessionid = 0x139ff2e85b60006, negotiated timeout = 40000
+DEBUG [main-SendThread(10.0.2.106:2181)] 2012-09-25 14:03:16,371 org.apache.zookeeper.client.ZooKeeperSaslClient Could not retrieve login configuration: java.lang.SecurityException: Unable to locate a login configuration
+DEBUG [main-SendThread(10.0.2.106:2181)] 2012-09-25 14:03:16,371 org.apache.zookeeper.client.ZooKeeperSaslClient Could not retrieve login configuration: java.lang.SecurityException: Unable to locate a login configuration
+DEBUG [main-EventThread] 2012-09-25 14:03:16,385 com.socrata.zookeeper.ZooKeeperProvider ConnectionStateChanged(Connected)
+DEBUG [main-SendThread(10.0.2.106:2181)] 2012-09-25 14:03:16,417 org.apache.zookeeper.client.ZooKeeperSaslClient Could not retrieve login configuration: java.lang.SecurityException: Unable to locate a login configuration
+DEBUG [main-SendThread(10.0.2.106:2181)] 2012-09-25 14:03:16,417 org.apache.zookeeper.client.ZooKeeperSaslClient Could not retrieve login configuration: java.lang.SecurityException: Unable to locate a login configuration
+DEBUG [main-SendThread(10.0.2.106:2181)] 2012-09-25 14:03:16,417 org.apache.zookeeper.client.ZooKeeperSaslClient Could not retrieve login configuration: java.lang.SecurityException: Unable to locate a login configuration
+DEBUG [main-SendThread(10.0.2.106:2181)] 2012-09-25 14:03:16,418 org.apache.zookeeper.client.ZooKeeperSaslClient Could not retrieve login configuration: java.lang.SecurityException: Unable to locate a login configuration
+DEBUG [main-SendThread(10.0.2.106:2181)] 2012-09-25 14:03:16,418 org.apache.zookeeper.client.ZooKeeperSaslClient Could not retrieve login configuration: java.lang.SecurityException: Unable to locate a login configuration
+DEBUG [main-SendThread(10.0.2.106:2181)] 2012-09-25 14:03:16,431 org.apache.zookeeper.client.ZooKeeperSaslClient Could not retrieve login configuration: java.lang.SecurityException: Unable to locate a login configuration
+DEBUG [main-SendThread(10.0.2.106:2181)] 2012-09-25 14:03:16,438 org.apache.zookeeper.client.ZooKeeperSaslClient Could not retrieve login configuration: java.lang.SecurityException: Unable to locate a login configuration
+DEBUG [main-SendThread(10.0.2.106:2181)] 2012-09-25 14:03:16,443 org.apache.zookeeper.ClientCnxn Reading reply sessionid:0x139ff2e85b60006, packet:: clientPath:/ serverPath:/ finished:false header:: 1,12  replyHeader:: 1,8292982,0  request:: '/,F  response:: v{'ro,'row-index,'zkbtest,'consumers,'reindex,'hotstandby,'bigdir,'vs,'orestes,'eurybates,'shardedcly,'row-locks,'id-counter,'zookeeper,'cly,'locks,'rwlocks,'tickets,'brokers},s{0,0,0,0,0,61,0,0,0,19,8292893}
+DEBUG [main-SendThread(10.0.2.106:2181)] 2012-09-25 14:03:16,444 org.apache.zookeeper.client.ZooKeeperSaslClient Could not retrieve login configuration: java.lang.SecurityException: Unable to locate a login configuration
+OK(Set(cly, row-locks, hotstandby, locks, tickets, bigdir, zkbtest, row-index, reindex, id-counter, eurybates, vs, rwlocks, shardedcly, brokers, consumers, zookeeper, orestes, ro),0,0,0,0,0,61,0,0,0,19,8292893)
+

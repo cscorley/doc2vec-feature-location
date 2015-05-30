@@ -1,0 +1,84 @@
+In Derby 10.2 and earlier an ODBC application which called the SQLForeignKeys function would return a set of "imported" and/or "exported" keys depending on the arguments passed in.  For more on that function and its arguments, see:
+
+  http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/odbcsqlforeignkeys.asp
+
+In particular we have the following (pasted from the above link):
+
+<begin paste>
+
+If *PKTableName contains a table name, SQLForeignKeys returns a result set containing the primary key of the specified table and all of the foreign keys that refer to it. The list of foreign keys in other tables does not include foreign keys that point to unique constraints in the specified table.
+
+If *FKTableName contains a table name, SQLForeignKeys returns a result set containing all of the foreign keys in the specified table that point to primary keys in others tables, and the primary keys in the other tables to which they refer. The list of foreign keys in the specified table does not contain foreign keys that refer to unique constraints in other tables.
+
+If both *PKTableName and *FKTableName contain table names, SQLForeignKeys returns the foreign keys in the table specified in *FKTableName that refer to the primary key of the table specified in *PKTableName. This should be one key at most.
+
+<end paste>
+
+Note that either PKTableName or FKTableName could be missing, i.e. could be null.
+
+Now, in org/apache/derby/catalog/SystemProcedures.java, there is a static method called "SQLFOREIGNKEYS" which, to quote the javadoc, "map[s] SQLForeignKeys to EmbedDatabaseMetaData.getImportedKeys, getExportedKeys, and getCrossReference".
+
+That method looks at some "options" that it receives from the client and makes a call to the corresponding method on EmbedDatabaseMetaData:
+
+        String exportedKeyProp = getOption("EXPORTEDKEY", options);
+        String importedKeyProp = getOption("IMPORTEDKEY", options);
+
+        if (importedKeyProp != null && importedKeyProp.trim().equals("1"))
+            rs[0] = getDMD().getImportedKeys(fkCatalogName,
+                                        fkSchemaName,fkTableName);
+        else if (exportedKeyProp != null && exportedKeyProp.trim().equals("1"))
+            rs[0] = getDMD().getExportedKeys(pkCatalogName,
+                                        pkSchemaName,pkTableName);
+        else
+            rs[0] = getDMD().getCrossReference (pkCatalogName,
+                                           pkSchemaName,
+                                           pkTableName,
+                                           fkCatalogName,
+                                           fkSchemaName,
+                                           fkTableName);
+
+That said, when running with the DB2 Runtime Client the "options" argument only contains "ODBC"; it does not (appear to) contain "IMPORTEDKEY" nor "EXPORTEDKEY".  So with that client we ultimately end up calling "getCrossReference()" every time.  And in EmbedDatabaseMetaData.getCrossReference(), we see:
+
+    PreparedStatement s = getPreparedQuery("getCrossReference");
+    s.setString(1, swapNull(primaryCatalog));
+    s.setString(2, swapNull(primarySchema));
+    s.setString(3, swapNull(primaryTable));
+    s.setString(4, swapNull(foreignCatalog));
+    s.setString(5, swapNull(foreignSchema));
+    s.setString(6, swapNull(foreignTable));
+    return s.executeQuery();
+
+That is to say, if either primaryTable or foreignTable is null, we swap it with a "%" to be used for pattern matching.  Prior to the 10.3, that worked fine.  With DERBY-2610, though, the getCrossReference query in metadata.properties was changed to disallow pattern matching for the primary key:
+
+@@ -532,11 +532,15 @@
+ #
+ #param1 = pattern for the PRIMARY CATALOG name 
+ #param2 = pattern for the PRIMARY SCHEMA name 
+-#param3 = pattern for the PRIMARY TABLE name 
++#param3 = PRIMARY TABLE name 
+ #
+ #param4 = pattern for the FOREIGN CATALOG name ('%' for getExportedKeys())
+ #param5 = pattern for the FOREIGN SCHEMA name ('%' for getExportedKeys())
+ #param6 = pattern for the FOREIGN TABLE name ('%' for getExportedKeys())
++#  DERBY-2610: did not change from pattern matching to "T2.TABLENAME=?" 
++#          because getExportedKeys uses this query with '%' for foreign table
++#  Future: may want to add a new query for getExportedKeys to remove the
++#          "T2.TABLENAME LIKE ?" pattern
+ getCrossReference=\
+ SELECT CAST ('' AS VARCHAR(128)) AS PKTABLE_CAT, \
+         PKTABLE_SCHEM, \
+@@ -587,7 +591,7 @@
+                          WHERE \
+                             ((1=1) OR ? IS NOT NULL) \
+                             AND S.SCHEMANAME LIKE ? \
+                             AND T.TABLENAME LIKE ? \     <-- removed w/ DERBY-2610
+                             AND T.TABLENAME=? \  <-- added with DERBY-2610
+                             AND S.SCHEMAID = T.SCHEMAID \
+
+As a result, the ODBC "SQLForeignKeys" function now returns zero rows because there is no table whose name equals the "%" that we swapped in for the null.
+
+I'm not sure what the best fix for this should be.  The JDBC API for getCrossReference() indicates that both primaryTable and foreignTable "must match the table name as it is stored in the database", so perhaps the bug is in SystemProcedures.java, where the SQLForeignKeys function is mapped to a getCrossReference() call that passes nulls.  But one could argue that, given the lack of information in the "options" string received from the client (esp. the missing "IMPORTEDKEY" or "EXPORTEDKEY" keywords), SystemProcedures.java is actually doing the right thing.  Either way, it's not immediately clear to me how this should best be resolved...
+
+I'm marking this as a 10.3 regression (with 10.3 fixin) since the behavior in the 10.3 trunk is different than what it was in previous releases.  If anyone disagrees with this, please feel free to say so and/or update accordingly.
+
+Note: I don't think this behavior is technically covered by the release note for DERBY-2610 because a) the release note does not mention getCrossReference() (should it??), and b) the call to "getCrossReference()" is made internally; a user's ODBC app would be calling SQLForeignKeys, for which a null primary/foreign table name are in fact perfectly legal.

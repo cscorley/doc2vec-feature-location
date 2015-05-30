@@ -1,0 +1,16 @@
+When there is a parsing error in configuration xml files, the error message does not specify which file was being processed or what line caused the parse failure:
+
+=== snip ===
+[Fatal Error] :33:54: The string "--" is not permitted within comments.
+Jan 27, 2009 6:07:54 PM org.apache.solr.common.SolrException log
+SEVERE: org.xml.sax.SAXParseException: The string "--" is not permitted within comments.
+        at com.sun.org.apache.xerces.internal.parsers.DOMParser.parse(Unknown Source)
+        at com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderImpl.parse(Unknown Source)
+        at javax.xml.parsers.DocumentBuilder.parse(Unknown Source)
+        at org.apache.solr.core.Config.<init>(Config.java:104)
+        at org.apache.solr.core.SolrConfig.<init>(SolrConfig.java:111)
+        at org.apache.solr.core.CoreContainer.create(CoreContainer.java:338)
+        at org.apache.solr.core.CoreContainer.load(CoreContainer.java:217)
+=== snip ===
+
+As a result, finding minor typos in the config files can take quite a bit of user time. In this case the specific error was an extraneous space in the closing xml comment tag, "-- >" instead of "-->".

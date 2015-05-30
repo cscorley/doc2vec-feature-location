@@ -1,0 +1,22 @@
+If entity fields is annotated with,
+
+	@ExternalValues( 
+{ "SMALL=SML", "MEDIUM=MID", "LARGE=LRG" }
+)
+	private String s1;
+
+Object query returns umapped value in the object,
+        Query q = em.createQuery("SELECT a from EntityA a");
+        EntityA aPrime = (EntityA) q.getSingleResult();
+        Assert.assertEquals("SMALL", aPrime.getS1());
+
+However, field query returns mapped value from the datastore:
+        q = em.createQuery("SELECT t0.s1 FROM EntityA t0");
+        List<Object[]> res = q.getResultList();
+        Iterator<Object[]> itr = res.iterator();
+        Object[] values = itr.next();
+        Assert.assertEquals("SMALL", values[1]);     <<< FAILED here, values[1]=="SML"
+
+This problem also causes a similarly structured CritieriaAPI query to return incorrect values.
+
+If the field type is boolean, even if the database has "true" value, both of the above scenario will return false, due to new Boolean("non-true") always return false.

@@ -1,0 +1,66 @@
+I've created small patches for myself by replacing all related queries in the 'tools' section with CASTs to CHARs and VARCHARs and would like to contribute these to the community in case anyone else can confirm this is a bug.
+
+A small test case to reproduce the problem is provided below, the version of Derby that provides the stacktrace is 10.3.2.1.
+
+
+Regards,
+
+
+Stephan van Loendersloot.
+
+
+
+
+Reproduction steps:
+
+---------- 1: create_territory_db.sql  ----------
+
+CONNECT 'jdbc:derby://localhost/dutch;user=dutch;password=dutch;create=true;territory=nl_NL;collation=TERRITORY_BASED';
+
+AUTOCOMMIT OFF;
+
+CREATE TABLE AIRLINES
+ (
+    AIRLINE CHAR(2) NOT NULL ,
+    AIRLINE_FULL VARCHAR(24),
+    BASIC_RATE DOUBLE PRECISION,
+    DISTANCE_DISCOUNT DOUBLE PRECISION,
+    BUSINESS_LEVEL_FACTOR DOUBLE PRECISION,
+    FIRSTCLASS_LEVEL_FACTOR DOUBLE PRECISION,
+    ECONOMY_SEATS INTEGER,
+    BUSINESS_SEATS INTEGER,
+    FIRSTCLASS_SEATS INTEGER
+ );
+
+COMMIT;
+
+
+DISCONNECT;
+EXIT;
+
+---------- 2: use dbloook ----------
+
+dblook -d "jdbc:derby://localhost/dutch;user=dutch;password=dutch" -o dutch.sql
+
+---------- 3: stacktrace ----------
+
+java.sql.SQLSyntaxErrorException: Comparisons between 'CHAR (UCS_BASIC)' and 'CHAR (TERRITORY_BASED)' are not supported. Types must be comparable. String types must also have matching collation. If collation does not match, a possible solution is to cast operands to force them to the default collation (e.g. select tablename from sys.systables where CAST(tablename as VARCHAR(128)) = 'T1')
+  at org.apache.derby.client.am.SQLExceptionFactory40.getSQLException(Unknown Source)
+  at org.apache.derby.client.am.SqlException.getSQLException(Unknown Source)
+  at org.apache.derby.client.am.Statement.executeQuery(Unknown Source)
+  at org.apache.derby.tools.dblook.prepForDump(Unknown Source)
+  at org.apache.derby.tools.dblook.go(Unknown Source)
+  at org.apache.derby.tools.dblook.<init>(Unknown Source)
+  at org.apache.derby.tools.dblook.main(Unknown Source)
+Caused by: org.apache.derby.client.am.SqlException: Comparisons between 'CHAR (UCS_BASIC)' and 'CHAR (TERRITORY_BASED)' are not supported. Types must be comparable. String types must also have matching collation. If collation does not match, a possible solution is to cast operands to force them to the default collation (e.g. select tablename from sys.systables where CAST(tablename as VARCHAR(128)) = 'T1')
+  at org.apache.derby.client.am.Statement.completeSqlca(Unknown Source)
+  at org.apache.derby.client.net.NetStatementReply.parsePrepareError(Unknown Source)
+  at org.apache.derby.client.net.NetStatementReply.parsePRPSQLSTTreply(Unknown Source)
+  at org.apache.derby.client.net.NetStatementReply.readPrepareDescribeOutput(Unknown Source)
+  at org.apache.derby.client.net.StatementReply.readPrepareDescribeOutput(Unknown Source)
+  at org.apache.derby.client.net.NetStatement.readPrepareDescribeOutput_(Unknown Source)
+  at org.apache.derby.client.am.Statement.readPrepareDescribeOutput(Unknown Source)
+  at org.apache.derby.client.am.Statement.flowExecute(Unknown Source)
+  at org.apache.derby.client.am.Statement.executeQueryX(Unknown Source)
+  ... 5 more
+– **--> DEBUG: Comparisons between 'CHAR (UCS_BASIC)' and 'CHAR (TERRITORY_BASED)' are not supported. Types must be comparable. String types must also have matching collation. If collation does not match, a possible solution is to cast operands to force them to the default collation (e.g. select tablename from sys.systables where CAST(tablename as VARCHAR(128)) = 'T1') 

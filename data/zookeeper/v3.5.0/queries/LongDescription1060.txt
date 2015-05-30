@@ -1,0 +1,5 @@
+This problem is seen only if you have ZooKeeper embedded in your application. QuorumPeerMain.initializeAndRun() does a quorumPeer.join() before exiting.
+
+QuorumPeer.shutdown() tries to cleanup everything, but it does not interrupt itself. As a result, a if the peer is running FLE, it might be waiting to receive notifications (recvqueue.poll()) in FastLeaderElection. Therefore, quorumPeer.join() will wait until the peer wakes up from poll().
+
+The fix is simple - call this.interrupt() in QuorumPeer.shutdown().

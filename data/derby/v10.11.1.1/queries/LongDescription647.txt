@@ -1,0 +1,15 @@
+If the current directory is something liket
+
+Java user dir:
+c:\export\home\tmp\os136789\testingDerby\CYGWIN_NT-5.2_i686-unknown\derbyall
+
+The test harness for multi tests is creating a log file based off that
+path, but is getting confused by the '.', assuming that is the lead in
+to a suffix. Thus it comes up with a log file of:
+
+C:\export\home\tmp\os136789\testingDerby\CYGWIN_NT-5.log
+
+which is outside the user.dir (current directory) and so of course,
+correctly, permission has not been granted to create that file.
+
+Thus this causes stress.multi to fail when the security manager is enabled.

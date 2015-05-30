@@ -1,0 +1,11 @@
+If my Pig StorFunc has its own OutputFormat class then Pig MapReducelauncher will try to instantiate it before
+launching the mapreduce job and fail with ClassNotFoundException.
+
+This happens because Pig MapReduce launcher uses its own classloader and ignores the classes in the jars in the
+register statement.
+
+The effect is that the jars not only have to be in "register " statement in the script but also in the pig
+classpath with the -classpath tag. 
+
+This can be remedied by making the Pig MapReduceLauncher constructing a classloader that includes the registered jars
+and using that to instantiate the OutputFormat class.

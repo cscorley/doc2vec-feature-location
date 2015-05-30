@@ -1,0 +1,35 @@
+Attached document hits this on Windows:
+
+
+C:\>java.exe -jar tika-app-1.3.jar -z -x c:\data\idit\T-DS_Excel2003-PPT2003_1.xls
+Extracting 'file0.png' (image/png) to .\file0.png
+Extracting 'file1.emf' (application/x-emf) to .\file1.emf
+Extracting 'file2.jpg' (image/jpeg) to .\file2.jpg
+Extracting 'file3.emf' (application/x-emf) to .\file3.emf
+Extracting 'file4.wmf' (application/x-msmetafile) to .\file4.wmf
+Extracting 'MBD0016BDE4/?£☺.bin' (application/octet-stream) to .\MBD0016BDE4\?£☺.bin
+Exception in thread "main" org.apache.tika.exception.TikaException: TIKA-198: Illegal IOException from org.apache.tika.parser.microsoft.OfficeParser@75f875f8
+        at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:248)
+        at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+        at org.apache.tika.parser.AutoDetectParser.parse(AutoDetectParser.java:120)
+        at org.apache.tika.cli.TikaCLI$OutputType.process(TikaCLI.java:139)
+        at org.apache.tika.cli.TikaCLI.process(TikaCLI.java:415)
+        at org.apache.tika.cli.TikaCLI.main(TikaCLI.java:109)
+Caused by: java.io.FileNotFoundException: .\MBD0016BDE4\?£☺.bin (The filename, directory name, or volume label syntax is incorrect.)
+        at java.io.FileOutputStream.<init>(FileOutputStream.java:205)
+        at java.io.FileOutputStream.<init>(FileOutputStream.java:156)
+        at org.apache.tika.cli.TikaCLI$FileEmbeddedDocumentExtractor.parseEmbedded(TikaCLI.java:722)
+        at org.apache.tika.parser.microsoft.AbstractPOIFSExtractor.handleEmbeddedOfficeDoc(AbstractPOIFSExtractor.java:201)
+        at org.apache.tika.parser.microsoft.ExcelExtractor.parse(ExcelExtractor.java:158)
+        at org.apache.tika.parser.microsoft.OfficeParser.parse(OfficeParser.java:194)
+        at org.apache.tika.parser.microsoft.OfficeParser.parse(OfficeParser.java:161)
+        at org.apache.tika.parser.CompositeParser.parse(CompositeParser.java:242)
+        ... 5 more
+
+
+
+TikaCLI manages to create the sub-directory, but because the embedded fileName has invalid (for Windows) characters, it fails.
+
+On Linux it runs fine.
+
+I think somehow ... we have to sanitize the embedded file name ...

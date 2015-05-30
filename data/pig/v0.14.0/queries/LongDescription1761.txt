@@ -1,0 +1,23 @@
+The following script fail:
+
+
+
+A = load '1.txt' as (a0:chararray);
+B = foreach A generate UPPER(REGEX_EXTRACT_ALL(a0, '.*@(.*)#.*').$0);
+explain B;
+
+
+
+Error message:
+Caused by: java.lang.NullPointerException
+        at org.apache.pig.newplan.ReverseDependencyOrderWalker.walk(ReverseDependencyOrderWalker.java:70)
+        at org.apache.pig.newplan.PlanVisitor.visit(PlanVisitor.java:50)
+        at org.apache.pig.newplan.logical.optimizer.SchemaResetter.visit(SchemaResetter.java:104)
+        at org.apache.pig.newplan.logical.relational.LOGenerate.accept(LOGenerate.java:229)
+        at org.apache.pig.newplan.DependencyOrderWalker.walk(DependencyOrderWalker.java:75)
+        at org.apache.pig.newplan.logical.optimizer.SchemaResetter.visit(SchemaResetter.java:93)
+        at org.apache.pig.newplan.logical.relational.LOForEach.accept(LOForEach.java:71)
+        at org.apache.pig.newplan.DependencyOrderWalker.walk(DependencyOrderWalker.java:75)
+        at org.apache.pig.newplan.PlanVisitor.visit(PlanVisitor.java:50)
+        at org.apache.pig.backend.hadoop.executionengine.HExecutionEngine.compile(HExecutionEngine.java:261)
+        ... 12 more

@@ -1,0 +1,13 @@
+EXCEPT or INTERSECT in views give:
+
+ERROR XJ001: Java exception: 'ASSERT FAILED costEstimate is not expected to be null for org.apache.derby.impl.sql.compile.SelectNode: org.apache.derby.iapi.services.sanity.AssertFailure
+
+To recreate, run:
+
+create table tab1 (i integer primary key);
+insert into tab1 values (1),(2),(3),(4);
+create table tab2 (i integer primary key);
+insert into tab2 values (2),(4);
+create view view1 as select * from tab1 intersect select * from tab2;
+select * from view1;
+.

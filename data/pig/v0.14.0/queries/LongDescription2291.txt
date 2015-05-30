@@ -1,0 +1,27 @@
+The below is my python script, 
+
+
+#! /usr/bin/python
+from  org.apache.pig.scripting import Pig
+
+P = Pig.compileFromFile("""a.pig""")
+result = P.bind().runSingle()
+
+if result.isSuccessful():
+    print 'Pig job succeeded'
+else:
+    print 'Pig job failed'
+
+
+
+
+The below is the pig script embedded (a.pig)
+A = LOAD 'a1' USING PigStorage(',') AS (f1:chararray,f2:chararray);
+B = GROUP A by f1;
+dump B;
+
+
+For this script execution, even though the job is successful the output printed is 'Pig job failed'
+This is because result.isSuccessful() is returning false whenever the pig script is having a dump statement.
+
+If i run the pig script alone, then the error code returned is proper.

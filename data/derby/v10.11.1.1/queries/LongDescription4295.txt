@@ -1,0 +1,92 @@
+When using derby.properties file from mailjdbc tests, call SYSCS_UTIL.SYCS_INPLACE_COMPRESs_TABLE is fine user 'BACKUP' with the following operation. Please see below:
+ij version 10.3
+ij> connect 'jdbc:derby:tpri;user=BACKUP;password=Backup';
+ij> create table a (col1 int, col2 clob);
+0 rows inserted/updated/deleted
+ij> insert into a values (1, '1');
+1 row inserted/updated/deleted
+ij> insert into a values (2, '2');
+1 row inserted/updated/deleted
+ij> grant execute on procedure SYSCS_UTIL.SYSCS_INPLACE_COMPRESS_TABLE to BACKUP;
+0 rows inserted/updated/deleted
+ij version 10.3
+ij> connect 'jdbc:derby:tpri;user=BACKUP;password=Backup';
+ij> call SYSCS_UTIL.SYSCS_INPLACE_COMPRESS_TABLE('REFRESH','A',1,1,1);
+0 rows inserted/updated/deleted              <<<====Operation successful=====
+
+However, on 10.5, the same operation result ERROR 38000
+ij> connect 'jdbc:derby:tpri;create=true;user=REFRESH;password=Refresh';
+ij> create table a (col1 int, col2 clob);
+0 rows inserted/updated/deleted
+ij> insert into a values (1, '1');
+1 row inserted/updated/deleted
+ij> insert into a values (1, '2');
+1 row inserted/updated/deleted
+ij> grant execute on procedure SYSCS_UTIL.SYSCS_INPLACE_COMPRESS_TABLE to BACKUP;
+0 rows inserted/updated/deleted
+ij> exit;
+
+ij version 10.5
+ij> connect 'jdbc:derby:tpri;user=BACKUP;password=Backup';
+ij> call SYSCS_UTIL.SYSCS_INPLACE_COMPRESS_TABLE('REFRESH','A',1,1,1);
+ERROR 38000: The exception 'java.sql.SQLException: User 'BACKUP' can not perform
+ the operation in schema 'REFRESH'.' was thrown while evaluating an expression.
+ERROR 42507: User 'BACKUP' can not perform the operation in schema 'REFRESH'.  <<<====Operation result with ERROR 38000
+ERROR 42507: User 'BACKUP' can not perform the operation in schema 'REFRESH'.^M
+        at org.apache.derby.iapi.error.StandardException.newException(StandardEx
+ception.java:303)^M
+        at org.apache.derby.iapi.sql.dictionary.StatementSchemaPermission.check(
+StatementSchemaPermission.java:83)^M
+        at org.apache.derby.impl.sql.conn.GenericAuthorizer.authorize(GenericAut
+horizer.java:186)^M
+        at org.apache.derby.impl.sql.execute.GenericResultSetFactory.getDDLResul
+tSet(GenericResultSetFactory.java:1073)^M
+        at org.apache.derby.impl.sql.execute.ConstantActionActivation.execute(Co
+nstantActionActivation.java:61)^M
+        at org.apache.derby.impl.sql.GenericActivationHolder.execute(GenericActi
+vationHolder.java:352)^M
+        at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(Generi
+cPreparedStatement.java:414)^M
+        at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPre
+paredStatement.java:297)^M
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedState
+ment.java:1235)^M
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeStatement(Em
+bedPreparedStatement.java:1648)^M
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeUpdate(Embed
+PreparedStatement.java:294)^M
+        at org.apache.derby.catalog.SystemProcedures.SYSCS_INPLACE_COMPRESS_TABL
+E(SystemProcedures.java:1145)^M
+        at org.apache.derby.exe.ac83ba410fx0122x159fx9a84x0000004261f80.g0(Unkno
+wn Source)^M
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)^M
+        at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)^M
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)^M
+        at java.lang.reflect.Method.invoke(Unknown Source)^M
+        at org.apache.derby.impl.services.reflect.ReflectMethod.invoke(ReflectMe
+thod.java:46)
+        at org.apache.derby.impl.sql.execute.CallStatementResultSet.open(CallSta
+tementResultSet.java:76)^M
+        at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(Generi
+cPreparedStatement.java:416)^M
+        at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPre
+paredStatement.java:297)^M
+        at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedState
+ment.java:1235)^M
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement.executeStatement(Em
+bedPreparedStatement.java:1648)^M
+        at org.apache.derby.impl.jdbc.EmbedCallableStatement.executeStatement(Em
+bedCallableStatement.java:117)^M
+        at org.apache.derby.impl.jdbc.EmbedPreparedStatement.execute(EmbedPrepar
+edStatement.java:1303)^M
+        at org.apache.derbyTesting.system.mailjdbc.utils.DbTasks.compressTable(D
+bTasks.java:618)^M
+        at org.apache.derbyTesting.system.mailjdbc.tasks.Backup.DoCompress(Backu
+p.java:79)^M
+        at org.apache.derbyTesting.system.mailjdbc.tasks.Backup.doWork(Backup.ja
+va:68)^M
+        at org.apache.derbyTesting.system.mailjdbc.tasks.Backup.run(Backup.java:
+46)^M
+Cleanup action completed^M
+
+       I will add the test to test/langGrantRevokeDDLTest.java.

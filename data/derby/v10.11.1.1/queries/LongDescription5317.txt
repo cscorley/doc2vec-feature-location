@@ -1,0 +1,97 @@
+Investigating DERBY-5308, I found that the LobLimits.java test run with client fails with a NullPointerException.
+
+END setup
+========================================
+START ClobTest #1  -insertClob of size = 2147483647
+Rows inserted with clob of size (2147483647) = 2
+========================================
+========================================
+START ClobTest #2 - SELECT CLOB of size = 2147483647
+Matched rows selected with clob of size(2147483647) =1
+========================================
+========================================
+START ClobTest #3 - SELECT CLOB of size = 2147483647
+Matched rows selected with clob of size(2147483647) =1
+========================================
+========================================
+START ClobTest #4 - select and then update clob of size= 2147483647 - Uses setClob api
+FAIL – Unexpected exception:
+java.lang.NullPointerException
+        at org.apache.derby.client.net.Request.sendBytes(Unknown Source)
+        at org.apache.derby.client.net.Request.flushScalarStreamSegment(Unknown Source)
+        at org.apache.derby.client.net.Request.padScalarStreamForError(Unknown Source)
+        at org.apache.derby.client.net.Request.writePlainScalarStream(Unknown Source)
+        at org.apache.derby.client.net.Request.writeScalarStream(Unknown Source)
+        at org.apache.derby.client.net.Request.writeScalarStream(Unknown Source)
+        at org.apache.derby.client.net.NetStatementRequest.buildEXTDTA(Unknown Source)
+        at org.apache.derby.client.net.NetStatementRequest.writeExecute(Unknown Source)
+        at org.apache.derby.client.net.NetPreparedStatement.writeExecute_(Unknown Source)
+        at org.apache.derby.client.am.PreparedStatement.writeExecute(Unknown Source)
+        at org.apache.derby.client.am.PreparedStatement.flowExecute(Unknown Source)
+        at org.apache.derby.client.am.PreparedStatement.executeUpdateX(Unknown Source)
+        at org.apache.derby.client.am.PreparedStatement.executeUpdate(Unknown Source)
+        at org.apache.derbyTesting.functionTests.tests.largedata.LobLimits.selectUpdateClob(LobLimits.java:115
+7)
+        at org.apache.derbyTesting.functionTests.tests.largedata.LobLimits.clobTests(LobLimits.java:313)
+        at org.apache.derbyTesting.functionTests.tests.largedata.LobLimits.runTests(LobLimits.java:177)
+        at org.apache.derbyTesting.functionTests.tests.largedata.LobLimits.main(LobLimits.java:151)
+========================================
+START ClobTest #12.1  -insertClob of size = 104857600
+NEGATIVE TEST - Expected Exception:
+EXPECTED SQL Exception: (08003) No current connection.
+========================================
+START ClobTest #12.2 - SELECT CLOB of size = 104857600
+FAIL – Unexpected exception:
+java.sql.SQLNonTransientConnectionException: No current connection.
+        at org.apache.derby.client.am.SQLExceptionFactory40.getSQLException(Unknown Source)
+        at org.apache.derby.client.am.SqlException.getSQLException(Unknown Source)
+        at org.apache.derby.client.am.PreparedStatement.setInt(Unknown Source)
+        at org.apache.derbyTesting.functionTests.tests.largedata.LobLimits.selectClob(LobLimits.java:1007)
+
+
+In the derby.log I see
+
+derby.system.home=/local0/kmarsden/repro/largeData/testtrunkdnc/DerbyNetClient/LobLimits
+Database Class Loader started - derby.database.classpath=''
+Tue Jul 05 17:50:01 PDT 2011 Thread[DRDAConnThread_11,5,main] (DATABASE = wombat), (DRDAID = .-580681567053183
+269
+{2}), Execution failed because of a Distributed Protocol Error:  DRDA_Proto_SYNTAXRM; CODPNT arg  = 200d; E
+rror Code Value = 1d. Plaintext connection attempt from an SSL enabled client?
+Tue Jul 05 17:50:01 PDT 2011 : Execution failed because of a Distributed Protocol Error:  DRDA_Proto_SYNTAXRM;
+ CODPNT arg  = 200d; Error Code Value = 1d. Plaintext connection attempt from an SSL enabled client?
+org.apache.derby.impl.drda.DRDAProtocolException: Execution failed because of a Distributed Protocol Error:  D
+RDA_Proto_SYNTAXRM; CODPNT arg  = 200d; Error Code Value = 1d. Plaintext connection attempt from an SSL enable
+d client?
+        at org.apache.derby.impl.drda.DRDAConnThread.throwSyntaxrm(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.invalidCodePoint(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.parseEXCSQLSTTobjects(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.parseEXCSQLSTT(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.processCommands(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.run(Unknown Source)
+Tue Jul 05 17:50:01 PDT 2011 Thread[DRDAConnThread_11,5,main] (DATABASE = wombat), (DRDAID = .-580681567053183
+269{2}
+), Execution failed because of a Distributed Protocol Error:  DRDA_Proto_SYNTAXRM; CODPNT arg  = 200d; E
+rror Code Value = 1d. Plaintext connection attempt from an SSL enabled client?
+Tue Jul 05 17:50:01 PDT 2011 : Execution failed because of a Distributed Protocol Error:  DRDA_Proto_SYNTAXRM;
+ CODPNT arg  = 200d; Error Code Value = 1d. Plaintext connection attempt from an SSL enabled client?
+org.apache.derby.impl.drda.DRDAProtocolException: Execution failed because of a Distributed Protocol Error:  D
+RDA_Proto_SYNTAXRM; CODPNT arg  = 200d; Error Code Value = 1d. Plaintext connection attempt from an SSL enable
+d client?
+        at org.apache.derby.impl.drda.DRDAConnThread.throwSyntaxrm(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.invalidCodePoint(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.parseEXCSQLSTTobjects(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.parseEXCSQLSTT(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.processCommands(Unknown Source)
+        at org.apache.derby.impl.drda.DRDAConnThread.run(Unknown Source)
+----------------------------------------------------------------
+Tue Jul 05 17:50:07 PDT 2011: Shutting down Derby engine
+----------------------------------------------------------------
+Tue Jul 05 17:50:07 PDT 2011:
+
+To run the test, you have to remove largeData from DerbyNetClient.exclude and run
+java -Dframework=DerbyNetClient org.apache.derbyTesting.functionTests.harness.RunTest  org.apache.derbyTesting.functionTests.tests.lageData.LobLimits.
+It took about 3.5 hours to occur.
+
+I will work on a smaller reproduction.
+
+                                                                                            5,9           36%

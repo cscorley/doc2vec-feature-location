@@ -1,0 +1,3 @@
+The NekoHTML library we currently use for parsing HTML has a transitive dependency on Apache Xerces. The Xerces library is pretty big (1.2MB) and is known to cause various problems when included in the classpath of an application or a container that expects some other XML parser library.
+
+The TagSoup library (http://home.ccil.org/~cowan/XML/tagsoup/) provides an alternative HTML parsing library that works pretty much like NekoHTML but doesn't depend on Xerces. I suggest we switch from NekoHTML to TagSoup unless this change causes major regressions in HTML parsing.

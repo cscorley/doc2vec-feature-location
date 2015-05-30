@@ -1,0 +1,10 @@
+when using mahout lda for topic modeling, creating vectors from SequenceFile is essential, (refer to https://cwiki.apache.org/confluence/display/MAHOUT/Creating+Vectors+from+Text) but when the --minSupport was set a little bit larger, I found the term counting not right — there is a logical error at org.apache.mahout.vectorizer.DictionaryVectorizer.java:line 335
+    job.setCombinerClass(TermCountReducer.class);
+
+Now turn to line 41 at org.apache.mahout.vectorizer.term.TermCountReducer.java
+    if (sum >= minSupport) 
+{
+      context.write(key, new LongWritable(sum));
+    }
+
+so some terms would be filtered at Combiner even though they actually could pass through, absolutely this is not what we've expected.

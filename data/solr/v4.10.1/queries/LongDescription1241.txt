@@ -1,0 +1,25 @@
+Now LUCENE-1466 has been committed, Solr should use Lucene's CharFilter before release 1.4. I'll just svn del (rather than deperecated) CharFilter classes in Solr:
+
+
+
+$ svn status
+D      src/test/org/apache/solr/analysis/TestMappingCharFilter.java
+D      src/test/org/apache/solr/analysis/TestCharFilter.java
+D      src/java/org/apache/solr/analysis/CharReader.java
+M      src/java/org/apache/solr/analysis/CharFilterFactory.java
+D      src/java/org/apache/solr/analysis/BaseCharFilter.java
+D      src/java/org/apache/solr/analysis/CharFilter.java
+D      src/java/org/apache/solr/analysis/CharStreamAwareCJKTokenizerFactory.java
+D      src/java/org/apache/solr/analysis/CharStreamAwareWhitespaceTokenizerFactory.java
+M      src/java/org/apache/solr/analysis/MappingCharFilterFactory.java
+D      src/java/org/apache/solr/analysis/CharStreamAwareCJKTokenizer.java
+D      src/java/org/apache/solr/analysis/NormalizeMap.java
+D      src/java/org/apache/solr/analysis/MappingCharFilter.java
+D      src/java/org/apache/solr/analysis/CharStreamAwareCharTokenizer.java
+D      src/java/org/apache/solr/analysis/CharStreamAwareWhitespaceTokenizer.java
+D      src/java/org/apache/solr/analysis/CharStream.java
+M      example/solr/conf/schema.xml
+
+
+
+This needs r787795 of lucene jar or later.

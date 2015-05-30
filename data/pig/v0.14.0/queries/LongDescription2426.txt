@@ -1,0 +1,6 @@
+In current implementation the reporter function ProgressableReporter.progress(String msg)  is an empty function.
+If I have a long running UDF and I want update the status using a message, the preferred way is to use this api.  
+
+The previous implementation of ProgressableReporter used org.apache.hadoop.mapred.Reporter api directly.
+But the currently used org.apache.hadoop.util.Progressable interface  does not have api to set status as a given message. 
+Hence I believe the empty method.

@@ -1,0 +1,90 @@
+Currently Pig doesn't support lazy see/de, so as one of the best practices, we recommend users not to declare types in the schema so that Pig will guess the right types and cast them lazily. However, if Pig guesses a wrong type, especially mistakes a double field as an integer field, the overhead of casting is tremendous due to the exception handling.
+
+See Utf8StorageConverter#bytesToIntege. It first casts bytes to Integer by Integer.parseInt(), and if exception occurs, it tries to cast it to Double by Double.parseDouble() and convert it back to Integer. The problem is that the exception handling can be 10x slower than the actual casting. bytesToLong has the same problem. Below is a mini-benchmark:
+
+
+        
+        int i;
+        Exception ex = null;
+        long start = System.nanoTime();
+        for (i = 0; i < 100000000; i++) {
+            try {
+                // Double.parseDouble(i+ ".0");
+                // Integer.parseInt(i + ".0");
+                Integer.parseInt(i + "");
+                // Double.parseDouble(i + "");
+            } catch (NumberFormatException e) {
+                ex = e;
+            }
+        }
+        System.out.println("time: " + (System.nanoTime() - start)
+                / 1000000000.0);
+        if (ex != null) {
+            ex.printStackTrace();
+        }
+
+
+
+And the results:
+
+
+
+casting
+running time(sec)
+
+
+Double.parseDouble(i+ ".0");
+ 17 
+
+
+Integer.parseInt(i + ".0");
+ 118 
+
+
+Integer.parseInt(i + "");
+ 13 
+
+
+Double.parseDouble(i + "");
+ 16 
+
+
+
+
+We can see Integer.parseInt(i + ".0") is 10x slower than the other due to the exception handling.
+
+This issue was found when I benchmark TPC-H Query 1, for which Pig was terribly slower than Hive:
+
+
+
+LineItems = LOAD '$input/lineitem' USING PigStorage('|') AS (orderkey, partkey, suppkey, linenumber, quantity, extendedprice, discount, tax, returnflag, linestatus, shipdate, commitdate, receiptdate, shipinstruct, shipmode, comment);
+SubLineItems = FILTER LineItems BY shipdate <= '1998-09-02';
+
+SubLine = FOREACH SubLineItems GENERATE returnflag, linestatus, quantity, extendedprice, extendedprice*(1-discount) AS disc_price, extendedprice*(1-discount)*(1+tax) AS charge, discount;
+
+StatusGroup = GROUP SubLine BY (returnflag, linestatus);
+
+PriceSummary = FOREACH StatusGroup GENERATE group.returnflag AS returnflag, group.linestatus AS linestatus, SUM(SubLine.quantity) AS sum_qty, SUM(SubLine.extendedprice) AS sum_base_price, SUM(SubLine.disc_price) as sum_disc_price, SUM(SubLine.charge) as sum_charge, AVG(SubLine.quantity) as avg_qty, AVG(SubLine.extendedprice) as avg_price, AVG(SubLine.discount) as avg_disc, COUNT(SubLine) as count_order;
+
+SortedSummary = ORDER PriceSummary BY returnflag, linestatus;
+
+STORE SortedSummary INTO '$output/Q1out';
+
+
+
+After declaring three double fields as double, the performance was boosted. 
+
+
+ pig without types 
+ pig with three doubles 
+ hive 
+
+
+ 76 min 
+ 34 min 
+ 16 min 
+
+
+
+
+Besides recommending users to declare actual double fields as double, we can also improve the casting to avoid this happening. Maybe the easiest way is to remove the Integer.parseInt and only use the Double.parseDouble and convert back to Integer. The mini benchmark above shows Double.parseDouble + range checking + Integer.valueOf(Double.intValue()) takes about 17 seconds. I think the small percent of extra overhead (3 seconds compared to Integer.parseInt()) is acceptable as it won't be the dominant bottleneck?

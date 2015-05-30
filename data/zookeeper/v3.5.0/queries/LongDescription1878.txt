@@ -1,0 +1,14 @@
+During the startup if dataDir is not exists server will auto create this. But when user specifies different dataLogDir location which doesn't exists the server will validate and startup will fail. 
+
+
+
+org.apache.zookeeper.server.quorum.QuorumPeerConfig$ConfigException: Error processing build\test3085582797504170966.junit.dir\zoo.cfg
+	at org.apache.zookeeper.server.quorum.QuorumPeerConfig.parse(QuorumPeerConfig.java:123)
+	at org.apache.zookeeper.server.ServerConfig.parse(ServerConfig.java:79)
+	at org.apache.zookeeper.server.ZooKeeperServerMain.initializeAndRun(ZooKeeperServerMain.java:81)
+	at org.apache.zookeeper.server.ZooKeeperServerMainTest$MainThread.run(ZooKeeperServerMainTest.java:92)
+Caused by: java.lang.IllegalArgumentException: dataLogDir build/test3085582797504170966.junit.dir/data_txnlog is missing.
+	at org.apache.zookeeper.server.quorum.QuorumPeerConfig.parseProperties(QuorumPeerConfig.java:253)
+	at org.apache.zookeeper.server.quorum.QuorumPeerConfig.parse(QuorumPeerConfig.java:119)
+	... 3 more
+

@@ -1,0 +1,17 @@
+All Orc e2e tests fail on tez.
+
+There are two issue:
+1. hivelibdir etc is not set in tez.conf
+2. OrcStorage produce empty output file
+
+Digging into #2, the problem is in this code in PigProcessor:
+
+
+                if (fileOutput.isCommitRequired()) {
+                    fileOutput.commit();
+                }
+
+
+fileOutput.commit() invokes both RecordWriter.close() and committer.commitTask(). However, OrcNewOutputFormate will generate output file only after RecordWriter.close (if the output file is small), fileOutput.isCommitRequired will not detect this file, thus skip fileOutput.commit().
+
+Changing the code to invoke fileOutput.close explicitly fix the issue. fileOutput.commit will invoke close again, but there is no side effect since close will check if it has been already called.

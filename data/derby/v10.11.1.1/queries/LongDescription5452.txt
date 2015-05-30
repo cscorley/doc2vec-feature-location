@@ -1,0 +1,13 @@
+NsTest.printException() contains the following piece of code:
+
+		if (e.getMessage().equals(null)) 
+{
+			System.out.println("NULL error message detected");
+			System.out.println("Here is the NULL exection - " + e.toString());
+			System.out.println("Stack trace of the NULL exception - ");
+			e.printStackTrace(System.out);
+		}
+
+It's supposed to detect if e.getMessage() returns null. However, if it does return null, calling equals() on the return value will result in a NullPointerException.
+
+The condition should be changed to (e.getMessage() == null).

@@ -1,0 +1,87 @@
+We have a situation where it seems to my untrained eye that leader election never finishes for a 5-node cluster.  In this test, all nodes are ZK 3.4.3 and running on the same server (listening on different ports, of course).  The nodes have server IDs of 0, 1, 2, 3, 4.  The test brings up the cluster in different configurations, adding in a new node each time.  We embed ZK in our application, so when we shut a node down and restart it with a new configuration, it all happens in a single JVM process.  Here's our server startup code (for the case where there's more than one node in the cluster):
+
+
+
+if (servers.size() > 1) {
+    _log.debug("Starting Zookeeper server in quorum server mode");
+
+    _quorum_peer = new QuorumPeer();
+    synchronized(_quorum_peer) {
+        _quorum_peer.setClientPortAddress(clientAddr);
+        _quorum_peer.setTxnFactory(log);
+        _quorum_peer.setQuorumPeers(servers);
+        _quorum_peer.setElectionType(_election_alg);
+        _quorum_peer.setMyid(_server_id);
+        _quorum_peer.setTickTime(_tick_time);
+        _quorum_peer.setInitLimit(_init_limit);
+        _quorum_peer.setSyncLimit(_sync_limit);
+        QuorumVerifier quorumVerifier =
+            new QuorumMaj(servers.size());
+        _quorum_peer.setQuorumVerifier(quorumVerifier);
+        _quorum_peer.setCnxnFactory(_cnxn_factory);
+        _quorum_peer.setZKDatabase(new ZKDatabase(log));
+        _quorum_peer.start();
+    }
+} else {
+    _log.debug("Starting Zookeeper server in single server mode");
+    _zk_server = new ZooKeeperServer();
+    _zk_server.setTxnLogFactory(log);
+    _zk_server.setTickTime(_tick_time);
+    _cnxn_factory.startup(_zk_server);
+}
+
+
+
+And here's our shutdown code:
+
+
+
+if (_quorum_peer != null) {
+    synchronized(_quorum_peer) {
+        _quorum_peer.shutdown();
+        FastLeaderElection fle =
+            (FastLeaderElection) _quorum_peer.getElectionAlg();
+        fle.shutdown();
+        try {
+            _quorum_peer.getTxnFactory().commit();
+        } catch (java.nio.channels.ClosedChannelException e) {
+            // ignore
+        }
+    }
+} else {
+    _cnxn_factory.shutdown();
+    _zk_server.getTxnLogFactory().commit();
+}
+
+
+
+The test steps through the following scenarios in quick succession:
+
+Run 1: Start a 1-node cluster, servers=[0]
+Run 2: Start a 2-node cluster, servers=[0,3]
+Run 3: Start a 3-node cluster, servers=[0,1,3]
+Run 4: Start a 4-node cluster, servers=[0,1,2,3]
+Run 5: Start a 5-node cluster, servers=[0,1,2,3,4]
+
+It appears that run 5 never elects a leader – the nodes just keep spewing messages like this (example from node 0):
+
+
+2012-03-14 16:23:12,775 13308 [WorkerSender[myid=0]] DEBUG org.apache.zookeeper.server.quorum.QuorumCnxManager  - There is a connection already for server 2
+2012-03-14 16:23:12,776 13309 [QuorumPeer[myid=0]/127.0.0.1:2900] DEBUG org.apache.zookeeper.server.quorum.FastLeaderElection  - Sending Notification: 3 (n.leader), 0x0 (n.zxid), 0x1 (n.round), 3 (recipient), 0 (myid), 0x2 (n.peerEpoch)
+2012-03-14 16:23:12,776 13309 [WorkerSender[myid=0]] DEBUG org.apache.zookeeper.server.quorum.QuorumCnxManager  - There is a connection already for server 3
+2012-03-14 16:23:12,776 13309 [QuorumPeer[myid=0]/127.0.0.1:2900] DEBUG org.apache.zookeeper.server.quorum.FastLeaderElection  - Sending Notification: 3 (n.leader), 0x0 (n.zxid), 0x1 (n.round), 4 (recipient), 0 (myid), 0x2 (n.peerEpoch)
+2012-03-14 16:23:12,776 13309 [WorkerSender[myid=0]] DEBUG org.apache.zookeeper.server.quorum.QuorumCnxManager  - There is a connection already for server 4
+2012-03-14 16:23:12,776 13309 [WorkerReceiver[myid=0]] DEBUG org.apache.zookeeper.server.quorum.FastLeaderElection  - Receive new notification message. My id = 0
+2012-03-14 16:23:12,776 13309 [WorkerReceiver[myid=0]] INFO org.apache.zookeeper.server.quorum.FastLeaderElection  - Notification: 4 (n.leader), 0x0 (n.zxid), 0x1 (n.round), LOOKING (n.state), 1 (n.sid), 0x0 (n.peerEPoch), LOOKING (my state)
+2012-03-14 16:23:12,776 13309 [WorkerReceiver[myid=0]] DEBUG org.apache.zookeeper.server.quorum.FastLeaderElection  - Receive new notification message. My id = 0
+2012-03-14 16:23:12,776 13309 [WorkerReceiver[myid=0]] INFO org.apache.zookeeper.server.quorum.FastLeaderElection  - Notification: 3 (n.leader), 0x0 (n.zxid), 0x1 (n.round), LOOKING (n.state), 2 (n.sid), 0x2 (n.peerEPoch), LOOKING (my state)
+2012-03-14 16:23:12,776 13309 [QuorumPeer[myid=0]/127.0.0.1:2900] DEBUG org.apache.zookeeper.server.quorum.FastLeaderElection  - Adding vote: from=1, proposed leader=3, proposed zxid=0x0, proposed election epoch=0x1
+2012-03-14 16:23:12,776 13309 [QuorumPeer[myid=0]/127.0.0.1:2900] DEBUG org.apache.zookeeper.server.quorum.FastLeaderElection  - id: 3, proposed id: 3, zxid: 0x0, proposed zxid: 0x0
+2012-03-14 16:23:12,776 13309 [QuorumPeer[myid=0]/127.0.0.1:2900] DEBUG org.apache.zookeeper.server.quorum.FastLeaderElection  - id: 3, proposed id: 3, zxid: 0x0, proposed zxid: 0x0
+2012-03-14 16:23:12,776 13309 [QuorumPeer[myid=0]/127.0.0.1:2900] DEBUG org.apache.zookeeper.server.quorum.FastLeaderElection  - id: 3, proposed id: 3, zxid: 0x0, proposed zxid: 0x0
+2012-03-14 16:23:12,776 13309 [QuorumPeer[myid=0]/127.0.0.1:2900] DEBUG org.apache.zookeeper.server.quorum.FastLeaderElection  - id: 4, proposed id: 3, zxid: 0x0, proposed zxid: 0x0
+2012-03-14 16:23:12,776 13309 [QuorumPeer[myid=0]/127.0.0.1:2900] DEBUG org.apache.zookeeper.server.quorum.FastLeaderElection  - id: 4, proposed id: 3, zxid: 0x0, proposed zxid: 0x0
+
+
+
+I'm guessing this means that nodes 3 and 4 are fighting over leadership, but I don't know enough about the leader election code to debug this any further.  Attaching a tarball with the logs for each run and the data directories for each node (though I don't think any data is being written to ZK during the test).

@@ -1,0 +1,22 @@
+A good number of instances of StringBuffer actually do not need thread-safety in the first place since the scope (of the StringBuffer variable) does not escape the method.  Replacing them with StringBuilder with better performance. 
+
+<code>
+$ find . -name *.java | xargs grep -nr "StringBuffer"
+
+./contrib/dataimporthandler/src/main/java/org/apache/solr/handler/dataimport/DataImporter.java:134:      StringBuffer sb = new StringBuffer("There are errors in the Schema\n");
+./contrib/dataimporthandler/src/main/java/org/apache/solr/handler/dataimport/SqlEntityProcessor.java:132:    StringBuffer sb = new StringBuffer(queryString);
+./contrib/dataimporthandler/src/main/java/org/apache/solr/handler/dataimport/VariableResolverImpl.java:110:    StringBuffer sb = new StringBuffer();
+./contrib/javascript/example/reuters/importer/java/org/apache/solr/solrjs/ReutersService.java:238:        StringBuffer fileData = new StringBuffer(1000);
+./src/test/org/apache/solr/analysis/BaseTokenTestCase.java:37:    StringBuffer out = new StringBuffer();
+./src/test/org/apache/solr/common/util/IteratorChainTest.java:99:    final StringBuffer sb = new StringBuffer();
+./src/java/org/apache/solr/schema/DateField.java:295:    public StringBuffer format(Date d, StringBuffer toAppendTo,
+./src/java/org/apache/solr/analysis/BaseCharFilter.java:66:      StringBuffer sb = new StringBuffer();
+./src/java/org/apache/solr/util/TestHarness.java:266:    StringBuffer buf = new StringBuffer();
+./src/java/org/apache/solr/util/TestHarness.java:395:   * to a StringBuffer.
+./src/java/org/apache/solr/util/TestHarness.java:397:  public void appendSimpleDoc(StringBuffer buf, String... fieldsAndValues)
+./src/java/org/apache/solr/util/TestHarness.java:408:  public static StringBuffer makeSimpleDoc(String... fieldsAndValues) {
+./src/java/org/apache/solr/search/ConstantScorePrefixQuery.java:52:    StringBuffer buffer = new StringBuffer();
+./src/solrj/org/apache/solr/client/solrj/util/ClientUtils.java:179:    StringBuffer sb = new StringBuffer();
+./src/common/org/apache/solr/common/util/DOMUtil.java:290:    StringBuffer sb = new StringBuffer();
+./src/common/org/apache/solr/common/util/NamedList.java:201:    StringBuffer sb = new StringBuffer();
+</code>

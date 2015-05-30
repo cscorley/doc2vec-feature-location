@@ -1,0 +1,8 @@
+There is a race condition in the MetaDataRepository where if multiple threads try to get MetaData for the same alias, one or more of the threads can get incorrect data. This can only occur on the first (few) thread(s). After init is complete, the problem does not occur.
+
+The error that is observed is the following:
+<openjpa-2.0.0-SNAPSHOT-r422266:824454M fatal user error> org.apache.openjpa.util.MetaDataException: Could not locate metadata for the class using alias "MdrTestEntity". Perhap
+s you meant MdrTestEntity, which is a close match. This could mean that you have mis-spelled the alias, or that OpenJPA failed to properly load the metadata for the type whose
+alias is "MdrTestEntity". Registered alias mappings: "
+{MdrTestEntity=[class org.apache.openjpa.persistence.meta.MdrTestEntity]}
+"

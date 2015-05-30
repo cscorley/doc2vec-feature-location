@@ -1,0 +1,4 @@
+The hostlist is parsed in the ctor of ClientCnxn. This violates the rule of 
+not doing (too much) work in a ctor. Instead the ClientCnxn should receive an 
+object of class "HostSet". HostSet could then be instantiated e.g. with a 
+comma separated string.

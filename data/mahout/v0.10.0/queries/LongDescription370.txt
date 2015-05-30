@@ -1,0 +1,833 @@
+I have just checked out the latest version of Mahout from the repository (revision 931555) and it fails to build on install.  My $MAVEN_OPTS is -Xmx1024m.  Any ideas why it is failing to build?
+
+Thanks very much for your help in advance.
+
+From the main directory:
+$ mvn install
+
+Output:
+
+$ mvn install
+[INFO] Scanning for projects...
+[INFO] Reactor build order: 
+[INFO]   Buildtools - jar file used to configure PMD and Checkstyle
+[INFO]   Package up files needed by Eclipse
+[INFO]   Maven Mojo to generate code for collections
+[INFO]   Apache Lucene Mahout
+[INFO]   Mahout Collections
+[INFO]   Mahout Math
+[INFO]   Mahout Core
+[INFO]   Mahout Taste Webapp
+[INFO]   Mahout Utilities
+[INFO]   Mahout Examples
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Buildtools - jar file used to configure PMD and Checkstyle
+[INFO]    task-segment: [install]
+[INFO] ------------------------------------------------------------------------
+[INFO] Setting property: classpath.resource.loader.class => 'org.codehaus.plexus.velocity.ContextClassLoaderResourceLoader'.
+[INFO] Setting property: velocimacro.messages.on => 'false'.
+[INFO] Setting property: resource.loader => 'classpath'.
+[INFO] Setting property: resource.manager.logwhenfound => 'false'.
+[INFO] [remote-resources:process 
+{execution: default}
+]
+[INFO] inceptionYear not specified, defaulting to 2010
+[INFO] [resources:resources 
+{execution: default-resources}
+]
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 3 resources
+[INFO] Copying 3 resources
+[INFO] [compiler:compile 
+{execution: default-compile}
+]
+[INFO] No sources to compile
+[INFO] [resources:testResources 
+{execution: default-testResources}
+]
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /home/kris/mahouts/mahout-0.4/buildtools/src/test/resources
+[INFO] Copying 3 resources
+[INFO] [compiler:testCompile 
+{execution: default-testCompile}
+]
+[INFO] No sources to compile
+[INFO] [surefire:test 
+{execution: default-test}
+]
+[INFO] Surefire report directory: /home/kris/mahouts/mahout-0.4/buildtools/target/surefire-reports
+
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+There are no tests to run.
+
+Results :
+
+Tests run: 0, Failures: 0, Errors: 0, Skipped: 0
+
+[INFO] [jar:jar 
+{execution: default-jar}
+]
+[INFO] Building jar: /home/kris/mahouts/mahout-0.4/buildtools/target/mahout-buildtools-0.4-SNAPSHOT.jar
+[INFO] [install:install 
+{execution: default-install}
+]
+[INFO] Installing /home/kris/mahouts/mahout-0.4/buildtools/target/mahout-buildtools-0.4-SNAPSHOT.jar to /home/kris/.m2/repository/org/apache/mahout/mahout-buildtools/0.4-SNAPSHOT/mahout-buildtools-0.4-SNAPSHOT.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Package up files needed by Eclipse
+[INFO]    task-segment: [install]
+[INFO] ------------------------------------------------------------------------
+[INFO] [remote-resources:process 
+{execution: default}
+]
+[INFO] inceptionYear not specified, defaulting to 2010
+[INFO] [resources:resources 
+{execution: default-resources}
+]
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 3 resources
+[INFO] Copying 3 resources
+[INFO] [compiler:compile 
+{execution: default-compile}
+]
+[INFO] No sources to compile
+[INFO] [resources:testResources 
+{execution: default-testResources}
+]
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /home/kris/mahouts/mahout-0.4/eclipse/src/test/resources
+[INFO] Copying 3 resources
+[INFO] [compiler:testCompile 
+{execution: default-testCompile}
+]
+[INFO] No sources to compile
+[INFO] [surefire:test 
+{execution: default-test}
+]
+[INFO] Surefire report directory: /home/kris/mahouts/mahout-0.4/eclipse/target/surefire-reports
+
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+There are no tests to run.
+
+Results :
+
+Tests run: 0, Failures: 0, Errors: 0, Skipped: 0
+
+[INFO] [jar:jar 
+{execution: default-jar}
+]
+[INFO] Building jar: /home/kris/mahouts/mahout-0.4/eclipse/target/mahout-eclipse-support-0.4-SNAPSHOT.jar
+[INFO] [install:install 
+{execution: default-install}
+]
+[INFO] Installing /home/kris/mahouts/mahout-0.4/eclipse/target/mahout-eclipse-support-0.4-SNAPSHOT.jar to /home/kris/.m2/repository/org/apache/mahout/mahout-eclipse-support/0.4-SNAPSHOT/mahout-eclipse-support-0.4-SNAPSHOT.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Maven Mojo to generate code for collections
+[INFO]    task-segment: [install]
+[INFO] ------------------------------------------------------------------------
+[INFO] [plugin:descriptor 
+{execution: default-descriptor}
+]
+[INFO] Using 'UTF-8' encoding to read mojo metadata.
+[INFO] Applying mojo extractor for language: java
+[INFO] Mojo extractor for language: java found 1 mojo descriptors.
+[INFO] Applying mojo extractor for language: bsh
+[INFO] Mojo extractor for language: bsh found 0 mojo descriptors.
+[INFO] [remote-resources:process 
+{execution: default}
+]
+[INFO] inceptionYear not specified, defaulting to 2010
+[INFO] [resources:resources 
+{execution: default-resources}
+]
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /home/kris/mahouts/mahout-0.4/collections-codegen-plugin/src/main/resources
+[INFO] Copying 3 resources
+[INFO] [compiler:compile 
+{execution: default-compile}
+]
+[INFO] Compiling 1 source file to /home/kris/mahouts/mahout-0.4/collections-codegen-plugin/target/classes
+[INFO] [resources:testResources 
+{execution: default-testResources}
+]
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /home/kris/mahouts/mahout-0.4/collections-codegen-plugin/src/test/resources
+[INFO] Copying 3 resources
+[INFO] [compiler:testCompile 
+{execution: default-testCompile}
+]
+[INFO] No sources to compile
+[INFO] [surefire:test 
+{execution: default-test}
+]
+[INFO] Surefire report directory: /home/kris/mahouts/mahout-0.4/collections-codegen-plugin/target/surefire-reports
+
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+There are no tests to run.
+
+Results :
+
+Tests run: 0, Failures: 0, Errors: 0, Skipped: 0
+
+[INFO] [jar:jar 
+{execution: default-jar}
+]
+[INFO] Building jar: /home/kris/mahouts/mahout-0.4/collections-codegen-plugin/target/mahout-collection-codegen-plugin-1.1-SNAPSHOT.jar
+[INFO] [plugin:addPluginArtifactMetadata 
+{execution: default-addPluginArtifactMetadata}
+]
+[INFO] [install:install 
+{execution: default-install}
+]
+[INFO] Installing /home/kris/mahouts/mahout-0.4/collections-codegen-plugin/target/mahout-collection-codegen-plugin-1.1-SNAPSHOT.jar to /home/kris/.m2/repository/org/apache/mahout/mahout-collection-codegen-plugin/1.1-SNAPSHOT/mahout-collection-codegen-plugin-1.1-SNAPSHOT.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Apache Lucene Mahout
+[INFO]    task-segment: [install]
+[INFO] ------------------------------------------------------------------------
+[INFO] [remote-resources:process 
+{execution: default}
+]
+[INFO] [site:attach-descriptor 
+{execution: default-attach-descriptor}
+]
+[INFO] Unable to load parent project from a relative path: Could not find the model file '/home/kris/mahouts/pom.xml'. for project unknown
+[INFO] Parent project loaded from repository.
+[INFO] [install:install 
+{execution: default-install}
+]
+[INFO] Installing /home/kris/mahouts/mahout-0.4/pom.xml to /home/kris/.m2/repository/org/apache/mahout/mahout/0.4-SNAPSHOT/mahout-0.4-SNAPSHOT.pom
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Mahout Collections
+[INFO]    task-segment: [install]
+[INFO] ------------------------------------------------------------------------
+[INFO] [mahout-collection-codegen:generate 
+{execution: default}
+]
+07-Apr-2010 14:51:31 org.apache.velocity.runtime.log.JdkLogChute log
+INFO: FileResourceLoader : adding path '/home/kris/mahouts/mahout-0.4/collections/src/main/java-templates'
+07-Apr-2010 14:51:31 org.apache.velocity.runtime.log.JdkLogChute log
+INFO: FileResourceLoader : adding path '/home/kris/mahouts/mahout-0.4/collections/src/test/java-templates'
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/buffer/ByteBufferConsumer.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/buffer/CharBufferConsumer.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/buffer/IntBufferConsumer.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/buffer/ShortBufferConsumer.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/buffer/LongBufferConsumer.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/buffer/FloatBufferConsumer.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/buffer/DoubleBufferConsumer.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/list/ByteArrayList.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/list/CharArrayList.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/list/IntArrayList.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/list/ShortArrayList.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/list/LongArrayList.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/list/FloatArrayList.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/list/DoubleArrayList.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/list/AbstractByteList.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/list/AbstractCharList.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/list/AbstractIntList.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/list/AbstractShortList.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/list/AbstractLongList.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/list/AbstractFloatList.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/list/AbstractDoubleList.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractObjectByteMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractObjectCharMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractObjectIntMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractObjectShortMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractObjectLongMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractObjectFloatMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractObjectDoubleMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractByteObjectMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractCharObjectMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractIntObjectMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractShortObjectMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractLongObjectMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractFloatObjectMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractDoubleObjectMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenObjectByteHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenObjectCharHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenObjectIntHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenObjectShortHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenObjectLongHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenObjectFloatHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenObjectDoubleHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractByteByteMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractByteCharMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractByteIntMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractByteShortMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractByteLongMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractByteFloatMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractByteDoubleMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractCharByteMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractCharCharMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractCharIntMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractCharShortMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractCharLongMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractCharFloatMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractCharDoubleMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractIntByteMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractIntCharMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractIntIntMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractIntShortMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractIntLongMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractIntFloatMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractIntDoubleMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractShortByteMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractShortCharMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractShortIntMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractShortShortMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractShortLongMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractShortFloatMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractShortDoubleMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractLongByteMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractLongCharMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractLongIntMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractLongShortMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractLongLongMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractLongFloatMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractLongDoubleMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractFloatByteMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractFloatCharMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractFloatIntMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractFloatShortMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractFloatLongMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractFloatFloatMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractFloatDoubleMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractDoubleByteMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractDoubleCharMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractDoubleIntMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractDoubleShortMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractDoubleLongMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractDoubleFloatMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/AbstractDoubleDoubleMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenByteByteHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenByteCharHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenByteIntHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenByteShortHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenByteLongHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenByteFloatHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenByteDoubleHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenCharByteHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenCharCharHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenCharIntHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenCharShortHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenCharLongHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenCharFloatHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenCharDoubleHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenIntByteHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenIntCharHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenIntIntHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenIntShortHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenIntLongHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenIntFloatHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenIntDoubleHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenShortByteHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenShortCharHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenShortIntHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenShortShortHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenShortLongHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenShortFloatHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenShortDoubleHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenLongByteHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenLongCharHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenLongIntHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenLongShortHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenLongLongHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenLongFloatHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenLongDoubleHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenFloatByteHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenFloatCharHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenFloatIntHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenFloatShortHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenFloatLongHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenFloatFloatHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenFloatDoubleHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenDoubleByteHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenDoubleCharHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenDoubleIntHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenDoubleShortHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenDoubleLongHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenDoubleFloatHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenDoubleDoubleHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenByteObjectHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenCharObjectHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenIntObjectHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenShortObjectHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenLongObjectHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenFloatObjectHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/map/OpenDoubleObjectHashMap.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/set/AbstractByteSet.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/set/AbstractCharSet.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/set/AbstractIntSet.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/set/AbstractShortSet.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/set/AbstractLongSet.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/set/AbstractFloatSet.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/set/AbstractDoubleSet.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/set/OpenByteHashSet.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/set/OpenCharHashSet.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/set/OpenIntHashSet.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/set/OpenShortHashSet.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/set/OpenLongHashSet.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/set/OpenFloatHashSet.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/set/OpenDoubleHashSet.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ByteByteProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ByteCharProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ByteIntProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ByteShortProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ByteLongProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ByteFloatProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ByteDoubleProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/CharByteProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/CharCharProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/CharIntProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/CharShortProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/CharLongProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/CharFloatProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/CharDoubleProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/IntByteProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/IntCharProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/IntIntProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/IntShortProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/IntLongProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/IntFloatProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/IntDoubleProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ShortByteProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ShortCharProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ShortIntProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ShortShortProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ShortLongProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ShortFloatProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ShortDoubleProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/LongByteProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/LongCharProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/LongIntProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/LongShortProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/LongLongProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/LongFloatProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/LongDoubleProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/FloatByteProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/FloatCharProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/FloatIntProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/FloatShortProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/FloatLongProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/FloatFloatProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/FloatDoubleProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/DoubleByteProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/DoubleCharProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/DoubleIntProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/DoubleShortProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/DoubleLongProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/DoubleFloatProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/DoubleDoubleProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ByteComparator.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/CharComparator.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/IntComparator.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ShortComparator.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/LongComparator.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/FloatComparator.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/DoubleComparator.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ByteProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/CharProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/IntProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ShortProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/LongProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/FloatProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/DoubleProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ByteObjectProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/CharObjectProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/IntObjectProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ShortObjectProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/LongObjectProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/FloatObjectProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/DoubleObjectProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ObjectByteProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ObjectCharProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ObjectIntProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ObjectShortProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ObjectLongProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ObjectFloatProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-sources/org/apache/mahout/math/function/ObjectDoubleProcedure.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/list/ByteArrayListTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/list/CharArrayListTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/list/IntArrayListTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/list/ShortArrayListTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/list/LongArrayListTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/list/FloatArrayListTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/list/DoubleArrayListTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenByteByteHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenByteCharHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenByteIntHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenByteShortHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenByteLongHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenByteFloatHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenByteDoubleHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenCharByteHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenCharCharHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenCharIntHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenCharShortHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenCharLongHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenCharFloatHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenCharDoubleHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenIntByteHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenIntCharHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenIntIntHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenIntShortHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenIntLongHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenIntFloatHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenIntDoubleHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenShortByteHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenShortCharHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenShortIntHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenShortShortHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenShortLongHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenShortFloatHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenShortDoubleHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenLongByteHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenLongCharHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenLongIntHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenLongShortHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenLongLongHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenLongFloatHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenLongDoubleHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenFloatByteHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenFloatCharHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenFloatIntHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenFloatShortHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenFloatLongHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenFloatFloatHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenFloatDoubleHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenDoubleByteHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenDoubleCharHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenDoubleIntHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenDoubleShortHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenDoubleLongHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenDoubleFloatHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenDoubleDoubleHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenByteObjectHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenCharObjectHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenIntObjectHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenShortObjectHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenLongObjectHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenFloatObjectHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenDoubleObjectHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenObjectByteHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenObjectCharHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenObjectIntHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenObjectShortHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenObjectLongHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenObjectFloatHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/map/OpenObjectDoubleHashMapTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/set/OpenByteHashSetTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/set/OpenCharHashSetTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/set/OpenIntHashSetTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/set/OpenShortHashSetTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/set/OpenLongHashSetTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/set/OpenFloatHashSetTest.java
+[INFO] Writing to /home/kris/mahouts/mahout-0.4/collections/target/generated-test-sources/org/apache/mahout/math/set/OpenDoubleHashSetTest.java
+[INFO] [resources:resources 
+{execution: default-resources}
+]
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /home/kris/mahouts/mahout-0.4/collections/src/main/resources
+[INFO] [compiler:compile 
+{execution: default-compile}
+]
+[INFO] Compiling 277 source files to /home/kris/mahouts/mahout-0.4/collections/target/classes
+[INFO] [resources:testResources 
+{execution: default-testResources}
+]
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /home/kris/mahouts/mahout-0.4/collections/src/test/resources
+[INFO] [compiler:testCompile 
+{execution: default-testCompile}
+]
+[INFO] Compiling 80 source files to /home/kris/mahouts/mahout-0.4/collections/target/test-classes
+[INFO] [surefire:test 
+{execution: default-test}
+]
+[INFO] Surefire report directory: /home/kris/mahouts/mahout-0.4/collections/target/surefire-reports
+
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+Running org.apache.mahout.math.list.ShortArrayListTest
+Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.199 sec
+Running org.apache.mahout.math.set.OpenLongHashSetTest
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.022 sec
+Running org.apache.mahout.math.map.OpenDoubleFloatHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.047 sec
+Running org.apache.mahout.math.map.OpenIntByteHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.053 sec
+Running org.apache.mahout.math.list.CharArrayListTest
+Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.042 sec
+Running org.apache.mahout.math.map.OpenShortByteHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.035 sec
+Running org.apache.mahout.math.map.OpenIntObjectHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.037 sec
+Running org.apache.mahout.math.map.OpenObjectIntHashMapTest
+Tests run: 19, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.024 sec
+Running org.apache.mahout.math.map.OpenIntIntHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.02 sec
+Running org.apache.mahout.math.set.OpenHashSetTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.01 sec
+Running org.apache.mahout.math.map.OpenShortLongHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.03 sec
+Running org.apache.mahout.math.map.OpenCharDoubleHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 sec
+Running org.apache.mahout.math.map.OpenFloatIntHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.032 sec
+Running org.apache.mahout.math.map.OpenByteDoubleHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.029 sec
+Running org.apache.mahout.math.map.OpenHashMapTest
+Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.03 sec
+Running org.apache.mahout.math.map.OpenByteLongHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 sec
+Running org.apache.mahout.math.map.OpenCharShortHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.02 sec
+Running org.apache.mahout.math.map.OpenFloatLongHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 sec
+Running org.apache.mahout.math.map.OpenCharObjectHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 sec
+Running org.apache.mahout.math.list.FloatArrayListTest
+Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.025 sec
+Running org.apache.mahout.math.map.OpenCharCharHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.022 sec
+Running org.apache.mahout.math.map.OpenIntDoubleHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 sec
+Running org.apache.mahout.math.map.OpenFloatDoubleHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.018 sec
+Running org.apache.mahout.math.map.OpenShortObjectHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.024 sec
+Running org.apache.mahout.math.map.OpenLongShortHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 sec
+Running org.apache.mahout.math.map.OpenFloatObjectHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 sec
+Running org.apache.mahout.math.set.OpenFloatHashSetTest
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 sec
+Running org.apache.mahout.math.map.OpenShortFloatHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.03 sec
+Running org.apache.mahout.math.map.OpenDoubleCharHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.021 sec
+Running org.apache.mahout.math.set.OpenByteHashSetTest
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 sec
+Running org.apache.mahout.math.map.OpenLongObjectHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 sec
+Running org.apache.mahout.math.map.OpenIntCharHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.028 sec
+Running org.apache.mahout.math.set.OpenCharHashSetTest
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 sec
+Running org.apache.mahout.math.map.OpenByteShortHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.048 sec
+Running org.apache.mahout.math.map.OpenLongFloatHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.042 sec
+Running org.apache.mahout.math.list.ByteArrayListTest
+Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.03 sec
+Running org.apache.mahout.math.set.OpenDoubleHashSetTest
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 sec
+Running org.apache.mahout.math.map.OpenIntFloatHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 sec
+Running org.apache.mahout.math.list.DoubleArrayListTest
+Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 sec
+Running org.apache.mahout.math.map.OpenDoubleIntHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.034 sec
+Running org.apache.mahout.math.map.OpenDoubleLongHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 sec
+Running org.apache.mahout.math.map.OpenFloatCharHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.053 sec
+Running org.apache.mahout.math.map.OpenByteObjectHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 sec
+Running org.apache.mahout.math.map.OpenDoubleByteHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.034 sec
+Running org.apache.mahout.math.map.OpenFloatFloatHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.032 sec
+Running org.apache.mahout.math.map.OpenIntShortHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.04 sec
+Running org.apache.mahout.math.map.OpenShortDoubleHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 sec
+Running org.apache.mahout.math.set.OpenIntHashSetTest
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 sec
+Running org.apache.mahout.math.map.OpenLongIntHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 sec
+Running org.apache.mahout.math.map.OpenCharFloatHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 sec
+Running org.apache.mahout.math.map.OpenLongDoubleHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.022 sec
+Running org.apache.mahout.math.list.LongArrayListTest
+Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 sec
+Running org.apache.mahout.math.map.OpenCharLongHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.023 sec
+Running org.apache.mahout.math.SortingTest
+Tests run: 19, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.803 sec
+Running org.apache.mahout.math.map.OpenByteIntHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.029 sec
+Running org.apache.mahout.math.list.IntArrayListTest
+Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.03 sec
+Running org.apache.mahout.math.map.OpenObjectShortHashMapTest
+Tests run: 19, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 sec
+Running org.apache.mahout.math.map.OpenDoubleObjectHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.047 sec
+Running org.apache.mahout.math.map.OpenShortCharHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 sec
+Running org.apache.mahout.math.map.OpenLongLongHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.021 sec
+Running org.apache.mahout.math.map.OpenLongByteHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.028 sec
+Running org.apache.mahout.math.map.OpenCharByteHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 sec
+Running org.apache.mahout.math.map.OpenFloatByteHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 sec
+Running org.apache.mahout.math.map.OpenShortIntHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 sec
+Running org.apache.mahout.math.map.OpenByteFloatHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 sec
+Running org.apache.mahout.math.set.OpenShortHashSetTest
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 sec
+Running org.apache.mahout.math.map.OpenObjectLongHashMapTest
+Tests run: 19, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 sec
+Running org.apache.mahout.math.map.OpenByteByteHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 sec
+Running org.apache.mahout.math.map.OpenFloatShortHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 sec
+Running org.apache.mahout.math.map.OpenShortShortHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 sec
+Running org.apache.mahout.math.map.OpenByteCharHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 sec
+Running org.apache.mahout.math.map.OpenDoubleShortHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 sec
+Running org.apache.mahout.math.map.OpenObjectByteHashMapTest
+Tests run: 19, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 sec
+Running org.apache.mahout.math.map.OpenObjectDoubleHashMapTest
+Tests run: 19, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 sec
+Running org.apache.mahout.math.map.OpenDoubleDoubleHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 sec
+Running org.apache.mahout.math.map.OpenCharIntHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 sec
+Running org.apache.mahout.math.map.OpenObjectFloatHashMapTest
+Tests run: 19, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 sec
+Running org.apache.mahout.math.map.OpenLongCharHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 sec
+Running org.apache.mahout.math.map.OpenIntLongHashMapTest
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 sec
+Running org.apache.mahout.math.map.OpenObjectCharHashMapTest
+Tests run: 19, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 sec
+
+Results :
+
+Tests run: 1314, Failures: 0, Errors: 0, Skipped: 0
+
+[INFO] [jar:jar 
+{execution: default-jar}
+]
+[INFO] Building jar: /home/kris/mahouts/mahout-0.4/collections/target/mahout-collections-0.4-SNAPSHOT.jar
+[INFO] [install:install 
+{execution: default-install}
+]
+[INFO] Installing /home/kris/mahouts/mahout-0.4/collections/target/mahout-collections-0.4-SNAPSHOT.jar to /home/kris/.m2/repository/org/apache/mahout/mahout-collections/0.4-SNAPSHOT/mahout-collections-0.4-SNAPSHOT.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Mahout Math
+[INFO]    task-segment: [install]
+[INFO] ------------------------------------------------------------------------
+[INFO] [resources:resources 
+{execution: default-resources}
+]
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /home/kris/mahouts/mahout-0.4/math/src/main/resources
+[INFO] [compiler:compile 
+{execution: default-compile}
+]
+[INFO] Compiling 167 source files to /home/kris/mahouts/mahout-0.4/math/target/classes
+[INFO] [resources:testResources 
+{execution: default-testResources}
+]
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /home/kris/mahouts/mahout-0.4/math/src/test/resources
+[INFO] [compiler:testCompile 
+{execution: default-testCompile}
+]
+[INFO] Compiling 16 source files to /home/kris/mahouts/mahout-0.4/math/target/test-classes
+[INFO] [surefire:test 
+{execution: default-test}
+]
+[INFO] Surefire report directory: /home/kris/mahouts/mahout-0.4/math/target/surefire-reports
+
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+Running org.apache.mahout.math.TestMatrixView
+Tests run: 49, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.166 sec
+Running org.apache.mahout.math.TestDenseVector
+Tests run: 43, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.035 sec
+Running org.apache.mahout.math.TestSparseMatrix
+Tests run: 53, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.206 sec
+Running org.apache.mahout.math.TestSparseRowMatrix
+Tests run: 53, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.083 sec
+Running org.apache.mahout.math.stats.LogLikelihoodTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.031 sec
+Running org.apache.mahout.math.TestOrderedIntDoubleMapping
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 sec
+Running org.apache.mahout.math.decomposer.hebbian.TestHebbianSolver
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.647 sec
+Running org.apache.mahout.math.TestDenseMatrix
+Tests run: 53, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.033 sec
+Running org.apache.mahout.math.TestSparseVector
+Tests run: 42, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.023 sec
+Running org.apache.mahout.math.TestVectorView
+Tests run: 38, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 sec
+Running org.apache.mahout.math.VectorTest
+Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.03 sec
+Running org.apache.mahout.math.TestSparseColumnMatrix
+Tests run: 53, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.057 sec
+Running org.apache.mahout.math.decomposer.lanczos.TestLanczosSolver
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.839 sec
+Running org.apache.mahout.math.AIOOBInSortingTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 sec
+
+Results :
+
+Tests run: 409, Failures: 0, Errors: 0, Skipped: 0
+
+[INFO] [jar:jar 
+{execution: default-jar}
+]
+[INFO] Building jar: /home/kris/mahouts/mahout-0.4/math/target/mahout-math-0.4-SNAPSHOT.jar
+[INFO] [jar:test-jar 
+{execution: default}
+]
+[INFO] Building jar: /home/kris/mahouts/mahout-0.4/math/target/mahout-math-0.4-SNAPSHOT-tests.jar
+[INFO] [install:install 
+{execution: default-install}
+]
+[INFO] Installing /home/kris/mahouts/mahout-0.4/math/target/mahout-math-0.4-SNAPSHOT.jar to /home/kris/.m2/repository/org/apache/mahout/mahout-math/0.4-SNAPSHOT/mahout-math-0.4-SNAPSHOT.jar
+[INFO] Installing /home/kris/mahouts/mahout-0.4/math/target/mahout-math-0.4-SNAPSHOT-tests.jar to /home/kris/.m2/repository/org/apache/mahout/mahout-math/0.4-SNAPSHOT/mahout-math-0.4-SNAPSHOT-tests.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Mahout Core
+[INFO]    task-segment: [install]
+[INFO] ------------------------------------------------------------------------
+[INFO] [resources:resources 
+{execution: default-resources}
+]
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 0 resource
+[INFO] [compiler:compile 
+{execution: default-compile}
+]
+[INFO] Compiling 455 source files to /home/kris/mahouts/mahout-0.4/core/target/classes
+[INFO] ------------------------------------------------------------------------
+[ERROR] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Compilation failure
+/home/kris/mahouts/mahout-0.4/core/src/main/java/org/apache/mahout/cf/taste/impl/recommender/TopItems.java:[85,15] cannot find symbol
+symbol  : method sort(java.util.List<org.apache.mahout.cf.taste.recommender.RecommendedItem>)
+location: class java.util.Collections
+
+
+[INFO] ------------------------------------------------------------------------
+[INFO] For more information, run Maven with the -e switch
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 43 seconds
+[INFO] Finished at: Wed Apr 07 14:52:08 BST 2010
+[INFO] Final Memory: 85M/390M
+[INFO] ------------------------------------------------------------------------

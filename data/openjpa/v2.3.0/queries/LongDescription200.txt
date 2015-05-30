@@ -1,0 +1,72 @@
+cannot use enum as input parameter for a query, Enum cannot be used as argument in setParm, since you also cannot specify an Enum type as a literal, this means that there is no way to update an enum type using jpaql bulk  update 
+
+update Wine w set w.type = ?1 where w.type = ?2
+
+<4|false|0.9.7-incubating-SNAPSHOT> org.apache.openjpa.persistence.ArgumentException: The specified parameter of type "class com.ibm.websphere.ejb3sample.winetour.bug.Wine$WineType" is not a valid query parameter.
+	at org.apache.openjpa.jdbc.sql.DBDictionary.setUnknown(DBDictionary.java:1273)
+	at org.apache.openjpa.jdbc.sql.SQLBuffer.setParameters(SQLBuffer.java:564)
+	at org.apache.openjpa.jdbc.sql.SQLBuffer.prepareStatement(SQLBuffer.java:475)
+	at org.apache.openjpa.jdbc.sql.SQLBuffer.prepareStatement(SQLBuffer.java:451)
+	at org.apache.openjpa.jdbc.sql.SQLBuffer.prepareStatement(SQLBuffer.java:440)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreQuery.executeBulkOperation(JDBCStoreQuery.java:490)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreQuery.executeUpdate(JDBCStoreQuery.java:420)
+	at org.apache.openjpa.kernel.ExpressionStoreQuery$DataStoreExecutor.executeUpdate(ExpressionStoreQuery.java:687)
+	at org.apache.openjpa.kernel.QueryImpl.update(QueryImpl.java:1030)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:795)
+	at org.apache.openjpa.kernel.QueryImpl.updateAll(QueryImpl.java:870)
+	at org.apache.openjpa.kernel.DelegatingQuery.updateAll(DelegatingQuery.java:568)
+	at org.apache.openjpa.persistence.QueryImpl.executeUpdate(QueryImpl.java:316)
+	at com.ibm.websphere.ejb3sample.winetour.bug.BugWineryTest.testBulkUpdate(BugWineryTest.java:553)
+
+=========================================================================
+"update Wine w set w.type = "Wine.WineType.Propriatory" where w.type = "+Wine.WineType.Varietal 
+
+<4|false|0.9.7-incubating-SNAPSHOT> org.apache.openjpa.persistence.ArgumentException: null
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:800)
+	at org.apache.openjpa.kernel.QueryImpl.updateAll(QueryImpl.java:870)
+	at org.apache.openjpa.kernel.QueryImpl.updateAll(QueryImpl.java:866)
+	at org.apache.openjpa.kernel.DelegatingQuery.updateAll(DelegatingQuery.java:560)
+	at org.apache.openjpa.persistence.QueryImpl.executeUpdate(QueryImpl.java:319)
+	at com.ibm.websphere.ejb3sample.winetour.bug.BugWineryTest.testBulkUpdate(BugWineryTest.java:557)
+	at com.ibm.websphere.ejb3sample.winetour.bug.BugWineryTest.main(BugWineryTest.java:141)
+Caused by: java.lang.NullPointerException
+	at org.apache.openjpa.jdbc.kernel.exps.PCPath.initialize(PCPath.java:442)
+	at org.apache.openjpa.jdbc.kernel.exps.CompareEqualExpression.initialize(CompareEqualExpression.java:77)
+	at org.apache.openjpa.jdbc.kernel.exps.SelectConstructor.initialize(SelectConstructor.java:175)
+	at org.apache.openjpa.jdbc.kernel.exps.SelectConstructor.newSelect(SelectConstructor.java:116)
+	at org.apache.openjpa.jdbc.kernel.exps.SelectConstructor.evaluate(SelectConstructor.java:70)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreQuery.executeBulkOperation(JDBCStoreQuery.java:458)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreQuery.executeUpdate(JDBCStoreQuery.java:420)
+	at org.apache.openjpa.kernel.ExpressionStoreQuery$DataStoreExecutor.executeUpdate(ExpressionStoreQuery.java:687)
+	at org.apache.openjpa.kernel.QueryImpl.update(QueryImpl.java:1030)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:795)
+	... 6 more
+	at com.ibm.websphere.ejb3sample.winetour.bug.BugWineryTest.main(BugWineryTest.java:141)
+
+=========================================================================
+update Wine w set w.type = 'Propriatory' where w.type = 'Varietal'
+
+<4|false|0.9.7-incubating-SNAPSHOT> org.apache.openjpa.persistence.ArgumentException: java.lang.String incompatible with java.lang.Enum
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:800)
+	at org.apache.openjpa.kernel.QueryImpl.updateAll(QueryImpl.java:870)
+	at org.apache.openjpa.kernel.QueryImpl.updateAll(QueryImpl.java:866)
+	at org.apache.openjpa.kernel.DelegatingQuery.updateAll(DelegatingQuery.java:560)
+	at org.apache.openjpa.persistence.QueryImpl.executeUpdate(QueryImpl.java:319)
+	at com.ibm.websphere.ejb3sample.winetour.bug.BugWineryTest.testBulkUpdate(BugWineryTest.java:558)
+	at com.ibm.websphere.ejb3sample.winetour.bug.BugWineryTest.main(BugWineryTest.java:141)
+Caused by: java.lang.ClassCastException: java.lang.String incompatible with java.lang.Enum
+	at org.apache.openjpa.jdbc.meta.strats.EnumValueHandler.toDataStoreValue(EnumValueHandler.java:90)
+	at org.apache.openjpa.jdbc.meta.strats.HandlerStrategies.toDataStoreValue(HandlerStrategies.java:220)
+	at org.apache.openjpa.jdbc.meta.strats.HandlerFieldStrategy.toDataStoreValue(HandlerFieldStrategy.java:223)
+	at org.apache.openjpa.jdbc.meta.FieldMapping.toDataStoreValue(FieldMapping.java:795)
+	at org.apache.openjpa.jdbc.kernel.exps.PCPath.toDataStoreValue(PCPath.java:620)
+	at org.apache.openjpa.jdbc.kernel.exps.Lit.calculateValue(Lit.java:86)
+	at org.apache.openjpa.jdbc.kernel.exps.CompareEqualExpression.appendTo(CompareEqualExpression.java:85)
+	at org.apache.openjpa.jdbc.kernel.exps.SelectConstructor.buildWhere(SelectConstructor.java:235)
+	at org.apache.openjpa.jdbc.kernel.exps.SelectConstructor.evaluate(SelectConstructor.java:76)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreQuery.executeBulkOperation(JDBCStoreQuery.java:458)
+	at org.apache.openjpa.jdbc.kernel.JDBCStoreQuery.executeUpdate(JDBCStoreQuery.java:420)
+	at org.apache.openjpa.kernel.ExpressionStoreQuery$DataStoreExecutor.executeUpdate(ExpressionStoreQuery.java:687)
+	at org.apache.openjpa.kernel.QueryImpl.update(QueryImpl.java:1030)
+	at org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:795)
+	... 6 more

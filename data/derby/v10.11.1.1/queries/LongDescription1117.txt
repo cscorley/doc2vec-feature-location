@@ -1,0 +1,15 @@
+cause is being lost in the following constructor in SqlException
+
+   public SqlException(LogWriter logwriter,
+       MessageId msgid, Object[] args, Throwable cause)
+   {
+       this(
+           logwriter,
+           msgutil_.getCompleteMessage(
+               msgid.msgid,
+               args),
+           ExceptionUtil.getSQLStateFromIdentifier(msgid.msgid),
+           ExceptionUtil.getSeverityFromIdentifier(msgid.msgid));
+   }
+
+maybe we should add setThrowable(cause) so we dont lose track of it.  

@@ -1,0 +1,5 @@
+Deleting a non-existing ledger should silently succeed. 
+
+Current behavior is to raise a ZKException, but it's not possible to know whether there was some error or the ledger does not exists anymore. 
+
+This scenario will happen when a previous deleteLedger() call succeeded but the client crashed before updating its own ledger list.

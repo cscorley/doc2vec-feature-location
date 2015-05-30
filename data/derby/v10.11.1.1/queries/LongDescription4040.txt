@@ -1,0 +1,4 @@
+SQLChar.getLength() returns the wrong length of the data value in some cases.
+For the bug to be triggered, the value must contain characters that are represented by two or three bytes, and Derby must store the value as a stream.
+
+In my ad-hoc testing, I found that a value of length 10886 with CJK characters doesn't trigger the bug, but 10887 does trigger the bug. Further, for a range of lengths the bug can also been observed for CLOB columns (when doing 'select length(clobcolumn)').

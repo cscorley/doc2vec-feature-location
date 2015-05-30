@@ -1,0 +1,1 @@
+In QueryCacheStoreQuery.checkCache() if the query result has no result, we return Collections.emptyList(). This is a problem when using the TIMESTAMP eviction policy because we skip the section of code that looks at the timestamp to evict stale entries.

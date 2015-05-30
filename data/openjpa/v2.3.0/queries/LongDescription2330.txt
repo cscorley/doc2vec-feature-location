@@ -1,0 +1,53 @@
+We wish to report another bug that generates a memory overflow resulting in an infinite recursive loop. Here are two stacktraces apparently from the same bug:
+
+First stacktrace sample :
+================================================
+Exception in thread "AWT-EventQueue-0" java.lang.StackOverflowError
+	at java.util.LinkedHashMap$KeyIterator.<init>(LinkedHashMap.java:383)
+	at java.util.LinkedHashMap$KeyIterator.<init>(LinkedHashMap.java:383)
+	at java.util.LinkedHashMap.newKeyIterator(LinkedHashMap.java:396)
+	at java.util.HashMap$KeySet.iterator(HashMap.java:874)
+	at java.util.HashSet.iterator(HashSet.java:153)
+	at org.apache.openjpa.util.java$util$LinkedHashSet$proxy.iterator(Unknown Source)
+	at java.util.AbstractCollection.toArray(AbstractCollection.java:120)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoadedCollection(OpenJPAPersistenceUtil.java:240)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoadedField(OpenJPAPersistenceUtil.java:212)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoaded(OpenJPAPersistenceUtil.java:161)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoadedArray(OpenJPAPersistenceUtil.java:265)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoadedCollection(OpenJPAPersistenceUtil.java:242)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoadedField(OpenJPAPersistenceUtil.java:212)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoaded(OpenJPAPersistenceUtil.java:161)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoadedField(OpenJPAPersistenceUtil.java:223)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoaded(OpenJPAPersistenceUtil.java:161)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoadedField(OpenJPAPersistenceUtil.java:223)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoaded(OpenJPAPersistenceUtil.java:161)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoadedArray(OpenJPAPersistenceUtil.java:265)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoadedCollection(OpenJPAPersistenceUtil.java:242)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoadedField(OpenJPAPersistenceUtil.java:212)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoaded(OpenJPAPersistenceUtil.java:161)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoadedField(OpenJPAPersistenceUtil.java:223)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoaded(OpenJPAPersistenceUtil.java:161)
+[...]
+
+Second stacktrace sample :
+================================================
+Exception in thread "AWT-EventQueue-0" java.lang.StackOverflowError
+	at java.util.HashMap$EntrySet.size(HashMap.java:963)
+	at org.apache.openjpa.util.ProxyMaps$ProxyEntrySetImpl.size(ProxyMaps.java:255)
+	at java.util.AbstractCollection.toArray(AbstractCollection.java:119)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoadedMap(OpenJPAPersistenceUtil.java:288)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoadedField(OpenJPAPersistenceUtil.java:215)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoaded(OpenJPAPersistenceUtil.java:161)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoadedArray(OpenJPAPersistenceUtil.java:265)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoadedCollection(OpenJPAPersistenceUtil.java:242)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoadedField(OpenJPAPersistenceUtil.java:212)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoaded(OpenJPAPersistenceUtil.java:161)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoadedArray(OpenJPAPersistenceUtil.java:265)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoadedCollection(OpenJPAPersistenceUtil.java:242)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoadedField(OpenJPAPersistenceUtil.java:212)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoaded(OpenJPAPersistenceUtil.java:161)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoadedField(OpenJPAPersistenceUtil.java:223)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoaded(OpenJPAPersistenceUtil.java:161)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoadedField(OpenJPAPersistenceUtil.java:223)
+	at org.apache.openjpa.persistence.OpenJPAPersistenceUtil.isLoaded(OpenJPAPersistenceUtil.java:161)
+[...]

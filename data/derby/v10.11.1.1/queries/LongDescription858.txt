@@ -1,0 +1,10 @@
+The test loads four initial connections using these ij.connection properties in the test's _app.properties file.
+
+ij.connection.connOne=jdbc:derby:wombat;create=true
+ij.connection.connTwo=jdbc:derby:lemming;create=true
+ij.connection.connThree=jdbc:noone:fruitfly;create=true
+ij.connection.connFour=jdbc:derby:nevercreated
+
+The order these connections are created, and hence the order of the test output is only determined by the hash table ordering of the properties file. Making small changes in  ijConnName_app.properties files can change the order, making the test appear to fail.
+
+E.g. I tried to enable the test with a security manager by modifying the noSecurityManger to be set to false, and the order changed.

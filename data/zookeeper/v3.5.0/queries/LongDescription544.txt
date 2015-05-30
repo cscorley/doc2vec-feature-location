@@ -1,0 +1,24 @@
+This came up recently on the user list. If you are developing tests for your zk client you need to be able to access the server that your
+session is currently connected to. The reason is that your test needs to know which server in the quorum to shutdown in order to
+verify you are handling failover correctly. Similar for session expiration testing.
+
+however we should be careful, we prefer not to expose this to all clients, this is an implementation detail that we typically
+want to hide. 
+
+also we should provide this in both the c and java clients
+
+I suspect we should add a protected method on ZooKeeper. This will make a higher bar (user will have to subclass) for 
+the user to access this method. In tests it's fine, typically you want a "TestableZooKeeper" class anyway. In c we unfortunately
+have less options, we can just rely on docs for now. 
+
+In both cases (c/java) we need to be very very clear in the docs that this is for testing only and to clearly define semantics.
+
+We should add the following at the same time:
+
+toString() method to ZooKeeper which includes server ip/port, client port, any other information deemed useful (connection stats like send/recv?)
+
+the java ZooKeeper is missing "deterministic connection order" that the c client has. this is also useful for testing. again, protected and 
+clear docs that this is for testing purposes only!
+
+
+Any other things we should expose?

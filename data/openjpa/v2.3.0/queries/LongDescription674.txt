@@ -1,0 +1,8 @@
+A persistence.xml file has multiple PUs defined. A program makes use of a PU which is NOT the first PU in the list. The classes are not enhanced at build time, but are enhanced at runtime via the javaagent. No anchor arguments are passed to the javaagent.
+
+Because PCEnhancerAgent ignores PUs following the first, OpenJPA tries to use an appropriate runtime enhancing strategy for a class, but is not always be able to. The program gets this error back:
+
+Error Message: [Error while processing persistent field <blah>
+Error details: The accessor for field getTheAddress in type <blah> is private or package-visible. OpenJPA requires accessors in unenhanced instances to be public or protected. If you do not want to add such an accessor, you must run the OpenJPA enhancer after compilation, or deploy to an environment that supports deploy-time enhancement, such as a Java EE 5 application server.
+
+The root problem is that the javaagent choses only the first  PU's classes for enhancement, and ignores the remaining PUs from persistence.xml. A workaround is to explicity specify the PU referenced by the program as an argument to the javaagent.

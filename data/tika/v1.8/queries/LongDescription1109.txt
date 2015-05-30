@@ -1,0 +1,13 @@
+It seems that when processing OOXML documents, the metadata is only read after the text. This means it's impossible to use the medata while processing the text. I think it would be more useful to have the metadata populated first.
+
+As a symptom:
+
+java -jar tika-app-1.3.jar test-classes/test-documents/testPPT.pptx
+
+outputs only as metadata:
+
+<meta name="Content-Length" content="36518"/>
+<meta name="Content-Type" content="application/vnd.openxmlformats-officedocument.presentationml.presentation"/>
+<meta name="resourceName" content="testPPT.pptx"/>
+
+while there is more medata in the file (e.g. <dc:title>Attachment Test</dc:title>).

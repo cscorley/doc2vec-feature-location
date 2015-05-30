@@ -1,0 +1,11 @@
+I have a repeatable sequence that always causes the "Conglomerate (X) requested does not exist" error on my system.  There are several steps.  You can use "ij" as follows:
+
+1. Start with a new database, e.g. connect 'jdbc:derby:test;create=true';
+2. create table y( pk integer primary key );
+3. insert into y values (123);
+4. create table z( pk integer not null primary key references y );
+5. Create a file containing a single row of ASCII data with the number "123" (in ASCII) in it.  e.g. /tmp/z
+6. call syscs_util.syscs_import_table( null, 'Z', '/tmp/z', ',', '''', null, 1 );
+7. Try to access the "Z" table, e.g. SELECT * FROM z; or DROP TABLE z;
+
+At this point, I always get the error.  I can use this sequence in other contexts, but the difference, as far as I can tell, is that the table "Z" has a column that is both PK and FK.

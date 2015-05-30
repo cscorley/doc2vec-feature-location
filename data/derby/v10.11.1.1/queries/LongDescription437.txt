@@ -1,0 +1,35 @@
+COMPRESS_TABLE procedure forms SQL statement undeneath,  so if  the user does not pass quoted names , it is not working with delimited table/schema names..
+
+eg: create table "Order"(a int ) ;
+
+ij> call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP' , 'Order'  ,1) ;
+ERROR 38000: The exception 'SQL Exception: Syntax error: Encountered "Order" at
+line 1, column 17.' was thrown while evaluating an expression.
+ERROR 42X01: Syntax error: Encountered "Order" at line 1, column 17.
+With quoted names it works fine.
+ij> call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP' , '"Order"'  ,1) ;
+0 rows inserted/updated/deleted
+
+If  it is  expected that  user to pass quoted names for SYSCS_UTIL.SYSCS_COMPRESS_TABLE, then it is ok.
+But doc is not clear:
+
+COMPRESS_TABLE doc in the reference manual:
+TABLENAME
+   An input argument of type VARCHAR(128) that specifies the table name
+   of the table. The string must exactly match the case of the table
+   name, and the argument of "Fred" will be passed to SQL as the
+   delimited identifier 'Fred'. Passing a null will result in an error.
+
+So either doc has to be fixed or code needs to be fixed to handle  quoted names for compress table.
+
+I think the code has to fixed to be consistent with other system procedures. .  i.e
+If you  created a schema, table or column name as a non-delimited identifier, you must pass the name in all upper case. If you created a schema, table or column name as a delimited identifier, you must pass the name in the same case as it was created.
+
+For example:
+create table "Order"(a int ) ;
+call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP' , 'Order'  ,1) ;
+
+create table t1( a int ) 
+call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP' , 'T1'  ,1) ;
+
+

@@ -1,0 +1,1 @@
+While testing PIG-3558, I found that fetch mode doesn't set the task id in the jobconf before running. As a consequence, UdfContext#isFrontend() will always return true. Loaders and Storers which initialize themselves based on this flag may fail.

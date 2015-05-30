@@ -1,0 +1,7 @@
+The patch I will attach does a couple things:
+
+Uses FileLineIterable/Iterator for iterating over lines of a file. This is slightly tidier, but also addresses a few subtle issues across the code base, where reading of files did not always end by closing the stream, or, relied on platform default character encoding.
+
+Uses IOUtils consistently to close Closeables, swallowing and logging exceptions in cases where they are not to be treated as errors.
+
+Finally, fixes some issues in ARFFIterator while I'm at it – hasNext() changes state, when next() should, and next() did not throw NoSuchElementException

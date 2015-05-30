@@ -1,0 +1,30 @@
+Hi Jeff,
+
+I've been trying out the ClusterEvaluator class today since your recent changes, and I'm running into a problem whereby the average intra-cluster density can be set to NaN. Looking into it, it seems to happen for clusters containing points which are very close to the centroid.  For example, I have a cluster with:
+
+Centroid:
+
+{0:0.6075199543688895,1:-0.3165058387409551,2:0.2027106147825682,3:-21.246338574215706,4:-5.875047828899212,5:-0.9835694086952028,6:0.2794019939470805,7:-0.36402079609289717,8:0.5201946127074457,9:-0.47084217746293855,10:-0.14380397719670499,11:-0.10441028152861193,12:0.0698485086335405,13:0.014286758874801297}
+
+and one of the representative points (3 per cluster):
+
+[0.6075199543688894, -0.31650583874095506, 0.2027106147825682, -21.2463385742157, -5.875047828899212, -0.9835694086952026, 0.27940199394708054, -0.36402079609289706, 0.5201946127074457, -0.47084217746293855, -0.14380397719670499, -0.10441028152861194, 0.06984850863354047, 0.014286758874801297]
+
+As far as I can tell from debugging, the representative points look identical to the centroid of this cluster, but I'm assuming there's some small difference as "if (!vector.equals(clusterI.getCenter()))" in ClusterEvaluator.invalidCluster() is always returning false for these points, and so the cluster isn't pruned from the list.
+
+Later on, in ClusterEvaluator.intraClusterDensity(), the "min" and "max" distances are ending up with the same value, and the density from "double density = (sum / count - min) / (max - min);" is calculated as NaN, e.g. here are the values I'm getting:
+
+min = max = 1.5397509610616733E-7
+count = 3
+sum = 4.61925288318502E-7
+max - min: 0.0
+count - min: 2.9999998460249038
+(sum / count - min) = 0.0
+
+This then causes avgDensity to be calculated as NaN. I'm not sure what the solution is here, should invalidCluster() check that the the difference between the centroid and the candidate representative point is greater than a certain threshold, which would cause such a cluster to be pruned? Or is the fix in the intraClusterDensity() calculation to handle the case where min = max?
+
+BTW would you prefer that I create a Jira to record these issues, or is it okay to send them to the dev list as I've been doing?
+
+Thanks,
+
+Derek

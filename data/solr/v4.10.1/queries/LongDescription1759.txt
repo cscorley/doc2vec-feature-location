@@ -1,0 +1,42 @@
+I'm using the version 1.4.0 of Solr and I'm having some trouble with the DIH when I use the special command $skipDoc.
+
+After skipping a document to insert, the next one is not inserted in the proper way.
+
+
+My DIH configuration is quite complex so I'll try to explain myself with a simpler example:
+
+item table:
+id 	name
+1	aaa
+2	bbb
+
+feature table:
+Item_id	hidden
+1		true
+2 		false
+
+
+DIH conf:
+
+<document name="products">
+	<entity name="item" query="select * from item">
+		<field column="ID" name="id" />
+		<field column="NAME" name="name" />
+
+		<entity name="feature" query="select hidden from feature where item_id='$
+{item.ID}
+'">
+			<field name="$skipDoc" column="hidden" />
+		</entity>
+	</entity>
+</document>
+
+
+The result I expected is that the record named "bbb" would be imported, but the result of my import case is that the other record (the "aaa") has been inserted.
+
+
+I took a look to the DIH code and I found a possible problem that could cause this result. 
+In the DocBuilder class when a $skipDoc is detected, an exception is raised. After handling the exception another loop starts, without cleaning up the doc variable.
+When the next record is read, the addFieldToDoc method can't fill the doc fields because they are already filled.
+
+To solve this problem I just clean up the doc variable when handling the exception.

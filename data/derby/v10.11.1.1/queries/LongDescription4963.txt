@@ -1,0 +1,9 @@
+FileChannel.force is interruptable, and we really don't want to be interrupted when we flush the log file.  Happily, on most platforms, we use the "rws"/"rwd" file open mask which makes the writes thjemselves synchronized, so no subsequent explicit file level sync is needed anyway.
+
+DirFile4#getRandowmAccessFile should use plain DirRandomAccessFile instead of the current DirRandomAccessFile4. This will make StorageRandomAccessFile#sync map to FileDescriptor#sync instead of FileChannel#force (also for NIO supporting platforms). 
+
+Since FileDescriptor#sync does not allow synching file data only (it also synchronizes metadata), those platforms which do not support write synchronization will experience a performance drop, but this is the price we have to pay to survive interrupts without shutting down the database on those platforms. 
+
+Users which experience this as a problem, should update to a newer JVM which does support "rws"/"rwd" in the mode argument to java.io.RandomAccessFile (http://download.oracle.com/javase/6/docs/api/java/io/RandomAccessFile.html#RandomAccessFile(java.io.File,%20java.lang.String).
+
+Cf. also discussion on https://issues.apache.org/jira/browse/DERBY-4741?focusedCommentId=12977862&page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#action_12977862 .

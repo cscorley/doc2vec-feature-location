@@ -1,0 +1,15 @@
+The JaCoCo targets fail on most platforms due to missing permissions, i.e. "ant jacoco-junit":
+
+junit-pptesting:
+    [junit] Running org.apache.derby.PackagePrivateTestSuite
+    [junit] Tests run: 67, Failures: 0, Errors: 0, Time elapsed: 22,858 sec
+    [junit] java.security.AccessControlException: access denied ("java.io.FilePermission" "trunk\junit_20130211_1216\jacoco.exec" "write")
+    [junit]     at java.security.AccessControlContext.checkPermission(AccessControlContext.java:366)
+    [junit]     at java.security.AccessController.checkPermission(AccessController.java:555)
+    [junit]     at java.lang.SecurityManager.checkPermission(SecurityManager.java:549)
+    [junit]     at java.lang.SecurityManager.checkWrite(SecurityManager.java:979)
+    [junit]     at java.io.FileOutputStream.<init>(FileOutputStream.java:203)
+    [junit]     at org.jacoco.agent.rt.internal_5d10cad.output.FileOutput.openFile(FileOutput.java:67)
+    [junit]     at org.jacoco.agent.rt.internal_5d10cad.output.FileOutput.writeExecutionData(FileOutput.java:53)
+    [junit]     at org.jacoco.agent.rt.internal_5d10cad.Agent.shutdown(Agent.java:143)
+    [junit]     at org.jacoco.agent.rt.internal_5d10cad.Agent$1.run(Agent.java:60)

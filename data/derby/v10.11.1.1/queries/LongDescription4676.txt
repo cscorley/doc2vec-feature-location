@@ -1,0 +1,85 @@
+Running into a NullPointerException error in the Apache Derby database over multiple versions of the derby jars.  From testing, this issue intermittently occurs during moderate load test scenarios, but has never occurred in production.   This is using Derby as embedded and always occurs on the same statement as shown below and in the attachment.   Following the error, hibernate throws an exception which results in the code attempting to rollback the transaction.  The rollback fails as the NullPointerException appears to kill the connection.
+
+
+	
+	
+		
+		
+			derby.log
+		
+		
+	
+	
+
+
+
+2010-04-27 16:05:22.429 GMT Thread[SNMPDelayedStoreRunnable2Thread,5,main] (XID = 244546), (SESSIONID = 17), (DATABASE = db), (DRDAID = null), Cleanup action starting
+2010-04-27 16:05:22.429 GMT Thread[SNMPDelayedStoreRunnable2Thread,5,main] (XID = 244546), (SESSIONID = 17), (DATABASE = db), (DRDAID = null), Failed Statement is: select nonprimary0_.componentid as componen1_1_, nonprimary0_.deviceid as deviceid1_, device1_.deviceid as deviceid0_, device1_.name as name3_0_, device1_.description as descript3_3_0_, device1_.device_type as device4_3_0_, device1_.managed_address as managed5_3_0_, device1_.csid as csid3_0_, device1_.url as url3_0_, device1_.date_written_to_db as date8_3_0_, device1_.valid as valid3_0_, device1_.invalid_reason as invalid10_3_0_, device1_.version as version3_0_ from subsystem_callserver_map nonprimary0_ inner join device_data device1_ on nonprimary0_.deviceid=device1_.deviceid where nonprimary0_.componentid=? with 1 parameters begin parameter #1: 86b5b069-ca5c-4c38-9643-d9308c246100 :end parameter 
+java.lang.NullPointerException
+	at org.apache.derby.impl.store.access.conglomerate.GenericConglomerateController.fetch(Unknown Source)
+	at org.apache.derby.impl.sql.execute.IndexRowToBaseRowResultSet.getNextRowCore(Unknown Source)
+	at org.apache.derby.impl.sql.execute.NestedLoopJoinResultSet.getNextRowCore(Unknown Source)
+	at org.apache.derby.impl.sql.execute.BasicNoPutResultSetImpl.getNextRow(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedResultSet.movePosition(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedResultSet.next(Unknown Source)
+	at com.mchange.v2.c3p0.impl.NewProxyResultSet.next(NewProxyResultSet.java:2859)
+	at org.hibernate.loader.Loader.doQuery(Loader.java:408)
+	at org.hibernate.loader.Loader.doQueryAndInitializeNonLazyCollections(Loader.java:218)
+	at org.hibernate.loader.Loader.loadCollection(Loader.java:1434)
+	at org.hibernate.loader.collection.CollectionLoader.initialize(CollectionLoader.java:99)
+	at org.hibernate.persister.collection.AbstractCollectionPersister.initialize(AbstractCollectionPersister.java:488)
+	at org.hibernate.event.def.DefaultInitializeCollectionEventListener.onInitializeCollection(DefaultInitializeCollectionEventListener.java:60)
+	at org.hibernate.impl.SessionImpl.initializeCollection(SessionImpl.java:1430)
+	at org.hibernate.collection.AbstractPersistentCollection.forceInitialization(AbstractPersistentCollection.java:280)
+	at org.hibernate.engine.PersistenceContext.initializeNonLazyCollections(PersistenceContext.java:796)
+	at org.hibernate.loader.Loader.doQueryAndInitializeNonLazyCollections(Loader.java:223)
+	at org.hibernate.loader.Loader.doList(Loader.java:1593)
+	at org.hibernate.loader.Loader.list(Loader.java:1577)
+	at org.hibernate.loader.hql.QueryLoader.list(QueryLoader.java:395)
+	at org.hibernate.hql.ast.QueryTranslatorImpl.list(QueryTranslatorImpl.java:271)
+	at org.hibernate.impl.SessionImpl.list(SessionImpl.java:844)
+	at org.hibernate.impl.QueryImpl.list(QueryImpl.java:74)
+	at ooad.p.ga(p.java:288)
+	at ooad.p.ga(p.java:117)
+	at oo.c.gdc(c.java:119)
+	at oo.d.c(d.java:805)
+	at oo.d.c(d.java:785)
+	at oo.d.c(d.java:766)
+	at oodb.s.run(s.java:82)
+	at java.lang.Thread.run(Thread.java:595)
+
+
+	
+	
+		
+		
+			application log
+		
+		
+	
+	
+
+
+
+Apr 27 2010 12:05:22.476 -0400: %_JDBCExceptionReporter-3-org.hibernate.util.JDBCExceptionReporter:  Java exception: ': java.lang.NullPointerException'.  
+Apr 27 2010 12:05:22.492 -0400: %_JDBCTransaction-3-org.hibernate.transaction.JDBCTransaction:  JDBC rollback failed  
+java.sql.SQLException: No current connection.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.newEmbedSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.noCurrentConnection(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.checkIfClosed(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.setupContextStack(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedConnection.rollback(Unknown Source)
+	at com.mchange.v2.c3p0.impl.NewProxyConnection.rollback(NewProxyConnection.java:755)
+	at org.hibernate.transaction.JDBCTransaction.rollbackAndResetAutoCommit(JDBCTransaction.java:163)
+	at org.hibernate.transaction.JDBCTransaction.rollback(JDBCTransaction.java:142)
+	at ooad.p.r(p.java:888)
+	at ooad.p.ga(p.java:310)
+	at ooad.p.ga(p.java:117)
+	at oa.c.gdc(c.java:119)
+	at oa.d.c(d.java:805)
+	at oa.d.c(d.java:785)
+	at oa.d.c(d.java:766)
+	at ooad.s.run(s.java:82)
+	at java.lang.Thread.run(Thread.java:595)

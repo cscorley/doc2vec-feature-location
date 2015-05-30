@@ -1,0 +1,29 @@
+There appears to be an error in the admin interface (/solr/admin/schema.jsp) when using a '*' field in a schema.  In the example
+schema.xml, there is a commented out sample:
+
+
+ 
+  <!-- uncomment the following to ignore any fields that don't
+already match an existing
+       field name or dynamic field, rather than reporting them as an error.
+       alternately, change the type="ignored" to some other type e.g.
+"text" if you want
+       unknown fields indexed and/or stored by default -->
+  <!--dynamicField name="*" type="ignored" /-->
+
+ 
+
+We have this un-commented, and in the schema browser via the admin interface I see that all non-dynamic fields get a type of "ignored".
+
+for example, I see this in the Solr admin interface:
+
+Field: uid
+Dynamically Created From Pattern: *
+Field Type: ignored
+
+though the field definition is:
+
+ 
+  <field name="uid"  type="integer" indexed="true" stored="true"/>
+
+ 

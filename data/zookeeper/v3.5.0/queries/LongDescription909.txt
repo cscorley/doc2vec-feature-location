@@ -1,0 +1,8 @@
+This patch is mostly the same patch as my last one for ZOOKEEPER-823 minus everything Netty related. This means this patch only extract all NIO specific code in the class ClientCnxnSocketNIO which extends ClientCnxnSocket.
+I've redone this patch from current trunk step by step now and couldn't find any logical error. I've already done a couple of successful test runs and will continue to do so this night.
+
+It would be nice, if we could apply this patch as soon as possible to trunk. This allows us to continue to work on the netty integration without blocking the ClientCnxn class. Adding Netty after this patch should be only a matter of adding the ClientCnxnSocketNetty class with the appropriate test cases.
+
+You could help me by reviewing the patch and by running it on whatever test server you have available. Please send me any complete failure log you should encounter to thomas at koch point ro. Thx!
+
+Update: Until now, I've collected 8 successful builds in a row!

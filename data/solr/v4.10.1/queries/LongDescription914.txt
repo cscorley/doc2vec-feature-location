@@ -1,0 +1,12 @@
+There seems to be a number of classes - that implement finalize() method.  Given that it is perfectly ok for a Java VM to not to call it - may be - there has to some other way  
+{ try .. finally - when they are created to destroy them }
+ to destroy them and the presence of finalize() method , ( depending on implementation ) might not serve what we want and in some cases can end up delaying the gc process, depending on the algorithms. 
+
+$ find . -name *.java | xargs grep finalize
+./contrib/dataimporthandler/src/main/java/org/apache/solr/handler/dataimport/JdbcDataSource.java:  protected void finalize() {
+./src/java/org/apache/solr/update/SolrIndexWriter.java:  protected void finalize() {
+./src/java/org/apache/solr/core/CoreContainer.java:  protected void finalize() {
+./src/java/org/apache/solr/core/SolrCore.java:  protected void finalize() {
+./src/common/org/apache/solr/common/util/ConcurrentLRUCache.java:  protected void finalize() throws Throwable {
+
+May be we need to revisit these occurences from a design perspective to see if they are necessary / if there is an alternate way of managing guaranteed destruction of resources. 

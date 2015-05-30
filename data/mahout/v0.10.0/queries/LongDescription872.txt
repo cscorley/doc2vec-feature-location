@@ -1,0 +1,7 @@
+Our current code for computing a decomposition of a rating matrix with Alternating Least Squares (ALS) uses a lot of highly unefficient reduce side joins. 
+
+The rating matrix A is decomposed into a matrix U of users x features and a matrix M of items x features. Each of these matrices is iteratively recomputed until a maximum number of iterations is reached
+
+If we assume that U and M fit into the memory of a single mapper instance, each iteration can be implemented as single map-only job, which greatly improves the runtime of this job.
+
+Note that in spite of these improvements this job is still rather slow as Hadoop is a poor fit for iterative algorithms. Each iteration has to be scheduled again and data is always read from and written to disk.

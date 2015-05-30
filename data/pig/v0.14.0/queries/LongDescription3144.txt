@@ -1,0 +1,48 @@
+The following code illustrates a problem concerning alias resolution in pig 
+
+The schema of D2 will incorrectly be described as containing two "age" fields. And the last step in the following script will lead to a "Duplicate schema alias" error message.
+
+I only encountered this bug when using aliases for map fields. 
+
+
+
+DATA = LOAD 'file:///whatever' as (a:map[chararray], b:chararray);
+
+D1 = FOREACH DATA GENERATE a#'name' as name, a#'age' as age, b;
+
+D2 = FOREACH D1 GENERATE name, age, b;
+
+DESCRIBE D2;
+
+
+
+
+Output:
+
+
+D2: {
+    age: chararray,
+    age: chararray,
+    b: chararray
+}
+
+
+
+
+
+
+D3 = FOREACH D2 GENERATE *;
+
+DESCRIBE D3;
+
+
+
+Output:
+
+
+
+<file file:///.../pig-bug-example.pig, line 20, column 16> Duplicate schema alias: age
+
+
+
+This error occurs in this form in Apache Pig version 0.11.0-SNAPSHOT (r6408). A less severe variant of this bug is also present in pig 0.10.1. In 0.10.1, the "Duplicate schema alias" error message won't occur, but the schema of D2 (see above) will still have wrong duplicate alias entries.

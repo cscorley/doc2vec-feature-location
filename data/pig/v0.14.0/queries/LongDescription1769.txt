@@ -1,0 +1,18 @@
+In our load statement we are allowed to prefix the table name with "hbase://" but when we call
+store it throws an exception unless we remove hbase:// from the table
+name:
+
+this works:
+store raw into 'piggytest2' USING
+org.apache.pig.backend.hadoop.hbase.HBaseStorage('content2:field1
+anchor2:field1a anchor2:field2a');
+
+this won't
+store raw into 'hbase://piggytest2'
+
+Exception:
+Caused by: java.lang.IllegalArgumentException:
+java.net.URISyntaxException: Relative path in absolute URI:
+hbase://piggytest2_logs
+
+Would be nice to be able to prefix the store with hbase:// so it's consistent with the load syntax

@@ -1,0 +1,25 @@
+LogAccessFile consists of a number of log buffers: LinkedList<LogAccessFileBuffer> freeBuffers and dirtyBuffers, and LogAccessFileBuffer currentBuffer.
+
+When a log record is written to log, writeLogRecord wrongly assumes that the log record is too big to fit in any log buffer if there is not enough free space in the current log buffer. The code:
+
+if (total_log_record_length <= currentBuffer.bytes_free) {
+<append log record to current buffer>
+...
+} else {
+<log record too big to fit in any buffer>
+...
+}
+
+should be modified to:
+
+if (total_log_record_length <= currentBuffer.bytes_free) {
+<append log record to current buffer>
+...
+} else if (total_log_record_length <= currentBuffer.length) {
+<swap log buffer>
+<append log record to new current buffer>
+...
+} else {
+<log record too big to fit in any buffer>
+...
+}

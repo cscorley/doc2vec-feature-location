@@ -1,0 +1,12 @@
+Currently, the behavior for hadoop conf look up is:
+
+	in local mode, if there is hadoop conf, bail out; if there is no hadoop conf, launch local mode
+	in hadoop mode, if there is hadoop conf, use this conf to launch Pig; if no, still launch without warning, but many functionality will go wrong
+
+
+
+We should bring it to a more intuitive way, which is:
+
+	in local mode, always launch Pig in local mode
+	in hadoop mode, if there is hadoop conf, use this conf to launch Pig; if no, bail out with a meaningful message
+

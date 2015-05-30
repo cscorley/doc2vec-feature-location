@@ -1,0 +1,30 @@
+Script which stores Avro using a predefined schema does not store the default values in the file
+
+
+a = LOAD 'numbers.txt' USING PigStorage (':') as (intnum1000: int,id:
+int,intnum5: int,intnum100: int,intnum: int,longnum: long,floatnum:
+float,doublenum: double);
+
+b2 = foreach a generate id, intnum5, intnum100;
+
+c2 = filter b2 by 110 <= id and id < 120;
+
+STORE c2 INTO '/tmp/TestAvroStorage/testDefaultValueWrite' USING
+org.apache.pig.piggybank.storage.avro.AvroStorage (' { "debug" : 5, "schema" :
+{  "name" : "rmyrecord", "type" : "record",  "fields" : [ { "name" : "id",
+"type" : "int" , "default" : 0 }, {  "name" : "intnum5",  "type" : "int",
+"default" : 0 }, { "name" : "intnum100", "type" : "int", "default" : 0 } ] } }
+');
+
+
+
+Opening the file shows the following schema
+
+ 
+avro.schema
+{"type":"record","name":"rmyrecord","fields":[{"name":"id","type":"int"},{"name":"intnum5","type":"int"},{"name":"intnum100","type":"int"}]}
+
+ 
+
+There seems to be a problem storing the schema.
+Viraj

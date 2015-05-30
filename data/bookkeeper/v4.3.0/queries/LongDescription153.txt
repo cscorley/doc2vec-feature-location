@@ -1,0 +1,3 @@
+Currently creating ledger path and writing ledger metadata are not in a transaction. so if the bookkeeper client (hub server uses bookkeeper client) is crashed, we have a ledger existed in zookeeper with zero-length metadata. we can't open/close it.
+
+we should create the ledger path with initial metadata to avoid such case. besides that, we need to add code in openLedgerOp to handle zero-length metadata for backward compatibility.

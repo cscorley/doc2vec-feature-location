@@ -1,0 +1,95 @@
+Executing a Derby stored procedure with JCC 4.x in the classpath will error because JCC recognizes the jdbc:default:connection url and tries to make a connection. With JDK 1.6 and JCC 4.x the JCC Driver is autoloaded so simply having it in the classpath can cause the error.
+
+To reproduce, put db2jcc4.jar in your classpath and run the test, lang.LangProcedureTest which will fail with errors like:
+Caused by: java.lang.ExceptionInInitializerError
+	at java.lang.J9VMInternals.initialize(J9VMInternals.java:222)
+	at com.ibm.db2.jcc.t2.T2Configuration.<clinit>(T2Configuration.java:78)
+	at java.lang.J9VMInternals.initializeImpl(Native Method)
+	at java.lang.J9VMInternals.initialize(J9VMInternals.java:200)
+	at com.ibm.db2.jcc.DB2Driver.connect(DB2Driver.java:420)
+	at java.sql.DriverManager.getConnection(DriverManager.java:317)
+	at java.sql.DriverManager.getConnection(DriverManager.java:273)
+	at org.apache.derbyTesting.functionTests.tests.lang.LangProcedureTest.DERBY_3304(LangProcedureTest.java:287)
+	at org.apache.derby.exe.ac05550069x0128xb447xd1b2x00002461cbf40.g0(Unknown Source)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:48)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:37)
+	at java.lang.reflect.Method.invoke(Method.java:600)
+	at org.apache.derby.impl.services.reflect.ReflectMethod.invoke(ReflectMethod.java:46)
+	at org.apache.derby.impl.sql.execute.CallStatementResultSet.open(CallStatementResultSet.java:75)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(GenericPreparedStatement.java:436)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(GenericPreparedStatement.java:317)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(EmbedStatement.java:1232)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(EmbedStatement.java:625)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeQuery(EmbedStatement.java:152)
+	at org.apache.derbyTesting.functionTests.tests.lang.LangProcedureTest.testMethodSignatureDerby258(LangProcedureTest.java:268)
+	... 23 more
+Caused by: java.security.AccessControlException: Access denied (java.util.PropertyPermission * read,write)
+	at java.security.AccessControlException.<init>(AccessControlException.java:62)
+	at java.security.AccessController.checkPermission(AccessController.java:68)
+	at java.lang.SecurityManager.checkPermission(SecurityManager.java:533)
+	at java.lang.SecurityManager.checkPropertiesAccess(SecurityManager.java:1253)
+	at java.lang.System.getProperties(System.java:323)
+	at com.ibm.db2.jcc.am.md.run(md.java:37)
+	at java.security.AccessController.doPrivileged(AccessController.java:202)
+	at com.ibm.db2.jcc.t2.c.<clinit>(c.java:38)
+	at java.lang.J9VMInternals.initializeImpl(Native Method)
+	at java.lang.J9VMInternals.initialize(J9VMInternals.java:200)
+	... 43 more
+used 109 ms .
+testParameterTypes used 188 ms E.
+testOutparams used 94 ms .
+testSQLControl used 234 ms E.
+testCreateRoutineErrors used 203 ms .
+testMethodSignatureDerby258 used 203 ms E.
+testDelayedClassChecking used 32 ms .
+testDuplicates used 171 ms .
+testAmbigiousMethods used 157 ms E.
+testZeroArgProcedures used 31 ms .
+testSqlProcedures used 203 ms E.
+testDynamicResultSets used 203 ms E.
+testResultSetsWithLobs FAIL: Encountered exception:
+java.sql.SQLException: The exception 'java.lang.NoClassDefFoundError: com.ibm.db2.jcc.t2.T2Configuration (initialization failure)' was thrown while evaluating an expression.
+	at org.apache.derby.client.am.SQLExceptionFactory40.getSQLException(SQLExceptionFactory40.java:96)
+	at org.apache.derby.client.am.SqlException.getSQLException(SqlException.java:358)
+	at org.apache.derby.client.am.PreparedStatement.execute(PreparedStatement.java:1574)
+	at org.apache.derbyTesting.functionTests.tests.lang.LangProcedureTest.testResultSetsWithLobs(LangProcedureTest.java:899)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:48)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:37)
+	at java.lang.reflect.Method.invoke(Method.java:600)
+	at junit.framework.TestCase.runTest(TestCase.java:154)
+	at junit.framework.TestCase.runBare(TestCase.java:127)
+	at org.apache.derbyTesting.junit.BaseTestCase.runBare(BaseTestCase.java:109)
+	at junit.framework.TestResult$1.protect(TestResult.java:106)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.framework.TestResult.run(TestResult.java:109)
+	at junit.framework.TestCase.run(TestCase.java:118)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)
+	at junit.extensions.TestSetup$1.protect(TestSetup.java:19)
+	at junit.framework.TestResult.runProtected(TestResult.java:124)
+	at junit.extensions.TestSetup.run(TestSetup.java:23)
+	at org.apache.derbyTesting.junit.BaseTestSetup.run(BaseTestSetup.java:57)
+	at junit.framework.TestSuite.runTest(TestSuite.java:208)
+	at junit.framework.TestSuite.run(TestSuite.java:203)
+	at junit.textui.TestRunner.doRun(TestRunner.java:116)
+	at junit.textui.TestRunner.start(TestRunner.java:172)
+	at junit.textui.TestRunner.main(TestRunner.java:138)
+
+I will post a smaller reproduction.
+
+I think JCC needs to be smarter about it's context and avoid hijacking  the connection when not running inside a DB2 stored procedure.    The problem can also with previous JCC versions if the driver is explicitly loaded. Autoloading aggravates the problem and may regress Derby users when they upgrade their JCC. The DERBY-4664 fix will mitigate the issue for internal procedures but does not solve the problem for user procedures.  I think the fix will have to come from JCC but am filing it here as it may impact users.
+
+One workaround would be to remove JCC from the classpath if possible.
+

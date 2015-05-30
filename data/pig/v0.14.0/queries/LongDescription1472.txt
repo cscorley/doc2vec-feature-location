@@ -1,0 +1,8 @@
+In certain types of pig queries most of the execution time is spent in serializing/deserializing (sedes) records between Map and Reduce and between MR jobs. 
+For example, if PigMix queries are modified to specify types for all the fields in the load statement schema, some of the queries (L2,L3,L9, L10 in pigmix v1) that have records with bags and maps being transmitted across map or reduce boundaries run a lot longer (runtime increase of few times has been seen.
+
+There are a few optimizations that have shown to improve the performance of sedes in my tests -
+1. Use smaller number of bytes to store length of the column . For example if a bytearray is smaller than 255 bytes , a byte can be used to store the length instead of the integer that is currently used.
+2. Instead of custom code to do sedes on Strings, use DataOutput.writeUTF and DataInput.readUTF.  This reduces the cost of serialization by more than 1/2. 
+
+Zebra and BinStorage are known to use DefaultTuple sedes functionality. The serialization format that these loaders use cannot change, so after the optimization their format is going to be different from the format used between M/R boundaries.

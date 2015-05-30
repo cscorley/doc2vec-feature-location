@@ -1,0 +1,13 @@
+In the following script:
+
+
+a = load '1.txt' as (a0, a1);
+b = load '2.txt' as (b0, b1);
+c = join a by a0, b by b0;
+dump c;
+
+
+If 1.txt is empty, Pig will report
+Successfully read -1 records from: "1.txt"
+
+In WebUI, we can see we only have one MultiInputCounters: "Input records from _0_2.txt". In this case, we should count inputs "1.txt" 0 instead -1.

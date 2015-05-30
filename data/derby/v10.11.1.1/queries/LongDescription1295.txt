@@ -1,0 +1,39 @@
+The new JDBC 4 specification allows implementations to automatically
+close result sets of type FORWARD_ONLY when ResultSet#next returns
+false:
+
+(quote from JDBC preliminary spec):
+
+> 16.2.5 Closing a ResultSet Object
+>       :
+> NOTE: Some JDBC driver implementations may also implicitly close the
+> ResultSet when the ResultSet type is TYPE_FORWARD_ONLY and the next
+> method of ResultSet returns false.
+
+This implies that other result set type are not free to do this.
+
+Currently, Derby will also implicitly close result sets of type
+TYPE_SCROLL_INSENSITIVE, if autocommit is enabled. 
+
+Quote from Derby Developer's Guide, subsection "Using autocommit":
+
+> Using auto-commit 
+>
+> A new connection to a Derby database is in auto-commit mode by
+> default, as specified by the JDBC standard. Auto-commit mode means
+> that when a statement is completed, the method commit is called on
+> that statement automatically. Auto-commit in effect makes every SQL
+> statement a transaction. The commit occurs when the statement
+> completes or the next statement is executed, whichever comes
+> first. In the case of a statement returning a ResultSet , the
+> statement completes when the last row of the ResultSet has been
+****************************************
+> retrieved or the ResultSet has been closed explicitly.
+
+This seems to indicate that result set always closes when the last row
+has been seen, however, it seems the implementation only does this
+when autocommit is enabled.  I will attach a repro.
+
+Anyway, this should be corrected for JDBC4 compliancy. Scrollable
+result sets should never close implicitly due to positioning,
+autocommit or not.

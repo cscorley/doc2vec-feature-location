@@ -1,0 +1,11 @@
+If I have a semicolon in the parameter passed to a udf, the script execution will fail with a parsing error.
+
+a = load 'i1' as (f1:chararray);
+c = foreach a generate REGEX_EXTRACT(f1, '.;' ,1);
+dump c;
+
+The above script fails with the below error 
+[main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1200: <file test.pig, line 3, column 0>  mismatched character '<EOF>' expecting '''
+
+Even replacing the semicolon with Unicode \u003B results in the same error.
+c = foreach a generate REGEX_EXTRACT(f1, '.\u003B',1);

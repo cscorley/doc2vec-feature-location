@@ -1,0 +1,10 @@
+The Zip parser in tika-server does not allow passing in the password for decrypting the zip file and doesn't handle the unsupported feature gracefully. Problem happens when zip file is attached part of email document being parsed, and the parser gives up and throws an exception:
+
+WARNING: all: Unpacker failed
+org.apache.tika.exception.TikaException: TIKA-198: Illegal IOException from org.apache.tika.parser.pkg.PackageParser@10fcc945
+
+Caused by: org.apache.commons.compress.archivers.zip.UnsupportedZipFeatureException: unsupported feature encryption used in entry
+
+Instead of returning the successfully parsed components, Tika-server returns nothing. 
+
+It would be better to return rest of the parsed document contents along with the untouched offending zip file in the archive that Tika-server returns as a result. Until the feature of zip file decrypting is added this would always return untouched zip file, and after it is implemented it should return the untouched zip file in the cases where wrong password was provided.

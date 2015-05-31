@@ -151,15 +151,11 @@ def run_basic_vec(project, corpus, other_corpus, queries, goldsets, kind, use_le
 
         if project.force or not exists:
             vec_model, _ = create_vec_model(project, corpus, kind, use_level=use_level)
-            with open('vocab_keys', 'w') as f:
-                f.write('\n'.join(vec_model.docvecs.doclbls.keys()))
 
             vec_query_topic = get_topics_vec(vec_model, queries, try_model=False)
-
-            # TODO: do we really need to get topics of this?
-            # arent they already apart of the model?
             vec_doc_topic = get_topics_vec(vec_model, other_corpus)
             vec_ranks = get_rank(vec_query_topic, vec_doc_topic)
+
             vec_ranks_sums = get_rank_vec(vec_model, queries, other_corpus)
 
             write_ranks(project, kind.lower() + '_vec', vec_ranks)
@@ -496,10 +492,8 @@ def get_topics_vec(model, corpus, by_ids=None, full=True, try_model=True):
                 if not try_model:
                     raise KeyError
                 topics = model.docvecs['DOC__' + metadata[0]]
-                logger.info("Got document from model: %s", metadata[0])
             except KeyError:
                 topics = model.infer_vector(doc)
-                logger.info("Inferred document: %s", metadata[0])
 
             doc_topic.append((metadata, topics))
 

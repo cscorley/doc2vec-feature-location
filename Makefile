@@ -29,6 +29,9 @@ clean-corpora: clean-taser
 	find data -name '*.mallet.gz.index' -exec rm {} \;
 	find data -name '*.mallet.index.gz' -exec rm {} \;
 	find data -name '*.mallet.gz' -exec rm {} \;
+	find data -name '*.ordered.gz.index' -exec rm {} \;
+	find data -name '*.ordered.index.gz' -exec rm {} \;
+	find data -name '*.ordered.gz' -exec rm {} \;
 	find data -name '*.dict.gz' -exec rm {} \;
 
 clean-models: clean-lda clean-lsi clean-vec

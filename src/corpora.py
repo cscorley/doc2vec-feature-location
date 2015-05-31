@@ -581,8 +581,8 @@ class LabeledCorpus(gensim.corpora.IndexedCorpus):
         """
         with gensim.utils.smart_open(self.filename) as f:
             for line in f:
+                line = gensim.utils.to_unicode(line)
                 words = line.split()
-                logger.debug("FIRST WORDS: " + ' '.join(words[:5]))
                 yield gensim.models.doc2vec.LabeledSentence(words=words[2:], labels=["DOC__%s" % words[0]])
 
     def __len__(self):
@@ -639,6 +639,70 @@ class LabeledCorpus(gensim.corpora.IndexedCorpus):
 
                 offsets.append(fout.tell())
                 fout.write(gensim.utils.to_utf8('%s %s %s\n' % (doc_id, doc_lang, ' '.join(words))))
+
+        if truncated:
+            logger.warning("Mallet format can only save vectors with "
+                            "integer elements; %i float entries were truncated to integer value" %
+                            truncated)
+
+        return offsets
+
+    def docbyoffset(self, offset):
+        """
+        Return the document stored at file position `offset`.
+        """
+        with gensim.utils.smart_open(self.fname) as f:
+            f.seek(offset)
+            return self.line2doc(f.readline())
+
+class OrderedCorpus(gensim.corpora.IndexedCorpus):
+    def __init__(self, filename):
+        self.fname = filename
+        self.length = None
+        self.metadata = False
+        logger.info('Creating %s corpus for file %s', self.__class__.__name__, filename)
+
+
+    def __iter__(self):
+        """
+        The function that defines a corpus.
+
+        Iterating over the corpus must yield sparse vectors, one for each
+        document.
+        """
+        with gensim.utils.smart_open(self.fname) as f:
+            for line in f:
+                words = line.split()
+                yield words[2:], (words[0], words[1])
+
+    def __len__(self):
+        if self.length == None:
+            self.length = sum([1 for _ in self])
+
+        return self.length  # will throw if corpus not initialized
+
+
+    @staticmethod
+    def save_corpus(fname, corpus, id2word=None, metadata=False):
+        logger.info("storing corpus in Mallet format into %s" % fname)
+
+        truncated = 0
+        offsets = []
+        with gensim.utils.smart_open(fname, 'w') as fout:
+            if hasattr(corpus, 'get_texts'):
+                corpus_enum = enumerate(corpus.get_texts())
+            else:
+                corpus_enum = enumerate(corpus)
+
+            for doc_id, doc in corpus_enum:
+                if metadata:
+                    doc_id, doc_lang = doc[1]
+                    doc = doc[0]
+                else:
+                    doc_lang = '__unknown__'
+
+                offsets.append(fout.tell())
+                fout.write(gensim.utils.to_utf8('%s %s %s\n' % (doc_id, doc_lang, ' '.join(list(doc)))))
 
         if truncated:
             logger.warning("Mallet format can only save vectors with "

@@ -25,7 +25,7 @@ from gensim.utils import smart_open, to_unicode, to_utf8
 import utils
 from corpora import (ChangesetCorpus, SnapshotCorpus, ReleaseCorpus,
                      TaserSnapshotCorpus, TaserReleaseCorpus,
-                     CorpusCombiner, GeneralCorpus, LabeledCorpus)
+                     CorpusCombiner, GeneralCorpus, LabeledCorpus, OrderedCorpus)
 from errors import TaserError
 
 
@@ -91,53 +91,27 @@ def run_experiment(project):
 
     repos = load_repos(project)
 
-    # create/load document lists
-    queries = create_queries(project)
     goldsets = load_goldsets(project)
 
-    # get corpora
-    #changeset_corpus = create_corpus(project, repos, ChangesetCorpus, use_level=False)
+    # vec relies on words being in order, so lets make a special corpus.
+    queries_vec = create_queries_vec(project)
+    release_corpus_vec = create_release_corpus_vec(project, repos)
+    release_vec, release_vec_sums = run_basic_vec(project, release_corpus_vec,
+                                                  release_corpus_vec,
+                                                  queries_vec, goldsets,
+                                                  'Release', use_level=True)
+
+
+    queries = create_queries(project)
     release_corpus = create_release_corpus(project, repos)
+    release_lda = run_basic(project, release_corpus, release_corpus, queries,
+                            goldsets, 'Release', use_level=True)
 
-    #collect_info(project, repos, queries, goldsets, changeset_corpus, release_corpus)
+    do_science('release_lda', release_lda,
+               'release_vec', release_vec)
 
-    # release-based evaluation is #basic 💁
-    release_lda, release_vec = run_basic(project, release_corpus,
-                                         release_corpus, queries, goldsets,
-                                         'Release', use_level=True)
-
-    """
-    changeset_lda, changeset_vec = run_basic(project, changeset_corpus,
-                                             release_corpus, queries, goldsets,
-                                             'Changeset')
-
-    if temporal:
-        try:
-            temporal_lda, temporal_vec = run_temporal(project, repos,
-                                                    changeset_corpus, queries,
-                                                    goldsets, force=force)
-        except IOError:
-            logger.info("Files needed for temporal evaluation not found. Skipping.")
-        else:
-            do_science('temporal_lda', temporal_lda, changeset_lda, ignore=True)
-            do_science('temporal_vec', temporal_vec, changeset_vec, ignore=True)
-
-    # do this last so that the results are printed together
-    do_science('basic_lda', changeset_lda, release_lda)
-    do_science('basic_vec', changeset_vec, release_vec)
-    """
-    do_science('basic', release_lda, release_vec)
-
-
-def collect_info(project, repos, queries, goldsets, changeset_corpus, release_corpus):
-    changeset_corpus.metadata = True
-    release_corpus.metadata = True
-    with smart_open(os.path.join(project.full_path, '-'.join([project.level, 'info.csv'])), 'w') as f:
-        pass
-
-    logger.info("Collecting basic info")
-    changeset_corpus.metadata = False
-    release_corpus.metadata = False
+    do_science('release_vec', release_vec,
+               'release_vec_sums', release_vec_sums)
 
 def write_ranks(project, prefix, ranks):
     with smart_open(os.path.join(project.full_path, '-'.join([prefix, project.level, str(project.num_topics), 'ranks.csv.gz'])), 'w') as f:
@@ -163,6 +137,38 @@ def read_ranks(project, prefix):
 
     return ranks
 
+def run_basic_vec(project, corpus, other_corpus, queries, goldsets, kind, use_level=False):
+    vec_first_rels = list()
+    vec_first_rels_sums = list()
+    if project.d2v:
+        try:
+            vec_ranks = read_ranks(project, kind.lower() + '_vec')
+            vec_ranks_sums = read_ranks(project, kind.lower() + '_vec_sums')
+            logger.info("Sucessfully read previously written %s vec ranks", kind)
+            exists = True
+        except IOError:
+            exists = False
+
+        if project.force or not exists:
+            vec_model, _ = create_vec_model(project, corpus, kind, use_level=use_level)
+            with open('vocab_keys', 'w') as f:
+                f.write('\n'.join(vec_model.docvecs.doclbls.keys()))
+
+            vec_query_topic = get_topics_vec(vec_model, queries, try_model=False)
+
+            # TODO: do we really need to get topics of this?
+            # arent they already apart of the model?
+            vec_doc_topic = get_topics_vec(vec_model, other_corpus)
+            vec_ranks = get_rank(vec_query_topic, vec_doc_topic)
+            vec_ranks_sums = get_rank_vec(vec_model, queries, other_corpus)
+
+            write_ranks(project, kind.lower() + '_vec', vec_ranks)
+            write_ranks(project, kind.lower() + '_vec_sums', vec_ranks_sums)
+
+        vec_first_rels = get_frms(goldsets, vec_ranks)
+        vec_first_rels_sums = get_frms(goldsets, vec_ranks_sums)
+
+    return vec_first_rels, vec_first_rels_sums
 
 def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=False):
     """
@@ -170,22 +176,6 @@ def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=
     changesets over time.
     """
     logger.info("Running basic evaluation on the %s", kind)
-
-    vec_first_rels = list()
-    if project.d2v:
-        try:
-            vec_ranks = read_ranks(project, kind.lower() + '_vec')
-            logger.info("Sucessfully read previously written %s vec ranks", kind)
-            exists = True
-        except IOError:
-            exists = False
-
-        if project.force or not exists:
-            vec_model, _ = create_vec_model(project, corpus, corpus.id2word, kind, use_level=use_level)
-            vec_ranks = get_rank_vec(vec_model, queries, other_corpus)
-            write_ranks(project, kind.lower() + '_vec', vec_ranks)
-
-        vec_first_rels = get_frms(goldsets, vec_ranks)
 
 
     lda_first_rels = list()
@@ -207,7 +197,7 @@ def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=
 
         lda_first_rels = get_frms(goldsets, lda_ranks)
 
-    return lda_first_rels, vec_first_rels
+    return lda_first_rels
 
 def run_temporal(project, repos, corpus, queries, goldsets, force=False):
     logger.info("Running temporal evaluation")
@@ -344,13 +334,15 @@ def merge_first_rels(a, b, ignore=False):
     y = [v[1] for v in first_rels.values()]
     return x, y
 
-def do_science(prefix, changeset_first_rels, release_first_rels, ignore=False):
+def do_science(prefixa, relsa, prefixb, relsb, ignore=False):
     # Build a dictionary with each of the results for stats.
-    x, y = merge_first_rels(changeset_first_rels, release_first_rels, ignore=ignore)
 
-    print(prefix+' changeset mrr:', utils.calculate_mrr(x))
-    print(prefix+' release mrr:', utils.calculate_mrr(y))
-    print(prefix+' wilcoxon signedrank:', scipy.stats.wilcoxon(x, y))
+    x, y = merge_first_rels(relsa, relsb, ignore=ignore)
+
+    print(prefixa+' mrr:', utils.calculate_mrr(x))
+    print(prefixb+' mrr:', utils.calculate_mrr(y))
+    print('wilcoxon signedrank:', scipy.stats.wilcoxon(x, y))
+
     #print(prefix+' ranksums:', scipy.stats.ranksums(x, y))
     #print(prefix+' mann-whitney:', scipy.stats.mannwhitneyu(x, y))
     #print('friedman:', scipy.stats.friedmanchisquare(x, y, x2, y2))
@@ -383,6 +375,36 @@ def get_frms(goldsets, ranks):
 
     logger.info('Returning %d FRMS', len(frms))
     return frms
+
+def get_rank_vec(model, queries, corpus, by_ids=None):
+    queries = LabeledCorpus(queries.fname)
+    corpus = LabeledCorpus(corpus.fname)
+    logger.info('Getting ranks for Doc2Vec model')
+
+    ranks = dict()
+    for query in queries:
+        q_dist = list()
+
+        # labeledcorpus is arhghhh
+        qid = query.labels[0].replace('DOC__', '')
+        if by_ids is not None and qid not in by_ids:
+            logger.info('skipping')
+            continue
+
+        qwords = filter(lambda x: x in model.vocab, query.words)
+
+        for doc in corpus:
+            did = doc.labels[0].replace('DOC__', '')
+            dwords = filter(lambda x: x in model.vocab, doc.words)
+
+            if len(dwords) and len(qwords):
+                # best thing to do without inference
+                sim = model.n_similarity(qwords, dwords)
+                q_dist.append((1.0 - sim, (did, 'UNKNOWN')))
+
+        ranks[qid] = list(sorted(q_dist))
+
+    return ranks
 
 def get_rank_vec(model, queries, corpus, by_ids=None):
     queries = LabeledCorpus(queries.fname)
@@ -458,6 +480,30 @@ def get_topics(model, corpus, by_ids=None, full=True):
 
     corpus.metadata = False
     corpus.id2word = old_id2word
+    logger.info('Returning doc topic of length %d', len(doc_topic))
+
+    return doc_topic
+
+def get_topics_vec(model, corpus, by_ids=None, full=True, try_model=True):
+    logger.info('Getting doc topic for corpus with length %d', len(corpus))
+    doc_topic = list()
+    corpus.metadata = True
+
+    for doc, metadata in corpus:
+        # lol gensim
+        if by_ids is None or metadata[0] in by_ids:
+            try:
+                if not try_model:
+                    raise KeyError
+                topics = model.docvecs['DOC__' + metadata[0]]
+                logger.info("Got document from model: %s", metadata[0])
+            except KeyError:
+                topics = model.infer_vector(doc)
+                logger.info("Inferred document: %s", metadata[0])
+
+            doc_topic.append((metadata, topics))
+
+    corpus.metadata = False
     logger.info('Returning doc topic of length %d', len(doc_topic))
 
     return doc_topic
@@ -613,7 +659,7 @@ def load_repos(project):
 
 def create_queries(project):
     corpus_fname_base = project.full_path + 'Queries'
-    corpus_fname = corpus_fname_base + '.mallet.gz'
+    corpus_fname = corpus_fname_base + '.ordered.gz'
     dict_fname = corpus_fname_base + '.dict.gz'
 
     if not os.path.exists(corpus_fname):
@@ -654,6 +700,37 @@ def create_queries(project):
 
     return corpus
 
+def create_queries_vec(project):
+    corpus_fname_base = project.full_path + 'Queries'
+    corpus_fname = corpus_fname_base + '.ordered.gz'
+    dict_fname = corpus_fname_base + '.dict.gz'
+
+    if not os.path.exists(corpus_fname):
+        pp = GeneralCorpus(lazy_dict=True)
+        id2word = Dictionary()
+
+        with open(os.path.join(project.full_path, 'ids.txt')) as f:
+            ids = [x.strip() for x in f.readlines()]
+
+        queries = list()
+        for id in ids:
+            with open(os.path.join(project.full_path, 'queries',
+                                    'ShortDescription' + id + '.txt')) as f:
+                short = f.read()
+
+            with open(os.path.join(project.full_path, 'queries',
+                                    'LongDescription' + id + '.txt')) as f:
+                long = f.read()
+
+            text = ' '.join([short, long])
+            text = list(pp.preprocess(text))
+
+            queries.append((text, (id, 'query')))
+
+        OrderedCorpus.serialize(corpus_fname, queries, metadata=True)
+
+    corpus = OrderedCorpus(corpus_fname)
+    return corpus
 
 def create_lda_model(project, corpus, id2word, name, use_level=True, force=False):
     model_fname = project.full_path + name + str(project.num_topics)
@@ -708,7 +785,7 @@ def create_lsi_model(project, corpus, id2word, name, use_level=True, force=False
 
     return model, model_fname
 
-def create_vec_model(project, corpus, id2word, name, use_level=True, force=False):
+def create_vec_model(project, corpus, name, use_level=True, force=False):
     model_fname = project.full_path + name + str(project.num_topics)
     if use_level:
         model_fname += project.level
@@ -718,7 +795,7 @@ def create_vec_model(project, corpus, id2word, name, use_level=True, force=False
     corpus = LabeledCorpus(corpus.fname)
 
     if not os.path.exists(model_fname) or project.force or force:
-        model = Doc2Vec(corpus, size=project.num_topics)
+        model = Doc2Vec(corpus, min_count=1, size=project.num_topics)
 
         if corpus:
             model.save(model_fname)
@@ -759,7 +836,7 @@ def create_corpus(project, repos, Kind, use_level=True, forced_ref=None):
     if forced_ref:
         corpus_fname_base += forced_ref[:8]
 
-    corpus_fname = corpus_fname_base + '.mallet.gz'
+    corpus_fname = corpus_fname_base + '.ordered.gz'
     dict_fname = corpus_fname_base + '.dict.gz'
     made_one = False
 
@@ -829,4 +906,74 @@ def create_release_corpus(project, repos, forced_ref=None):
         except TaserError:
             return create_corpus(project, repos, SC, forced_ref=forced_ref)
 
+
+def create_release_corpus_vec(project, repos, forced_ref=None):
+    if project.level == 'file':
+        RC = ReleaseCorpus
+        SC = SnapshotCorpus
+    else:
+        RC = TaserReleaseCorpus
+        SC = TaserSnapshotCorpus
+
+    return create_corpus_vec(project, repos, SC, forced_ref=forced_ref)
+
+    # not using this just yet
+    if forced_ref:
+        return create_corpus_vec(project, repos, SC, forced_ref=forced_ref)
+    else:
+        try:
+            return create_corpus_vec(project, [None], RC)
+        except TaserError:
+            return create_corpus_vec(project, repos, SC, forced_ref=forced_ref)
+
+
+def create_corpus_vec(project, repos, Kind, use_level=True, forced_ref=None):
+    corpus_fname_base = project.full_path + Kind.__name__
+
+    if use_level:
+        corpus_fname_base += project.level
+
+    if forced_ref:
+        corpus_fname_base += forced_ref[:8]
+
+    corpus_fname = corpus_fname_base + '.ordered.gz'
+    dict_fname = corpus_fname_base + '.dict.gz'
+    made_one = False
+
+    if not os.path.exists(corpus_fname):
+        combiner = CorpusCombiner()
+
+        for repo in repos:
+            try:
+                if repo or forced_ref:
+                    corpus = Kind(project=project,
+                                  repo=repo,
+                                  lazy_dict=True,
+                                  ref=forced_ref,
+                                  )
+                else:
+                    corpus = Kind(project=project, lazy_dict=True)
+
+            except KeyError:
+                continue
+            except TaserError as e:
+                if repo == repos[-1] and not made_one:
+                    raise e
+                    # basically, if we are at the last repo and we STILL
+                    # haven't sucessfully extracted a corpus, ring some bells
+                else:
+                    # otherwise, keep trying. winners never quit.
+                    continue
+
+            combiner.add(corpus)
+            made_one = True
+
+        # write the corpus and dictionary to disk. this will take awhile.
+        combiner.metadata = True
+        OrderedCorpus.serialize(corpus_fname, combiner, metadata=True)
+        combiner.metadata = False
+
+    corpus = OrderedCorpus(corpus_fname)
+
+    return corpus
 

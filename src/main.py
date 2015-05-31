@@ -433,7 +433,7 @@ def get_rank_vec(model, queries, corpus, by_ids=None):
     return ranks
 
 
-def get_rank(query_topic, doc_topic, distance_measure=utils.hellinger_distance):
+def get_rank(query_topic, doc_topic, distance_measure=utils.cosine_distance):
     logger.info('Getting ranks between %d query topics and %d doc topics',
                 len(query_topic), len(doc_topic))
     ranks = dict()

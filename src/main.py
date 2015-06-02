@@ -402,36 +402,6 @@ def get_rank_vec(model, queries, corpus, by_ids=None):
 
     return ranks
 
-def get_rank_vec(model, queries, corpus, by_ids=None):
-    queries = LabeledCorpus(queries.fname)
-    corpus = LabeledCorpus(corpus.fname)
-    logger.info('Getting ranks for Doc2Vec model')
-
-    ranks = dict()
-    for query in queries:
-        q_dist = list()
-
-        # labeledcorpus is arhghhh
-        qid = query.labels[0].replace('DOC__', '')
-        if by_ids is not None and qid not in by_ids:
-            logger.info('skipping')
-            continue
-
-        qwords = filter(lambda x: x in model.vocab, query.words)
-
-        for doc in corpus:
-            did = doc.labels[0].replace('DOC__', '')
-            dwords = filter(lambda x: x in model.vocab, doc.words)
-
-            if len(dwords) and len(qwords):
-                # best thing to do without inference
-                sim = model.n_similarity(qwords, dwords)
-                q_dist.append((1.0 - sim, (did, 'UNKNOWN')))
-
-        ranks[qid] = list(sorted(q_dist))
-
-    return ranks
-
 
 def get_rank(query_topic, doc_topic, distance_measure=utils.cosine_distance):
     logger.info('Getting ranks between %d query topics and %d doc topics',

@@ -3,49 +3,68 @@
 %      
 %
 
+%how do FL systems work in general?
 Feature location systems retrieve a ranked list of program elements
-(e.g. methods, classes) for a developer query, based on an index of
-terms extracted from the source code. In the {\em indexing} phase,
-feature location systems commonly construct a model of the software,
-at the granularity of either classes or methods, based on the natural
+(e.g. methods, classes) for a developer query. In the {\em indexing}
+phase, feature location systems commonly construct a model of the
+software, at the granularity of program elements, based on the natural
 language embedded in identifiers and comments. In the {\em retrieval}
 phase, given a natural language query, feature location systems use
 the model to retrieve all of the relevant program elements with high
 similarity to the query.
 
-A feature location system based on deep learning creates a contextual
-representation of the natural language terms embedded in the source
-code, which includes influence from terms preceding and following each
-term, relative to their distance from the term. Intuitively, in the
-context of source code, these models incoporate mutual influence
-between terms in the same method, while terms that occur the same
-statement are closer in distance and influence each other more
-heavily. Deep learning is based on a multi-stage neural network,
-consisting of several hidden layers in addition to an input and output
-layers.  The hidden layers serve to capture the context of each
-encountered term. Recent advances in this area have stemmed from the
-use of novel neural network architectures, includin recurrent neural
+\subsection{Indexing}
+
+%how does a deep learning system differ
+A feature location system based on deep learning, during its indexing
+phase, creates a contextual representation of the natural language
+terms embedded in the source code. This contextual representation
+includes influence from terms preceding and following each term,
+relative to their distance from that term. More intuitively, such
+models incoporate mutual influence between terms in the same method,
+while terms that are closer in distance (e.g. occur the same
+statement) influence each other more strongly. 
+
+
+%what is deep learning
+Deep learning is based on a multi-stage neural network, consisting of
+several hidden layers in addition to single input and output layers.
+The input layer consists of the ordered sequences of identifiers
+extracted from the code. The multiple hidden layers serve to capture
+the context for each encountered term, representing the complex
+patterns of term contexts occuring in the corpus. The output layer
+consists of a vector for each term, which has been shown to carry
+semantic meaning. Recent advances in this area have stemmed from the
+use of novel neural network architectures, including recurrent neural
 networks that connect the hidden layers back to the input layer, among
 other strategies. The systems are trained using backpropagation and
 gradient descent, techniques common to many neural network based
-models. 
+models.
 
-Strategies such as word stemming, which reduces terms to their base
-form (e.g. X->X) and stop word removal are commonly performed in all
-natural language contexts and are commonly leveraged before the neural
-networks learning phase. Additional steps are required for source
-code, such as identifier splitting that ensures camel case identifiers
-are divided into their constituent parts, are also part of most
-feature location workflows.
+ 
+%preprocessing
+A number of preprocessing steps are commonly performed during the
+indexing phase of feature location systems including word stemming,
+which reduces terms to their base form (e.g. running $\rightarrow$
+run), and stop word removal, which removes common words (e.g. the, is,
+at). Additional preprocessing steps are required for source code, such
+as identifier splitting, ensuring that composite identifiers are
+divided into their constituent terms (e.g. addToCart $\rightarrow$
+add,to,cart).
+
+
+\subsection{Retrieval}
+
+During the retrieval state of feature location, the query terms are
+matched 
+
+
+
+%Chris: I assume this is what gensim is doing, but I am not sure...
 
 
 
 
-During the retrieval step of feature location, the deep learning model for a
-specific code provides a per term representation for the index. Terms in
-the user query are located in the index. 
-
-% HOW DOES THIS WORK???
 
 Cosine similarity between the words in a query and each program
 element is a common metric that can be used to produce a ranked list
@@ -58,24 +77,4 @@ in a deep learning feature location system.
 
 
 
-
-
-%  ii.) Describe optimal values for parameters (like window size and feature vector length)
-%	*use paper by Poshyvanyk for hints on this
-%
-
-
-%  iii.) What are the expected advantages over its counterparts (n-grams, V-DO, MRF)?
-%       *speed and retrieval effectiveness, i suppose
-%
-
-
-
-%  Show an example of semantic similarity for a project
-%  idea: use the 5 poorest performing queries in argouml
-
-
-
-%  iv.) Other advantages of deep learning?
-%       *e.g. query recommendation based on semantic similarity from deep learning
-
+\subsection{Semantic Similarity}

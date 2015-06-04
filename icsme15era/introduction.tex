@@ -6,16 +6,16 @@
 %
 When starting a maintenance task, software developers commonly need to
 locate the relevant features for the task in a potentially large and
-unfamiliar code base. Due to the potential for wasted effort,
-researchers have proposed a number of approaches to improve
-developers' effectiveness in locating features, based largely upon
+unfamiliar code base. Due to the difficulty and importance of this
+task, researchers have proposed a number of approaches to improve
+developers' effectiveness in locating features, largely based upon
 applying natural language analysis techniques to source
-code~\cite{dit's survey}. Most of the proposed Feature Location
-Techniques (FLTs) have treated source code as an unordered set of
-natural language terms, i.e. as a bag-of-words, even though recent
-fundamental results have shown that source code contains context and
-flow that is even more pronounced than natural language
-text~\cite{naturalness}.
+code~\cite{dit_feature_2013}. Most of the proposed feature location
+techniques have treated source code as an unordered set of natural
+language terms, i.e. as a bag-of-words, even though recent fundamental
+results have shown that source code contains context and flow that is
+even more pronounced than natural language
+text~\cite{hindle_naturalness_2012}.
 
 
 %
@@ -23,14 +23,33 @@ text~\cite{naturalness}.
 %
 In this paper, we explore the use of deep learning, which has shown
 promising results in modeling natural language, to the task of feature
-location. The main advantage of deep learning is the ability to
-capture the influence of context on each term, which greatly improves
-many tasks...Our preliminary results show that deep learning models of
-source code, can be built with reasonable computational overhead while
-creating a previously not existing notion of semantic similarity
-between the source code terms. This work also establishes several
-avenues for future exploration and use of these models to improve
-feature location.
+location. Deep learning captures the influence of the surrounding
+context on each term, which can improve the ranking of results
+retrieved for a developer query. Such models encode that in the
+statement {\tt diagram.redisplay()} the word ``diagram'' is relevant
+to the word ``redisplay'' and therefore when querying for ``diagram''
+program elements where ``redisplay'' is present, but not ``diagram''
+itself, may also need to be retrieved.
+
+Deep learning natural language approaches also create a novel notion
+of semantic similarity between the source code terms. Semantic
+similarity is the results of mapping the corpus terms into a
+continuous semantic space, where synonyms, antonyms, and other
+semantic relations are encoded and easily composed together.
+
+
+
+%
+% The results
+%
+
+Our preliminary results show that deep learning models of source code
+provide improved retrieval results on Y gold sets extracted the
+maintance histories of Z open source projects. We also show that these
+complex models can be built with reasonable computational overhead by
+leveraging recently proposed optimization approaches. This work
+establishes several avenues for future exploration and use of these
+models to improve developer effectiveness in feature location.
 
 
 

@@ -13,7 +13,7 @@ phase, given a natural language query, feature location systems use
 the model to retrieve all of the relevant program elements with high
 similarity to the query.
 
-\subsection{Indexing}
+\subsection{Feature Location Workflow}
 
 %how does a deep learning system differ
 A feature location system based on deep learning, during its indexing
@@ -50,29 +50,18 @@ run), and stop word removal, which removes common words (e.g. the, is,
 at). Additional preprocessing steps are required for source code, such
 as identifier splitting, ensuring that composite identifiers are
 divided into their constituent terms (e.g. addToCart $\rightarrow$
-add,to,cart).
+add,to,cart). 
 
 
-\subsection{Retrieval}
-
-During the retrieval state of feature location, the query terms are
-matched 
+During the retrieval state of feature location, a similarity measure
+(e.g. cosine similarity) between the words in the query and words in
+each program element is computed. The program elements are ranked
+based on this similarity metric and presented to the developer in
+descending order.
 
 
 
 %Chris: I assume this is what gensim is doing, but I am not sure...
-
-
-
-
-
-Cosine similarity between the words in a query and each program
-element is a common metric that can be used to produce a ranked list
-of program elements, which are presented to the developer in
-descending order. Figure X shows a diagram of all of the common steps
-in a deep learning feature location system.
-
-
 
 
 

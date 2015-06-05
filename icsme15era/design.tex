@@ -21,7 +21,7 @@ phase, creates a contextual representation of the natural language
 terms embedded in the source code. This contextual representation
 includes influence from terms preceding and following each term,
 relative to their distance from that term. More intuitively, such
-models incoporate mutual influence between terms in the same method,
+models incorporate mutual influence between terms in the same method,
 while terms that are closer in distance (e.g. occur the same
 statement) influence each other more strongly. 
 
@@ -31,10 +31,10 @@ statement) influence each other more strongly.
 \centering
 \includegraphics[width=.9\columnwidth]{figures/neuralnet.pdf}
 \caption{A deep learning neural network encodes source code identifiers,
-in the order they apprear in the source code, in its input
+in the order they appear in the source code, in its input
 layer. Using a deep structure of hidden layers, each term and its
-context recieves a semantic vector representation.}
-\label{figure:miningworkflow}
+context receives a semantic vector representation.}
+\label{fig:neuralnet}
 \end{figure}
 
 
@@ -42,17 +42,18 @@ context recieves a semantic vector representation.}
 %what is deep learning
 Deep learning is based on a multi-stage neural network, consisting of
 several hidden layers in addition to single input and output layers.
-The input layer consists of the ordered sequences of identifiers
+The input layer consists of an ordered sequences of identifiers
 extracted from the code. The multiple hidden layers serve to capture
 the context for each encountered term, representing the complex
-patterns of term contexts occuring in the corpus. The output layer
+patterns of term contexts occurring in the corpus. The output layer
 consists of a vector for each term, which has been shown to carry
-semantic meaning. Recent advances in this area have stemmed from the
-use of novel neural network architectures, including recurrent neural
-networks that connect the hidden layers back to the input layer, among
-other strategies. The systems are trained using backpropagation and
-gradient descent, techniques common to many neural network based
-models.
+semantic meaning. An example of this architecture for a single line of
+code is shown in Figure~\ref{fig:neuralnet}. Recent advances in this
+area have stemmed from the use of novel neural network architectures,
+including recurrent neural networks that connect the hidden layers
+back to the input layer, among other strategies. The systems are
+trained using backpropagation and gradient descent, techniques common
+to many neural network based models.
 
  
 %preprocessing
@@ -71,11 +72,6 @@ During the retrieval state of feature location, a similarity measure
 each program element is computed. The program elements are ranked
 based on this similarity metric and presented to the developer in
 descending order.
-
-
-
-%Chris: I assume this is what gensim is doing, but I am not sure...
-
 
 
 

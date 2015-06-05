@@ -73,6 +73,49 @@ each program element is computed. The program elements are ranked
 based on this similarity metric and presented to the developer in
 descending order.
 
-
+%Chris: we can talk about inference here too, not sure what you have planned
 
 \subsection{Semantic Similarity}
+
+The result of the deep learning models described in this paper are
+vectors representing each term in the
+corpus~\cite{mikolov_distributed_2013}. Similar vectors can also be
+computed to represent an entire paragraph or
+document~\cite{le_distributed_2014}.  Semantic similarity is the
+notion that these vector are composable semantically (e.g. the result
+of the operation {\em vec(``Montreal Canadians'') - vec(``Montreal'') +
+vec(``Toronto'')} is closest to {\em vec(``Toronto Maple Leafs'')}). This
+capability is established automatically by the system, without any
+additional processing or labeled input.
+
+In feature location, as in general information retrieval, the
+retrieval quality can only be as good as the quality of the developer
+query. Problems such as the dictionary mismatch problem, as well as
+the propensity of users to issue short queries, have previously been
+observed as common difficulties in feature
+location~\cite{haiduc_effect_2011, damevski_field_2015}. Semantic
+similarity can be a useful capability in mitigating these problems, by
+performing query recommendation and automatic query extension.
+
+To illustrate this capability for source code based corpora, we
+provide a set of illustrative examples gathered on the ArgoUML project
+(v. 0.22) (\url{http://argouml.tigris.org}) in Table~\ref{tab:semsim}.
+
+
+\begin{table}[h!]
+\centering
+\small
+\caption{Examples of semantically similar terms and their weight for a deep model trained on
+the ArgoUML code base. Only terms with weight > 0.6 are included.}
+\label{tab:semsim}
+\begin{tabular}{|p{0.20\columnwidth}|p{0.70\columnwidth}|}
+\hline \hline
+Term(s) & Semantically Similar Terms and Weight\\ \hline 
+association & (roles 0.75), (role 0.72), (classifier 0.72), ('connection', 0.61) \\ \hline
+save & (saved 0.69), (pcs 0.64), (exists 0.63), (projects 0.60), (close, 0.61), (file 0.60) \\ \hline
+file & [filter 0.78), (zip 0.74), (exists 0.74), (persister 0.71), (files 0.69), (directory 0.69) \\ \hline
+explorer, option, creating, diagrams, elements, useful, lost, diagram, particular & (makes 0.68), (unwanted 0.68), (design 0.67), (commented 0.67) \\
+\hline \hline
+\end{tabular}
+\end{table}
+

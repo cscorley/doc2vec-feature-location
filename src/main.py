@@ -96,10 +96,14 @@ def run_experiment(project):
     # vec relies on words being in order, so lets make a special corpus.
     queries_vec = create_queries_vec(project)
     release_corpus_vec = create_release_corpus_vec(project, repos)
-    release_vec, release_vec_sums = run_basic_vec(project, release_corpus_vec,
-                                                  release_corpus_vec,
-                                                  queries_vec, goldsets,
-                                                  'Release', use_level=True)
+
+    release_vec = run_basic_vec(project, release_corpus_vec,
+                                release_corpus_vec, queries_vec, goldsets,
+                                'Release', use_level=True)
+
+    release_vec_sums = run_basic_vec_sums(project, release_corpus_vec,
+                                          release_corpus_vec, queries_vec,
+                                          goldsets, 'Release', use_level=True)
 
 
     queries = create_queries(project)
@@ -108,21 +112,19 @@ def run_experiment(project):
                             goldsets, 'Release', use_level=True)
 
     do_science('release_lda', release_lda,
-               'release_vec', release_vec)
+            'release_vec', release_vec)
 
     do_science('release_vec', release_vec,
-               'release_vec_sums', release_vec_sums)
+            'release_vec_sums', release_vec_sums)
 
 def write_ranks(project, prefix, ranks):
     with smart_open(os.path.join(project.full_path, '-'.join([prefix, project.level, str(project.num_topics), 'ranks.csv.gz'])), 'w') as f:
         writer = csv.writer(f)
         writer.writerow(['id', 'rank', 'distance', 'item'])
 
-        for gid, rl in ranks.items():
-            for idx, rank in enumerate(rl):
-                dist, meta = rank
-                d_name, d_repo = meta
-                writer.writerow([gid, idx+1, dist, to_utf8(d_name)])
+        for gid, rank in ranks.items():
+            for idx, dist, d_name in rank:
+                writer.writerow([gid, idx, dist, to_utf8(d_name)])
 
 def read_ranks(project, prefix):
     ranks = dict()
@@ -133,17 +135,35 @@ def read_ranks(project, prefix):
             if g_id not in ranks:
                 ranks[g_id] = list()
 
-            ranks[g_id].append( (dist, (to_unicode(d_name), 'x')) )
+            ranks[g_id].append((int(idx), float(dist), to_unicode(d_name)))
 
     return ranks
 
-def run_basic_vec(project, corpus, other_corpus, queries, goldsets, kind, use_level=False):
-    vec_first_rels = list()
+def run_basic_vec_sums(project, corpus, other_corpus, queries, goldsets, kind, use_level=False):
     vec_first_rels_sums = list()
     if project.d2v:
         try:
-            vec_ranks = read_ranks(project, kind.lower() + '_vec')
             vec_ranks_sums = read_ranks(project, kind.lower() + '_vec_sums')
+            logger.info("Sucessfully read previously written %s vec ranks", kind)
+            exists = True
+        except IOError:
+            exists = False
+
+        if project.force or not exists:
+            vec_model, _ = create_vec_model(project, corpus, kind, use_level=use_level)
+            vec_ranks_sums = get_rank_vec(vec_model, queries, goldsets, other_corpus)
+            write_ranks(project, kind.lower() + '_vec_sums', vec_ranks_sums)
+
+        vec_first_rels_sums = get_frms(vec_ranks_sums)
+
+    return vec_first_rels_sums
+
+
+def run_basic_vec(project, corpus, other_corpus, queries, goldsets, kind, use_level=False):
+    vec_first_rels = list()
+    if project.d2v:
+        try:
+            vec_ranks = read_ranks(project, kind.lower() + '_vec')
             logger.info("Sucessfully read previously written %s vec ranks", kind)
             exists = True
         except IOError:
@@ -154,17 +174,12 @@ def run_basic_vec(project, corpus, other_corpus, queries, goldsets, kind, use_le
 
             vec_query_topic = get_topics_vec(vec_model, queries, try_model=False)
             vec_doc_topic = get_topics_vec(vec_model, other_corpus)
-            vec_ranks = get_rank(vec_query_topic, vec_doc_topic)
-
-            vec_ranks_sums = get_rank_vec(vec_model, queries, other_corpus)
-
+            vec_ranks = get_rank(goldsets, vec_query_topic, vec_doc_topic)
             write_ranks(project, kind.lower() + '_vec', vec_ranks)
-            write_ranks(project, kind.lower() + '_vec_sums', vec_ranks_sums)
 
-        vec_first_rels = get_frms(goldsets, vec_ranks)
-        vec_first_rels_sums = get_frms(goldsets, vec_ranks_sums)
+        vec_first_rels = get_frms(vec_ranks)
 
-    return vec_first_rels, vec_first_rels_sums
+    return vec_first_rels
 
 def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=False):
     """
@@ -188,10 +203,10 @@ def run_basic(project, corpus, other_corpus, queries, goldsets, kind, use_level=
             lda_query_topic = get_topics(lda_model, queries)
             lda_doc_topic = get_topics(lda_model, other_corpus)
 
-            lda_ranks = get_rank(lda_query_topic, lda_doc_topic)
+            lda_ranks = get_rank(goldsets, lda_query_topic, lda_doc_topic)
             write_ranks(project, kind.lower() + '_lda', lda_ranks)
 
-        lda_first_rels = get_frms(goldsets, lda_ranks)
+        lda_first_rels = get_frms(lda_ranks)
 
     return lda_first_rels
 
@@ -200,10 +215,10 @@ def run_temporal(project, repos, corpus, queries, goldsets, force=False):
 
     try:
         lda_ranks = read_ranks(project, 'temporal')
-        lda_rels = get_frms(goldsets, lda_ranks)
+        lda_rels = get_frms(lda_ranks)
 
         vec_ranks = read_ranks(project, 'temporal_vec')
-        vec_rels = get_frms(goldsets, vec_ranks)
+        vec_rels = get_frms(vec_ranks)
         logger.info("Sucessfully read previously written Temporal ranks")
     except IOError:
         force = True
@@ -220,7 +235,7 @@ def run_temporal_helper(project, repos, corpus, queries, goldsets):
     it reaches a commit linked with an issue/query. Will not work on all
     projects.
     """
-    ids = set(i for i,g in goldsets)
+    ids = set(i for i,g in goldsets.items())
     issue2git, git2issue = load_issue2git(project, ids)
 
     logger.info("Stopping at %d commits for %d issues", len(git2issue), len(issue2git))
@@ -270,7 +285,7 @@ def run_temporal_helper(project, repos, corpus, queries, goldsets):
             # do LDA magic
             lda_query_topic = get_topics(lda, queries, by_ids=[qid])
             lda_doc_topic = get_topics(lda, other_corpus)
-            lda_subranks = get_rank(lda_query_topic, lda_doc_topic)
+            lda_subranks = get_rank(goldsets, lda_query_topic, lda_doc_topic)
             if qid in lda_subranks:
                 if qid not in lda_ranks:
                     lda_ranks[qid] = list()
@@ -281,7 +296,7 @@ def run_temporal_helper(project, repos, corpus, queries, goldsets):
                 logger.info('Couldnt find qid %s', qid)
 
             # do vec magic
-            vec_subranks = get_rank_vec(vec, queries, other_corpus, by_ids=[qid])
+            vec_subranks = get_rank_vec(vec, queries, goldsets, other_corpus, by_ids=[qid])
             if qid in vec_subranks:
                 if qid not in vec_ranks:
                     vec_ranks[qid] = list()
@@ -297,13 +312,14 @@ def run_temporal_helper(project, repos, corpus, queries, goldsets):
     write_ranks(project, 'temporal', lda_ranks)
     write_ranks(project, 'temporal_vec', vec_ranks)
 
-    lda_rels = get_frms(goldsets, lda_ranks)
-    vec_rels = get_frms(goldsets, vec_ranks)
+    lda_rels = get_frms(lda_ranks)
+    vec_rels = get_frms(vec_ranks)
 
     return lda_rels, vec_rels
 
 
 def merge_first_rels(a, b, ignore=False):
+    logger.info("Merging %d, %d", len(a), len(b))
     first_rels = dict()
 
     for num, query_id, doc_meta in a:
@@ -328,12 +344,15 @@ def merge_first_rels(a, b, ignore=False):
 
     x = [v[0] for v in first_rels.values()]
     y = [v[1] for v in first_rels.values()]
+    logger.info("Returning merged %d, %d", len(x), len(y))
     return x, y
 
 def do_science(prefixa, relsa, prefixb, relsb, ignore=False):
     # Build a dictionary with each of the results for stats.
 
     x, y = merge_first_rels(relsa, relsb, ignore=ignore)
+
+
 
     print(prefixa+' mrr:', utils.calculate_mrr(x))
     print(prefixb+' mrr:', utils.calculate_mrr(y))
@@ -344,35 +363,32 @@ def do_science(prefixa, relsa, prefixb, relsb, ignore=False):
     #print('friedman:', scipy.stats.friedmanchisquare(x, y, x2, y2))
 
 
-def get_frms(goldsets, ranks):
-    logger.info('Getting FRMS for %d goldsets and %d ranks',
-                len(goldsets), len(ranks))
+def get_frms(ranks):
+    logger.info('Getting FRMS for %d ranks', len(ranks))
     frms = list()
 
-    for g_id, goldset in goldsets:
-        if g_id not in ranks:
-            logger.info('Could not find ranks for goldset id %s', g_id)
-        else:
-            logger.debug('Getting best rank out of %d shas', len(ranks[g_id]))
-            subfrms = list()
-            for idx, rank in enumerate(ranks[g_id]):
-                dist, meta = rank
-                d_name, d_repo = meta
-                if d_name in goldset:
-                    subfrms.append((idx+1, int(g_id), d_name))
-                    break
-
-            # i think this might be cheating? :)
-            subfrms.sort()
-            logger.debug(str(subfrms))
-            if subfrms:
-                frms.append(subfrms[0])
-
+    for r_id, rank in ranks.items():
+        if rank:
+            idx, dist, meta = rank[0]
+            frms.append((idx, r_id, meta))
 
     logger.info('Returning %d FRMS', len(frms))
     return frms
 
-def get_rank_vec(model, queries, corpus, by_ids=None):
+def get_rels(goldset, ranks):
+    rels = list()
+
+    for idx, rank in enumerate(ranks):
+        dist, meta = rank
+        d_name, d_repo = meta
+        if d_name in goldset:
+            rels.append((idx+1, dist, d_name))
+
+    rels.sort()
+
+    return rels
+
+def get_rank_vec(model, queries, goldsets, corpus, by_ids=None):
     queries = LabeledCorpus(queries.fname)
     corpus = LabeledCorpus(corpus.fname)
     logger.info('Getting ranks for Doc2Vec model')
@@ -398,12 +414,17 @@ def get_rank_vec(model, queries, corpus, by_ids=None):
                 sim = model.n_similarity(qwords, dwords)
                 q_dist.append((1.0 - sim, (did, 'UNKNOWN')))
 
-        ranks[qid] = list(sorted(q_dist))
+        q_dist.sort()
+        if qid in goldsets:
+            goldset = goldsets[qid]
+            ranks[qid] = get_rels(goldset, q_dist)
+        else:
+            logger.info("Could not find goldset for query %s", qid)
 
     return ranks
 
 
-def get_rank(query_topic, doc_topic, distance_measure=utils.cosine_distance):
+def get_rank(goldsets, query_topic, doc_topic, distance_measure=utils.cosine_distance):
     logger.info('Getting ranks between %d query topics and %d doc topics',
                 len(query_topic), len(doc_topic))
     ranks = dict()
@@ -415,10 +436,12 @@ def get_rank(query_topic, doc_topic, distance_measure=utils.cosine_distance):
             distance = distance_measure(query, doc)
             q_dist.append((distance, d_meta))
 
-        if qid in ranks:
-            raise Exception("WHAT")
-
-        ranks[qid] = list(sorted(q_dist))
+        q_dist.sort()
+        if qid in goldsets:
+            goldset = goldsets[qid]
+            ranks[qid] = get_rels(goldset, q_dist)
+        else:
+            logger.info("Could not find goldset for query %s", qid)
 
     logger.info('Returning %d ranks', len(ranks))
     return ranks
@@ -478,7 +501,7 @@ def load_goldsets(project):
     with open(os.path.join(project.full_path, 'ids.txt')) as f:
         ids = [x.strip() for x in f.readlines()]
 
-    goldsets = list()
+    goldsets = dict()
     s = 0
     for id in ids:
         try:
@@ -487,7 +510,7 @@ def load_goldsets(project):
                 golds = frozenset(x.strip() for x in f.readlines())
                 s += len(golds)
 
-            goldsets.append((id, golds))
+            goldsets[id] = golds
         except IOError:
             pass
 

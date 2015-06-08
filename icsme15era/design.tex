@@ -31,9 +31,11 @@ statement) influence each other more strongly.
 \centering
 \includegraphics[width=.9\columnwidth]{figures/neuralnet.pdf}
 \caption{A deep learning neural network encodes source code identifiers,
-in the order they appear in the source code, in its input
-layer. Using a deep structure of hidden layers, each term and its
-context receives a semantic vector representation.}
+in the order they appear in the source code, in its input layer. Using
+a deep structure of hidden layers, each term and its context receives
+a semantic vector representation. The output layer consists of vector
+for each term in the corpus; the vector feature size is arbitrary and
+does not need to relate to the number of terms in the corpus.}
 \label{fig:neuralnet}
 \end{figure}
 
@@ -82,7 +84,7 @@ vectors representing each term in the
 corpus~\cite{mikolov_distributed_2013}. Similar vectors can also be
 computed to represent an entire paragraph or
 document~\cite{le_distributed_2014}.  Semantic similarity is the
-notion that these vector are composable semantically (e.g. the result
+notion that these vectors are composable semantically (e.g. the result
 of the operation {\em vec(``Montreal Canadiens'') - vec(``Montreal'') +
 vec(``Toronto'')} is closest to {\em vec(``Toronto Maple Leafs'')}). This
 capability is established automatically by the system, without any
@@ -92,30 +94,39 @@ In feature location, as in general information retrieval, the
 retrieval quality can only be as good as the quality of the developer
 query. Problems such as the dictionary mismatch problem, as well as
 the propensity of users to issue short queries, have previously been
-observed as common difficulties in feature
-location~\cite{haiduc_effect_2011, damevski_field_2015}. Semantic
+observed as common difficulties in using feature location tools in the
+field~\cite{haiduc_effect_2011, damevski_field_2015}. Semantic
 similarity can be a useful capability in mitigating these problems, by
-performing query recommendation and automatic query extension.
+performing query recommendation that allows the user to extend his or
+her queries with terms from the same corpus, or automatic query
+extension.
 
 To illustrate this capability for source code based corpora, we
-provide a set of illustrative examples gathered on the ArgoUML project
-(v. 0.22) (\url{http://argouml.tigris.org}) in Table~\ref{tab:semsim}.
+provide a set of illustrative examples gathered on the ArgoUML code
+base (v. 0.22) (\url{http://argouml.tigris.org}) in
+Table~\ref{tab:semsim}. In many cases semantic similarity provides
+reasonable results for similar terms, though exceptions exist largely
+due to the limited appearance of certain words in the corpus.  We
+anticipate that larger corpora, based on larger code bases, or
+leveraging related code bases or documents, could improve the results
+of semantic similarity even further.
 
 
-\begin{table}[h!]
+\begin{table*}[t]
 \centering
 \small
 \caption{Examples of semantically similar terms and their weight for a deep model trained on
 the ArgoUML code base. Only terms with weight > 0.6 are included.}
 \label{tab:semsim}
-\begin{tabular}{|p{0.20\columnwidth}|p{0.70\columnwidth}|}
-\hline \hline
-Term(s) & Semantically Similar Terms and Weight\\ \hline 
-association & (roles 0.75), (role 0.72), (classifier 0.72), ('connection', 0.61) \\ \hline
-save & (saved 0.69), (pcs 0.64), (exists 0.63), (projects 0.60), (close, 0.61), (file 0.60) \\ \hline
-file & [filter 0.78), (zip 0.74), (exists 0.74), (persister 0.71), (files 0.69), (directory 0.69) \\ \hline
-explorer, option, creating, diagrams, elements, useful, lost, diagram, particular & (makes 0.68), (unwanted 0.68), (design 0.67), (commented 0.67) \\
+\begin{tabular}{|p{0.30\textwidth}|p{0.60\textwidth}|}
+\hline \hline 
+{\em Term(s)} & {\em Semantically Similar Terms and Weight}\\ \hline \hline 
+association & (roles 0.75), (role 0.72), (classifier 0.72), (connection, 0.61) \\ \hline
+save & (saved 0.69), (pcs 0.64), (exists 0.63), (projects 0.60), (close 0.61), (file 0.60) \\ \hline
+file & (filter 0.78), (zip 0.74), (exists 0.74), (persister 0.71), (files 0.69), (directory 0.69) \\ \hline
+file + save & (exists 0.77), (saved 0.74), (filter 0.73), (zip 0.72), (unable 0.67), (projects 0.67), (persister 0.67), (files 0.66), (cant 0.66), (scheme 0.65) \\ \hline
+explorer + diagrams - creating & (nodes 0.71), (deletion 0.67), (perspectives 0.65), (perspective 0.60), (updated 0.60), (modified 0.60)\\
 \hline \hline
 \end{tabular}
-\end{table}
+\end{table*}
 

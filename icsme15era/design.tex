@@ -57,7 +57,17 @@ back to the input layer, among other strategies. The systems are
 trained using backpropagation and gradient descent, techniques common
 to many neural network based models.
 
- 
+%paragraph2vec
+An extension to learning the semantic vector representation of words
+is the use of an additional vector that will encode the representation
+of a larger body of text, such as a paragraph or an entire
+document~\cite{le_distributed_2014}. While comparing word vectors
+indicates semantic relations between two terms, comparing two
+paragraph vectors carries a similar semantic connotation at the
+paragraph level. For instance, the approach has been applied for
+determining the sentiment (i.e. positive, negative) of reviews on a
+popular movie recommendation site.
+
 %preprocessing
 A number of preprocessing steps are commonly performed during the
 indexing phase of feature location systems including word stemming,
@@ -69,15 +79,40 @@ divided into their constituent terms (e.g. addToCart $\rightarrow$
 add,to,cart). 
 
 
+%retrieval
 During the retrieval state of feature location, a similarity measure
 (e.g. cosine similarity) between the words in the query and words in
 each program element is computed. The program elements are ranked
 based on this similarity metric and presented to the developer in
-descending order.
+descending order. 
 
-%Chris: we can talk about inference here too, not sure what you have planned
+If paragraph vectors are used then a special inference process is
+needed to infer a vector representation for the entire query, treated
+as a paragraph in the corpus. Following this, the paragraph vectors of
+the query and each program element (i.e. method or class) can be
+compared to produce the final ranking.
 
 \subsection{Semantic Similarity}
+
+
+\begin{table*}[tb]
+\centering
+\small
+\caption{Examples of semantically similar terms and their weight for a deep model trained on
+the ArgoUML code base. Only terms with weight > 0.6 are included.}
+\label{tab:semsim}
+\begin{tabular}{|p{0.30\textwidth}|p{0.60\textwidth}|}
+\hline \hline 
+{\em Term(s)} & {\em Semantically Similar Terms and Weight}\\ \hline \hline 
+association & (roles 0.75), (role 0.72), (classifier 0.72), (connection, 0.61) \\ \hline
+save & (saved 0.69), (pcs 0.64), (exists 0.63), (projects 0.60), (close 0.61), (file 0.60) \\ \hline
+file & (filter 0.78), (zip 0.74), (exists 0.74), (persister 0.71), (files 0.69), (directory 0.69) \\ \hline
+file + save & (exists 0.77), (saved 0.74), (filter 0.73), (zip 0.72), (unable 0.67), (projects 0.67), (persister 0.67), (files 0.66), (cant 0.66), (scheme 0.65) \\ \hline
+explorer + diagrams - creating & (nodes 0.71), (deletion 0.67), (perspectives 0.65), (perspective 0.60), (updated 0.60), (modified 0.60)\\
+\hline \hline
+\end{tabular}
+\end{table*}
+
 
 The result of the deep learning models described in this paper are
 vectors representing each term in the
@@ -85,8 +120,8 @@ corpus~\cite{mikolov_distributed_2013}. Similar vectors can also be
 computed to represent an entire paragraph or
 document~\cite{le_distributed_2014}.  Semantic similarity is the
 notion that these vectors are composable semantically (e.g. the result
-of the operation {\em vec(``Montreal Canadiens'') - vec(``Montreal'') +
-vec(``Toronto'')} is closest to {\em vec(``Toronto Maple Leafs'')}). This
+of the operation {\em vec(``Pittsburgh Penguins'') - vec(``Pittsburgh'') +
+vec(``Washington'')} is closest to {\em vec(``Washington Capitals'')}). This
 capability is established automatically by the system, without any
 additional processing or labeled input.
 
@@ -111,22 +146,4 @@ anticipate that larger corpora, based on larger code bases, or
 leveraging related code bases or documents, could improve the results
 of semantic similarity even further.
 
-
-\begin{table*}[t]
-\centering
-\small
-\caption{Examples of semantically similar terms and their weight for a deep model trained on
-the ArgoUML code base. Only terms with weight > 0.6 are included.}
-\label{tab:semsim}
-\begin{tabular}{|p{0.30\textwidth}|p{0.60\textwidth}|}
-\hline \hline 
-{\em Term(s)} & {\em Semantically Similar Terms and Weight}\\ \hline \hline 
-association & (roles 0.75), (role 0.72), (classifier 0.72), (connection, 0.61) \\ \hline
-save & (saved 0.69), (pcs 0.64), (exists 0.63), (projects 0.60), (close 0.61), (file 0.60) \\ \hline
-file & (filter 0.78), (zip 0.74), (exists 0.74), (persister 0.71), (files 0.69), (directory 0.69) \\ \hline
-file + save & (exists 0.77), (saved 0.74), (filter 0.73), (zip 0.72), (unable 0.67), (projects 0.67), (persister 0.67), (files 0.66), (cant 0.66), (scheme 0.65) \\ \hline
-explorer + diagrams - creating & (nodes 0.71), (deletion 0.67), (perspectives 0.65), (perspective 0.60), (updated 0.60), (modified 0.60)\\
-\hline \hline
-\end{tabular}
-\end{table*}
 

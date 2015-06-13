@@ -398,7 +398,7 @@ def get_rank_vec(model, queries, goldsets, corpus, by_ids=None):
         q_dist = list()
 
         # labeledcorpus is arhghhh
-        qid = query.labels[0].replace('DOC__', '')
+        qid = query.tags[0].replace('DOC__', '')
         if by_ids is not None and qid not in by_ids:
             logger.info('skipping')
             continue
@@ -406,7 +406,7 @@ def get_rank_vec(model, queries, goldsets, corpus, by_ids=None):
         qwords = filter(lambda x: x in model.vocab, query.words)
 
         for doc in corpus:
-            did = doc.labels[0].replace('DOC__', '')
+            did = doc.tags[0].replace('DOC__', '')
             dwords = filter(lambda x: x in model.vocab, doc.words)
 
             if len(dwords) and len(qwords):

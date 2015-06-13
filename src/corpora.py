@@ -583,7 +583,7 @@ class LabeledCorpus(gensim.corpora.IndexedCorpus):
             for line in f:
                 line = gensim.utils.to_unicode(line)
                 words = line.split()
-                yield gensim.models.doc2vec.LabeledSentence(words=words[2:], labels=["DOC__%s" % words[0]])
+                yield gensim.models.doc2vec.TaggedDocument(words=words[2:], tags=["DOC__%s" % words[0]])
 
     def __len__(self):
         if self.length == None:

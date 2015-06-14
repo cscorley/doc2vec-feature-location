@@ -25,7 +25,7 @@ clean: clean-web clean-corpora clean-models clean-results
 	find src tests -name '*.pyc' -exec rm {} \;
 
 clean-corpora: clean-taser
-	find data -name '*.labeled*' -exec rm {} \;
+	find data -name '*labeled*' -exec rm {} \;
 	find data -name '*.mallet.gz.index' -exec rm {} \;
 	find data -name '*.mallet.index.gz' -exec rm {} \;
 	find data -name '*.mallet.gz' -exec rm {} \;

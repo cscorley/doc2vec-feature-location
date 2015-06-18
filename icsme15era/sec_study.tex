@@ -12,14 +12,21 @@
 % 1) would be nice to also see the number of terms and number of unique terms per each project
 % 2) i would definitely show both word2vec and doc2vec features and compare to LDA and VSM
 % 3) make sure you mention the exact configuration of preprocessing steps (e.g. no word stemming)
-%
+
+
+In this section we describe the design of a study in which we compare
+a deep-learning-based FLT to a baseline topic-modeling-based FLT.  In
+particular, we use Document Vectors and latent Dirichlet allocation (LDA)
+respectively for each.
+
+%We describe the case study using the Goal-Question-Metric approach~\cite{Basili-etal_94}.  
+
 \subsection{Subject software systems}
 
-All of our subject software systems come from two publicly-available datasets.
-The first is a dataset of six software systems by Dit et
-al.~\cite{Dit-etal_2013} and contains method-level goldsets.  This dataset was
-automatically extracted from changesets that relate to the queries (issue
-reports).
+We employ the dataset of six software systems by Dit et
+al.~\cite{Dit-etal_2013}.  The dataset contains 633 queries for method-level
+goldsets, as seen in Table~\ref{table:subjects}.  This dataset was automatically
+extracted from changesets that relate to the queries (issue reports).
 
 \begin{table}[t]
 \renewcommand{\arraystretch}{1.3}
@@ -43,16 +50,41 @@ reports).
 \label{table:subjects}
 \end{table}
 
-
 ArgoUML is a UML diagramming tool\footnote{\url{http://argouml.tigris.org/}}.
 jEdit is a text editor\footnote{\url{http://www.jedit.org/}}.
 JabRef is a BibTeX bibliography management tool\footnote{\url{http://jabref.sourceforge.net/}}.
 muCommander is a cross-platform file manager\footnote{\url{http://www.mucommander.com/}}.
 
-\subsection{Methodology}
-
-
 \subsection{Setting}
+
+We implemented our approach in Python v2.7 using the topic modeling library,
+Gensim~\cite{Gensim} and our ANTLR v3 Java-based tool,
+Teaser\footnote{\url{https://github.com/nkraft/teaser}}, for parsing source
+code.
+
+To build our corpora, we extract the documents representing methods from every
+Java file in the snapshot.  The text of inner an method (e.g., a method inside
+an anonymous class) is only attributed to that method, and not the containing
+one.  Comments, literals, and identifiers within a method are considered as text
+of the method.  Block comments immediately preceding an method are also included
+in this text.
+
+After extracting documents and tokenizing, we split the tokens based on camel
+case, underscores, and non-letters.  We only keep the split tokens; original
+tokens are discarded.  We normalize to lower case before filtering non-letters,
+English stop words~\cite{StopWords}, Java keywords, and words shorter than three
+characters long.  We do not stem words. Here, we must be careful to not lose
+ordering of the words, as this is crucial for the deep learning approach.
+
+We then instantiate each model. In Gensim, the document vector deep learning
+approach is known as Doc2Vec (D2V). We train the D2V model on the corpora, and
+query it to obtain rankings of methods related to the query.
+% Vec summation vs vec inference
+%
+We then do the same for LDA, training it and querying the model via inference of
+the query. All rankings are achieved by performing pairwise similarity using
+cosine distance.
+
 
 \subsection{Data Collection and Analysis}
 

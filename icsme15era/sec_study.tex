@@ -125,12 +125,34 @@ rank each subject system.
 
 \input{tables/mrr_mega}
 
-Table~\ref{tab:mrr} summarizes the results of each subject system for each
-model and query approach.
+Table~\ref{tab:mrr} summarizes the results of each subject system for each model
+and query approach. We bold which of the three approaches is greatest for each
+value $K$ at steps of $100$. To the right of Table~\ref{tab:mrr} is
+Figure~\ref{fig:mrr}, a graphical view of the all values of $K$ at steps of
+$25$.
+
+There are a handful of clear trends. For example, the ArgoUML projects perform
+similarily across each version. For all three versions, the Doc2Vec word vector
+summation performs best for many values of $K$, with few exceptions in favor of
+LDA.  Interestingly, Doc2Vec inference has the worst performance across all three
+systems. This trend continues with JabRef and jEdit, but does not for
+muCommander.  Surprisingly, Doc2Vec inference always performs best for muCommander.
+
+A second trend is how little features, $K$, Doc2Vec needs in order to perform
+well. As shown in Figure~\ref{fig:mrr}, many of the projects achieve high
+Doc2Vec summation performance by $K=100$, and plateaus after that, while LDA
+requires as many as 400 to 500 topics.
+
 
 Tables~\ref{tab:trainingtimes} and~\ref{tab:querytimes} summarizes the time taken
 to train each model on the corpus and the average query and rank time for all
 queries in the goldset.
+
+To train a model is almost inconsequential with Doc2Vec, as it finishes in under
+3 seconds for all systems, while LDA can take up to nearly a minute and a half.
+The average time to query and rank all queries in the goldset shows that Doc2Vec
+inference is fastest, while the word vector summation is on par or worse than
+LDA.
 
 
 \subsection{Discussion}

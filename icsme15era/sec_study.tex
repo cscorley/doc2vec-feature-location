@@ -117,9 +117,10 @@ query $Q_i$.
 We also want to explore the differences in terms of computational overhead for
 using each model.  We collect information such as time taken to train the model
 and the time taken to process the goldsets, i.e., the average time to query and
-rank each subject system.
+rank each subject system. We train and query all models on a system running
+ArchLinux with an Intel Core-i7 4Hz processor and 32 GB of memory.
 
-\subsection{Results}
+\subsection{Results and Discussion}
 
 \input{tables/times}
 
@@ -132,34 +133,24 @@ Figure~\ref{fig:mrr}, a graphical view of the all values of $K$ at steps of
 $25$.
 
 There are a handful of clear trends. For example, the ArgoUML projects perform
-similarily across each version. For all three versions, the Doc2Vec word vector
+similarily across each version. For all three versions, the D2V word vector
 summation performs best for many values of $K$, with few exceptions in favor of
-LDA.  Interestingly, Doc2Vec inference has the worst performance across all three
+LDA.  Interestingly, D2V inference has the worst performance across all three
 systems. This trend continues with JabRef and jEdit, but does not for
-muCommander.  Surprisingly, Doc2Vec inference always performs best for muCommander.
+muCommander.  Surprisingly, D2V inference always performs best for muCommander.
 
-A second trend is how little features, $K$, Doc2Vec needs in order to perform
-well. As shown in Figure~\ref{fig:mrr}, many of the projects achieve high
-Doc2Vec summation performance by $K=100$, and plateaus after that, while LDA
-requires as many as 400 to 500 topics.
-
+A second trend is how little features, $K$, D2V needs in order to perform well.
+As shown in Figure~\ref{fig:mrr}, many of the projects achieve high D2V
+summation performance by $K=100$, and plateaus after that. This is in contrast
+to LDA, which can require as many as 300 to 500 topics.
 
 Tables~\ref{tab:trainingtimes} and~\ref{tab:querytimes} summarizes the time taken
 to train each model on the corpus and the average query and rank time for all
 queries in the goldset.
 
-To train a model is almost inconsequential with Doc2Vec, as it finishes in under
-3 seconds for all systems, while LDA can take up to nearly a minute and a half.
-The average time to query and rank all queries in the goldset shows that Doc2Vec
+To train a model is almost inconsequential with D2V, as it finishes in under
+3 seconds for all systems. LDA can take up to nearly a minute and a half.
+The average time to query and rank all queries in the goldset shows that D2V
 inference is fastest, while the word vector summation is on par or worse than
 LDA.
 
-
-\subsection{Discussion}
-
-
-% conclusing remarks:
-%   doc2vec faster, could be easier to implement directly into an IDE search
-%   tool
-%   doc2vec inference needs more exploration for parameter tweaking
-%   doc2vec vector summation, although slower, is at an acceptable time

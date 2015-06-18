@@ -19,7 +19,7 @@ a deep-learning-based FLT to a baseline topic-modeling-based FLT.  In
 particular, we use Document Vectors and latent Dirichlet allocation (LDA)
 respectively for each.
 
-%We describe the case study using the Goal-Question-Metric approach~\cite{Basili-etal_94}.  
+%We describe the case study using the Goal-Question-Metric approach~\cite{Basili-etal_94}.
 
 \subsection{Subject software systems}
 
@@ -58,7 +58,7 @@ muCommander is a cross-platform file manager\footnote{\url{http://www.mucommande
 \subsection{Setting}
 
 We implemented our approach in Python v2.7 using the topic modeling library,
-Gensim~\cite{Gensim} and our ANTLR v3 Java-based tool,
+Gensim~\cite{Rehurek-Sojk_2010} and our ANTLR v3 Java-based tool,
 Teaser\footnote{\url{https://github.com/nkraft/teaser}}, for parsing source
 code.
 
@@ -72,26 +72,65 @@ in this text.
 After extracting documents and tokenizing, we split the tokens based on camel
 case, underscores, and non-letters.  We only keep the split tokens; original
 tokens are discarded.  We normalize to lower case before filtering non-letters,
-English stop words~\cite{StopWords}, Java keywords, and words shorter than three
+English stop words~\cite{Fox_1992}, Java keywords, and words shorter than three
 characters long.  We do not stem words. Here, we must be careful to not lose
 ordering of the words, as this is crucial for the deep learning approach.
 
-We then instantiate each model. In Gensim, the document vector deep learning
-approach is known as Doc2Vec (D2V). We train the D2V model on the corpora, and
-query it to obtain rankings of methods related to the query.
-% Vec summation vs vec inference
-%
-We then do the same for LDA, training it and querying the model via inference of
-the query. All rankings are achieved by performing pairwise similarity using
-cosine distance.
+For LDA, the approach is straightforward. We train the LDA model and query it
+using it's built-in inference methods.
+\todo{more blah blah here}
+
+In Gensim, the document vector deep learning approach is known as Doc2Vec (D2V).
+We train the D2V model on the corpora, and query it to obtain rankings of
+methods related to the query. Because D2V is a neural network with multiple
+layers, i.e., the document vector layer and the word vector layer, there are two
+approaches for measuring document similarity.
+
+For the document-based layer, we can infer the document vector of the query and
+perform pair-wise similarity of it to the each method's document vector within
+the model.  We also found it useful to consider the word-based layer. For this,
+we can get the word vector for each word in the query and sum them. We then take
+the query's summed vector and also perform pair-wise similarity to each document
+vector in the model.
+
+Regarding configuration of the two models, we choose various sizes of $K$ for
+each, where $K$ for LDA is the number of topics and for D2V is the number of
+features (i.e., document vector length).
 
 
 \subsection{Data Collection and Analysis}
 
+To evaluate the performance of an FLT we cannot use measures such as precision
+and recall. This is because the FLT creates the rankings pairwise, causing every
+entity being searched to appear in the rankings.  Poshyvanyk et al. define an
+effectiveness measure that can be used for FLTs~\cite{Poshyvanyk-etal_2007}.
+The effectiveness measure is the rank of the first relevant document and
+represents the number of source code entities a developer would have to view
+before reaching a relevant one.  The effectiveness measure allows evaluating the
+FLT by using the mean reciprocal rank (MRR)~\cite{Voorhees_1999}: %, defined as:
+\begin{equation}
+    MRR = \frac{1}{|Q|} \sum_{i=1}^{|Q|} \frac{1}{e_i}
+\end{equation}
+where $Q$ is the set of queries and $e_i$ is the effectiveness measure for some
+query $Q_i$.
+
+We also want to explore the differences in terms of computational overhead for
+using each model.  We collect information such as time taken to train the model
+and the time taken to process the goldsets, i.e., the average time to query and
+rank each subject system.
+
 \subsection{Results}
 
 \input{tables/mrr_mega}
+
+Table~\ref{tab:mrr} summarizes the results of each subject system for each
+model and query approach.
+
 \input{tables/times}
+
+Tables~\ref{tab:trainingtimes} and~\ref{tab:querytimes} summarizes the time taken
+to train each model on the corpus and the average query and rank time for all
+queries in the goldset.
 
 
 \subsection{Discussion}

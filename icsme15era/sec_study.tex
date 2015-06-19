@@ -80,9 +80,9 @@ For LDA, the approach is straightforward. We train the LDA model and query it
 using it's built-in inference methods.
 \todo{more blah blah here}
 
-In Gensim, the document vector deep learning approach is known as Doc2Vec (D2V).
-We train the D2V model on the corpora, and query it to obtain rankings of
-methods related to the query. Because D2V is a neural network with multiple
+In Gensim, the document vector deep learning approach is known as Doc2Vec (\dv).
+We train the \dv\ model on the corpora, and query it to obtain rankings of
+methods related to the query. Because \dv\ is a neural network with multiple
 layers, i.e., the document vector layer and the word vector layer, there are two
 approaches for measuring document similarity.
 
@@ -94,7 +94,7 @@ the query's summed vector and also perform pair-wise similarity to each document
 vector in the model.
 
 Regarding configuration of the two models, we choose various sizes of $K$ for
-each, where $K$ for LDA is the number of topics and for D2V is the number of
+each, where $K$ for LDA is the number of topics and for \dv\ is the number of
 features (i.e., document vector length).
 
 
@@ -133,14 +133,14 @@ Figure~\ref{fig:mrr}, a graphical view of the all values of $K$ at steps of
 $25$.
 
 There are a handful of clear trends. For example, the ArgoUML projects perform
-similarily across each version. For all three versions, the D2V word vector
+similarily across each version. For all three versions, the \dv\ word vector
 summation performs best for many values of $K$, with few exceptions in favor of
-LDA.  Interestingly, D2V inference has the worst performance across all three
+LDA.  Interestingly, \dv\ inference has the worst performance across all three
 systems. This trend continues with JabRef and jEdit, but does not for
-muCommander.  Surprisingly, D2V inference always performs best for muCommander.
+muCommander.  Surprisingly, \dv\ inference always performs best for muCommander.
 
-A second trend is how little features, $K$, D2V needs in order to perform well.
-As shown in Figure~\ref{fig:mrr}, many of the projects achieve high D2V
+A second trend is how little features, $K$, \dv\ needs in order to perform well.
+As shown in Figure~\ref{fig:mrr}, many of the projects achieve high \dv\ 
 summation performance by $K=100$, and plateaus after that. This is in contrast
 to LDA, which can require as many as 300 to 500 topics.
 
@@ -148,9 +148,9 @@ Tables~\ref{tab:trainingtimes} and~\ref{tab:querytimes} summarizes the time take
 to train each model on the corpus and the average query and rank time for all
 queries in the goldset.
 
-To train a model is almost inconsequential with D2V, as it finishes in under
+To train a model is almost inconsequential with \dv, as it finishes in under
 3 seconds for all systems. LDA can take up to nearly a minute and a half.
-The average time to query and rank all queries in the goldset shows that D2V
+The average time to query and rank all queries in the goldset shows that \dv\ 
 inference is fastest, while the word vector summation is on par or worse than
 LDA.
 

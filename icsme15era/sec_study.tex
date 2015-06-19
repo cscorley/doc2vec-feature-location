@@ -135,20 +135,21 @@ There are a handful of clear trends. For example, the ArgoUML projects perform
 similarily across each version. For all three versions, the \dv\ word vector
 summation performs best for many values of $K$, with few exceptions in favor of
 LDA.  Interestingly, \dv\ inference has the worst performance across all three
-systems. This trend continues with JabRef and jEdit, but does not for
+versions. This trend continues with JabRef and jEdit, but does not for
 muCommander.  Surprisingly, \dv\ inference always performs best for muCommander.
 
-A second trend is how little features, $K$, \dv\ needs in order to perform well.
+A second trend is how few features ($K$) that \dv\ needs to perform well.
 As shown in Figure~\ref{fig:mrr}, many of the projects achieve high \dv\ 
-summation performance by $K=100$, and plateaus after that. This is in contrast
-to LDA, which can require as many as 300 to 500 topics.
+summation performance by $K=100$, and plateaus after that. By contrast,
+LDA can require as many as 300 to 500 topics.
+This observation is noteworthy because fewer topics generally implies less training time.
 
-Tables~\ref{tab:trainingtimes} and~\ref{tab:querytimes} summarizes the time taken
+Tables~\ref{tab:trainingtimes} and~\ref{tab:querytimes} summarize the time taken
 to train each model on the corpus and the average query and rank time for all
 queries in the goldset.
 
-To train a model is almost inconsequential with \dv, as it finishes in under
-3 seconds for all systems. LDA can take up to nearly a minute and a half.
+Little time is required to train a \dv\ model --- training finishes in under
+3 seconds for all systems. On the other hand, training an LDA model can take up to about 90 seconds.
 The average time to query and rank all queries in the goldset shows that \dv\ 
 inference is fastest, while the word vector summation is on par or worse than
 LDA.

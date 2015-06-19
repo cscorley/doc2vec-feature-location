@@ -14,12 +14,25 @@
 %   doc2vec vector summation, although slower, is at an acceptable time
 
 
-In this work we present a preliminary study on applying a deep-learning-based
-FLT using document vectors (\dv). We find that training the document vector
-model has low computational overhead (i.e., is quick), while maintaining
+In this work we present a preliminary study of a deep-learning-based
+FLT using document vectors (\dv). We find that training the \dv\ 
+model has low computational overhead (i.e., is fast), while maintaining
 accuracy on par with LDA. We find \dv\ to be a promising solution to implementing
-smarter developer search tools, something heavier-weight model such as LDA have
-yet to accomplish.
+smarter developer search tools in the IDE, a task to which more computationally-intensive models such as LDA are less well-suited.
 
-Future work includes investigating the approaches performance at differing granularities.
-Additionally, work is needed to investigate effective parameter configurations for the model.
+%Future work includes investigating the approaches performance at differing granularities.
+%Additionally, work is needed to investigate effective parameter configurations for the model.
+One direction for future work is to explore the effects of parameter tuning on the performance of \dv.
+Multiple studies~\cite{Biggers-etal_2014,Panichella-etal_2013a} show that selection of appropriate parameter values is key to the performance of an LDA-based FLT.
+Thus, the first question to address is whether the same is true of a \dv-based FLT, and if so, the next question is how to select \dv\ parameters for a particular subject system.
+The results of our study show that a \dv-based FLT can provide better accuracy than an LDA-based FLT while requiring fewer computational resources, and more intelligent parameter selection for \dv\ could further improve its accuracy.
+
+Another direction for future work is to use the semantic relations encoded by a \dv\ model for query recommendation or refinement.
+We would like to investigate the efficacy of these semantic relations for recommending query terms based on a partial query.
+That is, while a developer is entering a query, a recommender could use a \dv\ model of the subject system to recommend additional query terms.
+Such an approach would be similar (in function) to the ones implemented in the Sando~\cite{Shepherd:2012} and CONQUER~\cite{CONQUER_2013}.
+Similarly, given its relative computational efficiency, using \dv\ as the basis for an IDE-based search tool is a realistic goal.
+
+Further directions for future work include extending the \dv\ model to incorporate program structure information,
+an approach which has shown useful when combined with text retrieval models~\cite{Panichella-etal_2013,Saha-etal_2013,Bassett-Kraft_2013},
+or extending the \dv\ model to incorporate natural language information such as part-of-speech tags~\cite{Fry-etal_2008} or phrasal representations~\cite{Hill-etal_2011}.

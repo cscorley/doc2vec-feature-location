@@ -29,7 +29,7 @@ Most things related to this project can be found in the GitHub repository.
 
 Some files which you might find of immediate interest:
 
-- [Preprint](http://christop.club/publications/pdf/Corley-etal_2015a.pdf
+- [Preprint](http://christop.club/publications/pdfs/Corley-etal_2015a.pdf)
 
 
 ### Dataset

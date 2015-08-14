@@ -28,11 +28,12 @@ goldsets, as seen in Table~\ref{table:subjects},  and was automatically
 extracted from changesets that relate to the queries (issue reports).
 
 \begin{table}[t]
-\renewcommand{\arraystretch}{1.3}
-\footnotesize
+%\renewcommand{\arraystretch}{1.3}
+%\footnotesize
+\small
 \centering
 \caption{Subject System Sizes and Queries}
-\begin{tabular}{lrrr}
+\begin{tabular}{lrr}
     \toprule
     Subject System     & Methods & Queries    \\    %& Goldset Methods
     \midrule                                        %
@@ -101,12 +102,10 @@ features (i.e., document vector length).
 
 To evaluate the performance of an FLT we cannot use measures such as precision
 and recall. This is because the FLT creates the rankings pairwise, causing every
-entity being searched to appear in the rankings.  Poshyvanyk et al. define an
-effectiveness measure that can be used for FLTs~\cite{Poshyvanyk-etal_2007}.
-The effectiveness measure is the rank of the first relevant document and
+entity being searched to appear in the rankings.  Similar to the study of Poshyvanyk et al.~\cite{Poshyvanyk-etal_2007},
+for an effectiveness measure we use the rank of the first relevant document, which
 represents the number of source code entities a developer would have to view
-before reaching a relevant one.  The effectiveness measure allows evaluating the
-FLT by using the mean reciprocal rank (MRR)~\cite{Voorhees_1999}: %, defined as:
+before reaching a relevant one. The Mean Reciprocal Rank (MRR)~\cite{Voorhees_1999} is defined as:
 \begin{equation}
     MRR = \frac{1}{|Q|} \sum_{i=1}^{|Q|} \frac{1}{e_i}
 \end{equation}
@@ -117,7 +116,7 @@ We also want to explore the differences in terms of computational overhead for
 using each model.  We collect information such as time taken to train the model
 and the time taken to process the goldsets, i.e., the average time to query and
 rank each subject system. We train and query all models on a system running
-ArchLinux with an Intel Core-i7 4Hz processor and 32 GB of memory.
+ArchLinux with an Intel Core-i7 4GHz processor and 32 GB of memory.
 
 \subsection{Results and Discussion}
 
